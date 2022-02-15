@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  test-db:
+    image: postgres:13-alpine
+    container_name: ${PROJECT}_test_db
+    ports:
+      - '5433:5432'
+    environment:
+      - POSTGRES_USER=${TEST_POSTGRES_USERNAME}
+      - POSTGRES_PASSWORD=${TEST_POSTGRES_PASSWORD}
+      - POSTGRES_DB=${TEST_POSTGRES_DATABASE}
+    restart: always

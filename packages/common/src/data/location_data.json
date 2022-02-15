@@ -1,0 +1,371 @@
+{
+  "has": {
+    "byId": {
+      "VancouverCoastal": {
+        "id": "VancouverCoastal",
+        "name": "Vancouver/Coastal",
+        "hsdas": ["Richmond", "Vancouver", "NorthShoreCoastGaribaldi"]
+      },
+      "FraserRegion": {
+        "id": "FraserRegion",
+        "name": "Fraser Region",
+        "hsdas": ["FraserEast", "FraserNorth", "FraserSouth"]
+      },
+      "VancouverIslandRegion": {
+        "id": "VancouverIslandRegion",
+        "name": "Vancouver Island Region",
+        "hsdas": ["SouthVancouverIsland", "CentralVancouverIsland", "NorthVancouverIsland"]
+      },
+      "InteriorRegion": {
+        "id": "InteriorRegion",
+        "name": "Interior Region",
+        "hsdas": ["EastKootenay", "KootenayBoundary", "Okanagan", "ThompsonCaribooShuswap"]
+      },
+      "NorthernRegion": {
+        "id": "NorthernRegion",
+        "name": "Northern Region",
+        "hsdas": ["Northwest", "NorthernInterior", "Northeast"]
+      }
+    },
+    "allIds": [
+      "VancouverCoastal",
+      "FraserRegion",
+      "VancouverIslandRegion",
+      "InteriorRegion",
+      "NorthernRegion"
+    ]
+  },
+  "hsdas": {
+    "byId": {
+      "Richmond": { "id": "Richmond", "name": "Richmond", "lhas": ["Richmond"] },
+      "Vancouver": { "id": "Vancouver", "name": "Vancouver", "lhas": ["Vancouver"] },
+      "NorthShoreCoastGaribaldi": {
+        "id": "NorthShoreCoastGaribaldi",
+        "name": "North Shore-Coast Garibaldi",
+        "lhas": [
+          "NorthVancouver",
+          "WestVancouverBowenIsland",
+          "SunshineCoast",
+          "PowellRiver",
+          "HoweSound",
+          "BellaCoolaValley",
+          "CentralCoast"
+        ]
+      },
+      "FraserEast": {
+        "id": "FraserEast",
+        "name": "Fraser East",
+        "lhas": ["Hope", "Chilliwack", "Abbotsford", "Mission", "AgassizHarrison"]
+      },
+      "FraserNorth": {
+        "id": "FraserNorth",
+        "name": "Fraser North",
+        "lhas": ["NewWestminster", "Burnaby", "MapleRidgePittMeadows", "TriCities"]
+      },
+      "FraserSouth": {
+        "id": "FraserSouth",
+        "name": "Fraser South",
+        "lhas": ["Langley", "Delta", "Surrey", "SouthSurreyWhiteRock"]
+      },
+      "SouthVancouverIsland": {
+        "id": "SouthVancouverIsland",
+        "name": "South Vancouver Island",
+        "lhas": ["GreaterVictoria", "WesternCommunities", "SaanichPeninsula", "SouthernGulfIslands"]
+      },
+      "CentralVancouverIsland": {
+        "id": "CentralVancouverIsland",
+        "name": "Central Vancouver Island",
+        "lhas": [
+          "CowichanValleySouth",
+          "CowichanValleyWest",
+          "CowichanValleyNorth",
+          "GreaterNanaimo",
+          "Oceanside",
+          "AlberniClayoquot"
+        ]
+      },
+      "NorthVancouverIsland": {
+        "id": "NorthVancouverIsland",
+        "name": "North Vancouver Island",
+        "lhas": [
+          "ComoxValley",
+          "GreaterCampbellRiver",
+          "VancouverIslandWest",
+          "VancouverIslandNorth"
+        ]
+      },
+      "EastKootenay": {
+        "id": "EastKootenay",
+        "name": "East Kootenay",
+        "lhas": ["Fernie", "Cranbrook", "Kimberley", "Windermere", "Creston", "Golden"]
+      },
+      "KootenayBoundary": {
+        "id": "KootenayBoundary",
+        "name": "Kootenay Boundary",
+        "lhas": [
+          "KootenayLake",
+          "Nelson",
+          "Castlegar",
+          "ArrowLakes",
+          "Trail",
+          "GrandForks",
+          "KettleValley"
+        ]
+      },
+      "Okanagan": {
+        "id": "Okanagan",
+        "name": "Okanagan",
+        "lhas": [
+          "SouthernOkanagan",
+          "Penticton",
+          "Keremeos",
+          "Princeton",
+          "ArmstrongSpallumcheen",
+          "Vernon",
+          "CentralOkanagan",
+          "Summerland",
+          "Enderby"
+        ]
+      },
+      "ThompsonCaribooShuswap": {
+        "id": "ThompsonCaribooShuswap",
+        "name": "Thompson Cariboo Shuswap",
+        "lhas": [
+          "Revelstoke",
+          "SalmonArm",
+          "Kamloops",
+          "100MileHouse",
+          "NorthThompson",
+          "CaribooChilcotin",
+          "Lillooet",
+          "SouthCariboo",
+          "Merritt"
+        ]
+      },
+      "Northwest": {
+        "id": "Northwest",
+        "name": "Northwest",
+        "lhas": [
+          "HaidaGwaii",
+          "SnowCountry",
+          "PrinceRupert",
+          "UpperSkeena",
+          "Smithers",
+          "Kitimat",
+          "Stikine",
+          "Terrace",
+          "Nisgaa",
+          "TelegraphCreek"
+        ]
+      },
+      "NorthernInterior": {
+        "id": "NorthernInterior",
+        "name": "Northern Interior",
+        "lhas": ["Quesnel", "BurnsLake", "Nechako", "PrinceGeorge"]
+      },
+      "Northeast": {
+        "id": "Northeast",
+        "name": "Northeast",
+        "lhas": ["PeaceRiverSouth", "PeaceRiverNorth", "FortNelson"]
+      }
+    },
+    "allIds": [
+      "Richmond",
+      "Vancouver",
+      "NorthShoreCoastGaribaldi",
+      "FraserEast",
+      "FraserNorth",
+      "FraserSouth",
+      "SouthVancouverIsland",
+      "CentralVancouverIsland",
+      "NorthVancouverIsland",
+      "EastKootenay",
+      "KootenayBoundary",
+      "Okanagan",
+      "ThompsonCaribooShuswap",
+      "Northwest",
+      "NorthernInterior",
+      "Northeast"
+    ]
+  },
+  "lhas": {
+    "byId": {
+      "Richmond": { "id": "Richmond", "name": "Richmond" },
+      "Vancouver": { "id": "Vancouver", "name": "Vancouver" },
+      "NorthVancouver": { "id": "NorthVancouver", "name": "North Vancouver" },
+      "WestVancouverBowenIsland": {
+        "id": "WestVancouverBowenIsland",
+        "name": "West Vancouver-Bowen Island"
+      },
+      "SunshineCoast": { "id": "SunshineCoast", "name": "Sunshine Coast" },
+      "PowellRiver": { "id": "PowellRiver", "name": "Powell River" },
+      "HoweSound": { "id": "HoweSound", "name": "Howe Sound" },
+      "BellaCoolaValley": { "id": "BellaCoolaValley", "name": "Bella Coola Valley" },
+      "CentralCoast": { "id": "CentralCoast", "name": "Central Coast" },
+      "Hope": { "id": "Hope", "name": "Hope" },
+      "Chilliwack": { "id": "Chilliwack", "name": "Chilliwack" },
+      "Abbotsford": { "id": "Abbotsford", "name": "Abbotsford" },
+      "Mission": { "id": "Mission", "name": "Mission" },
+      "AgassizHarrison": { "id": "AgassizHarrison", "name": "Agassiz-Harrison" },
+      "NewWestminster": { "id": "NewWestminster", "name": "New Westminster" },
+      "Burnaby": { "id": "Burnaby", "name": "Burnaby" },
+      "MapleRidgePittMeadows": {
+        "id": "MapleRidgePittMeadows",
+        "name": "Maple Ridge-Pitt Meadows"
+      },
+      "TriCities": { "id": "TriCities", "name": "Tri-Cities" },
+      "Langley": { "id": "Langley", "name": "Langley" },
+      "Delta": { "id": "Delta", "name": "Delta" },
+      "Surrey": { "id": "Surrey", "name": "Surrey" },
+      "SouthSurreyWhiteRock": { "id": "SouthSurreyWhiteRock", "name": "South Surrey-White Rock" },
+      "GreaterVictoria": { "id": "GreaterVictoria", "name": "Greater Victoria" },
+      "WesternCommunities": { "id": "WesternCommunities", "name": "Western Communities" },
+      "SaanichPeninsula": { "id": "SaanichPeninsula", "name": "Saanich Peninsula" },
+      "SouthernGulfIslands": { "id": "SouthernGulfIslands", "name": "Southern Gulf Islands" },
+      "CowichanValleySouth": { "id": "CowichanValleySouth", "name": "Cowichan Valley South" },
+      "CowichanValleyWest": { "id": "CowichanValleyWest", "name": "Cowichan Valley West" },
+      "CowichanValleyNorth": { "id": "CowichanValleyNorth", "name": "Cowichan Valley North" },
+      "GreaterNanaimo": { "id": "GreaterNanaimo", "name": "Greater Nanaimo" },
+      "Oceanside": { "id": "Oceanside", "name": "Oceanside" },
+      "AlberniClayoquot": { "id": "AlberniClayoquot", "name": "Alberni-Clayoquot" },
+      "ComoxValley": { "id": "ComoxValley", "name": "Comox Valley" },
+      "GreaterCampbellRiver": { "id": "GreaterCampbellRiver", "name": "Greater Campbell River" },
+      "VancouverIslandWest": { "id": "VancouverIslandWest", "name": "Vancouver Island West" },
+      "VancouverIslandNorth": { "id": "VancouverIslandNorth", "name": "Vancouver Island North" },
+      "Fernie": { "id": "Fernie", "name": "Fernie" },
+      "Cranbrook": { "id": "Cranbrook", "name": "Cranbrook" },
+      "Kimberley": { "id": "Kimberley", "name": "Kimberley" },
+      "Windermere": { "id": "Windermere", "name": "Windermere" },
+      "Creston": { "id": "Creston", "name": "Creston" },
+      "Golden": { "id": "Golden", "name": "Golden" },
+      "KootenayLake": { "id": "KootenayLake", "name": "Kootenay Lake" },
+      "Nelson": { "id": "Nelson", "name": "Nelson" },
+      "Castlegar": { "id": "Castlegar", "name": "Castlegar" },
+      "ArrowLakes": { "id": "ArrowLakes", "name": "Arrow Lakes" },
+      "Trail": { "id": "Trail", "name": "Trail" },
+      "GrandForks": { "id": "GrandForks", "name": "Grand Forks" },
+      "KettleValley": { "id": "KettleValley", "name": "Kettle Valley" },
+      "SouthernOkanagan": { "id": "SouthernOkanagan", "name": "Southern Okanagan" },
+      "Penticton": { "id": "Penticton", "name": "Penticton" },
+      "Keremeos": { "id": "Keremeos", "name": "Keremeos" },
+      "Princeton": { "id": "Princeton", "name": "Princeton" },
+      "ArmstrongSpallumcheen": { "id": "ArmstrongSpallumcheen", "name": "Armstrong-Spallumcheen" },
+      "Vernon": { "id": "Vernon", "name": "Vernon" },
+      "CentralOkanagan": { "id": "CentralOkanagan", "name": "Central Okanagan" },
+      "Summerland": { "id": "Summerland", "name": "Summerland" },
+      "Enderby": { "id": "Enderby", "name": "Enderby" },
+      "Revelstoke": { "id": "Revelstoke", "name": "Revelstoke" },
+      "SalmonArm": { "id": "SalmonArm", "name": "Salmon Arm" },
+      "Kamloops": { "id": "Kamloops", "name": "Kamloops" },
+      "100MileHouse": { "id": "100MileHouse", "name": "100 Mile House" },
+      "NorthThompson": { "id": "NorthThompson", "name": "North Thompson" },
+      "CaribooChilcotin": { "id": "CaribooChilcotin", "name": "Cariboo-Chilcotin" },
+      "Lillooet": { "id": "Lillooet", "name": "Lillooet" },
+      "SouthCariboo": { "id": "SouthCariboo", "name": "South Cariboo" },
+      "Merritt": { "id": "Merritt", "name": "Merritt" },
+      "HaidaGwaii": { "id": "HaidaGwaii", "name": "Haida Gwaii" },
+      "SnowCountry": { "id": "SnowCountry", "name": "Snow Country" },
+      "PrinceRupert": { "id": "PrinceRupert", "name": "Prince Rupert" },
+      "UpperSkeena": { "id": "UpperSkeena", "name": "Upper Skeena" },
+      "Smithers": { "id": "Smithers", "name": "Smithers" },
+      "Kitimat": { "id": "Kitimat", "name": "Kitimat" },
+      "Stikine": { "id": "Stikine", "name": "Stikine" },
+      "Terrace": { "id": "Terrace", "name": "Terrace" },
+      "Nisgaa": { "id": "Nisgaa", "name": "Nisga'a" },
+      "TelegraphCreek": { "id": "TelegraphCreek", "name": "Telegraph Creek" },
+      "Quesnel": { "id": "Quesnel", "name": "Quesnel" },
+      "BurnsLake": { "id": "BurnsLake", "name": "Burns Lake" },
+      "Nechako": { "id": "Nechako", "name": "Nechako" },
+      "PrinceGeorge": { "id": "PrinceGeorge", "name": "Prince George" },
+      "PeaceRiverSouth": { "id": "PeaceRiverSouth", "name": "Peace River South" },
+      "PeaceRiverNorth": { "id": "PeaceRiverNorth", "name": "Peace River North" },
+      "FortNelson": { "id": "FortNelson", "name": "Fort Nelson" }
+    },
+    "allIds": [
+      "Richmond",
+      "Vancouver",
+      "NorthVancouver",
+      "WestVancouverBowenIsland",
+      "SunshineCoast",
+      "PowellRiver",
+      "HoweSound",
+      "BellaCoolaValley",
+      "CentralCoast",
+      "Hope",
+      "Chilliwack",
+      "Abbotsford",
+      "Mission",
+      "AgassizHarrison",
+      "NewWestminster",
+      "Burnaby",
+      "MapleRidgePittMeadows",
+      "TriCities",
+      "Langley",
+      "Delta",
+      "Surrey",
+      "SouthSurreyWhiteRock",
+      "GreaterVictoria",
+      "WesternCommunities",
+      "SaanichPeninsula",
+      "SouthernGulfIslands",
+      "CowichanValleySouth",
+      "CowichanValleyWest",
+      "CowichanValleyNorth",
+      "GreaterNanaimo",
+      "Oceanside",
+      "AlberniClayoquot",
+      "ComoxValley",
+      "GreaterCampbellRiver",
+      "VancouverIslandWest",
+      "VancouverIslandNorth",
+      "Fernie",
+      "Cranbrook",
+      "Kimberley",
+      "Windermere",
+      "Creston",
+      "Golden",
+      "KootenayLake",
+      "Nelson",
+      "Castlegar",
+      "ArrowLakes",
+      "Trail",
+      "GrandForks",
+      "KettleValley",
+      "SouthernOkanagan",
+      "Penticton",
+      "Keremeos",
+      "Princeton",
+      "ArmstrongSpallumcheen",
+      "Vernon",
+      "CentralOkanagan",
+      "Summerland",
+      "Enderby",
+      "Revelstoke",
+      "SalmonArm",
+      "Kamloops",
+      "100MileHouse",
+      "NorthThompson",
+      "CaribooChilcotin",
+      "Lillooet",
+      "SouthCariboo",
+      "Merritt",
+      "HaidaGwaii",
+      "SnowCountry",
+      "PrinceRupert",
+      "UpperSkeena",
+      "Smithers",
+      "Kitimat",
+      "Stikine",
+      "Terrace",
+      "Nisgaa",
+      "TelegraphCreek",
+      "Quesnel",
+      "BurnsLake",
+      "Nechako",
+      "PrinceGeorge",
+      "PeaceRiverSouth",
+      "PeaceRiverNorth",
+      "FortNelson"
+    ]
+  }
+}
