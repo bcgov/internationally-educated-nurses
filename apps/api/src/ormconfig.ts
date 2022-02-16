@@ -9,9 +9,9 @@ const config: PostgresConnectionOptions = {
   type: 'postgres',
   port: 5432,
   connectTimeoutMS: 5000,
-  username: process.env.POSTGRES_USERNAME,
+  username: 'freshworks',
   password: process.env.POSTGRES_PASSWORD,
-  database: process.env.POSTGRES_DATABASE,
+  database: 'ehpr',
   cli: {
     migrationsDir: 'src/migration',
     entitiesDir: 'src/**/entity/*.entity.ts',
