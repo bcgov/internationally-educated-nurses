@@ -1,0 +1,14 @@
+{
+  "name": "@ehpr/scripts",
+  "packageManager": "yarn@3.1.0",
+  "type": "module",
+  "scripts": {
+    "transform-locations": "node src/locations.js",
+    "transform-streams": "node src/streams.js",
+    "transform-submission_export": "node src/submission_export.js"
+  },
+  "dependencies": {
+    "csv-parser": "3.0.0",
+    "csv-writer": "1.6.0"
+  }
+}

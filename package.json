@@ -1,0 +1,43 @@
+{
+  "name": "ehpr",
+  "private": true,
+  "description": "EHPR app packages",
+  "scripts": {
+    "format:staged": "yarn pretty-quick --staged",
+    "format:check": "yarn prettier --check .",
+    "format:write": "yarn prettier --write .",
+    "lint": "echo 'Linting all packages' && wsrun --parallel --exclude-missing lint",
+    "test": "echo 'Running tests' && wsrun --parallel --exclude-missing test",
+    "build-common": "echo 'Building all common packages packages' && wsrun --stages --exclude @ehpr/api --exclude @ehpr/web --exclude-missing build",
+    "build": "echo 'Building packages' && wsrun --stages --exclude-missing build",
+    "check": "run-p 'lint' 'format:check'",
+    "prepare": "husky install",
+    "precommit": "run-p 'format:staged'",
+    "watch:common": "wsrun --stages --exclude-missing watch",
+    "watch:api": "yarn workspace @ehpr/api start:dev",
+    "watch:web": "yarn workspace @ehpr/web dev",
+    "start:api:local": "yarn workspace @ehpr/api start:dev:local",
+    "start:web:local": "yarn workspace @ehpr/web start",
+    "start:local": "run-p 'watch:common' 'start:api:local' 'start:web:local'"
+  },
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "devDependencies": {
+    "@tsconfig/node14": "1.0.1",
+    "@typescript-eslint/eslint-plugin": "5.0.0",
+    "@typescript-eslint/parser": "5.0.0",
+    "eslint-config-prettier": "8.3.0",
+    "husky": "7.0.4",
+    "nodemon": "2.0.15",
+    "npm-run-all": "4.1.5",
+    "prettier": "2.4.1",
+    "pretty-quick": "3.1.2",
+    "ts-loader": "9.2.3",
+    "ts-node": "10.0.0",
+    "tsconfig-paths": "3.10.1",
+    "typescript": "4.3.5",
+    "wsrun": "5.2.4"
+  }
+}
