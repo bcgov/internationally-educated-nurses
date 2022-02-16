@@ -1,24 +1,25 @@
-# EHPR
+# Internationally Educated Nurses 
+# Cloned from EHPR
 # Default Environments
 -include ./.env
 
 export $(shell sed 's/=.*//' ./.env)
 
 # Project
-export PROJECT := $(or $(PROJECT),ehpr)
+export PROJECT := $(or $(PROJECT),internationally-educated-nurses)
 
 
 # Runtime and application Environments specific variable
 export ENV_NAME ?= dev
 export POSTGRES_USERNAME = freshworks
-export CHES_CLIENT_ID ?= EHPR_SERVICE_CLIENT
-export MAIL_FROM ?= EHPRDoNotReply@gov.bc.ca
+export CHES_CLIENT_ID ?= IEN_SERVICE_CLIENT
+export MAIL_FROM ?= IENDoNotReply@gov.bc.ca
 
 # Integration testing variables
 export TEST_POSTGRES_HOST := localhost
 export TEST_POSTGRES_USERNAME := freshworks
 export TEST_POSTGRES_PASSWORD := password
-export TEST_POSTGRES_DATABASE := ehpr_test
+export TEST_POSTGRES_DATABASE := ien_test
 export TEST_POSTGRES_PORT := 5433
 
 # Git
