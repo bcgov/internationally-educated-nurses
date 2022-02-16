@@ -1,6 +1,6 @@
-import { PersonalInformationDTO } from '@ehpr/common';
+import { PersonalInformationDTO } from '@ien/common';
 
-export { PersonalInformationDTO } from '@ehpr/common';
+export { PersonalInformationDTO } from '@ien/common';
 
 export const personalDefaultValues: Partial<PersonalInformationDTO> = {
   firstName: undefined,

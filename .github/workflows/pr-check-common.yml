@@ -19,16 +19,16 @@ jobs:
           restore-keys: ${{ runner.os }}-yarn-${{ hashFiles('./yarn.lock') }}
 
       - name: Install dependencies
-        run: yarn workspace @ehpr/common install
+        run: yarn workspace @ien/common install
 
       - name: Run formatting check
         run: yarn format:check
 
       - name: Lint web package
-        run: yarn workspace @ehpr/common lint
+        run: yarn workspace @ien/common lint
 
       - name: Test web package
-        run: yarn workspace @ehpr/common test
+        run: yarn workspace @ien/common test
 
       - name: Build web package
-        run: yarn workspace @ehpr/common build
+        run: yarn workspace @ien/common build

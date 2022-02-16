@@ -1,6 +1,6 @@
-import { ContactInformationDTO } from '@ehpr/common';
+import { ContactInformationDTO } from '@ien/common';
 
-export { ContactInformationDTO } from '@ehpr/common';
+export { ContactInformationDTO } from '@ien/common';
 
 export const contactDefaultValues: Partial<ContactInformationDTO> = {
   primaryPhone: undefined,

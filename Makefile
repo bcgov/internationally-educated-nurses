@@ -49,13 +49,13 @@ DB_HOST = $(DB_HOST_PROD)
 endif
 
 ifeq ($(ENV_NAME), dev) 
-DOMAIN=dev.ehpr.freshworks.club
+DOMAIN=dev.ien.freshworks.club
 BASTION_INSTANCE_ID = $(BASTION_INSTANCE_ID_DEV)
 DB_HOST = $(DB_HOST_DEV)
 endif
 
 ifeq ($(ENV_NAME), test) 
-DOMAIN=test.ehpr.freshworks.club
+DOMAIN=test.ien.freshworks.club
 BASTION_INSTANCE_ID = $(BASTION_INSTANCE_ID_TEST)
 DB_HOST = $(DB_HOST_PROD_TEST)
 endif
@@ -145,8 +145,8 @@ docker-run:
 
 api-unit-test:
 	@echo "++\n***** Running API unit tests\n++"
-	@yarn workspace @ehpr/api build
-	@yarn workspace @ehpr/api test
+	@yarn workspace @ien/api build
+	@yarn workspace @ien/api test
 	@echo "++\n*****"
 
 start-test-db:
@@ -158,19 +158,19 @@ stop-test-db:
 api-integration-test: 
 	@make start-test-db 
 	@echo "++\n***** Running API integration tests\n++"
-	@yarn workspace @ehpr/api build
-	@yarn workspace @ehpr/api test:e2e
+	@yarn workspace @ien/api build
+	@yarn workspace @ien/api test:e2e
 	@echo "++\n*****"
 	@make stop-test-db
 
 accessibility-test:
 	@echo "++\n***** Running front end accessibility tests\n++"
-	@yarn workspace @ehpr/accessibility accessibility-test
+	@yarn workspace @ien/accessibility accessibility-test
 	@echo "++\n*****"
 
 generate-accessibility-results:
 	@echo "++\n***** Generating Github Comment from Test Results\n++"
-	@yarn workspace @ehpr/accessibility generate-accessibility-results
+	@yarn workspace @ien/accessibility generate-accessibility-results
 	@echo "++\n*****"
 
 # Build application stack
@@ -184,17 +184,17 @@ pre-build:
 build-api:
 	@echo "++\n***** Building API for AWS\n++"
 	@echo 'Building api package... \n' 
-	@yarn workspace @ehpr/api build
+	@yarn workspace @ien/api build
 	@echo 'Updating prod dependencies...\n'
-	@yarn workspaces focus @ehpr/api --production
+	@yarn workspaces focus @ien/api --production
 	@echo 'Deleting existing build dir...\n'
 	@rm -rf ./.build || true
 	@echo 'Creating build dir...\n'
 	@mkdir -p .build/api
 	@echo 'Copy Node modules....\n' && cp -r node_modules .build/api
-	@echo 'Unlink local packages...\n' && rm -rf .build/api/node_modules/@ehpr/*
+	@echo 'Unlink local packages...\n' && rm -rf .build/api/node_modules/@ien/*
 	@echo 'Hardlink local packages...\n' 
-	@cp -r ./packages/* .build/api/node_modules/@ehpr/
+	@cp -r ./packages/* .build/api/node_modules/@ien/
 	@echo 'Copy api ...\n' && cp -r apps/api/dist/* .build/api
 	@echo 'Copy api/ormconfig ...\n' && cp -r apps/api/dist/ormconfig.js .build/api
 	@echo 'Creating Zip ...\n' && cd .build && zip -r api.zip ./api && cd ..
@@ -205,8 +205,8 @@ build-api:
 
 build-web:
 	@echo "++\n***** Building Web for AWS\n++"
-	@yarn workspace @ehpr/web build
-	@yarn workspace @ehpr/web export
+	@yarn workspace @ien/web build
+	@yarn workspace @ien/web export
 	@mv ./apps/web/out ./terraform/build/app
 	@echo "++\n*****"
 
@@ -282,12 +282,12 @@ endif
 # Typeorm Migrations
 
 migration-generate:
-	@docker exec $(LOCAL_API_CONTAINER_NAME) yarn workspace @ehpr/api typeorm migration:generate -n $(name)
+	@docker exec $(LOCAL_API_CONTAINER_NAME) yarn workspace @ien/api typeorm migration:generate -n $(name)
 
 migration-revert:
-	@docker exec $(LOCAL_API_CONTAINER_NAME) yarn workspace @ehpr/api typeorm migration:revert
+	@docker exec $(LOCAL_API_CONTAINER_NAME) yarn workspace @ien/api typeorm migration:revert
 
-# docker exec ehpr_api yarn typeorm migration:generate -n AddSubmissionEntity
+# docker exec ien_api yarn typeorm migration:generate -n AddSubmissionEntity
 
 # DB Tunneling
 open-db-tunnel:

@@ -5,7 +5,7 @@ import {
   RegistrationStatus,
   streamsById,
   CredentialInformationDTO,
-} from '@ehpr/common';
+} from '@ien/common';
 
 import {
   FormStepHeader,

@@ -14,7 +14,7 @@ data "aws_iam_policy_document" "service_account" {
       "s3:PutObjectAcl"
     ]
     resources = [
-      "arn:aws:s3:::ehpr-*",
+      "arn:aws:s3:::ien-*",
     ]
   }
   statement {

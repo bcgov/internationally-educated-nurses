@@ -1,5 +1,5 @@
 {
-  "name": "@ehpr/accessibility",
+  "name": "@ien/accessibility",
   "packageManager": "yarn@3.1.0",
   "scripts": {
     "accessibility-test": "echo 'Running accessiblity tests...' && pa11y-ci --config=./src/submission.pa11y-ci.js --json > out/submission_accessibility_results.json",

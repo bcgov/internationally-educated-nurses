@@ -1,5 +1,5 @@
 {
-  "name": "ehpr",
+  "name": "ien",
   "private": true,
   "description": "EHPR app packages",
   "scripts": {
@@ -8,16 +8,16 @@
     "format:write": "yarn prettier --write .",
     "lint": "echo 'Linting all packages' && wsrun --parallel --exclude-missing lint",
     "test": "echo 'Running tests' && wsrun --parallel --exclude-missing test",
-    "build-common": "echo 'Building all common packages packages' && wsrun --stages --exclude @ehpr/api --exclude @ehpr/web --exclude-missing build",
+    "build-common": "echo 'Building all common packages packages' && wsrun --stages --exclude @ien/api --exclude @ien/web --exclude-missing build",
     "build": "echo 'Building packages' && wsrun --stages --exclude-missing build",
     "check": "run-p 'lint' 'format:check'",
     "prepare": "husky install",
     "precommit": "run-p 'format:staged'",
     "watch:common": "wsrun --stages --exclude-missing watch",
-    "watch:api": "yarn workspace @ehpr/api start:dev",
-    "watch:web": "yarn workspace @ehpr/web dev",
-    "start:api:local": "yarn workspace @ehpr/api start:dev:local",
-    "start:web:local": "yarn workspace @ehpr/web start",
+    "watch:api": "yarn workspace @ien/api start:dev",
+    "watch:web": "yarn workspace @ien/web dev",
+    "start:api:local": "yarn workspace @ien/api start:dev:local",
+    "start:web:local": "yarn workspace @ien/web start",
     "start:local": "run-p 'watch:common' 'start:api:local' 'start:web:local'"
   },
   "workspaces": [

@@ -13,7 +13,7 @@ import {
   PlacementOptions,
   PreviousDeploymentOptions,
   getStreamById,
-} from '@ehpr/common';
+} from '@ien/common';
 import { createValidator } from 'class-validator-formik';
 import { contactDefaultValues } from './contact';
 import { credentialDefaultValues } from './credential';

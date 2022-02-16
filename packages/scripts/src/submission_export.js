@@ -2,7 +2,7 @@ import fs from 'fs';
 import csv from 'csv-parser';
 import csvWriter from 'csv-writer';
 
-import { booleanToYesNo, getSubSpecialtyById, splitLhasByHa } from '@ehpr/common';
+import { booleanToYesNo, getSubSpecialtyById, splitLhasByHa } from '@ien/common';
 
 export const formExportColumnHeaders = [
   { id: 'id', title: 'Id' },

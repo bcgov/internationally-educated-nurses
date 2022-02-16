@@ -5,7 +5,7 @@ import {
   SpecialtyDTO,
   Lha,
   rebuildHaStructure,
-} from '@ehpr/common';
+} from '@ien/common';
 
 import { useFormikContext } from 'formik';
 import {

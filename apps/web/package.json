@@ -1,5 +1,5 @@
 {
-  "name": "@ehpr/web",
+  "name": "@ien/web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -11,11 +11,11 @@
     "test": "jest"
   },
   "dependencies": {
-    "@ehpr/common": "1.0.1",
     "@fortawesome/fontawesome-svg-core": "1.2.36",
     "@fortawesome/free-solid-svg-icons": "5.15.4",
     "@fortawesome/react-fontawesome": "0.1.16",
     "@headlessui/react": "1.4.2",
+    "@ien/common": "1.0.1",
     "axios": "0.24.0",
     "class-validator-formik": "1.0.1",
     "classnames": "2.3.1",

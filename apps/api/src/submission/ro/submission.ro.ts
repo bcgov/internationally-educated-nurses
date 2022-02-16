@@ -1,4 +1,4 @@
-import { SubmissionPayloadDTO } from '@ehpr/common';
+import { SubmissionPayloadDTO } from '@ien/common';
 
 export class SubmissionRO {
   id!: number;
