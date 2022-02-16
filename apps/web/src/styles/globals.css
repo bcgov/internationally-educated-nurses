@@ -27,3 +27,14 @@ body,
     color: #fff;
   }
 }
+
+::-webkit-scrollbar {
+  height: 7px;
+  border-radius: 5px;
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #999999;
+  border-radius: 5px;
+}

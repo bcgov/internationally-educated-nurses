@@ -55,6 +55,7 @@ module.exports = {
       opacity: ['disabled'],
       backgroundColor: ['disabled'],
       textColor: ['disabled'],
+      backgroundColor: ['even'],
     },
   },
   plugins: [require('@tailwindcss/typography')],

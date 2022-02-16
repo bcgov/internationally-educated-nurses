@@ -1,25 +1,121 @@
-import { useState } from 'react';
+//import { useState } from 'react';
 
 export const Table: React.FC = () => {
   const sampleData = [
-    { id: '1', name: 'Alice', phone: '+1 778-123-4567', email: 'alice@gov.ca' },
-    { id: '2', name: 'Bob', phone: '+1 778-123-7654', email: 'bob@gov.ca' },
-    { id: '3', name: 'Colin', phone: '+1 877-321-5321', email: 'colin@gov.ca' },
+    {
+      id: '1',
+      name: 'Floyd Miles',
+      profession: 'Nurse practitioner',
+      specialty: 'Arms/Legs/Torso',
+      community: 'HA',
+      assigned: 'Dianne Russell',
+      status: 'Initial',
+    },
+    {
+      id: '2',
+      name: 'Auston Matthews',
+      profession: 'Nurse practitioner',
+      specialty: 'Arms',
+      community: 'FHA',
+      assigned: 'Dianne Russell',
+      status: 'Initial',
+    },
+    {
+      id: '3',
+      name: 'John Doe',
+      profession: 'Nurse practitioner',
+      specialty: 'Legs',
+      community: 'PCN',
+      assigned: 'Dianne Russell',
+      status: 'Not initial',
+    },
+    {
+      id: '4',
+      name: 'Floyd Miles',
+      profession: 'Nurse practitioner',
+      specialty: 'Lungs',
+      community: 'HA',
+      assigned: 'Dianne Russell',
+      status: 'Initial',
+    },
+    {
+      id: '5',
+      name: 'Floyd Miles',
+      profession: 'Nurse practitioner',
+      specialty: 'Chronic Disease/Diabetes',
+      community: 'PCN',
+      assigned: 'Dianne Russell',
+      status: 'Initial',
+    },
+    {
+      id: '6',
+      name: 'Floyd Miles',
+      profession: 'Nurse practitioner',
+      specialty: 'Chronic Disease/Diabetes',
+      community: 'PCN',
+      assigned: 'Dianne Russell',
+      status: 'Initial',
+    },
+    {
+      id: '7',
+      name: 'Floyd Miles',
+      profession: 'Nurse practitioner',
+      specialty: 'Chronic Disease/Diabetes',
+      community: 'PCN',
+      assigned: 'Dianne Russell',
+      status: 'Initial',
+    },
+    {
+      id: '8',
+      name: 'Floyd Miles',
+      profession: 'Nurse practitioner',
+      specialty: 'Chronic Disease/Diabetes',
+      community: 'PCN',
+      assigned: 'Dianne Russell',
+      status: 'Initial',
+    },
   ];
+
   return (
-    <>
-      <div className='grid grid-flow-row-dense grid-cols-4'>
-        {sampleData.map((row: any) => {
-          return (
-            <>
-              <div className='row-span-1 '>{row.id}</div>
-              <div className='row-span-1'>{row.name}</div>
-              <div className='row-span-1'>{row.phone}</div>
-              <div className='row-span-1'>{row.email}</div>
-            </>
-          );
-        })}
+    <div className='container'>
+      <h1 className='font-bold text-3xl py-5'>Manage Applications</h1>
+      <div className='flex-grow flex-col overflow-x-auto'>
+        <table className='text-left'>
+          <thead className='whitespace-nowrap'>
+            <tr className='border-b-2 border-yellow-300'>
+              <th className='px-6 py-3'>Name</th>
+              <th className='px-6 py-3'>Profession</th>
+              <th className='px-6 py-3'>Specialty</th>
+              <th className='px-6 py-3'>HA or PCN Community</th>
+              <th className='px-6 py-3'>Assigned</th>
+              <th className='px-6 py-3'>Recruitment Status</th>
+              <th className='px-6 py-3'></th>
+            </tr>
+          </thead>
+          <tbody>
+            {sampleData.map(nurse => (
+              <tr key={nurse.id} className='text-left whitespace-nowrap even:bg-gray-100 text-sm '>
+                <th className='font-normal px-6 py-4'>{nurse.name}</th>
+                <th className='font-normal px-6 py-2'>{nurse.profession}</th>
+                <th className='font-normal px-6 py-2'>{nurse.specialty}</th>
+                <th className='font-normal px-6 py-2'>{nurse.community}</th>
+                <th className='font-normal px-6 py-2'>{nurse.assigned}</th>
+                <th className='font-normal px-6 py-2'>{nurse.status}</th>
+                <td className='font-normal px-6 py-4'>
+                  <a href='#' className='text-blue-500 px-1 py-1'>
+                    Details
+                  </a>
+                  |
+                  <a href='#' className='text-red-500 px-1 py-1'>
+                    Delete
+                  </a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-    </>
+      <div>pagination here</div>
+    </div>
   );
 };
