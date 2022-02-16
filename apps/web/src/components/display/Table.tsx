@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 export const Table: React.FC = () => {
   const sampleData = [
     { id: '1', name: 'Alice', phone: '+1 778-123-4567', email: 'alice@gov.ca' },
