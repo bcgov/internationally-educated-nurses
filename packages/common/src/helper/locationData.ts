@@ -1,5 +1,7 @@
 import data from '../data/location_data.json';
 
+// TODO: Remove
+
 export type Ha = { id: string; name: string; hsdas: string[] };
 export type Hsda = { id: string; name: string; lhas: string[] };
 export type Lha = { id: string; name: string };

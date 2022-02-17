@@ -10,6 +10,8 @@ import {
 
 const TEN_DIGIT_PHONE_REGEX = /^\(?([0-9]{3})\)?[ -.●]?([0-9]{3})[ -.●]?([0-9]{4})$/;
 
+// TODO: Remove
+
 export class ContactInformationDTO {
   constructor(base?: ContactInformationDTO) {
     if (base) {

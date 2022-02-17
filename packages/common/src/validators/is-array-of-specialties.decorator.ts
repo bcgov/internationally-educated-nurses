@@ -19,6 +19,8 @@ enum SpecialtyErrorEnum {
   INVALID_SUBSPECIALTY = 'Invalid subspecialty selection',
 }
 
+// TODO: Remove
+
 const isValidString = (string: string) => {
   if (typeof string === 'string' && string.length > 0) {
     return true;

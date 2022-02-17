@@ -5,6 +5,7 @@ import {
   PreferencesInformationDTO,
 } from '.';
 import { IsNotEmpty, ValidateNested } from 'class-validator';
+// TODO: Remove
 
 export class SubmissionPayloadDTO {
   constructor(base?: SubmissionPayloadDTO) {

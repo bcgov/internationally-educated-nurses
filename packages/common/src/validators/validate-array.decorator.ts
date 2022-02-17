@@ -1,5 +1,6 @@
 import { ValidationOptions, registerDecorator, ValidationArguments } from 'class-validator';
 
+// TODO: Remove
 export function ValidateArray(validationOptions?: ValidationOptions) {
   // eslint-disable-next-line @typescript-eslint/ban-types
   return function (object: Object, propertyName: string) {

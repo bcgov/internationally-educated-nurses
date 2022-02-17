@@ -7,6 +7,7 @@ import { IsNotEmpty, IsString, Length, Matches } from 'class-validator';
  */
 const postalCodeRegex = /^[ABCEGHJKLMNPRSTVXY]\d[ABCEGHJ-NPRSTV-Z][\s-]?\d[ABCEGHJ-NPRSTV-Z]\d$/i;
 
+// TODO: Remove
 export class PersonalInformationDTO {
   constructor(base?: PersonalInformationDTO) {
     if (base) {

@@ -1,5 +1,5 @@
 import data from '../data/applicant_stream_data.json';
-
+// TODO: REMOVE
 export type Stream = { id: string; name: string; specialties: string[] };
 export type Specialty = { id: string; name: string; subspecialties: string[] };
 export type Subspecialty = { id: string; name: string };
