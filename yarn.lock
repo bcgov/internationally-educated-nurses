@@ -1134,15 +1134,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@ien/scripts@workspace:packages/scripts":
-  version: 0.0.0-use.local
-  resolution: "@ien/scripts@workspace:packages/scripts"
-  dependencies:
-    csv-parser: 3.0.0
-    csv-writer: 1.6.0
-  languageName: unknown
-  linkType: soft
-
 "@ien/web@workspace:apps/web":
   version: 0.0.0-use.local
   resolution: "@ien/web@workspace:apps/web"
@@ -5518,28 +5509,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"csv-parser@npm:3.0.0":
-  version: 3.0.0
-  resolution: "csv-parser@npm:3.0.0"
-  dependencies:
-    minimist: ^1.2.0
-  bin:
-    csv-parser: bin/csv-parser
-  checksum: adc9d67d9f185249825570778c24d13004625301655330f6b735a052b9fdfbe1a239a014afb1f89939e0626ee573718f71f9f14164db7c17e4bcb2f38d6a162b
-  languageName: node
-  linkType: hard
-
 "csv-stringify@npm:6.0.4":
   version: 6.0.4
   resolution: "csv-stringify@npm:6.0.4"
   checksum: f8efdfc1ed84b3f5dd9a52d561ff0a57363910f8f264b486713cc3b69e1e6d4b33067c43423f1462a5eeaa98bdb25554dbf1898d57590a20235ae31ad2b3d4ca
-  languageName: node
-  linkType: hard
-
-"csv-writer@npm:1.6.0":
-  version: 1.6.0
-  resolution: "csv-writer@npm:1.6.0"
-  checksum: 2e62cb46f00b674f0710eb90586000601f3a467aabe529464dcb402d453a1322a716d7522ef3282dd6551f1059305c7dd3db49def1201caaf340597dcf7b4c7e
   languageName: node
   linkType: hard
 
