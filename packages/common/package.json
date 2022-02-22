@@ -1,5 +1,5 @@
 {
-  "name": "@ehpr/common",
+  "name": "@ien/common",
   "version": "1.0.1",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -7,7 +7,7 @@
     "build": "echo \"Building Common package\" && rm -rf dist && tsc",
     "watch": "tsc --watch",
     "test": "echo \"Testing Common\" && jest --passWithNoTests",
-    "lint": "echo 'Linting @ehpr/common...' && eslint --fix --cache ./src"
+    "lint": "echo 'Linting @ien/common...' && eslint --fix --cache ./src"
   },
   "dependencies": {
     "@types/node": "16.11.7",

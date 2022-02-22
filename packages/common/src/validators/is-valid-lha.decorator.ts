@@ -1,5 +1,6 @@
 import { ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator';
 import { LhaId, validLhaIds } from '../helper';
+// TODO: Remove
 
 @ValidatorConstraint({ name: 'IsArrayOfLhas', async: false })
 export class IsArrayOfLhas implements ValidatorConstraintInterface {

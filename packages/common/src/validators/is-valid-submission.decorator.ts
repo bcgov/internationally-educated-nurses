@@ -1,5 +1,6 @@
 import { registerDecorator, ValidationError, ValidationOptions, Validator } from 'class-validator';
 import { SubmissionPayloadDTO } from '../dto/submission-payload.dto';
+// TODO: Remove
 
 const validator = new Validator();
 export function IsValidSubmission(validationOptions?: ValidationOptions) {

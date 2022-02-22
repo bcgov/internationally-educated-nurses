@@ -22,6 +22,8 @@ import { IsArrayOfSpecialties } from '../validators/is-array-of-specialties.deco
 import { StreamId, streamsById, validStreamIds } from '../helper';
 import { ValidateArray } from '../validators/validate-array.decorator';
 
+// TODO: Remove
+
 export class CredentialInformationDTO {
   constructor(base?: CredentialInformationDTO) {
     if (base) {

@@ -7,7 +7,7 @@ import {
   Error,
   CheckboxArray,
 } from '@components';
-import { getLhasbyHaId, HaId } from '@ehpr/common';
+import { getLhasbyHaId, HaId } from '@ien/common';
 import { useFormikContext } from 'formik';
 import { useEffect, useRef } from 'react';
 import { FormStepProps } from '.';

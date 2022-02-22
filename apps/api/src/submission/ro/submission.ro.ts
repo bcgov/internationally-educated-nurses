@@ -1,5 +1,5 @@
-import { SubmissionPayloadDTO } from '@ehpr/common';
-
+import { SubmissionPayloadDTO } from '@ien/common';
+// TODO: REMOVE
 export class SubmissionRO {
   id!: number;
   version!: number;

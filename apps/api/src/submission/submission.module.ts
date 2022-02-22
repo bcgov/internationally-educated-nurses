@@ -4,7 +4,7 @@ import { MailModule } from 'src/mail/mail.module';
 import { SubmissionEntity } from './entity/submission.entity';
 import { SubmissionController } from './submission.controller';
 import { SubmissionService } from './submission.service';
-
+// TODO: REMOVE this module
 @Module({
   imports: [TypeOrmModule.forFeature([SubmissionEntity]), MailModule],
   controllers: [SubmissionController],

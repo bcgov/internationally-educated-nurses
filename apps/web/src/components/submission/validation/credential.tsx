@@ -14,9 +14,9 @@ import {
   SpecialtyId,
   SubspecialtyId,
   getSubSpecialtyById,
-} from '@ehpr/common';
+} from '@ien/common';
 
-export { CredentialInformationDTO } from '@ehpr/common';
+export { CredentialInformationDTO } from '@ien/common';
 
 export const defaultSpecialtyValue = {
   id: '',

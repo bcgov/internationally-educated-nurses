@@ -4,11 +4,11 @@ import {
   DeploymentDurations,
   DeploymentTypes,
   PreviousDeploymentOptions,
-} from '@ehpr/common';
+} from '@ien/common';
 import { OptionType } from '@components';
-import { getHas, getHsdasByHaId, getLhasByHsdaId, HaId } from '@ehpr/common';
+import { getHas, getHsdasByHaId, getLhasByHsdaId, HaId } from '@ien/common';
 
-export { PersonalInformationDTO } from '@ehpr/common';
+export { PersonalInformationDTO } from '@ien/common';
 
 export const preferencesDefaultValues: Partial<PreferencesInformationDTO> = {
   deployAnywhere: undefined,

@@ -19,6 +19,8 @@ import {
 import { LhaId, validLhaIds } from '../helper';
 import { IsArrayOfLhas, ValidateArray } from '../validators';
 
+// TODO: REMOVE
+
 export class PreferencesInformationDTO {
   constructor(base?: PreferencesInformationDTO) {
     if (base) {

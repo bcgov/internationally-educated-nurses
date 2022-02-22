@@ -1,5 +1,5 @@
 {
-  "name": "@ehpr/api",
+  "name": "@ien/api",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "echo \"Building @ehpr/api\" && nest build",
+    "build": "echo \"Building @ien/api\" && nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:local": "nest start --exec \"node -r ./env.js\"",
@@ -16,7 +16,7 @@
     "start:debug": "nest start --debug --watch",
     "start:debug:local": "nest start --debug --watch --exec \"node -r ./env.js\"",
     "start:prod": "node dist/main",
-    "lint": "echo 'Linting @ehpr/api...' && eslint --fix --cache \"{src,apps,libs,test}/**/*.ts\"",
+    "lint": "echo 'Linting @ien/api...' && eslint --fix --cache \"{src,apps,libs,test}/**/*.ts\"",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
@@ -25,7 +25,7 @@
     "typeorm": "ts-node -r tsconfig-paths/register ../../node_modules/typeorm/cli.js --config src/ormconfig.ts"
   },
   "dependencies": {
-    "@ehpr/common": "1.0.1",
+    "@ien/common": "1.0.1",
     "@nestjs/common": "8.2.3",
     "@nestjs/core": "8.2.3",
     "@nestjs/platform-express": "8.2.3",

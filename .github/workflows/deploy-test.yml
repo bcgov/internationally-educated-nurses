@@ -4,7 +4,7 @@ on:
     tags:
       - test
 env:
-  PROJECT: ehpr
+  PROJECT: ien
   ENV_NAME: test
   TF_VERSION: 1.1.1
 jobs:

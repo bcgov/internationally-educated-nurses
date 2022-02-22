@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { SubmissionEntity } from './entity/submission.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { SubmissionDTO, PersonalInformationDTO } from '@ehpr/common';
+import { SubmissionDTO, PersonalInformationDTO } from '@ien/common';
 import { MailService } from 'src/mail/mail.service';
 import { ConfirmationMailable } from 'src/mail/mailables/confirmation.mailable';
 import { Recipient } from 'src/mail/types/recipient';

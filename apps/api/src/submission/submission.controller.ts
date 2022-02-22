@@ -11,7 +11,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { SubmissionDTO } from '@ehpr/common';
+import { SubmissionDTO } from '@ien/common';
 import { SubmissionService } from './submission.service';
 import { EmptyResponse } from 'src/common/ro/empty-response.ro';
 import { SubmissionEntity } from './entity/submission.entity';

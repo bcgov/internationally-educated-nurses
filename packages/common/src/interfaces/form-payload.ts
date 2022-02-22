@@ -5,6 +5,8 @@ import {
   CredentialInformationDTO,
 } from 'src';
 
+// TODO: REMOVE
+
 export interface SubmissionPayload {
   personalInformation: PersonalInformationDTO;
   contactInformation: ContactInformationDTO;

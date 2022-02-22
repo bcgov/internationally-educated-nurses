@@ -12,7 +12,7 @@ function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
-        <title>Health Provider Registry for BC’s Emergency Response</title>
+        <title>Internationally Educated Nurses</title>
         <link rel='icon' href='/assets/img/bc_favicon.ico' />
       </Head>
       <div className='h-full flex flex-col'>

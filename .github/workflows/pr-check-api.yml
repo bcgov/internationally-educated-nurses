@@ -20,7 +20,7 @@ jobs:
           restore-keys: ${{ runner.os }}-yarn-${{ hashFiles('./yarn.lock') }}
 
       - name: Install dependencies
-        run: yarn workspace @ehpr/api install
+        run: yarn workspace @ien/api install
 
       - name: Run formatting check
         run: yarn format:check
@@ -29,13 +29,13 @@ jobs:
         run: yarn build-common
 
       - name: Lint API Package
-        run: yarn workspace @ehpr/api lint
+        run: yarn workspace @ien/api lint
 
       - name: Unit test API Package
-        run: yarn workspace @ehpr/api test
+        run: yarn workspace @ien/api test
 
       - name: Integration test API Package
         run: make api-integration-test
 
       - name: Build API Package
-        run: yarn workspace @ehpr/api build
+        run: yarn workspace @ien/api build

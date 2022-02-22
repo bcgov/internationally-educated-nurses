@@ -25,7 +25,7 @@ jobs:
         run: yarn build-common
 
       - name: Start web app
-        run: NEXT_PUBLIC_PREFILLED_FORM=true yarn workspace @ehpr/web dev &
+        run: NEXT_PUBLIC_PREFILLED_FORM=true yarn workspace @ien/web dev &
 
       - name: sleep until webapp is up
         run: |
