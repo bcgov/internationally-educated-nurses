@@ -10,7 +10,7 @@ export const AddSingleModal: React.FC = () => {
 
   const handleClose = () => {
     delete router.query.add_row;
-    router.push(router, undefined, { shallow: true });
+    router.push(router.route, undefined, { shallow: true });
   };
 
   return (
@@ -18,33 +18,32 @@ export const AddSingleModal: React.FC = () => {
       <Modal.Title as='h1' className='text-lg font-medium leading-6 text-bcBlueLink border-b p-4'>
         Add IEN
       </Modal.Title>
-      <div className='w-full max-w-xs'>
+      <div className='w-full'>
         <form className='bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4'>
           <Modal.Description className='mb-7 flex items-center gap-3'>
-            <span className='inline-block h-5 rounded-lg w-48 p-1 animate-pulse bg-gray-200' />
+            <span className='w-full inline-block h-5 rounded-lg p-1 animate-pulse bg-gray-200' />
           </Modal.Description>
           <div className='mb-4'>
-            <label className='block text-gray-700 text-sm font-bold mb-2' htmlFor='username'>
-              Username
+            <label className='text-gray-700 text-sm font-bold mb-2' htmlFor='username'>
+              Test Label 1
             </label>
             <input
               className='shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline'
-              id='username'
+              id='t1'
               type='text'
-              placeholder='Username'
+              placeholder='Test Input 2'
             />
           </div>
-          <div className='mb-6'>
-            <label className='block text-gray-700 text-sm font-bold mb-2' htmlFor='password'>
-              Password
+          <div className='mb-4'>
+            <label className='text-gray-700 text-sm font-bold mb-2' htmlFor='username'>
+              Test Label 2
             </label>
             <input
-              className='shadow appearance-none border border-red-500 rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline'
-              id='password'
-              type='password'
-              placeholder='******************'
+              className='shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline'
+              id='t2'
+              type='text'
+              placeholder='Test Input 2'
             />
-            <p className='text-red-500 text-xs italic'>Please choose a password.</p>
           </div>
           <div className='flex items-center justify-between'>
             <button
@@ -62,9 +61,7 @@ export const AddSingleModal: React.FC = () => {
             </button>
           </div>
         </form>
-        <p className='text-center text-gray-500 text-xs'>
-          &copy;2020 Acme Corp. All rights reserved.
-        </p>
+        <p className='text-center text-gray-500 text-xs'>&copy; Something</p>
       </div>
     </Modal>
   );
