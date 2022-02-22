@@ -46,3 +46,9 @@ yarn-error.log*
 
 #hbs
 *.hbs
+
+
+
+*.yaml
+
+packages/accessibility/out

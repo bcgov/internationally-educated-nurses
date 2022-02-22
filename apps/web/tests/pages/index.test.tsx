@@ -11,12 +11,6 @@ jest.mock('next/router', () => ({
 }));
 
 describe('Home', () => {
-  it('redirects to the submission page', () => {
-    render(<Home />);
-
-    expect(mockReplace).toHaveBeenCalledWith('/submission/1');
-  });
-
   it('does not render content', () => {
     const { container } = render(<Home />);
 

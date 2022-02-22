@@ -35,8 +35,8 @@ jobs:
               sleep 5
           done
 
-      - name: Accessibility Test web package
-        run: make accessibility-test
+      # - name: Accessibility Test web package
+      #   run: make accessibility-test
 
       - name: generate markdown from test results
         run: make generate-accessibility-results
