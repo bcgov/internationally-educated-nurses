@@ -1,6 +1,6 @@
 import { Table } from 'src/components/display/Table';
 
-const Login = () => {
+const Form = () => {
   return (
     <>
       <Table />
@@ -8,4 +8,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Form;
