@@ -1,10 +1,9 @@
-import { useState } from 'react';
-import { Modal } from '../Modal';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+
 import { AddSingleModal } from './AddSingleModal';
 import { UploadFileModal } from './UploadFileModal';
-import { Button, buttonBase, buttonColor } from '../';
+import { buttonBase, buttonColor } from '../';
 
 export const Table: React.FC = () => {
   const router = useRouter();
@@ -84,6 +83,11 @@ export const Table: React.FC = () => {
     },
   ];
 
+  const uploadOptionsArray = [
+    { value: 'add-row', label: 'Add Row' },
+    { value: 'bulk-upload', label: 'Bulk Upload' },
+  ];
+
   return (
     <>
       <div className='container'>
@@ -92,7 +96,7 @@ export const Table: React.FC = () => {
           <Link
             href={{
               pathname: '/login',
-              query: { ...router.query, add_row: true },
+              query: { ...router.query, add_row: 'test_single_row' },
             }}
             shallow={true}
           >
@@ -101,7 +105,7 @@ export const Table: React.FC = () => {
           <Link
             href={{
               pathname: '/login',
-              query: { ...router.query, bulk_upload: true },
+              query: { ...router.query, bulk_upload: 'test_bulk_upload' },
             }}
             shallow={true}
           >
