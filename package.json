@@ -41,7 +41,7 @@
     "wsrun": "5.2.4"
   },
   "dependencies": {
-    "react-dropzone": "^12.0.4",
-    "xlsx": "^0.18.2"
+    "react-dropzone": "12.0.4",
+    "xlsx": "0.18.2"
   }
 }
