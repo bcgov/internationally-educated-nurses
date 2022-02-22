@@ -95,7 +95,7 @@ export const Table: React.FC = () => {
         <div className='flex justify-end items-end'>
           <Link
             href={{
-              pathname: '/login',
+              pathname: '/form',
               query: { ...router.query, add_row: 'test_single_row' },
             }}
             shallow={true}
@@ -104,7 +104,7 @@ export const Table: React.FC = () => {
           </Link>{' '}
           <Link
             href={{
-              pathname: '/login',
+              pathname: '/form',
               query: { ...router.query, bulk_upload: 'test_bulk_upload' },
             }}
             shallow={true}

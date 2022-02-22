@@ -38,16 +38,6 @@ const UploadPage: React.FC<UploadPageProps> = ({ closeModal }) => {
   const [file, setFile] = useState<any>(null);
   const router = useRouter();
 
-  // Sorry; useFetch wasn't working :( It wasn't passing in the file correctly
-
-  // const res = await fetch(fileUrl, {
-  //   method: 'PUT',
-  //   headers: {
-  //     'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  //   },
-  //   body: file,
-  // });
-
   const handleFileUpload = async () => {
     let reader = new FileReader();
 
