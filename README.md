@@ -1,4 +1,7 @@
-# EHPR Hiring Portal
+# Internationally Educated Nurses hiring portal project. 
+
+[![Lifecycle:Experimental](https://img.shields.io/badge/Lifecycle-Experimental-339999)](https://github.com/bcgov/internationally-educated-nurses)
+
 
 ## Front End
 
