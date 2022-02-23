@@ -6,7 +6,7 @@ const Home: NextPage = () => {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace('/submission/1');
+    router.replace('/form');
   }, [router]);
 
   return null;
