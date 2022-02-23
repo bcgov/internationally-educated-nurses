@@ -17,7 +17,7 @@ export const Dropzone: React.FC<{ onDrop: onDropType }> = ({ onDrop }) => {
       <input
         className='w-full'
         {...getInputProps({
-          accept: '.xlsx',
+          accept: '.csv',
           multiple: false,
         })}
       />

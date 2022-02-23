@@ -2654,6 +2654,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/papaparse@npm:5.3.2":
+  version: 5.3.2
+  resolution: "@types/papaparse@npm:5.3.2"
+  dependencies:
+    "@types/node": "*"
+  checksum: e8f7f5c251a952b97507cc89e76f69b67876a771b23827013701f6b9c6d9a062a75a2925e7f9ad68f063aad8f98089c76187e22223fa35dffa02283bd8665b96
+  languageName: node
+  linkType: hard
+
 "@types/parse-json@npm:^4.0.0":
   version: 4.0.0
   resolution: "@types/parse-json@npm:4.0.0"
@@ -3307,15 +3316,6 @@ __metadata:
   bin:
     acorn: bin/acorn
   checksum: 9d0de73b73cb6ea8ccd8263a8144d9e2c4b6af90ea0c429997538af0ebbe83c5addecee814b2a7f91f7f615d0bd1547cc7137b3fa236ce058adc64feccee850b
-  languageName: node
-  linkType: hard
-
-"adler-32@npm:~1.3.0":
-  version: 1.3.0
-  resolution: "adler-32@npm:1.3.0"
-  dependencies:
-    printj: ~1.2.2
-  checksum: 91c3155198c89f1bdf87141844dcec1c463474797dbb85a04e9729a0a20047dbef35550cf6b36dc09742c612cf37437e62656a6197409b349ee457dfe712ce4d
   languageName: node
   linkType: hard
 
@@ -4573,17 +4573,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cfb@npm:~1.2.1":
-  version: 1.2.1
-  resolution: "cfb@npm:1.2.1"
-  dependencies:
-    adler-32: ~1.3.0
-    crc-32: ~1.2.0
-    printj: ~1.3.0
-  checksum: 6d21a58c07d3315a5a253a7acdd4b0238771881f42faee2c0ff6a793d5b59c7304388b3ff2c8d45da2aa9d7a87cfc5ab4f5a54bedfe3152a5ac6f63029da4efd
-  languageName: node
-  linkType: hard
-
 "chalk@npm:2.4.2, chalk@npm:^2.0.0, chalk@npm:^2.3.0, chalk@npm:^2.4.1":
   version: 2.4.2
   resolution: "chalk@npm:2.4.2"
@@ -4990,13 +4979,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"codepage@npm:~1.15.0":
-  version: 1.15.0
-  resolution: "codepage@npm:1.15.0"
-  checksum: 86bdfd8f8fd4d78ace6ddab02a1621cbb4a833686fe886984b4155d99cd0287581d69495774b816ab2f571c4dc851c1595e1dbb8d69bd6dbb5a631ebf317fab0
-  languageName: node
-  linkType: hard
-
 "collect-v8-coverage@npm:^1.0.0":
   version: 1.0.1
   resolution: "collect-v8-coverage@npm:1.0.1"
@@ -5330,18 +5312,6 @@ __metadata:
     path-type: ^4.0.0
     yaml: ^1.10.0
   checksum: 4be63e7117955fd88333d7460e4c466a90f556df6ef34efd59034d2463484e339666c41f02b523d574a797ec61f4a91918c5b89a316db2ea2f834e0d2d09465b
-  languageName: node
-  linkType: hard
-
-"crc-32@npm:~1.2.0, crc-32@npm:~1.2.1":
-  version: 1.2.1
-  resolution: "crc-32@npm:1.2.1"
-  dependencies:
-    exit-on-epipe: ~1.0.1
-    printj: ~1.3.1
-  bin:
-    crc32: bin/crc32.njs
-  checksum: b8942a404766990b1ebbcc488fe5972afbabfea870362325165e26d1156abc3e987afb22cc74bd624a1570d8837d7b910534e83a8ffb9413e6ff02ec5cc638aa
   languageName: node
   linkType: hard
 
@@ -6829,13 +6799,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"exit-on-epipe@npm:~1.0.1":
-  version: 1.0.1
-  resolution: "exit-on-epipe@npm:1.0.1"
-  checksum: e8ab4940416d19f311b3c9226e3725c6c4c6026fe682266ecc0ff33a455d585fe3e4ee757857c7bf1d0491b478cb232b8e395dfb438e65ac87317eda47304c32
-  languageName: node
-  linkType: hard
-
 "exit@npm:^0.1.2":
   version: 0.1.2
   resolution: "exit@npm:0.1.2"
@@ -7300,13 +7263,6 @@ __metadata:
   version: 0.2.0
   resolution: "forwarded@npm:0.2.0"
   checksum: fd27e2394d8887ebd16a66ffc889dc983fbbd797d5d3f01087c020283c0f019a7d05ee85669383d8e0d216b116d720fc0cef2f6e9b7eb9f4c90c6e0bc7fd28e6
-  languageName: node
-  linkType: hard
-
-"frac@npm:~1.1.2":
-  version: 1.1.2
-  resolution: "frac@npm:1.1.2"
-  checksum: fbfbb28003bb84506dd35e7aad8543c5a358bdc95451d0065b6127d40d2c45106f14221575c3e9ce3ea4bf0bbf1225b73c5d655965c9f4ce44332cbe1b34667d
   languageName: node
   linkType: hard
 
@@ -8073,12 +8029,14 @@ __metadata:
   resolution: "ien@workspace:."
   dependencies:
     "@tsconfig/node14": 1.0.1
+    "@types/papaparse": ^5.3.2
     "@typescript-eslint/eslint-plugin": 5.0.0
     "@typescript-eslint/parser": 5.0.0
     eslint-config-prettier: 8.3.0
     husky: 7.0.4
     nodemon: 2.0.15
     npm-run-all: 4.1.5
+    papaparse: ^5.3.1
     prettier: 2.4.1
     pretty-quick: 3.1.2
     react-dropzone: 12.0.4
@@ -8087,7 +8045,6 @@ __metadata:
     tsconfig-paths: 3.10.1
     typescript: 4.3.5
     wsrun: 5.2.4
-    xlsx: 0.18.2
   languageName: unknown
   linkType: soft
 
@@ -12169,6 +12126,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"papaparse@npm:^5.3.1":
+  version: 5.3.1
+  resolution: "papaparse@npm:5.3.1"
+  checksum: 3431917bb46f8952e49ca64ecc9107ddf05291573ef666c8fac4e172b57780d131f1af925b47841039bd5ae0ceadc2eafbcb8183c092307442f85eed11f82b69
+  languageName: node
+  linkType: hard
+
 "parent-module@npm:^1.0.0":
   version: 1.0.1
   resolution: "parent-module@npm:1.0.1"
@@ -12750,24 +12714,6 @@ __metadata:
   bin:
     pretty-quick: bin/pretty-quick.js
   checksum: c4b0de1829c63dfb1c2cb509892410fdba8fd2490b5ef9e1b34c418bc83f9205a7b6559fbf5e349d638e9c0ad1416fb35581d0e3eef2d45ee7093fb0838eaadd
-  languageName: node
-  linkType: hard
-
-"printj@npm:~1.2.2":
-  version: 1.2.3
-  resolution: "printj@npm:1.2.3"
-  bin:
-    printj: bin/printj.njs
-  checksum: ba0bc4c0879dfdb836f6e3f61617c5823d822305784c455fae75a4e83c645839ba73f8fd2eab1621ece4d682ac089fee3ae55aca6945df94a9cb36797de5f150
-  languageName: node
-  linkType: hard
-
-"printj@npm:~1.3.0, printj@npm:~1.3.1":
-  version: 1.3.1
-  resolution: "printj@npm:1.3.1"
-  bin:
-    printj: bin/printj.njs
-  checksum: 3bb8976e02c2a5943f86bf7d1cbe7764fa9fb6fb177cbc9fe0044adbd7be11dbf82e4c72d381f4d2ddc578fada92ea24ab263069549254cb796a252f11fd1ddf
   languageName: node
   linkType: hard
 
@@ -14207,15 +14153,6 @@ __metadata:
   version: 1.0.3
   resolution: "sprintf-js@npm:1.0.3"
   checksum: 19d79aec211f09b99ec3099b5b2ae2f6e9cdefe50bc91ac4c69144b6d3928a640bb6ae5b3def70c2e85a2c3d9f5ec2719921e3a59d3ca3ef4b2fd1a4656a0df3
-  languageName: node
-  linkType: hard
-
-"ssf@npm:~0.11.2":
-  version: 0.11.2
-  resolution: "ssf@npm:0.11.2"
-  dependencies:
-    frac: ~1.1.2
-  checksum: 6ecef6ae0a90e67dc4b05bc3cca883e2dffad9773b41124af36ee308884e4a29f98bde66d6c8d2bd1ccf5f860ea4f6c49338bd8d733007fc42ebe02dd5295dcf
   languageName: node
   linkType: hard
 
@@ -16092,24 +16029,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"wmf@npm:~1.0.1":
-  version: 1.0.2
-  resolution: "wmf@npm:1.0.2"
-  checksum: d336acb2c76fa868ef006fbb06c4e64c7c1ed5ff77d16c48a273cf1f4d0a44e35df209b8fde28d93dd4a924d652a9c4fc8a92ad57885a5e437df0b0900769e3b
-  languageName: node
-  linkType: hard
-
 "word-wrap@npm:^1.2.3, word-wrap@npm:~1.2.3":
   version: 1.2.3
   resolution: "word-wrap@npm:1.2.3"
   checksum: 30b48f91fcf12106ed3186ae4fa86a6a1842416df425be7b60485de14bec665a54a68e4b5156647dec3a70f25e84d270ca8bc8cd23182ed095f5c7206a938c1f
-  languageName: node
-  linkType: hard
-
-"word@npm:~0.3.0":
-  version: 0.3.0
-  resolution: "word@npm:0.3.0"
-  checksum: f84e7061883380c1bcb0d98bd183b7f2b281688011924af7a96d3ed3ee20aeb12cc59a0451b66e5e57520338a056725ff8e0c07b358c0afecf5488a9557c19fe
   languageName: node
   linkType: hard
 
@@ -16210,23 +16133,6 @@ __metadata:
   version: 4.0.0
   resolution: "xdg-basedir@npm:4.0.0"
   checksum: 0073d5b59a37224ed3a5ac0dd2ec1d36f09c49f0afd769008a6e9cd3cd666bd6317bd1c7ce2eab47e1de285a286bad11a9b038196413cd753b79770361855f3c
-  languageName: node
-  linkType: hard
-
-"xlsx@npm:0.18.2":
-  version: 0.18.2
-  resolution: "xlsx@npm:0.18.2"
-  dependencies:
-    adler-32: ~1.3.0
-    cfb: ~1.2.1
-    codepage: ~1.15.0
-    crc-32: ~1.2.1
-    ssf: ~0.11.2
-    wmf: ~1.0.1
-    word: ~0.3.0
-  bin:
-    xlsx: bin/xlsx.njs
-  checksum: 26820057e87259e438a287dff817e6bc9279943cfe4a844212b468b64500f708e14da2c3cacb2f1eda4e55bf8e2925f4fa7e9b83908df7dd4e79176c0faec92e
   languageName: node
   linkType: hard
 
