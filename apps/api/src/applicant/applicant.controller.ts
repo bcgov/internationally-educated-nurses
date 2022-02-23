@@ -29,8 +29,8 @@ export class ApplicantController {
   @ApiOperation({
     summary: 'List applicants',
   })
-  @ApiQuery({ name: 'haPcn', required: false, description: 'Provide optional HA'})
-  @ApiQuery({ name: 'status', required: false, description: 'Provide optional status(int)'})
+  @ApiQuery({ name: 'ha_pcn', required: false, description: 'Provide optional HA' })
+  @ApiQuery({ name: 'status', required: false, description: 'Provide optional status(int)' })
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
   @HttpCode(HttpStatus.OK)

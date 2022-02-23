@@ -1,20 +1,20 @@
-import {Entity, Column, OneToMany, PrimaryGeneratedColumn, ManyToOne } from "typeorm";
-import { ApplicantEntity } from "./applicant.entity";
+import { Entity, Column, OneToMany, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { ApplicantEntity } from './applicant.entity';
 
 @Entity('applicant_status')
 export class ApplicantStatusEntity {
-    @PrimaryGeneratedColumn()
-    id!: number;
+  @PrimaryGeneratedColumn()
+  id!: number;
 
-    @Column()
-    status!: string;
+  @Column()
+  status!: string;
 
-    @ManyToOne(() => ApplicantStatusEntity, status => status.id)
-    parent?: ApplicantStatusEntity;
+  @ManyToOne(() => ApplicantStatusEntity, status => status.id)
+  parent?: ApplicantStatusEntity;
 
-    @OneToMany(() => ApplicantStatusEntity, status => status.parent)
-    children!: ApplicantStatusEntity[];
-    
-    @OneToMany(() => ApplicantEntity, applicant => applicant.status)
-    applicants!: ApplicantEntity[];
+  @OneToMany(() => ApplicantStatusEntity, status => status.parent)
+  children!: ApplicantStatusEntity[];
+
+  @OneToMany(() => ApplicantEntity, applicant => applicant.status)
+  applicants!: ApplicantEntity[];
 }

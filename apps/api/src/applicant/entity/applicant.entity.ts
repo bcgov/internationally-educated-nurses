@@ -3,12 +3,12 @@ import { BaseEntity } from 'src/database/base.entity';
 import { ApplicantStatusEntity } from './applicantStatus.entity';
 
 @Entity('applicants')
-export class ApplicantEntity extends BaseEntity{
+export class ApplicantEntity extends BaseEntity {
   @Column('varchar')
-  firstName!: string;
+  first_name!: string;
 
   @Column('varchar', { nullable: true })
-  lastName!: string;
+  last_name!: string;
 
   @Column('varchar')
   profession!: string;
@@ -17,10 +17,10 @@ export class ApplicantEntity extends BaseEntity{
   speciality!: string;
 
   @Column('varchar', { nullable: true })
-  assignedTo!: string;
+  assigned_to!: string;
 
   @Column('varchar')
-  haPcn!: string;
+  ha_pcn!: string;
 
   @ManyToOne(() => ApplicantStatusEntity, status => status.applicants)
   status!: ApplicantStatusEntity;
@@ -41,14 +41,14 @@ export class ApplicantEntity extends BaseEntity{
   comment?: string;
 
   @Column('varchar', { nullable: true })
-  addedBy?: string;
+  added_by?: string;
 
   @Column('varchar', { nullable: true })
-  addedById?: string;
+  added_by_id?: string;
 
-  @Column({default: true})
-  isOpen!: boolean;
+  @Column({ default: true })
+  is_open!: boolean;
 
   @Column('jsonb', { nullable: true })
-  additionalData?: JSON;
+  additional_data?: JSON;
 }

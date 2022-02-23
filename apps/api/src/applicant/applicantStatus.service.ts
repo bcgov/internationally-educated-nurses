@@ -13,11 +13,11 @@ export class ApplicantStatusService {
   ) {}
 
   async getApplicantStatus(): Promise<ApplicantStatusEntity[]> {
-    return await this.applicantStatusRepository.find({ 
-        where: {
-            parent: IsNull()
-        },
-        relations: ["children"] 
+    return await this.applicantStatusRepository.find({
+      where: {
+        parent: IsNull(),
+      },
+      relations: ['children'],
     });
   }
 }

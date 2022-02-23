@@ -15,15 +15,15 @@ export class ApplicantService {
 
   async getApplicants(filterDto: ApplicantFilterDto): Promise<ApplicantEntity[]> {
     let where: any = {};
-    const {haPcn, status} = filterDto;
+    const { ha_pcn, status } = filterDto;
     if (filterDto) {
-      if (haPcn) {
-        where.haPcn = haPcn;
+      if (ha_pcn) {
+        where.ha_pcn = ha_pcn;
       }
       if (status) {
         where = [
           { status: parseInt(status), ...where },
-          { status: { parent: parseInt(status)}, ...where },
+          { status: { parent: parseInt(status) }, ...where },
         ];
       }
     }
@@ -31,9 +31,10 @@ export class ApplicantService {
     return await this.applicantRepository.find({
       where: where,
       order: {
-        updatedDate: 'DESC'
+        updatedDate: 'DESC',
       },
-      relations: ["status", "status.parent"] });
+      relations: ['status', 'status.parent'],
+    });
   }
 
   async getApplicantById(id: string): Promise<ApplicantEntity> {

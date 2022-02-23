@@ -3,7 +3,7 @@ import { IsOptional, IsString } from 'class-validator';
 export class ApplicantFilterDto {
   @IsOptional()
   @IsString()
-  haPcn?: string;
+  ha_pcn?: string;
 
   @IsOptional()
   @IsString()
