@@ -1,4 +1,4 @@
-import { FormDTO } from '@ien/common/src/dto';
+// import { FormDTO } from '@ien/common/src/dto';
 import {
   Inject,
   Logger,
@@ -9,12 +9,13 @@ import {
   Post,
   Body,
   InternalServerErrorException,
+  Controller,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AppLogger } from 'src/common/logger.service';
 import { EmptyResponse } from 'src/common/ro/empty-response.ro';
-import { FormService } from './form.service';
-
+import { FormService } from 'src/form/form.service';
+@Controller('form')
 export class FormController {
   constructor(
     @Inject(Logger) private readonly logger: AppLogger,
@@ -28,9 +29,9 @@ export class FormController {
   @ApiResponse({ status: HttpStatus.CREATED, type: EmptyResponse })
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  async name(@Body() body: FormDTO): Promise<any> {
+  async name(@Body() body: any): Promise<any> {
     try {
-      return await this.formService.saveForm(body);
+      //return await this.formService.saveForm(body);
     } catch (e) {
       this.logger.error(e, '');
       throw new InternalServerErrorException('An unknown error occured while saving a submission');

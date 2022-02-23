@@ -1,6 +1,7 @@
 import { Module, Logger } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
+import { FormEntity } from 'src/form/entities/form.entity';
 import { SubmissionEntity } from 'src/submission/entity/submission.entity';
 import { LoggerOptions } from 'typeorm';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
@@ -8,6 +9,7 @@ import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConne
 import config from '../ormconfig';
 
 const getEnvironmentSpecificConfig = (env?: string) => {
+  console.log(env);
   switch (env) {
     case 'production':
       return {
@@ -22,7 +24,7 @@ const getEnvironmentSpecificConfig = (env?: string) => {
         username: process.env.TEST_POSTGRES_USERNAME,
         password: process.env.TEST_POSTGRES_PASSWORD,
         database: process.env.TEST_POSTGRES_DATABASE,
-        entities: [SubmissionEntity],
+        entities: [SubmissionEntity, FormEntity],
         migrations: ['dist/migration/*.js'],
         logging: ['error', 'warn', 'migration'] as LoggerOptions,
       };
