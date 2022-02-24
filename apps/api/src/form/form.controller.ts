@@ -36,7 +36,7 @@ export class FormController {
       return await this.formService.saveForm(body);
     } catch (e) {
       this.logger.error(e, '');
-      throw new InternalServerErrorException('An unknown error occured while saving a submission');
+      throw new InternalServerErrorException('An unknown error occured while saving a form');
     }
   }
 }

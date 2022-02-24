@@ -8,9 +8,9 @@ export class FormService {
     private readonly formRepository: Repository<FormEntity>,
   ) {}
   async saveForm(formPayload: FormDTO) {
-    const formDate: FormEntity = this.formRepository.create({
+    const formData: FormEntity = this.formRepository.create({
       ...formPayload,
     });
-    return await this.formRepository.save(formDate);
+    return await this.formRepository.save(formData);
   }
 }
