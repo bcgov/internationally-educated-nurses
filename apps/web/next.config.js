@@ -9,7 +9,7 @@ module.exports = {
     return [
       {
         source: '/',
-        destination: '/submission/1',
+        destination: '/form',
         permanent: true,
       },
     ];

@@ -11,6 +11,6 @@ export class FormService {
     const formDate: FormEntity = this.formRepository.create({
       ...formPayload,
     });
-    await this.formRepository.save(formDate);
+    return await this.formRepository.save(formDate);
   }
 }

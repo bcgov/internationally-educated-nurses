@@ -15,6 +15,7 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AppLogger } from 'src/common/logger.service';
 import { EmptyResponse } from 'src/common/ro/empty-response.ro';
 import { FormService } from 'src/form/form.service';
+import { FormEntity } from './entities/form.entity';
 @Controller('form')
 @ApiTags('Form')
 export class FormController {
@@ -30,7 +31,7 @@ export class FormController {
   @ApiResponse({ status: HttpStatus.CREATED, type: EmptyResponse })
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  async name(@Body() body: FormDTO): Promise<any> {
+  async name(@Body() body: FormDTO): Promise<FormEntity> {
     try {
       return await this.formService.saveForm(body);
     } catch (e) {
