@@ -11,14 +11,13 @@ export class FormEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column('varchar', { length: 256 })
+  @Column('varchar', { length: 256, nullable: true })
   file_name!: string;
 
-  @Column('varchar', { length: 1024 })
+  @Column('varchar', { length: 1024, nullable: true })
   file_path!: string;
 
-  @Column('varchar', { length: 256 })
-  assigned_to!: string;
+  // TODO Add assigned_to column
 
   @CreateDateColumn()
   @Exclude()

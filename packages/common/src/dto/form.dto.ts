@@ -26,10 +26,6 @@ export class FormDTO {
     default: 'Karl',
     type: String,
   })
-  @IsString()
-  @Length(1, 256)
-  @IsOptional()
-  assigned_to!: string;
   @ApiProperty({
     description: 'A JSON string of the files contents',
     default: '{"key":"value"}',
