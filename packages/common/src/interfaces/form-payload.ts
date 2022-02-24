@@ -3,7 +3,7 @@ import {
   ContactInformationDTO,
   PersonalInformationDTO,
   CredentialInformationDTO,
-} from 'src';
+} from '../../src';
 
 // TODO: REMOVE
 
