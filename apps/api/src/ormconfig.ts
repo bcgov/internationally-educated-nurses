@@ -21,5 +21,4 @@ const config: PostgresConnectionOptions = {
   namingStrategy: new DatabaseNamingStrategy(),
   logging: true,
 };
-console.log(config);
 export default config;

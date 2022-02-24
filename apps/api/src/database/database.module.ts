@@ -9,7 +9,6 @@ import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConne
 import config from '../ormconfig';
 
 const getEnvironmentSpecificConfig = (env?: string) => {
-  console.log(env);
   switch (env) {
     case 'production':
       return {
