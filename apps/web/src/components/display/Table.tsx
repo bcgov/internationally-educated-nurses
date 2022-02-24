@@ -83,11 +83,6 @@ export const Table: React.FC = () => {
     },
   ];
 
-  const uploadOptionsArray = [
-    { value: 'add-row', label: 'Add Row' },
-    { value: 'bulk-upload', label: 'Bulk Upload' },
-  ];
-
   return (
     <>
       <div className='container'>

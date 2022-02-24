@@ -89,12 +89,7 @@ const UploadPage: React.FC<UploadPageProps> = ({ closeModal }) => {
         <Button onClick={closeModal} variant='outline' type='button'>
           Cancel
         </Button>
-        <Button
-          onClick={handleFileUpload}
-          variant='primary'
-          type='button'
-          disabled={!file || uploading}
-        >
+        <Button onClick={handleFileUpload} variant='primary' type='button' disabled={!file}>
           Upload
         </Button>
       </div>
