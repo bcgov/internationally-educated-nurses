@@ -6,9 +6,11 @@ export interface ModalProps {
   handleClose: () => void;
 }
 
+const { Root, Child } = Transition;
+
 const ModalContainer: React.FC<ModalProps> = ({ children, open, handleClose }) => {
   return (
-    <Transition.Root show={open} as={Fragment}>
+    <Root show={open} as={Fragment}>
       <Dialog
         as='div'
         static
@@ -17,7 +19,7 @@ const ModalContainer: React.FC<ModalProps> = ({ children, open, handleClose }) =
         onClose={handleClose}
       >
         <div className='flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0'>
-          <Transition.Child
+          <Child
             as={Fragment}
             enter='ease-out duration-300'
             enterFrom='opacity-0'
@@ -27,7 +29,7 @@ const ModalContainer: React.FC<ModalProps> = ({ children, open, handleClose }) =
             leaveTo='opacity-0'
           >
             <Dialog.Overlay className='fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity' />
-          </Transition.Child>
+          </Child>
 
           {/* This element is to trick the browser into centering the modal contents. */}
           <span className='hidden sm:inline-block sm:align-middle sm:h-screen' aria-hidden='true'>
@@ -48,7 +50,7 @@ const ModalContainer: React.FC<ModalProps> = ({ children, open, handleClose }) =
           </Transition.Child>
         </div>
       </Dialog>
-    </Transition.Root>
+    </Root>
   );
 };
 

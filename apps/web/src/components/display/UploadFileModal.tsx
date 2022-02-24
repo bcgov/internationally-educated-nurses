@@ -31,12 +31,10 @@ interface UploadPageProps {
 }
 
 const UploadPage: React.FC<UploadPageProps> = ({ closeModal }) => {
-  // const [uploading, setUploading] = useState(false);
   const [file, setFile] = useState<any>(null);
 
   // parses csv file using papaparse, header uses column headers as keys in JSON data
   const handleFileUpload = async () => {
-    console.log(file);
     Papa.parse(file, {
       header: true,
       transformHeader: h => {
