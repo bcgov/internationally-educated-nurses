@@ -8029,14 +8029,14 @@ __metadata:
   resolution: "ien@workspace:."
   dependencies:
     "@tsconfig/node14": 1.0.1
-    "@types/papaparse": ^5.3.2
+    "@types/papaparse": 5.3.2
     "@typescript-eslint/eslint-plugin": 5.0.0
     "@typescript-eslint/parser": 5.0.0
     eslint-config-prettier: 8.3.0
     husky: 7.0.4
     nodemon: 2.0.15
     npm-run-all: 4.1.5
-    papaparse: ^5.3.1
+    papaparse: 5.3.1
     prettier: 2.4.1
     pretty-quick: 3.1.2
     react-dropzone: 12.0.4
@@ -12126,7 +12126,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"papaparse@npm:^5.3.1":
+"papaparse@npm:5.3.1":
   version: 5.3.1
   resolution: "papaparse@npm:5.3.1"
   checksum: 3431917bb46f8952e49ca64ecc9107ddf05291573ef666c8fac4e172b57780d131f1af925b47841039bd5ae0ceadc2eafbcb8183c092307442f85eed11f82b69
