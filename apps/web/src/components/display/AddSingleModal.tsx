@@ -1,6 +1,4 @@
-import { useEffect, useState } from 'react';
 import { Modal } from '../Modal';
-import { Form, Formik } from 'formik';
 import { useRouter } from 'next/router';
 
 export const AddSingleModal: React.FC = () => {

@@ -7,15 +7,12 @@ import Papa from 'papaparse';
 
 import { Modal } from '../Modal';
 import { Button } from '../Button';
-import { route } from 'next/dist/server/router';
 
 export const UploadFileModal: React.FC = () => {
-  const [state, setState] = useState<any>({});
   const router = useRouter();
   const isOpen = !!router.query.bulk_upload;
 
   const handleClose = () => {
-    console.log(router);
     delete router.query.bulk_upload;
     router.push(router.route, undefined, { shallow: true });
   };
@@ -34,9 +31,8 @@ interface UploadPageProps {
 }
 
 const UploadPage: React.FC<UploadPageProps> = ({ closeModal }) => {
-  const [uploading, setUploading] = useState(false);
+  // const [uploading, setUploading] = useState(false);
   const [file, setFile] = useState<any>(null);
-  const router = useRouter();
 
   // parses csv file using papaparse, header uses column headers as keys in JSON data
   const handleFileUpload = async () => {
