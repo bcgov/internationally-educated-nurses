@@ -7,9 +7,13 @@ import { ApplicantController } from './applicant.controller';
 import { ApplicantStatusController } from './applicantStatus.controller';
 import { ApplicantService } from './applicant.service';
 import { ApplicantStatusService } from './applicantStatus.service';
+import { ApplicantStatusAuditEntity } from './entity/applicantStatusAudit.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ApplicantEntity, ApplicantStatusEntity]), MailModule],
+  imports: [
+    TypeOrmModule.forFeature([ApplicantEntity, ApplicantStatusEntity, ApplicantStatusAuditEntity]),
+    MailModule,
+  ],
   controllers: [ApplicantController, ApplicantStatusController],
   providers: [ApplicantService, ApplicantStatusService, Logger],
   exports: [ApplicantService],

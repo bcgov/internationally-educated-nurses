@@ -1,4 +1,5 @@
 import {
+  Body,
   ClassSerializerInterceptor,
   Controller,
   Get,
@@ -8,11 +9,12 @@ import {
   InternalServerErrorException,
   Logger,
   Param,
+  Post,
   Query,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
-import { ApplicantFilterDto } from '@ien/common';
+import { ApplicantFilterDto, ApplicantCreateDto } from '@ien/common';
 import { ApplicantService } from './applicant.service';
 import { EmptyResponse } from 'src/common/ro/empty-response.ro';
 import { ApplicantEntity } from './entity/applicant.entity';
@@ -53,5 +55,21 @@ export class ApplicantController {
   @Get('/:id')
   getApplicant(@Param('id') id: string): Promise<ApplicantEntity> {
     return this.applicantService.getApplicantById(id);
+  }
+
+  @ApiOperation({
+    summary: 'Add Applicant',
+  })
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiResponse({ status: HttpStatus.CREATED, type: EmptyResponse })
+  @HttpCode(HttpStatus.CREATED)
+  @Post()
+  addApplicant(@Body() addApplicantDto: ApplicantCreateDto): Promise<ApplicantEntity> {
+    try {
+      return this.applicantService.addApplicant(addApplicantDto);
+    } catch (e) {
+      this.logger.error(e);
+      throw new InternalServerErrorException('An unknown error occured while adding applicant');
+    }
   }
 }
