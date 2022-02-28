@@ -57,7 +57,7 @@ export class ApplicantService {
     let applicant;
     let relations = this.applicantRelations.status;
     try {
-      if (data && data !== '' && data === 'audit') {
+      if (data && data.relation && data.relation !== '' && data.relation === 'audit') {
         relations = relations.concat(this.applicantRelations.audit);
       }
       applicant = await this.applicantRepository.findOne(id, {

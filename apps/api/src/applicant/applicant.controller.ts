@@ -55,6 +55,7 @@ export class ApplicantController {
   @ApiOperation({
     summary: 'Get Applicant details',
   })
+  @ApiQuery({ name: 'relation', required: false, description: 'Get additinal data like audit' })
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
   @HttpCode(HttpStatus.OK)
