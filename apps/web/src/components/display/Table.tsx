@@ -108,7 +108,7 @@ export const Table: React.FC = () => {
           </Link>
         </div>
 
-        <div className='flex-grow flex-col overflow-x-auto'>
+        <div className='flex flex-col overflow-x-auto'>
           <table className='text-left'>
             <thead className='whitespace-nowrap'>
               <tr className='border-b-2 border-yellow-300'>

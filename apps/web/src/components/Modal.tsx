@@ -63,6 +63,6 @@ export const Modal = ModalContainer as ModalInterface;
 Modal.Title = Dialog.Title;
 Modal.Description = Dialog.Description;
 
-export const ModalFooter = ({ children }) => {
+export const ModalFooter: React.FC<any> = ({ children }) => {
   return <div className='bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse'>{children}</div>;
 };
