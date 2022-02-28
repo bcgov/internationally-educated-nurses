@@ -9,6 +9,7 @@ import {
   PrimaryGeneratedColumn,
   OneToMany,
 } from 'typeorm';
+import { ApplicantAuditEntity } from './applicantAudit.entity';
 import { ApplicantStatusEntity } from './applicantStatus.entity';
 import { ApplicantStatusAuditEntity } from './applicantStatusAudit.entity';
 
@@ -70,7 +71,10 @@ export class ApplicantEntity {
     () => ApplicantStatusAuditEntity,
     applicant_status_audit => applicant_status_audit.applicant,
   )
-  applicants!: ApplicantStatusAuditEntity[];
+  applicant_status_audit!: ApplicantStatusAuditEntity[];
+
+  @OneToMany(() => ApplicantAuditEntity, applicant_audit => applicant_audit.applicant)
+  applicant_audit!: ApplicantAuditEntity[];
 
   @CreateDateColumn()
   @Exclude()

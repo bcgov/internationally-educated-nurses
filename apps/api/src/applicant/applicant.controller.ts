@@ -9,12 +9,13 @@ import {
   InternalServerErrorException,
   Logger,
   Param,
+  Patch,
   Post,
   Query,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
-import { ApplicantFilterDto, ApplicantCreateDto } from '@ien/common';
+import { ApplicantFilterDto, ApplicantCreateDto, ApplicantUpdateDto } from '@ien/common';
 import { ApplicantService } from './applicant.service';
 import { EmptyResponse } from 'src/common/ro/empty-response.ro';
 import { ApplicantEntity } from './entity/applicant.entity';
@@ -64,12 +65,25 @@ export class ApplicantController {
   @ApiResponse({ status: HttpStatus.CREATED, type: EmptyResponse })
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  addApplicant(@Body() addApplicantDto: ApplicantCreateDto): Promise<ApplicantEntity> {
+  async addApplicant(@Body() addApplicantDto: ApplicantCreateDto): Promise<ApplicantEntity> {
     try {
-      return this.applicantService.addApplicant(addApplicantDto);
+      return await this.applicantService.addApplicant(addApplicantDto);
     } catch (e) {
       this.logger.error(e);
       throw new InternalServerErrorException('An unknown error occured while adding applicant');
+    }
+  }
+
+  @Patch('/:id')
+  updateApplicant(
+    @Param('id') id: string,
+    @Body() applicantUpdate: ApplicantUpdateDto,
+  ): Promise<ApplicantEntity | undefined> {
+    try {
+      return this.applicantService.updateApplicant(id, applicantUpdate);
+    } catch (e) {
+      this.logger.error(e);
+      throw new InternalServerErrorException('An unknown error occured while update applicant');
     }
   }
 }

@@ -1,4 +1,4 @@
-import { Exclude } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import {
   Entity,
   Column,
@@ -50,4 +50,12 @@ export class ApplicantStatusAuditEntity {
 
   @Column('varchar', { nullable: true })
   updated_by_id?: string;
+
+  @Expose()
+  public get status_period() {
+    if (this.start_date != null && this.end_date != null) {
+      const time = new Date(this.end_date).getTime() - new Date(this.start_date).getTime();
+      return time / (24 * 60 * 60 * 1000);
+    }
+  }
 }
