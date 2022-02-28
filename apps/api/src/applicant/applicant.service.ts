@@ -11,6 +11,7 @@ import { ApplicantAuditEntity } from './entity/applicantAudit.entity';
 
 @Injectable()
 export class ApplicantService {
+  applicantRelations: any;
   constructor(
     @Inject(Logger) private readonly logger: AppLogger,
     @InjectRepository(ApplicantEntity)
@@ -21,7 +22,12 @@ export class ApplicantService {
     private readonly applicantStatusAuditRepository: Repository<ApplicantStatusAuditEntity>,
     @InjectRepository(ApplicantAuditEntity)
     private readonly applicantAuditRepository: Repository<ApplicantAuditEntity>,
-  ) {}
+  ) {
+    this.applicantRelations = {
+      status: ['status', 'status.parent'],
+      audit: ['applicant_status_audit', 'applicant_status_audit.status', 'applicant_audit'],
+    };
+  }
 
   async getApplicants(filterDto: ApplicantFilterDto): Promise<ApplicantEntity[]> {
     let where: any = {};
@@ -43,15 +49,19 @@ export class ApplicantService {
       order: {
         updated_date: 'DESC',
       },
-      relations: ['status', 'status.parent'],
+      relations: this.applicantRelations.status,
     });
   }
 
-  async getApplicantById(id: string): Promise<ApplicantEntity> {
+  async getApplicantById(id: string, data: any = null): Promise<ApplicantEntity> {
     let applicant;
+    let relations = this.applicantRelations.status;
     try {
+      if (data && data !== '' && data === 'audit') {
+        relations = relations.concat(this.applicantRelations.audit);
+      }
       applicant = await this.applicantRepository.findOne(id, {
-        relations: ['status', 'status.parent'],
+        relations: relations,
       });
     } catch (e) {
       this.logger.error(e);
@@ -66,11 +76,11 @@ export class ApplicantService {
   async addApplicant(addApplicantDto: ApplicantCreateDto): Promise<ApplicantEntity | any> {
     const { status, ...data } = addApplicantDto;
     try {
-      const status_obj = await this.getApplicantStatusById(status);
-      const applicant: ApplicantEntity = await this.saveAapplicant(data, status_obj);
+      const statusObj = await this.getApplicantStatusById(status);
+      const applicant: ApplicantEntity = await this.saveAapplicant(data, statusObj);
 
       // let's add status in audit trail
-      await this.saveStatusAudit(data, status_obj, applicant);
+      await this.saveStatusAudit(data, statusObj, applicant);
       await this.saveApplicantAudit(applicant, applicant);
 
       return applicant;
@@ -114,10 +124,10 @@ export class ApplicantService {
    * Get status object from statusId
    */
   async getApplicantStatusById(status: number): Promise<ApplicantStatusEntity | any> {
-    const status_obj = this.applicantStatusRepository.findOne(status, {
+    const statusObj = this.applicantStatusRepository.findOne(status, {
       relations: ['parent'],
     });
-    return status_obj;
+    return statusObj;
   }
 
   /**
@@ -195,7 +205,7 @@ export class ApplicantService {
           listSta.push({
             ...existingStatus[i],
             ...updateData,
-            status_period: 0,
+            status_period: 0, // added for entity restriction error
           });
         }
         this.applicantStatusAuditRepository.save(listSta);

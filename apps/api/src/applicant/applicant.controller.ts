@@ -15,7 +15,12 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
-import { ApplicantFilterDto, ApplicantCreateDto, ApplicantUpdateDto } from '@ien/common';
+import {
+  ApplicantFilterDto,
+  ApplicantCreateDto,
+  ApplicantUpdateDto,
+  ApplicantFilterByIdDto,
+} from '@ien/common';
 import { ApplicantService } from './applicant.service';
 import { EmptyResponse } from 'src/common/ro/empty-response.ro';
 import { ApplicantEntity } from './entity/applicant.entity';
@@ -54,8 +59,11 @@ export class ApplicantController {
   @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
   @HttpCode(HttpStatus.OK)
   @Get('/:id')
-  getApplicant(@Param('id') id: string): Promise<ApplicantEntity> {
-    return this.applicantService.getApplicantById(id);
+  getApplicant(
+    @Param('id') id: string,
+    @Query() relation: ApplicantFilterByIdDto,
+  ): Promise<ApplicantEntity> {
+    return this.applicantService.getApplicantById(id, relation);
   }
 
   @ApiOperation({
