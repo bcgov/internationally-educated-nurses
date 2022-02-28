@@ -2,7 +2,9 @@ import { Module, Logger } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
 import { ApplicantEntity } from 'src/applicant/entity/applicant.entity';
+import { ApplicantAuditEntity } from 'src/applicant/entity/applicantAudit.entity';
 import { ApplicantStatusEntity } from 'src/applicant/entity/applicantStatus.entity';
+import { ApplicantStatusAuditEntity } from 'src/applicant/entity/applicantStatusAudit.entity';
 import { FormEntity } from 'src/form/entities/form.entity';
 import { SubmissionEntity } from 'src/submission/entity/submission.entity';
 import { LoggerOptions } from 'typeorm';
@@ -25,7 +27,14 @@ const getEnvironmentSpecificConfig = (env?: string) => {
         username: process.env.TEST_POSTGRES_USERNAME,
         password: process.env.TEST_POSTGRES_PASSWORD,
         database: process.env.TEST_POSTGRES_DATABASE,
-        entities: [SubmissionEntity, FormEntity, ApplicantEntity, ApplicantStatusEntity],
+        entities: [
+          SubmissionEntity,
+          FormEntity,
+          ApplicantEntity,
+          ApplicantStatusEntity,
+          ApplicantAuditEntity,
+          ApplicantStatusAuditEntity,
+        ],
         migrations: ['dist/migration/*.js'],
         logging: ['error', 'warn', 'migration'] as LoggerOptions,
       };
