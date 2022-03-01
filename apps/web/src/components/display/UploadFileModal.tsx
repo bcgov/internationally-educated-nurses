@@ -1,12 +1,13 @@
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import { Dropzone, onDropType } from '../Dropzone';
+import { Dropzone } from '../Dropzone';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import Papa from 'papaparse';
 
 import { Modal } from '../Modal';
 import { Button } from '../Button';
+import { onDropType } from '@services';
 
 export const UploadFileModal: React.FC = () => {
   const router = useRouter();
@@ -32,6 +33,7 @@ interface UploadPageProps {
 
 const UploadPage: React.FC<UploadPageProps> = ({ closeModal }) => {
   const [file, setFile] = useState<any>(null);
+  const router = useRouter();
 
   // parses csv file using papaparse, header uses column headers as keys in JSON data
   const handleFileUpload = async () => {
@@ -41,15 +43,29 @@ const UploadPage: React.FC<UploadPageProps> = ({ closeModal }) => {
         return h.replace(/\s/g, '');
       },
       complete: function (results) {
+        // @todo - remove log and implement POST call to backend
         console.log('FILE: ', results.data);
       },
     });
+
+    // @todo - will remove this portion once warning, error modals are implemented
+    delete router.query.bulk_upload;
+    router.push(router.route, undefined, { shallow: true });
   };
 
   // handles user dragging and dropping file in dropzone area
   const handleOnDrop: onDropType = async acceptedFiles => {
+    // @todo - implement error handling here
+    if (acceptedFiles[0] === null) {
+      return;
+    }
+
     const file = acceptedFiles[0];
     if ((file as File).name.toLowerCase().endsWith('.csv')) {
+      // @todo - implement error handling here
+      if (file.size == 0) {
+        return;
+      }
       setFile(acceptedFiles[0]);
     }
   };

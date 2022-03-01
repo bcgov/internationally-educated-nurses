@@ -2,12 +2,7 @@ import React from 'react';
 import { useDropzone, FileRejection, DropEvent } from 'react-dropzone';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCloudUploadAlt } from '@fortawesome/free-solid-svg-icons';
-
-export type onDropType = <T extends File>(
-  acceptedFiles: T[],
-  fileRejections: FileRejection[],
-  event: DropEvent,
-) => void;
+import { onDropType } from '@services';
 
 export const Dropzone: React.FC<{ onDrop: onDropType }> = ({ onDrop }) => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
