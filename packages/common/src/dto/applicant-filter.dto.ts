@@ -1,6 +1,6 @@
 import { IsOptional, IsString } from 'class-validator';
 
-export class ApplicantFilterDto {
+export class ApplicantFilterDTO {
   @IsOptional()
   @IsString()
   ha_pcn?: string;
@@ -8,4 +8,8 @@ export class ApplicantFilterDto {
   @IsOptional()
   @IsString()
   status?: string;
+
+  @IsOptional()
+  @IsString()
+  name?: string;
 }

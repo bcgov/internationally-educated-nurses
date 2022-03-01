@@ -1,9 +1,23 @@
-import { Entity, Column, ManyToOne } from 'typeorm';
-import { BaseEntity } from 'src/database/base.entity';
+import { Exclude } from 'class-transformer';
+import {
+  Entity,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  PrimaryGeneratedColumn,
+  OneToMany,
+} from 'typeorm';
+import { ApplicantAuditEntity } from './applicantAudit.entity';
 import { ApplicantStatusEntity } from './applicantStatus.entity';
+import { ApplicantStatusAuditEntity } from './applicantStatusAudit.entity';
 
 @Entity('applicants')
-export class ApplicantEntity extends BaseEntity {
+export class ApplicantEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
   @Column('varchar')
   first_name!: string;
 
@@ -14,7 +28,7 @@ export class ApplicantEntity extends BaseEntity {
   profession!: string;
 
   @Column('varchar', { nullable: true })
-  speciality!: string;
+  specialty!: string;
 
   @Column('varchar', { nullable: true })
   assigned_to!: string;
@@ -23,6 +37,7 @@ export class ApplicantEntity extends BaseEntity {
   ha_pcn!: string;
 
   @ManyToOne(() => ApplicantStatusEntity, status => status.applicants)
+  @JoinColumn({ name: 'status_id' })
   status!: ApplicantStatusEntity;
 
   @Column('date', { nullable: true })
@@ -51,4 +66,21 @@ export class ApplicantEntity extends BaseEntity {
 
   @Column('jsonb', { nullable: true })
   additional_data?: JSON;
+
+  @OneToMany(
+    () => ApplicantStatusAuditEntity,
+    applicant_status_audit => applicant_status_audit.applicant,
+  )
+  applicant_status_audit!: ApplicantStatusAuditEntity[];
+
+  @OneToMany(() => ApplicantAuditEntity, applicant_audit => applicant_audit.applicant)
+  applicant_audit!: ApplicantAuditEntity[];
+
+  @CreateDateColumn()
+  @Exclude()
+  created_date!: Date;
+
+  @UpdateDateColumn()
+  @Exclude()
+  updated_date!: Date;
 }
