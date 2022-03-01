@@ -7,9 +7,9 @@ import { ApplicantStatusAuditEntity } from './entity/applicantStatusAudit.entity
 import { InjectRepository } from '@nestjs/typeorm';
 import { AppLogger } from 'src/common/logger.service';
 import { ApplicantAuditEntity } from './entity/applicantAudit.entity';
-import { ApplicantCreateRO } from './ro/applicant-create.ro';
-import { ApplicantFilterRO } from './ro/applicant-filter.ro';
-import { ApplicantUpdateRO } from './ro/applicant-update.ro';
+import { ApplicantCreateAPIDTO } from './dto/applicant-create.dto';
+import { ApplicantFilterAPIDTO } from './dto/applicant-filter.dto';
+import { ApplicantUpdateAPIDTO } from './dto/applicant-update.dto';
 
 @Injectable()
 export class ApplicantService {
@@ -31,7 +31,7 @@ export class ApplicantService {
     };
   }
 
-  async getApplicants(filter: ApplicantFilterRO): Promise<ApplicantEntity[]> {
+  async getApplicants(filter: ApplicantFilterAPIDTO): Promise<ApplicantEntity[]> {
     return await this.applicantRepository.find({
       where: this.applicantFilterQueryBuilder(filter),
       order: {
@@ -61,8 +61,8 @@ export class ApplicantService {
     return applicant;
   }
 
-  async addApplicant(addApplicantRo: ApplicantCreateRO): Promise<ApplicantEntity | any> {
-    const { status, ...data } = addApplicantRo;
+  async addApplicant(addApplicant: ApplicantCreateAPIDTO): Promise<ApplicantEntity | any> {
+    const { status, ...data } = addApplicant;
     try {
       const statusObj = await this.getApplicantStatusById(status);
       const applicant: ApplicantEntity = await this.saveApplicant(data, statusObj);
@@ -79,7 +79,7 @@ export class ApplicantService {
 
   async updateApplicant(
     id: string,
-    applicantUpdate: ApplicantUpdateRO,
+    applicantUpdate: ApplicantUpdateAPIDTO,
   ): Promise<ApplicantEntity | any> {
     const applicant = await this.getApplicantById(id);
     const { status, ...data } = applicantUpdate;
@@ -222,10 +222,10 @@ export class ApplicantService {
 
   /**
    * Build a query using given attributes of applicant table
-   * @param filterDto
+   * @param filter
    * @returns 'where' query that support find() method
    */
-  applicantFilterQueryBuilder(filter: ApplicantFilterRO) {
+  applicantFilterQueryBuilder(filter: ApplicantFilterAPIDTO) {
     let where: any = {};
     if (filter) {
       const { ha_pcn, name, status } = filter;

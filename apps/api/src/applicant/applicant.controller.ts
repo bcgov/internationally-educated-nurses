@@ -19,10 +19,10 @@ import { ApplicantService } from './applicant.service';
 import { EmptyResponse } from 'src/common/ro/empty-response.ro';
 import { ApplicantEntity } from './entity/applicant.entity';
 import { AppLogger } from 'src/common/logger.service';
-import { ApplicantCreateRO } from './ro/applicant-create.ro';
-import { ApplicantFilterByIdRO } from './ro/applicant-by-id.ro';
-import { ApplicantFilterRO } from './ro/applicant-filter.ro';
-import { ApplicantUpdateRO } from './ro/applicant-update.ro';
+import { ApplicantCreateAPIDTO } from './dto/applicant-create.dto';
+import { ApplicantFilterByIdAPIDTO } from './dto/applicant-by-id.dto';
+import { ApplicantFilterAPIDTO } from './dto/applicant-filter.dto';
+import { ApplicantUpdateAPIDTO } from './dto/applicant-update.dto';
 
 @Controller('applicant')
 @ApiTags('Applicant')
@@ -39,7 +39,7 @@ export class ApplicantController {
   @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
   @HttpCode(HttpStatus.OK)
   @Get()
-  async getApplicants(@Query() filter: ApplicantFilterRO): Promise<ApplicantEntity[]> {
+  async getApplicants(@Query() filter: ApplicantFilterAPIDTO): Promise<ApplicantEntity[]> {
     try {
       return await this.applicantService.getApplicants(filter);
     } catch (e) {
@@ -57,7 +57,7 @@ export class ApplicantController {
   @Get('/:id')
   getApplicant(
     @Param('id') id: string,
-    @Query() relation: ApplicantFilterByIdRO,
+    @Query() relation: ApplicantFilterByIdAPIDTO,
   ): Promise<ApplicantEntity> {
     return this.applicantService.getApplicantById(id, relation);
   }
@@ -69,7 +69,7 @@ export class ApplicantController {
   @ApiResponse({ status: HttpStatus.CREATED, type: EmptyResponse })
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  async addApplicant(@Body() addApplicant: ApplicantCreateRO): Promise<ApplicantEntity> {
+  async addApplicant(@Body() addApplicant: ApplicantCreateAPIDTO): Promise<ApplicantEntity> {
     try {
       return await this.applicantService.addApplicant(addApplicant);
     } catch (e) {
@@ -81,7 +81,7 @@ export class ApplicantController {
   @Patch('/:id')
   updateApplicant(
     @Param('id') id: string,
-    @Body() applicantUpdate: ApplicantUpdateRO,
+    @Body() applicantUpdate: ApplicantUpdateAPIDTO,
   ): Promise<ApplicantEntity | undefined> {
     try {
       return this.applicantService.updateApplicant(id, applicantUpdate);

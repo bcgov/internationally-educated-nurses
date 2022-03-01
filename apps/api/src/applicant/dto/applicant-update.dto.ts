@@ -11,7 +11,7 @@ import {
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ApplicantUpdateDTO } from '@ien/common';
 
-export class ApplicantUpdateRO extends ApplicantUpdateDTO {
+export class ApplicantUpdateAPIDTO extends ApplicantUpdateDTO {
   @ApiPropertyOptional({ description: 'Applicant First Name', default: 'Mark' })
   @IsString()
   @IsNotEmpty()

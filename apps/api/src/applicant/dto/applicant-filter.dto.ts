@@ -2,7 +2,7 @@ import { IsOptional, IsString } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { ApplicantFilterDTO } from '@ien/common';
 
-export class ApplicantFilterRO extends ApplicantFilterDTO {
+export class ApplicantFilterAPIDTO extends ApplicantFilterDTO {
   @ApiPropertyOptional({
     description: 'Provide optional HA with comma separated values e.g. FHA,VIHA',
   })
