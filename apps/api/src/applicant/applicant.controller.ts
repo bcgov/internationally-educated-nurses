@@ -15,16 +15,14 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import {
-  ApplicantFilterDTO,
-  ApplicantCreateDTO,
-  ApplicantUpdateDTO,
-  ApplicantFilterByIdDTO,
-} from '@ien/common';
 import { ApplicantService } from './applicant.service';
 import { EmptyResponse } from 'src/common/ro/empty-response.ro';
 import { ApplicantEntity } from './entity/applicant.entity';
 import { AppLogger } from 'src/common/logger.service';
+import { ApplicantCreateRO } from './ro/applicant-create.ro';
+import { ApplicantFilterByIdRO } from './ro/applicant-by-id.ro';
+import { ApplicantFilterRO } from './ro/applicant-filter.ro';
+import { ApplicantUpdateRO } from './ro/applicant-update.ro';
 
 @Controller('applicant')
 @ApiTags('Applicant')
@@ -41,9 +39,9 @@ export class ApplicantController {
   @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
   @HttpCode(HttpStatus.OK)
   @Get()
-  async getApplicants(@Query() filterDto: ApplicantFilterDTO): Promise<ApplicantEntity[]> {
+  async getApplicants(@Query() filter: ApplicantFilterRO): Promise<ApplicantEntity[]> {
     try {
-      return await this.applicantService.getApplicants(filterDto);
+      return await this.applicantService.getApplicants(filter);
     } catch (e) {
       this.logger.error(e);
       throw new InternalServerErrorException('An unknown error occured retriving applicants');
@@ -59,7 +57,7 @@ export class ApplicantController {
   @Get('/:id')
   getApplicant(
     @Param('id') id: string,
-    @Query() relation: ApplicantFilterByIdDTO,
+    @Query() relation: ApplicantFilterByIdRO,
   ): Promise<ApplicantEntity> {
     return this.applicantService.getApplicantById(id, relation);
   }
@@ -71,9 +69,9 @@ export class ApplicantController {
   @ApiResponse({ status: HttpStatus.CREATED, type: EmptyResponse })
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  async addApplicant(@Body() addApplicantDto: ApplicantCreateDTO): Promise<ApplicantEntity> {
+  async addApplicant(@Body() addApplicant: ApplicantCreateRO): Promise<ApplicantEntity> {
     try {
-      return await this.applicantService.addApplicant(addApplicantDto);
+      return await this.applicantService.addApplicant(addApplicant);
     } catch (e) {
       this.logger.error(e);
       throw new InternalServerErrorException('An unknown error occured while adding applicant');
@@ -83,7 +81,7 @@ export class ApplicantController {
   @Patch('/:id')
   updateApplicant(
     @Param('id') id: string,
-    @Body() applicantUpdate: ApplicantUpdateDTO,
+    @Body() applicantUpdate: ApplicantUpdateRO,
   ): Promise<ApplicantEntity | undefined> {
     try {
       return this.applicantService.updateApplicant(id, applicantUpdate);

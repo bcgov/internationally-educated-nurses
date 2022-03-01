@@ -1,13 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { In, IsNull, Not, Raw, Repository, ILike } from 'typeorm';
-import { ApplicantFilterDTO, ApplicantCreateDTO, ApplicantUpdateDTO } from '@ien/common';
 import { ApplicantEntity } from './entity/applicant.entity';
 import { ApplicantStatusEntity } from './entity/applicantStatus.entity';
 import { ApplicantStatusAuditEntity } from './entity/applicantStatusAudit.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AppLogger } from 'src/common/logger.service';
 import { ApplicantAuditEntity } from './entity/applicantAudit.entity';
+import { ApplicantCreateRO } from './ro/applicant-create.ro';
+import { ApplicantFilterRO } from './ro/applicant-filter.ro';
+import { ApplicantUpdateRO } from './ro/applicant-update.ro';
 
 @Injectable()
 export class ApplicantService {
@@ -29,9 +31,9 @@ export class ApplicantService {
     };
   }
 
-  async getApplicants(filterDto: ApplicantFilterDTO): Promise<ApplicantEntity[]> {
+  async getApplicants(filter: ApplicantFilterRO): Promise<ApplicantEntity[]> {
     return await this.applicantRepository.find({
-      where: this.applicantFilterQueryBuilder(filterDto),
+      where: this.applicantFilterQueryBuilder(filter),
       order: {
         updated_date: 'DESC',
       },
@@ -59,8 +61,8 @@ export class ApplicantService {
     return applicant;
   }
 
-  async addApplicant(addApplicantDto: ApplicantCreateDTO): Promise<ApplicantEntity | any> {
-    const { status, ...data } = addApplicantDto;
+  async addApplicant(addApplicantRo: ApplicantCreateRO): Promise<ApplicantEntity | any> {
+    const { status, ...data } = addApplicantRo;
     try {
       const statusObj = await this.getApplicantStatusById(status);
       const applicant: ApplicantEntity = await this.saveApplicant(data, statusObj);
@@ -77,7 +79,7 @@ export class ApplicantService {
 
   async updateApplicant(
     id: string,
-    applicantUpdate: ApplicantUpdateDTO,
+    applicantUpdate: ApplicantUpdateRO,
   ): Promise<ApplicantEntity | any> {
     const applicant = await this.getApplicantById(id);
     const { status, ...data } = applicantUpdate;
@@ -223,10 +225,10 @@ export class ApplicantService {
    * @param filterDto
    * @returns 'where' query that support find() method
    */
-  applicantFilterQueryBuilder(filterDto: ApplicantFilterDTO) {
+  applicantFilterQueryBuilder(filter: ApplicantFilterRO) {
     let where: any = {};
-    const { ha_pcn, name, status } = filterDto;
-    if (filterDto) {
+    if (filter) {
+      const { ha_pcn, name, status } = filter;
       if (ha_pcn) {
         const hapcn = ha_pcn.split(',');
         where.ha_pcn = Raw(alias => `UPPER(${alias}) IN (:...hapcn)`, {
