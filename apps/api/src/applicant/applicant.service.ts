@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { IsNull, Not, Repository } from 'typeorm';
-import { ApplicantFilterDto, ApplicantCreateDto, ApplicantUpdateDto } from '@ien/common';
+import { In, IsNull, Not, Raw, Repository, ILike } from 'typeorm';
+import { ApplicantFilterDTO, ApplicantCreateDTO, ApplicantUpdateDTO } from '@ien/common';
 import { ApplicantEntity } from './entity/applicant.entity';
 import { ApplicantStatusEntity } from './entity/applicantStatus.entity';
 import { ApplicantStatusAuditEntity } from './entity/applicantStatusAudit.entity';
@@ -29,23 +29,9 @@ export class ApplicantService {
     };
   }
 
-  async getApplicants(filterDto: ApplicantFilterDto): Promise<ApplicantEntity[]> {
-    let where: any = {};
-    const { ha_pcn, status } = filterDto;
-    if (filterDto) {
-      if (ha_pcn) {
-        where.ha_pcn = ha_pcn;
-      }
-      if (status) {
-        where = [
-          { status: parseInt(status), ...where },
-          { status: { parent: parseInt(status) }, ...where },
-        ];
-      }
-    }
-
+  async getApplicants(filterDto: ApplicantFilterDTO): Promise<ApplicantEntity[]> {
     return await this.applicantRepository.find({
-      where: where,
+      where: this.applicantFilterQueryBuilder(filterDto),
       order: {
         updated_date: 'DESC',
       },
@@ -73,11 +59,11 @@ export class ApplicantService {
     return applicant;
   }
 
-  async addApplicant(addApplicantDto: ApplicantCreateDto): Promise<ApplicantEntity | any> {
+  async addApplicant(addApplicantDto: ApplicantCreateDTO): Promise<ApplicantEntity | any> {
     const { status, ...data } = addApplicantDto;
     try {
       const statusObj = await this.getApplicantStatusById(status);
-      const applicant: ApplicantEntity = await this.saveAapplicant(data, statusObj);
+      const applicant: ApplicantEntity = await this.saveApplicant(data, statusObj);
 
       // let's add status in audit trail
       await this.saveStatusAudit(data, statusObj, applicant);
@@ -91,7 +77,7 @@ export class ApplicantService {
 
   async updateApplicant(
     id: string,
-    applicantUpdate: ApplicantUpdateDto,
+    applicantUpdate: ApplicantUpdateDTO,
   ): Promise<ApplicantEntity | any> {
     const applicant = await this.getApplicantById(id);
     const { status, ...data } = applicantUpdate;
@@ -136,10 +122,7 @@ export class ApplicantService {
    * @param statusObj Applicant status Object
    * @returns Applicant or Not Found
    */
-  async saveAapplicant(
-    data: any,
-    statusObj: ApplicantStatusEntity,
-  ): Promise<ApplicantEntity | any> {
+  async saveApplicant(data: any, statusObj: ApplicantStatusEntity): Promise<ApplicantEntity | any> {
     if (!data.is_open) {
       data.is_open = true;
     }
@@ -233,5 +216,50 @@ export class ApplicantService {
     } catch (e) {
       this.logger.error(e);
     }
+  }
+
+  /**
+   * Build a query using given attributes of applicant table
+   * @param filterDto
+   * @returns 'where' query that support find() method
+   */
+  applicantFilterQueryBuilder(filterDto: ApplicantFilterDTO) {
+    let where: any = {};
+    const { ha_pcn, name, status } = filterDto;
+    if (filterDto) {
+      if (ha_pcn) {
+        const hapcn = ha_pcn.split(',');
+        where.ha_pcn = Raw(alias => `UPPER(${alias}) IN (:...hapcn)`, {
+          hapcn: hapcn,
+        });
+      }
+      if (name) {
+        where = [
+          { first_name: ILike(`%${name}%`), ...where },
+          { last_name: ILike(`%${name}%`), ...where },
+        ];
+      }
+      if (status) {
+        const statusArray: any = status
+          .split(',')
+          .filter(x => x.trim() !== '')
+          .map(Number)
+          .filter(x => !isNaN(x));
+        if (where instanceof Array) {
+          const tempWhere = [];
+          for (let i = 0; i < where.length; i++) {
+            tempWhere.push({ status: In(statusArray), ...where[i] });
+            tempWhere.push({ status: { parent: In(statusArray) }, ...where[i] });
+          }
+          where = tempWhere;
+        } else {
+          where = [
+            { status: In(statusArray), ...where },
+            { status: { parent: In(statusArray) }, ...where },
+          ];
+        }
+      }
+    }
+    return where;
   }
 }

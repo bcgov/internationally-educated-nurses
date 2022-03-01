@@ -1,4 +1,4 @@
-import { Exclude, Expose } from 'class-transformer';
+import { Expose } from 'class-transformer';
 import {
   Entity,
   Column,
@@ -31,11 +31,9 @@ export class ApplicantStatusAuditEntity {
   end_date?: Date;
 
   @CreateDateColumn()
-  @Exclude()
   created_date!: Date;
 
   @UpdateDateColumn()
-  @Exclude()
   updated_date!: Date;
 
   // We need to identify details that we want to capture here.
@@ -56,6 +54,8 @@ export class ApplicantStatusAuditEntity {
     if (this.start_date != null && this.end_date != null) {
       const time = new Date(this.end_date).getTime() - new Date(this.start_date).getTime();
       return time / (24 * 60 * 60 * 1000);
+    } else {
+      return null;
     }
   }
 }

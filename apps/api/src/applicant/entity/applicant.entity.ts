@@ -28,7 +28,7 @@ export class ApplicantEntity {
   profession!: string;
 
   @Column('varchar', { nullable: true })
-  speciality!: string;
+  specialty!: string;
 
   @Column('varchar', { nullable: true })
   assigned_to!: string;

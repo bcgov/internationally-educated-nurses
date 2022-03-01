@@ -1,4 +1,3 @@
-import { Exclude } from 'class-transformer';
 import {
   Entity,
   Column,
@@ -22,7 +21,6 @@ export class ApplicantAuditEntity {
   data!: JSON;
 
   @CreateDateColumn()
-  @Exclude()
   created_date!: Date;
 
   // We need to identify details that we want to capture here.

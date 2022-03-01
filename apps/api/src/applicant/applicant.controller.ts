@@ -14,12 +14,12 @@ import {
   Query,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
-  ApplicantFilterDto,
-  ApplicantCreateDto,
-  ApplicantUpdateDto,
-  ApplicantFilterByIdDto,
+  ApplicantFilterDTO,
+  ApplicantCreateDTO,
+  ApplicantUpdateDTO,
+  ApplicantFilterByIdDTO,
 } from '@ien/common';
 import { ApplicantService } from './applicant.service';
 import { EmptyResponse } from 'src/common/ro/empty-response.ro';
@@ -37,13 +37,11 @@ export class ApplicantController {
   @ApiOperation({
     summary: 'List applicants',
   })
-  @ApiQuery({ name: 'ha_pcn', required: false, description: 'Provide optional HA' })
-  @ApiQuery({ name: 'status', required: false, description: 'Provide optional status(int)' })
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
   @HttpCode(HttpStatus.OK)
   @Get()
-  async getApplicants(@Query() filterDto: ApplicantFilterDto): Promise<ApplicantEntity[]> {
+  async getApplicants(@Query() filterDto: ApplicantFilterDTO): Promise<ApplicantEntity[]> {
     try {
       return await this.applicantService.getApplicants(filterDto);
     } catch (e) {
@@ -55,14 +53,13 @@ export class ApplicantController {
   @ApiOperation({
     summary: 'Get Applicant details',
   })
-  @ApiQuery({ name: 'relation', required: false, description: 'Get additinal data like audit' })
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
   @HttpCode(HttpStatus.OK)
   @Get('/:id')
   getApplicant(
     @Param('id') id: string,
-    @Query() relation: ApplicantFilterByIdDto,
+    @Query() relation: ApplicantFilterByIdDTO,
   ): Promise<ApplicantEntity> {
     return this.applicantService.getApplicantById(id, relation);
   }
@@ -74,7 +71,7 @@ export class ApplicantController {
   @ApiResponse({ status: HttpStatus.CREATED, type: EmptyResponse })
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  async addApplicant(@Body() addApplicantDto: ApplicantCreateDto): Promise<ApplicantEntity> {
+  async addApplicant(@Body() addApplicantDto: ApplicantCreateDTO): Promise<ApplicantEntity> {
     try {
       return await this.applicantService.addApplicant(addApplicantDto);
     } catch (e) {
@@ -86,7 +83,7 @@ export class ApplicantController {
   @Patch('/:id')
   updateApplicant(
     @Param('id') id: string,
-    @Body() applicantUpdate: ApplicantUpdateDto,
+    @Body() applicantUpdate: ApplicantUpdateDTO,
   ): Promise<ApplicantEntity | undefined> {
     try {
       return this.applicantService.updateApplicant(id, applicantUpdate);

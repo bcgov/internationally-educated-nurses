@@ -6,8 +6,8 @@ import { SubmissionModule } from 'src/submission/submission.module';
 
 export const Documentation = (app: INestApplication) => {
   const options = new DocumentBuilder()
-    .setTitle('EHPR API Documentation')
-    .setDescription('API to collection form submission')
+    .setTitle('IEN API Documentation')
+    .setDescription("API to perform operations on applicants' application")
     .setVersion(`1.0.0`)
     .build();
 
