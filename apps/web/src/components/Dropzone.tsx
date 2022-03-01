@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDropzone, FileRejection, DropEvent } from 'react-dropzone';
+import { useDropzone } from 'react-dropzone';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCloudUploadAlt } from '@fortawesome/free-solid-svg-icons';
 import { onDropType } from '@services';
