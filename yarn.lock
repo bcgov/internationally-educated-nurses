@@ -1164,6 +1164,7 @@ __metadata:
     postcss: 8.4.3
     react: 17.0.2
     react-dom: 17.0.2
+    react-keycloak: 8.0.1-191210
     react-select: 5.2.1
     react-test-renderer: 17.0.2
     tailwindcss: 2.2.19
@@ -13052,7 +13053,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-fast-compare@npm:^2.0.1":
+"react-fast-compare@npm:^2.0.1, react-fast-compare@npm:^2.0.4":
   version: 2.0.4
   resolution: "react-fast-compare@npm:2.0.4"
   checksum: 06046595f90a4e3e3a56f40a8078c00aa71bdb064ddb98343f577f546aa22e888831fd45f009c93b34707cc842b4c637737e956fd13d6f80607ee92fb9cf9a1c
@@ -13070,6 +13071,20 @@ __metadata:
   version: 16.13.1
   resolution: "react-is@npm:16.13.1"
   checksum: f7a19ac3496de32ca9ae12aa030f00f14a3d45374f1ceca0af707c831b2a6098ef0d6bdae51bd437b0a306d7f01d4677fcc8de7c0d331eb47ad0f46130e53c5f
+  languageName: node
+  linkType: hard
+
+"react-keycloak@npm:8.0.1-191210":
+  version: 8.0.1-191210
+  resolution: "react-keycloak@npm:8.0.1-191210"
+  dependencies:
+    hoist-non-react-statics: ^3.3.0
+    prop-types: ^15.7.2
+    react-fast-compare: ^2.0.4
+  peerDependencies:
+    keycloak-js: ^8.0.1
+    react: ^16.0.0
+  checksum: 4837d9e90cdea4b6984a5815efe9e53519a951e12f8dfa41b492aaca5f072e4ab67a6447956ab0206f4580909d0cbc941cc322b56d2af3ef4be99be1efd20682
   languageName: node
   linkType: hard
 
