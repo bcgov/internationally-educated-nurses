@@ -68,6 +68,7 @@ export class ApplicantEntity {
   additional_data?: JSON;
 
   @Column('date')
+  @Exclude()
   status_date?: Date;
 
   @OneToMany(
