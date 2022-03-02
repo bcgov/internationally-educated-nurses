@@ -695,6 +695,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/runtime@npm:^7.9.0":
+  version: 7.17.2
+  resolution: "@babel/runtime@npm:7.17.2"
+  dependencies:
+    regenerator-runtime: ^0.13.4
+  checksum: a48702d271ecc59c09c397856407afa29ff980ab537b3da58eeee1aeaa0f545402d340a1680c9af58aec94dfdcbccfb6abb211991b74686a86d03d3f6956cacd
+  languageName: node
+  linkType: hard
+
 "@babel/template@npm:^7.16.0, @babel/template@npm:^7.3.3":
   version: 7.16.0
   resolution: "@babel/template@npm:7.16.0"
@@ -1144,6 +1153,7 @@ __metadata:
     "@headlessui/react": 1.4.2
     "@ien/common": 1.0.1
     "@next/eslint-plugin-next": 12.0.4
+    "@react-keycloak/ssr": 3.3.0
     "@tailwindcss/typography": 0.4.1
     "@testing-library/jest-dom": 5.15.1
     "@testing-library/react": 12.1.2
@@ -1160,6 +1170,7 @@ __metadata:
     formik: 2.2.9
     identity-obj-proxy: 3.0.0
     jest: 27.4.2
+    keycloak-js: ^17.0.0
     next: 12.0.4
     postcss: 8.4.3
     react: 17.0.2
@@ -2200,6 +2211,38 @@ __metadata:
   bin:
     opencollective: bin/opencollective.js
   checksum: fd3737c12edf55b5c2279674664c3ed5e756410ea82e9cd324c3f0e032ed5ccd8df1959ec69ea97f2f1c9c33c884aae3d7a7108a73ea0faa90d74ea47cf364d4
+  languageName: node
+  linkType: hard
+
+"@react-keycloak/core@npm:^3.2.0":
+  version: 3.2.0
+  resolution: "@react-keycloak/core@npm:3.2.0"
+  dependencies:
+    react-fast-compare: ^3.2.0
+  peerDependencies:
+    react: ">=16"
+  checksum: d83aa89c0a6047b1ae197ea49665a026fd3366cd978b7a7c224e600ded3d431251e7c5eb5232e95de0c83c98be9787b8ce48c98c1ad68a5a639ee1b7473c7cc8
+  languageName: node
+  linkType: hard
+
+"@react-keycloak/ssr@npm:3.3.0":
+  version: 3.3.0
+  resolution: "@react-keycloak/ssr@npm:3.3.0"
+  dependencies:
+    "@babel/runtime": ^7.9.0
+    "@react-keycloak/core": ^3.2.0
+    detect-node: ^2.0.4
+    hoist-non-react-statics: ^3.3.2
+    js-base64: ^3.4.5
+    js-cookie: ^2.2.1
+  peerDependencies:
+    keycloak-js: ">=9.0.2"
+    react: ">=16.8"
+    typescript: ">=3.8"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: 92c62bc09fe5764969d941e5db00ab6ff436458a02711353abc579149b624a319d3f0e063d97fc206513edafae1ca1fdf0ee4e81e3e1aaba292d611b8edfa18c
   languageName: node
   linkType: hard
 
@@ -4069,7 +4112,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"base64-js@npm:^1.0.2, base64-js@npm:^1.3.1":
+"base64-js@npm:^1.0.2, base64-js@npm:^1.3.1, base64-js@npm:^1.5.1":
   version: 1.5.1
   resolution: "base64-js@npm:1.5.1"
   checksum: 669632eb3745404c2f822a18fc3a0122d2f9a7a13f7fb8b5823ee19d1d2ff9ee5b52c53367176ea4ad093c332fd5ab4bd0ebae5a8e27917a4105a4cfc86b1005
@@ -5765,6 +5808,13 @@ __metadata:
   version: 3.1.0
   resolution: "detect-newline@npm:3.1.0"
   checksum: ae6cd429c41ad01b164c59ea36f264a2c479598e61cba7c99da24175a7ab80ddf066420f2bec9a1c57a6bead411b4655ff15ad7d281c000a89791f48cbe939e7
+  languageName: node
+  linkType: hard
+
+"detect-node@npm:^2.0.4":
+  version: 2.1.0
+  resolution: "detect-node@npm:2.1.0"
+  checksum: 832184ec458353e41533ac9c622f16c19f7c02d8b10c303dfd3a756f56be93e903616c0bb2d4226183c9351c15fc0b3dba41a17a2308262afabcfa3776e6ae6e
   languageName: node
   linkType: hard
 
@@ -7812,7 +7862,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hoist-non-react-statics@npm:^3.3.0, hoist-non-react-statics@npm:^3.3.1":
+"hoist-non-react-statics@npm:^3.3.0, hoist-non-react-statics@npm:^3.3.1, hoist-non-react-statics@npm:^3.3.2":
   version: 3.3.2
   resolution: "hoist-non-react-statics@npm:3.3.2"
   dependencies:
@@ -10239,6 +10289,27 @@ __metadata:
   languageName: node
   linkType: hard
 
+"js-base64@npm:^3.4.5":
+  version: 3.7.2
+  resolution: "js-base64@npm:3.7.2"
+  checksum: 573f28e9a27c3df60096d4d3f551bcb4fcb6d49161cf83396e9bad9b76f94736a70bb70b8808fe834dff2a388f76604ba09d6e153bbf181646e407720139fa5b
+  languageName: node
+  linkType: hard
+
+"js-cookie@npm:^2.2.1":
+  version: 2.2.1
+  resolution: "js-cookie@npm:2.2.1"
+  checksum: 9b1fb980a1c5e624fd4b28ea4867bb30c71e04c4484bb3a42766344c533faa684de9498e443425479ec68609e96e27b60614bfe354877c449c631529b6d932f2
+  languageName: node
+  linkType: hard
+
+"js-sha256@npm:^0.9.0":
+  version: 0.9.0
+  resolution: "js-sha256@npm:0.9.0"
+  checksum: ffad54b3373f81581e245866abfda50a62c483803a28176dd5c28fd2d313e0bdf830e77dac7ff8afd193c53031618920f3d98daf21cbbe80082753ab639c0365
+  languageName: node
+  linkType: hard
+
 "js-tokens@npm:^3.0.0 || ^4.0.0, js-tokens@npm:^4.0.0":
   version: 4.0.0
   resolution: "js-tokens@npm:4.0.0"
@@ -10409,6 +10480,16 @@ __metadata:
     array-includes: ^3.1.3
     object.assign: ^4.1.2
   checksum: dcee22e6382ee5a6bd4187333a44b6420d9d079838119a07055d6e88d137dd0afadc97a2246152b0b65006bd5fc393112dc0cef01956a01a66c1713913953c66
+  languageName: node
+  linkType: hard
+
+"keycloak-js@npm:^17.0.0":
+  version: 17.0.0
+  resolution: "keycloak-js@npm:17.0.0"
+  dependencies:
+    base64-js: ^1.5.1
+    js-sha256: ^0.9.0
+  checksum: b58829a0c565848ab6c82a8ac6a367690d224d3706b415f9f0dbc5c0590bf89fd99a6ec2576d4c09b9af0c32af675aa22f998c9e255ed9a845e03870e080717c
   languageName: node
   linkType: hard
 
@@ -13057,6 +13138,13 @@ __metadata:
   version: 2.0.4
   resolution: "react-fast-compare@npm:2.0.4"
   checksum: 06046595f90a4e3e3a56f40a8078c00aa71bdb064ddb98343f577f546aa22e888831fd45f009c93b34707cc842b4c637737e956fd13d6f80607ee92fb9cf9a1c
+  languageName: node
+  linkType: hard
+
+"react-fast-compare@npm:^3.2.0":
+  version: 3.2.0
+  resolution: "react-fast-compare@npm:3.2.0"
+  checksum: 8ef272c825ae329f61633ce4ce7f15aa5b84e5214d88bc0823880236e03e985a13195befa2c7a4eda7db3b017dc7985729152d88445823f652403cf36c2b86aa
   languageName: node
   linkType: hard
 
