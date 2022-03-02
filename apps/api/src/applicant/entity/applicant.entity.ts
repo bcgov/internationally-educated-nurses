@@ -67,6 +67,10 @@ export class ApplicantEntity {
   @Column('jsonb', { nullable: true })
   additional_data?: JSON;
 
+  @Column('date')
+  @Exclude()
+  status_date?: Date;
+
   @OneToMany(
     () => ApplicantStatusAuditEntity,
     applicant_status_audit => applicant_status_audit.applicant,

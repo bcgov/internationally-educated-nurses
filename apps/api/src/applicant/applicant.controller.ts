@@ -13,6 +13,7 @@ import {
   Post,
   Query,
   UseInterceptors,
+  ParseArrayPipe,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApplicantService } from './applicant.service';
@@ -78,6 +79,10 @@ export class ApplicantController {
     }
   }
 
+  @ApiOperation({
+    summary: 'Update applicant status and information',
+  })
+  @UseInterceptors(ClassSerializerInterceptor)
   @Patch('/:id')
   updateApplicant(
     @Param('id') id: string,
@@ -85,6 +90,23 @@ export class ApplicantController {
   ): Promise<ApplicantEntity | undefined> {
     try {
       return this.applicantService.updateApplicant(id, applicantUpdate);
+    } catch (e) {
+      this.logger.error(e);
+      throw new InternalServerErrorException('An unknown error occured while update applicant');
+    }
+  }
+
+  @ApiOperation({
+    summary: 'Add Applicants in bulk',
+  })
+  @UseInterceptors(ClassSerializerInterceptor)
+  @Post('/create-bulk')
+  createBulk(
+    @Body(new ParseArrayPipe({ items: ApplicantCreateAPIDTO }))
+    applicants: ApplicantCreateAPIDTO[],
+  ) {
+    try {
+      return this.applicantService.createBulkApplicants(applicants);
     } catch (e) {
       this.logger.error(e);
       throw new InternalServerErrorException('An unknown error occured while update applicant');
