@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
 import { In, IsNull, Not, Raw, Repository, ILike } from 'typeorm';
 import { ApplicantEntity } from './entity/applicant.entity';
 import { ApplicantStatusEntity } from './entity/applicantStatus.entity';
@@ -66,11 +66,6 @@ export class ApplicantService {
     try {
       const statusObj = await this.getApplicantStatusById(status);
       const applicant: ApplicantEntity = await this.saveApplicant(data, statusObj);
-
-      // let's add status in audit trail
-      await this.saveStatusAudit(data, statusObj, applicant);
-      await this.saveApplicantAudit(applicant, applicant);
-
       return applicant;
     } catch (e) {
       this.logger.error(e);
@@ -90,9 +85,6 @@ export class ApplicantService {
         statusObj = await this.getApplicantStatusById(status);
         dataToUpdate.status = statusObj;
       }
-      delete dataToUpdate.status_date;
-      delete dataToUpdate.added_by;
-      delete dataToUpdate.added_by_id;
       await this.applicantRepository.update(applicant.id, dataToUpdate);
 
       // Let's audit changes in separate tables
@@ -105,6 +97,24 @@ export class ApplicantService {
     } catch (e) {
       this.logger.error(e);
     }
+  }
+
+  /**
+   * Saving applicants as part of bulk insert.
+   * TODO: Need to enable upsert when get some unique-id from imported file
+   * @param applicants Array of applicants
+   */
+  async createBulkApplicants(applicants: ApplicantCreateAPIDTO[]): Promise<ApplicantEntity[]> {
+    if (!applicants.length) {
+      throw new BadRequestException('Minimum one applicant data required');
+    }
+    const allStatus = await this.fetchAllStatus();
+    const mappedApplicants: any = applicants.map(item => {
+      item.status = allStatus[item.status];
+      return item;
+    });
+    const savedApplicants = await this.applicantRepository.insert(mappedApplicants);
+    return savedApplicants.raw;
   }
 
   /** Support methods for above functions */
@@ -125,9 +135,6 @@ export class ApplicantService {
    * @returns Applicant or Not Found
    */
   async saveApplicant(data: any, statusObj: ApplicantStatusEntity): Promise<ApplicantEntity | any> {
-    if (!data.is_open) {
-      data.is_open = true;
-    }
     const applicant = this.applicantRepository.create({
       ...data,
       status: statusObj,
@@ -263,5 +270,15 @@ export class ApplicantService {
       }
     }
     return where;
+  }
+
+  /** Fetch all status to reduce database calls to bulk upload applicants(status relations) */
+  async fetchAllStatus() {
+    const status = await this.applicantStatusRepository.find();
+    const keyStatus: any = {};
+    for (let i = 0; i < status.length; i++) {
+      keyStatus[status[i].id] = status[i];
+    }
+    return keyStatus;
   }
 }

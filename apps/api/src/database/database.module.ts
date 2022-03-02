@@ -5,6 +5,7 @@ import { ApplicantEntity } from 'src/applicant/entity/applicant.entity';
 import { ApplicantAuditEntity } from 'src/applicant/entity/applicantAudit.entity';
 import { ApplicantStatusEntity } from 'src/applicant/entity/applicantStatus.entity';
 import { ApplicantStatusAuditEntity } from 'src/applicant/entity/applicantStatusAudit.entity';
+import { ApplicantSubscriber } from 'src/applicant/subscribers/applicant.subscribers';
 import { FormEntity } from 'src/form/entities/form.entity';
 import { SubmissionEntity } from 'src/submission/entity/submission.entity';
 import { LoggerOptions } from 'typeorm';
@@ -35,6 +36,7 @@ const getEnvironmentSpecificConfig = (env?: string) => {
           ApplicantAuditEntity,
           ApplicantStatusAuditEntity,
         ],
+        subscribers: [ApplicantSubscriber],
         migrations: ['dist/migration/*.js'],
         logging: ['error', 'warn', 'migration'] as LoggerOptions,
       };
