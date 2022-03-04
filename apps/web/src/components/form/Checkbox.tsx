@@ -3,7 +3,7 @@ import { Field as FormikField } from 'formik';
 
 interface CheckboxProps {
   name: string;
-  label: string;
+  label?: string;
   value?: string;
 }
 
@@ -26,6 +26,28 @@ export const Checkbox: React.FC<CheckboxProps> = ({ name, label, value }) => {
         {label}
       </label>
     </div>
+  );
+};
+
+// Checkbox for Table component
+export const TableCheckbox: React.FC<CheckboxProps> = ({ name, label, value }) => {
+  const identifier = value ?? name;
+
+  return (
+    <>
+      <input
+        name={name}
+        id={identifier}
+        value={value}
+        type='checkbox'
+        className='h-5 w-5 min-w-5'
+      />
+      {label && (
+        <label htmlFor={identifier} className='cursor-pointer'>
+          {label}
+        </label>
+      )}
+    </>
   );
 };
 

@@ -11,7 +11,7 @@ export const Select: React.FC<FieldProps> = props => {
 
   return (
     <Field name={name} label={label} description={description} disabled={disabled} as='select'>
-      <option value={''} key={''} className='hidden'></option>
+      <option value={''} key={''}></option>
       {children}
     </Field>
   );

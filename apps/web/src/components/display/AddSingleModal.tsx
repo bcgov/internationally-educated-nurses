@@ -1,66 +1,117 @@
+import { Formik, Form as FormikForm } from 'formik';
+import createValidator from 'class-validator-formik';
+
 import { Modal } from '../Modal';
 import { useRouter } from 'next/router';
+import { Button } from '../Button';
+import { Field, Option, Select } from '../form';
+import {
+  addApplicant,
+  professionOptionsArray,
+  recruitmentStatusArray,
+  specialityOptionsArray,
+} from '@services';
+import { ApplicantCreateDTO } from '@ien/common';
 
-export const AddSingleModal: React.FC = () => {
+export const AddSingleModal: React.FC<any> = ({ applicants, setApplicants }) => {
   const router = useRouter();
 
   const isOpen = !!router.query.add_row;
 
+  const newApplicantSchema = createValidator(ApplicantCreateDTO);
+
+  const initialValues: any = {
+    first_name: '',
+    last_name: '',
+    profession: undefined,
+    specialty: undefined,
+    assigned_to: 'Jill',
+    ha_pcn: 'HA',
+    status: '',
+    first_referral: '2022-01-02',
+    latest_referral: '2022-02-02',
+    followed_up: '2022-01-22',
+    date_matched: '2022-02-02',
+    comment: undefined,
+    added_by: 'Jack',
+    added_by_id: 'abhcd1-89cbd0e9-4bha6d87c-amc34ee59',
+    is_open: true,
+    additional_data: undefined,
+    status_date: '2022-03-02',
+  };
+
   const handleClose = () => {
     delete router.query.add_row;
-    router.push(router.route, undefined, { shallow: true });
+    // router.push(router.route, undefined, { shallow: true });
+    router.back();
+  };
+
+  const handleSubmit = async (values: ApplicantCreateDTO) => {
+    const {
+      data: { data },
+    } = await addApplicant(values);
+
+    // update table data with new applicant
+    setApplicants([data, ...applicants]);
+
+    delete router.query.add_row;
+    router.back();
   };
 
   return (
     <Modal open={isOpen} handleClose={handleClose}>
       <Modal.Title as='h1' className='text-lg font-medium leading-6 text-bcBlueLink border-b p-4'>
-        Add IEN
+        Add Record
       </Modal.Title>
-      <div className='w-full'>
-        <form className='bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4'>
-          <Modal.Description className='mb-7 flex items-center gap-3'>
-            <span className='w-full inline-block h-5 rounded-lg p-1 animate-pulse bg-gray-200' />
-          </Modal.Description>
-          <div className='mb-4'>
-            <label className='text-gray-700 text-sm font-bold mb-2' htmlFor='username'>
-              Test Label 1
-            </label>
-            <input
-              className='shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline'
-              id='t1'
-              type='text'
-              placeholder='Test Input 2'
-            />
-          </div>
-          <div className='mb-4'>
-            <label className='text-gray-700 text-sm font-bold mb-2' htmlFor='username'>
-              Test Label 2
-            </label>
-            <input
-              className='shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline'
-              id='t2'
-              type='text'
-              placeholder='Test Input 2'
-            />
-          </div>
-          <div className='flex items-center justify-between'>
-            <button
-              className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline'
-              type='button'
-            >
-              Add
-            </button>
-            <button
-              className='bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline'
-              type='button'
-              onClick={handleClose}
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-        <p className='text-center text-gray-500 text-xs'>&copy; Something</p>
-      </div>
+      <Formik initialValues={initialValues} onSubmit={handleSubmit} validate={newApplicantSchema}>
+        {({ dirty, isValid }) => (
+          <FormikForm>
+            <div className='grid grid-cols-4 gap-4 bg-white rounded px-8 pt-6 pb-8 mb-4'>
+              <div className='mb-3 col-span-2'>
+                <Field name='first_name' label='First Name' type='text' />
+              </div>
+              <div className='mb-3 col-span-2'>
+                <Field name='last_name' label='Last Name' type='text' />
+              </div>
+              <div className='mb-3 col-span-2'>
+                <Select name='profession' label='Profession'>
+                  {professionOptionsArray.map(opt => (
+                    <Option key={opt.value} label={opt.label} value={opt.value} />
+                  ))}
+                </Select>
+              </div>
+              <div className='mb-3 col-span-2'>
+                <Select name='specialty' label='Specialty'>
+                  {specialityOptionsArray.map(opt => (
+                    <Option key={opt.value} label={opt.label} value={opt.value} />
+                  ))}
+                </Select>
+              </div>
+
+              <div className='mb-3 col-span-4'>
+                <Select name='status' label='Recruitment Status'>
+                  {recruitmentStatusArray.map(opt => (
+                    <Option key={opt.value} label={opt.label} value={opt.value} />
+                  ))}
+                </Select>
+              </div>
+              <span className='border-b-2 col-span-4 my-2'></span>
+              <div className='mb-3 col-span-4'>
+                <Field name='first_referral' label='Referral Date' type='date' />
+              </div>
+              <span className='border-b-2 col-span-4 mt-2'></span>
+              <div className='col-span-4 flex items-center justify-between'>
+                <Button variant='secondary' type='button' onClick={handleClose}>
+                  Cancel
+                </Button>
+                <Button variant='primary' type='submit' disabled={!dirty || !isValid}>
+                  Add Record
+                </Button>
+              </div>
+            </div>
+          </FormikForm>
+        )}
+      </Formik>
     </Modal>
   );
 };

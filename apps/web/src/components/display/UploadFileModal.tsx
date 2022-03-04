@@ -7,8 +7,7 @@ import Papa from 'papaparse';
 
 import { Modal } from '../Modal';
 import { Button } from '../Button';
-import { onDropType, uploadForm } from '@services';
-import { FormDTO } from '@ien/common';
+import { onDropType } from '@services';
 
 export const UploadFileModal: React.FC = () => {
   const router = useRouter();
@@ -16,7 +15,7 @@ export const UploadFileModal: React.FC = () => {
 
   const handleClose = () => {
     delete router.query.bulk_upload;
-    router.push(router.route, undefined, { shallow: true });
+    router.back();
   };
 
   // @todo add confirmation, warning, errors modal
@@ -40,19 +39,18 @@ const UploadPage: React.FC<UploadPageProps> = ({ closeModal }) => {
   const handleFileUpload = async () => {
     Papa.parse(file, {
       header: true,
+      transformHeader: h => {
+        return h.replace(/\s/g, '');
+      },
       complete: function (results) {
-        const form = new FormDTO();
-        form.file_name = file.name;
-        // @todo add check for empty strings
-        form.form_data = JSON.stringify(results.data);
-
-        uploadForm(form);
+        // @todo - remove log and implement POST call to backend
+        console.log('FILE: ', results.data);
       },
     });
 
     // @todo - will remove this portion once warning, error modals are implemented
     delete router.query.bulk_upload;
-    router.push(router.route, undefined, { shallow: true });
+    router.back();
   };
 
   // handles user dragging and dropping file in dropzone area
@@ -65,10 +63,9 @@ const UploadPage: React.FC<UploadPageProps> = ({ closeModal }) => {
     const file = acceptedFiles[0];
     if ((file as File).name.toLowerCase().endsWith('.csv')) {
       // @todo - implement error handling here
-      if (file.size == 0 || file.name === '') {
+      if (file.size == 0) {
         return;
       }
-
       setFile(acceptedFiles[0]);
     }
   };
@@ -94,7 +91,7 @@ const UploadPage: React.FC<UploadPageProps> = ({ closeModal }) => {
         {file ? (
           <div className='flex justify-between items-center bg-gray-200 p-3'>
             <p>
-              {file.name} | size: {file.size}
+              {file.name} {file.size}
             </p>
             <button className='flex justify-between items-center' onClick={handleRemoveFile}>
               <FontAwesomeIcon icon={faTimesCircle} className='text-bcBluePrimary h-4' />
