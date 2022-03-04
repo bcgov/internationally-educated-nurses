@@ -5,8 +5,7 @@ import {
   IsString,
   Length,
   IsObject,
-  IsBoolean,
-  IsInt,
+  IsBoolean
 } from 'class-validator';
 
 export class ApplicantUpdateDTO {
@@ -43,9 +42,9 @@ export class ApplicantUpdateDTO {
   @Length(1, 256)
   ha_pcn?: string;
 
-  @IsInt()
+  @IsString()
   @IsOptional()
-  status?: number;
+  status?: string;
 
   @IsDateString()
   @IsOptional()

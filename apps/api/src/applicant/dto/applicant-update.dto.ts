@@ -6,7 +6,6 @@ import {
   Length,
   IsObject,
   IsBoolean,
-  IsInt,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ApplicantUpdateDTO } from '@ien/common';
@@ -55,9 +54,9 @@ export class ApplicantUpdateAPIDTO extends ApplicantUpdateDTO {
     description: "Applicant current status, Check ApplicantStatus API for status' integer value",
     default: 4,
   })
-  @IsInt()
+  @IsString()
   @IsOptional()
-  status?: number;
+  status?: string;
 
   @ApiPropertyOptional({
     description: "Applicant's first referral date",

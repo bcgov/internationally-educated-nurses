@@ -63,13 +63,13 @@ export class ApplicantService {
 
   async addApplicant(addApplicant: ApplicantCreateAPIDTO): Promise<ApplicantEntity | any> {
     const { status, ...data } = addApplicant;
-    try {
-      const statusObj = await this.getApplicantStatusById(status);
-      const applicant: ApplicantEntity = await this.saveApplicant(data, statusObj);
-      return applicant;
-    } catch (e) {
-      this.logger.error(e);
-    }
+    // try {
+    const statusObj = await this.getApplicantStatusById(status);
+    const applicant: ApplicantEntity = await this.saveApplicant(data, statusObj);
+    return applicant;
+    // } catch (e) {
+    //   this.logger.error(e);
+    // }
   }
 
   async updateApplicant(
@@ -80,15 +80,16 @@ export class ApplicantService {
     const { status, ...data } = applicantUpdate;
     let statusObj;
     const dataToUpdate: any = data;
+
+    if (status && status !== applicant.status.status) {
+      statusObj = await this.getApplicantStatusById(status);
+      dataToUpdate.status = statusObj;
+    }
     try {
-      if (status && status !== applicant.status.id) {
-        statusObj = await this.getApplicantStatusById(status);
-        dataToUpdate.status = statusObj;
-      }
       await this.applicantRepository.update(applicant.id, dataToUpdate);
 
       // Let's audit changes in separate tables
-      if (status && status !== applicant.status.id) {
+      if (status && status !== applicant.status.status) {
         applicantUpdate.status = statusObj;
         await this.saveStatusAudit(applicantUpdate, statusObj, applicant);
       }
@@ -121,10 +122,16 @@ export class ApplicantService {
   /**
    * Get status object from statusId
    */
-  async getApplicantStatusById(status: number): Promise<ApplicantStatusEntity | any> {
-    const statusObj = this.applicantStatusRepository.findOne(status, {
-      relations: ['parent'],
-    });
+  async getApplicantStatusById(status: string): Promise<ApplicantStatusEntity | any> {
+    const statusObj = await this.applicantStatusRepository.findOne(
+      { status: status },
+      {
+        relations: ['parent'],
+      },
+    );
+    if (!statusObj) {
+      throw new NotFoundException(`Status with give value "${status}" not found`);
+    }
     return statusObj;
   }
 

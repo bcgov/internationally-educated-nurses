@@ -40,8 +40,8 @@ export class ApplicantCreateDTO {
   @Length(1, 256)
   ha_pcn!: string;
 
-  @IsInt()
-  status!: number;
+  @IsString()
+  status!: string;
 
   @IsDateString()
   @IsOptional()
