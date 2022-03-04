@@ -7,7 +7,8 @@ import Papa from 'papaparse';
 
 import { Modal } from '../Modal';
 import { Button } from '../Button';
-import { onDropType } from '@services';
+import { onDropType, uploadForm } from '@services';
+import { FormDTO } from '@ien/common';
 
 export const UploadFileModal: React.FC = () => {
   const router = useRouter();
@@ -39,12 +40,13 @@ const UploadPage: React.FC<UploadPageProps> = ({ closeModal }) => {
   const handleFileUpload = async () => {
     Papa.parse(file, {
       header: true,
-      transformHeader: h => {
-        return h.replace(/\s/g, '');
-      },
       complete: function (results) {
-        // @todo - remove log and implement POST call to backend
-        console.log('FILE: ', results.data);
+        const form = new FormDTO();
+        form.file_name = file.name;
+        // @todo add check for empty strings
+        form.form_data = JSON.stringify(results.data);
+
+        uploadForm(form);
       },
     });
 
@@ -63,7 +65,7 @@ const UploadPage: React.FC<UploadPageProps> = ({ closeModal }) => {
     const file = acceptedFiles[0];
     if ((file as File).name.toLowerCase().endsWith('.csv')) {
       // @todo - implement error handling here
-      if (file.size == 0) {
+      if (file.size == 0 || file.name === '') {
         return;
       }
       setFile(acceptedFiles[0]);
@@ -91,7 +93,7 @@ const UploadPage: React.FC<UploadPageProps> = ({ closeModal }) => {
         {file ? (
           <div className='flex justify-between items-center bg-gray-200 p-3'>
             <p>
-              {file.name} {file.size}
+              {file.name} | size: {file.size}
             </p>
             <button className='flex justify-between items-center' onClick={handleRemoveFile}>
               <FontAwesomeIcon icon={faTimesCircle} className='text-bcBluePrimary h-4' />

@@ -42,7 +42,6 @@ export const AddSingleModal: React.FC<any> = ({ applicants, setApplicants }) => 
 
   const handleClose = () => {
     delete router.query.add_row;
-    // router.push(router.route, undefined, { shallow: true });
     router.back();
   };
 
