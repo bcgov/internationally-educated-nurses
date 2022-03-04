@@ -6,7 +6,6 @@ import {
   Length,
   IsObject,
   IsBoolean,
-  IsInt,
 } from 'class-validator';
 
 export class ApplicantCreateDTO {

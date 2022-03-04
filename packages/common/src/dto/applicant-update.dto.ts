@@ -5,7 +5,7 @@ import {
   IsString,
   Length,
   IsObject,
-  IsBoolean
+  IsBoolean,
 } from 'class-validator';
 
 export class ApplicantUpdateDTO {
