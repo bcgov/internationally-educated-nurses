@@ -1,4 +1,6 @@
+import { ValidRoles } from '@services';
 import { Table } from 'src/components/display/Table';
+import withAuth from 'src/components/Keycloak';
 
 const Form = () => {
   return (
@@ -8,4 +10,4 @@ const Form = () => {
   );
 };
 
-export default Form;
+export default withAuth(Form, [ValidRoles.MINISTRY_OF_HEALTH, ValidRoles.HEALTH_MATCH]);

@@ -41,7 +41,7 @@ const AuthProvider = ({ children }: any) => {
 };
 
 export const getUser = async (keycloakId: string): Promise<UserType> => {
-  const { data } = await axios.get(`/users/${keycloakId}`);
+  const { data } = await axios.get(`/employee/${keycloakId}`);
   return data;
 };
 

@@ -26,7 +26,6 @@ function App({ Component, pageProps }: AppProps) {
   const handleTokens = (tokens: any) => {
     axios.defaults.headers.common['Authorization'] = `Bearer ${tokens.token}`;
   };
-  console.log(keycloakConfig);
   return (
     <>
       <Head>

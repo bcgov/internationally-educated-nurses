@@ -8,7 +8,6 @@ const Login = () => {
   const { keycloak } = useKeycloak<KeycloakInstance>();
   function login() {
     // Only bceid for now, but this can do IDIR and bceid without the idpHint
-    console.log(keycloak);
     if (keycloak) {
       push(keycloak?.createLoginUrl({ redirectUri: location.origin + '/' }) || '/');
     }
