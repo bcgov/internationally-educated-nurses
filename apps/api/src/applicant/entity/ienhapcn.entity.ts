@@ -9,7 +9,7 @@ export class IENHaPcn {
   @Column('varchar')
   title!: string;
 
-  @Column('varchar', {nullable: true})
+  @Column('varchar', { nullable: true })
   description?: string;
 
   @ManyToMany(() => IENApplicant, applicant => applicant.ha_pcn)

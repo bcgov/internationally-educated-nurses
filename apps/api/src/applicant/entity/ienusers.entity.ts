@@ -1,5 +1,12 @@
 import { Exclude } from 'class-transformer';
-import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, Index, CreateDateColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToMany,
+  Index,
+  CreateDateColumn,
+} from 'typeorm';
 import { IENApplicant } from './ienapplicant.entity';
 
 @Entity('ien_users')
