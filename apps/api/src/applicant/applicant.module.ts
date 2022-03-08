@@ -9,6 +9,18 @@ import { ApplicantController } from './applicant.controller';
 import { ApplicantStatusController } from './applicantStatus.controller';
 import { ApplicantService } from './applicant.service';
 import { ApplicantStatusService } from './applicantStatus.service';
+import { IENApplicant } from './entity/ienapplicant.entity';
+import { IENApplicantAudit } from './entity/ienapplicant-audit.entity';
+import { IENApplicantStatus } from './entity/ienapplicant-status.entity';
+import { IENApplicantStatusAudit } from './entity/ienapplicant-status-audit.entity';
+import { IENHaPcn } from './entity/ienhapcn.entity';
+import { IENUsers } from './entity/ienusers.entity';
+import { IENApplicantController } from './ienapplicant.controller';
+import { IENApplicantService } from './ienapplicant.service';
+import { IENMasterController } from './ien-master.controller';
+import { IENMasterService } from './ien-master.service';
+import { IENEducation } from './entity/ieneducation.entity';
+import { IENApplicantUtilService } from './ienapplicant.util.service';
 
 @Module({
   imports: [
@@ -17,11 +29,30 @@ import { ApplicantStatusService } from './applicantStatus.service';
       ApplicantStatusEntity,
       ApplicantStatusAuditEntity,
       ApplicantAuditEntity,
+      IENApplicant,
+      IENApplicantAudit,
+      IENApplicantStatus,
+      IENApplicantStatusAudit,
+      IENHaPcn,
+      IENUsers,
+      IENEducation,
     ]),
     MailModule,
   ],
-  controllers: [ApplicantController, ApplicantStatusController],
-  providers: [ApplicantService, ApplicantStatusService, Logger],
-  exports: [ApplicantService],
+  controllers: [
+    ApplicantController,
+    ApplicantStatusController,
+    IENApplicantController,
+    IENMasterController,
+  ],
+  providers: [
+    ApplicantService,
+    ApplicantStatusService,
+    Logger,
+    IENApplicantService,
+    IENMasterService,
+    IENApplicantUtilService,
+  ],
+  exports: [ApplicantService, IENApplicantService, IENMasterService, IENApplicantUtilService],
 })
 export class ApplicantModule {}

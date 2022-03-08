@@ -67,7 +67,7 @@ export class ApplicantEntity {
   @Column('jsonb', { nullable: true })
   additional_data?: JSON;
 
-  @Column('date')
+  @Column('date', { nullable: true })
   @Exclude()
   status_date?: Date;
 
