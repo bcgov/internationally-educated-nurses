@@ -20,7 +20,7 @@ export class IENApplicantUpdateAPIDTO extends IENApplicantUpdateDTO {
     description: 'Applicant unique ID',
     default: 'a989765-c8789299-b9696669-dfcba98',
   })
-  @Length(1, 256, { message: 'Please provide applicant name' })
+  @Length(1, 256, { message: 'Please provide unique ID' })
   @IsOptional()
   applicant_id?: string;
 
