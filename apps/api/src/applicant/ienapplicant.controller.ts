@@ -147,21 +147,4 @@ export class IENApplicantController {
       }
     }
   }
-
-  // @ApiOperation({
-  //   summary: 'Add Applicants in bulk',
-  // })
-  // @UseInterceptors(ClassSerializerInterceptor)
-  // @Post('/create-bulk')
-  // createBulk(
-  //   @Body(new ParseArrayPipe({ items: ApplicantCreateAPIDTO }))
-  //   applicants: ApplicantCreateAPIDTO[],
-  // ) {
-  //   try {
-  //     return this.applicantService.createBulkApplicants(applicants);
-  //   } catch (e) {
-  //     this.logger.error(e);
-  //     throw new InternalServerErrorException('An unknown error occured while update applicant');
-  //   }
-  // }
 }
