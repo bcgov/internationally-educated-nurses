@@ -1,7 +1,6 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 
 export class AuthService {
-  constructor() {}
   extractToken = (headers: { [key: string]: string }): string | undefined => {
     if (headers.authorization) {
       const auth = headers.authorization.split(' ');

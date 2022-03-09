@@ -2,8 +2,10 @@ import { HttpException, HttpStatus, Injectable, NestMiddleware } from '@nestjs/c
 import { NextFunction } from 'express';
 import jwksRsa from 'jwks-rsa';
 import { AuthService } from '../auth/auth.service';
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { EmployeeService } from 'src/employee/employee.service';
+import { EmployeeEntity } from 'src/employee/employee.entity';
+import { ValidRoles } from 'src/auth/auth.constants';
 
 @Injectable()
 export class AuthenticationMiddleware implements NestMiddleware {
@@ -11,7 +13,11 @@ export class AuthenticationMiddleware implements NestMiddleware {
     private readonly authService: AuthService,
     private readonly employeeService: EmployeeService,
   ) {}
-  async use(req: any, res: any, next: NextFunction) {
+  async use(
+    req: { headers: { [key: string]: string } },
+    res: { locals: { kcUser: any; roles: ValidRoles; user: EmployeeEntity } },
+    next: NextFunction,
+  ) {
     const token = this.authService.extractToken(req.headers);
 
     // @TODO gracefully handle missing token
@@ -31,16 +37,7 @@ export class AuthenticationMiddleware implements NestMiddleware {
       if (typeof verified !== 'string' && verified.azp !== 'IEN') {
         throw new HttpException('Authentication token does not match', HttpStatus.FORBIDDEN);
       }
-      const {
-        nonce,
-        session_state,
-        'allowed-origins': allowedOrigins,
-        scope,
-        email_verified,
-        typ,
-        jti,
-        ...user
-      }: any = decoded?.payload;
+      const { ...user }: any = decoded?.payload;
       res.locals.kcUser = user;
 
       // Retrieve user roles
