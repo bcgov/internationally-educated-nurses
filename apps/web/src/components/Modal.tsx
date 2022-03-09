@@ -44,7 +44,7 @@ const ModalContainer: React.FC<ModalProps> = ({ children, open, handleClose }) =
             leaveFrom='opacity-100 translate-y-0 sm:scale-100'
             leaveTo='opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95'
           >
-            <div className='inline-block align-bottom bg-white rounded-lg text-left shadow-xl transform transition-all sm:my-8 sm:align-middle xl:max-w-xl sm:max-w-lg sm:w-full'>
+            <div className='inline-block align-bottom bg-white rounded-lg text-left shadow-xl transform transition-all sm:my-8 sm:align-middle lg:max-w-xl sm:max-w-lg sm:w-full'>
               <div className='bg-white '>{children}</div>
             </div>
           </Child>

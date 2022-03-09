@@ -3,90 +3,34 @@ import Link from 'next/link';
 
 import { AddSingleModal } from './AddSingleModal';
 import { UploadFileModal } from './UploadFileModal';
-import { buttonBase, buttonColor } from '../';
+import { buttonBase, buttonColor, TableCheckbox } from '../';
+import { useEffect, useState } from 'react';
+import { getApplicants } from '@services';
 
 export const Table: React.FC = () => {
+  const [applicants, setApplicants] = useState<any>([]);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const sampleData = [
-    {
-      id: '1',
-      name: 'Floyd Miles',
-      profession: 'Nurse practitioner',
-      specialty: 'Arms/Legs/Torso',
-      community: 'HA',
-      assigned: 'Dianne Russell',
-      status: 'Initial',
-    },
-    {
-      id: '2',
-      name: 'Auston Matthews',
-      profession: 'Nurse practitioner',
-      specialty: 'Arms',
-      community: 'FHA',
-      assigned: 'Dianne Russell',
-      status: 'Initial',
-    },
-    {
-      id: '3',
-      name: 'John Doe',
-      profession: 'Nurse practitioner',
-      specialty: 'Legs',
-      community: 'PCN',
-      assigned: 'Dianne Russell',
-      status: 'Not initial',
-    },
-    {
-      id: '4',
-      name: 'Floyd Miles',
-      profession: 'Nurse practitioner',
-      specialty: 'Lungs',
-      community: 'HA',
-      assigned: 'Dianne Russell',
-      status: 'Initial',
-    },
-    {
-      id: '5',
-      name: 'Floyd Miles',
-      profession: 'Nurse practitioner',
-      specialty: 'Chronic Disease/Diabetes',
-      community: 'PCN',
-      assigned: 'Dianne Russell',
-      status: 'Initial',
-    },
-    {
-      id: '6',
-      name: 'Floyd Miles',
-      profession: 'Nurse practitioner',
-      specialty: 'Chronic Disease/Diabetes',
-      community: 'PCN',
-      assigned: 'Dianne Russell',
-      status: 'Initial',
-    },
-    {
-      id: '7',
-      name: 'Floyd Miles',
-      profession: 'Nurse practitioner',
-      specialty: 'Chronic Disease/Diabetes',
-      community: 'PCN',
-      assigned: 'Dianne Russell',
-      status: 'Initial',
-    },
-    {
-      id: '8',
-      name: 'Floyd Miles',
-      profession: 'Nurse practitioner',
-      specialty: 'Chronic Disease/Diabetes',
-      community: 'PCN',
-      assigned: 'Dianne Russell',
-      status: 'Initial',
-    },
-  ];
+  useEffect(() => {
+    const getApplicantsData = async () => {
+      setLoading(true);
+
+      const {
+        data: { data },
+      } = await getApplicants();
+      console.log(data);
+
+      setLoading(false);
+      setApplicants(data);
+    };
+    getApplicantsData();
+  }, []);
 
   return (
     <>
       <div className='container'>
-        <h1 className='font-bold text-3xl py-5'>Manage Applications</h1>
+        <h1 className='font-bold text-3xl py-5'>Manage Applicants</h1>
         <div className='flex justify-end items-end'>
           <Link
             href={{
@@ -108,42 +52,51 @@ export const Table: React.FC = () => {
           </Link>
         </div>
 
-        <div className='flex flex-col overflow-x-auto'>
+        <div className='flex justify-content-center flex-col overflow-x-auto'>
           <table className='text-left'>
-            <thead className='whitespace-nowrap'>
-              <tr className='border-b-2 border-yellow-300'>
+            <thead className='whitespace-nowrap bg-gray-100'>
+              <tr className='border-b-2 border-yellow-300 text-sm'>
+                <th className='pl-6 py-3'>
+                  <TableCheckbox name={`cb.selector.MA`} value='ALL' />
+                </th>
+                <th className='pl-6 py-3'>ID</th>
                 <th className='px-6 py-3'>Name</th>
-                <th className='px-6 py-3'>Profession</th>
-                <th className='px-6 py-3'>Specialty</th>
-                <th className='px-6 py-3'>HA or PCN Community</th>
-                <th className='px-6 py-3'>Assigned</th>
-                <th className='px-6 py-3'>Recruitment Status</th>
-                <th className='px-6 py-3'></th>
+                <th className='px-6 py-3 w-1/4'>Current Milestones</th>
+                <th className='px-6 py-3'>Last Updated</th>
+                <th className='w-auto'></th>
               </tr>
             </thead>
             <tbody>
-              {sampleData.map(nurse => (
-                <tr
-                  key={nurse.id}
-                  className='text-left whitespace-nowrap even:bg-gray-100 text-sm '
-                >
-                  <th className='font-normal px-6 py-4'>{nurse.name}</th>
-                  <th className='font-normal px-6 py-2'>{nurse.profession}</th>
-                  <th className='font-normal px-6 py-2'>{nurse.specialty}</th>
-                  <th className='font-normal px-6 py-2'>{nurse.community}</th>
-                  <th className='font-normal px-6 py-2'>{nurse.assigned}</th>
-                  <th className='font-normal px-6 py-2'>{nurse.status}</th>
-                  <td className='font-normal px-6 py-4'>
-                    <a href='#' className='text-blue-500 px-1 py-1'>
-                      Details
-                    </a>
-                    |
-                    <a href='#' className='text-red-500 px-1 py-1'>
-                      Delete
-                    </a>
-                  </td>
-                </tr>
-              ))}
+              {applicants &&
+                applicants.map((app: any) => (
+                  <tr
+                    key={app.id}
+                    className='text-left whitespace-nowrap even:bg-gray-100 text-sm '
+                  >
+                    <th className='pl-6'>
+                      <TableCheckbox name={`cb.selector.MA`} value={app.id} />
+                    </th>
+
+                    <th className='font-normal px-6 py-4'>AB1234</th>
+                    <th className='font-normal px-6 py-4'>{app.name}</th>
+
+                    <th className='font-normal px-6 py-2'>{app.status?.status}</th>
+                    <th className='font-normal px-6 py-4'>January 5, 2022</th>
+                    <td className='font-normal px-6 py-4 text-right'>
+                      <Link
+                        href={{
+                          pathname: `details/${app.id}`,
+                          query: {
+                            applicantId: app.id,
+                          },
+                        }}
+                        as={`details/${app.id}`}
+                      >
+                        <a className={`px-5 ${buttonColor.outline} ${buttonBase}`}>Details</a>
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>
