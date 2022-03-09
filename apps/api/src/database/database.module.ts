@@ -5,6 +5,13 @@ import { ApplicantEntity } from 'src/applicant/entity/applicant.entity';
 import { ApplicantAuditEntity } from 'src/applicant/entity/applicantAudit.entity';
 import { ApplicantStatusEntity } from 'src/applicant/entity/applicantStatus.entity';
 import { ApplicantStatusAuditEntity } from 'src/applicant/entity/applicantStatusAudit.entity';
+import { IENApplicantAudit } from 'src/applicant/entity/ienapplicant-audit.entity';
+import { IENApplicantStatusAudit } from 'src/applicant/entity/ienapplicant-status-audit.entity';
+import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.entity';
+import { IENApplicant } from 'src/applicant/entity/ienapplicant.entity';
+import { IENEducation } from 'src/applicant/entity/ieneducation.entity';
+import { IENHaPcn } from 'src/applicant/entity/ienhapcn.entity';
+import { IENUsers } from 'src/applicant/entity/ienusers.entity';
 import { ApplicantSubscriber } from 'src/applicant/subscribers/applicant.subscribers';
 import { FormEntity } from 'src/form/entities/form.entity';
 import { SubmissionEntity } from 'src/submission/entity/submission.entity';
@@ -35,6 +42,13 @@ const getEnvironmentSpecificConfig = (env?: string) => {
           ApplicantStatusEntity,
           ApplicantAuditEntity,
           ApplicantStatusAuditEntity,
+          IENApplicant,
+          IENApplicantAudit,
+          IENApplicantStatus,
+          IENApplicantStatusAudit,
+          IENHaPcn,
+          IENUsers,
+          IENEducation,
         ],
         subscribers: [ApplicantSubscriber],
         migrations: ['dist/migration/*.js'],

@@ -1,0 +1,58 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { IsNull, Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { AppLogger } from 'src/common/logger.service';
+import { IENApplicantStatus } from './entity/ienapplicant-status.entity';
+import { IENHaPcn } from './entity/ienhapcn.entity';
+import { IENUsers } from './entity/ienusers.entity';
+import { IENEducation } from './entity/ieneducation.entity';
+
+@Injectable()
+export class IENMasterService {
+  applicantRelations: any;
+  constructor(
+    @Inject(Logger) private readonly logger: AppLogger,
+    @InjectRepository(IENApplicantStatus)
+    private readonly ienapplicantStatusRepository: Repository<IENApplicantStatus>,
+    @InjectRepository(IENHaPcn)
+    private readonly ienHaPcnRepository: Repository<IENHaPcn>,
+    @InjectRepository(IENUsers)
+    private readonly ienUsersRepository: Repository<IENUsers>,
+    @InjectRepository(IENEducation)
+    private readonly ienEducationListRepository: Repository<IENEducation>,
+  ) {}
+
+  async getStatus(): Promise<IENApplicantStatus[]> {
+    return await this.ienapplicantStatusRepository.find({
+      where: {
+        parent: IsNull(),
+      },
+      relations: ['children'],
+    });
+  }
+
+  async getHaPcn(): Promise<IENHaPcn[]> {
+    return await this.ienHaPcnRepository.find({
+      order: {
+        title: 'ASC',
+      },
+    });
+  }
+
+  async getUsers(): Promise<IENUsers[]> {
+    return await this.ienUsersRepository.find({
+      order: {
+        name: 'ASC',
+      },
+    });
+  }
+
+  async getEducation(): Promise<IENEducation[]> {
+    return await this.ienEducationListRepository.find({
+      order: {
+        title: 'ASC',
+      },
+    });
+  }
+}
