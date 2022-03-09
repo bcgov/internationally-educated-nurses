@@ -4,4 +4,5 @@ export enum ValidRoles {
   FACILITY_ADMIN = 'fa',
   EXPORT = 'EXPORT',
   HEALTH_MATCH = 'hm',
+  PENDING = 'pending',
 }

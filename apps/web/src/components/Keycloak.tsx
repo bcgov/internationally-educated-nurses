@@ -14,13 +14,12 @@ const withAuth = (Component: any, roles: ValidRoles[]) => {
 
     // eslint-disable-next-line
     useEffect(() => {
-      console.log(kc, authUser);
-      // if (kc?.initialized && authUser && !roles.includes(authUser?.role)) {
-      //   router.replace('/form');
-      // }
-      // if (!authUser && !authUserLoading && kc.initialized && !kc?.keycloak?.authenticated) {
-      //   router.replace('/login');
-      // }
+      if (kc?.initialized && authUser && !roles.includes(authUser?.role)) {
+        router.replace('/form');
+      }
+      if (!authUser && !authUserLoading && kc.initialized && !kc?.keycloak?.authenticated) {
+        router.replace('/login');
+      }
     }, [kc?.initialized, authUser, authUserLoading]);
 
     // Handle intermediate states

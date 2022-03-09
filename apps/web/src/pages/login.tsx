@@ -15,14 +15,21 @@ const Login = () => {
   return (
     <>
       <div className='container'>
-        <div>
-          <h1 className='font-bold text-3xl py-5'>Login</h1>
-          You are not logged in, you should probably do that...
-        </div>
-        <div>
-          <Button variant={'submit'} onClick={login}>
-            Login
-          </Button>
+        <div className='w-full h-full flex items-center justify-center'>
+          <div className='bg-bcLightBlueBackground rounded p-5'>
+            <div>
+              <h1 className='font-bold text-3xl'>Login</h1>
+            </div>
+            <div>
+              Welcome to the Internationally Educated Nurses. To log in, please click the button
+              below.
+            </div>
+            <div className='flex items-center justify-center'>
+              <Button variant={'primary'} onClick={login}>
+                Login
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
     </>

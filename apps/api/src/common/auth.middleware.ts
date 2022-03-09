@@ -28,7 +28,6 @@ export class AuthenticationMiddleware implements NestMiddleware {
       const jwks = await jwksClient.getSigningKey(kid);
       const signingKey = jwks.getPublicKey();
       const verified = jwt.verify(token || '', signingKey);
-      console.log(verified);
       if (typeof verified !== 'string' && verified.azp !== 'IEN') {
         throw new HttpException('Authentication token does not match', HttpStatus.FORBIDDEN);
       }
@@ -49,7 +48,6 @@ export class AuthenticationMiddleware implements NestMiddleware {
       const ltcvx = resourceAccess && resourceAccess[process.env.AUTH_CLIENTID as any];
       const roles = ltcvx && ltcvx.roles;
       res.locals.roles = roles;
-      console.log(user);
       const applicationUser = await this.employeeService.resolveUser(user.sub, {
         keycloakId: user.sub,
         role: 'pending',
@@ -60,7 +58,6 @@ export class AuthenticationMiddleware implements NestMiddleware {
       res.locals.user = applicationUser;
       next();
     } catch (e) {
-      console.log(e);
       throw new HttpException('Authentication header does not match', HttpStatus.BAD_REQUEST);
     }
   }
