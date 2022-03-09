@@ -5,14 +5,14 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
 import { DetailsItem } from 'src/components/DetailsItem';
-import { buttonColor, buttonBase, Label } from '@components';
+import { buttonColor, buttonBase } from '@components';
 import { getApplicant } from '@services';
 
 const Details = () => {
   const [applicant, setApplicant] = useState<any>({});
 
   const router = useRouter();
-  let applicantId = router.query.applicantId;
+  const applicantId = router.query.applicantId;
 
   useEffect(() => {
     if (router.isReady) {
@@ -31,7 +31,7 @@ const Details = () => {
 
   // @todo move to helper file once decorator errors are fixed ??
   const formatDate = (value: string) => {
-    let date = new Date(value);
+    const date = new Date(value);
     const day = date.toLocaleString('default', { day: '2-digit' });
     const month = date.toLocaleString('default', { month: 'short' });
     const year = date.toLocaleString('default', { year: 'numeric' });
