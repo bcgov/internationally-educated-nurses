@@ -12,9 +12,6 @@ import { KeycloakInstance } from 'keycloak-js';
 import { CachePolicies, Provider } from 'use-http';
 
 axios.defaults.baseURL = process.env.NEXT_PUBLIC_API_URL;
-interface InitialProps {
-  cookies: unknown;
-}
 
 const keycloakConfig = {
   realm: process.env.NEXT_PUBLIC_AUTH_REALM || 'ien',
@@ -56,13 +53,6 @@ function App({ Component, pageProps }: AppProps) {
       </SSRKeycloakProvider>
     </>
   );
-}
-
-function parseCookies(req: any) {
-  if (!req || !req.headers) {
-    return {};
-  }
-  return cookie.parse(req.headers.cookie || '');
 }
 
 function FetchWrapper(props: any) {
