@@ -2,7 +2,7 @@ import { useKeycloak } from '@react-keycloak/ssr';
 import axios from 'axios';
 import { KeycloakInstance } from 'keycloak-js';
 import React, { useEffect, useState } from 'react';
-import { ValidRoles } from 'src/services/constants';
+import { ValidRoles } from '@services';
 
 export interface UserType {
   id: string;
