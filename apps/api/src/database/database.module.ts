@@ -13,6 +13,7 @@ import { IENEducation } from 'src/applicant/entity/ieneducation.entity';
 import { IENHaPcn } from 'src/applicant/entity/ienhapcn.entity';
 import { IENUsers } from 'src/applicant/entity/ienusers.entity';
 import { ApplicantSubscriber } from 'src/applicant/subscribers/applicant.subscribers';
+import { EmployeeEntity } from 'src/employee/employee.entity';
 import { FormEntity } from 'src/form/entities/form.entity';
 import { SubmissionEntity } from 'src/submission/entity/submission.entity';
 import { LoggerOptions } from 'typeorm';
@@ -36,6 +37,7 @@ const getEnvironmentSpecificConfig = (env?: string) => {
         password: process.env.TEST_POSTGRES_PASSWORD,
         database: process.env.TEST_POSTGRES_DATABASE,
         entities: [
+          EmployeeEntity,
           SubmissionEntity,
           FormEntity,
           ApplicantEntity,
