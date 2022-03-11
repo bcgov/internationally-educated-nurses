@@ -19,7 +19,6 @@ export const Table: React.FC = () => {
       const {
         data: { data },
       } = await getApplicants();
-      console.log(data);
 
       setLoading(false);
       setApplicants(data);
@@ -33,27 +32,31 @@ export const Table: React.FC = () => {
 
   return (
     <>
-      <div className='container'>
+      <div className='container mx-auto'>
         <h1 className='font-bold text-3xl py-5'>Manage Applicants</h1>
-        <div className='flex justify-end items-end'>
-          <Link
-            href={{
-              pathname: '/form',
-              query: { ...router.query, add_row: 'test_single_row' },
-            }}
-            shallow={true}
-          >
-            <a className={`m-2 ${buttonColor.primary} ${buttonBase}`}>Add Row</a>
-          </Link>{' '}
-          <Link
-            href={{
-              pathname: '/form',
-              query: { ...router.query, bulk_upload: 'test_bulk_upload' },
-            }}
-            shallow={true}
-          >
-            <a className={`m-2 ${buttonColor.primary} ${buttonBase}`}>Bulk Upload</a>
-          </Link>
+
+        <div className='flex items-center my-3'>
+          <p className='text-gray-400'>Showing {applicants.length} results</p>
+          <span className='ml-auto'>
+            <Link
+              href={{
+                pathname: '/form',
+                query: { ...router.query, add_row: 'test_single_row' },
+              }}
+              shallow={true}
+            >
+              <a className={`${buttonColor.primary} ${buttonBase}`}>Add Row</a>
+            </Link>{' '}
+            <Link
+              href={{
+                pathname: '/form',
+                query: { ...router.query, bulk_upload: 'test_bulk_upload' },
+              }}
+              shallow={true}
+            >
+              <a className={`${buttonColor.primary} ${buttonBase}`}>Bulk Upload</a>
+            </Link>
+          </span>
         </div>
 
         <div className='flex justify-content-center flex-col overflow-x-auto'>
@@ -84,7 +87,7 @@ export const Table: React.FC = () => {
                     <th className='font-normal px-6 py-4'>AB1234</th>
                     <th className='font-normal px-6 py-4'>{app.name}</th>
 
-                    <th className='font-normal px-6 py-2'>{app.status?.status}</th>
+                    <th className='font-normal px-6 py-2'>{app.status.status}</th>
                     <th className='font-normal px-6 py-4'>January 5, 2022</th>
                     <td className='font-normal px-6 py-4 text-right'>
                       <Link

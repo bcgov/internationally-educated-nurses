@@ -6,7 +6,7 @@ export const getApplicants = async () => {
 };
 
 export const getApplicant = async (id: string) => {
-  return await axios.get(`/ien/${id}`);
+  return await axios.get(`/ien/${id}?relation=audit,applicantaudit`);
 };
 
 export const updateApplicant = async (id: string, applicant: ApplicantCreateDTO) => {

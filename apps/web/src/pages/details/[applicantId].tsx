@@ -28,7 +28,6 @@ const Details = () => {
       }
     }
   }, [router, applicantId]);
-
   // @todo move to helper file once decorator errors are fixed ??
   const formatDate = (value: string) => {
     const date = new Date(value);
@@ -38,7 +37,12 @@ const Details = () => {
     return month + ' ' + day + ', ' + year;
   };
 
-  if (!applicant || !applicant.assigned_to || !applicant.ha_pcn) {
+  if (
+    !applicant ||
+    !applicant.assigned_to ||
+    !applicant.ha_pcn ||
+    !applicant.applicant_status_audit
+  ) {
     return <h1>Loading...</h1>;
   }
 
@@ -101,7 +105,9 @@ const Details = () => {
               </a>
             </Link>
           </div>
-          <p className='text-gray-400 pt-4 pb-2'>Showing 23 logs</p>
+          <p className='text-gray-400 pt-4 pb-2'>
+            Showing {applicant.applicant_status_audit.length} logs
+          </p>
           <div className='flex justify-content-center flex-col overflow-x-auto'>
             <table className='text-left text-sm'>
               <thead className='whitespace-nowrap bg-gray-100'>
@@ -114,96 +120,32 @@ const Details = () => {
                 </tr>
               </thead>
               <tbody>
-                <tr className='text-left whitespace-nowrap even:bg-gray-100 text-sm '>
-                  <th className=' font-normal px-6 py-4'>
-                    Auston Matthews<span className='block text-gray-400'>HLTH.FraserHealth</span>
-                  </th>
-                  <th className='font-normal px-6 py-4'>HMBC - Profile Complete</th>
-                  <th className='font-normal px-6 py-4'>Followed up</th>
-                  <th className='font-normal px-6 py-2'>January 5, 2022</th>
-                  <th className='w-full text-right font-normal px-6 py-2'>
-                    <Link
-                      as={`/details/${applicant.id}?milestone=edit`}
-                      href={{
-                        pathname: `/details/${applicant.id}`,
-                        query: { ...router.query, milestone: 'edit' },
-                      }}
-                      shallow={true}
-                    >
-                      <a className={`pointer-events-none ${buttonColor.outline} ${buttonBase}`}>
-                        <FontAwesomeIcon className='h-4' icon={faPencilAlt}></FontAwesomeIcon>
-                      </a>
-                    </Link>
-                  </th>
-                </tr>
-                <tr className='text-left whitespace-nowrap even:bg-gray-100 text-sm '>
-                  <th className=' font-normal px-6 py-4'>
-                    Purple Pickle<span className='block text-gray-400'>HLTH.FraserHealth</span>
-                  </th>
-                  <th className='font-normal px-6 py-4'>HMBC - Profile Complete</th>
-                  <th className='font-normal px-6 py-4'>Followed up</th>
-                  <th className='font-normal px-6 py-2'>June 5, 2021</th>
-                  <th className='w-full text-right font-normal px-6 py-2'>
-                    <Link
-                      as={`/details/${applicant.id}?milestone=edit`}
-                      href={{
-                        pathname: `/details/${applicant.id}`,
-                        query: { ...router.query, milestone: 'edit' },
-                      }}
-                      shallow={true}
-                    >
-                      <a
-                        className={`ml-0 pointer-events-none ${buttonColor.outline} ${buttonBase}`}
+                {/* fix any type */}
+                {applicant.applicant_status_audit.map((mil: any, index: number) => (
+                  <tr key={index} className='text-left whitespace-nowrap even:bg-gray-100 text-sm '>
+                    <th className=' font-normal px-6 py-4'>
+                      {mil.added_by.name}
+                      <span className='block text-gray-400'>HLTH.FraserHealth</span>
+                    </th>
+                    <th className='font-normal px-6 py-4'>{mil.status.status}</th>
+                    <th className='font-normal px-6 py-4'>Followed up</th>
+                    <th className='font-normal px-6 py-2'>{formatDate(mil.updated_date)}</th>
+                    <th className='w-full text-right font-normal px-6 py-2'>
+                      <Link
+                        as={`/details/${applicant.id}?milestone=edit`}
+                        href={{
+                          pathname: `/details/${applicant.id}`,
+                          query: { ...router.query, milestone: 'edit' },
+                        }}
+                        shallow={true}
                       >
-                        <FontAwesomeIcon className='h-4' icon={faPencilAlt}></FontAwesomeIcon>
-                      </a>
-                    </Link>
-                  </th>
-                </tr>
-                <tr className='text-left whitespace-nowrap even:bg-gray-100 text-sm '>
-                  <th className=' font-normal px-6 py-4'>
-                    Red Tuna<span className='block text-gray-400'>HLTH.FraserHealth</span>
-                  </th>
-                  <th className='font-normal px-6 py-4'>HMBC - Registered for HMBC services</th>
-                  <th className='font-normal px-6 py-4'>Followed up</th>
-                  <th className='font-normal px-6 py-2'>August 5, 2020</th>
-                  <th className='w-full text-right font-normal px-6 py-2'>
-                    <Link
-                      as={`/details/${applicant.id}?milestone=edit`}
-                      href={{
-                        pathname: `/details/${applicant.id}`,
-                        query: { ...router.query, milestone: 'edit' },
-                      }}
-                      shallow={true}
-                    >
-                      <a className={`pointer-events-none ${buttonColor.outline} ${buttonBase}`}>
-                        <FontAwesomeIcon className='h-4' icon={faPencilAlt}></FontAwesomeIcon>
-                      </a>
-                    </Link>
-                  </th>
-                </tr>
-                <tr className='text-left whitespace-nowrap even:bg-gray-100 text-sm '>
-                  <th className=' font-normal px-6 py-4'>
-                    Mustard Ketchup<span className='block text-gray-400'>HLTH.FraserHealth</span>
-                  </th>
-                  <th className='font-normal px-6 py-4'>HMBC - Registered for HMBC services</th>
-                  <th className='font-normal px-6 py-4'>Followed up</th>
-                  <th className='font-normal px-6 py-2'>March 51, 2019</th>
-                  <th className='w-full text-right font-normal px-6 py-2'>
-                    <Link
-                      as={`/details/${applicant.id}?milestone=edit`}
-                      href={{
-                        pathname: `/details/${applicant.id}`,
-                        query: { ...router.query, milestone: 'edit' },
-                      }}
-                      shallow={true}
-                    >
-                      <a className={`pointer-events-none ${buttonColor.outline} ${buttonBase}`}>
-                        <FontAwesomeIcon className='h-4' icon={faPencilAlt}></FontAwesomeIcon>
-                      </a>
-                    </Link>
-                  </th>
-                </tr>
+                        <a className={`pointer-events-none ${buttonColor.outline} ${buttonBase}`}>
+                          <FontAwesomeIcon className='h-4' icon={faPencilAlt}></FontAwesomeIcon>
+                        </a>
+                      </Link>
+                    </th>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
