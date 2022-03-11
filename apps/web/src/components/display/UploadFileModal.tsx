@@ -7,8 +7,9 @@ import Papa from 'papaparse';
 
 import { Modal } from '../Modal';
 import { Button } from '../Button';
-import { onDropType, uploadForm } from '@services';
+import { uploadForm } from '@services';
 import { FormDTO } from '@ien/common';
+import { onDropType } from '@services';
 
 export const UploadFileModal: React.FC = () => {
   const router = useRouter();

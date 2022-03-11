@@ -104,13 +104,13 @@ export const Form: React.FC = () => {
       });
     } else {
       helpers.setTouched({});
-      router.push(`/submission/${step + 1}`);
+      //router.push(`/submission/${step + 1}`);
     }
     helpers.setSubmitting(false);
   };
 
   const goToPreviousStep = () => {
-    router.push(`/submission/${Number(step) - 1}`);
+    //router.push(`/submission/${Number(step) - 1}`);
   };
 
   /**
@@ -132,7 +132,7 @@ export const Form: React.FC = () => {
         previousStepKey,
       );
       if (Object.keys(errors).length > 0) {
-        router.replace('/submission/1');
+        //router.replace('/submission/1');
       }
     };
     checkPreviousStep();

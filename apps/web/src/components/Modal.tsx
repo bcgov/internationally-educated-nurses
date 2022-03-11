@@ -35,7 +35,7 @@ const ModalContainer: React.FC<ModalProps> = ({ children, open, handleClose }) =
           <span className='hidden sm:inline-block sm:align-middle sm:h-screen' aria-hidden='true'>
             &#8203;
           </span>
-          <Transition.Child
+          <Child
             as={Fragment}
             enter='ease-out duration-300'
             enterFrom='opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95'
@@ -47,7 +47,7 @@ const ModalContainer: React.FC<ModalProps> = ({ children, open, handleClose }) =
             <div className='inline-block align-bottom bg-white rounded-lg text-left shadow-xl transform transition-all sm:my-8 sm:align-middle xl:max-w-xl sm:max-w-lg sm:w-full'>
               <div className='bg-white '>{children}</div>
             </div>
-          </Transition.Child>
+          </Child>
         </div>
       </Dialog>
     </Root>
@@ -63,6 +63,6 @@ export const Modal = ModalContainer as ModalInterface;
 Modal.Title = Dialog.Title;
 Modal.Description = Dialog.Description;
 
-export const ModalFooter: React.FC<any> = ({ children }) => {
+export const ModalFooter = ({ children }: any) => {
   return <div className='bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse'>{children}</div>;
 };

@@ -5,13 +5,4 @@ module.exports = {
   },
   reactStrictMode: true,
   swcMinify: false,
-  async redirects() {
-    return [
-      {
-        source: '/',
-        destination: '/form',
-        permanent: true,
-      },
-    ];
-  },
 };
