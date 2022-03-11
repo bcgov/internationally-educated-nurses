@@ -16,7 +16,7 @@ export const buttonColor: Record<string, string> = {
 };
 
 export const buttonBase = `w-auto inline-flex justify-center items-center rounded 
-  shadow-sm px-4 py-2 text-base font-bold focus:outline-none
+  shadow-sm px-4 py-2 text-xs sm:text-sm font-bold focus:outline-none
   disabled:opacity-50
   focus:ring-2 focus:ring-offset-2 sm:mt-0 sm:text-sm`;
 
