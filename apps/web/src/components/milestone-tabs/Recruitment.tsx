@@ -11,8 +11,8 @@ export const Recruitment: React.FC = () => {
   return (
     <div className='border rounded bg-blue-100 flex justify-between items-center mb-4 h-12'>
       <span className='py-2 pl-5 font-bold text-xs sm:text-sm'>
-        There is no record yet. Please click on the "Add Record" button to create a new job
-        competition.
+        There is no record yet. Please click on the &ldquo;Add Record&rdquo; button to create a new
+        job competition.
       </span>
       <Link
         as={`/details/${applicantId}?milestone=add`}
