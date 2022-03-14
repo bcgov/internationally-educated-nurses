@@ -6,7 +6,8 @@ import { useEffect, useState } from 'react';
 
 import { DetailsItem } from 'src/components/DetailsItem';
 import { buttonColor, buttonBase } from '@components';
-import { getApplicant } from '@services';
+import { getApplicant, milestoneTabs } from '@services';
+import { HeaderTab } from 'src/components/display/HeaderTab';
 
 const Details = () => {
   const [applicant, setApplicant] = useState<any>({});
@@ -54,7 +55,8 @@ const Details = () => {
         </p>
         <h1 className='font-bold text-3xl'>{applicant.name} #ID4321</h1>
         <p className='text-gray-400 text-sm pt-1 pb-4'>Last Updated: January 5, 2022</p>
-        <div className='grid grid-cols-12 border-2 rounded px-5 pb-3'>
+        {/* Details container */}
+        <div className='grid grid-cols-12 border-2 rounded px-5 pb-3 bg-white'>
           <div className='col-span-12 border-b mb-3'>
             <h1 className='text-xl text-blue-900 py-3 font-bold'>
               <FontAwesomeIcon
@@ -64,30 +66,46 @@ const Details = () => {
               Details
             </h1>
           </div>
-          <div className='col-span-4'>
-            <DetailsItem title='Email address' text={applicant.email} />
+          <div className='col-span-3'>
+            <DetailsItem title='Email Address' text={applicant.email} />
           </div>
-          <div className='col-span-4'>
-            <DetailsItem title='Assigned to' text={applicant.assigned_to[0].name} />
+          <div className='col-span-3'>
+            <DetailsItem title='Phone Number' text='123-123-1234' />
           </div>
-          <div className='col-span-4'>
+          <div className='col-span-3'>
+            <DetailsItem title='Registration date' text={formatDate(applicant.registration_date)} />
+          </div>
+          <div className='col-span-3'>
+            <DetailsItem title='Assigned To' text={applicant.assigned_to[0].name} />
+          </div>
+          <div className='col-span-3'>
             <DetailsItem title='Country of Citizenship' text={applicant.citizenship} />
           </div>
-          <div className='col-span-4'>
+          <div className='col-span-3'>
+            <DetailsItem title='Country of Residence' text='Need to Add Field' />
+          </div>
+          <div className='col-span-3'>
             <DetailsItem
-              title='Permanent Resident of Canada'
+              title='Permanent Resident Status'
               text={applicant.pr_of_canada ? 'Yes' : 'No'}
             />
           </div>
-          <div className='col-span-4'>
-            <DetailsItem title='Country of Training' text={applicant.country_of_training} />
+          <div className='col-span-3'>
+            <DetailsItem title='Country of Nursing Education' text='Need to Add Field' />
           </div>
-          <div className='col-span-4'>
-            <DetailsItem title='Registration date' text={formatDate(applicant.registration_date)} />
+          <div className='col-span-3'>
+            <DetailsItem title='Nursing Education' text={applicant.education} />
+          </div>
+          <div className='col-span-3'>
+            <DetailsItem title='BCCNM License Number' text='Need to Add Field' />
+          </div>
+          <div className='col-span-3'>
+            <DetailsItem title='Health Authority' text='N/A' />
           </div>
         </div>
 
-        <div className='border-2 rounded px-5 my-5'>
+        {/* Milestones logs container */}
+        <div className='border-2 rounded px-5 my-5 bg-white'>
           <div className='flex items-center border-b'>
             <FontAwesomeIcon className='h-5 mr-2 text-blue-900 ' icon={faClock}></FontAwesomeIcon>
             <h1 className='text-xl text-blue-900 py-4 font-bold'>Milestones Logs</h1>
@@ -105,6 +123,7 @@ const Details = () => {
               </a>
             </Link>
           </div>
+          <HeaderTab tabs={milestoneTabs} />
           <p className='text-gray-400 pt-4 pb-2'>
             Showing {applicant.applicant_status_audit.length} logs
           </p>
@@ -112,38 +131,27 @@ const Details = () => {
             <table className='text-left text-sm'>
               <thead className='whitespace-nowrap bg-gray-100'>
                 <tr className='border-b-2 border-yellow-300'>
-                  <th className='px-6 py-3'>User</th>
                   <th className='px-6 py-3'>Milestones</th>
-                  <th className='px-6 py-3'>Note</th>
-                  <th className='px-6 py-3'>Timestamp</th>
-                  <th className='px-6 py-3'></th>
+                  <th className='px-6 py-3'>Start Date</th>
+                  <th className='px-6 py-3'>End Date</th>
+                  <th className='px-6 py-3'>Duration</th>
                 </tr>
               </thead>
               <tbody>
                 {/* fix any type */}
                 {applicant.applicant_status_audit.map((mil: any, index: number) => (
                   <tr key={index} className='text-left whitespace-nowrap even:bg-gray-100 text-sm '>
-                    <th className=' font-normal px-6 py-4'>
-                      {mil.added_by.name}
-                      <span className='block text-gray-400'>HLTH.FraserHealth</span>
+                    <th className=' font-normal pl-6 w-2/5 py-4'>
+                      <span className='rounded bg-gray-600 text-xs text-white font-medium px-2'>
+                        Candidate
+                      </span>
+                      <span className='pl-2'>{mil.status.status}</span>
                     </th>
-                    <th className='font-normal px-6 py-4'>{mil.status.status}</th>
-                    <th className='font-normal px-6 py-4'>Followed up</th>
-                    <th className='font-normal px-6 py-2'>{formatDate(mil.updated_date)}</th>
-                    <th className='w-full text-right font-normal px-6 py-2'>
-                      <Link
-                        as={`/details/${applicant.id}?milestone=edit`}
-                        href={{
-                          pathname: `/details/${applicant.id}`,
-                          query: { ...router.query, milestone: 'edit' },
-                        }}
-                        shallow={true}
-                      >
-                        <a className={`pointer-events-none ${buttonColor.outline} ${buttonBase}`}>
-                          <FontAwesomeIcon className='h-4' icon={faPencilAlt}></FontAwesomeIcon>
-                        </a>
-                      </Link>
+                    <th className='font-normal px-6 py-4 w-1/5'>{formatDate(mil.start_date)}</th>
+                    <th className='font-normal px-6 py-4 w-1/5'>
+                      {mil.end_date ? formatDate(mil.end_date) : 'N/A'}
                     </th>
+                    <th className='font-normal px-6 py-2 w-1/5'>5 days</th>
                   </tr>
                 ))}
               </tbody>
