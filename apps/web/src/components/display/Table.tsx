@@ -5,8 +5,7 @@ import { AddSingleModal } from './AddSingleModal';
 import { UploadFileModal } from './UploadFileModal';
 import { buttonBase, buttonColor, TableCheckbox } from '../';
 import { useEffect, useState } from 'react';
-import { getApplicants, landingPageTabs } from '@services';
-import { HeaderTab } from './HeaderTab';
+import { getApplicants } from '@services';
 
 export const Table: React.FC = () => {
   const [applicants, setApplicants] = useState<any>([]);
@@ -35,7 +34,6 @@ export const Table: React.FC = () => {
     <>
       <h1 className='font-bold text-3xl py-5'>Manage Applicants</h1>
       <div className='container mx-auto bg-white'>
-        <HeaderTab tabs={landingPageTabs} />
         <div className='flex items-center my-3 px-4'>
           <p className='text-gray-400'>Showing {applicants.length} results</p>
           <span className='ml-auto'>
