@@ -1,33 +1,41 @@
-import Link from 'next/link';
-import { useRouter } from 'next/router';
+import { useState } from 'react';
 
 interface TabFields {
   tabs: TabItems[];
+  onTabClick: (e: any) => void;
 }
 
 interface TabItems {
   title: string;
-  route: string;
+  value: string;
 }
 
-export const HeaderTab: React.FC<TabFields> = ({ tabs }) => {
-  const router = useRouter();
+export const HeaderTab: React.FC<TabFields> = ({ tabs, onTabClick }) => {
+  const [activeTab, setActiveTab] = useState('1');
 
-  const activeTab = 'border-b-2 border-bcBluePrimary text-bcBluePrimary';
-  const inactiveTab = 'border-b text-bcGray';
+  const active = 'border-b-2 border-bcBluePrimary text-bcBluePrimary';
+  const inactive = 'border-b text-bcGray';
+
+  const activeTabClick = (e: any) => {
+    setActiveTab(e.target.id);
+  };
 
   return (
     <div className='mb-3 whitespace-nowrap'>
       <ul className='flex justify-start'>
-        {tabs.map(({ title, route }) => (
-          <Link href={route} key={title}>
-            <a
-              className={`text-center w-full font-bold text-sm px-6 pt-1 pb-2 my-2 pointer-events-none
-              ${router.pathname === route ? activeTab : inactiveTab}`}
-            >
-              {title}
-            </a>
-          </Link>
+        {tabs.map(({ title, value }) => (
+          <button
+            key={title}
+            id={value}
+            className={`text-center w-full font-bold text-sm px-6 pt-1 pb-2 my-2
+              ${activeTab === value ? active : inactive}`}
+            onClick={e => {
+              onTabClick(e);
+              activeTabClick(e);
+            }}
+          >
+            {title}
+          </button>
         ))}
       </ul>
     </div>

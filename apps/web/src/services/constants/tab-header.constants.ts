@@ -1,16 +1,16 @@
 export const landingPageTabs = [
-  { title: 'All', route: '/form' },
-  { title: 'IEN HMBC Process', route: '#' },
-  { title: 'IEN Licensing/Registration', route: '#' },
-  { title: 'IEN Recruitment', route: '#' },
-  { title: 'BC PNP', route: '#' },
-  { title: 'Final', route: '#' },
+  { title: 'All', value: '1' },
+  { title: 'IEN HMBC Process', value: '2' },
+  { title: 'IEN Licensing/Registration', value: '3' },
+  { title: 'IEN Recruitment', value: '4' },
+  { title: 'BC PNP', value: '5' },
+  { title: 'Final', value: '6' },
 ];
 
 export const milestoneTabs = [
-  { title: 'Intake', route: '/details/[applicantId]' },
-  { title: 'Licensing/Registration', route: '#' },
-  { title: 'Recruitment', route: '#' },
-  { title: 'BC PNP', route: '#' },
-  { title: 'Final', route: '#' },
+  { title: 'Intake', value: '1' },
+  { title: 'Licensing/Registration', value: '2' },
+  { title: 'Recruitment', value: '3' },
+  { title: 'BC PNP', value: '4' },
+  { title: 'Final', value: '5' },
 ];
