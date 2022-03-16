@@ -95,7 +95,7 @@ export class IENMasterController {
   }
 
   @ApiOperation({
-    summary: `List Job Titles`,
+    summary: `List Job Titles / Specialty`,
   })
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
