@@ -17,6 +17,8 @@ import { IENApplicantStatus } from './entity/ienapplicant-status.entity';
 import { IENHaPcn } from './entity/ienhapcn.entity';
 import { IENUsers } from './entity/ienusers.entity';
 import { IENEducation } from './entity/ieneducation.entity';
+import { IENJobTitle } from './entity/ienjobtitles.entity';
+import { IENJobLocation } from './entity/ienjoblocation.entity';
 
 @Controller('ienmaster')
 @ApiTags('IEN Master')
@@ -54,7 +56,9 @@ export class IENMasterController {
       return await this.ienmasterService.getHaPcn();
     } catch (e) {
       this.logger.error(e);
-      throw new InternalServerErrorException('An unknown error occured retriving applicant status');
+      throw new InternalServerErrorException(
+        'An unknown error occured retriving applicant HA/PCN Comm',
+      );
     }
   }
 
@@ -70,7 +74,7 @@ export class IENMasterController {
       return await this.ienmasterService.getUsers();
     } catch (e) {
       this.logger.error(e);
-      throw new InternalServerErrorException('An unknown error occured retriving applicant status');
+      throw new InternalServerErrorException('An unknown error occured retriving available users');
     }
   }
 
@@ -86,7 +90,39 @@ export class IENMasterController {
       return await this.ienmasterService.getEducation();
     } catch (e) {
       this.logger.error(e);
-      throw new InternalServerErrorException('An unknown error occured retriving applicant status');
+      throw new InternalServerErrorException('An unknown error occured retriving education list');
+    }
+  }
+
+  @ApiOperation({
+    summary: `List Job Titles`,
+  })
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
+  @HttpCode(HttpStatus.OK)
+  @Get('/job-titles')
+  async getJobTitles(): Promise<IENJobTitle[]> {
+    try {
+      return await this.ienmasterService.getJobTitles();
+    } catch (e) {
+      this.logger.error(e);
+      throw new InternalServerErrorException('An unknown error occured retriving Job Titles');
+    }
+  }
+
+  @ApiOperation({
+    summary: `List Job Locations`,
+  })
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
+  @HttpCode(HttpStatus.OK)
+  @Get('/job-locations')
+  async getJobLocations(): Promise<IENJobLocation[]> {
+    try {
+      return await this.ienmasterService.getJobLocations();
+    } catch (e) {
+      this.logger.error(e);
+      throw new InternalServerErrorException('An unknown error occured retriving Job Locations');
     }
   }
 }

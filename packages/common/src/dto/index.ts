@@ -7,6 +7,8 @@ export * from './ienapplicant-filter.dto';
 export * from './ienapplicant-by-id.dto';
 export * from './ienapplicant-update.dto';
 export * from './ienapplicant-update-status.dto';
+export * from './ienapplicant-add-status.dto';
+export * from './ienapplicant-job-create.dto';
 // TODO: Remove below imports if not in use
 export * from './contact-information.dto';
 export * from './credential-information.dto';

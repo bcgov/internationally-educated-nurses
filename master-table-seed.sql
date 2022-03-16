@@ -112,3 +112,22 @@ INSERT INTO public.ien_education(title) VALUES ('Master of Nursing');
 INSERT INTO public.ien_education(title) VALUES ('Master of Nursing - Nurse Practitioner');
 INSERT INTO public.ien_education(title) VALUES ('PhD');
 INSERT INTO public.ien_education(title) VALUES ('Combined Diploma/Degree in Midwifery & Nursing');
+
+
+
+-- Job titles
+
+INSERT INTO public.ien_job_titles(title) VALUES ('Nursing practitioner');
+
+
+-- Job Locations
+
+INSERT INTO public.ien_job_locations(title) VALUES ('Surrey Memorial Hospital');
+
+
+
+-- applicant job
+
+-- INSERT INTO public.ien_applicant_jobs(
+--	job_id, recruiter_name, job_post_date, ha_pcn_id, job_title_id, job_location_id, added_by_id, applicant_id)
+--	VALUES ('ABC1234', 'Chadi', '2021-12-15', 1, 1, 1, 1, 'e5b74e64-be37-4191-b45d-a5ac87a101bc');

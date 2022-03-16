@@ -21,6 +21,9 @@ import { IENMasterController } from './ien-master.controller';
 import { IENMasterService } from './ien-master.service';
 import { IENEducation } from './entity/ieneducation.entity';
 import { IENApplicantUtilService } from './ienapplicant.util.service';
+import { IENJobTitle } from './entity/ienjobtitles.entity';
+import { IENJobLocation } from './entity/ienjoblocation.entity';
+import { IENApplicantJob } from './entity/ienjob.entity';
 
 @Module({
   imports: [
@@ -36,6 +39,9 @@ import { IENApplicantUtilService } from './ienapplicant.util.service';
       IENHaPcn,
       IENUsers,
       IENEducation,
+      IENJobTitle,
+      IENJobLocation,
+      IENApplicantJob,
     ]),
     MailModule,
   ],

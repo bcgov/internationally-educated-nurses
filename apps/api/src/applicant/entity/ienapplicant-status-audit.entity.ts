@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 import { IENApplicantStatus } from './ienapplicant-status.entity';
 import { IENApplicant } from './ienapplicant.entity';
-import { IENHaPcn } from './ienhapcn.entity';
+import { IENApplicantJob } from './ienjob.entity';
 import { IENUsers } from './ienusers.entity';
 
 @Entity('ien_applicant_status_audit')
@@ -22,9 +22,8 @@ export class IENApplicantStatusAudit {
   @JoinColumn({ name: 'status_id' })
   status!: IENApplicantStatus;
 
-  @ManyToOne(() => IENHaPcn, ha_pcn => ha_pcn.id)
-  @JoinColumn({ name: 'ha_pcn_id' })
-  ha_pcn?: IENHaPcn | null;
+  @ManyToOne(() => IENApplicantJob, job => job.id)
+  job?: IENApplicantJob | null;
 
   @ManyToOne(() => IENApplicant, applicant => applicant.id)
   @JoinColumn({ name: 'applicant_id' })
@@ -39,11 +38,11 @@ export class IENApplicantStatusAudit {
   // We need to identify details that we want to capture here.
   @ManyToOne(() => IENUsers, user => user.id)
   @JoinColumn({ name: 'added_by_id' })
-  added_by!: IENUsers | null;
+  added_by?: IENUsers | null;
 
   @ManyToOne(() => IENUsers, user => user.id)
   @JoinColumn({ name: 'updated_by_id' })
-  updated_by!: IENUsers | null;
+  updated_by?: IENUsers | null;
 
   @CreateDateColumn()
   created_date!: Date;
