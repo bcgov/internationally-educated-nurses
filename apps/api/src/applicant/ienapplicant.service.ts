@@ -222,8 +222,6 @@ export class IENApplicantService {
     applicantUpdate: IENApplicantUpdateStatusAPIDTO,
   ): Promise<IENApplicantStatusAudit | any> {
     const status_audit = await this.ienapplicantStatusAuditRepository.findOne(status_id);
-
-    console.log(status_audit);
     if (!status_audit) {
       throw new NotFoundException('Provided status/ toupdate record is not found');
     }
@@ -245,7 +243,7 @@ export class IENApplicantService {
     }
 
     if (end_date) {
-      status_audit.start_date = end_date;
+      status_audit.end_date = end_date;
     }
     await this.ienapplicantStatusAuditRepository.save(status_audit);
     return status_audit;

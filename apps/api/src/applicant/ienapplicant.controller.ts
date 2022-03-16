@@ -214,6 +214,7 @@ export class IENApplicantController {
   @UseInterceptors(ClassSerializerInterceptor)
   @Put('/:id/job/:job_applicant_id')
   updateApplicantJob(
+    @Param('id') id: string,
     @Param('job_applicant_id') job_applicant_id: string,
     @Body() jobData: IENApplicantJobCreateUpdateAPIDTO,
   ): Promise<IENApplicantJob | undefined> {
