@@ -31,4 +31,9 @@ export class IENApplicantUpdateStatusAPIDTO extends IENApplicantUpdateStatusDTO 
   @IsDateString()
   @IsOptional()
   end_date?: Date;
+
+  @ApiPropertyOptional({ description: 'Applicant status note', default: 'Notes' })
+  @IsString()
+  @IsOptional()
+  notes?: string;
 }

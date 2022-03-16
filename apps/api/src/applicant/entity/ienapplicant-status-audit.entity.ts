@@ -35,6 +35,9 @@ export class IENApplicantStatusAudit {
   @Column('date', { nullable: true })
   end_date?: Date;
 
+  @Column('varchar', { nullable: true })
+  notes?: string;
+
   // We need to identify details that we want to capture here.
   @ManyToOne(() => IENUsers, user => user.id)
   @JoinColumn({ name: 'added_by_id' })
@@ -55,6 +58,10 @@ export class IENApplicantStatusAudit {
     if (this.start_date != null && this.end_date != null) {
       const time = new Date(this.end_date).getTime() - new Date(this.start_date).getTime();
       return time / (24 * 60 * 60 * 1000);
+    }
+    if (this.start_date != null && this.end_date === null) {
+      const time = new Date().getTime() - new Date(this.start_date).getTime();
+      return parseInt((time / (24 * 60 * 60 * 1000)).toString());
     } else {
       return null;
     }

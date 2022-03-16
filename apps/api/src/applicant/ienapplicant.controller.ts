@@ -234,4 +234,26 @@ export class IENApplicantController {
       }
     }
   }
+
+  @ApiOperation({
+    summary: 'Get Applicant jobs and related milestone',
+  })
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
+  @HttpCode(HttpStatus.OK)
+  @Get('/:id/jobs')
+  getApplicantJobs(@Param('id') id: string): Promise<IENApplicantJob[]> {
+    try {
+      return this.ienapplicantService.getApplicantJobs(id);
+    } catch (e) {
+      if (e instanceof NotFoundException) {
+        throw e;
+      } else if (e instanceof QueryFailedError) {
+        throw new BadRequestException(e);
+      } else {
+        // statements to handle any unspecified exceptions
+        throw new InternalServerErrorException('An unknown error occured while fetching ');
+      }
+    }
+  }
 }

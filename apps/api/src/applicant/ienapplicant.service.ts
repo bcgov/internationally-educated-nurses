@@ -207,7 +207,7 @@ export class IENApplicantService {
 
     // let's audit changes
     await this.ienapplicantUtilService.addApplicantStatusAudit(applicant, dataToUpdate, job);
-    const applicant_obj = await this.getApplicantById(id);
+    const applicant_obj = await this.getApplicantById(id, { relation: 'audit' });
     return applicant_obj;
   }
 
@@ -309,5 +309,20 @@ export class IENApplicantService {
     job.job_location = await this.ienapplicantUtilService.getJobLocation(job_location);
     await this.ienapplicantJobRepository.save(job);
     return job;
+  }
+
+  /**
+   * Get applicant job details for recruitment process
+   * @param id Applicant ID of IEN App
+   * @returns
+   */
+  async getApplicantJobs(id: string): Promise<IENApplicantJob[]> {
+    const jobs = await this.ienapplicantJobRepository.find({
+      where: {
+        applicant: id,
+      },
+      relations: ['ha_pcn', 'job_title', 'job_location', 'status_audit', 'status_audit.status'],
+    });
+    return jobs;
   }
 }

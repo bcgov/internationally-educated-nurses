@@ -19,4 +19,8 @@ export class IENApplicantAddStatusDTO {
   @IsDateString()
   @IsOptional()
   end_date?: Date;
+
+  @IsString()
+  @IsOptional()
+  notes?: string;
 }
