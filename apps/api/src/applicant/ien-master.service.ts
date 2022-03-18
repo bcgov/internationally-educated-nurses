@@ -7,6 +7,8 @@ import { IENApplicantStatus } from './entity/ienapplicant-status.entity';
 import { IENHaPcn } from './entity/ienhapcn.entity';
 import { IENUsers } from './entity/ienusers.entity';
 import { IENEducation } from './entity/ieneducation.entity';
+import { IENJobTitle } from './entity/ienjobtitles.entity';
+import { IENJobLocation } from './entity/ienjoblocation.entity';
 
 @Injectable()
 export class IENMasterService {
@@ -21,6 +23,10 @@ export class IENMasterService {
     private readonly ienUsersRepository: Repository<IENUsers>,
     @InjectRepository(IENEducation)
     private readonly ienEducationListRepository: Repository<IENEducation>,
+    @InjectRepository(IENJobTitle)
+    private readonly ienJobTitleRepository: Repository<IENJobTitle>,
+    @InjectRepository(IENJobLocation)
+    private readonly ienJobLoactionRepository: Repository<IENJobLocation>,
   ) {}
 
   async getStatus(): Promise<IENApplicantStatus[]> {
@@ -50,6 +56,22 @@ export class IENMasterService {
 
   async getEducation(): Promise<IENEducation[]> {
     return await this.ienEducationListRepository.find({
+      order: {
+        title: 'ASC',
+      },
+    });
+  }
+
+  async getJobTitles(): Promise<IENJobTitle[]> {
+    return await this.ienJobTitleRepository.find({
+      order: {
+        title: 'ASC',
+      },
+    });
+  }
+
+  async getJobLocations(): Promise<IENJobLocation[]> {
+    return await this.ienJobLoactionRepository.find({
       order: {
         title: 'ASC',
       },

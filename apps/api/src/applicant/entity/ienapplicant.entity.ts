@@ -16,6 +16,7 @@ import { IENApplicantAudit } from './ienapplicant-audit.entity';
 import { IENApplicantStatusAudit } from './ienapplicant-status-audit.entity';
 import { IENApplicantStatus } from './ienapplicant-status.entity';
 import { IENHaPcn } from './ienhapcn.entity';
+import { IENApplicantJob } from './ienjob.entity';
 import { IENUsers } from './ienusers.entity';
 
 @Entity('ien_applicants')
@@ -79,6 +80,9 @@ export class IENApplicant {
   @ManyToOne(() => IENUsers, user => user.id)
   @JoinColumn({ name: 'updated_by_id' })
   updated_by!: IENUsers;
+
+  @OneToMany(() => IENApplicantJob, job => job.applicant)
+  jobs!: IENApplicantJob[];
 
   @OneToMany(
     () => IENApplicantStatusAudit,

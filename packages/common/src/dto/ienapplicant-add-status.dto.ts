@@ -1,8 +1,12 @@
 import { IsDateString, IsOptional, IsString } from 'class-validator';
 
-export class IENApplicantUpdateStatusDTO {
+export class IENApplicantAddStatusDTO {
   @IsString()
-  status?: string;
+  status!: string;
+
+  @IsString()
+  @IsOptional()
+  job_id?: string;
 
   @IsString()
   @IsOptional()

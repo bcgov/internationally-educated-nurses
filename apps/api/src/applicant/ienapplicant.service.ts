@@ -1,17 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { In, Repository } from 'typeorm';
+import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { IsNull, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantCreateAPIDTO } from './dto/ienapplicant-create.dto';
 import { IENApplicant } from './entity/ienapplicant.entity';
-import { IENHaPcn } from './entity/ienhapcn.entity';
 import { IENUsers } from './entity/ienusers.entity';
 import { IENApplicantFilterAPIDTO } from './dto/ienapplicant-filter.dto';
 import { IENApplicantUpdateAPIDTO } from './dto/ienapplicant-update.dto';
-import { IENApplicantUpdateStatusAPIDTO } from './dto/ienapplicant-update-status.dto';
+import { IENApplicantAddStatusAPIDTO } from './dto/ienapplicant-add-status.dto';
 import { IENApplicantUtilService } from './ienapplicant.util.service';
 import { CommonData } from 'src/common/common.data';
+import { IENApplicantJob } from './entity/ienjob.entity';
+import { IENApplicantUpdateStatusAPIDTO } from './dto/ienapplicant-update-status.dto';
+import { IENApplicantStatusAudit } from './entity/ienapplicant-status-audit.entity';
+import { IENApplicantJobCreateUpdateAPIDTO } from './dto/ienapplicant-job-create.dto';
 
 @Injectable()
 export class IENApplicantService {
@@ -20,12 +23,14 @@ export class IENApplicantService {
     @Inject(Logger) private readonly logger: AppLogger,
     @InjectRepository(IENApplicant)
     private readonly ienapplicantRepository: Repository<IENApplicant>,
-    @InjectRepository(IENHaPcn)
-    private readonly ienHaPcnRepository: Repository<IENHaPcn>,
     @InjectRepository(IENUsers)
     private readonly ienUsersRepository: Repository<IENUsers>,
     @Inject(IENApplicantUtilService)
     private readonly ienapplicantUtilService: IENApplicantUtilService,
+    @InjectRepository(IENApplicantJob)
+    private readonly ienapplicantJobRepository: Repository<IENApplicantJob>,
+    @InjectRepository(IENApplicantStatusAudit)
+    private readonly ienapplicantStatusAuditRepository: Repository<IENApplicantStatusAudit>,
   ) {
     this.applicantRelations = CommonData;
   }
@@ -48,12 +53,16 @@ export class IENApplicantService {
   async getApplicantById(id: string, data: any = null): Promise<IENApplicant> {
     let applicant;
     let relations = this.applicantRelations.status;
+    let is_status_audit = false;
     try {
       if (data && data.relation && data.relation !== '') {
         const relations_array = data.relation.split(',');
         for (let i = 0; i < relations_array.length; i++) {
           if (relations_array[i] in this.applicantRelations && relations_array[i].trim() != '') {
             relations = relations.concat(this.applicantRelations[relations_array[i]]);
+            if (relations_array[i] === 'audit') {
+              is_status_audit = true;
+            }
           }
         }
       }
@@ -62,10 +71,19 @@ export class IENApplicantService {
       });
     } catch (e) {
       this.logger.error(e);
-      throw new NotFoundException(`Applicant with id '${id}' not found`);
+      throw new BadRequestException(e);
     }
     if (!applicant) {
       throw new NotFoundException(`Applicant with id '${id}' not found`);
+    }
+    if (is_status_audit) {
+      applicant.applicant_status_audit = await this.ienapplicantStatusAuditRepository.find({
+        where: {
+          applicant: applicant,
+          job: IsNull(),
+        },
+        relations: ['status'],
+      });
     }
     return applicant;
   }
@@ -99,12 +117,12 @@ export class IENApplicantService {
 
     // collect HA/PCN
     if (ha_pcn && ha_pcn.length) {
-      applicant.ha_pcn = await this.getHaPcn(ha_pcn);
+      applicant.ha_pcn = await this.ienapplicantUtilService.getHaPcn(ha_pcn);
     }
     // collect assigned user details
     if (assigned_to && assigned_to.length) {
       const assigned = assigned_to.map(item => parseInt(item));
-      applicant.assigned_to = await this.getUserArray(assigned);
+      applicant.assigned_to = await this.ienapplicantUtilService.getUserArray(assigned);
     }
     // collect added by user detail
     if (added_by) {
@@ -129,11 +147,11 @@ export class IENApplicantService {
     const applicant = await this.getApplicantById(id);
     const { ha_pcn, assigned_to, updated_by, ...data } = applicantUpdate;
     if (ha_pcn && ha_pcn.length) {
-      applicant.ha_pcn = await this.getHaPcn(ha_pcn);
+      applicant.ha_pcn = await this.ienapplicantUtilService.getHaPcn(ha_pcn);
     }
     if (assigned_to && assigned_to.length) {
       const assigned = assigned_to.map(item => parseInt(item));
-      applicant.assigned_to = await this.getUserArray(assigned);
+      applicant.assigned_to = await this.ienapplicantUtilService.getUserArray(assigned);
     }
     if (updated_by) {
       const updated_by_data = await this.ienUsersRepository.findOne(parseInt(updated_by));
@@ -155,12 +173,12 @@ export class IENApplicantService {
    * @param applicantUpdate updated fields only status and related field
    * @returns
    */
-  async updateApplicantStatus(
+  async addApplicantStatus(
     id: string,
-    applicantUpdate: IENApplicantUpdateStatusAPIDTO,
+    applicantUpdate: IENApplicantAddStatusAPIDTO,
   ): Promise<IENApplicant | any> {
     const applicant = await this.getApplicantById(id);
-    const { status, status_date, added_by, ha_pcn } = applicantUpdate;
+    const { status, start_date, end_date, added_by, job_id } = applicantUpdate;
     const dataToUpdate: any = {};
     if (added_by) {
       const updated_by_data = await this.ienUsersRepository.findOne(parseInt(added_by));
@@ -168,67 +186,143 @@ export class IENApplicantService {
         dataToUpdate.updated_by = updated_by_data;
       }
     }
+
     const status_obj = await this.ienapplicantUtilService.getStatusById(status);
     dataToUpdate.status = status_obj;
 
-    if (!status_date) {
-      dataToUpdate.status_date = new Date();
-    } else {
-      dataToUpdate.status_date = status_date;
-    }
-    let ha_pcn_obj = null;
-    if (ha_pcn) {
-      ha_pcn_obj = await this.getHaPcn([ha_pcn]);
-      if (ha_pcn_obj.length) {
-        ha_pcn_obj = ha_pcn_obj[0];
-      }
+    dataToUpdate.start_date = null;
+    if (start_date) {
+      dataToUpdate.start_date = start_date;
     }
 
-    await this.ienapplicantRepository.update(applicant.id, {
-      ...dataToUpdate,
-    });
+    dataToUpdate.end_date = null;
+    if (end_date) {
+      dataToUpdate.start_date = end_date;
+    }
 
-    const applicant_obj = await this.getApplicantById(id);
+    let job = null;
+    if (job_id) {
+      job = await this.ienapplicantUtilService.getJob(job_id);
+    }
 
     // let's audit changes
-    await this.ienapplicantUtilService.updateApplicantStatusAudit(
-      applicant_obj,
-      dataToUpdate,
-      ha_pcn_obj,
-    );
+    await this.ienapplicantUtilService.addApplicantStatusAudit(applicant, dataToUpdate, job);
+    const applicant_obj = await this.getApplicantById(id, { relation: 'audit' });
     return applicant_obj;
   }
 
   /**
-   * Get HA or PCN list for the provided IDs
-   * @param ha_pcn
+   * Update applicant status record
+   * @param status_id Applicant Audit status
+   * @param applicantUpdate Status update data
+   * @returns
    */
-  async getHaPcn(ha_pcn: any): Promise<IENHaPcn | any> {
-    const ha_pcn_data = await this.ienHaPcnRepository.find({
-      where: {
-        id: In(ha_pcn),
-      },
-    });
-    if (ha_pcn_data.length !== ha_pcn.length) {
-      throw new NotFoundException('Provide all or some of HA not found');
+  async updateApplicantStatus(
+    status_id: string,
+    applicantUpdate: IENApplicantUpdateStatusAPIDTO,
+  ): Promise<IENApplicantStatusAudit | any> {
+    const status_audit = await this.ienapplicantStatusAuditRepository.findOne(status_id);
+    if (!status_audit) {
+      throw new NotFoundException('Provided status/ toupdate record is not found');
     }
-    return ha_pcn_data;
+    const { status, start_date, end_date, added_by } = applicantUpdate;
+    if (added_by) {
+      const updated_by_data = await this.ienUsersRepository.findOne(parseInt(added_by));
+      if (updated_by_data) {
+        status_audit.updated_by = updated_by_data;
+      }
+    }
+
+    if (status) {
+      const status_obj = await this.ienapplicantUtilService.getStatusById(status);
+      status_audit.status = status_obj;
+    }
+
+    if (start_date) {
+      status_audit.start_date = start_date;
+    }
+
+    if (end_date) {
+      status_audit.end_date = end_date;
+    }
+    await this.ienapplicantStatusAuditRepository.save(status_audit);
+    return status_audit;
   }
 
   /**
-   * Get Users list for the provided IDs
-   * @param users
+   * Add Job record for an applicant
+   * @param id Applicant Id
+   * @param jobData
    * @returns
    */
-  async getUserArray(users: any): Promise<IENUsers | any> {
-    const users_data = await this.ienUsersRepository.find({
-      where: {
-        id: In(users),
-      },
-    });
-    if (users_data.length !== users.length) {
-      throw new NotFoundException('Provide all or some of Users not found');
+  async addApplicantJob(
+    id: string,
+    jobData: IENApplicantJobCreateUpdateAPIDTO,
+  ): Promise<IENApplicantJob | undefined> {
+    const applicant = await this.getApplicantById(id);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { ha_pcn, job_title, job_location, ...data } = jobData;
+    const job = this.ienapplicantJobRepository.create(data);
+    job.applicant = applicant;
+    return await this.saveApplicantJob(job, jobData);
+  }
+
+  /**
+   * Update applicant job data
+   * @param id Job id fo an applicant
+   * @param jobData
+   * @returns
+   */
+  async updateApplicantJob(
+    id: string,
+    jobData: IENApplicantJobCreateUpdateAPIDTO,
+  ): Promise<IENApplicantJob | undefined> {
+    const job = await this.ienapplicantJobRepository.findOne(id);
+    if (!job) {
+      throw new NotFoundException('Given Job Id not found');
     }
-    return users_data;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { ha_pcn, job_title, job_location, ...data } = jobData;
+    if ('job_id' in data) {
+      job.job_id = data.job_id;
+    }
+    if ('job_post_date' in data) {
+      job.job_post_date = data.job_post_date;
+    }
+    if ('recruiter_name' in data) {
+      job.recruiter_name = data.recruiter_name;
+    }
+    return await this.saveApplicantJob(job, jobData);
+  }
+
+  /**
+   * Save Job data
+   */
+  async saveApplicantJob(
+    job: IENApplicantJob,
+    jobData: IENApplicantJobCreateUpdateAPIDTO,
+  ): Promise<IENApplicantJob | undefined> {
+    const { ha_pcn, job_title, job_location } = jobData;
+    const ha_pcn_obj = await this.ienapplicantUtilService.getHaPcn([ha_pcn]);
+    job.ha_pcn = ha_pcn_obj[0];
+    job.job_title = await this.ienapplicantUtilService.getJobTitle(job_title);
+    job.job_location = await this.ienapplicantUtilService.getJobLocation(job_location);
+    await this.ienapplicantJobRepository.save(job);
+    return job;
+  }
+
+  /**
+   * Get applicant job details for recruitment process
+   * @param id Applicant ID of IEN App
+   * @returns
+   */
+  async getApplicantJobs(id: string): Promise<IENApplicantJob[]> {
+    const jobs = await this.ienapplicantJobRepository.find({
+      where: {
+        applicant: id,
+      },
+      relations: ['ha_pcn', 'job_title', 'job_location', 'status_audit', 'status_audit.status'],
+    });
+    return jobs;
   }
 }

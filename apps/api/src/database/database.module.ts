@@ -11,6 +11,9 @@ import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.ent
 import { IENApplicant } from 'src/applicant/entity/ienapplicant.entity';
 import { IENEducation } from 'src/applicant/entity/ieneducation.entity';
 import { IENHaPcn } from 'src/applicant/entity/ienhapcn.entity';
+import { IENApplicantJob } from 'src/applicant/entity/ienjob.entity';
+import { IENJobLocation } from 'src/applicant/entity/ienjoblocation.entity';
+import { IENJobTitle } from 'src/applicant/entity/ienjobtitles.entity';
 import { IENUsers } from 'src/applicant/entity/ienusers.entity';
 import { ApplicantSubscriber } from 'src/applicant/subscribers/applicant.subscribers';
 import { EmployeeEntity } from 'src/employee/employee.entity';
@@ -51,6 +54,9 @@ const getEnvironmentSpecificConfig = (env?: string) => {
           IENHaPcn,
           IENUsers,
           IENEducation,
+          IENJobTitle,
+          IENJobLocation,
+          IENApplicantJob,
         ],
         subscribers: [ApplicantSubscriber],
         migrations: ['dist/migration/*.js'],
