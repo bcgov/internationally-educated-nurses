@@ -41,13 +41,13 @@ function App({ Component, pageProps }: AppProps) {
         {' '}
         <FetchWrapper>
           <AuthProvider>
-            <Header />
             <div className='h-full flex flex-col'>
+              <Header />
               <main className='flex-grow flex justify-center'>
                 <Component {...pageProps} />
               </main>
+              <Footer />
             </div>
-            <Footer />
           </AuthProvider>
         </FetchWrapper>
       </SSRKeycloakProvider>

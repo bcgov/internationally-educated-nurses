@@ -8,17 +8,17 @@ import { Button } from '@components';
 export const AddRecordModal: React.FC = () => {
   const router = useRouter();
 
-  const isOpen = !!router.query.milestone;
+  const isOpen = !!router.query.record;
 
   const handleClose = () => {
-    delete router.query.milestone;
+    delete router.query.record;
     router.back();
   };
 
   const handleSubmit = async (values: any) => {
     // @todo hook up endpoint and remove log
-    console.log('milestone values: ', values);
-    delete router.query.milestone;
+    console.log('record values: ', values);
+    delete router.query.record;
     router.back();
   };
 

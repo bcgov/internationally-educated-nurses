@@ -27,7 +27,7 @@ export const HeaderTab: React.FC<TabFields> = ({ tabs, onTabClick }) => {
           <button
             key={title}
             id={value}
-            className={`text-center w-full font-bold text-sm px-6 pt-1 pb-2 my-2
+            className={`text-center w-full font-bold text-sm px-6 pt-1 pb-2 my-1
               ${activeTab === value ? active : inactive}`}
             onClick={e => {
               onTabClick(e);
