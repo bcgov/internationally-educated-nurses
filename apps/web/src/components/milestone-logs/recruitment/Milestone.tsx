@@ -1,4 +1,3 @@
-import { useRouter } from 'next/router';
 import {
   faCalendar,
   faPencilAlt,
@@ -29,9 +28,6 @@ const fakeArrayT = [
 
 // Add milestone comp ***
 export const AddMilestones: React.FC = () => {
-  const router = useRouter();
-  const applicantId = router.query.applicantId;
-
   const handleSubmit = async (values: any) => {
     // @todo hook up endpoint and remove log
     console.log('record values: ', values);

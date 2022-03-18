@@ -1,7 +1,6 @@
-import { faChevronDown, faMinusCircle, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
+import { faMinusCircle, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Disclosure as HeadlessDisclosure, Transition } from '@headlessui/react';
-import classnames from 'classnames';
 
 interface DisclosureProps {
   buttonText: React.ReactNode;
