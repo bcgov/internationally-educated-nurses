@@ -1,4 +1,4 @@
-import { ApplicantCreateDTO } from '@ien/common';
+import { ApplicantCreateDTO, IENApplicantJobCreateUpdateDTO } from '@ien/common';
 import axios from 'axios';
 
 export const getApplicants = async () => {
@@ -11,4 +11,8 @@ export const getApplicant = async (id: string) => {
 
 export const updateApplicant = async (id: string, applicant: ApplicantCreateDTO) => {
   return await axios.patch(`/ien/${id}`, applicant);
+};
+
+export const addJobRecord = async (id: string, record: IENApplicantJobCreateUpdateDTO) => {
+  return await axios.post(`/ien/${id}/job`, record);
 };

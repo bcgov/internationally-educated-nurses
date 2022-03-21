@@ -9,6 +9,7 @@ export * from './Link';
 export * from './Notice';
 export * from './Disclosure';
 export * from './Alert';
+export * from './DetailsItem';
 
 // Form Controls
 export * from './form';

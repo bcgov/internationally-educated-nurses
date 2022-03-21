@@ -5,9 +5,9 @@ dotenv.config();
 // Check typeORM documentation for more information.
 
 const config: PostgresConnectionOptions = {
-  host: process.env.POSTGRES_HOST,
+  host: '192.168.1.174',
   type: 'postgres',
-  port: 5432,
+  port: 5434,
   connectTimeoutMS: 5000,
   username: process.env.POSTGRES_USERNAME || 'freshworks',
   password: process.env.POSTGRES_PASSWORD,

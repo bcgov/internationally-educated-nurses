@@ -1,5 +1,5 @@
-interface IntakeData {
-  intakeLogs: any;
+interface LicensingRegistrationProps {
+  records: any;
 }
 
 // @todo move to helper file once decorator errors are fixed ??
@@ -11,10 +11,10 @@ const formatDate = (value: string) => {
   return `${month} ${day}, ${year}`;
 };
 
-export const LicensingRegistration: React.FC<IntakeData> = ({ intakeLogs }) => {
+export const LicensingRegistration: React.FC<LicensingRegistrationProps> = ({ records }) => {
   return (
     <>
-      <p className='text-gray-400 pt-4 pb-2'>Showing {intakeLogs.length} logs</p>
+      <p className='text-gray-400 pt-4 pb-2'>Showing {records.length} logs</p>
       <div className='flex justify-content-center flex-col overflow-x-auto'>
         <table className='text-left text-sm'>
           <thead className='whitespace-nowrap bg-gray-100'>
@@ -27,7 +27,7 @@ export const LicensingRegistration: React.FC<IntakeData> = ({ intakeLogs }) => {
           </thead>
           <tbody>
             {/* fix any type */}
-            {intakeLogs.map((mil: any, index: number) => (
+            {records.map((mil: any, index: number) => (
               <tr key={index} className='text-left whitespace-nowrap even:bg-gray-100 text-sm '>
                 <th className=' font-normal pl-6 w-2/5 py-4'>
                   <span className='rounded bg-gray-600 text-xs text-white font-medium px-2'>

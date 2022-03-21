@@ -6,3 +6,4 @@ export * from './applicant';
 export * from './constants/dropzone-constants';
 export * from './constants/roles.constants';
 export * from './constants/tab-header.constants';
+export * from './constants/milestone.constants';

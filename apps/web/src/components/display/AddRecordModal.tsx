@@ -1,23 +1,38 @@
 import { useRouter } from 'next/router';
 import { Formik, Form as FormikForm } from 'formik';
 import { Field, Select, Option } from '../form';
+import createValidator from 'class-validator-formik';
 
 import { Modal } from '../Modal';
 import { Button } from '@components';
+import { IENApplicantJobCreateUpdateDTO } from '@ien/common';
+import { addJobRecord, healthAuthority, jobLocations, jobTitle } from '@services';
 
-export const AddRecordModal: React.FC = () => {
+interface AddRecordProps {
+  jobRecords: any;
+  setJobRecords: any;
+}
+
+export const AddRecordModal: React.FC<AddRecordProps> = ({ jobRecords, setJobRecords }) => {
   const router = useRouter();
 
+  const applicantId = router.query.applicantId;
   const isOpen = !!router.query.record;
+
+  const newJobRecordSchema = createValidator(IENApplicantJobCreateUpdateDTO);
 
   const handleClose = () => {
     delete router.query.record;
     router.back();
   };
 
-  const handleSubmit = async (values: any) => {
-    // @todo hook up endpoint and remove log
-    console.log('record values: ', values);
+  const handleSubmit = async (values: IENApplicantJobCreateUpdateDTO) => {
+    const {
+      data: { data },
+    } = await addJobRecord(applicantId as string, values);
+
+    setJobRecords([data, ...jobRecords]);
+
     delete router.query.record;
     router.back();
   };
@@ -27,16 +42,10 @@ export const AddRecordModal: React.FC = () => {
     ha_pcn: '',
     job_id: '',
     job_title: '',
-    location: '',
+    job_location: '',
     recruiter_name: '',
-    posting_date: '2022-03-10',
+    job_post_date: '2022-03-10',
   };
-
-  // fake array values for Select options, temporary
-  const fakeArrayT = [
-    { value: '1', label: 'Health Authority' },
-    { value: '6', label: 'HMBC - Registered for HMBC services' },
-  ];
 
   return (
     <Modal open={isOpen} handleClose={handleClose}>
@@ -44,13 +53,13 @@ export const AddRecordModal: React.FC = () => {
         Add Record
       </Modal.Title>
       <div className='w-full'>
-        <Formik initialValues={initialValues} onSubmit={handleSubmit}>
+        <Formik initialValues={initialValues} onSubmit={handleSubmit} validate={newJobRecordSchema}>
           {({ dirty, isValid }) => (
             <FormikForm>
               <div className='grid grid-cols-4 gap-4 bg-white rounded px-8 pt-6 pb-7 mb-4'>
                 <div className='mb-3 col-span-2'>
                   <Select name='ha_pcn' label='Health Authority'>
-                    {fakeArrayT.map(opt => (
+                    {healthAuthority.map(opt => (
                       <Option key={opt.value} label={opt.label} value={opt.value} />
                     ))}
                   </Select>
@@ -60,14 +69,14 @@ export const AddRecordModal: React.FC = () => {
                 </div>
                 <div className='mb-3 col-span-2'>
                   <Select name='job_title' label='Job Title'>
-                    {fakeArrayT.map(opt => (
+                    {jobTitle.map(opt => (
                       <Option key={opt.value} label={opt.label} value={opt.value} />
                     ))}
                   </Select>
                 </div>
                 <div className='mb-3 col-span-2'>
-                  <Select name='location' label='Location'>
-                    {fakeArrayT.map(opt => (
+                  <Select name='job_location' label='Location'>
+                    {jobLocations.map(opt => (
                       <Option key={opt.value} label={opt.label} value={opt.value} />
                     ))}
                   </Select>
@@ -76,7 +85,7 @@ export const AddRecordModal: React.FC = () => {
                   <Field name='recruiter_name' label='Recruiter Name' type='text' />
                 </div>
                 <div className='mb-3 col-span-2'>
-                  <Field name='posting_date' label='Date Job Was First Posted' type='date' />
+                  <Field name='job_post_date' label='Date Job Was First Posted' type='date' />
                 </div>
                 <span className='border-b-2 col-span-4 mt-2'></span>
                 <div className='col-span-4 flex items-center justify-between'>
