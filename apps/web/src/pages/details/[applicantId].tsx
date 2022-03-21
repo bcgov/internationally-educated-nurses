@@ -6,8 +6,8 @@ import { useEffect, useState } from 'react';
 import { DetailsItem } from 'src/components/DetailsItem';
 import { getApplicant, milestoneTabs } from '@services';
 import { HeaderTab } from 'src/components/display/HeaderTab';
-import { Intake } from 'src/components/milestone-tabs/Intake';
-import { Recruitment } from 'src/components/milestone-tabs/Recruitment';
+import { LicensingRegistration } from 'src/components/milestone-logs/LicensingRegistration';
+import { Recruitment } from 'src/components/milestone-logs/Recruitment';
 import { AddRecordModal } from 'src/components/display/AddRecordModal';
 
 const Details = () => {
@@ -47,8 +47,8 @@ const Details = () => {
   };
 
   const logType = [
-    { component: <Intake intakeLogs={applicant.applicant_status_audit} /> },
-    { component: <h1>Licensing/ Registration</h1> },
+    { component: <h1>Intake</h1> },
+    { component: <LicensingRegistration intakeLogs={applicant.applicant_status_audit} /> },
     { component: <Recruitment /> },
     { component: <h1>BC PNP</h1> },
     { component: <h1>Final</h1> },
@@ -128,11 +128,7 @@ const Details = () => {
             <h1 className='text-xl text-blue-900 py-4 font-bold'>Milestones Logs</h1>
           </div>
           <HeaderTab tabs={milestoneTabs} onTabClick={onTabClick} />
-          {currentTab === '' ? (
-            <Intake intakeLogs={applicant.applicant_status_audit} />
-          ) : (
-            currentTab
-          )}
+          {currentTab === '' ? <h1>Intake</h1> : currentTab}
         </div>
       </div>
       <AddRecordModal />
