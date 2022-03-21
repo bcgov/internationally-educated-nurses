@@ -3,6 +3,7 @@ import { faCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { JobDetails } from './JobDetails';
 
+// placeholder data, will be replaced when endpoint is connected
 export const Record: React.FC = () => {
   return (
     <div className='mb-3'>

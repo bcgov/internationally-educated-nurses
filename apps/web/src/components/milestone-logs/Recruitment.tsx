@@ -11,6 +11,7 @@ export const Recruitment: React.FC = () => {
 
   return (
     <>
+      {/* placeholder records, will be replaced with mapping when endpoint is connected */}
       <Record />
       <Record />
       <Record />
