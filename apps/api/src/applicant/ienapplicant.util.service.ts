@@ -187,14 +187,15 @@ export class IENApplicantUtilService {
     applicant: IENApplicant,
     dataToUpdate: any,
     job: IENApplicantJob,
-  ): Promise<void> {
+  ): Promise<any> {
     // Save
-    const statusAudit = this.ienapplicantStatusAuditRepository.create({
+    const status_audit = this.ienapplicantStatusAuditRepository.create({
       applicant: applicant,
       job: job,
       ...dataToUpdate,
     });
-    await this.ienapplicantStatusAuditRepository.save(statusAudit);
+    await this.ienapplicantStatusAuditRepository.save(status_audit);
+    return status_audit;
   }
 
   /**

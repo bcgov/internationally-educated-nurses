@@ -176,14 +176,14 @@ export class IENApplicantService {
   async addApplicantStatus(
     id: string,
     applicantUpdate: IENApplicantAddStatusAPIDTO,
-  ): Promise<IENApplicant | any> {
+  ): Promise<IENApplicantStatusAudit | any> {
     const applicant = await this.getApplicantById(id);
-    const { status, start_date, end_date, added_by, job_id } = applicantUpdate;
+    const { status, start_date, end_date, added_by, job_id, notes } = applicantUpdate;
     const dataToUpdate: any = {};
     if (added_by) {
-      const updated_by_data = await this.ienUsersRepository.findOne(parseInt(added_by));
-      if (updated_by_data) {
-        dataToUpdate.updated_by = updated_by_data;
+      const added_by_data = await this.ienUsersRepository.findOne(parseInt(added_by));
+      if (added_by_data) {
+        dataToUpdate.added_by = added_by_data;
       }
     }
 
@@ -200,15 +200,22 @@ export class IENApplicantService {
       dataToUpdate.start_date = end_date;
     }
 
+    if (notes) {
+      dataToUpdate.notes = notes;
+    }
+
     let job = null;
     if (job_id) {
       job = await this.ienapplicantUtilService.getJob(job_id);
     }
 
-    // let's audit changes
-    await this.ienapplicantUtilService.addApplicantStatusAudit(applicant, dataToUpdate, job);
-    const applicant_obj = await this.getApplicantById(id, { relation: 'audit' });
-    return applicant_obj;
+    const status_audit = await this.ienapplicantUtilService.addApplicantStatusAudit(
+      applicant,
+      dataToUpdate,
+      job,
+    );
+    delete status_audit.applicant;
+    return status_audit;
   }
 
   /**
