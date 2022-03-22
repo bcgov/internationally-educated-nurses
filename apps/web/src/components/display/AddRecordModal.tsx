@@ -2,11 +2,12 @@ import { useRouter } from 'next/router';
 import { Formik, Form as FormikForm } from 'formik';
 import { Field, Select, Option } from '../form';
 import createValidator from 'class-validator-formik';
+import { toast } from 'react-toastify';
 
 import { Modal } from '../Modal';
 import { Button } from '@components';
-import { IENApplicantJobCreateUpdateDTO } from '@ien/common';
 import { addJobRecord, healthAuthority, jobLocations, jobTitle } from '@services';
+import { IENApplicantJobCreateUpdateDTO } from '@ien/common';
 
 interface AddRecordProps {
   jobRecords: any;
@@ -16,7 +17,7 @@ interface AddRecordProps {
 export const AddRecordModal: React.FC<AddRecordProps> = ({ jobRecords, setJobRecords }) => {
   const router = useRouter();
 
-  const applicantId = router.query.applicantId;
+  const applicantId = router?.query?.applicantId;
   const isOpen = !!router.query.record;
 
   const newJobRecordSchema = createValidator(IENApplicantJobCreateUpdateDTO);
@@ -27,14 +28,18 @@ export const AddRecordModal: React.FC<AddRecordProps> = ({ jobRecords, setJobRec
   };
 
   const handleSubmit = async (values: IENApplicantJobCreateUpdateDTO) => {
-    const {
-      data: { data },
-    } = await addJobRecord(applicantId as string, values);
+    try {
+      const {
+        data: { data },
+      } = await addJobRecord(applicantId as string, values);
 
-    setJobRecords([data, ...jobRecords]);
+      setJobRecords([data, ...jobRecords]);
 
-    delete router.query.record;
-    router.back();
+      delete router.query.record;
+      router.back();
+    } catch (e) {
+      toast.error('There was an error adding a new record');
+    }
   };
 
   //@todo change any type
