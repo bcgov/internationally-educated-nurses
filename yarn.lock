@@ -13477,7 +13477,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-toastify@npm:^8.2.0":
+"react-toastify@npm:8.2.0":
   version: 8.2.0
   resolution: "react-toastify@npm:8.2.0"
   dependencies:
