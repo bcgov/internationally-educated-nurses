@@ -137,7 +137,7 @@ export class IENApplicantController {
   addApplicantStatus(
     @Param('id') id: string,
     @Body() applicantStatus: IENApplicantAddStatusAPIDTO,
-  ): Promise<IENApplicant | undefined> {
+  ): Promise<IENApplicantStatusAudit | undefined> {
     try {
       return this.ienapplicantService.addApplicantStatus(id, applicantStatus);
     } catch (e) {
