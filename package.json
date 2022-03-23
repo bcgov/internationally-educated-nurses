@@ -1,7 +1,7 @@
 {
   "name": "ien",
   "private": true,
-  "description": "EHPR app packages",
+  "description": "IEN app packages",
   "scripts": {
     "format:staged": "yarn pretty-quick --staged",
     "format:check": "yarn prettier --check .",

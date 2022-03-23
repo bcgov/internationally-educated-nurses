@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { In, IsNull, Repository, ILike } from 'typeorm';
+import { In, IsNull, Repository, ILike, Not } from 'typeorm';
 import { ApplicantStatusEntity } from './entity/applicantStatus.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AppLogger } from 'src/common/logger.service';
@@ -160,7 +160,8 @@ export class IENApplicantUtilService {
   }
 
   /**
-   * Store applicant status audit details
+   * Store applicant status audit details,
+   * We are not using it until add-applicant feture enable on IEN portal
    * @param applicant Applicant Object
    */
   async saveApplicantStatusAudit(applicant: IENApplicant) {
@@ -199,6 +200,46 @@ export class IENApplicantUtilService {
   }
 
   /**
+   * Update end_date in previous active status/milestone
+   * @param job Job object to check active status/milestone
+   * @param data status/milestone audit data
+   */
+  async updatePreviousActiveStatusForJob(job: any, data: any): Promise<void> {
+    try {
+      if (job) {
+        const previousStatus = await this.ienapplicantStatusAuditRepository.find({
+          where: {
+            status: Not(data.status.id),
+            job: job,
+            end_date: IsNull(),
+          },
+        });
+        // In best case scenario there is only one record here
+        // Let's not put hard limit right now, and accept multiple records here.
+        if (previousStatus.length > 0) {
+          const updateData = {
+            updated_by: data.added_by,
+            end_date: data.start_date,
+          };
+          const list_status: IENApplicantStatusAudit[] = [];
+          for (let i = 0; i < previousStatus.length; i++) {
+            list_status.push({
+              ...previousStatus[i],
+              ...updateData,
+              status_period: 0, // added for entity restriction error
+            });
+          }
+          await this.ienapplicantStatusAuditRepository.save(list_status);
+        }
+      }
+    } catch (e) {
+      // No requirement to throw any error here. so let's log it.
+      // when start working on report, We will push it in some eror reporting tool to notify developer.
+      this.logger.error(e);
+    }
+  }
+
+  /**
    * Get HA or PCN list for the provided IDs
    * @param ha_pcn
    */
@@ -209,7 +250,7 @@ export class IENApplicantUtilService {
       },
     });
     if (ha_pcn_data.length !== ha_pcn.length) {
-      throw new NotFoundException('Provide all or some of HA not found');
+      throw new NotFoundException('Provided all or some of HA not found');
     }
     return ha_pcn_data;
   }
@@ -226,7 +267,7 @@ export class IENApplicantUtilService {
       },
     });
     if (users_data.length !== users.length) {
-      throw new NotFoundException('Provide all or some of Users not found');
+      throw new NotFoundException('Provided all or some of Users not found');
     }
     return users_data;
   }
@@ -236,9 +277,11 @@ export class IENApplicantUtilService {
    * @param id
    */
   async getJob(id: string | number): Promise<IENApplicantJob | any> {
-    const job = await this.ienapplicantJobRepository.findOne(id);
+    const job = await this.ienapplicantJobRepository.findOne(id, {
+      relations: ['applicant'],
+    });
     if (!job) {
-      throw new NotFoundException('Provide job not found');
+      throw new NotFoundException('Provided job not found');
     }
     return job;
   }
@@ -250,7 +293,7 @@ export class IENApplicantUtilService {
   async getJobTitle(id: string | number): Promise<IENJobTitle | any> {
     const job_title = await this.ienapplicantJobTitleRepository.findOne(id);
     if (!job_title) {
-      throw new NotFoundException('Provide job title not found');
+      throw new NotFoundException('Provided job title not found');
     }
     return job_title;
   }
@@ -262,7 +305,7 @@ export class IENApplicantUtilService {
   async getJobLocation(id: string | number): Promise<IENJobLocation | any> {
     const job_title = await this.ienapplicantJobLocationRepository.findOne(id);
     if (!job_title) {
-      throw new NotFoundException('Provide job location not found');
+      throw new NotFoundException('Provided job location not found');
     }
     return job_title;
   }

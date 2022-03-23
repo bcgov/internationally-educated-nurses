@@ -1,7 +1,8 @@
-import { IsDateString, IsOptional, IsString } from 'class-validator';
+import { IsDateString, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class IENApplicantAddStatusDTO {
   @IsString()
+  @IsNotEmpty()
   status!: string;
 
   @IsString()
@@ -20,7 +21,7 @@ export class IENApplicantAddStatusDTO {
   @IsOptional()
   end_date?: Date;
 
-  @IsString()
+  @IsString({ message: 'Notes/Reason must be a string' })
   @IsOptional()
   notes?: string;
 }

@@ -26,20 +26,32 @@ INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('Candidate - 
 INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('Candidate - NCLEX - Passed ', (SELECT id FROM public.ien_applicant_status WHERE status='IEN Licensing/Registration'));
 INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('Candidate - BCCNM Licensed - Full License', (SELECT id FROM public.ien_applicant_status WHERE status='IEN Licensing/Registration'));
 
+
 -- IEN Recruitment (once licensed)
-INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('HMBC - Applicant ready for job search', (SELECT id FROM public.ien_applicant_status WHERE status='IEN Recruitment (once licensed)'));
-INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('HA - Acknowledgement/Referral Reviewed', (SELECT id FROM public.ien_applicant_status WHERE status='IEN Recruitment (once licensed)'));
-INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('HA - Pre-Screen Process', (SELECT id FROM public.ien_applicant_status WHERE status='IEN Recruitment (once licensed)'));
-INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('HA - Not Interested', (SELECT id FROM public.ien_applicant_status WHERE status='IEN Recruitment (once licensed)'));
-INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('HA - No Position Available', (SELECT id FROM public.ien_applicant_status WHERE status='IEN Recruitment (once licensed)'));
-INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('HA - Candidate Withdrawn', (SELECT id FROM public.ien_applicant_status WHERE status='IEN Recruitment (once licensed)'));
-INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('HA - CV Forwarded (to Hiring Manager)', (SELECT id FROM public.ien_applicant_status WHERE status='IEN Recruitment (once licensed)'));
-INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('HA - Interview', (SELECT id FROM public.ien_applicant_status WHERE status='IEN Recruitment (once licensed)'));
-INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('HA - Reference Check', (SELECT id FROM public.ien_applicant_status WHERE status='IEN Recruitment (once licensed)'));
-INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('HA - Job Offer sent', (SELECT id FROM public.ien_applicant_status WHERE status='IEN Recruitment (once licensed)'));
-INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('HA - Job offer accepted', (SELECT id FROM public.ien_applicant_status WHERE status='IEN Recruitment (once licensed)'));
-INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('HA - Hired', (SELECT id FROM public.ien_applicant_status WHERE status='IEN Recruitment (once licensed)'));
-INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('HA - Referred to BC PNP (if immigration required, see below)*', (SELECT id FROM public.ien_applicant_status WHERE status='IEN Recruitment (once licensed)'));
+-- INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('HMBC - Applicant ready for job search', (SELECT id FROM public.ien_applicant_status WHERE status='IEN Recruitment (once licensed)'));
+-- INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('HA - Acknowledgement/Referral Reviewed', (SELECT id FROM public.ien_applicant_status WHERE status='IEN Recruitment (once licensed)'));
+-- INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('HA - Pre-Screen Process', (SELECT id FROM public.ien_applicant_status WHERE status='IEN Recruitment (once licensed)'));
+-- INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('HA - Not Interested', (SELECT id FROM public.ien_applicant_status WHERE status='IEN Recruitment (once licensed)'));
+-- INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('HA - No Position Available', (SELECT id FROM public.ien_applicant_status WHERE status='IEN Recruitment (once licensed)'));
+-- INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('HA - Candidate Withdrawn', (SELECT id FROM public.ien_applicant_status WHERE status='IEN Recruitment (once licensed)'));
+-- INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('HA - CV Forwarded (to Hiring Manager)', (SELECT id FROM public.ien_applicant_status WHERE status='IEN Recruitment (once licensed)'));
+-- INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('HA - Interview', (SELECT id FROM public.ien_applicant_status WHERE status='IEN Recruitment (once licensed)'));
+-- INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('HA - Reference Check', (SELECT id FROM public.ien_applicant_status WHERE status='IEN Recruitment (once licensed)'));
+-- INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('HA - Job Offer sent', (SELECT id FROM public.ien_applicant_status WHERE status='IEN Recruitment (once licensed)'));
+-- INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('HA - Job offer accepted', (SELECT id FROM public.ien_applicant_status WHERE status='IEN Recruitment (once licensed)'));
+-- INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('HA - Hired', (SELECT id FROM public.ien_applicant_status WHERE status='IEN Recruitment (once licensed)'));
+-- INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('HA - Referred to BC PNP (if immigration required, see below)*', (SELECT id FROM public.ien_applicant_status WHERE status='IEN Recruitment (once licensed)'));
+
+DELETE FROM public.ien_applicant_status WHERE parent_id IN (SELECT id FROM public.ien_applicant_status WHERE status='IEN Recruitment (once licensed)');
+INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('Prescreen completed', (SELECT id FROM public.ien_applicant_status WHERE status='IEN Recruitment (once licensed)' limit 1));
+INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('Interview completed', (SELECT id FROM public.ien_applicant_status WHERE status='IEN Recruitment (once licensed)' limit 1));
+INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('References completed', (SELECT id FROM public.ien_applicant_status WHERE status='IEN Recruitment (once licensed)' limit 1));
+INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('Offered position', (SELECT id FROM public.ien_applicant_status WHERE status='IEN Recruitment (once licensed)' limit 1));
+INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('Candidate withdrew', (SELECT id FROM public.ien_applicant_status WHERE status='IEN Recruitment (once licensed)' limit 1));
+INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('Candidate was unresponsive', (SELECT id FROM public.ien_applicant_status WHERE status='IEN Recruitment (once licensed)' limit 1));
+INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('Candidate was not selected ', (SELECT id FROM public.ien_applicant_status WHERE status='IEN Recruitment (once licensed)' limit 1));
+INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('Candidate accepted the job offer', (SELECT id FROM public.ien_applicant_status WHERE status='IEN Recruitment (once licensed)' limit 1));
+
 
 -- BC PNP (once job offer obtained and if immigration required)
 INSERT INTO public.ien_applicant_status(status, parent_id) VALUES ('HMBC - First Steps Document Sent', (SELECT id FROM public.ien_applicant_status WHERE status='BC PNP (once job offer obtained and if immigration required)'));
