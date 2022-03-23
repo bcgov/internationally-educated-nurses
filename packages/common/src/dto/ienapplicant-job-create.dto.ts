@@ -2,7 +2,7 @@ import { IsDateString, IsNotEmpty, IsOptional, IsString, Length } from 'class-va
 
 export class IENApplicantJobCreateUpdateDTO {
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'HA is required' })
   ha_pcn!: string;
 
   @IsString({ message: 'JobID must be a string' })
@@ -11,11 +11,11 @@ export class IENApplicantJobCreateUpdateDTO {
   job_id?: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Job Title is required' })
   job_title!: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Job Location is required' })
   job_location!: string;
 
   @IsString({ message: 'Recruiter Name must be a string' })
