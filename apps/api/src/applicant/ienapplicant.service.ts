@@ -179,41 +179,58 @@ export class IENApplicantService {
   ): Promise<IENApplicantStatusAudit | any> {
     const applicant = await this.getApplicantById(id);
     const { status, start_date, end_date, added_by, job_id, notes } = applicantUpdate;
-    const dataToUpdate: any = {};
+    const data: any = {};
     if (added_by) {
       const added_by_data = await this.ienUsersRepository.findOne(parseInt(added_by));
       if (added_by_data) {
-        dataToUpdate.added_by = added_by_data;
+        data.added_by = added_by_data;
       }
     }
 
     const status_obj = await this.ienapplicantUtilService.getStatusById(status);
-    dataToUpdate.status = status_obj;
+    data.status = status_obj;
 
-    dataToUpdate.start_date = null;
+    data.start_date = null;
     if (start_date) {
-      dataToUpdate.start_date = start_date;
+      data.start_date = start_date;
+    } else {
+      data.start_date = new Date();
     }
 
-    dataToUpdate.end_date = null;
+    data.end_date = null;
     if (end_date) {
-      dataToUpdate.start_date = end_date;
+      data.start_date = end_date;
     }
 
     if (notes) {
-      dataToUpdate.notes = notes;
+      data.notes = notes;
     }
 
     let job = null;
     if (job_id) {
       job = await this.ienapplicantUtilService.getJob(job_id);
+      if (job) {
+        if (id !== job.applicant.id) {
+          throw new BadRequestException('Provided applicant and competition/job does not match');
+        }
+      }
     }
 
     const status_audit = await this.ienapplicantUtilService.addApplicantStatusAudit(
       applicant,
-      dataToUpdate,
+      data,
       job,
     );
+    /**
+     * Note:
+     * Based on scope we are only managing recruitment status.
+     * For that we do need job/competition record,
+     * So if that is exist we are updating previous status
+     */
+    if (job) {
+      await this.ienapplicantUtilService.updatePreviousActiveStatusForJob(job, data);
+    }
+
     delete status_audit.applicant;
     return status_audit;
   }
@@ -230,9 +247,9 @@ export class IENApplicantService {
   ): Promise<IENApplicantStatusAudit | any> {
     const status_audit = await this.ienapplicantStatusAuditRepository.findOne(status_id);
     if (!status_audit) {
-      throw new NotFoundException('Provided status/ toupdate record is not found');
+      throw new NotFoundException('Provided status/milestone record not found');
     }
-    const { status, start_date, end_date, added_by } = applicantUpdate;
+    const { status, start_date, end_date, added_by, notes } = applicantUpdate;
     if (added_by) {
       const updated_by_data = await this.ienUsersRepository.findOne(parseInt(added_by));
       if (updated_by_data) {
@@ -251,6 +268,10 @@ export class IENApplicantService {
 
     if (end_date) {
       status_audit.end_date = end_date;
+    }
+
+    if (notes) {
+      status_audit.notes = notes;
     }
     await this.ienapplicantStatusAuditRepository.save(status_audit);
     return status_audit;

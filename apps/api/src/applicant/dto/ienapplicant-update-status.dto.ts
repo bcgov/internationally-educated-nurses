@@ -1,10 +1,11 @@
 import { IENApplicantUpdateStatusDTO } from '@ien/common';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsDateString, IsOptional, IsString } from 'class-validator';
 
 export class IENApplicantUpdateStatusAPIDTO extends IENApplicantUpdateStatusDTO {
-  @ApiProperty({ description: 'Applicant active or last updated status', default: '3' })
+  @ApiPropertyOptional({ description: 'Applicant active or last updated status', default: '3' })
   @IsString()
+  @IsOptional()
   status?: string;
 
   @ApiPropertyOptional({ description: 'Applicant added by user', default: '1' })
