@@ -1,8 +1,10 @@
 import { SSRKeycloakProvider, SSRCookies, useKeycloak } from '@react-keycloak/ssr';
 import '../styles/globals.css';
+import 'react-toastify/dist/ReactToastify.min.css';
 
 import axios from 'axios';
 import Head from 'next/head';
+import { ToastContainer } from 'react-toastify';
 
 import type { AppProps } from 'next/app';
 import { Footer, Header } from '@components';
@@ -51,6 +53,15 @@ function App({ Component, pageProps }: AppProps) {
           </AuthProvider>
         </FetchWrapper>
       </SSRKeycloakProvider>
+      <ToastContainer
+        style={{ width: '50%' }}
+        position='top-center'
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+      />
     </>
   );
 }
