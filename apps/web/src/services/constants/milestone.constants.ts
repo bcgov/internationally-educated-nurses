@@ -25,5 +25,5 @@ export const healthAuthority = [
   { value: '33', label: 'Campbell River', description: null },
   { value: '26', label: 'Central Interior Rural', description: null },
   { value: '18', label: 'Central Okanagan', description: null },
-  { value: '55', label: 'Chilliwack', description: null },
+  { value: '19', label: 'Chilliwack', description: null },
 ];

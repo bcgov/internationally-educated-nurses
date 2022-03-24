@@ -20,7 +20,6 @@ interface RecordProps {
 export const Record: React.FC<RecordProps> = ({ job }) => {
   const router = useRouter();
   const applicantId = router.query.applicantId;
-
   const { ha_pcn, job_id, job_location, job_post_date, job_title, recruiter_name } = job;
 
   return (
