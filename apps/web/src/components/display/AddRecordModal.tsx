@@ -6,19 +6,54 @@ import { toast } from 'react-toastify';
 
 import { Modal } from '../Modal';
 import { Button } from '@components';
-import { addJobRecord, healthAuthority, jobLocations, jobTitle } from '@services';
+import { addJobRecord, getAddRecordOptions } from '@services';
 import { IENApplicantJobCreateUpdateDTO } from '@ien/common';
+import { useEffect, useState } from 'react';
 
 interface AddRecordProps {
   jobRecords: any;
   setJobRecords: any;
 }
 
+interface RecordTypeOptions {
+  id: string;
+  title: string;
+}
+
+interface RecordType {
+  haPcn: RecordTypeOptions[];
+  jobTitle: RecordTypeOptions[];
+  jobLocation: RecordTypeOptions[];
+}
+
 export const AddRecordModal: React.FC<AddRecordProps> = ({ jobRecords, setJobRecords }) => {
+  const [recordDropdownOptions, setRecordDropdownOptions] = useState<RecordType>({
+    haPcn: [{ id: '', title: '' }],
+    jobTitle: [{ id: '', title: '' }],
+    jobLocation: [{ id: '', title: '' }],
+  });
+
   const router = useRouter();
 
   const applicantId = router?.query?.applicantId;
   const isOpen = !!router.query.record;
+
+  // retrieve list of items for dropdown to keep it dynamic
+  useEffect(() => {
+    try {
+      const getRecordListData = async () => {
+        const data = await getAddRecordOptions();
+        setRecordDropdownOptions({
+          haPcn: data[0].data.data,
+          jobTitle: data[1].data.data,
+          jobLocation: data[2].data.data,
+        });
+      };
+      getRecordListData();
+    } catch (e) {
+      toast.error('There was an error retrieving record options');
+    }
+  }, []);
 
   const newJobRecordSchema = createValidator(IENApplicantJobCreateUpdateDTO);
 
@@ -64,9 +99,10 @@ export const AddRecordModal: React.FC<AddRecordProps> = ({ jobRecords, setJobRec
               <div className='grid grid-cols-4 gap-4 bg-white rounded px-8 pt-6 pb-7 mb-4'>
                 <div className='mb-3 col-span-2'>
                   <Select name='ha_pcn' label='Health Authority'>
-                    {healthAuthority.map(opt => (
-                      <Option key={opt.value} label={opt.label} value={opt.value} />
-                    ))}
+                    {recordDropdownOptions.haPcn &&
+                      recordDropdownOptions.haPcn.map(opt => (
+                        <Option key={opt.id} label={opt.title} value={opt.id} />
+                      ))}
                   </Select>
                 </div>
                 <div className='mb-3 col-span-2'>
@@ -74,16 +110,18 @@ export const AddRecordModal: React.FC<AddRecordProps> = ({ jobRecords, setJobRec
                 </div>
                 <div className='mb-3 col-span-2'>
                   <Select name='job_title' label='Job Title'>
-                    {jobTitle.map(opt => (
-                      <Option key={opt.value} label={opt.label} value={opt.value} />
-                    ))}
+                    {recordDropdownOptions.jobTitle &&
+                      recordDropdownOptions.jobTitle.map(opt => (
+                        <Option key={opt.id} label={opt.title} value={opt.id} />
+                      ))}
                   </Select>
                 </div>
                 <div className='mb-3 col-span-2'>
                   <Select name='job_location' label='Location'>
-                    {jobLocations.map(opt => (
-                      <Option key={opt.value} label={opt.label} value={opt.value} />
-                    ))}
+                    {recordDropdownOptions.jobLocation &&
+                      recordDropdownOptions.jobLocation.map(opt => (
+                        <Option key={opt.id} label={opt.title} value={opt.id} />
+                      ))}
                   </Select>
                 </div>
                 <div className='mb-3 col-span-2'>
