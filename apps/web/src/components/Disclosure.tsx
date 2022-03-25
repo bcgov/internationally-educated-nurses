@@ -12,7 +12,9 @@ export const Disclosure: React.FC<DisclosureProps> = ({ buttonText, content }) =
     <HeadlessDisclosure>
       {({ open }) => (
         <div className='border border-gray-200 rounded'>
-          <HeadlessDisclosure.Button className={'bg-blue-100 rounded flex justify-between w-full'}>
+          <HeadlessDisclosure.Button
+            className={'bg-blue-100 rounded-b-none flex justify-between w-full'}
+          >
             {buttonText}
             <FontAwesomeIcon
               icon={open ? faMinusCircle : faPlusCircle}
