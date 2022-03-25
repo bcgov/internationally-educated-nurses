@@ -1,10 +1,6 @@
 import { Module, Logger } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
-import { ApplicantEntity } from 'src/applicant/entity/applicant.entity';
-import { ApplicantAuditEntity } from 'src/applicant/entity/applicantAudit.entity';
-import { ApplicantStatusEntity } from 'src/applicant/entity/applicantStatus.entity';
-import { ApplicantStatusAuditEntity } from 'src/applicant/entity/applicantStatusAudit.entity';
 import { IENApplicantAudit } from 'src/applicant/entity/ienapplicant-audit.entity';
 import { IENApplicantStatusAudit } from 'src/applicant/entity/ienapplicant-status-audit.entity';
 import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.entity';
@@ -15,7 +11,6 @@ import { IENApplicantJob } from 'src/applicant/entity/ienjob.entity';
 import { IENJobLocation } from 'src/applicant/entity/ienjoblocation.entity';
 import { IENJobTitle } from 'src/applicant/entity/ienjobtitles.entity';
 import { IENUsers } from 'src/applicant/entity/ienusers.entity';
-import { ApplicantSubscriber } from 'src/applicant/subscribers/applicant.subscribers';
 import { EmployeeEntity } from 'src/employee/employee.entity';
 import { FormEntity } from 'src/form/entities/form.entity';
 import { SubmissionEntity } from 'src/submission/entity/submission.entity';
@@ -43,10 +38,6 @@ const getEnvironmentSpecificConfig = (env?: string) => {
           EmployeeEntity,
           SubmissionEntity,
           FormEntity,
-          ApplicantEntity,
-          ApplicantStatusEntity,
-          ApplicantAuditEntity,
-          ApplicantStatusAuditEntity,
           IENApplicant,
           IENApplicantAudit,
           IENApplicantStatus,
@@ -58,7 +49,6 @@ const getEnvironmentSpecificConfig = (env?: string) => {
           IENJobLocation,
           IENApplicantJob,
         ],
-        subscribers: [ApplicantSubscriber],
         migrations: ['dist/migration/*.js'],
         logging: ['error', 'warn', 'migration'] as LoggerOptions,
       };
