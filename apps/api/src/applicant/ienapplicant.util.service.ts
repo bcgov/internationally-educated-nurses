@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { In, IsNull, Repository, ILike, Not } from 'typeorm';
-import { ApplicantStatusEntity } from './entity/applicantStatus.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantStatus } from './entity/ienapplicant-status.entity';
@@ -128,7 +127,7 @@ export class IENApplicantUtilService {
    * @param status
    * @returns Status Object or NotFoundException
    */
-  async getStatusById(status: string): Promise<ApplicantStatusEntity | any> {
+  async getStatusById(status: string): Promise<IENApplicantStatus | any> {
     const statusObj = await this.ienapplicantStatusRepository.findOne(parseInt(status), {
       relations: ['parent'],
     });
