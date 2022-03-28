@@ -1,6 +1,6 @@
 interface Details {
   title: string;
-  text: string;
+  text: string | undefined;
 }
 
 export const DetailsItem: React.FC<Details> = ({ title, text }) => {

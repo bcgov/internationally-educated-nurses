@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 import { buttonBase, buttonColor, DetailsItem, Disclosure } from '@components';
 import { AddMilestones, EditMilestones } from './Milestone';
 import { useEffect, useState } from 'react';
+import { formatDate } from '@ien/common';
 
 interface RecordProps {
   job: {
@@ -46,16 +47,9 @@ export const Record: React.FC<RecordProps> = ({ job }) => {
 
   const lastMilestones = () => {
     if (jobMilestones) {
-      console.log('MILESTONES: ', jobMilestones);
-      // const size = jobMilestones.length - 1;
-      console.log('SIZE: ', jobMilestones.length);
-
       if (jobMilestones[0] === undefined) {
-        console.log('Inside .status');
         return;
       }
-      console.log('jobMilestones fn: ', jobMilestones[0]);
-      console.log('status: ', jobMilestones[0].status.status);
       setRecordStatus(jobMilestones[0].status.status);
     }
   };
@@ -88,7 +82,10 @@ export const Record: React.FC<RecordProps> = ({ job }) => {
               <DetailsItem title='Location' text={job_location.title} />
 
               <DetailsItem title='Recruiter Name' text={recruiter_name} />
-              <DetailsItem title='Date Job Was First Posted' text={job_post_date.toString()} />
+              <DetailsItem
+                title='Date Job Was First Posted'
+                text={formatDate(job_post_date.toString())}
+              />
             </div>
             <Link
               as={`/details/${applicantId}?recruitment=edit`}
@@ -104,9 +101,7 @@ export const Record: React.FC<RecordProps> = ({ job }) => {
               </a>
             </Link>
             {jobMilestones &&
-              jobMilestones
-                .sort((a, b) => b.id - a.id)
-                .map(mil => <EditMilestones key={Math.random() * (1000 - 1)} milestones={mil} />)}
+              jobMilestones.map(mil => <EditMilestones key={mil.id} milestones={mil} />)}
             <AddMilestones
               applicantId={applicantId}
               jobId={id}

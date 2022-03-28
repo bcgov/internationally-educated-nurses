@@ -10,10 +10,9 @@ import createValidator from 'class-validator-formik';
 import { Formik, Form as FormikForm } from 'formik';
 
 import { buttonBase, buttonColor, Select, Option, Field } from '@components';
-import { useEffect, useState } from 'react';
-import { IENApplicantAddStatusDTO } from '@ien/common';
+import { useState } from 'react';
+import { IENApplicantAddStatusDTO, formatDate } from '@ien/common';
 import { addMilestone, milestoneRecruitmentOptions } from '@services';
-import { formatDate } from '@ien/common/src';
 
 //@todo change any type
 const initialValues: IENApplicantAddStatusDTO = {
@@ -42,8 +41,7 @@ export const AddMilestones: React.FC<AddMilestoneProps> = ({
   setJobMilestones,
 }) => {
   const handleSubmit = async (values: any, { resetForm }: any) => {
-    // no access to id for job adding through IENApplicantAddStatusDTO,
-    //hardcoding unknown values at this time
+    // hardcoding some values for now, specifically logged in user
     values.job_id = jobId.toString();
     values.added_by = '1';
     console.log(values);
@@ -67,7 +65,6 @@ interface EditMilestoneProps {
 
 // Edit milestone comp ***
 export const EditMilestones: React.FC<EditMilestoneProps> = milestones => {
-  console.log('milestones: ', milestones);
   const [isEdit, setIsEdit] = useState(false);
 
   const handleSubmit = async (values: any) => {

@@ -8,6 +8,7 @@ import { HeaderTab } from 'src/components/display/HeaderTab';
 import { LicensingRegistration } from 'src/components/milestone-logs/LicensingRegistration';
 import { Recruitment } from 'src/components/milestone-logs/Recruitment';
 import { DetailsItem } from '@components';
+import { formatDate } from '@ien/common';
 
 const Details = () => {
   const [applicant, setApplicant] = useState<any>({});
@@ -53,16 +54,6 @@ const Details = () => {
     { component: <h1>BC PNP</h1> },
     { component: <h1>Final</h1> },
   ];
-
-  // @todo move to helper file once decorator errors are fixed ??
-  const formatDate = (value: string) => {
-    const date = new Date(value);
-    const day = date.toLocaleString('default', { day: '2-digit' });
-    const month = date.toLocaleString('default', { month: 'short' });
-    const year = date.toLocaleString('default', { year: 'numeric' });
-
-    return `${month} ${day}, ${year}`;
-  };
 
   return (
     <>
