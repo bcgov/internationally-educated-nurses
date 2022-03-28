@@ -1,4 +1,5 @@
 import { Exclude } from 'class-transformer';
+import sortStatus from 'src/common/util';
 import {
   Entity,
   Column,
@@ -7,6 +8,7 @@ import {
   UpdateDateColumn,
   PrimaryGeneratedColumn,
   OneToMany,
+  AfterLoad,
 } from 'typeorm';
 import { IENApplicantStatusAudit } from './ienapplicant-status-audit.entity';
 import { IENApplicant } from './ienapplicant.entity';
@@ -56,4 +58,11 @@ export class IENApplicantJob {
   @UpdateDateColumn()
   @Exclude()
   updated_date!: Date;
+
+  @AfterLoad()
+  sortStatus() {
+    if (this?.status_audit?.length) {
+      this.status_audit = sortStatus(this.status_audit);
+    }
+  }
 }
