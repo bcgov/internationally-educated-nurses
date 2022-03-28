@@ -44,7 +44,7 @@ export const AddMilestones: React.FC<AddMilestoneProps> = ({
     // hardcoding some values for now, specifically logged in user
     values.job_id = jobId.toString();
     values.added_by = '1';
-    console.log(values);
+
     const {
       data: { data },
     } = await addMilestone(applicantId as string, values);
