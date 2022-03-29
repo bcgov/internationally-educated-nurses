@@ -59,7 +59,7 @@ export const Record: React.FC<RecordProps> = ({ job }) => {
       setRecordStatus(jobMilestones[lastItem].status.status);
     }
   };
-  console.log(job);
+
   return (
     <div className='mb-3'>
       <Disclosure

@@ -7,8 +7,10 @@ import {
 } from '@ien/common';
 
 // applicant specific
-export const getApplicants = async () => {
-  return await axios.get(`/ien`);
+export const getApplicants = async (param?: string, value?: any) => {
+  const params = new URLSearchParams([[param, value]]);
+
+  return await axios.get(`/ien`, { params });
 };
 
 export const getApplicant = async (id: string) => {

@@ -58,11 +58,11 @@ const Details = () => {
   return (
     <>
       <div className='container'>
-        <p className='text-xs text-gray-400 mt-3 mb-5'>
+        <p className='text-xs text-bcGray mt-5 mb-5'>
           Manage Applicants / <span className='text-blue-800 font-bold'>Applicant Details</span>
         </p>
         <h1 className='font-bold text-3xl'>{applicant.name} #ID4321</h1>
-        <p className='text-gray-400 text-sm pt-1 pb-4'>Last Updated: January 5, 2022</p>
+        <p className='text-bcGray text-sm pt-1 pb-4'>Last Updated: January 5, 2022</p>
         {/* Details container */}
         <div className='grid grid-cols-12 border-2 rounded px-5 pb-3 bg-white'>
           <div className='col-span-12 border-b mb-3'>

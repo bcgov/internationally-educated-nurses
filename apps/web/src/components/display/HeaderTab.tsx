@@ -22,12 +22,12 @@ export const HeaderTab: React.FC<TabFields> = ({ tabs, onTabClick }) => {
 
   return (
     <div className='mb-3 whitespace-nowrap'>
-      <ul className='flex justify-start'>
+      <ul className='flex justify-start '>
         {tabs.map(({ title, value }) => (
           <button
             key={title}
             id={value}
-            className={`text-center w-full font-bold text-sm px-6 pt-1 pb-2 my-1
+            className={`text-center md:w-full w-1/3 text-xs font-semibold lg:text-sm px-2 md:px-6 pt-1 pb-2 my-1
               ${activeTab === value ? active : inactive}`}
             onClick={e => {
               onTabClick(e);
