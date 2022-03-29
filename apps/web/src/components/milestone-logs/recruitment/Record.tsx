@@ -26,6 +26,9 @@ export const Record: React.FC<RecordProps> = ({ job }) => {
   const applicantId = router.query.applicantId;
   const [recordStatus, setRecordStatus] = useState('');
 
+  // set status_audit to empty array on record create
+  // is not included in response when a new record gets created and only gets initialized on refresh
+  // which prevents creation of milestones for new record
   const {
     id,
     ha_pcn,
@@ -34,7 +37,7 @@ export const Record: React.FC<RecordProps> = ({ job }) => {
     job_post_date,
     job_title,
     recruiter_name,
-    status_audit,
+    status_audit = [],
   } = job;
 
   const [jobMilestones, setJobMilestones] = useState(status_audit);
@@ -45,15 +48,18 @@ export const Record: React.FC<RecordProps> = ({ job }) => {
     }
   }, [jobMilestones]);
 
+  // set status for Record, returns in ASC, need to grab last item in array
   const lastMilestones = () => {
     if (jobMilestones) {
-      if (jobMilestones[0] === undefined) {
+      if (jobMilestones[jobMilestones.length - 1] === undefined) {
         return;
       }
-      setRecordStatus(jobMilestones[0].status.status);
+
+      const lastItem = jobMilestones.length - 1;
+      setRecordStatus(jobMilestones[lastItem].status.status);
     }
   };
-
+  console.log(job);
   return (
     <div className='mb-3'>
       <Disclosure
@@ -61,7 +67,7 @@ export const Record: React.FC<RecordProps> = ({ job }) => {
           <div className='bg-blue-100 rounded py-2 pl-5 w-full'>
             <div className='flex items-center'>
               <span className='font-bold text-black'>{ha_pcn.title}</span>
-              <span className='text-xs text-blue-500 font-bold mr-3 ml-auto'>
+              <span className='text-xs text-blue-500 font-bold mr-3 ml-auto capitalize'>
                 <FontAwesomeIcon
                   icon={faCircle}
                   className='text-blue-500 h-2 inline-block mb-0.5 mr-1'
