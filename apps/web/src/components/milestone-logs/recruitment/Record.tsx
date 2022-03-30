@@ -4,23 +4,55 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 import { buttonBase, buttonColor, DetailsItem, Disclosure } from '@components';
-import { JobDetails } from './JobDetails';
+import { AddMilestones, EditMilestones } from './Milestone';
+import { useEffect, useState } from 'react';
+import { formatDate } from '@ien/common';
 
 interface RecordProps {
   job: {
+    id: string;
     ha_pcn: { title: string };
     job_id: string;
     job_location: { title: string };
     job_post_date: Date;
     job_title: { title: string };
     recruiter_name: string;
+    status_audit?: any[];
   };
 }
 
 export const Record: React.FC<RecordProps> = ({ job }) => {
   const router = useRouter();
   const applicantId = router.query.applicantId;
-  const { ha_pcn, job_id, job_location, job_post_date, job_title, recruiter_name } = job;
+  const [recordStatus, setRecordStatus] = useState('');
+
+  const {
+    id,
+    ha_pcn,
+    job_id,
+    job_location,
+    job_post_date,
+    job_title,
+    recruiter_name,
+    status_audit,
+  } = job;
+
+  const [jobMilestones, setJobMilestones] = useState(status_audit);
+
+  useEffect(() => {
+    if (jobMilestones) {
+      lastMilestones();
+    }
+  }, [jobMilestones]);
+
+  const lastMilestones = () => {
+    if (jobMilestones) {
+      if (jobMilestones[0] === undefined) {
+        return;
+      }
+      setRecordStatus(jobMilestones[0].status.status);
+    }
+  };
 
   return (
     <div className='mb-3'>
@@ -29,12 +61,12 @@ export const Record: React.FC<RecordProps> = ({ job }) => {
           <div className='bg-blue-100 rounded py-2 pl-5 w-full'>
             <div className='flex items-center'>
               <span className='font-bold text-black'>{ha_pcn.title}</span>
-              <span className='text-xs text-green-500 font-bold mr-3 ml-auto'>
+              <span className='text-xs text-blue-500 font-bold mr-3 ml-auto'>
                 <FontAwesomeIcon
                   icon={faCircle}
-                  className='text-green-500 h-2 inline-block mb-0.5 mr-1'
+                  className='text-blue-500 h-2 inline-block mb-0.5 mr-1'
                 />
-                Offer was accepted
+                {recordStatus ? recordStatus : 'On Going'}
               </span>
             </div>
             <div className='flex justify-between'>
@@ -50,7 +82,10 @@ export const Record: React.FC<RecordProps> = ({ job }) => {
               <DetailsItem title='Location' text={job_location.title} />
 
               <DetailsItem title='Recruiter Name' text={recruiter_name} />
-              <DetailsItem title='Date Job Was First Posted' text={job_post_date.toString()} />
+              <DetailsItem
+                title='Date Job Was First Posted'
+                text={formatDate(job_post_date.toString())}
+              />
             </div>
             <Link
               as={`/details/${applicantId}?recruitment=edit`}
@@ -65,7 +100,14 @@ export const Record: React.FC<RecordProps> = ({ job }) => {
                 Edit Details
               </a>
             </Link>
-            <JobDetails />
+            {jobMilestones &&
+              jobMilestones.map(mil => <EditMilestones key={mil.id} milestones={mil} />)}
+            <AddMilestones
+              applicantId={applicantId}
+              jobId={id}
+              jobMilestones={jobMilestones}
+              setJobMilestones={setJobMilestones}
+            />
           </div>
         }
       />
