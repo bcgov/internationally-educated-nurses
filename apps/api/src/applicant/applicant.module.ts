@@ -34,12 +34,25 @@ import { IENStatusReason } from './entity/ienstatus-reason.entity';
       IENJobTitle,
       IENJobLocation,
       IENApplicantJob,
-      IENStatusReason
+      IENStatusReason,
     ]),
     MailModule,
   ],
   controllers: [IENApplicantController, IENMasterController, ExternalAPIController],
-  providers: [Logger, IENApplicantService, IENMasterService, IENApplicantUtilService, ExternalAPIService, ExternalRequest],
-  exports: [IENApplicantService, IENMasterService, IENApplicantUtilService, ExternalAPIService, ExternalRequest],
+  providers: [
+    Logger,
+    IENApplicantService,
+    IENMasterService,
+    IENApplicantUtilService,
+    ExternalAPIService,
+    ExternalRequest,
+  ],
+  exports: [
+    IENApplicantService,
+    IENMasterService,
+    IENApplicantUtilService,
+    ExternalAPIService,
+    ExternalRequest,
+  ],
 })
 export class ApplicantModule {}

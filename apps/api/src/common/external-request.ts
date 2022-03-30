@@ -18,8 +18,7 @@ export class ExternalRequest {
     return await this.api_instance
       .get(`${url}`)
       .then((response: AxiosResponse) => {
-        if (response.status !== 200)
-            throw new BadRequestException(response);
+        if (response.status !== 200) throw new BadRequestException(response);
         return response.data;
       })
       .catch(e => {
@@ -32,10 +31,10 @@ export class ExternalRequest {
   }
 
   async getStaff() {
-    return await this.getData(`/staff`)
+    return await this.getData(`/staff`);
   }
 
   async getReason() {
-    return await this.getData(`/Reason`)
+    return await this.getData(`/Reason`);
   }
 }
