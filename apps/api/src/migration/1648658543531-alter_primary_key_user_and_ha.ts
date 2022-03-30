@@ -36,10 +36,16 @@ export class alterPrimaryKeyUserAndHa1648658543531 implements MigrationInterface
       `ALTER TABLE "ien_applicant_jobs" ADD CONSTRAINT "FK_30c12dea0e069e5162a3fdbbad4" FOREIGN KEY ("added_by_id") REFERENCES "ien_users"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`,
     );
     await queryRunner.query(
+      `ALTER TABLE "ien_applicant_status_audit" DROP CONSTRAINT "FK_d38dff64ad3a6ab12b67dc706a2"`,
+    );
+    await queryRunner.query(
       `ALTER TABLE "ien_applicant_status_audit" ADD CONSTRAINT "FK_d38dff64ad3a6ab12b67dc706a2" FOREIGN KEY ("added_by_id") REFERENCES "ien_users"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`,
     );
     await queryRunner.query(
       `ALTER TABLE "ien_applicant_status_audit" ADD CONSTRAINT "FK_95f8434de7036d2dbd1e71ff901" FOREIGN KEY ("updated_by_id") REFERENCES "ien_users"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "ien_applicants" DROP CONSTRAINT "FK_b606447f3cbb4b8c5356011d58a"`,
     );
     await queryRunner.query(
       `ALTER TABLE "ien_applicants" ADD CONSTRAINT "FK_b606447f3cbb4b8c5356011d58a" FOREIGN KEY ("added_by_id") REFERENCES "ien_users"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`,
