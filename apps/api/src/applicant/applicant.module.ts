@@ -16,6 +16,10 @@ import { IENApplicantUtilService } from './ienapplicant.util.service';
 import { IENJobTitle } from './entity/ienjobtitles.entity';
 import { IENJobLocation } from './entity/ienjoblocation.entity';
 import { IENApplicantJob } from './entity/ienjob.entity';
+import { ExternalAPIController } from './external-api.controller';
+import { ExternalAPIService } from './external-api.service';
+import { ExternalRequest } from 'src/common/external-request';
+import { IENStatusReason } from './entity/ienstatus-reason.entity';
 
 @Module({
   imports: [
@@ -30,11 +34,12 @@ import { IENApplicantJob } from './entity/ienjob.entity';
       IENJobTitle,
       IENJobLocation,
       IENApplicantJob,
+      IENStatusReason
     ]),
     MailModule,
   ],
-  controllers: [IENApplicantController, IENMasterController],
-  providers: [Logger, IENApplicantService, IENMasterService, IENApplicantUtilService],
-  exports: [IENApplicantService, IENMasterService, IENApplicantUtilService],
+  controllers: [IENApplicantController, IENMasterController, ExternalAPIController],
+  providers: [Logger, IENApplicantService, IENMasterService, IENApplicantUtilService, ExternalAPIService, ExternalRequest],
+  exports: [IENApplicantService, IENMasterService, IENApplicantUtilService, ExternalAPIService, ExternalRequest],
 })
 export class ApplicantModule {}

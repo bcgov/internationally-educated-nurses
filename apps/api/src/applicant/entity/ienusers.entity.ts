@@ -1,17 +1,10 @@
 import { Exclude } from 'class-transformer';
-import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  ManyToMany,
-  Index,
-  CreateDateColumn,
-} from 'typeorm';
+import { Entity, Column, ManyToMany, Index, CreateDateColumn, PrimaryColumn } from 'typeorm';
 import { IENApplicant } from './ienapplicant.entity';
 
 @Entity('ien_users')
 export class IENUsers {
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn()
   id!: number;
 
   @Column('varchar')

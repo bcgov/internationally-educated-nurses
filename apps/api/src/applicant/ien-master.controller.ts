@@ -19,6 +19,7 @@ import { IENUsers } from './entity/ienusers.entity';
 import { IENEducation } from './entity/ieneducation.entity';
 import { IENJobTitle } from './entity/ienjobtitles.entity';
 import { IENJobLocation } from './entity/ienjoblocation.entity';
+import { IENStatusReason } from './entity/ienstatus-reason.entity';
 
 @Controller('ienmaster')
 @ApiTags('IEN Master')
@@ -123,6 +124,24 @@ export class IENMasterController {
     } catch (e) {
       this.logger.error(e);
       throw new InternalServerErrorException('An unknown error occured retriving Job Locations');
+    }
+  }
+
+  @ApiOperation({
+    summary: `List Milestone/Status reasons`,
+  })
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
+  @HttpCode(HttpStatus.OK)
+  @Get('/reasons')
+  async getStatusReasons(): Promise<IENStatusReason[]> {
+    try {
+      return await this.ienmasterService.getStatusReasons();
+    } catch (e) {
+      this.logger.error(e);
+      throw new InternalServerErrorException(
+        'An unknown error occured retriving Milestone/Status reasons',
+      );
     }
   }
 }
