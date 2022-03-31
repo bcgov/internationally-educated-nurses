@@ -10,7 +10,7 @@ export class ExternalRequest {
     this.baseurl = process.env.HMBC_ATS_BASE_URL || `https://ien.heabc.bc.ca`;
     this.api_instance = axios.create({
       baseURL: this.baseurl,
-      timeout: 15000,
+      timeout: 3000,
     });
   }
 
