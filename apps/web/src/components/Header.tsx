@@ -27,7 +27,7 @@ export const Header: React.FC = () => {
               ref={headerRef}
               className=' font-semibold tracking-wider text-white lg:text-xl md:text-xl text-sm focus:outline-none'
             >
-              International Educated Nurses
+              Internationally Educated Nurses
             </h1>
           </div>
         </div>

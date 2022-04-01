@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   faCalendar,
   faPencilAlt,
@@ -8,9 +9,9 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import createValidator from 'class-validator-formik';
 import { Formik, Form as FormikForm } from 'formik';
+import { toast } from 'react-toastify';
 
 import { buttonBase, buttonColor, Select, Option, Field } from '@components';
-import { useState } from 'react';
 import { IENApplicantAddStatusDTO, formatDate } from '@ien/common';
 import { addMilestone, milestoneRecruitmentOptions } from '@services';
 
@@ -45,10 +46,15 @@ export const AddMilestones: React.FC<AddMilestoneProps> = ({
     values.job_id = jobId.toString();
     values.added_by = '1';
 
-    const {
-      data: { data },
-    } = await addMilestone(applicantId as string, values);
-    setJobMilestones([data, ...jobMilestones]);
+    try {
+      const {
+        data: { data },
+      } = await addMilestone(applicantId as string, values);
+
+      setJobMilestones([...jobMilestones, data]);
+    } catch (e) {
+      toast.error('Error adding new milestone');
+    }
 
     // reset form after submitting
     resetForm(initialValues);
@@ -63,7 +69,7 @@ interface EditMilestoneProps {
   milestones: any;
 }
 
-// Edit milestone comp ***
+// Edit milestone comp *** currently unsure if this will be included moving forward
 export const EditMilestones: React.FC<EditMilestoneProps> = milestones => {
   const [isEdit, setIsEdit] = useState(false);
 
@@ -82,9 +88,9 @@ export const EditMilestones: React.FC<EditMilestoneProps> = milestones => {
         <div className='border border-gray-200 rounded bg-gray-200 my-2 px-3 pb-4'>
           <div className='w-full pt-4'>
             <div className='flex items-center'>
-              <span className='text-sm font-bold text-black'>
+              <span className='text-sm font-bold text-black capitalize'>
                 {milestones.milestones.status.status} |{' '}
-                <FontAwesomeIcon icon={faCalendar} className='h-3.5 inline-block mr-2' />
+                <FontAwesomeIcon icon={faCalendar} className='h-3 inline-block mr-2' />
                 {formatDate(milestones.milestones.start_date)}
               </span>
               <span className='mr-3 ml-auto'>

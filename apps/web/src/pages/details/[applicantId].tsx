@@ -2,13 +2,14 @@ import { faClock, faListAlt } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 
 import { getApplicant, milestoneTabs } from '@services';
 import { HeaderTab } from 'src/components/display/HeaderTab';
-import { LicensingRegistration } from 'src/components/milestone-logs/LicensingRegistration';
 import { Recruitment } from 'src/components/milestone-logs/Recruitment';
 import { DetailsItem } from '@components';
 import { formatDate } from '@ien/common';
+import { Spinner } from 'src/components/Spinner';
 
 const Details = () => {
   const [applicant, setApplicant] = useState<any>({});
@@ -18,28 +19,26 @@ const Details = () => {
   const applicantId = router.query.applicantId;
 
   useEffect(() => {
-    if (router.isReady) {
-      if (applicantId !== undefined) {
-        const getApplicantData = async (id: any) => {
-          const {
-            data: { data },
-          } = await getApplicant(id);
-          setApplicant(data);
-        };
+    try {
+      if (router.isReady) {
+        if (applicantId !== undefined) {
+          const getApplicantData = async (id: any) => {
+            const {
+              data: { data },
+            } = await getApplicant(id);
+            setApplicant(data);
+          };
 
-        getApplicantData(applicantId);
+          getApplicantData(applicantId);
+        }
       }
+    } catch (e) {
+      toast.error('Error retrieving applicant data');
     }
   }, [router, applicantId]);
 
-  if (
-    !applicant ||
-    !applicant.assigned_to ||
-    !applicant.ha_pcn ||
-    !applicant.applicant_status_audit ||
-    !applicant.jobs
-  ) {
-    return <h1>Loading...</h1>;
+  if (!applicant || !applicant.assigned_to || !applicant.ha_pcn) {
+    return <Spinner className='h-20' />;
   }
 
   const onTabClick = (e: any) => {
@@ -48,9 +47,10 @@ const Details = () => {
   };
 
   const logType = [
+    // waiting for hmbc api for remaining 4 components
     { component: <h1>Intake</h1> },
-    { component: <LicensingRegistration records={applicant.applicant_status_audit} /> },
-    { component: <Recruitment jobs={applicant.jobs} /> },
+    { component: <h1>Licensing Registration</h1> },
+    { component: <Recruitment /> },
     { component: <h1>BC PNP</h1> },
     { component: <h1>Final</h1> },
   ];
@@ -99,16 +99,16 @@ const Details = () => {
             />
           </div>
           <div className='col-span-3'>
-            <DetailsItem title='Country of Nursing Education' text='Need to Add Field' />
+            <DetailsItem
+              title='Country of Nursing Education'
+              text={applicant.country_of_training}
+            />
           </div>
           <div className='col-span-3'>
             <DetailsItem title='Nursing Education' text={applicant.education} />
           </div>
           <div className='col-span-3'>
             <DetailsItem title='BCCNM License Number' text='Need to Add Field' />
-          </div>
-          <div className='col-span-3'>
-            <DetailsItem title='Health Authority' text='N/A' />
           </div>
         </div>
 
