@@ -3,9 +3,9 @@ on:
   workflow_dispatch:
     inputs:
       WORKSPACE:
-        description: 'Workspace name'
+        description: "Workspace name"
         required: true
-        default: bcbwlp-dev
+        default: uux0vy-dev
 
 jobs:
   deploy:
