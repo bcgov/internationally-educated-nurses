@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       WORKSPACE:
-        description: "Workspace name"
+        description: 'Workspace name'
         required: true
         default: uux0vy-dev
 

@@ -26,6 +26,9 @@ export TEST_POSTGRES_PORT := 5433
 export COMMIT_SHA:=$(shell git rev-parse --short=7 HEAD)
 export LAST_COMMIT_MESSAGE:=$(shell git log -1 --oneline --decorate=full --no-color --format="%h, %cn, %f, %D" | sed 's/->/:/')
 
+# TF Token
+export TFCTK:=$(shell cat ~/.terraform.d/credentials.tfrc.json | jq -r '.credentials."app.terraform.io".token')
+
 # FE Env Vars
 export NEXT_PUBLIC_API_URL = /api/v1
 
@@ -90,11 +93,17 @@ export TF_BACKEND_CFG
 
 .PHONY: app-local print-env start-local-services bootstrap bootstrap-terraform
 
+# ===================================
 # Aliases 
+# ===================================
+
 bootstrap-terraform: print-env bootstrap
 build-terraform-artifact: clean-yarn print-env pre-build build-api
 
+# ===================================
 # Local Development
+# ===================================
+
 build-artifact-local: build-terraform-artifact
 	@yarn
 clean-yarn: 
@@ -173,7 +182,9 @@ generate-accessibility-results:
 	@yarn workspace @ien/accessibility generate-accessibility-results
 	@echo "++\n*****"
 
+# ===================================
 # Build application stack
+# ===================================
 
 pre-build:
 	@echo "++\n***** Pre-build Terraform artifact\n++"
@@ -234,7 +245,10 @@ apply: init
 	@terraform -chdir=$(TERRAFORM_DIR) apply -auto-approve -input=false
 
 destroy: init
-	terraform -chdir=$(TERRAFORM_DIR) destroy
+	@terraform -chdir=$(TERRAFORM_DIR) destroy
+
+runs: 
+	./terraform/scripts/runs.sh $(TFCTK) $(ENV_NAME)
 
 # ===================================
 # AWS Deployments
@@ -283,9 +297,11 @@ migration-generate:
 migration-revert:
 	@docker exec $(LOCAL_API_CONTAINER_NAME) yarn workspace @ien/api typeorm migration:revert
 
-# docker exec ien_api yarn typeorm migration:generate -n AddSubmissionEntity
 
+# ===================================
 # DB Tunneling
+# ===================================
+
 open-db-tunnel:
 	# Needs exported credentials for a matching LZ2 space
 	@echo "Running for ENV_NAME=$(ENV_NAME)\n"
