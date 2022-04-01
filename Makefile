@@ -77,13 +77,13 @@ export TFVARS_DATA
 
 # Terraform cloud backend config variables
 # LZ2 
-LZ2_PROJECT = internationally-educated-nurses
+LZ2_PROJECT = uux0vy
 
 # Terraform Cloud backend config variables
 define TF_BACKEND_CFG
 workspaces { name = "$(LZ2_PROJECT)-$(ENV_NAME)" }
 hostname     = "app.terraform.io"
-organization = "FreshWorks-Studio"
+organization = "bcgov"
 endef
 export TF_BACKEND_CFG
 
@@ -237,7 +237,7 @@ plan: init-tf
 	# Creating all AWS infrastructure.
 	@terraform -chdir=$(TERRAFORM_DIR) plan
 
-deploy-infra: init-tf 
+apply: init-tf 
 	# Creating all AWS infrastructure.
 	@terraform -chdir=$(TERRAFORM_DIR) apply -auto-approve -input=false
 
