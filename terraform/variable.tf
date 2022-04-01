@@ -1,6 +1,6 @@
 variable "project_code" {}
 
- variable "target_aws_account_id" {}
+variable "target_aws_account_id" {}
 
 variable "api_artifact" {}
 variable "app_sources" {}
@@ -29,3 +29,19 @@ variable "region" {
 variable "build_id" {}
 
 variable "build_info" {}
+
+variable "managed_policies" {
+  default = [
+    "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
+  ]
+}
+variable "instance_type" {
+  default = "t2.small"
+}
+
+variable "root_block_device" {
+  default = {
+    type = "gp2",
+    size = "10"
+  }
+}
