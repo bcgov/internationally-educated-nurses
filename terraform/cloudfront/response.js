@@ -7,13 +7,14 @@ function handler(event) {
   headers['strict-transport-security'] = { value: 'max-age=63072000; includeSubdomains; preload' };
   headers['content-security-policy'] = {
     value:
-      "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline';",
+      "default-src 'self' https://keycloak.freshworks.club; img-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'; form-action 'self'; frame-ancestors 'self'",
   };
   headers['x-content-type-options'] = { value: 'nosniff' };
   headers['x-frame-options'] = { value: 'DENY' };
   headers['x-xss-protection'] = { value: '1; mode=block' };
-  headers['style-src'] = { value: "'self' 'unsafe-inline'; " };
-
+  headers['x-download-options'] = { value: 'noopen' };
+  headers['server'] = { value: '*' };
+  headers['cache-control'] = { value: 'no-store' };
   // Return the response to viewers
   return response;
 }

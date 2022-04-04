@@ -5,7 +5,7 @@ on:
       WORKSPACE:
         description: 'Workspace name'
         required: true
-        default: bcbwlp-dev
+        default: uux0vy-dev
 
 jobs:
   deploy:

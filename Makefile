@@ -26,6 +26,9 @@ export TEST_POSTGRES_PORT := 5433
 export COMMIT_SHA:=$(shell git rev-parse --short=7 HEAD)
 export LAST_COMMIT_MESSAGE:=$(shell git log -1 --oneline --decorate=full --no-color --format="%h, %cn, %f, %D" | sed 's/->/:/')
 
+# TF Token
+export TFCTK:=$(shell cat ~/.terraform.d/credentials.tfrc.json | jq -r '.credentials."app.terraform.io".token')
+
 # FE Env Vars
 export NEXT_PUBLIC_API_URL = /api/v1
 
@@ -35,7 +38,7 @@ LOCAL_API_CONTAINER_NAME = $(PROJECT)_api
 # AWS Environments variables
 export AWS_REGION ?= ca-central-1
 NAMESPACE = $(PROJECT)-$(ENV_NAME)
-APP_SRC_BUCKET = $(NAMESPACE)-app-dist
+APP_SRC_BUCKET = $(NAMESPACE)-app
 
 # Terraform variables
 TERRAFORM_DIR = terraform
@@ -77,7 +80,7 @@ export TFVARS_DATA
 
 # Terraform cloud backend config variables
 # LZ2 
-LZ2_PROJECT = bcbwlp
+LZ2_PROJECT = uux0vy
 
 # Terraform Cloud backend config variables
 define TF_BACKEND_CFG
@@ -90,11 +93,17 @@ export TF_BACKEND_CFG
 
 .PHONY: app-local print-env start-local-services bootstrap bootstrap-terraform
 
+# ===================================
 # Aliases 
+# ===================================
+
 bootstrap-terraform: print-env bootstrap
 build-terraform-artifact: clean-yarn print-env pre-build build-api
 
+# ===================================
 # Local Development
+# ===================================
+
 build-artifact-local: build-terraform-artifact
 	@yarn
 clean-yarn: 
@@ -173,7 +182,9 @@ generate-accessibility-results:
 	@yarn workspace @ien/accessibility generate-accessibility-results
 	@echo "++\n*****"
 
+# ===================================
 # Build application stack
+# ===================================
 
 pre-build:
 	@echo "++\n***** Pre-build Terraform artifact\n++"
@@ -211,61 +222,60 @@ build-web:
 	@echo "++\n*****"
 
 	
-
-# AWS / Terraform commands
-
-bootstrap:
-	## Set-up a S3 bucket for storing terraform state.
-	## Only needs to be run once per environment, globally.
-	terraform -chdir=$(BOOTSTRAP_ENV) init -input=false -reconfigure \
-		-backend-config='path=$(ENV_NAME).tfstate'
-	terraform -chdir=$(BOOTSTRAP_ENV) apply -auto-approve -input=false \
-		-var='namespace=$(NAMESPACE)'
+# ===================================
+# Terraform commands
+# ===================================
 
 write-config-tf:
 	@echo "$$TFVARS_DATA" > $(TERRAFORM_DIR)/.auto.tfvars
 	@echo "$$TF_BACKEND_CFG" > $(TERRAFORM_DIR)/backend.hcl
 
-
-init-tf: write-config-tf
+init: write-config-tf
 	# Initializing the terraform environment
 	@terraform -chdir=$(TERRAFORM_DIR) init -input=false \
 		-reconfigure \
 		-backend-config=backend.hcl -upgrade
 
-plan: init-tf
+plan: init
 	# Creating all AWS infrastructure.
 	@terraform -chdir=$(TERRAFORM_DIR) plan
 
-deploy-infra: init-tf 
+apply: init 
 	# Creating all AWS infrastructure.
 	@terraform -chdir=$(TERRAFORM_DIR) apply -auto-approve -input=false
 
-destroy: init-tf
-	terraform -chdir=$(TERRAFORM_DIR) destroy
+destroy: init
+	@terraform -chdir=$(TERRAFORM_DIR) destroy
 
-deploy-app:
-	test -n $(CLOUDFRONT_ID)
+runs: 
+	./terraform/scripts/runs.sh $(TFCTK) $(ENV_NAME)
+
+# ===================================
+# AWS Deployments
+# ===================================
+
+sync-app:
 	aws s3 sync ./terraform/build/app s3://$(APP_SRC_BUCKET) --delete
 
-deploy-app-manual: deploy-app
+deploy-app: sync-app
 	aws --region $(AWS_REGION) cloudfront create-invalidation --distribution-id $(CLOUDFRONT_ID) --paths "/*"
 
-# Deployment CMD
+deploy-api:
+	aws lambda update-function-code --function-name ien-$(ENV_NAME)-api --zip-file fileb://./terraform/build/api.zip --region $(AWS_REGION)
+
+deploy-all: deploy-app deploy-api
+	@echo "Deploying Webapp and API"
+
+# ===================================
+# Tag Based Deployments
+# ===================================
+
 tag-dev:
-ifdef comment
-	@git tag -fa dev -m "Deploy dev: $(comment)"
-else
 	@git tag -fa dev -m "Deploy dev: $(git rev-parse --abbrev-ref HEAD)"
-endif
 	@git push --force origin refs/tags/dev:refs/tags/dev
 
 tag-test:
-ifdef comment
-	@git tag -fa test -m "Deploy test: $(comment)"
-else
 	@git tag -fa test -m "Deploy test: $(git rev-parse --abbrev-ref HEAD)"
-endif
 	@git push --force origin refs/tags/test:refs/tags/test
 
 tag-prod:
@@ -287,9 +297,11 @@ migration-generate:
 migration-revert:
 	@docker exec $(LOCAL_API_CONTAINER_NAME) yarn workspace @ien/api typeorm migration:revert
 
-# docker exec ien_api yarn typeorm migration:generate -n AddSubmissionEntity
 
+# ===================================
 # DB Tunneling
+# ===================================
+
 open-db-tunnel:
 	# Needs exported credentials for a matching LZ2 space
 	@echo "Running for ENV_NAME=$(ENV_NAME)\n"

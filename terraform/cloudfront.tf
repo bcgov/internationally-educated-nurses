@@ -16,41 +16,41 @@ data "aws_cloudfront_cache_policy" "optimized" {
 data "aws_cloudfront_cache_policy" "disabled" {
   name = "Managed-CachingDisabled"
 }
-
-data "aws_acm_certificate" "domain" {
-  count    = local.has_domain ? 1 : 0
-  provider = aws.us-east-1
-  domain   = var.domain
-  statuses = ["ISSUED"]
-}
-
 resource "aws_cloudfront_origin_access_identity" "app" {
   comment = local.app_name
 }
 
+# data "aws_acm_certificate" "domain" {
+#   count    = local.has_domain ? 1 : 0
+#   provider = aws.us-east-1
+#   domain   = var.domain
+#   statuses = ["ISSUED"]
+# }
+
+
 
 resource "aws_cloudfront_function" "response" {
   provider = aws.us-east-1
-  name    = "${local.namespace}-cf-response"
-  runtime = "cloudfront-js-1.0"
-  comment = "Add security headers"
-  code    = file("${path.module}/cloudfront/response.js")
+  name     = "${local.namespace}-cf-response"
+  runtime  = "cloudfront-js-1.0"
+  comment  = "Add security headers"
+  code     = file("${path.module}/cloudfront/response.js")
 }
 
 resource "aws_cloudfront_function" "request" {
   provider = aws.us-east-1
-  name    = "${local.namespace}-cf-request"
-  runtime = "cloudfront-js-1.0"
-  comment = "Next request handler"
-  code    = file("${path.module}/cloudfront/request.js")
+  name     = "${local.namespace}-cf-request"
+  runtime  = "cloudfront-js-1.0"
+  comment  = "Next request handler"
+  code     = file("${path.module}/cloudfront/request.js")
 }
 
 
 resource "aws_cloudfront_distribution" "app" {
   comment = local.app_name
 
-  aliases = local.has_domain ? [var.domain] : []
-
+  # aliases = local.fw_domain ? [var.domain] : [] # Production DNS names to be populated
+  aliases = []
   origin {
     domain_name = aws_s3_bucket.app.bucket_regional_domain_name
     origin_id   = local.s3_origin_id
@@ -82,8 +82,8 @@ resource "aws_cloudfront_distribution" "app" {
 
   // Serve the root directory uncached (it has the nextjs .html files in)
   default_cache_behavior {
-    allowed_methods        = ["GET", "HEAD", "OPTIONS"]
-    cached_methods         = ["GET", "HEAD", "OPTIONS"]
+    allowed_methods        = ["GET", "HEAD"]
+    cached_methods         = ["GET", "HEAD"]
     target_origin_id       = local.s3_origin_id
     cache_policy_id        = data.aws_cloudfront_cache_policy.disabled.id
     viewer_protocol_policy = "redirect-to-https"
@@ -126,13 +126,13 @@ resource "aws_cloudfront_distribution" "app" {
     max_ttl     = 0
     compress    = true
   }
-  
+
 
   // Cache img directory
   ordered_cache_behavior {
     path_pattern           = "/img/*"
-    allowed_methods        = ["GET", "HEAD", "OPTIONS"]
-    cached_methods         = ["GET", "HEAD", "OPTIONS"]
+    allowed_methods        = ["GET", "HEAD"]
+    cached_methods         = ["GET", "HEAD"]
     target_origin_id       = local.s3_origin_id
     cache_policy_id        = data.aws_cloudfront_cache_policy.optimized.id
     viewer_protocol_policy = "redirect-to-https"
@@ -146,20 +146,30 @@ resource "aws_cloudfront_distribution" "app" {
   // Cache _next directory
   ordered_cache_behavior {
     path_pattern           = "/_next/*"
-    allowed_methods        = ["GET", "HEAD", "OPTIONS"]
-    cached_methods         = ["GET", "HEAD", "OPTIONS"]
+    allowed_methods        = ["GET", "HEAD"]
+    cached_methods         = ["GET", "HEAD"]
     target_origin_id       = local.s3_origin_id
     cache_policy_id        = data.aws_cloudfront_cache_policy.optimized.id
     viewer_protocol_policy = "redirect-to-https"
+
+    function_association {
+      event_type   = "viewer-response"
+      function_arn = aws_cloudfront_function.response.arn
+    }
   }
+
+  # viewer_certificate {
+  #   cloudfront_default_certificate = local.has_domain ? false : true
+
+  #   acm_certificate_arn      = local.has_domain ? data.aws_acm_certificate.domain[0].arn : null
+  #   minimum_protocol_version = local.has_domain ? "TLSv1.2_2019" : null
+  #   ssl_support_method       = local.has_domain ? "sni-only" : null
+  # }
 
   viewer_certificate {
-    cloudfront_default_certificate = local.has_domain ? false : true
-
-    acm_certificate_arn      = local.has_domain ? data.aws_acm_certificate.domain[0].arn : null
-    minimum_protocol_version = local.has_domain ? "TLSv1.2_2019" : null
-    ssl_support_method       = local.has_domain ? "sni-only" : null
+    cloudfront_default_certificate = true
   }
+
 
   custom_error_response {
     error_code         = 404

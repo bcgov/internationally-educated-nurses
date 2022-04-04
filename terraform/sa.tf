@@ -35,7 +35,7 @@ data "aws_iam_policy_document" "service_account" {
       "cloudfront:TagResource"
     ]
     resources = [
-      "arn:aws:cloudfront:::distribution/*"
+      "arn:aws:cloudfront::${var.target_aws_account_id}:distribution/*",
     ]
   }
   statement {
@@ -46,13 +46,15 @@ data "aws_iam_policy_document" "service_account" {
       "lambda:UpdateFunctionCode",
     ]
     resources = [
-      aws_lambda_function.api.arn,
+      "arn:aws:lambda:${var.region}:${var.target_aws_account_id}:function:ien*",
     ]
   }
 }
 
 # Uncomment when output iam is required - Less noisy this way
 
-# output "service_account_iam" {
-#   value = data.aws_iam_policy_document.service_account.json
-# }
+output "service_account_iam" {
+  value = data.aws_iam_policy_document.service_account.json
+}
+
+
