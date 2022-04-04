@@ -1,13 +1,16 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToMany } from 'typeorm';
+import { Entity, Column, ManyToMany, PrimaryColumn } from 'typeorm';
 import { IENApplicant } from './ienapplicant.entity';
 
 @Entity('ien_ha_pcn')
 export class IENHaPcn {
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn()
   id!: number;
 
   @Column('varchar')
   title!: string;
+
+  @Column('varchar', { nullable: true })
+  abbreviation?: string;
 
   @Column('varchar', { nullable: true })
   description?: string;

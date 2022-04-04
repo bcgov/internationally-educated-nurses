@@ -9,6 +9,7 @@ import { IENUsers } from './entity/ienusers.entity';
 import { IENEducation } from './entity/ieneducation.entity';
 import { IENJobTitle } from './entity/ienjobtitles.entity';
 import { IENJobLocation } from './entity/ienjoblocation.entity';
+import { IENStatusReason } from './entity/ienstatus-reason.entity';
 
 @Injectable()
 export class IENMasterService {
@@ -27,6 +28,8 @@ export class IENMasterService {
     private readonly ienJobTitleRepository: Repository<IENJobTitle>,
     @InjectRepository(IENJobLocation)
     private readonly ienJobLoactionRepository: Repository<IENJobLocation>,
+    @InjectRepository(IENStatusReason)
+    private readonly ienStatusReasonRepository: Repository<IENStatusReason>,
   ) {}
 
   async getStatus(): Promise<IENApplicantStatus[]> {
@@ -74,6 +77,14 @@ export class IENMasterService {
     return await this.ienJobLoactionRepository.find({
       order: {
         title: 'ASC',
+      },
+    });
+  }
+
+  async getStatusReasons(): Promise<IENStatusReason[]> {
+    return await this.ienStatusReasonRepository.find({
+      order: {
+        name: 'ASC',
       },
     });
   }
