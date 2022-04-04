@@ -136,19 +136,24 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({ buttonText, icon, handleS
 
   // useEffect for milestone status options
   useEffect(() => {
+    let isUnmounted = false;
     try {
-      const getMilestoneData = async () => {
-        const data = await getMilestoneOptions();
-        setMilestoneDropdownOptions({ status: data });
-      };
+      if (!isUnmounted) {
+        const getMilestoneData = async () => {
+          const data = await getMilestoneOptions();
+          setMilestoneDropdownOptions({ status: data });
+        };
 
-      getMilestoneData();
+        getMilestoneData();
+      }
     } catch (err) {
       toast.error('Error retrieving status options');
     }
 
     //prevent unmounting error
-    return () => {};
+    return () => {
+      isUnmounted = true;
+    };
   }, []);
 
   return (
