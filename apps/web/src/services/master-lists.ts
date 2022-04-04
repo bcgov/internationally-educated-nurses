@@ -12,27 +12,29 @@ export interface RecordType {
 }
 
 // record options for adding a new record
-export const getAddRecordOptions = async () => {
+export const getAddRecordOptions = async (): Promise<RecordType> => {
   const data = await axios.all([
     await axios.get(`ienmaster/ha-pcn`),
     await axios.get(`ienmaster/job-titles`),
     await axios.get(`ienmaster/job-locations`),
   ]);
 
-  return data;
+  const [haPcn, jobTitle, jobLocation] = data;
+
+  return {
+    haPcn: haPcn?.data?.data,
+    jobTitle: jobTitle?.data?.data,
+    jobLocation: jobLocation?.data?.data,
+  };
 };
 
-export interface MilestoneTypeOptions {
+export interface MilestoneType {
   id: string;
   status: string;
 }
 
-export interface MilestoneType {
-  status: MilestoneTypeOptions[];
-}
-
 // milestone status' for adding milestones
-export const getMilestoneOptions = async () => {
+export const getMilestoneOptions = async (): Promise<MilestoneType[]> => {
   const {
     data: { data },
   } = await axios.get('ienmaster/status');

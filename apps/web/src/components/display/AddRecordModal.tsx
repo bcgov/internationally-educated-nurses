@@ -31,13 +31,15 @@ export const AddRecordModal: React.FC<AddRecordProps> = ({ jobRecords, setJobRec
   useEffect(() => {
     try {
       const getRecordListData = async () => {
-        const [haPcn, jobTitle, jobLocation] = await getAddRecordOptions();
+        const { haPcn, jobLocation, jobTitle } = await getAddRecordOptions();
+
         setRecordDropdownOptions({
-          haPcn: haPcn.data.data,
-          jobTitle: jobTitle.data.data,
-          jobLocation: jobLocation.data.data,
+          haPcn,
+          jobTitle,
+          jobLocation,
         });
       };
+
       getRecordListData();
     } catch (e) {
       toast.error('There was an error retrieving record options');

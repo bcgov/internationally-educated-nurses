@@ -130,9 +130,7 @@ interface MilestoneFormProps {
 }
 
 const MilestoneForm: React.FC<MilestoneFormProps> = ({ buttonText, icon, handleSubmit }) => {
-  const [milestoneDropdownOptions, setMilestoneDropdownOptions] = useState<MilestoneType>({
-    status: [{ id: '', status: '' }],
-  });
+  const [milestoneDropdownOptions, setMilestoneDropdownOptions] = useState<MilestoneType[]>([]);
 
   // useEffect for milestone status options
   useEffect(() => {
@@ -141,7 +139,8 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({ buttonText, icon, handleS
       if (!isUnmounted) {
         const getMilestoneData = async () => {
           const data = await getMilestoneOptions();
-          setMilestoneDropdownOptions({ status: data });
+
+          setMilestoneDropdownOptions(data);
         };
 
         getMilestoneData();
@@ -166,7 +165,7 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({ buttonText, icon, handleS
                 <span className='flex-grow pr-1 md:pr-2'>
                   <Select name='status' label='Milestone'>
                     {milestoneDropdownOptions &&
-                      milestoneDropdownOptions.status.map(opt => (
+                      milestoneDropdownOptions.map(opt => (
                         <Option key={opt.id} label={opt.status} value={opt.id} />
                       ))}
                   </Select>

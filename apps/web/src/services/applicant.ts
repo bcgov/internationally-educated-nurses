@@ -28,6 +28,7 @@ export const addMilestone = async (id: string, milestone: IENApplicantAddStatusD
   return await axios.post(`/ien/${id}/status`, milestone);
 };
 
-export const getJobAndMilestones = async (id: string) => {
+// @todo fix any
+export const getJobAndMilestones = async (id: string): Promise<any> => {
   return await axios.get(`/ien/${id}/jobs`);
 };

@@ -30,6 +30,7 @@ export const Recruitment: React.FC = () => {
 
       getJobAndMilestonesData(applicantId);
     } catch (e) {
+      setIsLoading(false);
       toast.error('Error retrieving job data');
     }
   }, []);
