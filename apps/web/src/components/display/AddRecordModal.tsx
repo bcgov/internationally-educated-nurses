@@ -6,24 +6,13 @@ import { toast } from 'react-toastify';
 
 import { Modal } from '../Modal';
 import { Button } from '@components';
-import { addJobRecord, getAddRecordOptions } from '@services';
+import { addJobRecord, getAddRecordOptions, RecordType } from '@services';
 import { IENApplicantJobCreateUpdateDTO } from '@ien/common';
 import { Field, Select, Option } from '../form';
 
 interface AddRecordProps {
   jobRecords: any;
   setJobRecords: any;
-}
-
-interface RecordTypeOptions {
-  id: string;
-  title: string;
-}
-
-interface RecordType {
-  haPcn: RecordTypeOptions[];
-  jobTitle: RecordTypeOptions[];
-  jobLocation: RecordTypeOptions[];
 }
 
 export const AddRecordModal: React.FC<AddRecordProps> = ({ jobRecords, setJobRecords }) => {

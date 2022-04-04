@@ -58,53 +58,55 @@ export const Table: React.FC = () => {
           </span>
         </div>
 
-        <div className='flex justify-content-center flex-col overflow-x-auto px-4'>
-          <table className='text-left'>
-            <thead className='whitespace-nowrap bg-gray-100'>
-              <tr className='border-b-2 border-yellow-300 text-sm'>
-                <th className='pl-6 py-3'>
-                  <TableCheckbox name={`cb.selector.MA`} value='ALL' />
-                </th>
-                <th className='pl-6 py-3'>ID</th>
-                <th className='px-6 py-3'>Name</th>
-                <th className='px-6 py-3 w-1/4'>Current Milestones</th>
-                <th className='px-6 py-3'>Last Updated</th>
-                <th className='w-auto'></th>
-              </tr>
-            </thead>
-            <tbody>
-              {applicants &&
-                applicants.map((app: any) => (
-                  <tr
-                    key={app.id}
-                    className='text-left whitespace-nowrap even:bg-gray-100 text-sm '
-                  >
-                    <th className='pl-6'>
-                      <TableCheckbox name={`cb.selector.MA`} value={app.id} />
-                    </th>
+        <div className='flex justify-content-center flex-col  px-4'>
+          <div className='overflow-x-auto'>
+            <table className='text-left'>
+              <thead className='whitespace-nowrap bg-gray-100'>
+                <tr className='border-b-2 border-yellow-300 text-sm'>
+                  <th className='pl-6 py-3'>
+                    <TableCheckbox name={`cb.selector.MA`} value='ALL' />
+                  </th>
+                  <th className='pl-6 py-3'>ID</th>
+                  <th className='px-6 py-3'>Name</th>
+                  <th className='px-6 py-3 w-1/4'>Current Milestones</th>
+                  <th className='px-6 py-3'>Last Updated</th>
+                  <th className='w-auto'></th>
+                </tr>
+              </thead>
+              <tbody>
+                {applicants &&
+                  applicants.map((app: any) => (
+                    <tr
+                      key={app.id}
+                      className='text-left whitespace-nowrap even:bg-gray-100 text-sm '
+                    >
+                      <th className='pl-6'>
+                        <TableCheckbox name={`cb.selector.MA`} value={app.id} />
+                      </th>
 
-                    <th className='font-normal px-6 py-4'>AB1234</th>
-                    <th className='font-normal px-6 py-4'>{app.name}</th>
+                      <th className='font-normal px-6 py-4'>AB1234</th>
+                      <th className='font-normal px-6 py-4'>{app.name}</th>
 
-                    <th className='font-normal px-6 py-2'>{app.status.status}</th>
-                    <th className='font-normal px-6 py-4'>January 5, 2022</th>
-                    <td className='font-normal px-6 py-4 text-right'>
-                      <Link
-                        href={{
-                          pathname: `details/${app.id}`,
-                          query: {
-                            applicantId: app.id,
-                          },
-                        }}
-                        as={`details/${app.id}`}
-                      >
-                        <a className={`px-5 ${buttonColor.outline} ${buttonBase}`}>Details</a>
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
+                      <th className='font-normal px-6 py-2'>{app.status.status}</th>
+                      <th className='font-normal px-6 py-4'>January 5, 2022</th>
+                      <td className='font-normal px-6 py-4 text-right'>
+                        <Link
+                          href={{
+                            pathname: `details/${app.id}`,
+                            query: {
+                              applicantId: app.id,
+                            },
+                          }}
+                          as={`details/${app.id}`}
+                        >
+                          <a className={`px-5 ${buttonColor.outline} ${buttonBase}`}>Details</a>
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
         </div>
         <div>pagination here</div>
       </div>
