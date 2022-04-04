@@ -1,29 +1,18 @@
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Formik, Form as FormikForm } from 'formik';
-import { Field, Select, Option } from '../form';
 import createValidator from 'class-validator-formik';
 import { toast } from 'react-toastify';
 
 import { Modal } from '../Modal';
 import { Button } from '@components';
-import { addJobRecord, getAddRecordOptions } from '@services';
+import { addJobRecord, getAddRecordOptions, RecordType } from '@services';
 import { IENApplicantJobCreateUpdateDTO } from '@ien/common';
-import { useEffect, useState } from 'react';
+import { Field, Select, Option } from '../form';
 
 interface AddRecordProps {
   jobRecords: any;
   setJobRecords: any;
-}
-
-interface RecordTypeOptions {
-  id: string;
-  title: string;
-}
-
-interface RecordType {
-  haPcn: RecordTypeOptions[];
-  jobTitle: RecordTypeOptions[];
-  jobLocation: RecordTypeOptions[];
 }
 
 export const AddRecordModal: React.FC<AddRecordProps> = ({ jobRecords, setJobRecords }) => {
@@ -42,13 +31,15 @@ export const AddRecordModal: React.FC<AddRecordProps> = ({ jobRecords, setJobRec
   useEffect(() => {
     try {
       const getRecordListData = async () => {
-        const data = await getAddRecordOptions();
+        const { haPcn, jobLocation, jobTitle } = await getAddRecordOptions();
+
         setRecordDropdownOptions({
-          haPcn: data[0].data.data,
-          jobTitle: data[1].data.data,
-          jobLocation: data[2].data.data,
+          haPcn,
+          jobTitle,
+          jobLocation,
         });
       };
+
       getRecordListData();
     } catch (e) {
       toast.error('There was an error retrieving record options');

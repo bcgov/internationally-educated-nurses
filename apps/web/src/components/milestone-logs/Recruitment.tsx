@@ -1,22 +1,43 @@
-import { buttonBase, buttonColor } from '@components';
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 
 import { AddRecordModal } from '../display/AddRecordModal';
+import { Spinner } from '../Spinner';
 import { Record } from './recruitment/Record';
+import { getJobAndMilestones } from '@services';
+import { buttonBase, buttonColor } from '@components';
 
-interface RecruitmentProps {
-  jobs: any[];
-}
-
-export const Recruitment: React.FC<RecruitmentProps> = ({ jobs }) => {
+export const Recruitment: React.FC = () => {
   const router = useRouter();
   const applicantId = router.query.applicantId;
+  const [isLoading, setIsLoading] = useState(false);
+  const [jobRecords, setJobRecords] = useState<any[]>([]);
 
-  const [jobRecords, setJobRecords] = useState<any[]>(jobs);
+  useEffect(() => {
+    try {
+      const getJobAndMilestonesData = async (id: any) => {
+        setIsLoading(true);
+        const {
+          data: { data },
+        } = await getJobAndMilestones(id);
+        setJobRecords(data);
+        setIsLoading(false);
+      };
+
+      getJobAndMilestonesData(applicantId);
+    } catch (e) {
+      setIsLoading(false);
+      toast.error('Error retrieving job data');
+    }
+  }, []);
+
+  if (isLoading) {
+    return <Spinner className='h-10 my-5' />;
+  }
 
   return (
     <>
