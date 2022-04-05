@@ -8,9 +8,9 @@ import {
   IsBoolean,
   IsArray,
 } from 'class-validator';
-// import { IENApplicantCreateDTO } from '@ien/common';
+import { IENApplicantCreateUpdateDTO } from '@ien/common';
 
-export class IENApplicantCreateUpdateAPIDTO {
+export class IENApplicantCreateUpdateAPIDTO extends IENApplicantCreateUpdateDTO {
   @ApiProperty({ description: 'Applicant First Name', default: 'Mark' })
   @IsString()
   @Length(1, 256, { message: 'Please provide applicant first name' })
