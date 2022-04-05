@@ -1,5 +1,13 @@
 # These should be manually populated in the console for each environment
 
+data "aws_ssm_parameter" "hmbc_ats_base_url" {
+  name = "/${var.project_code}/${var.target_env}/hmbc/ats/base-url"
+}
+
+data "aws_ssm_parameter" "hmbc_ats_auth_key" {
+  name = "/${var.project_code}/${var.target_env}/hmbc/ats/auth-key"
+}
+
 data "aws_ssm_parameter" "postgres_password" {
   name = "/${var.project_code}/${var.target_env}/postgres/password"
 }
