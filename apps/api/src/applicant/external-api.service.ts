@@ -115,7 +115,7 @@ export class ExternalAPIService {
   async saveApplicant(): Promise<void> {
     try {
       const data = await this.external_request.getApplicants();
-      await this.createBulkApplicans(data);
+      await this.createBulkApplicants(data);
     } catch (e) {
       this.logger.error({ e });
     }
@@ -146,7 +146,7 @@ export class ExternalAPIService {
    * Clean raw data and save applicant info into 'ien_applicant' table.
    * @param data Raw Applicant data
    */
-  async createBulkApplicans(data: any) {
+  async createBulkApplicants(data: any) {
     const { users, ha } = await this.getApplicantMasterData();
     const applicants = data.map(
       (a: {

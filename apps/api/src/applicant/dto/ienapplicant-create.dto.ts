@@ -79,8 +79,8 @@ export class IENApplicantCreateUpdateAPIDTO extends IENApplicantCreateUpdateDTO 
   @ApiPropertyOptional({
     description: 'Nursing educations',
     default: [
-      { name: 'PhD', coutry: 'ca' },
-      { name: 'Master of Nursing', coutry: 'ca' },
+      { name: 'PhD', country: 'ca' },
+      { name: 'Master of Nursing', country: 'ca' },
     ],
   })
   @IsArray()
