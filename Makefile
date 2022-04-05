@@ -5,8 +5,7 @@
 export $(shell sed 's/=.*//' ./.env)
 
 # Project
-export PROJECT := $(or $(PROJECT),internationally-educated-nurses)
-
+export PROJECT := ien
 
 # Runtime and application Environments specific variable
 export ENV_NAME ?= dev
@@ -186,7 +185,7 @@ generate-accessibility-results:
 # ===================================
 
 pre-build:
-	@echo "++\n***** Pre-build Terraform artifact\n++"
+	@echo "++\n***** Pre-build Clean Build Artifact\n++"
 	@rm -rf ./terraform/build || true
 	@mkdir -p ./terraform/build
 	@echo "++\n*****"
@@ -256,7 +255,7 @@ runs:
 sync-app:
 	aws s3 sync ./terraform/build/app s3://$(APP_SRC_BUCKET) --delete
 
-deploy-app: sync-app
+deploy-app:
 	aws --region $(AWS_REGION) cloudfront create-invalidation --distribution-id $(CLOUDFRONT_ID) --paths "/*"
 
 deploy-api:
@@ -268,6 +267,13 @@ deploy-all: deploy-app deploy-api
 # ===================================
 # Tag Based Deployments
 # ===================================
+
+
+HASH1= $(shell git pull; git show-ref -s refs/remotes/origin/main)
+HASH2= $(shell git merge-base main $(git rev-parse --abbrev-ref HEAD))
+
+pre-tag: 
+	@[ "${hash1}" = "${hash2}" ] && echo "OK" || echo "Rebase is required"
 
 tag-dev:
 	@git tag -fa dev -m "Deploy dev: $(git rev-parse --abbrev-ref HEAD)"
