@@ -48,4 +48,29 @@ export class ExternalAPIController {
       }
     }
   }
+
+  @ApiOperation({
+    summary: `Fetch and Save applicant data`,
+  })
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
+  @HttpCode(HttpStatus.OK)
+  @Get('/save-applicant')
+  async saveApplicant(): Promise<unknown> {
+    try {
+      return await this.externalAPIService.saveApplicant();
+    } catch (e) {
+      this.logger.error(e);
+      if (e instanceof NotFoundException) {
+        throw e;
+      } else if (e instanceof BadRequestException) {
+        throw new BadRequestException(e);
+      } else {
+        // statements to handle any unspecified exceptions
+        throw new InternalServerErrorException(
+          'An unknown error occured while Saving Applicant data',
+        );
+      }
+    }
+  }
 }

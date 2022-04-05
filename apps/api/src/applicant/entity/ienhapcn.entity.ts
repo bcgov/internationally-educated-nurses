@@ -1,5 +1,4 @@
-import { Entity, Column, ManyToMany, PrimaryColumn } from 'typeorm';
-import { IENApplicant } from './ienapplicant.entity';
+import { Entity, Column, PrimaryColumn } from 'typeorm';
 
 @Entity('ien_ha_pcn')
 export class IENHaPcn {
@@ -14,7 +13,4 @@ export class IENHaPcn {
 
   @Column('varchar', { nullable: true })
   description?: string;
-
-  @ManyToMany(() => IENApplicant, applicant => applicant.ha_pcn)
-  applicants!: IENApplicant[];
 }

@@ -1,6 +1,5 @@
 import { Exclude } from 'class-transformer';
-import { Entity, Column, ManyToMany, Index, CreateDateColumn, PrimaryColumn } from 'typeorm';
-import { IENApplicant } from './ienapplicant.entity';
+import { Entity, Column, Index, CreateDateColumn, PrimaryColumn } from 'typeorm';
 
 @Entity('ien_users')
 export class IENUsers {
@@ -18,7 +17,4 @@ export class IENUsers {
   @CreateDateColumn()
   @Exclude()
   created_date!: Date;
-
-  @ManyToMany(() => IENApplicant, applicant => applicant.assigned_to)
-  applicants!: IENApplicant[];
 }

@@ -5,9 +5,9 @@ export class IENApplicantFilterDTO {
   @IsString()
   ha_pcn?: string;
 
-  @IsOptional()
-  @IsString()
-  status?: string;
+  // @IsOptional()
+  // @IsString()
+  // status?: string;
 
   @IsOptional()
   @IsString()

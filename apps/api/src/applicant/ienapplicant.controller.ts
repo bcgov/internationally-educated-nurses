@@ -22,9 +22,8 @@ import { IENApplicantService } from './ienapplicant.service';
 import { EmptyResponse } from 'src/common/ro/empty-response.ro';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicant } from './entity/ienapplicant.entity';
-import { IENApplicantCreateAPIDTO } from './dto/ienapplicant-create.dto';
+import { IENApplicantCreateUpdateAPIDTO } from './dto/ienapplicant-create.dto';
 import { IENApplicantFilterByIdAPIDTO } from './dto/ienapplicant-by-id.dto';
-import { IENApplicantUpdateAPIDTO } from './dto/ienapplicant-update.dto';
 import { IENApplicantAddStatusAPIDTO } from './dto/ienapplicant-add-status.dto';
 import { IENApplicantFilterAPIDTO } from './dto/ienapplicant-filter.dto';
 import { QueryFailedError } from 'typeorm';
@@ -89,7 +88,7 @@ export class IENApplicantController {
   @ApiResponse({ status: HttpStatus.CREATED, type: EmptyResponse })
   @HttpCode(HttpStatus.CREATED)
   @Post('/')
-  async addApplicant(@Body() addApplicant: IENApplicantCreateAPIDTO): Promise<IENApplicant> {
+  async addApplicant(@Body() addApplicant: IENApplicantCreateUpdateAPIDTO): Promise<IENApplicant> {
     try {
       return await this.ienapplicantService.addApplicant(addApplicant);
     } catch (e) {
@@ -112,7 +111,7 @@ export class IENApplicantController {
   @Patch('/:id')
   updateApplicant(
     @Param('id') id: string,
-    @Body() applicantUpdate: IENApplicantUpdateAPIDTO,
+    @Body() applicantUpdate: IENApplicantCreateUpdateAPIDTO,
   ): Promise<IENApplicant | undefined> {
     try {
       return this.ienapplicantService.updateApplicantInfo(id, applicantUpdate);

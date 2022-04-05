@@ -3,11 +3,10 @@ import { BadRequestException, Inject, Injectable, Logger, NotFoundException } fr
 import { IsNull, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AppLogger } from 'src/common/logger.service';
-import { IENApplicantCreateAPIDTO } from './dto/ienapplicant-create.dto';
+import { IENApplicantCreateUpdateAPIDTO } from './dto/ienapplicant-create.dto';
 import { IENApplicant } from './entity/ienapplicant.entity';
 import { IENUsers } from './entity/ienusers.entity';
 import { IENApplicantFilterAPIDTO } from './dto/ienapplicant-filter.dto';
-import { IENApplicantUpdateAPIDTO } from './dto/ienapplicant-update.dto';
 import { IENApplicantAddStatusAPIDTO } from './dto/ienapplicant-add-status.dto';
 import { IENApplicantUtilService } from './ienapplicant.util.service';
 import { CommonData } from 'src/common/common.data';
@@ -93,12 +92,11 @@ export class IENApplicantService {
    * @param addApplicant Add Applicant DTO
    * @returns Created Applicant details
    */
-  async addApplicant(addApplicant: IENApplicantCreateAPIDTO): Promise<IENApplicant | any> {
+  async addApplicant(addApplicant: IENApplicantCreateUpdateAPIDTO): Promise<IENApplicant | any> {
     const applicant = await this.createApplicantObject(addApplicant);
     await this.ienapplicantRepository.save(applicant);
     // let's save audit
     await this.ienapplicantUtilService.saveApplicantAudit(applicant, applicant.added_by);
-    await this.ienapplicantUtilService.saveApplicantStatusAudit(applicant);
     return applicant;
   }
 
@@ -108,28 +106,26 @@ export class IENApplicantService {
    * @param addApplicant
    * @returns
    */
-  async createApplicantObject(addApplicant: IENApplicantCreateAPIDTO) {
-    const { status, ha_pcn, assigned_to, added_by, ...data } = addApplicant;
+  async createApplicantObject(addApplicant: IENApplicantCreateUpdateAPIDTO) {
+    const { health_authorities, assigned_to, first_name, last_name, ...data } = addApplicant;
     const applicant = this.ienapplicantRepository.create(data);
-    // collect status
-    const status_obj = await this.ienapplicantUtilService.getStatusById(status);
-    applicant.status = status_obj;
+    const name: any = {
+      ...applicant.additional_data,
+      first_name: first_name,
+      last_name: last_name,
+    };
+    applicant.additional_data = name;
+    applicant.name = `${first_name} ${last_name}`;
 
     // collect HA/PCN
-    if (ha_pcn && ha_pcn.length) {
-      applicant.ha_pcn = await this.ienapplicantUtilService.getHaPcn(ha_pcn);
+    if (health_authorities && health_authorities instanceof Array && health_authorities.length) {
+      applicant.health_authorities = await this.ienapplicantUtilService.getHaPcns(
+        health_authorities,
+      );
     }
     // collect assigned user details
-    if (assigned_to && assigned_to.length) {
-      const assigned = assigned_to.map(item => parseInt(item));
-      applicant.assigned_to = await this.ienapplicantUtilService.getUserArray(assigned);
-    }
-    // collect added by user detail
-    if (added_by) {
-      const added_by_data = await this.ienUsersRepository.findOne(parseInt(added_by));
-      if (added_by_data) {
-        applicant.added_by = added_by_data;
-      }
+    if (assigned_to && assigned_to instanceof Array && assigned_to.length) {
+      applicant.assigned_to = await this.ienapplicantUtilService.getUserArray(assigned_to);
     }
     return applicant;
   }
@@ -142,25 +138,34 @@ export class IENApplicantService {
    */
   async updateApplicantInfo(
     id: string,
-    applicantUpdate: IENApplicantUpdateAPIDTO,
+    applicantUpdate: IENApplicantCreateUpdateAPIDTO,
   ): Promise<IENApplicant | any> {
     const applicant = await this.getApplicantById(id);
-    const { ha_pcn, assigned_to, updated_by, ...data } = applicantUpdate;
-    if (ha_pcn && ha_pcn.length) {
-      applicant.ha_pcn = await this.ienapplicantUtilService.getHaPcn(ha_pcn);
+    // const { ha_pcn, assigned_to, updated_by, ...data } = applicantUpdate;
+    const { health_authorities, assigned_to, first_name, last_name, ...data } = applicantUpdate;
+    if (health_authorities && health_authorities instanceof Array && health_authorities.length) {
+      applicant.health_authorities = await this.ienapplicantUtilService.getHaPcns(
+        health_authorities,
+      );
     }
-    if (assigned_to && assigned_to.length) {
-      const assigned = assigned_to.map(item => parseInt(item));
-      applicant.assigned_to = await this.ienapplicantUtilService.getUserArray(assigned);
+    if (first_name || last_name) {
+      const name: any = {
+        ...applicant.additional_data,
+        first_name: first_name,
+        last_name: last_name,
+      };
+      applicant.additional_data = name;
+      applicant.name = `${first_name} ${last_name}`;
+      delete data.additional_data;
     }
-    if (updated_by) {
-      const updated_by_data = await this.ienUsersRepository.findOne(parseInt(updated_by));
-      if (updated_by_data) {
-        applicant.updated_by = updated_by_data;
-      }
+    if (data.additional_data === null) {
+      delete data.additional_data;
     }
+    if (assigned_to && assigned_to instanceof Array && assigned_to.length) {
+      applicant.assigned_to = await this.ienapplicantUtilService.getUserArray(assigned_to);
+    }
+    await this.ienapplicantRepository.update(applicant.id, data);
     await this.ienapplicantRepository.save(applicant);
-    await this.ienapplicantRepository.update(applicant.id, data); // updated date needs to modify with MtoM relation
 
     // audit changes
     await this.ienapplicantUtilService.saveApplicantAudit(applicant, applicant.updated_by);
@@ -331,7 +336,7 @@ export class IENApplicantService {
     jobData: IENApplicantJobCreateUpdateAPIDTO,
   ): Promise<IENApplicantJob | undefined> {
     const { ha_pcn, job_title, job_location } = jobData;
-    const ha_pcn_obj = await this.ienapplicantUtilService.getHaPcn([ha_pcn]);
+    const ha_pcn_obj = await this.ienapplicantUtilService.getHaPcn(parseInt(ha_pcn));
     job.ha_pcn = ha_pcn_obj[0];
     job.job_title = await this.ienapplicantUtilService.getJobTitle(job_title);
     job.job_location = await this.ienapplicantUtilService.getJobLocation(job_location);

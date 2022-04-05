@@ -37,7 +37,7 @@ const Details = () => {
     }
   }, [router, applicantId]);
 
-  if (!applicant || !applicant.assigned_to || !applicant.ha_pcn) {
+  if (!applicant || !applicant.assigned_to || !applicant.health_authorities) {
     return <Spinner className='h-20' />;
   }
 
@@ -60,7 +60,9 @@ const Details = () => {
       <p className='text-xs text-gray-400 mt-3 mb-5'>
         Manage Applicants / <span className='text-blue-800 font-bold'>Applicant Details</span>
       </p>
-      <h1 className='font-bold text-3xl'>{applicant.name} #ID4321</h1>
+      <h1 className='font-bold text-3xl'>
+        {applicant.name} #{applicant.applicant_id ? applicant.applicant_id : 'NA'}
+      </h1>
       <p className='text-gray-400 text-sm pt-1 pb-4'>Last Updated: January 5, 2022</p>
       {/* Details container */}
       <div className='grid grid-cols-12 border-2 rounded px-5 pb-3 bg-white'>
@@ -74,37 +76,44 @@ const Details = () => {
           </h1>
         </div>
         <div className='col-span-3'>
-          <DetailsItem title='Email Address' text={applicant.email} />
+          <DetailsItem title='Email Address' text={applicant.email_address} />
         </div>
         <div className='col-span-3'>
-          <DetailsItem title='Phone Number' text='123-123-1234' />
+          <DetailsItem title='Phone Number' text={applicant.phone_number} />
         </div>
         <div className='col-span-3'>
           <DetailsItem title='Registration date' text={formatDate(applicant.registration_date)} />
         </div>
         <div className='col-span-3'>
-          <DetailsItem title='Assigned To' text={applicant.assigned_to[0].name} />
-        </div>
-        <div className='col-span-3'>
-          <DetailsItem title='Country of Citizenship' text={applicant.citizenship} />
-        </div>
-        <div className='col-span-3'>
-          <DetailsItem title='Country of Residence' text='Need to Add Field' />
-        </div>
-        <div className='col-span-3'>
           <DetailsItem
-            title='Permanent Resident Status'
-            text={applicant.pr_of_canada ? 'Yes' : 'No'}
+            title='Assigned To'
+            text={
+              applicant.assigned_to
+                ? applicant.assigned_to.map((a: { name: any }) => a.name).join(',')
+                : 'NA'
+            }
           />
         </div>
         <div className='col-span-3'>
-          <DetailsItem title='Country of Nursing Education' text={applicant.country_of_training} />
+          <DetailsItem title='Country of Citizenship' text={applicant.country_of_citizenship} />
         </div>
         <div className='col-span-3'>
-          <DetailsItem title='Nursing Education' text={applicant.education} />
+          <DetailsItem title='Country of Residence' text={applicant.country_of_residence} />
         </div>
         <div className='col-span-3'>
-          <DetailsItem title='BCCNM License Number' text='Need to Add Field' />
+          <DetailsItem title='Permanent Resident Status' text={applicant.pr_status} />
+        </div>
+        <div className='col-span-3'>
+          <DetailsItem title='Country of Nursing Education' text='Needs to remove it' />
+        </div>
+        <div className='col-span-3'>
+          <DetailsItem
+            title='Nursing Education'
+            text={applicant.nursing_educations.map((a: { name: any }) => a.name).join(',')}
+          />
+        </div>
+        <div className='col-span-3'>
+          <DetailsItem title='BCCNM License Number' text={applicant.bccnm_license_number} />
         </div>
       </div>
 

@@ -9,15 +9,12 @@ import {
   UpdateDateColumn,
   PrimaryGeneratedColumn,
   Index,
-  JoinTable,
-  ManyToMany,
   OneToMany,
   AfterLoad,
 } from 'typeorm';
 import { IENApplicantAudit } from './ienapplicant-audit.entity';
 import { IENApplicantStatusAudit } from './ienapplicant-status-audit.entity';
 import { IENApplicantStatus } from './ienapplicant-status.entity';
-import { IENHaPcn } from './ienhapcn.entity';
 import { IENApplicantJob } from './ienjob.entity';
 import { IENUsers } from './ienusers.entity';
 
@@ -31,45 +28,48 @@ export class IENApplicant {
 
   // description: 'HMBC ATS system unique ID'
   @Index({ unique: true })
-  @Column('varchar', { nullable: true, comment: 'HMBC ATS system unique ID' })
-  applicant_id?: string;
+  @Column('bigint', { nullable: true, comment: 'HMBC ATS system unique ID' })
+  applicant_id?: number;
 
   @Column('varchar', { nullable: true })
-  email?: string;
+  email_address?: string;
 
   @Column('varchar', { nullable: true })
-  citizenship?: string;
-
-  @Column('varchar', { nullable: true })
-  country_of_training?: string;
-
-  @Column({ default: false })
-  pr_of_canada?: boolean;
-
-  @ManyToMany(() => IENHaPcn, hc_pcn => hc_pcn.applicants, { cascade: true })
-  @JoinTable()
-  ha_pcn?: IENHaPcn[];
-
-  @ManyToMany(() => IENUsers, user => user.applicants, { cascade: true })
-  @JoinTable()
-  assigned_to?: IENUsers[];
-
-  @ManyToOne(() => IENApplicantStatus, status => status.applicants)
-  @JoinColumn({ name: 'status_id' })
-  status!: IENApplicantStatus;
-
-  @Column('varchar', { nullable: true })
-  education?: string;
+  phone_number?: string;
 
   @Column('date', { nullable: true })
   registration_date?: Date;
 
   @Column('jsonb', { nullable: true })
-  additional_data?: JSON;
+  assigned_to?: JSON;
 
-  @Column('date', { nullable: true })
-  @Exclude()
-  status_date?: Date;
+  @Column('varchar', { nullable: true })
+  country_of_citizenship?: string;
+
+  @Column('varchar', { nullable: true })
+  country_of_residence?: string;
+
+  @Column('varchar', { nullable: true })
+  pr_status?: string;
+
+  @Column('jsonb', { nullable: true })
+  nursing_educations?: JSON;
+
+  @Column('varchar', { nullable: true })
+  bccnm_license_number?: string;
+
+  @Column('jsonb', { nullable: true })
+  health_authorities?: JSON;
+
+  @Column('jsonb', { nullable: true })
+  notes?: JSON;
+
+  @ManyToOne(() => IENApplicantStatus, status => status.applicants)
+  @JoinColumn({ name: 'status_id' })
+  status?: IENApplicantStatus;
+
+  @Column('jsonb', { nullable: true })
+  additional_data?: JSON;
 
   @Exclude()
   @Column({ default: true })

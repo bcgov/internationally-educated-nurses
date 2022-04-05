@@ -87,7 +87,7 @@ export const Table: React.FC = () => {
                       <th className='font-normal px-6 py-4'>AB1234</th>
                       <th className='font-normal px-6 py-4'>{app.name}</th>
 
-                      <th className='font-normal px-6 py-2'>{app.status.status}</th>
+                      <th className='font-normal px-6 py-2'>{app.status?.status}</th>
                       <th className='font-normal px-6 py-4'>January 5, 2022</th>
                       <td className='font-normal px-6 py-4 text-right'>
                         <Link

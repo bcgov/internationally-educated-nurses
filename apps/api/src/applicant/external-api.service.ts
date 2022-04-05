@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { IENUsers } from './entity/ienusers.entity';
 import { IENStatusReason } from './entity/ienstatus-reason.entity';
 import { AppLogger } from 'src/common/logger.service';
+import { IENApplicant } from './entity/ienapplicant.entity';
 
 @Injectable()
 export class ExternalAPIService {
@@ -20,6 +21,8 @@ export class ExternalAPIService {
     private readonly ienUsersRepository: Repository<IENUsers>,
     @InjectRepository(IENStatusReason)
     private readonly ienStatusReasonRepository: Repository<IENStatusReason>,
+    @InjectRepository(IENApplicant)
+    private readonly ienapplicantRepository: Repository<IENApplicant>,
   ) {}
 
   /**
@@ -104,5 +107,102 @@ export class ExternalAPIService {
     } catch (e) {
       this.logger.log(`Error in saveReasons(): ${e}`);
     }
+  }
+
+  /**
+   * fetch and upsert applicant details
+   */
+  async saveApplicant(): Promise<void> {
+    try {
+      const data = await this.external_request.getApplicants();
+      await this.createBulkApplicans(data);
+    } catch (e) {
+      this.logger.error({ e });
+    }
+  }
+
+  /**
+   * fet user/staff and HA details to reduce database calls.
+   * @returns
+   */
+  async getApplicantMasterData() {
+    // fetch user/staff details
+    const usersArray = await this.ienUsersRepository.find();
+    const users: any = {};
+    usersArray.map(user => {
+      users[user.id] = user;
+      return user;
+    });
+    // Fetch Health Authorities
+    const haArray = await this.ienHaPcnRepository.find();
+    const ha: any = {};
+    haArray.map(ha_obj => {
+      ha[ha_obj.id] = ha_obj;
+    });
+    return { users: users, ha: ha };
+  }
+
+  /**
+   * Clean raw data and save applicant info into 'ien_applicant' table.
+   * @param data Raw Applicant data
+   */
+  async createBulkApplicans(data: any) {
+    const { users, ha } = await this.getApplicantMasterData();
+    const applicants = data.map(
+      (a: {
+        health_authorities: { title: any; id: number | string }[] | undefined;
+        assigned_to: { id: string | number; name: any }[] | undefined;
+        registration_date: string;
+        applicant_id: any;
+        first_name: any;
+        last_name: any;
+        email_address: any;
+        phone_number: any;
+        country_of_citizenship: any;
+        country_of_residence: any;
+        nursing_educations: any;
+        notes: any;
+      }) => {
+        let health_authorities = null;
+        if (a.health_authorities && a.health_authorities != undefined) {
+          health_authorities = a.health_authorities.map(
+            (h: { title: any; id: number | string }) => {
+              h.title = ha[`${h.id}`].title;
+              return h;
+            },
+          );
+        }
+
+        let assigned_to = null;
+        if (a.assigned_to && a.assigned_to != undefined) {
+          assigned_to = a.assigned_to.map((user: { id: string | number; name: any }) => {
+            user.name = users[user.id].name;
+            return user;
+          });
+        }
+
+        return {
+          applicant_id: a.applicant_id,
+          name: `${a.first_name} ${a.last_name}`,
+          email_address: a.email_address,
+          phone_number: a.phone_number,
+          registration_date: new Date(a.registration_date),
+          country_of_citizenship: a.country_of_citizenship,
+          country_of_residence: a.country_of_residence,
+          nursing_educations: a.nursing_educations,
+          health_authorities: health_authorities,
+          notes: a.notes,
+          assigned_to: assigned_to,
+          additional_data: {
+            first_name: a.first_name,
+            last_name: a.last_name,
+          },
+        };
+      },
+    );
+    const processed_applicant = await this.ienapplicantRepository.upsert(applicants, [
+      'applicant_id',
+    ]);
+    this.logger.log({ processed_applicant });
   }
 }

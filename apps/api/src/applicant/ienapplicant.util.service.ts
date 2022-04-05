@@ -48,24 +48,24 @@ export class IENApplicantUtilService {
    * @returns retrun promise of find()
    */
   async applicantFilterQueryBuilder(filter: IENApplicantFilterAPIDTO) {
-    const { status, ha_pcn, name } = filter;
+    const { ha_pcn, name } = filter;
     const query: any = {
       order: {
         updated_date: 'DESC',
       },
       relations: this.applicantRelations.status,
     };
-    if (!status && !ha_pcn && !name) {
+    if (!ha_pcn && !name) {
       return this.ienapplicantRepository.find(query);
     }
 
     let where: any = {};
     let isWhere = false;
-    if (status) {
-      const status_list = await this.fetchChildStatusList(status);
-      where = { status: In(status_list), ...where };
-      isWhere = true;
-    }
+    // if (status) {
+    //   const status_list = await this.fetchChildStatusList(status);
+    //   where = { status: In(status_list), ...where };
+    //   isWhere = true;
+    // }
 
     if (name && name.trim() !== '') {
       where = { name: ILike(`%${name.trim()}%`), ...where };
@@ -79,13 +79,16 @@ export class IENApplicantUtilService {
     }
     if (isHaPcn) {
       const ha_pcn_array = ha_pcn?.split(',');
+      let ha_search_sql = ha_pcn_array
+        ?.map(id => {
+          return `health_authorities @> '[{"id":${id}}]'`;
+        })
+        .join(' or ');
+      ha_search_sql = `(${ha_search_sql})`;
+
       return this.ienapplicantRepository.find({
-        join: {
-          alias: 'ien_applicants',
-          innerJoin: { ha_pcn: 'ien_applicants.ha_pcn' },
-        },
         where: (qb: any) => {
-          qb.where(where).andWhere('ha_pcn.id IN (:...haPcnId)', { haPcnId: ha_pcn_array });
+          qb.where(where).andWhere(ha_search_sql, {});
         },
         ...query,
       });
@@ -159,25 +162,6 @@ export class IENApplicantUtilService {
   }
 
   /**
-   * Store applicant status audit details,
-   * We are not using it until add-applicant feture enable on IEN portal
-   * @param applicant Applicant Object
-   */
-  async saveApplicantStatusAudit(applicant: IENApplicant) {
-    try {
-      const dataToSave = {
-        applicant: applicant,
-        status: applicant.status,
-        added_by: applicant.added_by,
-        start_date: applicant.status_date,
-      };
-
-      const status_audit = this.ienapplicantStatusAuditRepository.create(dataToSave);
-      await this.ienapplicantStatusAuditRepository.save(status_audit);
-    } catch (e) {}
-  }
-
-  /**
    * Add new status/Milestone
    * @param applicant
    * @param dataToUpdate
@@ -240,9 +224,14 @@ export class IENApplicantUtilService {
 
   /**
    * Get HA or PCN list for the provided IDs
-   * @param ha_pcn
+   * @param health_authorities
    */
-  async getHaPcn(ha_pcn: any): Promise<IENHaPcn | any> {
+  async getHaPcns(health_authorities: any): Promise<IENHaPcn | any> {
+    const ha_pcn = health_authorities.map((item: { id: any }) => item.id);
+    const key_object: any = {};
+    health_authorities.map((item: { id: string | number }) => {
+      key_object[item.id] = item;
+    });
     const ha_pcn_data = await this.ienHaPcnRepository.find({
       where: {
         id: In(ha_pcn),
@@ -251,7 +240,20 @@ export class IENApplicantUtilService {
     if (ha_pcn_data.length !== ha_pcn.length) {
       throw new NotFoundException('Provided all or some of HA not found');
     }
-    return ha_pcn_data;
+    return ha_pcn_data.map(item => {
+      return {
+        ...key_object[item.id],
+        ...item,
+      };
+    });
+  }
+
+  async getHaPcn(id: number): Promise<IENHaPcn | any> {
+    const health_authority = await this.ienHaPcnRepository.findOne(id);
+    if (!health_authority) {
+      throw new NotFoundException('Provided all or some of HA not found');
+    }
+    return health_authority;
   }
 
   /**
@@ -260,6 +262,7 @@ export class IENApplicantUtilService {
    * @returns
    */
   async getUserArray(users: any): Promise<IENUsers | any> {
+    users = users.map((item: { id: any }) => item.id);
     const users_data = await this.ienUsersRepository.find({
       where: {
         id: In(users),
@@ -268,7 +271,9 @@ export class IENApplicantUtilService {
     if (users_data.length !== users.length) {
       throw new NotFoundException('Provided all or some of Users not found');
     }
-    return users_data;
+    return users_data.map(item => {
+      return { id: item.id, name: item.name };
+    });
   }
 
   /**
