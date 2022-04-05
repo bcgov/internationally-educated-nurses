@@ -13,12 +13,12 @@ import { IENApplicantCreateUpdateDTO } from '@ien/common';
 export class IENApplicantCreateUpdateAPIDTO extends IENApplicantCreateUpdateDTO {
   @ApiProperty({ description: 'Applicant First Name', default: 'Mark' })
   @IsString()
-  @Length(1, 256, { message: 'Please provide applicant first name' })
+  @Length(1, 64, { message: 'Please provide applicant first name' })
   first_name!: string;
 
   @ApiProperty({ description: 'Applicant Name', default: 'Bowlill' })
   @IsString()
-  @Length(1, 256, { message: 'Please provide applicant last name' })
+  @Length(1, 64, { message: 'Please provide applicant last name' })
   last_name!: string;
 
   @ApiPropertyOptional({
@@ -43,7 +43,7 @@ export class IENApplicantCreateUpdateAPIDTO extends IENApplicantCreateUpdateDTO 
   })
   @IsOptional()
   @IsString()
-  @Length(1, 256, { message: 'Please provide applicant phone' })
+  @Length(1, 18, { message: 'Please provide applicant phone' })
   phone_number?: string;
 
   @ApiPropertyOptional({
