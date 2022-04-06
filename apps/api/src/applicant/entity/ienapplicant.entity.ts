@@ -100,7 +100,6 @@ export class IENApplicant {
   created_date!: Date;
 
   @UpdateDateColumn()
-  @Exclude()
   updated_date!: Date;
 
   @AfterLoad()

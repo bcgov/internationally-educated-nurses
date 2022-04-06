@@ -9,7 +9,7 @@ export PROJECT := ien
 
 # Runtime and application Environments specific variable
 export ENV_NAME ?= dev
-export POSTGRES_USERNAME = freshworks
+export POSTGRES_USERNAME ?= freshworks
 export CHES_CLIENT_ID ?= IEN_SERVICE_CLIENT
 export MAIL_FROM ?= IENDoNotReply@gov.bc.ca
 

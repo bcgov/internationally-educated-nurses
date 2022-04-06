@@ -1,38 +1,36 @@
-import { useState } from 'react';
+import classNames from 'classnames';
 
 interface TabFields {
   tabs: TabItems[];
-  onTabClick: (e: any) => void;
+  tabIndex: number;
+  onTabClick: (index: number) => void;
 }
 
 interface TabItems {
   title: string;
-  value: string;
+  value: number;
 }
 
-export const HeaderTab: React.FC<TabFields> = ({ tabs, onTabClick }) => {
-  const [activeTab, setActiveTab] = useState('1');
-
-  const active = 'border-b-2 border-bcBluePrimary text-bcBluePrimary';
-  const inactive = 'border-b text-bcGray';
-
-  const activeTabClick = (e: any) => {
-    setActiveTab(e.target.id);
+export const HeaderTab = ({ tabs, tabIndex, onTabClick }: TabFields) => {
+  const getButtonClasses = (index: number): string => {
+    const classes = ['text-center w-full font-bold text-sm px-6 pt-1 pb-2 my-1'];
+    if (tabIndex === index) {
+      classes.push('border-b-2 border-bcBluePrimary text-bcBluePrimary');
+    } else {
+      classes.push('border-b text-bcGray');
+    }
+    return classNames(classes);
   };
 
   return (
-    <div className='mb-3 whitespace-nowrap'>
+    <div className='mb-3 whitespace-nowrap my-1'>
       <ul className='flex justify-start'>
         {tabs.map(({ title, value }) => (
           <button
             key={title}
-            id={value}
-            className={`text-center w-full font-bold text-sm px-6 pt-1 pb-2 my-1
-              ${activeTab === value ? active : inactive}`}
-            onClick={e => {
-              onTabClick(e);
-              activeTabClick(e);
-            }}
+            id={`${value}`}
+            className={getButtonClasses(value)}
+            onClick={() => onTabClick(value)}
           >
             {title}
           </button>

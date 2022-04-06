@@ -71,6 +71,7 @@ export async function createNestApp(): Promise<{
   app.useGlobalFilters(new ErrorExceptionFilter(app.get(AppLogger)));
 
   // Printing the environment variables
+  // eslint-disable-next-line no-console
   console.table({
     project: process.env.PROJECT,
     envName: process.env.ENV_NAME,

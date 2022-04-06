@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { In, IsNull, Repository, ILike, Not } from 'typeorm';
+import { In, IsNull, Repository, ILike, Not, FindManyOptions } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantStatus } from './entity/ienapplicant-status.entity';
@@ -48,15 +48,19 @@ export class IENApplicantUtilService {
    * @returns retrun promise of find()
    */
   async applicantFilterQueryBuilder(filter: IENApplicantFilterAPIDTO) {
-    const { ha_pcn, name, status } = filter;
-    const query: object = {
+    const { status, ha_pcn, name, sortKey, order, limit, skip } = filter;
+    const query: FindManyOptions<IENApplicant> = {
       order: {
-        updated_date: 'DESC',
+        [sortKey || 'updated_date']: sortKey ? order : 'DESC',
       },
       relations: this.applicantRelations.status,
     };
-    if (!ha_pcn && !name && !status) {
-      return this.ienapplicantRepository.find(query);
+
+    if (limit) query.take = limit;
+    if (skip) query.skip = skip;
+
+    if (!status && !ha_pcn && !name) {
+      return this.ienapplicantRepository.findAndCount(query);
     }
 
     let where: object = {};
@@ -86,21 +90,21 @@ export class IENApplicantUtilService {
         .join(' or ');
       ha_search_sql = `(${ha_search_sql})`;
 
-      return this.ienapplicantRepository.find({
+      return this.ienapplicantRepository.findAndCount({
         where: (qb: any) => {
           qb.where(where).andWhere(ha_search_sql, {});
         },
         ...query,
       });
     } else if (isWhere && !isHaPcn) {
-      return this.ienapplicantRepository.find({
+      return this.ienapplicantRepository.findAndCount({
         where: (qb: any) => {
           qb.where(where);
         },
         ...query,
       });
     } else {
-      return this.ienapplicantRepository.find(query);
+      return this.ienapplicantRepository.findAndCount(query);
     }
   }
 
@@ -262,7 +266,7 @@ export class IENApplicantUtilService {
    * @returns
    */
   async getUserArray(users: any): Promise<IENUsers | any> {
-    users = users.map((item: { id: string | number }) => item.id);
+    users = users.map((id: string) => +id);
     const users_data = await this.ienUsersRepository.find({
       where: {
         id: In(users),

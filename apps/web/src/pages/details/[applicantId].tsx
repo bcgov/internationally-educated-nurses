@@ -13,7 +13,7 @@ import { Spinner } from 'src/components/Spinner';
 
 const Details = () => {
   const [applicant, setApplicant] = useState<any>({});
-  const [currentTab, setCurrentTab] = useState<any>('');
+  const [currentTab, setCurrentTab] = useState(1);
 
   const router = useRouter();
   const applicantId = router.query.applicantId;
@@ -40,11 +40,6 @@ const Details = () => {
   if (!applicant || !applicant.assigned_to || !applicant.health_authorities) {
     return <Spinner className='h-20' />;
   }
-
-  const onTabClick = (e: any) => {
-    const tab = e.target.id;
-    setCurrentTab(logType[tab - 1].component);
-  };
 
   const logType = [
     // waiting for hmbc api for remaining 4 components
@@ -123,8 +118,8 @@ const Details = () => {
           <FontAwesomeIcon className='h-5 mr-2 text-blue-900 ' icon={faClock}></FontAwesomeIcon>
           <h1 className='text-xl text-blue-900 py-4 font-bold'>Milestones Logs</h1>
         </div>
-        <HeaderTab tabs={milestoneTabs} onTabClick={onTabClick} />
-        {currentTab === '' ? <h1>Intake</h1> : currentTab}
+        <HeaderTab tabs={milestoneTabs} tabIndex={currentTab} onTabClick={setCurrentTab} />
+        {logType[currentTab]?.component}
       </div>
     </div>
   );

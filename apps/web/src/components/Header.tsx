@@ -14,7 +14,7 @@ export const Header: React.FC = () => {
 
   return (
     <header className='w-full py-2 border-b-2 bg-bcBluePrimary border-bcYellowPrimary flex justify-center'>
-      <div className='w-full 2xl:w-2/3 h-full flex flex-row items-center align-center justify-between px-2 md:px-12'>
+      <div className='w-full 2xl:w-5/6 h-full flex flex-row items-center align-center justify-between px-2 md:px-12'>
         <div className='layout-grid gap-0 h-full flex flex-row items-center align-center'>
           <Link href='/'>
             <a>

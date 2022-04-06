@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsNumberString, IsOptional, IsString } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IENApplicantFilterDTO } from '@ien/common';
 
@@ -23,4 +23,32 @@ export class IENApplicantFilterAPIDTO extends IENApplicantFilterDTO {
   @IsOptional()
   @IsString()
   name?: string;
+
+  @ApiPropertyOptional({
+    description: 'Field name to sort results',
+  })
+  @IsOptional()
+  @IsString()
+  sortKey?: string;
+
+  @ApiPropertyOptional({
+    description: 'Sort order e.g. asc, desc',
+  })
+  @IsOptional()
+  @IsString()
+  order?: 'ASC' | 'DESC';
+
+  @ApiPropertyOptional({
+    description: 'Limit the number of results',
+  })
+  @IsOptional()
+  @IsNumberString()
+  limit?: number;
+
+  @ApiPropertyOptional({
+    description: 'Skip the number of results',
+  })
+  @IsOptional()
+  @IsNumberString()
+  skip?: number;
 }

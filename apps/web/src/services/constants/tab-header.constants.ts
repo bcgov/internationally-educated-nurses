@@ -8,9 +8,9 @@ export const landingPageTabs = [
 ];
 
 export const milestoneTabs = [
-  { title: 'Intake', value: '1' },
-  { title: 'Licensing/Registration', value: '2' },
-  { title: 'Recruitment', value: '3' },
-  { title: 'BC PNP', value: '4' },
-  { title: 'Final', value: '5' },
+  { title: 'Intake', value: 1 },
+  { title: 'Licensing/Registration', value: 2 },
+  { title: 'Recruitment', value: 3 },
+  { title: 'BC PNP', value: 4 },
+  { title: 'Final', value: 5 },
 ];

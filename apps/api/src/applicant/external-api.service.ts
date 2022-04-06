@@ -161,7 +161,7 @@ export class ExternalAPIService {
       const data = await this.external_request.getApplicants();
       await this.createBulkApplicants(data);
     } catch (e) {
-      this.logger.error({ e });
+      this.logger.error(e);
     }
   }
 
