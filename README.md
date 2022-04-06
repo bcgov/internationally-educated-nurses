@@ -1,7 +1,7 @@
 # Internationally Educated Nurses hiring portal project. 
 
-[![Lifecycle:Experimental](https://img.shields.io/badge/Lifecycle-Experimental-339999)](https://github.com/bcgov/internationally-educated-nurses)
-
+[![Lifecycle:Maturing](https://img.shields.io/badge/Lifecycle-Maturing-007EC6)]()
+The codebase is being roughed out, but finer details are likely to change.
 
 ## Front End
 

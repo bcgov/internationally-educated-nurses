@@ -1,0 +1,26 @@
+name: ZAP Scan
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - security
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    concurrency: ci-${github.ref}-sec
+    environment:
+      name: dev
+
+    steps:
+      - uses: actions/checkout@v2
+        name: checkout
+
+      - name: ZAP Scan
+        uses: zaproxy/action-full-scan@v0.3.0
+        with:
+          target: https://d309kopm8ags5f.cloudfront.net
+          cmd_options: "-I"
+          rules_file_name: ".zap/rules.tsv"
