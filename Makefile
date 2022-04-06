@@ -268,13 +268,9 @@ deploy-all: deploy-app deploy-api
 # Tag Based Deployments
 # ===================================
 
-
-HASH1= $(shell git pull; git show-ref -s refs/remotes/origin/main)
-HASH2= $(shell git merge-base main $(git rev-parse --abbrev-ref HEAD))
-
 pre-tag: 
-	@[ "${hash1}" = "${hash2}" ] && echo "OK" || echo "Rebase is required"
-
+	@./bin/check_rebase.sh
+	
 tag-dev:
 	@git tag -fa dev -m "Deploy dev: $(git rev-parse --abbrev-ref HEAD)"
 	@git push --force origin refs/tags/dev:refs/tags/dev
