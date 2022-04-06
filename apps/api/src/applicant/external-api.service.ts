@@ -129,14 +129,13 @@ export class ExternalAPIService {
     // fetch user/staff details
     const usersArray = await this.ienUsersRepository.find();
     const users: any = {};
-    usersArray.map(user => {
+    usersArray.forEach(user => {
       users[user.id] = user;
-      return user;
     });
     // Fetch Health Authorities
     const haArray = await this.ienHaPcnRepository.find();
     const ha: any = {};
-    haArray.map(ha_obj => {
+    haArray.forEach(ha_obj => {
       ha[ha_obj.id] = ha_obj;
     });
     return { users: users, ha: ha };
