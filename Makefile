@@ -290,6 +290,10 @@ else
 	@git push --force origin refs/tags/prod:refs/tags/prod
 endif
 
+tag-sec:
+	@git tag -fa security -m "security scans: $(git rev-parse --abbrev-ref HEAD)"
+	@git push --force origin refs/tags/security:refs/tags/security
+
 # Typeorm Migrations
 
 migration-generate:
