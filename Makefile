@@ -1,5 +1,4 @@
 # Internationally Educated Nurses 
-# Cloned from EHPR
 # Default Environments
 -include ./.env
 
