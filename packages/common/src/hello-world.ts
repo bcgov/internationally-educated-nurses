@@ -1,3 +1,3 @@
 // TODO: Remove
 
-export const helloWorld = () => 'Hello World EHPR!!!';
+export const helloWorld = () => 'Hello World!!!';

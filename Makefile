@@ -1,13 +1,11 @@
 # Internationally Educated Nurses 
-# Cloned from EHPR
 # Default Environments
 -include ./.env
 
 export $(shell sed 's/=.*//' ./.env)
 
 # Project
-export PROJECT := $(or $(PROJECT),internationally-educated-nurses)
-
+export PROJECT := ien
 
 # Runtime and application Environments specific variable
 export ENV_NAME ?= dev
@@ -187,7 +185,7 @@ generate-accessibility-results:
 # ===================================
 
 pre-build:
-	@echo "++\n***** Pre-build Terraform artifact\n++"
+	@echo "++\n***** Pre-build Clean Build Artifact\n++"
 	@rm -rf ./terraform/build || true
 	@mkdir -p ./terraform/build
 	@echo "++\n*****"
@@ -238,7 +236,7 @@ init: write-config-tf
 
 plan: init
 	# Creating all AWS infrastructure.
-	@terraform -chdir=$(TERRAFORM_DIR) plan
+	@terraform -chdir=$(TERRAFORM_DIR) plan -no-color
 
 apply: init 
 	# Creating all AWS infrastructure.
@@ -257,7 +255,7 @@ runs:
 sync-app:
 	aws s3 sync ./terraform/build/app s3://$(APP_SRC_BUCKET) --delete
 
-deploy-app: sync-app
+deploy-app:
 	aws --region $(AWS_REGION) cloudfront create-invalidation --distribution-id $(CLOUDFRONT_ID) --paths "/*"
 
 deploy-api:
@@ -270,6 +268,9 @@ deploy-all: deploy-app deploy-api
 # Tag Based Deployments
 # ===================================
 
+pre-tag:
+	@./bin/check_rebase.sh
+	
 tag-dev:
 	@git tag -fa dev -m "Deploy dev: $(git rev-parse --abbrev-ref HEAD)"
 	@git push --force origin refs/tags/dev:refs/tags/dev
@@ -288,6 +289,10 @@ else
 	@git tag -fa prod -m "Deploy prod: $(version)"
 	@git push --force origin refs/tags/prod:refs/tags/prod
 endif
+
+tag-sec:
+	@git tag -fa security -m "security scans: $(git rev-parse --abbrev-ref HEAD)"
+	@git push --force origin refs/tags/security:refs/tags/security
 
 # Typeorm Migrations
 

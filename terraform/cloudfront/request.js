@@ -22,5 +22,10 @@ function handler(event) {
     return request;
   }
 
+  if (uri.match(/robots.txt|sitemap.xml/)) {
+    request.uri = uri.replace(/robots.txt|sitemap.xml/, 'index.html');
+    return request;
+  }
+
   return request;
 }
