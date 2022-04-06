@@ -26,7 +26,7 @@ jobs:
           cli_config_credentials_token: ${{ secrets.TFC_TEAM_TOKEN }}
 
       - name: Setup Infra
-        run: make plan
+        run: make plan # Change to apply after verification
 
       - uses: actions/cache@v2
         name: Cache yarn
