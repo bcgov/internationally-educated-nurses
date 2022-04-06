@@ -1,12 +1,10 @@
 #!/bin/bash
 
-MAIN_HEAD=$(git ls-remote origin refs/heads/main | cut -f 1)
-MERGE_BASE=$(git merge-base origin refs/heads/main $(git rev-parse --abbrev-ref HEAD))
+git fetch --all
 
-echo $MAIN_HEAD
-echo $MERGE_BASE
+DIFF=$(git log --oneline --cherry build...origin/main | wc -l)
 
-if [ $MAIN_HEAD == $MERGE_BASE ]; then
+if [[ $DIFF = 0 ]]; then
     echo "All Good!"
 else
     echo "Rebase before tagging!"

@@ -268,7 +268,7 @@ deploy-all: deploy-app deploy-api
 # Tag Based Deployments
 # ===================================
 
-pre-tag: 
+pre-tag:
 	@./bin/check_rebase.sh
 	
 tag-dev:
