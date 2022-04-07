@@ -28,7 +28,7 @@ export const Record: React.FC<RecordProps> = ({ job }) => {
   const [recordStatus, setRecordStatus] = useState('');
 
   //preload dropdown options used throught Record component tree
-  getMilestoneOptions();
+  //getMilestoneOptions();
 
   // set status_audit to empty array on record create
   // is not included in response when a new record gets created and only gets initialized on refresh

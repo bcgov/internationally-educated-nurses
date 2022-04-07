@@ -14,6 +14,7 @@ import { toast } from 'react-toastify';
 import { buttonBase, buttonColor, Select, Option, Field } from '@components';
 import { IENApplicantAddStatusDTO, formatDate } from '@ien/common';
 import { addMilestone, getMilestoneOptions, MilestoneTypeOptions } from '@services';
+import { Spinner } from 'src/components/Spinner';
 
 //@todo change any type
 const initialValues: IENApplicantAddStatusDTO = {
@@ -141,7 +142,8 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({ buttonText, icon, handleS
               <div className='flex justify-between mb-4'>
                 <span className='flex-grow pr-1 md:pr-2'>
                   <Select name='status' label='Milestone'>
-                    {milestones.length > 0 &&
+                    {milestones &&
+                      milestones.length > 0 &&
                       milestones[2].children.map((opt: MilestoneTypeOptions) => (
                         <Option key={opt.id} label={opt.status} value={opt.id} />
                       ))}
