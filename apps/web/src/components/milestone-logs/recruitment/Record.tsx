@@ -7,6 +7,7 @@ import { buttonBase, buttonColor, DetailsItem, Disclosure } from '@components';
 import { AddMilestones, EditMilestones } from './Milestone';
 import { useEffect, useState } from 'react';
 import { formatDate } from '@ien/common';
+import { getMilestoneOptions } from '@services';
 
 interface RecordProps {
   job: {
@@ -25,6 +26,9 @@ export const Record: React.FC<RecordProps> = ({ job }) => {
   const router = useRouter();
   const applicantId = router.query.applicantId;
   const [recordStatus, setRecordStatus] = useState('');
+
+  //preload dropdown options used throught Record component tree
+  getMilestoneOptions();
 
   // set status_audit to empty array on record create
   // is not included in response when a new record gets created and only gets initialized on refresh

@@ -8314,6 +8314,7 @@ __metadata:
     prettier: 2.4.1
     pretty-quick: 3.1.2
     react-dropzone: 12.0.4
+    swr: 1.2.2
     ts-loader: 9.2.3
     ts-node: 10.0.0
     tsconfig-paths: 3.10.1
@@ -15051,6 +15052,15 @@ __metadata:
   peerDependencies:
     express: ">=4.0.0"
   checksum: e87255305edc2e48629d836f5839ecf31d031fffaacf029e2f34ea0823b72a5031302aae0d6a51d4eda5963ab731768028b97b990fa0f5dcceefdd9de2073aba
+  languageName: node
+  linkType: hard
+
+"swr@npm:^1.2.2":
+  version: 1.2.2
+  resolution: "swr@npm:1.2.2"
+  peerDependencies:
+    react: ^16.11.0 || ^17.0.0 || ^18.0.0
+  checksum: 723747c7c263536d8c9ee8b38039462395ba09a7925508f22c8fc940a1ae72e1f05ef678767b2197ce337e170f4812563281bc4b5f9ad7e4eec895cd7139fb8e
   languageName: node
   linkType: hard
 

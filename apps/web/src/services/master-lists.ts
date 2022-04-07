@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { useSWRConfig } from 'swr';
+import useSWRImmutable from 'swr/immutable';
 
 export interface RecordTypeOptions {
   id: string;
@@ -6,38 +8,36 @@ export interface RecordTypeOptions {
 }
 
 export interface RecordType {
-  haPcn: RecordTypeOptions[];
-  jobTitle: RecordTypeOptions[];
-  jobLocation: RecordTypeOptions[];
+  haPcn: { data: RecordTypeOptions[] };
+  jobTitle: { data: RecordTypeOptions[] };
+  jobLocation: { data: RecordTypeOptions[] };
 }
 
-// record options for adding a new record
-export const getAddRecordOptions = async (): Promise<RecordType> => {
-  const data = await axios.all([
-    await axios.get(`ienmaster/ha-pcn`),
-    await axios.get(`ienmaster/job-titles`),
-    await axios.get(`ienmaster/job-locations`),
-  ]);
+const fetcher = (url: string) => axios.get(url).then(res => res.data);
 
-  const [haPcn, jobTitle, jobLocation] = data;
+export const getAddRecordOptions = (): RecordType => {
+  const { data: haPcn, error: haPcnError } = useSWRImmutable('ienmaster/ha-pcn', fetcher);
+  const { data: jobLocation, error: jobLocationError } = useSWRImmutable(
+    'ienmaster/job-locations',
+    fetcher,
+  );
+  const { data: jobTitle, error: jobTitleError } = useSWRImmutable('ienmaster/job-titles', fetcher);
 
-  return {
-    haPcn: haPcn?.data?.data,
-    jobTitle: jobTitle?.data?.data,
-    jobLocation: jobLocation?.data?.data,
-  };
+  return { haPcn, jobLocation, jobTitle };
 };
 
-export interface MilestoneType {
+export interface MilestoneTypeOptions {
   id: string;
   status: string;
 }
 
-// milestone status' for adding milestones
-export const getMilestoneOptions = async (): Promise<MilestoneType[]> => {
-  const {
-    data: { data },
-  } = await axios.get('ienmaster/status');
+export interface MilestoneType {
+  milestones: MilestoneTypeOptions[];
+}
 
-  return data[2].children;
+// milestone status' for adding milestones
+export const getMilestoneOptions = (): any => {
+  const { data: milestones, error } = useSWRImmutable('ienmaster/status', fetcher);
+
+  return milestones?.data;
 };
