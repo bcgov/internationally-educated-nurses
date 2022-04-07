@@ -67,7 +67,7 @@ export class ExternalAPIService {
     try {
       const data = await this.external_request.getHa();
       if (data instanceof Array) {
-        const listHa = data.map((item: { title: any; name: any }) => {
+        const listHa = data.map((item: { title: string; name: any }) => {
           item.title = item.name;
           delete item.name;
           return item;
@@ -149,23 +149,23 @@ export class ExternalAPIService {
     const { users, ha } = await this.getApplicantMasterData();
     const applicants = data.map(
       (a: {
-        health_authorities: { title: any; id: number | string }[] | undefined;
-        assigned_to: { id: string | number; name: any }[] | undefined;
+        health_authorities: { title: string; id: number | string }[] | undefined;
+        assigned_to: { id: string | number; name: string }[] | undefined;
         registration_date: string;
-        applicant_id: any;
-        first_name: any;
-        last_name: any;
-        email_address: any;
-        phone_number: any;
-        country_of_citizenship: any;
-        country_of_residence: any;
+        applicant_id: string | number;
+        first_name: string;
+        last_name: string;
+        email_address: string;
+        phone_number: string;
+        country_of_citizenship: string;
+        country_of_residence: string;
         nursing_educations: any;
         notes: any;
       }) => {
         let health_authorities = null;
         if (a.health_authorities && a.health_authorities != undefined) {
           health_authorities = a.health_authorities.map(
-            (h: { title: any; id: number | string }) => {
+            (h: { title: string; id: number | string }) => {
               h.title = ha[`${h.id}`].title;
               return h;
             },
@@ -174,7 +174,7 @@ export class ExternalAPIService {
 
         let assigned_to = null;
         if (a.assigned_to && a.assigned_to != undefined) {
-          assigned_to = a.assigned_to.map((user: { id: string | number; name: any }) => {
+          assigned_to = a.assigned_to.map((user: { id: string | number; name: string }) => {
             user.name = users[user.id].name;
             return user;
           });
