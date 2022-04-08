@@ -17,7 +17,7 @@ import { IENJobLocation } from './entity/ienjoblocation.entity';
 
 @Injectable()
 export class IENApplicantUtilService {
-  applicantRelations: any;
+  applicantRelations;
   constructor(
     @Inject(Logger) private readonly logger: AppLogger,
     @InjectRepository(IENApplicantStatus)
@@ -48,24 +48,24 @@ export class IENApplicantUtilService {
    * @returns retrun promise of find()
    */
   async applicantFilterQueryBuilder(filter: IENApplicantFilterAPIDTO) {
-    const { status, ha_pcn, name } = filter;
-    const query: any = {
+    const { ha_pcn, name } = filter;
+    const query: object = {
       order: {
         updated_date: 'DESC',
       },
       relations: this.applicantRelations.status,
     };
-    if (!status && !ha_pcn && !name) {
+    if (!ha_pcn && !name) {
       return this.ienapplicantRepository.find(query);
     }
 
-    let where: any = {};
+    let where: object = {};
     let isWhere = false;
-    if (status) {
-      const status_list = await this.fetchChildStatusList(status);
-      where = { status: In(status_list), ...where };
-      isWhere = true;
-    }
+    // if (status) {
+    //   const status_list = await this.fetchChildStatusList(status);
+    //   where = { status: In(status_list), ...where };
+    //   isWhere = true;
+    // }
 
     if (name && name.trim() !== '') {
       where = { name: ILike(`%${name.trim()}%`), ...where };
@@ -79,13 +79,16 @@ export class IENApplicantUtilService {
     }
     if (isHaPcn) {
       const ha_pcn_array = ha_pcn?.split(',');
+      let ha_search_sql = ha_pcn_array
+        ?.map(id => {
+          return `health_authorities @> '[{"id":${id}}]'`;
+        })
+        .join(' or ');
+      ha_search_sql = `(${ha_search_sql})`;
+
       return this.ienapplicantRepository.find({
-        join: {
-          alias: 'ien_applicants',
-          innerJoin: { ha_pcn: 'ien_applicants.ha_pcn' },
-        },
         where: (qb: any) => {
-          qb.where(where).andWhere('ha_pcn.id IN (:...haPcnId)', { haPcnId: ha_pcn_array });
+          qb.where(where).andWhere(ha_search_sql, {});
         },
         ...query,
       });
@@ -102,7 +105,7 @@ export class IENApplicantUtilService {
   }
 
   /** fetch all status is parent status passed */
-  async fetchChildStatusList(status: any): Promise<string[]> {
+  async fetchChildStatusList(status: string): Promise<string[]> {
     const status_list = status.split(',');
     const parent_status = await this.ienapplicantStatusRepository.find({
       where: {
@@ -127,7 +130,7 @@ export class IENApplicantUtilService {
    * @param status
    * @returns Status Object or NotFoundException
    */
-  async getStatusById(status: string): Promise<IENApplicantStatus | any> {
+  async getStatusById(status: string): Promise<IENApplicantStatus> {
     const statusObj = await this.ienapplicantStatusRepository.findOne(parseInt(status), {
       relations: ['parent'],
     });
@@ -146,8 +149,8 @@ export class IENApplicantUtilService {
    * @param applicant Applicant Object
    * @param added_by Passing it separately, In case of update we have to use updated_by field in place of added_by
    */
-  async saveApplicantAudit(applicant: IENApplicant, added_by: any) {
-    const dataToSave: any = applicant;
+  async saveApplicantAudit(applicant: IENApplicant, added_by: IENUsers) {
+    const dataToSave: object = applicant;
     try {
       const audit = this.ienapplicantAuditRepository.create({
         applicant: applicant,
@@ -155,25 +158,6 @@ export class IENApplicantUtilService {
         data: dataToSave,
       });
       await this.ienapplicantAuditRepository.save(audit);
-    } catch (e) {}
-  }
-
-  /**
-   * Store applicant status audit details,
-   * We are not using it until add-applicant feture enable on IEN portal
-   * @param applicant Applicant Object
-   */
-  async saveApplicantStatusAudit(applicant: IENApplicant) {
-    try {
-      const dataToSave = {
-        applicant: applicant,
-        status: applicant.status,
-        added_by: applicant.added_by,
-        start_date: applicant.status_date,
-      };
-
-      const status_audit = this.ienapplicantStatusAuditRepository.create(dataToSave);
-      await this.ienapplicantStatusAuditRepository.save(status_audit);
     } catch (e) {}
   }
 
@@ -186,8 +170,8 @@ export class IENApplicantUtilService {
   async addApplicantStatusAudit(
     applicant: IENApplicant,
     dataToUpdate: any,
-    job: IENApplicantJob,
-  ): Promise<any> {
+    job: IENApplicantJob | null,
+  ): Promise<IENApplicantStatusAudit | any> {
     // Save
     const status_audit = this.ienapplicantStatusAuditRepository.create({
       applicant: applicant,
@@ -203,7 +187,7 @@ export class IENApplicantUtilService {
    * @param job Job object to check active status/milestone
    * @param data status/milestone audit data
    */
-  async updatePreviousActiveStatusForJob(job: any, data: any): Promise<void> {
+  async updatePreviousActiveStatusForJob(job: IENApplicantJob, data: any): Promise<void> {
     try {
       if (job) {
         const previousStatus = await this.ienapplicantStatusAuditRepository.find({
@@ -240,9 +224,14 @@ export class IENApplicantUtilService {
 
   /**
    * Get HA or PCN list for the provided IDs
-   * @param ha_pcn
+   * @param health_authorities
    */
-  async getHaPcn(ha_pcn: any): Promise<IENHaPcn | any> {
+  async getHaPcns(health_authorities: any): Promise<IENHaPcn | any> {
+    const ha_pcn = health_authorities.map((item: { id: string | number }) => item.id);
+    const key_object: any = {};
+    health_authorities.forEach((item: { id: string | number }) => {
+      key_object[item.id] = item;
+    });
     const ha_pcn_data = await this.ienHaPcnRepository.find({
       where: {
         id: In(ha_pcn),
@@ -251,7 +240,20 @@ export class IENApplicantUtilService {
     if (ha_pcn_data.length !== ha_pcn.length) {
       throw new NotFoundException('Provided all or some of HA not found');
     }
-    return ha_pcn_data;
+    return ha_pcn_data.map(item => {
+      return {
+        ...key_object[item.id],
+        ...item,
+      };
+    });
+  }
+
+  async getHaPcn(id: number): Promise<IENHaPcn> {
+    const health_authority = await this.ienHaPcnRepository.findOne(id);
+    if (!health_authority) {
+      throw new NotFoundException('Provided all or some of HA not found');
+    }
+    return health_authority;
   }
 
   /**
@@ -260,6 +262,7 @@ export class IENApplicantUtilService {
    * @returns
    */
   async getUserArray(users: any): Promise<IENUsers | any> {
+    users = users.map((item: { id: string | number }) => item.id);
     const users_data = await this.ienUsersRepository.find({
       where: {
         id: In(users),
@@ -268,14 +271,16 @@ export class IENApplicantUtilService {
     if (users_data.length !== users.length) {
       throw new NotFoundException('Provided all or some of Users not found');
     }
-    return users_data;
+    return users_data.map(item => {
+      return { id: item.id, name: item.name };
+    });
   }
 
   /**
    * Get Job
    * @param id
    */
-  async getJob(id: string | number): Promise<IENApplicantJob | any> {
+  async getJob(id: string | number): Promise<IENApplicantJob> {
     const job = await this.ienapplicantJobRepository.findOne(id, {
       relations: ['applicant'],
     });
@@ -289,7 +294,7 @@ export class IENApplicantUtilService {
    * Get Job title
    * @param id
    */
-  async getJobTitle(id: string | number): Promise<IENJobTitle | any> {
+  async getJobTitle(id: string | number): Promise<IENJobTitle> {
     const job_title = await this.ienapplicantJobTitleRepository.findOne(id);
     if (!job_title) {
       throw new NotFoundException('Provided job title not found');
@@ -301,7 +306,7 @@ export class IENApplicantUtilService {
    * Get Job Location
    * @param id
    */
-  async getJobLocation(id: string | number): Promise<IENJobLocation | any> {
+  async getJobLocation(id: string | number): Promise<IENJobLocation> {
     const job_title = await this.ienapplicantJobLocationRepository.findOne(id);
     if (!job_title) {
       throw new NotFoundException('Provided job location not found');

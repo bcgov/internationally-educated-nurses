@@ -8,54 +8,65 @@ import {
   IsArray,
 } from 'class-validator';
 
-export class IENApplicantCreateDTO {
-  @Length(1, 256, { message: 'Please provide applicant name' })
-  name!: string;
-
-  @Length(1, 256, { message: 'Please provide applicant unique ID' })
-  @IsOptional()
-  applicant_id?: string;
-
-  @IsOptional()
-  email?: string;
-
-  @IsOptional()
-  citizenship?: string;
-
-  @IsOptional()
-  country_of_training?: string;
-
-  @IsOptional()
-  pr_of_canada?: boolean;
-
-  @IsArray()
-  @IsOptional()
-  ha_pcn?: [string];
-
-  @IsArray()
-  @IsOptional()
-  assigned_to?: [string];
+export class IENApplicantCreateUpdateDTO {
+  @IsString()
+  @Length(1, 256, { message: 'Please provide applicant first name' })
+  first_name!: string;
 
   @IsString()
-  status!: string;
-
-  @IsString()
-  added_by!: string;
+  @Length(1, 256, { message: 'Please provide applicant last name' })
+  last_name!: string;
 
   @IsOptional()
-  education?: string;
+  applicant_id?: number;
+
+  @IsOptional()
+  @IsString()
+  @Length(1, 256, { message: 'Please provide applicant email' })
+  email_address?: string;
+
+  @IsOptional()
+  @IsString()
+  @Length(1, 256, { message: 'Please provide applicant phone' })
+  phone_number?: string;
 
   @IsDateString()
   @IsOptional()
   registration_date?: Date;
 
+  @IsArray()
+  @IsOptional()
+  assigned_to?: JSON;
+
+  @IsOptional()
+  country_of_citizenship?: string;
+
+  @IsOptional()
+  country_of_residence?: string;
+
+  @IsOptional()
+  pr_status?: string;
+
+  @IsArray()
+  @IsOptional()
+  nursing_educations?: JSON;
+
+  @IsOptional()
+  @IsString()
+  @Length(1, 256, { message: 'Please provide applicant bccnm license number' })
+  bccnm_license_number?: string;
+
+  @IsArray()
+  @IsOptional()
+  health_authorities?: JSON;
+
+  @IsArray()
+  @IsOptional()
+  notes?: JSON;
+
   @IsObject()
   @IsOptional()
   additional_data?: JSON;
-
-  @IsDateString()
-  @IsOptional()
-  status_date?: Date;
 
   @IsBoolean()
   @IsOptional()

@@ -8,63 +8,43 @@ import {
   IsBoolean,
   IsArray,
 } from 'class-validator';
-import { IENApplicantCreateDTO } from '@ien/common';
+import { IENApplicantCreateUpdateDTO } from '@ien/common';
 
-export class IENApplicantCreateAPIDTO extends IENApplicantCreateDTO {
-  @ApiProperty({ description: 'Applicant Name', default: 'Mark Bowlill' })
+export class IENApplicantCreateUpdateAPIDTO extends IENApplicantCreateUpdateDTO {
+  @ApiProperty({ description: 'Applicant First Name', default: 'Mark' })
   @IsString()
-  @Length(1, 256, { message: 'Please provide applicant name' })
-  name!: string;
+  @Length(1, 64, { message: 'Please provide applicant first name' })
+  first_name!: string;
+
+  @ApiProperty({ description: 'Applicant Name', default: 'Bowlill' })
+  @IsString()
+  @Length(1, 64, { message: 'Please provide applicant last name' })
+  last_name!: string;
 
   @ApiPropertyOptional({
     description: 'Applicant unique ID',
-    default: 'a989765-c8789299-b9696669-dfcba98',
+    default: 1,
   })
-  @Length(1, 256, { message: 'Please provide applicant unique ID' })
   @IsOptional()
-  applicant_id?: string;
+  applicant_id?: number;
 
   @ApiPropertyOptional({
     description: 'Applicant email address',
     default: 'mark.bowill@mailinator.com',
   })
   @IsOptional()
-  email?: string;
-
-  @ApiPropertyOptional({ description: 'Applicant citizenship', default: 'Maxico' })
-  @IsOptional()
-  citizenship?: string;
-
-  @ApiPropertyOptional({ description: 'Applicant country of Origin', default: 'Maxico' })
-  @IsOptional()
-  country_of_training?: string;
-
-  @ApiPropertyOptional({ description: 'Applicant have PR of Canada', default: false })
-  @IsOptional()
-  pr_of_canada?: boolean;
-
-  @ApiPropertyOptional({ description: 'Applicant HA/PCN', default: ['1', '2'] })
-  @IsArray()
-  ha_pcn?: [string];
-
-  @ApiPropertyOptional({ description: 'Applicant assigned to', default: ['1'] })
-  @IsArray()
-  assigned_to?: [string];
+  @IsString()
+  @Length(1, 256, { message: 'Please provide applicant email' })
+  email_address?: string;
 
   @ApiPropertyOptional({
-    description: 'Applicant education, put it in comma separated',
-    default: 'PhD, Master of Nursing',
+    description: 'Applicant phone number',
+    default: '77-555-1234',
   })
   @IsOptional()
-  education?: string;
-
-  @ApiProperty({ description: 'Applicant active or last updated status', default: '3' })
   @IsString()
-  status!: string;
-
-  @ApiProperty({ description: 'Applicant added by user', default: '2' })
-  @IsString()
-  added_by!: string;
+  @Length(1, 18, { message: 'Please provide applicant phone' })
+  phone_number?: string;
 
   @ApiPropertyOptional({
     description: "Applicant's registration date",
@@ -77,6 +57,65 @@ export class IENApplicantCreateAPIDTO extends IENApplicantCreateDTO {
   registration_date?: Date;
 
   @ApiPropertyOptional({
+    description: 'Assigned Applicant to',
+    default: [{ id: 1 }],
+  })
+  @IsArray()
+  @IsOptional()
+  assigned_to?: JSON;
+
+  @ApiPropertyOptional({ description: 'Applicant citizenship', default: 'ca' })
+  @IsOptional()
+  country_of_citizenship?: string;
+
+  @ApiPropertyOptional({ description: 'Applicant country of residence', default: 'us' })
+  @IsOptional()
+  country_of_residence?: string;
+
+  @ApiPropertyOptional({ description: 'Applicant have PR of Canada', default: 'PR' })
+  @IsOptional()
+  pr_status?: string;
+
+  @ApiPropertyOptional({
+    description: 'Nursing educations',
+    default: [
+      { name: 'PhD', country: 'ca' },
+      { name: 'Master of Nursing', country: 'ca' },
+    ],
+  })
+  @IsArray()
+  @IsOptional()
+  nursing_educations?: JSON;
+
+  @ApiPropertyOptional({ description: 'Applicant bccnm license number', default: '545432A' })
+  @IsOptional()
+  @IsString()
+  @Length(1, 256, { message: 'Please provide applicant bccnm license number' })
+  bccnm_license_number?: string;
+
+  @ApiPropertyOptional({
+    description: 'Health authorities to which the applicant has referred',
+    default: [{ id: 1, referral_date: '2011-04-02T00:00:00' }],
+  })
+  @IsArray()
+  @IsOptional()
+  health_authorities?: JSON;
+
+  @ApiPropertyOptional({
+    description: 'Notes: that keep an audit of non-milestone activity',
+    default: [
+      {
+        notes: 'Some notes',
+        date: '2011-05-07T00:00:00',
+        type: 'Note On File',
+      },
+    ],
+  })
+  @IsArray()
+  @IsOptional()
+  notes?: JSON;
+
+  @ApiPropertyOptional({
     description:
       'If we do have more data than above given attributes, put it in a JSON and store here',
     default: null,
@@ -84,16 +123,6 @@ export class IENApplicantCreateAPIDTO extends IENApplicantCreateDTO {
   @IsObject()
   @IsOptional()
   additional_data?: JSON;
-
-  @ApiPropertyOptional({
-    description: "Applicant's status start date",
-    type: 'string',
-    format: 'date',
-    pattern: 'YYYY-MM-DD',
-  })
-  @IsDateString()
-  @IsOptional()
-  status_date?: Date;
 
   @ApiPropertyOptional({
     description: "Optional status that shows current applicant's application is active or closed",

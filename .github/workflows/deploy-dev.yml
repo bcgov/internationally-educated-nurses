@@ -13,7 +13,7 @@ jobs:
     timeout-minutes: 10
     concurrency: ci-${{ github.ref }}-dev
     env:
-      CLOUDFRONT_ID: "${{ secrets.CLOUDFRONT_ID }}"
+      CLOUDFRONT_ID: '${{ secrets.CLOUDFRONT_ID }}'
     environment:
       name: dev
     steps:

@@ -1,5 +1,5 @@
 export const CommonData = {
-  status: ['status', 'status.parent', 'assigned_to', 'ha_pcn', 'added_by', 'updated_by'],
+  status: ['status', 'status.parent', 'added_by', 'updated_by'],
   audit: [
     'jobs',
     'jobs.ha_pcn',

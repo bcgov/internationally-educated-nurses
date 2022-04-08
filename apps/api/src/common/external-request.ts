@@ -14,9 +14,9 @@ export class ExternalRequest {
     });
   }
 
-  async getData(url: string) {
+  async getData(url: string, header = {}) {
     return await this.api_instance
-      .get(`${url}`)
+      .get(`${url}`, { headers: header })
       .then((response: AxiosResponse) => {
         if (response.status !== 200) throw new BadRequestException(response);
         return response.data;
@@ -36,5 +36,12 @@ export class ExternalRequest {
 
   async getReason() {
     return await this.getData(`/Reason`);
+  }
+
+  async getApplicants() {
+    const header = {
+      ApiKey: process.env.HMBC_ATS_AUTH_KEY,
+    };
+    return await this.getData(`/Applicant`, header);
   }
 }

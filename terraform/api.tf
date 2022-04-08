@@ -37,6 +37,8 @@ resource "aws_lambda_function" "api" {
       POSTGRES_PASSWORD = data.aws_ssm_parameter.postgres_password.value
       POSTGRES_HOST     = aws_rds_cluster.pgsql.endpoint
       POSTGRES_DATABASE = aws_rds_cluster.pgsql.database_name
+      HMBC_ATS_BASE_URL = data.aws_ssm_parameter.hmbc_ats_base_url.value
+      HMBC_ATS_AUTH_KEY = data.aws_ssm_parameter.hmbc_ats_auth_key.value
       # MAIL_FROM                = var.mail_from
       # CHES_CLIENT_ID           = var.ches_client_id
       # CHES_CLIENT_SECRET       = data.aws_ssm_parameter.ches_client_secret.value

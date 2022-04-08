@@ -22,5 +22,5 @@ jobs:
         uses: zaproxy/action-full-scan@v0.3.0
         with:
           target: https://d309kopm8ags5f.cloudfront.net
-          cmd_options: "-I"
-          rules_file_name: ".zap/rules.tsv"
+          cmd_options: '-I'
+          rules_file_name: '.zap/rules.tsv'

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 import {
-  IENApplicantCreateDTO,
+  IENApplicantCreateUpdateDTO,
   IENApplicantJobCreateUpdateDTO,
   IENApplicantAddStatusDTO,
 } from '@ien/common';
@@ -15,7 +15,7 @@ export const getApplicant = async (id: string) => {
   return await axios.get(`/ien/${id}?relation=audit`);
 };
 
-export const updateApplicant = async (id: string, applicant: IENApplicantCreateDTO) => {
+export const updateApplicant = async (id: string, applicant: IENApplicantCreateUpdateDTO) => {
   return await axios.patch(`/ien/${id}`, applicant);
 };
 
