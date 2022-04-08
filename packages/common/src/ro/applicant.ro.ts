@@ -14,7 +14,7 @@ export interface ApplicantRO {
   phone_number?: string;
   registration_date?: Date;
   assigned_to?: JSON;
-  country_of_citizenship?: string;
+  country_of_citizenship?: string[];
   country_of_residence?: string;
   pr_status?: string;
   nursing_educations?: JSON;

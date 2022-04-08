@@ -43,8 +43,8 @@ export class IENApplicant {
   @Column('jsonb', { nullable: true })
   assigned_to?: JSON;
 
-  @Column('varchar', { nullable: true })
-  country_of_citizenship?: string;
+  @Column('jsonb', { nullable: true })
+  country_of_citizenship?: string[];
 
   @Column('varchar', { nullable: true })
   country_of_residence?: string;

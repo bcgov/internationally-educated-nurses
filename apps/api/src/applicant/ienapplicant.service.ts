@@ -107,13 +107,25 @@ export class IENApplicantService {
    * @returns
    */
   async createApplicantObject(addApplicant: IENApplicantCreateUpdateAPIDTO) {
-    const { health_authorities, assigned_to, first_name, last_name, ...data } = addApplicant;
+    const {
+      health_authorities,
+      assigned_to,
+      first_name,
+      last_name,
+      country_of_citizenship,
+      ...data
+    } = addApplicant;
     const applicant = this.ienapplicantRepository.create(data);
     const name: any = {
       ...applicant.additional_data,
       first_name: first_name,
       last_name: last_name,
     };
+    if (country_of_citizenship && country_of_citizenship instanceof Array) {
+      applicant.country_of_citizenship = country_of_citizenship;
+    } else {
+      applicant.country_of_citizenship = [`${country_of_citizenship}`];
+    }
     applicant.additional_data = name;
     applicant.name = `${first_name} ${last_name}`;
 
@@ -141,12 +153,25 @@ export class IENApplicantService {
     applicantUpdate: IENApplicantCreateUpdateAPIDTO,
   ): Promise<IENApplicant | any> {
     const applicant = await this.getApplicantById(id);
-    // const { ha_pcn, assigned_to, updated_by, ...data } = applicantUpdate;
-    const { health_authorities, assigned_to, first_name, last_name, ...data } = applicantUpdate;
+    const {
+      health_authorities,
+      assigned_to,
+      first_name,
+      last_name,
+      country_of_citizenship,
+      ...data
+    } = applicantUpdate;
     if (health_authorities && health_authorities instanceof Array && health_authorities.length) {
       applicant.health_authorities = await this.ienapplicantUtilService.getHaPcns(
         health_authorities,
       );
+    }
+    if (country_of_citizenship) {
+      if (country_of_citizenship && country_of_citizenship instanceof Array) {
+        applicant.country_of_citizenship = country_of_citizenship;
+      } else {
+        applicant.country_of_citizenship = [`${country_of_citizenship}`];
+      }
     }
     if (first_name || last_name) {
       const name: any = {

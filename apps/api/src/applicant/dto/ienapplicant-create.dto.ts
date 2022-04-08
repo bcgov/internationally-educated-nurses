@@ -64,9 +64,9 @@ export class IENApplicantCreateUpdateAPIDTO extends IENApplicantCreateUpdateDTO 
   @IsOptional()
   assigned_to?: JSON;
 
-  @ApiPropertyOptional({ description: 'Applicant citizenship', default: 'ca' })
+  @ApiPropertyOptional({ description: 'Applicant citizenship', default: ['ca'] })
   @IsOptional()
-  country_of_citizenship?: string;
+  country_of_citizenship?: string[] | string;
 
   @ApiPropertyOptional({ description: 'Applicant country of residence', default: 'us' })
   @IsOptional()
