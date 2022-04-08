@@ -1,8 +1,8 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryColumn } from 'typeorm';
 
 @Entity('ien_education')
 export class IENEducation {
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn()
   id!: number;
 
   @Column('varchar')

@@ -214,10 +214,8 @@ export class IENApplicantService {
     let job = null;
     if (job_id) {
       job = await this.ienapplicantUtilService.getJob(job_id);
-      if (job) {
-        if (id !== job.applicant.id) {
-          throw new BadRequestException('Provided applicant and competition/job does not match');
-        }
+      if (id !== job.applicant.id) {
+        throw new BadRequestException('Provided applicant and competition/job does not match');
       }
     }
 
@@ -308,11 +306,12 @@ export class IENApplicantService {
    */
   async updateApplicantJob(
     id: string,
+    job_id: string | number,
     jobData: IENApplicantJobCreateUpdateAPIDTO,
   ): Promise<IENApplicantJob | undefined> {
-    const job = await this.ienapplicantJobRepository.findOne(id);
-    if (!job) {
-      throw new NotFoundException('Given Job Id not found');
+    const job = await this.ienapplicantUtilService.getJob(job_id);
+    if (job.applicant.id !== id) {
+      throw new BadRequestException(`Provided applicant and competition/job does not match)`);
     }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { ha_pcn, job_title, job_location, ...data } = jobData;
