@@ -1,16 +1,15 @@
-import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 import { AddSingleModal } from './AddSingleModal';
 import { UploadFileModal } from './UploadFileModal';
-import { buttonBase, buttonColor, TableCheckbox } from '../';
-import { useEffect, useState } from 'react';
+import { buttonBase, buttonColor } from '../';
 import { getApplicants } from '@services';
+import { Spinner } from '../Spinner';
 
 export const Table: React.FC = () => {
   const [applicants, setApplicants] = useState<any>([]);
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   useEffect(() => {
     const getApplicantsData = async () => {
@@ -27,7 +26,7 @@ export const Table: React.FC = () => {
   }, []);
 
   if (loading) {
-    return <h1>Loading...</h1>;
+    return <Spinner className='h-10' />;
   }
 
   return (
@@ -36,26 +35,6 @@ export const Table: React.FC = () => {
       <div className='container mx-auto bg-white'>
         <div className='flex items-center my-3 px-4'>
           <p className='text-gray-400'>Showing {applicants.length} results</p>
-          <span className='ml-auto'>
-            <Link
-              href={{
-                pathname: '/form',
-                query: { ...router.query, add_row: 'test_single_row' },
-              }}
-              shallow={true}
-            >
-              <a className={`${buttonColor.primary} ${buttonBase}`}>Add Row</a>
-            </Link>{' '}
-            <Link
-              href={{
-                pathname: '/form',
-                query: { ...router.query, bulk_upload: 'test_bulk_upload' },
-              }}
-              shallow={true}
-            >
-              <a className={`${buttonColor.primary} ${buttonBase}`}>Bulk Upload</a>
-            </Link>
-          </span>
         </div>
 
         <div className='flex justify-content-center flex-col  px-4'>
@@ -63,9 +42,6 @@ export const Table: React.FC = () => {
             <table className='text-left'>
               <thead className='whitespace-nowrap bg-gray-100'>
                 <tr className='border-b-2 border-yellow-300 text-sm'>
-                  <th className='pl-6 py-3'>
-                    <TableCheckbox name={`cb.selector.MA`} value='ALL' />
-                  </th>
                   <th className='pl-6 py-3'>ID</th>
                   <th className='px-6 py-3'>Name</th>
                   <th className='px-6 py-3 w-1/4'>Current Milestones</th>
@@ -80,10 +56,6 @@ export const Table: React.FC = () => {
                       key={app.id}
                       className='text-left whitespace-nowrap even:bg-gray-100 text-sm '
                     >
-                      <th className='pl-6'>
-                        <TableCheckbox name={`cb.selector.MA`} value={app.id} />
-                      </th>
-
                       <th className='font-normal px-6 py-4'>AB1234</th>
                       <th className='font-normal px-6 py-4'>{app.name}</th>
 

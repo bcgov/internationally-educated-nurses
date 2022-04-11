@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   faCalendar,
   faPencilAlt,
@@ -130,30 +130,7 @@ interface MilestoneFormProps {
 }
 
 const MilestoneForm: React.FC<MilestoneFormProps> = ({ buttonText, icon, handleSubmit }) => {
-  const [milestoneDropdownOptions, setMilestoneDropdownOptions] = useState<MilestoneType[]>([]);
-
-  // useEffect for milestone status options
-  useEffect(() => {
-    let isUnmounted = false;
-    try {
-      if (!isUnmounted) {
-        const getMilestoneData = async () => {
-          const data = await getMilestoneOptions();
-
-          setMilestoneDropdownOptions(data);
-        };
-
-        getMilestoneData();
-      }
-    } catch (err) {
-      toast.error('Error retrieving status options');
-    }
-
-    //prevent unmounting error
-    return () => {
-      isUnmounted = true;
-    };
-  }, []);
+  const milestones = getMilestoneOptions();
 
   return (
     <div className='border border-gray-200 rounded bg-gray-200 my-3 px-3 pb-4'>
@@ -164,8 +141,9 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({ buttonText, icon, handleS
               <div className='flex justify-between mb-4'>
                 <span className='flex-grow pr-1 md:pr-2'>
                   <Select name='status' label='Milestone'>
-                    {milestoneDropdownOptions &&
-                      milestoneDropdownOptions.map(opt => (
+                    {milestones &&
+                      milestones.length > 0 &&
+                      milestones.map((opt: MilestoneType) => (
                         <Option key={opt.id} label={opt.status} value={opt.id} />
                       ))}
                   </Select>
