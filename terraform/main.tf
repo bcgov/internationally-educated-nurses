@@ -36,4 +36,5 @@ locals {
   db_name = "${local.namespace}-db"
 
   has_domain = var.domain != ""
+  fw_domain  = length(regexall("freshworks", var.domain)) > 0
 }

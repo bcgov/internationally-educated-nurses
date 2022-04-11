@@ -20,12 +20,12 @@ resource "aws_cloudfront_origin_access_identity" "app" {
   comment = local.app_name
 }
 
-# data "aws_acm_certificate" "domain" {
-#   count    = local.has_domain ? 1 : 0
-#   provider = aws.us-east-1
-#   domain   = var.domain
-#   statuses = ["ISSUED"]
-# }
+data "aws_acm_certificate" "domain" {
+  count    = local.has_domain ? 1 : 0
+  provider = aws.us-east-1
+  domain   = var.domain
+  statuses = ["ISSUED"]
+}
 
 
 
@@ -48,9 +48,9 @@ resource "aws_cloudfront_function" "request" {
 
 resource "aws_cloudfront_distribution" "app" {
   comment = local.app_name
+  
+  aliases = local.fw_domain ? [var.domain] : []
 
-  # aliases = local.fw_domain ? [var.domain] : [] # Production DNS names to be populated
-  aliases = []
   origin {
     domain_name = aws_s3_bucket.app.bucket_regional_domain_name
     origin_id   = local.s3_origin_id
@@ -158,17 +158,14 @@ resource "aws_cloudfront_distribution" "app" {
     }
   }
 
-  # viewer_certificate {
-  #   cloudfront_default_certificate = local.has_domain ? false : true
-
-  #   acm_certificate_arn      = local.has_domain ? data.aws_acm_certificate.domain[0].arn : null
-  #   minimum_protocol_version = local.has_domain ? "TLSv1.2_2019" : null
-  #   ssl_support_method       = local.has_domain ? "sni-only" : null
-  # }
-
   viewer_certificate {
-    cloudfront_default_certificate = true
+    cloudfront_default_certificate = local.has_domain ? false : true
+
+    acm_certificate_arn      = local.has_domain ? data.aws_acm_certificate.domain[0].arn : null
+    minimum_protocol_version = local.has_domain ? "TLSv1.2_2019" : null
+    ssl_support_method       = local.has_domain ? "sni-only" : null
   }
+
 
 
   custom_error_response {
