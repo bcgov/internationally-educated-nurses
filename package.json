@@ -12,7 +12,6 @@
     "build": "echo 'Building packages' && wsrun --stages --exclude-missing build",
     "check": "run-p 'lint' 'format:check'",
     "prepare": "husky install",
-    "precommit": "run-p 'format:staged'",
     "watch:common": "wsrun --stages --exclude-missing watch",
     "watch:api": "yarn workspace @ien/api start:dev",
     "watch:web": "yarn workspace @ien/web dev",
