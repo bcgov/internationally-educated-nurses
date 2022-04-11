@@ -21,16 +21,14 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { IENApplicantService } from './ienapplicant.service';
 import { EmptyResponse } from 'src/common/ro/empty-response.ro';
 import { AppLogger } from 'src/common/logger.service';
-import { IENApplicant } from './entity/ienapplicant.entity';
 import { IENApplicantCreateUpdateAPIDTO } from './dto/ienapplicant-create.dto';
 import { IENApplicantFilterByIdAPIDTO } from './dto/ienapplicant-by-id.dto';
 import { IENApplicantAddStatusAPIDTO } from './dto/ienapplicant-add-status.dto';
 import { IENApplicantFilterAPIDTO } from './dto/ienapplicant-filter.dto';
 import { QueryFailedError } from 'typeorm';
 import { IENApplicantUpdateStatusAPIDTO } from './dto/ienapplicant-update-status.dto';
-import { IENApplicantStatusAudit } from './entity/ienapplicant-status-audit.entity';
 import { IENApplicantJobCreateUpdateAPIDTO } from './dto/ienapplicant-job-create.dto';
-import { IENApplicantJob } from './entity/ienjob.entity';
+import { ApplicantJobRO, ApplicantRO, ApplicantStatusAuditRO } from '@ien/common';
 
 @Controller('ien')
 @ApiTags('IEN Applicant')
@@ -47,7 +45,7 @@ export class IENApplicantController {
   @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
   @HttpCode(HttpStatus.OK)
   @Get('/')
-  async getApplicants(@Query() filter: IENApplicantFilterAPIDTO): Promise<IENApplicant[]> {
+  async getApplicants(@Query() filter: IENApplicantFilterAPIDTO): Promise<ApplicantRO[]> {
     try {
       return await this.ienapplicantService.getApplicants(filter);
     } catch (e) {
@@ -66,7 +64,7 @@ export class IENApplicantController {
   getApplicant(
     @Param('id') id: string,
     @Query() relation: IENApplicantFilterByIdAPIDTO,
-  ): Promise<IENApplicant> {
+  ): Promise<ApplicantRO> {
     try {
       return this.ienapplicantService.getApplicantById(id, relation);
     } catch (e) {
@@ -88,7 +86,7 @@ export class IENApplicantController {
   @ApiResponse({ status: HttpStatus.CREATED, type: EmptyResponse })
   @HttpCode(HttpStatus.CREATED)
   @Post('/')
-  async addApplicant(@Body() addApplicant: IENApplicantCreateUpdateAPIDTO): Promise<IENApplicant> {
+  async addApplicant(@Body() addApplicant: IENApplicantCreateUpdateAPIDTO): Promise<ApplicantRO> {
     try {
       return await this.ienapplicantService.addApplicant(addApplicant);
     } catch (e) {
@@ -112,7 +110,7 @@ export class IENApplicantController {
   updateApplicant(
     @Param('id') id: string,
     @Body() applicantUpdate: IENApplicantCreateUpdateAPIDTO,
-  ): Promise<IENApplicant | undefined> {
+  ): Promise<ApplicantRO | undefined> {
     try {
       return this.ienapplicantService.updateApplicantInfo(id, applicantUpdate);
     } catch (e) {
@@ -136,7 +134,7 @@ export class IENApplicantController {
   addApplicantStatus(
     @Param('id') id: string,
     @Body() applicantStatus: IENApplicantAddStatusAPIDTO,
-  ): Promise<IENApplicantStatusAudit | undefined> {
+  ): Promise<ApplicantStatusAuditRO | undefined> {
     try {
       return this.ienapplicantService.addApplicantStatus(id, applicantStatus);
     } catch (e) {
@@ -163,7 +161,7 @@ export class IENApplicantController {
     @Param('id') id: string,
     @Param('status_id') status_id: string,
     @Body() applicantStatus: IENApplicantUpdateStatusAPIDTO,
-  ): Promise<IENApplicantStatusAudit | undefined> {
+  ): Promise<ApplicantStatusAuditRO | undefined> {
     try {
       return this.ienapplicantService.updateApplicantStatus(status_id, applicantStatus);
     } catch (e) {
@@ -189,7 +187,7 @@ export class IENApplicantController {
   addApplicantJob(
     @Param('id') id: string,
     @Body() jobData: IENApplicantJobCreateUpdateAPIDTO,
-  ): Promise<IENApplicantJob | undefined> {
+  ): Promise<ApplicantJobRO | undefined> {
     try {
       return this.ienapplicantService.addApplicantJob(id, jobData);
     } catch (e) {
@@ -216,9 +214,9 @@ export class IENApplicantController {
     @Param('id') id: string,
     @Param('job_applicant_id') job_applicant_id: string,
     @Body() jobData: IENApplicantJobCreateUpdateAPIDTO,
-  ): Promise<IENApplicantJob | undefined> {
+  ): Promise<ApplicantJobRO | undefined> {
     try {
-      return this.ienapplicantService.updateApplicantJob(job_applicant_id, jobData);
+      return this.ienapplicantService.updateApplicantJob(id, job_applicant_id, jobData);
     } catch (e) {
       this.logger.error(e);
       if (e instanceof NotFoundException) {
@@ -241,7 +239,7 @@ export class IENApplicantController {
   @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
   @HttpCode(HttpStatus.OK)
   @Get('/:id/jobs')
-  getApplicantJobs(@Param('id') id: string): Promise<IENApplicantJob[]> {
+  getApplicantJobs(@Param('id') id: string): Promise<ApplicantJobRO[]> {
     try {
       return this.ienapplicantService.getApplicantJobs(id);
     } catch (e) {

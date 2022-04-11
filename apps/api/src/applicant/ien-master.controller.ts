@@ -13,13 +13,15 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { IENMasterService } from './ien-master.service';
 import { EmptyResponse } from 'src/common/ro/empty-response.ro';
 import { AppLogger } from 'src/common/logger.service';
-import { IENApplicantStatus } from './entity/ienapplicant-status.entity';
-import { IENHaPcn } from './entity/ienhapcn.entity';
-import { IENUsers } from './entity/ienusers.entity';
-import { IENEducation } from './entity/ieneducation.entity';
-import { IENJobTitle } from './entity/ienjobtitles.entity';
-import { IENJobLocation } from './entity/ienjoblocation.entity';
-import { IENStatusReason } from './entity/ienstatus-reason.entity';
+import {
+  IENApplicantStatusRO,
+  IENEducationRO,
+  IENHaPcnRO,
+  IENJobLocationRO,
+  IENJobTitleRO,
+  IENStatusReasonRO,
+  IENUserRO,
+} from '@ien/common';
 
 @Controller('ienmaster')
 @ApiTags('IEN Master')
@@ -36,7 +38,7 @@ export class IENMasterController {
   @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
   @HttpCode(HttpStatus.OK)
   @Get('/status')
-  async getApplicantStatus(): Promise<IENApplicantStatus[]> {
+  async getApplicantStatus(): Promise<IENApplicantStatusRO[]> {
     try {
       return await this.ienmasterService.getStatus();
     } catch (e) {
@@ -52,7 +54,7 @@ export class IENMasterController {
   @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
   @HttpCode(HttpStatus.OK)
   @Get('/ha-pcn')
-  async getHaPcn(): Promise<IENHaPcn[]> {
+  async getHaPcn(): Promise<IENHaPcnRO[]> {
     try {
       return await this.ienmasterService.getHaPcn();
     } catch (e) {
@@ -70,7 +72,7 @@ export class IENMasterController {
   @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
   @HttpCode(HttpStatus.OK)
   @Get('/users')
-  async getUsers(): Promise<IENUsers[]> {
+  async getUsers(): Promise<IENUserRO[]> {
     try {
       return await this.ienmasterService.getUsers();
     } catch (e) {
@@ -86,7 +88,7 @@ export class IENMasterController {
   @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
   @HttpCode(HttpStatus.OK)
   @Get('/education')
-  async getEducation(): Promise<IENEducation[]> {
+  async getEducation(): Promise<IENEducationRO[]> {
     try {
       return await this.ienmasterService.getEducation();
     } catch (e) {
@@ -102,7 +104,7 @@ export class IENMasterController {
   @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
   @HttpCode(HttpStatus.OK)
   @Get('/job-titles')
-  async getJobTitles(): Promise<IENJobTitle[]> {
+  async getJobTitles(): Promise<IENJobTitleRO[]> {
     try {
       return await this.ienmasterService.getJobTitles();
     } catch (e) {
@@ -118,7 +120,7 @@ export class IENMasterController {
   @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
   @HttpCode(HttpStatus.OK)
   @Get('/job-locations')
-  async getJobLocations(): Promise<IENJobLocation[]> {
+  async getJobLocations(): Promise<IENJobLocationRO[]> {
     try {
       return await this.ienmasterService.getJobLocations();
     } catch (e) {
@@ -134,7 +136,7 @@ export class IENMasterController {
   @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
   @HttpCode(HttpStatus.OK)
   @Get('/reasons')
-  async getStatusReasons(): Promise<IENStatusReason[]> {
+  async getStatusReasons(): Promise<IENStatusReasonRO[]> {
     try {
       return await this.ienmasterService.getStatusReasons();
     } catch (e) {

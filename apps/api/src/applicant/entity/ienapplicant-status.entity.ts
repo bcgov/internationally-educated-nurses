@@ -1,10 +1,10 @@
-import { Entity, Column, OneToMany, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { Entity, Column, OneToMany, PrimaryColumn, ManyToOne } from 'typeorm';
 import { IENApplicantStatusAudit } from './ienapplicant-status-audit.entity';
 import { IENApplicant } from './ienapplicant.entity';
 
 @Entity('ien_applicant_status')
 export class IENApplicantStatus {
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn()
   id!: number;
 
   @Column()

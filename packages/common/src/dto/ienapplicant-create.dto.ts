@@ -39,7 +39,7 @@ export class IENApplicantCreateUpdateDTO {
   assigned_to?: JSON;
 
   @IsOptional()
-  country_of_citizenship?: string;
+  country_of_citizenship?: string[] | string;
 
   @IsOptional()
   country_of_residence?: string;
