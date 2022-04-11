@@ -38,6 +38,10 @@ export class ExternalRequest {
     return await this.getData(`/Reason`);
   }
 
+  async getMilestone() {
+    return await this.getData(`/Milestone`);
+  }
+
   async getApplicants() {
     const header = {
       ApiKey: process.env.HMBC_ATS_AUTH_KEY,

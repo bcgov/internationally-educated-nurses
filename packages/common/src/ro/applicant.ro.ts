@@ -3,6 +3,7 @@ import {
   IENHaPcnRO,
   IENJobLocationRO,
   IENJobTitleRO,
+  IENStatusReasonRO,
   IENUserRO,
 } from './ien.ro';
 
@@ -49,7 +50,7 @@ export interface ApplicantJobRO {
 }
 
 export interface ApplicantStatusAuditRO {
-  id: number;
+  id: string;
   status: IENApplicantStatusRO;
   job?: ApplicantJobRO | null;
   applicant: ApplicantRO;
@@ -60,6 +61,10 @@ export interface ApplicantStatusAuditRO {
   updated_by?: IENUserRO | null;
   created_date?: Date;
   updated_date?: Date;
+  status_period?: number | null;
+  reason?: IENStatusReasonRO | null;
+  reason_other?: string | null;
+  effective_date?: Date;
 }
 
 export interface ApplicantAuditRO {

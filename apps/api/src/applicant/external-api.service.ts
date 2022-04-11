@@ -3,11 +3,14 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ExternalRequest } from 'src/common/external-request';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IENHaPcn } from './entity/ienhapcn.entity';
-import { Repository } from 'typeorm';
+import { getManager, In, Repository } from 'typeorm';
 import { IENUsers } from './entity/ienusers.entity';
 import { IENStatusReason } from './entity/ienstatus-reason.entity';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicant } from './entity/ienapplicant.entity';
+import { IENApplicantStatus } from './entity/ienapplicant-status.entity';
+import { getMilestoneCategory } from 'src/common/util';
+import { IENApplicantStatusAudit } from './entity/ienapplicant-status-audit.entity';
 
 @Injectable()
 export class ExternalAPIService {
@@ -23,6 +26,10 @@ export class ExternalAPIService {
     private readonly ienStatusReasonRepository: Repository<IENStatusReason>,
     @InjectRepository(IENApplicant)
     private readonly ienapplicantRepository: Repository<IENApplicant>,
+    @InjectRepository(IENApplicantStatus)
+    private readonly ienApplicantStatusRepository: Repository<IENApplicantStatus>,
+    @InjectRepository(IENApplicantStatusAudit)
+    private readonly ienapplicantStatusAuditRepository: Repository<IENApplicantStatusAudit>,
   ) {}
 
   /**
@@ -32,8 +39,9 @@ export class ExternalAPIService {
     const ha = this.saveHa();
     const users = this.saveUsers();
     const reasons = this.saveReasons();
+    const milestones = this.saveMilestones();
 
-    await Promise.all([ha, users, reasons]).then(res => {
+    await Promise.all([ha, users, reasons, milestones]).then(res => {
       this.logger.log(`Response: ${res}`);
       this.logger.log(`Master tables imported at ${new Date()}`);
     });
@@ -110,6 +118,42 @@ export class ExternalAPIService {
   }
 
   /**
+   * Let's clean and map status/milestone object with existing schema
+   * and upsert it.
+   */
+  async saveMilestones(): Promise<void> {
+    try {
+      const data = await this.external_request.getMilestone();
+      if (Array.isArray(data)) {
+        await this.ienApplicantStatusRepository.upsert(this.cleanAndFilterMilestone(data), ['id']);
+      }
+    } catch (e) {
+      this.logger.log(`Error in saveReasons(): ${e}`);
+    }
+  }
+
+  cleanAndFilterMilestone(data: any) {
+    return data.reduce(
+      (
+        filtered: { parent: number; id: string | number; status: string; party: string }[],
+        item: { category: string; id: string | number; name: string; party: string },
+      ) => {
+        const category = getMilestoneCategory(item.category);
+        if (category && category !== 10003) {
+          filtered.push({
+            id: item.id,
+            status: item.name,
+            party: item.party,
+            parent: category,
+          });
+        }
+        return filtered;
+      },
+      [],
+    );
+  }
+
+  /**
    * fetch and upsert applicant details
    */
   async saveApplicant(): Promise<void> {
@@ -146,8 +190,51 @@ export class ExternalAPIService {
    * @param data Raw Applicant data
    */
   async createBulkApplicants(data: any) {
+    // upsert applicant list first
+    const applicants = await this.mapApplicants(data);
+    const processed_applicant = await this.ienapplicantRepository.upsert(applicants, [
+      'applicant_id',
+    ]);
+    this.logger.log(`processed_applicant`);
+    this.logger.log(processed_applicant.raw);
+    const mappedApplicantList = processed_applicant?.raw.map((item: { id: string | number }) => {
+      return item.id;
+    });
+
+    // Upsert milestones
+    const milestones = await this.mapMilestones(data, mappedApplicantList);
+    if (milestones.length > 0) {
+      try {
+        const updatedstatus = await this.ienapplicantStatusAuditRepository
+          .createQueryBuilder()
+          .insert()
+          .into(IENApplicantStatusAudit)
+          .values(milestones)
+          .orIgnore(`("status_id", "applicant_id", "start_date") WHERE job_id IS NULL`)
+          .execute();
+        this.logger.log(`updatedstatus`);
+        this.logger.log(updatedstatus.raw);
+      } catch (e) {
+        this.logger.log(`milestone upsert`);
+        this.logger.error(e);
+      }
+    }
+
+    // update applicant with latest status
+    const updatedApplicants = await getManager().query(
+      `UPDATE ien_applicants SET status_id = (SELECT status_id FROM ien_applicant_status_audit asa WHERE asa.applicant_id=ien_applicants.id ORDER BY asa.start_date DESC limit 1)`,
+    );
+    this.logger.log({ updatedApplicants });
+  }
+
+  /**
+   * Map raw data with existing applicant schema
+   * @param data raw applicant data
+   * @returns object that use in upsert applicants
+   */
+  async mapApplicants(data: any) {
     const { users, ha } = await this.getApplicantMasterData();
-    const applicants = data.map(
+    return data.map(
       (a: {
         health_authorities: { title: string; id: number | string }[] | undefined;
         assigned_to: { id: string | number; name: string }[] | undefined;
@@ -159,6 +246,7 @@ export class ExternalAPIService {
         phone_number: string;
         country_of_citizenship: string[] | string;
         country_of_residence: string;
+        bccnm_license_number: string;
         nursing_educations: any;
         notes: any;
       }) => {
@@ -195,6 +283,7 @@ export class ExternalAPIService {
           registration_date: new Date(a.registration_date),
           country_of_citizenship: citizenship,
           country_of_residence: a.country_of_residence,
+          bccnm_license_number: a?.bccnm_license_number,
           nursing_educations: a.nursing_educations,
           health_authorities: health_authorities,
           notes: a.notes,
@@ -206,9 +295,78 @@ export class ExternalAPIService {
         };
       },
     );
-    const processed_applicant = await this.ienapplicantRepository.upsert(applicants, [
-      'applicant_id',
-    ]);
-    this.logger.log({ processed_applicant });
+  }
+
+  /**
+   * We need to ignore all the recruiment related milestone for now
+   */
+  async allowedMilestones(): Promise<number[] | []> {
+    const allowedIds: number[] = [];
+    const milestones = await this.ienApplicantStatusRepository.find({
+      select: ['id'],
+      where: {
+        parent: In([10001, 10002, 10004, 10005]),
+      },
+    });
+    milestones.forEach(a => allowedIds.push(a.id));
+    return allowedIds;
+  }
+
+  /**
+   *
+   * @param data raw applicant data
+   * @param mappedApplicantList applicant_id and applicant.id map
+   * @returns object that use in upsert milestone/status
+   */
+  async mapMilestones(data: any, mappedApplicantList: string[]) {
+    const savedApplicants = await this.ienapplicantRepository.findByIds(mappedApplicantList);
+    const applicantIdsMapping: any = {};
+    const milestones: any = [];
+    if (savedApplicants.length > 0) {
+      savedApplicants.forEach(item => {
+        applicantIdsMapping[`${item.applicant_id}`] = item.id;
+      });
+      const allowedMilestones = await this.allowedMilestones();
+      data.forEach(
+        (item: {
+          applicant_id: string | number;
+          hasOwnProperty: (arg0: string) => any;
+          milestones: any;
+        }) => {
+          const tableId = applicantIdsMapping[item.applicant_id];
+          if (item.hasOwnProperty('milestones')) {
+            const existingMilestones = item.milestones;
+            if (Array.isArray(existingMilestones)) {
+              existingMilestones.forEach(m => {
+                if (m.id in allowedMilestones) {
+                  const temp: any = {
+                    status: m.id,
+                    start_date: m.start_date,
+                    created_date: m.created_date,
+                    updated_date: m.created_date,
+                    applicant: tableId,
+                    added_by: null,
+                  };
+                  if ('added_by' in m && m.added_by > 0) {
+                    temp['added_by'] = m.added_by;
+                  }
+                  if ('reason_id' in m) {
+                    temp['reason'] = m.reason_id;
+                  }
+                  if ('reason_other' in m) {
+                    temp['reason_other'] = m.reason_other;
+                  }
+                  if ('effective_date' in m) {
+                    temp['effective_date'] = m.effective_date;
+                  }
+                  milestones.push(temp);
+                }
+              });
+            }
+          }
+        },
+      );
+    }
+    return milestones;
   }
 }

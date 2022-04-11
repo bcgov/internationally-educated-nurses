@@ -10,12 +10,12 @@ export class IENApplicantFilterAPIDTO extends IENApplicantFilterDTO {
   @IsString()
   ha_pcn?: string;
 
-  // @ApiPropertyOptional({
-  //   description: 'Provide optional status(with comma separated values e.g. 9,10,11)',
-  // })
-  // @IsOptional()
-  // @IsString()
-  // status?: string;
+  @ApiPropertyOptional({
+    description: 'Provide optional status(with comma separated values e.g. 9,10,11)',
+  })
+  @IsOptional()
+  @IsString()
+  status?: string;
 
   @ApiPropertyOptional({
     description: 'Keyword that use to filter name',

@@ -10,6 +10,9 @@ export class IENApplicantStatus {
   @Column()
   status!: string;
 
+  @Column('varchar', { nullable: true })
+  party?: string;
+
   @ManyToOne(() => IENApplicantStatus, status => status.id)
   parent?: IENApplicantStatus;
 
