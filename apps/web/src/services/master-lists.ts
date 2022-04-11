@@ -30,17 +30,13 @@ export const getAddRecordOptions = (): RecordType => {
   return { haPcn, jobLocation, jobTitle };
 };
 
-export interface MilestoneTypeOptions {
+export interface MilestoneType {
   id: string;
   status: string;
 }
 
-export interface MilestoneType {
-  milestones: MilestoneTypeOptions[];
-}
-
 // milestone status' for adding milestones
-export const getMilestoneOptions = (): MilestoneType => {
+export const getMilestoneOptions = (): MilestoneType[] => {
   const { data: milestones } = useSWRImmutable('ienmaster/status', fetcher);
 
   return milestones?.data.filter((item: { id: number }) => item.id == 10003)[0].children;

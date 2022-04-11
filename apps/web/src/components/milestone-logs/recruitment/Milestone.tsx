@@ -13,7 +13,7 @@ import { toast } from 'react-toastify';
 
 import { buttonBase, buttonColor, Select, Option, Field } from '@components';
 import { IENApplicantAddStatusDTO, formatDate } from '@ien/common';
-import { addMilestone, getMilestoneOptions, MilestoneTypeOptions } from '@services';
+import { addMilestone, getMilestoneOptions, MilestoneType } from '@services';
 
 //@todo change any type
 const initialValues: IENApplicantAddStatusDTO = {
@@ -131,7 +131,7 @@ interface MilestoneFormProps {
 
 const MilestoneForm: React.FC<MilestoneFormProps> = ({ buttonText, icon, handleSubmit }) => {
   const milestones = getMilestoneOptions();
-
+  console.log(milestones);
   return (
     <div className='border border-gray-200 rounded bg-gray-200 my-3 px-3 pb-4'>
       <div className='w-full pt-4'>
@@ -143,7 +143,7 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({ buttonText, icon, handleS
                   <Select name='status' label='Milestone'>
                     {milestones &&
                       milestones.length > 0 &&
-                      milestones.map((opt: MilestoneTypeOptions) => (
+                      milestones.map((opt: MilestoneType) => (
                         <Option key={opt.id} label={opt.status} value={opt.id} />
                       ))}
                   </Select>
