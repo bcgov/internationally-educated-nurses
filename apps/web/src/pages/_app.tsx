@@ -16,8 +16,8 @@ import { CachePolicies, Provider } from 'use-http';
 axios.defaults.baseURL = process.env.NEXT_PUBLIC_API_URL;
 
 const keycloakConfig = {
-  realm: process.env.NEXT_PUBLIC_AUTH_REALM || 'ien',
-  url: process.env.NEXT_PUBLIC_AUTH_URL || 'https://keycloak.freshworks.club/auth',
+  realm: process.env.NEXT_PUBLIC_AUTH_REALM || 'moh_applications',
+  url: process.env.NEXT_PUBLIC_AUTH_URL || 'https://common-logon-dev.hlth.gov.bc.ca/auth',
   clientId: process.env.NEXT_PUBLIC_AUTH_CLIENTID || 'IEN',
 };
 
