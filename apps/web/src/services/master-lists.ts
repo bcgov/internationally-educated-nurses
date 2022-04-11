@@ -39,5 +39,5 @@ export const getMilestoneOptions = async (): Promise<MilestoneType[]> => {
     data: { data },
   } = await axios.get('ienmaster/status');
 
-  return data[2].children;
+  return data.filter((item: { id: number; }) => item.id==10003)[0].children;
 };

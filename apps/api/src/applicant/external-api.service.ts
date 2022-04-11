@@ -66,7 +66,7 @@ export class ExternalAPIService {
   async saveHa(): Promise<void> {
     try {
       const data = await this.external_request.getHa();
-      if (data instanceof Array) {
+      if (Array.isArray(data)) {
         const listHa = data.map((item: { title: string; name: any }) => {
           item.title = item.name;
           delete item.name;
@@ -86,7 +86,7 @@ export class ExternalAPIService {
   async saveUsers(): Promise<void> {
     try {
       const data = await this.external_request.getStaff();
-      if (data instanceof Array) {
+      if (Array.isArray(data)) {
         await this.ienUsersRepository.upsert(data, ['id']);
       }
     } catch (e) {
@@ -101,7 +101,7 @@ export class ExternalAPIService {
   async saveReasons(): Promise<void> {
     try {
       const data = await this.external_request.getReason();
-      if (data instanceof Array) {
+      if (Array.isArray(data)) {
         await this.ienStatusReasonRepository.upsert(data, ['id']);
       }
     } catch (e) {
@@ -181,7 +181,7 @@ export class ExternalAPIService {
         }
 
         let citizenship = null;
-        if (a.country_of_citizenship && a.country_of_citizenship instanceof Array) {
+        if (a.country_of_citizenship && Array.isArray(a.country_of_citizenship)) {
           citizenship = a.country_of_citizenship;
         } else {
           citizenship = [a.country_of_citizenship];
