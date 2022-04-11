@@ -48,10 +48,7 @@ resource "aws_cloudfront_function" "request" {
 
 resource "aws_cloudfront_distribution" "app" {
   comment = local.app_name
-  // dev.ien.freshworks.club
-  // work on condition 
-  //aliases = var.target_env  ? [var.domain] : [] # Production DNS names to be populated
-
+  
   aliases = local.fw_domain ? [var.domain] : []
 
   origin {
@@ -169,9 +166,6 @@ resource "aws_cloudfront_distribution" "app" {
     ssl_support_method       = local.has_domain ? "sni-only" : null
   }
 
-  # viewer_certificate {
-  #   cloudfront_default_certificate = true
-  # }
 
 
   custom_error_response {
