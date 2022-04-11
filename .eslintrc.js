@@ -18,6 +18,7 @@ module.exports = {
       'error',
       { vars: 'all', args: 'after-used', ignoreRestSiblings: false },
     ],
+    'no-console': 'error',
   },
   ignorePatterns: ['.eslintrc.js', '**/*spec.ts', 'dist', 'node_modules'],
 };
