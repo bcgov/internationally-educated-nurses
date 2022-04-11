@@ -25,7 +25,9 @@ export class AuthenticationMiddleware implements NestMiddleware {
       throw new HttpException('Token not found', HttpStatus.BAD_GATEWAY);
     }
     try {
-      const uri = 'https://keycloak.freshworks.club/auth/realms/ien/protocol/openid-connect/certs';
+      const uri =
+        process.env.KEYCLOAK_URL ||
+        'https://keycloak.freshworks.club/auth/realms/ien/protocol/openid-connect/certs';
       const jwksClient = jwksRsa({
         jwksUri: uri,
       });
