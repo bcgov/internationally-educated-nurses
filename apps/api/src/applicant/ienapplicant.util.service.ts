@@ -48,24 +48,24 @@ export class IENApplicantUtilService {
    * @returns retrun promise of find()
    */
   async applicantFilterQueryBuilder(filter: IENApplicantFilterAPIDTO) {
-    const { ha_pcn, name } = filter;
+    const { ha_pcn, name, status } = filter;
     const query: object = {
       order: {
         updated_date: 'DESC',
       },
       relations: this.applicantRelations.status,
     };
-    if (!ha_pcn && !name) {
+    if (!ha_pcn && !name && !status) {
       return this.ienapplicantRepository.find(query);
     }
 
     let where: object = {};
     let isWhere = false;
-    // if (status) {
-    //   const status_list = await this.fetchChildStatusList(status);
-    //   where = { status: In(status_list), ...where };
-    //   isWhere = true;
-    // }
+    if (status) {
+      const status_list = await this.fetchChildStatusList(status);
+      where = { status: In(status_list), ...where };
+      isWhere = true;
+    }
 
     if (name && name.trim() !== '') {
       where = { name: ILike(`%${name.trim()}%`), ...where };

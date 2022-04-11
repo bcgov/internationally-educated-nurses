@@ -7,16 +7,22 @@ import {
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  Index,
 } from 'typeorm';
 import { IENApplicantStatus } from './ienapplicant-status.entity';
 import { IENApplicant } from './ienapplicant.entity';
 import { IENApplicantJob } from './ienjob.entity';
+import { IENStatusReason } from './ienstatus-reason.entity';
 import { IENUsers } from './ienusers.entity';
 
 @Entity('ien_applicant_status_audit')
+@Index('unique_applicant_status_date', ['applicant', 'status', 'start_date'], { unique: true })
+@Index('unique_applicant_status_date_job', ['applicant', 'status', 'start_date', 'job'], {
+  unique: true,
+})
 export class IENApplicantStatusAudit {
-  @PrimaryGeneratedColumn()
-  id!: number;
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
 
   @ManyToOne(() => IENApplicantStatus, status => status.applicants)
   @JoinColumn({ name: 'status_id' })
@@ -38,7 +44,6 @@ export class IENApplicantStatusAudit {
   @Column('varchar', { nullable: true })
   notes?: string;
 
-  // We need to identify details that we want to capture here.
   @ManyToOne(() => IENUsers, user => user.id)
   @JoinColumn({ name: 'added_by_id' })
   added_by?: IENUsers | null;
@@ -46,6 +51,16 @@ export class IENApplicantStatusAudit {
   @ManyToOne(() => IENUsers, user => user.id)
   @JoinColumn({ name: 'updated_by_id' })
   updated_by?: IENUsers | null;
+
+  @ManyToOne(() => IENStatusReason, reason => reason.id)
+  @JoinColumn({ name: 'reason_id' })
+  reason?: IENStatusReason | null;
+
+  @Column('varchar', { nullable: true })
+  reason_other?: string;
+
+  @Column('date', { nullable: true })
+  effective_date?: Date;
 
   @CreateDateColumn()
   created_date!: Date;
