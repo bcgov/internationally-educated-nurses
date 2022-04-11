@@ -131,7 +131,7 @@ interface MilestoneFormProps {
 
 const MilestoneForm: React.FC<MilestoneFormProps> = ({ buttonText, icon, handleSubmit }) => {
   const milestones = getMilestoneOptions();
-  console.log(milestones);
+
   return (
     <div className='border border-gray-200 rounded bg-gray-200 my-3 px-3 pb-4'>
       <div className='w-full pt-4'>
