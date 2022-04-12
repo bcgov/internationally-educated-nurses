@@ -2,8 +2,7 @@
 export const jsonToArray = (json?: any) => {
   const arr: Array<any> = [];
 
-  Object.keys(json).forEach(key => {
-    const { value } = { value: json[key] };
+  Object.values(json).forEach(value => {
     arr.push(value);
   });
 
