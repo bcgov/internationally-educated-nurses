@@ -45,7 +45,7 @@ export class IENApplicantController {
   @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
   @HttpCode(HttpStatus.OK)
   @Get('/')
-  async getApplicants(@Query() filter: IENApplicantFilterAPIDTO): Promise<ApplicantRO[]> {
+  async getApplicants(@Query() filter: IENApplicantFilterAPIDTO): Promise<[ApplicantRO[], number]> {
     try {
       return await this.ienapplicantService.getApplicants(filter);
     } catch (e) {

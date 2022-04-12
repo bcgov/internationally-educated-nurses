@@ -15,7 +15,7 @@ const withAuth = (Component: any, roles: ValidRoles[]) => {
     // eslint-disable-next-line
     useEffect(() => {
       if (kc?.initialized && authUser && !roles.includes(authUser?.role)) {
-        router.replace('/form');
+        router.replace('/applicants');
       }
       if (!authUser && !authUserLoading && kc.initialized && !kc?.keycloak?.authenticated) {
         router.replace('/login');

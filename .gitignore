@@ -12,6 +12,7 @@ dist
 node_modules
 .DS_Store
 .env
+.idea
 
 .eslintcache
 .pgdata

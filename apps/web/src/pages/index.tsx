@@ -6,7 +6,7 @@ const Home: NextPage = () => {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace('/form');
+    router.replace('/applicants');
   }, [router]);
 
   return null;

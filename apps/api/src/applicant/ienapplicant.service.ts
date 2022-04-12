@@ -36,10 +36,12 @@ export class IENApplicantService {
 
   /**
    * List and filter applicants
-   * @param filter accept filter for name, HA and status
+   * @param filter accept filter for name, HA and status, and options for pagination
    * @returns
    */
-  async getApplicants(filter: IENApplicantFilterAPIDTO): Promise<IENApplicant[]> {
+  async getApplicants(
+    filter: IENApplicantFilterAPIDTO,
+  ): Promise<[data: IENApplicant[], count: number]> {
     return await this.ienapplicantUtilService.applicantFilterQueryBuilder(filter);
   }
 

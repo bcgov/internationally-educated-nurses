@@ -40,6 +40,7 @@ module.exports = {
       },
       width: {
         layout: '1140px',
+        xl: '1215px',
       },
       letterSpacing: {
         widest: '.3em',

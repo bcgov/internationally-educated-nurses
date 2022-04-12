@@ -45,7 +45,7 @@ function App({ Component, pageProps }: AppProps) {
           <AuthProvider>
             <div className='h-full flex flex-col'>
               <Header />
-              <main className='flex-grow flex justify-center'>
+              <main className='flex flex-grow w-full justify-center'>
                 <Component {...pageProps} />
               </main>
               <Footer />

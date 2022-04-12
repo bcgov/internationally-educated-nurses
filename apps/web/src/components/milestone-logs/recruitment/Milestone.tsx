@@ -75,6 +75,7 @@ export const EditMilestones: React.FC<EditMilestoneProps> = milestones => {
 
   const handleSubmit = async (values: any) => {
     // @todo hook up endpoint and remove log
+    // eslint-disable-next-line no-console
     console.log('record values: ', values);
   };
 
