@@ -3,39 +3,37 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { toast } from 'react-toastify';
 
 import { AddRecordModal } from '../display/AddRecordModal';
 import { Spinner } from '../Spinner';
 import { Record } from './recruitment/Record';
 import { getJobAndMilestones } from '@services';
 import { buttonBase, buttonColor } from '@components';
+import { ApplicantJobRO } from '@ien/common';
 
 export const Recruitment: React.FC = () => {
   const router = useRouter();
   const applicantId = router.query.applicantId;
   const [isLoading, setIsLoading] = useState(false);
-  const [jobRecords, setJobRecords] = useState<any[]>([]);
+  const [jobRecords, setJobRecords] = useState<ApplicantJobRO[]>();
 
   useEffect(() => {
-    try {
-      const getJobAndMilestonesData = async (id: any) => {
-        setIsLoading(true);
-        const {
-          data: { data },
-        } = await getJobAndMilestones(id);
-        setJobRecords(data);
-        setIsLoading(false);
-      };
+    const getJobAndMilestonesData = async (id: string) => {
+      setIsLoading(true);
 
-      getJobAndMilestonesData(applicantId);
-    } catch (e) {
+      const data = await getJobAndMilestones(id);
+
+      if (data) {
+        setJobRecords(data);
+      }
+
       setIsLoading(false);
-      toast.error('Error retrieving job data');
-    }
+    };
+
+    getJobAndMilestonesData(applicantId as string);
   }, []);
 
-  if (isLoading) {
+  if (isLoading || !jobRecords) {
     return <Spinner className='h-10 my-5' />;
   }
 

@@ -9,7 +9,6 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import createValidator from 'class-validator-formik';
 import { Formik, Form as FormikForm } from 'formik';
-import { toast } from 'react-toastify';
 
 import { buttonBase, buttonColor, Select, Option, Field } from '@components';
 import { IENApplicantAddStatusDTO, formatDate } from '@ien/common';
@@ -46,14 +45,10 @@ export const AddMilestones: React.FC<AddMilestoneProps> = ({
     values.job_id = jobId.toString();
     values.added_by = '1';
 
-    try {
-      const {
-        data: { data },
-      } = await addMilestone(applicantId as string, values);
+    const data = await addMilestone(applicantId as string, values);
 
+    if (data) {
       setJobMilestones([...jobMilestones, data]);
-    } catch (e) {
-      toast.error('Error adding new milestone');
     }
 
     // reset form after submitting
@@ -127,7 +122,7 @@ export const EditMilestones: React.FC<EditMilestoneProps> = milestones => {
 interface MilestoneFormProps {
   buttonText: string;
   icon?: IconDefinition;
-  handleSubmit: (values: any, { resetForm }: any) => void;
+  handleSubmit: (values: IENApplicantAddStatusDTO, { resetForm }: any) => void;
 }
 
 const MilestoneForm: React.FC<MilestoneFormProps> = ({ buttonText, icon, handleSubmit }) => {

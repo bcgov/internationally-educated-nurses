@@ -2,38 +2,34 @@ import { faClock, faListAlt } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { toast } from 'react-toastify';
 
 import { getApplicant, milestoneTabs } from '@services';
 import { HeaderTab } from 'src/components/display/HeaderTab';
 import { Recruitment } from 'src/components/milestone-logs/Recruitment';
 import { DetailsItem } from '@components';
-import { formatDate } from '@ien/common';
+import { ApplicantRO, formatDate, jsonToArray } from '@ien/common';
 import { Spinner } from 'src/components/Spinner';
 
 const Details = () => {
-  const [applicant, setApplicant] = useState<any>({});
+  const [applicant, setApplicant] = useState<ApplicantRO>();
   const [currentTab, setCurrentTab] = useState(1);
 
   const router = useRouter();
   const applicantId = router.query.applicantId;
 
   useEffect(() => {
-    try {
-      if (router.isReady) {
-        if (applicantId !== undefined) {
-          const getApplicantData = async (id: any) => {
-            const {
-              data: { data },
-            } = await getApplicant(id);
-            setApplicant(data);
-          };
+    if (router.isReady) {
+      if (applicantId !== undefined) {
+        const getApplicantData = async (id: string) => {
+          const applicantData = await getApplicant(id);
 
-          getApplicantData(applicantId);
-        }
+          if (applicantData) {
+            setApplicant(applicantData);
+          }
+        };
+
+        getApplicantData(applicantId as string);
       }
-    } catch (e) {
-      toast.error('Error retrieving applicant data');
     }
   }, [router, applicantId]);
 
@@ -77,14 +73,19 @@ const Details = () => {
           <DetailsItem title='Phone Number' text={applicant.phone_number} />
         </div>
         <div className='col-span-3'>
-          <DetailsItem title='Registration date' text={formatDate(applicant.registration_date)} />
+          <DetailsItem
+            title='Registration date'
+            text={applicant.registration_date && formatDate(applicant.registration_date)}
+          />
         </div>
         <div className='col-span-3'>
           <DetailsItem
             title='Assigned To'
             text={
               applicant.assigned_to
-                ? applicant.assigned_to.map((a: { name: any }) => a.name).join(',')
+                ? jsonToArray(applicant.assigned_to)
+                    .map((a: { name: string }) => a.name)
+                    .join(', ')
                 : 'NA'
             }
           />
@@ -104,7 +105,12 @@ const Details = () => {
         <div className='col-span-3'>
           <DetailsItem
             title='Nursing Education'
-            text={applicant.nursing_educations.map((a: { name: any }) => a.name).join(',')}
+            text={
+              applicant.nursing_educations &&
+              jsonToArray(applicant.nursing_educations)
+                .map((a: { name: string }) => a.name)
+                .join(', ')
+            }
           />
         </div>
         <div className='col-span-3'>

@@ -1,7 +1,6 @@
 import { useRouter } from 'next/router';
 import { Formik, Form as FormikForm } from 'formik';
 import createValidator from 'class-validator-formik';
-import { toast } from 'react-toastify';
 
 import { Modal } from '../Modal';
 import { Button } from '@components';
@@ -31,28 +30,23 @@ export const AddRecordModal: React.FC<AddRecordProps> = ({ jobRecords, setJobRec
   };
 
   const handleSubmit = async (values: IENApplicantJobCreateUpdateDTO) => {
-    try {
-      const {
-        data: { data },
-      } = await addJobRecord(applicantId as string, values);
+    const data = await addJobRecord(applicantId as string, values);
 
+    if (data) {
       setJobRecords([data, ...jobRecords]);
-
       delete router.query.record;
       router.back();
-    } catch (e) {
-      toast.error('There was an error adding a new record');
     }
   };
 
   //@todo change any type
-  const initialValues: any = {
+  const initialValues: IENApplicantJobCreateUpdateDTO = {
     ha_pcn: '',
     job_id: '',
     job_title: '',
     job_location: '',
     recruiter_name: '',
-    job_post_date: '2022-03-10',
+    job_post_date: new Date(),
   };
 
   return (

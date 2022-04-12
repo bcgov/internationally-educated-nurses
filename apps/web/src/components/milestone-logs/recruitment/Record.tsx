@@ -6,19 +6,10 @@ import { useRouter } from 'next/router';
 import { buttonBase, buttonColor, DetailsItem, Disclosure } from '@components';
 import { AddMilestones, EditMilestones } from './Milestone';
 import { useEffect, useState } from 'react';
-import { formatDate } from '@ien/common';
+import { ApplicantJobRO, formatDate } from '@ien/common';
 
 interface RecordProps {
-  job: {
-    id: string;
-    ha_pcn: { title: string };
-    job_id: string;
-    job_location: { title: string };
-    job_post_date: Date;
-    job_title: { title: string };
-    recruiter_name: string;
-    status_audit?: any[];
-  };
+  job: ApplicantJobRO;
 }
 
 export const Record: React.FC<RecordProps> = ({ job }) => {
@@ -90,7 +81,7 @@ export const Record: React.FC<RecordProps> = ({ job }) => {
               <DetailsItem title='Recruiter Name' text={recruiter_name} />
               <DetailsItem
                 title='Date Job Was First Posted'
-                text={formatDate(job_post_date.toString())}
+                text={job_post_date && formatDate(job_post_date)}
               />
             </div>
             <Link
