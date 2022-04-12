@@ -37,7 +37,7 @@ const Details = () => {
     }
   }, [router, applicantId]);
 
-  if (!applicant || !applicant.assigned_to || !applicant.health_authorities) {
+  if (!applicant) {
     return <Spinner className='h-20' />;
   }
 
@@ -82,11 +82,7 @@ const Details = () => {
         <div className='col-span-3'>
           <DetailsItem
             title='Assigned To'
-            text={
-              applicant.assigned_to
-                ? applicant.assigned_to.map((a: { name: any }) => a.name).join(',')
-                : 'NA'
-            }
+            text={applicant.assigned_to?.map((a: { name: any }) => a.name).join(',') || 'NA'}
           />
         </div>
         <div className='col-span-3'>
@@ -104,7 +100,7 @@ const Details = () => {
         <div className='col-span-3'>
           <DetailsItem
             title='Nursing Education'
-            text={applicant.nursing_educations.map((a: { name: any }) => a.name).join(',')}
+            text={applicant.nursing_educations?.map((a: { name: any }) => a.name).join(',')}
           />
         </div>
         <div className='col-span-3'>
