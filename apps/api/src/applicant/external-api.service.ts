@@ -191,40 +191,48 @@ export class ExternalAPIService {
    */
   async createBulkApplicants(data: any) {
     // upsert applicant list first
-    const applicants = await this.mapApplicants(data);
-    const processed_applicant = await this.ienapplicantRepository.upsert(applicants, [
-      'applicant_id',
-    ]);
-    this.logger.log(`processed_applicant`);
-    this.logger.log(processed_applicant.raw);
-    const mappedApplicantList = processed_applicant?.raw.map((item: { id: string | number }) => {
-      return item.id;
-    });
-
-    // Upsert milestones
-    const milestones = await this.mapMilestones(data, mappedApplicantList);
-    if (milestones.length > 0) {
-      try {
-        const updatedstatus = await this.ienapplicantStatusAuditRepository
-          .createQueryBuilder()
-          .insert()
-          .into(IENApplicantStatusAudit)
-          .values(milestones)
-          .orIgnore(`("status_id", "applicant_id", "start_date") WHERE job_id IS NULL`)
-          .execute();
-        this.logger.log(`updatedstatus`);
-        this.logger.log(updatedstatus.raw);
-      } catch (e) {
-        this.logger.log(`milestone upsert`);
-        this.logger.error(e);
-      }
+    if (!Array.isArray(data)) {
+      this.logger.error(`Applicant data error:`, data);
+      return;
     }
+    const applicants = await this.mapApplicants(data);
+    if (applicants.length > 0) {
+      const processed_applicant = await this.ienapplicantRepository.upsert(applicants, [
+        'applicant_id',
+      ]);
+      this.logger.log(`processed_applicant`);
+      this.logger.log(processed_applicant.raw);
+      const mappedApplicantList = processed_applicant?.raw.map((item: { id: string | number }) => {
+        return item.id;
+      });
 
-    // update applicant with latest status
-    const updatedApplicants = await getManager().query(
-      `UPDATE ien_applicants SET status_id = (SELECT status_id FROM ien_applicant_status_audit asa WHERE asa.applicant_id=ien_applicants.id ORDER BY asa.start_date DESC limit 1)`,
-    );
-    this.logger.log({ updatedApplicants });
+      // Upsert milestones
+      const milestones = await this.mapMilestones(data, mappedApplicantList);
+      if (milestones.length > 0) {
+        try {
+          const updatedstatus = await this.ienapplicantStatusAuditRepository
+            .createQueryBuilder()
+            .insert()
+            .into(IENApplicantStatusAudit)
+            .values(milestones)
+            .orIgnore(`("status_id", "applicant_id", "start_date") WHERE job_id IS NULL`)
+            .execute();
+          this.logger.log(`updatedstatus`);
+          this.logger.log(updatedstatus.raw);
+        } catch (e) {
+          this.logger.log(`milestone upsert`);
+          this.logger.error(e);
+        }
+      }
+
+      // update applicant with latest status
+      const updatedApplicants = await getManager().query(
+        `UPDATE ien_applicants SET status_id = (SELECT status_id FROM ien_applicant_status_audit asa WHERE asa.applicant_id=ien_applicants.id ORDER BY asa.start_date DESC limit 1)`,
+      );
+      this.logger.log({ updatedApplicants });
+    } else {
+      this.logger.log(`No applicants received today`);
+    }
   }
 
   /**
@@ -247,6 +255,7 @@ export class ExternalAPIService {
         country_of_citizenship: string[] | string;
         country_of_residence: string;
         bccnm_license_number: string;
+        pr_status: string;
         nursing_educations: any;
         notes: any;
       }) => {
@@ -284,6 +293,7 @@ export class ExternalAPIService {
           country_of_citizenship: citizenship,
           country_of_residence: a.country_of_residence,
           bccnm_license_number: a?.bccnm_license_number,
+          pr_status: a?.pr_status,
           nursing_educations: a.nursing_educations,
           health_authorities: health_authorities,
           notes: a.notes,
