@@ -119,7 +119,7 @@ const Details = () => {
           <h1 className='text-xl text-blue-900 py-4 font-bold'>Milestones Logs</h1>
         </div>
         <HeaderTab tabs={milestoneTabs} tabIndex={currentTab} onTabClick={setCurrentTab} />
-        {logType[currentTab]?.component}
+        {logType[currentTab - 1]?.component}
       </div>
     </div>
   );
