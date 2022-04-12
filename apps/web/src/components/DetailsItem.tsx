@@ -1,13 +1,13 @@
 interface Details {
   title: string;
-  text: string | undefined;
+  text: string | undefined | string[];
 }
 
 export const DetailsItem: React.FC<Details> = ({ title, text }) => {
   return (
     <div className='text-xs sm:text-sm my-4'>
       <strong className='my-3'>{title}</strong>
-      <p className='my-1'>{text}</p>
+      <p className='my-1'>{Array.isArray(text) ? text.join(', ') : text}</p>
     </div>
   );
 };
