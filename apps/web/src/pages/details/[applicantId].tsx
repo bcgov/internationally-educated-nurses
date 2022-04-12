@@ -73,10 +73,7 @@ const Details = () => {
           <DetailsItem title='Phone Number' text={applicant.phone_number} />
         </div>
         <div className='col-span-3'>
-          <DetailsItem
-            title='Registration date'
-            text={applicant.registration_date && formatDate(applicant.registration_date)}
-          />
+          <DetailsItem title='Registration date' text={formatDate(applicant.registration_date)} />
         </div>
         <div className='col-span-3'>
           <DetailsItem

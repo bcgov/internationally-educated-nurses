@@ -79,10 +79,7 @@ export const Record: React.FC<RecordProps> = ({ job }) => {
               <DetailsItem title='Location' text={job_location.title} />
 
               <DetailsItem title='Recruiter Name' text={recruiter_name} />
-              <DetailsItem
-                title='Date Job Was First Posted'
-                text={job_post_date && formatDate(job_post_date)}
-              />
+              <DetailsItem title='Date Job Was First Posted' text={formatDate(job_post_date)} />
             </div>
             <Link
               as={`/details/${applicantId}?recruitment=edit`}
