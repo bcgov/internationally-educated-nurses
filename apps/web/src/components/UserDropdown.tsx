@@ -16,7 +16,7 @@ export const UserDropdown = () => {
     setTimeout(() => setShowMenu(false), HIDE_MENU_DELAY);
   };
 
-  if (!authUser) return '';
+  if (!authUser) return null;
 
   return (
     <div className='relative'>
