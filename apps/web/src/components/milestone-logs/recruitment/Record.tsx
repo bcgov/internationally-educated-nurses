@@ -97,7 +97,7 @@ export const Record: React.FC<RecordProps> = ({ job }) => {
             {jobMilestones &&
               jobMilestones.map(mil => <EditMilestones key={mil.id} milestones={mil} />)}
             <AddMilestones
-              applicantId={applicantId}
+              applicantId={applicantId as string}
               jobId={id}
               jobMilestones={jobMilestones}
               setJobMilestones={setJobMilestones}

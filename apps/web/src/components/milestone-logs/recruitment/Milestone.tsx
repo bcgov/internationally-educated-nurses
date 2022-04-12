@@ -27,7 +27,7 @@ const initialValues: IENApplicantAddStatusDTO = {
 const milestoneValidator = createValidator(IENApplicantAddStatusDTO);
 
 interface AddMilestoneProps {
-  applicantId: string | string[] | undefined;
+  applicantId: string;
   jobId: string;
   jobMilestones: any;
   setJobMilestones: any;
