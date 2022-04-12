@@ -1,6 +1,6 @@
-import dayjs from 'dayjs';
+import dayjs, { ConfigType } from 'dayjs';
 
-export const formatDate = (value: string) => {
+export const formatDate = (value: ConfigType) => {
   if (!value) {
     return;
   }

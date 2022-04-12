@@ -1,8 +1,7 @@
 import Link from 'next/link';
-import { format } from 'date-fns';
 import sortIcon from '@assets/img/sort.svg';
 import { buttonBase, buttonColor } from '@components';
-import { ApplicantRO } from '@ien/common';
+import { ApplicantRO, formatDate } from '@ien/common';
 
 export interface ApplicantTableProps {
   applicants: ApplicantRO[];
@@ -12,9 +11,6 @@ export interface ApplicantTableProps {
 export const ApplicantTable = (props: ApplicantTableProps) => {
   const { applicants, onSortChange } = props;
 
-  const formatDate = (date: Date): string => {
-    return format(new Date(date), 'yyyy-MM-dd HH:mm:ss');
-  };
   return (
     <div className='overflow-x-auto'>
       <table className='text-left w-full'>
