@@ -7,7 +7,7 @@ import { getApplicant, milestoneTabs } from '@services';
 import { HeaderTab } from 'src/components/display/HeaderTab';
 import { Recruitment } from 'src/components/milestone-logs/Recruitment';
 import { DetailsItem } from '@components';
-import { ApplicantRO, formatDate, jsonToArray } from '@ien/common';
+import { ApplicantRO, formatDate } from '@ien/common';
 import { Spinner } from 'src/components/Spinner';
 
 const Details = () => {
@@ -33,7 +33,7 @@ const Details = () => {
     }
   }, [router, applicantId]);
 
-  if (!applicant || !applicant.assigned_to || !applicant.health_authorities) {
+  if (!applicant) {
     return <Spinner className='h-20' />;
   }
 
@@ -80,7 +80,7 @@ const Details = () => {
             title='Assigned To'
             text={
               applicant.assigned_to
-                ? jsonToArray(applicant.assigned_to)
+                ? Object.values(applicant.assigned_to)
                     .map((a: { name: string }) => a.name)
                     .join(', ')
                 : 'NA'
@@ -88,7 +88,10 @@ const Details = () => {
           />
         </div>
         <div className='col-span-3'>
-          <DetailsItem title='Country of Citizenship' text={applicant.country_of_citizenship} />
+          <DetailsItem
+            title='Country of Citizenship'
+            text={applicant.country_of_citizenship?.join(', ')}
+          />
         </div>
         <div className='col-span-3'>
           <DetailsItem title='Country of Residence' text={applicant.country_of_residence} />
@@ -104,7 +107,7 @@ const Details = () => {
             title='Nursing Education'
             text={
               applicant.nursing_educations &&
-              jsonToArray(applicant.nursing_educations)
+              Object.values(applicant.nursing_educations)
                 .map((a: { name: string }) => a.name)
                 .join(', ')
             }
