@@ -7,7 +7,7 @@ function handler(event) {
   headers['strict-transport-security'] = { value: 'max-age=63072000; includeSubdomains; preload' };
   headers['content-security-policy'] = {
     value:
-      "default-src 'self' https://keycloak.freshworks.club; img-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'; form-action 'self'; frame-ancestors 'self'",
+      "default-src 'self' https://common-logon-dev.hlth.gov.bc.ca/auth; img-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'; form-action 'self'; frame-ancestors 'self'",
   };
   headers['x-content-type-options'] = { value: 'nosniff' };
   headers['x-frame-options'] = { value: 'DENY' };

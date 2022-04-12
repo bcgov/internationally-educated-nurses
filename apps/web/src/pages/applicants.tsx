@@ -125,4 +125,5 @@ export default withAuth(Applicants, [
   ValidRoles.PENDING,
   ValidRoles.MINISTRY_OF_HEALTH,
   ValidRoles.HEALTH_MATCH,
+  ValidRoles.HEALTH_AUTHORITY,
 ]);
