@@ -33,7 +33,7 @@ const Details = () => {
     }
   }, [router, applicantId]);
 
-  if (!applicant || !applicant.assigned_to || !applicant.health_authorities) {
+  if (!applicant) {
     return <Spinner className='h-20' />;
   }
 
