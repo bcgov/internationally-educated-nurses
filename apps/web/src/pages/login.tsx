@@ -1,4 +1,3 @@
-import { Button } from '@components';
 import { useKeycloak } from '@react-keycloak/ssr';
 import { KeycloakInstance } from 'keycloak-js';
 import { useRouter } from 'next/router';
@@ -16,19 +15,18 @@ const Login = () => {
     <>
       <div className='container'>
         <div className='w-full h-full flex items-center justify-center'>
-          <div className='bg-bcLightBlueBackground rounded p-5'>
-            <div>
-              <h1 className='font-bold text-3xl'>Login</h1>
+          <div className='flex flex-col items-center justify-center bg-bcLightBlueBackground rounded py-6 px-24'>
+            <h1 className='font-bold text-4xl mb-3'>Login</h1>
+            <div className='text-center mb-7'>
+              <p>Welcome to the Internationally Educated Nurses.</p>
+              <p>To log in, please click the button below</p>
             </div>
-            <div>
-              Welcome to the Internationally Educated Nurses. To log in, please click the button
-              below.
-            </div>
-            <div className='flex items-center justify-center'>
-              <Button variant={'primary'} onClick={login}>
-                Login
-              </Button>
-            </div>
+            <button
+              className='bg-bcBluePrimary h-12 w-24 text-white font-bold rounded'
+              onClick={login}
+            >
+              Login
+            </button>
           </div>
         </div>
       </div>
