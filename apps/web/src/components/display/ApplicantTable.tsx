@@ -14,7 +14,7 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
   return (
     <div className='overflow-x-auto'>
       <table className='text-left w-full'>
-        <thead className='whitespace-nowrap bg-gray-100'>
+        <thead className='whitespace-nowrap bg-gray-100 text-bcDeepBlack'>
           <tr className='border-b-2 border-yellow-300 text-sm'>
             <th className='pl-6 py-3'>
               <div className='flex align-middle justify-between '>
@@ -55,7 +55,9 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
                     }}
                     as={`details/${app.id}`}
                   >
-                    <a className={`px-4 ${buttonColor.outline} ${buttonBase}`}>Details</a>
+                    <a className={`px-4 ${buttonColor.outline} ${buttonBase} text-bcGray`}>
+                      Details
+                    </a>
                   </Link>
                 </td>
               </tr>

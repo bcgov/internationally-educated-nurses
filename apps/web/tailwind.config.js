@@ -10,6 +10,7 @@ module.exports = {
         bcBluePrimary: '#003366',
         bcYellowPrimary: '#FCBA19',
         bcBlack: '#313132',
+        bcDeepBlack: '#272833',
         bcGray: '#606060',
         bcLightGray: '#F2F2F2',
         bcBlueLink: '#1A5A96',

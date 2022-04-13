@@ -16,8 +16,8 @@ body,
     src: url('./fonts/BCSans-Regular.woff') format('woff');
   }
   @font-face {
-    font-family: BCSans-Bold;
-    font-weight: 600;
+    font-family: BCSans;
+    font-weight: 700;
     src: url('./fonts/BCSans-Bold.woff') format('woff');
   }
 }

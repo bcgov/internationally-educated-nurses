@@ -85,37 +85,35 @@ const Applicants = () => {
     return <h1>Loading...</h1>;
   }
   return (
-    <>
-      <div className='container w-full mx-6 xl:w-xl mb-4'>
-        <h1 className='font-bold text-3xl py-5'>Manage Applicants</h1>
-        <Search
-          onChange={handleKeywordChange}
-          keyword={name}
-          onSelect={viewDetail}
-          search={searchByName}
-        />
+    <div className='container w-full mx-6 xl:w-xl mb-4'>
+      <h1 className='font-bold text-3xl py-5'>Manage Applicants</h1>
+      <Search
+        onChange={handleKeywordChange}
+        keyword={name}
+        onSelect={viewDetail}
+        search={searchByName}
+      />
 
-        <div className='bg-white'>
-          <HeaderTab
-            tabs={[{ title: 'All', value: 0 }, ...milestoneTabs]}
-            tabIndex={status ? status - 10000 : 0}
-            onTabClick={index => setStatus(index ? index + 10000 : 0)}
-          />
-          <div className='opacity-50 pb-3 px-4'>{`Showing ${applicants.length} results`}</div>
-        </div>
-        <div className='flex justify-content-center flex-col bg-white px-4 pb-4'>
-          <Pagination
-            pageOptions={{ pageIndex: pageIndex, pageSize: limit, total }}
-            onChange={handlePageOptions}
-          />
-          <ApplicantTable applicants={applicants} onSortChange={handleSort} />
-          <Pagination
-            pageOptions={{ pageIndex: pageIndex, pageSize: limit, total }}
-            onChange={handlePageOptions}
-          />
-        </div>
+      <div className='bg-white'>
+        <HeaderTab
+          tabs={[{ title: 'All', value: 0 }, ...milestoneTabs]}
+          tabIndex={status ? status - 10000 : 0}
+          onTabClick={index => setStatus(index ? index + 10000 : 0)}
+        />
+        <div className='opacity-50 pb-3 px-4'>{`Showing ${applicants.length} results`}</div>
       </div>
-    </>
+      <div className='flex justify-content-center flex-col bg-white px-4 pb-4'>
+        <Pagination
+          pageOptions={{ pageIndex: pageIndex, pageSize: limit, total }}
+          onChange={handlePageOptions}
+        />
+        <ApplicantTable applicants={applicants} onSortChange={handleSort} />
+        <Pagination
+          pageOptions={{ pageIndex: pageIndex, pageSize: limit, total }}
+          onChange={handlePageOptions}
+        />
+      </div>
+    </div>
   );
 };
 
