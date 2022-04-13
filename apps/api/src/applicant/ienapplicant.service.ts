@@ -278,7 +278,9 @@ export class IENApplicantService {
     status_id: string,
     applicantUpdate: IENApplicantUpdateStatusAPIDTO,
   ): Promise<IENApplicantStatusAudit | any> {
-    const status_audit = await this.ienapplicantStatusAuditRepository.findOne(status_id, {relations: ['applicant']});
+    const status_audit = await this.ienapplicantStatusAuditRepository.findOne(status_id, {
+      relations: ['applicant'],
+    });
     if (!status_audit) {
       throw new NotFoundException('Provided status/milestone record not found');
     }
@@ -307,9 +309,9 @@ export class IENApplicantService {
       status_audit.notes = notes;
     }
     await this.ienapplicantStatusAuditRepository.save(status_audit);
-    
-     // Let's check and updated latest status on applicant
-     await this.ienapplicantUtilService.updateLatestStatusOnApplicant([status_audit.applicant.id]);
+
+    // Let's check and updated latest status on applicant
+    await this.ienapplicantUtilService.updateLatestStatusOnApplicant([status_audit.applicant.id]);
 
     return status_audit;
   }
