@@ -6,7 +6,7 @@ import { ValidRoles } from '@services';
 
 export interface UserType {
   id: string;
-  username: string;
+  name: string;
   keycloakId: string;
   createdDate: Date;
   role: ValidRoles;
