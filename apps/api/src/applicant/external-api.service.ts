@@ -3,7 +3,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ExternalRequest } from 'src/common/external-request';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IENHaPcn } from './entity/ienhapcn.entity';
-import { getManager, In, Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { IENUsers } from './entity/ienusers.entity';
 import { IENStatusReason } from './entity/ienstatus-reason.entity';
 import { AppLogger } from 'src/common/logger.service';
@@ -11,6 +11,7 @@ import { IENApplicant } from './entity/ienapplicant.entity';
 import { IENApplicantStatus } from './entity/ienapplicant-status.entity';
 import { getMilestoneCategory } from 'src/common/util';
 import { IENApplicantStatusAudit } from './entity/ienapplicant-status-audit.entity';
+import { IENApplicantUtilService } from './ienapplicant.util.service';
 
 @Injectable()
 export class ExternalAPIService {
@@ -18,6 +19,8 @@ export class ExternalAPIService {
   constructor(
     @Inject(Logger) private readonly logger: AppLogger,
     @Inject(ExternalRequest) private readonly external_request: ExternalRequest,
+    @Inject(IENApplicantUtilService)
+    private readonly ienapplicantUtilService: IENApplicantUtilService,
     @InjectRepository(IENHaPcn)
     private readonly ienHaPcnRepository: Repository<IENHaPcn>,
     @InjectRepository(IENUsers)
@@ -226,10 +229,7 @@ export class ExternalAPIService {
       }
 
       // update applicant with latest status
-      const updatedApplicants = await getManager().query(
-        `UPDATE ien_applicants SET status_id = (SELECT status_id FROM ien_applicant_status_audit asa WHERE asa.applicant_id=ien_applicants.id ORDER BY asa.start_date DESC limit 1)`,
-      );
-      this.logger.log({ updatedApplicants });
+      await this.ienapplicantUtilService.updateLatestStatusOnApplicant(mappedApplicantList);
     } else {
       this.logger.log(`No applicants received today`);
     }

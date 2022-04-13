@@ -14,13 +14,13 @@ export interface ApplicantRO {
   email_address?: string;
   phone_number?: string;
   registration_date?: Date;
-  assigned_to?: JSON;
+  assigned_to?: IENUserRO[];
   country_of_citizenship?: string[];
   country_of_residence?: string;
   pr_status?: string;
-  nursing_educations?: JSON;
+  nursing_educations?: nursing_education[];
   bccnm_license_number?: string;
-  health_authorities?: JSON;
+  health_authorities?: IENHaPcnRO[];
   notes?: JSON;
   status?: IENApplicantStatusRO;
   additional_data?: JSON;
@@ -73,4 +73,9 @@ export interface ApplicantAuditRO {
   data: JSON;
   created_date?: Date;
   added_by?: IENUserRO | null;
+}
+
+interface nursing_education {
+  name?: string;
+  country?: string;
 }

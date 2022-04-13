@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { In, IsNull, Repository, ILike, Not, FindManyOptions } from 'typeorm';
+import { In, IsNull, Repository, Not, FindManyOptions, getManager } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantStatus } from './entity/ienapplicant-status.entity';
@@ -42,6 +42,38 @@ export class IENApplicantUtilService {
     this.applicantRelations = CommonData;
   }
 
+  _nameSearchQuery(keyword: string) {
+    let keywords = keyword.split(' ');
+    keywords = keywords.filter(item => item.length);
+    if (keywords.length === 1) {
+      return `(IENApplicant.name ilike '%${keywords[0].toLowerCase()}%')`;
+    } else if (keywords.length === 2) {
+      return `(IENApplicant.name ilike '%${keywords[0]}%${keywords[1]}%' OR IENApplicant.name ilike '%${keywords[1]}%${keywords[0]}%')`;
+    } else if (keywords.length === 3) {
+      const possibleShuffle = [];
+      possibleShuffle.push(
+        `IENApplicant.name ilike '%${keywords[0]}%${keywords[1]}%${keywords[2]}%'`,
+      );
+      possibleShuffle.push(
+        `IENApplicant.name ilike '%${keywords[0]}%${keywords[2]}%${keywords[1]}%'`,
+      );
+      possibleShuffle.push(
+        `IENApplicant.name ilike '%${keywords[1]}%${keywords[0]}%${keywords[2]}%'`,
+      );
+      possibleShuffle.push(
+        `IENApplicant.name ilike '%${keywords[1]}%${keywords[2]}%${keywords[0]}%'`,
+      );
+      possibleShuffle.push(
+        `IENApplicant.name ilike '%${keywords[2]}%${keywords[0]}%${keywords[1]}%'`,
+      );
+      possibleShuffle.push(
+        `IENApplicant.name ilike '%${keywords[2]}%${keywords[1]}%${keywords[0]}%'`,
+      );
+      return `( ${possibleShuffle.join(' OR ')} )`;
+    }
+    return `IENApplicant.name ilike '%${keyword}%'`;
+  }
+
   /**
    * Build a query using given filters
    * @param filter
@@ -63,43 +95,80 @@ export class IENApplicantUtilService {
       return this.ienapplicantRepository.findAndCount(query);
     }
 
-    let where: object = {};
-    let isWhere = false;
+    let isStatus = false;
+    let whereStatus: object;
     if (status) {
       const status_list = await this.fetchChildStatusList(status);
-      where = { status: In(status_list), ...where };
-      isWhere = true;
+      isStatus = true;
+      whereStatus = { status: In(status_list) };
     }
 
-    if (name && name.trim() !== '') {
-      where = { name: ILike(`%${name.trim()}%`), ...where };
-      isWhere = true;
+    let isName = false;
+    let whereName = '';
+    if (name) {
+      whereName = this._nameSearchQuery(name);
+      isName = true;
     }
 
     let isHaPcn = false;
+    let whereHa = '';
     if (ha_pcn) {
-      // check details to identify filter
-      isHaPcn = true;
-    }
-    if (isHaPcn) {
       const ha_pcn_array = ha_pcn?.split(',');
-      let ha_search_sql = ha_pcn_array
+      whereHa = ha_pcn_array
         ?.map(id => {
           return `health_authorities @> '[{"id":${id}}]'`;
         })
-        .join(' or ');
-      ha_search_sql = `(${ha_search_sql})`;
+        .join(' OR ');
+      whereHa = `(${whereHa})`;
+      isHaPcn = true;
+    }
 
+    if (isName && isStatus && isHaPcn) {
       return this.ienapplicantRepository.findAndCount({
         where: (qb: any) => {
-          qb.where(where).andWhere(ha_search_sql, {});
+          qb.where(whereStatus).andWhere(whereName).andWhere(whereHa);
         },
         ...query,
       });
-    } else if (isWhere && !isHaPcn) {
+    } else if (isName && isStatus) {
       return this.ienapplicantRepository.findAndCount({
         where: (qb: any) => {
-          qb.where(where);
+          qb.where(whereStatus).andWhere(whereName);
+        },
+        ...query,
+      });
+    } else if (isStatus && isHaPcn) {
+      return this.ienapplicantRepository.findAndCount({
+        where: (qb: any) => {
+          qb.where(whereStatus).andWhere(whereHa);
+        },
+        ...query,
+      });
+    } else if (isName && isHaPcn) {
+      return this.ienapplicantRepository.findAndCount({
+        where: (qb: any) => {
+          qb.andWhere(whereName).andWhere(whereHa);
+        },
+        ...query,
+      });
+    } else if (isName) {
+      return this.ienapplicantRepository.findAndCount({
+        where: (qb: any) => {
+          qb.where(whereName);
+        },
+        ...query,
+      });
+    } else if (isStatus) {
+      return this.ienapplicantRepository.findAndCount({
+        where: (qb: any) => {
+          qb.where(whereStatus);
+        },
+        ...query,
+      });
+    } else if (isHaPcn) {
+      return this.ienapplicantRepository.findAndCount({
+        where: (qb: any) => {
+          qb.where(whereHa);
         },
         ...query,
       });
@@ -108,7 +177,7 @@ export class IENApplicantUtilService {
     }
   }
 
-  /** fetch all status is parent status passed */
+  /** fetch all status if parent status passed */
   async fetchChildStatusList(status: string): Promise<string[]> {
     const status_list = status.split(',');
     const parent_status = await this.ienapplicantStatusRepository.find({
@@ -316,5 +385,18 @@ export class IENApplicantUtilService {
       throw new NotFoundException('Provided job location not found');
     }
     return job_title;
+  }
+
+  async updateLatestStatusOnApplicant(mappedApplicantList: string[]): Promise<void> {
+    try {
+      // update applicant with latest status
+      const idsToUpdate = `'${mappedApplicantList.join("','")}'`;
+      const queryToUpdate = `UPDATE ien_applicants SET status_id = (SELECT status_id FROM ien_applicant_status_audit asa WHERE asa.applicant_id=ien_applicants.id ORDER BY asa.start_date DESC limit 1) WHERE ien_applicants.id IN (${idsToUpdate})`;
+      const updatedApplicants = await getManager().query(queryToUpdate);
+      this.logger.log({ updatedApplicants });
+    } catch (e) {
+      this.logger.log(`Error in update latest status on applicant`);
+      this.logger.error(e);
+    }
   }
 }
