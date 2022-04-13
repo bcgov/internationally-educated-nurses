@@ -1,6 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { In, IsNull, Repository, Not, FindManyOptions, getManager } from 'typeorm';
+import {
+  In,
+  IsNull,
+  Repository,
+  Not,
+  FindManyOptions,
+  getManager,
+  ObjectLiteral,
+  SelectQueryBuilder,
+} from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantStatus } from './entity/ienapplicant-status.entity';
@@ -94,81 +103,33 @@ export class IENApplicantUtilService {
     if (!status && !ha_pcn && !name) {
       return this.ienapplicantRepository.findAndCount(query);
     }
+    const conditions: (string | ObjectLiteral)[] = [];
 
-    let isStatus = false;
-    let whereStatus: object;
     if (status) {
       const status_list = await this.fetchChildStatusList(status);
-      isStatus = true;
-      whereStatus = { status: In(status_list) };
+      conditions.push({ status: In(status_list) });
     }
 
-    let isName = false;
-    let whereName = '';
     if (name) {
-      whereName = this._nameSearchQuery(name);
-      isName = true;
+      conditions.push(this._nameSearchQuery(name));
     }
 
-    let isHaPcn = false;
-    let whereHa = '';
     if (ha_pcn) {
       const ha_pcn_array = ha_pcn?.split(',');
-      whereHa = ha_pcn_array
+      const condition = ha_pcn_array
         ?.map(id => {
           return `health_authorities @> '[{"id":${id}}]'`;
         })
         .join(' OR ');
-      whereHa = `(${whereHa})`;
-      isHaPcn = true;
+      conditions.push(`(${condition})`);
     }
 
-    if (isName && isStatus && isHaPcn) {
+    if (conditions.length > 0) {
       return this.ienapplicantRepository.findAndCount({
-        where: (qb: any) => {
-          qb.where(whereStatus).andWhere(whereName).andWhere(whereHa);
-        },
-        ...query,
-      });
-    } else if (isName && isStatus) {
-      return this.ienapplicantRepository.findAndCount({
-        where: (qb: any) => {
-          qb.where(whereStatus).andWhere(whereName);
-        },
-        ...query,
-      });
-    } else if (isStatus && isHaPcn) {
-      return this.ienapplicantRepository.findAndCount({
-        where: (qb: any) => {
-          qb.where(whereStatus).andWhere(whereHa);
-        },
-        ...query,
-      });
-    } else if (isName && isHaPcn) {
-      return this.ienapplicantRepository.findAndCount({
-        where: (qb: any) => {
-          qb.andWhere(whereName).andWhere(whereHa);
-        },
-        ...query,
-      });
-    } else if (isName) {
-      return this.ienapplicantRepository.findAndCount({
-        where: (qb: any) => {
-          qb.where(whereName);
-        },
-        ...query,
-      });
-    } else if (isStatus) {
-      return this.ienapplicantRepository.findAndCount({
-        where: (qb: any) => {
-          qb.where(whereStatus);
-        },
-        ...query,
-      });
-    } else if (isHaPcn) {
-      return this.ienapplicantRepository.findAndCount({
-        where: (qb: any) => {
-          qb.where(whereHa);
+        where: (qb: SelectQueryBuilder<IENApplicant>) => {
+          const condition = conditions.shift();
+          if (condition) qb.where(condition);
+          conditions.forEach(condition => qb.andWhere(condition));
         },
         ...query,
       });
@@ -335,7 +296,7 @@ export class IENApplicantUtilService {
    * @returns
    */
   async getUserArray(users: any): Promise<IENUsers | any> {
-    users = users.map((item: { id: number | string; }) => item.id);
+    users = users.map((item: { id: number | string }) => item.id);
     const users_data = await this.ienUsersRepository.find({
       where: {
         id: In(users),
