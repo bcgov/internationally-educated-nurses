@@ -335,7 +335,7 @@ export class IENApplicantUtilService {
    * @returns
    */
   async getUserArray(users: any): Promise<IENUsers | any> {
-    users = users.map((id: string) => +id);
+    users = users.map((item: { id: number | string; }) => item.id);
     const users_data = await this.ienUsersRepository.find({
       where: {
         id: In(users),
