@@ -231,7 +231,7 @@ export class IENApplicantService {
 
     data.end_date = null;
     if (end_date) {
-      data.start_date = end_date;
+      data.end_date = end_date;
     }
 
     if (notes) {

@@ -12,6 +12,7 @@ module.exports = {
         bcBlack: '#313132',
         bcDeepBlack: '#272833',
         bcGray: '#606060',
+        bcGrayLabel: '#574F5A',
         bcLightGray: '#F2F2F2',
         bcBlueLink: '#1A5A96',
         bcBlueNav: '#38598A',
@@ -34,6 +35,7 @@ module.exports = {
         10: '10px',
       },
       boxShadow: {
+        xs: '0px 1px 0px rgba(0, 0, 0, 0.1)',
         '2xl': '0 4px 16px 0 rgba(35,64,117,0.3)',
       },
       minWidth: {
@@ -49,6 +51,9 @@ module.exports = {
       },
       borderWidth: {
         10: '10px',
+      },
+      padding: {
+        0.5: '2px',
       },
     },
   },

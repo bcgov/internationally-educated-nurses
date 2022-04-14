@@ -19,14 +19,14 @@ export const UserDropdown = () => {
   if (!authUser) return null;
 
   return (
-    <div className='relative'>
+    <div className='relative pr-3'>
       <button className='flex' onClick={() => setShowMenu(!showMenu)} onBlur={hideMenu}>
         <div className='text-white'>{authUser?.name}</div>
         <img src={downArrowIcon.src} alt='down arrow' />
       </button>
       {showMenu && (
         <button
-          className='absolute bg-white border w-full p-2 rounded mt-1 text-sm'
+          className='absolute bg-white border w-24 p-2 rounded mt-1 text-sm right-0'
           onClick={() => keycloak?.logout()}
         >
           Logout

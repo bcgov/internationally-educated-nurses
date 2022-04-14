@@ -5,14 +5,16 @@ import { getApplicant, milestoneTabs } from '@services';
 import { HeaderTab } from 'src/components/display/HeaderTab';
 import { Recruitment } from 'src/components/milestone-logs/Recruitment';
 import { DetailsItem } from '@components';
-import { ApplicantRO, formatDate } from '@ien/common';
+import { ApplicantRO, ApplicantStatusAuditRO, formatDate } from '@ien/common';
 import { Spinner } from 'src/components/Spinner';
 import detailIcon from '@assets/img/details.svg';
 import historyIcon from '@assets/img/history.svg';
+import { MilestoneTable } from '../../components/milestone-logs/MilestoneTable';
 
 const Details = () => {
   const [applicant, setApplicant] = useState<ApplicantRO>();
   const [currentTab, setCurrentTab] = useState(1);
+  const [milestones, setMilestones] = useState<ApplicantStatusAuditRO[]>([]);
 
   const router = useRouter();
   const applicantId = router.query.applicantId;
@@ -33,17 +35,27 @@ const Details = () => {
     }
   }, [router, applicantId]);
 
+  const filterMilestones = () => {
+    const audits =
+      applicant?.applicant_status_audit?.filter(audit => {
+        return audit.status.id < (currentTab + 1) * 100 && audit.status.id > currentTab * 100;
+      }) || [];
+    setMilestones(audits);
+  };
+
+  useEffect(() => filterMilestones(), [applicant, currentTab]);
+
   if (!applicant) {
     return <Spinner className='h-20' />;
   }
 
   const logType = [
     // waiting for hmbc api for remaining 4 components
-    { component: <h1>Intake</h1> },
-    { component: <h1>Licensing Registration</h1> },
+    { component: <MilestoneTable milestones={milestones} /> },
+    { component: <MilestoneTable milestones={milestones} /> },
     { component: <Recruitment /> },
-    { component: <h1>BC PNP</h1> },
-    { component: <h1>Final</h1> },
+    { component: <MilestoneTable milestones={milestones} /> },
+    { component: <MilestoneTable milestones={milestones} /> },
   ];
 
   return (
@@ -58,7 +70,7 @@ const Details = () => {
         Last Updated: {formatDate(applicant.updated_date)}
       </p>
       {/* Details container */}
-      <div className='grid grid-cols-12 gap-2 border-2 rounded px-5 pb-3 bg-white text-bcBlack'>
+      <div className='grid grid-cols-12 gap-2 border-1 border-bcDisabled rounded px-5 pb-3 bg-white text-bcBlack'>
         <div className='col-span-12 border-b mb-3'>
           <div className='flex flex-row align-bottom py-4 font-bold'>
             <img src={detailIcon.src} alt='detail icon' />
@@ -118,7 +130,7 @@ const Details = () => {
       </div>
 
       {/* Milestones logs container */}
-      <div className='border-2 rounded px-5 my-5 bg-white'>
+      <div className='border-2 rounded px-5 my-5 pb-6 bg-white'>
         <div className='flex items-center border-b py-4'>
           <img src={historyIcon.src} alt='history icon' />
           <h2 className='ml-2 font-bold text-bcBluePrimary text-xl'>Milestones Logs</h2>
