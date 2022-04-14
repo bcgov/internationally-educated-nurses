@@ -1,6 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { In, IsNull, Repository, ILike, Not, FindManyOptions } from 'typeorm';
+import {
+  In,
+  IsNull,
+  Repository,
+  Not,
+  FindManyOptions,
+  getManager,
+  ObjectLiteral,
+  SelectQueryBuilder,
+} from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantStatus } from './entity/ienapplicant-status.entity';
@@ -42,6 +51,38 @@ export class IENApplicantUtilService {
     this.applicantRelations = CommonData;
   }
 
+  _nameSearchQuery(keyword: string) {
+    let keywords = keyword.split(' ');
+    keywords = keywords.filter(item => item.length);
+    if (keywords.length === 1) {
+      return `(IENApplicant.name ilike '%${keywords[0].toLowerCase()}%')`;
+    } else if (keywords.length === 2) {
+      return `(IENApplicant.name ilike '%${keywords[0]}%${keywords[1]}%' OR IENApplicant.name ilike '%${keywords[1]}%${keywords[0]}%')`;
+    } else if (keywords.length === 3) {
+      const possibleShuffle = [];
+      possibleShuffle.push(
+        `IENApplicant.name ilike '%${keywords[0]}%${keywords[1]}%${keywords[2]}%'`,
+      );
+      possibleShuffle.push(
+        `IENApplicant.name ilike '%${keywords[0]}%${keywords[2]}%${keywords[1]}%'`,
+      );
+      possibleShuffle.push(
+        `IENApplicant.name ilike '%${keywords[1]}%${keywords[0]}%${keywords[2]}%'`,
+      );
+      possibleShuffle.push(
+        `IENApplicant.name ilike '%${keywords[1]}%${keywords[2]}%${keywords[0]}%'`,
+      );
+      possibleShuffle.push(
+        `IENApplicant.name ilike '%${keywords[2]}%${keywords[0]}%${keywords[1]}%'`,
+      );
+      possibleShuffle.push(
+        `IENApplicant.name ilike '%${keywords[2]}%${keywords[1]}%${keywords[0]}%'`,
+      );
+      return `( ${possibleShuffle.join(' OR ')} )`;
+    }
+    return `IENApplicant.name ilike '%${keyword}%'`;
+  }
+
   /**
    * Build a query using given filters
    * @param filter
@@ -62,44 +103,33 @@ export class IENApplicantUtilService {
     if (!status && !ha_pcn && !name) {
       return this.ienapplicantRepository.findAndCount(query);
     }
+    const conditions: (string | ObjectLiteral)[] = [];
 
-    let where: object = {};
-    let isWhere = false;
     if (status) {
       const status_list = await this.fetchChildStatusList(status);
-      where = { status: In(status_list), ...where };
-      isWhere = true;
+      conditions.push({ status: In(status_list) });
     }
 
-    if (name && name.trim() !== '') {
-      where = { name: ILike(`%${name.trim()}%`), ...where };
-      isWhere = true;
+    if (name) {
+      conditions.push(this._nameSearchQuery(name));
     }
 
-    let isHaPcn = false;
     if (ha_pcn) {
-      // check details to identify filter
-      isHaPcn = true;
-    }
-    if (isHaPcn) {
       const ha_pcn_array = ha_pcn?.split(',');
-      let ha_search_sql = ha_pcn_array
+      const condition = ha_pcn_array
         ?.map(id => {
           return `health_authorities @> '[{"id":${id}}]'`;
         })
-        .join(' or ');
-      ha_search_sql = `(${ha_search_sql})`;
+        .join(' OR ');
+      conditions.push(`(${condition})`);
+    }
 
+    if (conditions.length > 0) {
       return this.ienapplicantRepository.findAndCount({
-        where: (qb: any) => {
-          qb.where(where).andWhere(ha_search_sql, {});
-        },
-        ...query,
-      });
-    } else if (isWhere && !isHaPcn) {
-      return this.ienapplicantRepository.findAndCount({
-        where: (qb: any) => {
-          qb.where(where);
+        where: (qb: SelectQueryBuilder<IENApplicant>) => {
+          const condition = conditions.shift();
+          if (condition) qb.where(condition);
+          conditions.forEach(condition => qb.andWhere(condition));
         },
         ...query,
       });
@@ -108,7 +138,7 @@ export class IENApplicantUtilService {
     }
   }
 
-  /** fetch all status is parent status passed */
+  /** fetch all status if parent status passed */
   async fetchChildStatusList(status: string): Promise<string[]> {
     const status_list = status.split(',');
     const parent_status = await this.ienapplicantStatusRepository.find({
@@ -266,7 +296,7 @@ export class IENApplicantUtilService {
    * @returns
    */
   async getUserArray(users: any): Promise<IENUsers | any> {
-    users = users.map((id: string) => +id);
+    users = users.map((item: { id: number | string }) => item.id);
     const users_data = await this.ienUsersRepository.find({
       where: {
         id: In(users),
@@ -316,5 +346,18 @@ export class IENApplicantUtilService {
       throw new NotFoundException('Provided job location not found');
     }
     return job_title;
+  }
+
+  async updateLatestStatusOnApplicant(mappedApplicantList: string[]): Promise<void> {
+    try {
+      // update applicant with latest status
+      const idsToUpdate = `'${mappedApplicantList.join("','")}'`;
+      const queryToUpdate = `UPDATE ien_applicants SET status_id = (SELECT status_id FROM ien_applicant_status_audit asa WHERE asa.applicant_id=ien_applicants.id ORDER BY asa.start_date DESC limit 1) WHERE ien_applicants.id IN (${idsToUpdate})`;
+      const updatedApplicants = await getManager().query(queryToUpdate);
+      this.logger.log({ updatedApplicants });
+    } catch (e) {
+      this.logger.log(`Error in update latest status on applicant`);
+      this.logger.error(e);
+    }
   }
 }
