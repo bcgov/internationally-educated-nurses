@@ -37,4 +37,30 @@ export class IENApplicantUpdateStatusAPIDTO extends IENApplicantUpdateStatusDTO 
   @IsString()
   @IsOptional()
   notes?: string;
+
+  @ApiPropertyOptional({
+    description: 'Reason for milestone/status from predefined list',
+    default: '1',
+  })
+  @IsString()
+  @IsOptional()
+  reason?: string;
+
+  @ApiPropertyOptional({
+    description: 'If reason not available in predefined list, provide here',
+    default: 'Low payscale',
+  })
+  @IsString()
+  @IsOptional()
+  reason_other?: string;
+
+  @ApiPropertyOptional({
+    description: 'This will be start date for recruitment related job/competition',
+    type: 'string',
+    format: 'date',
+    pattern: 'YYYY-MM-DD',
+  })
+  @IsDateString()
+  @IsOptional()
+  effective_date?: Date;
 }

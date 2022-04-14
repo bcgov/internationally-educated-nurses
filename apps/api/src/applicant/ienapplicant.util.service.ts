@@ -23,6 +23,7 @@ import { IENHaPcn } from './entity/ienhapcn.entity';
 import { IENUsers } from './entity/ienusers.entity';
 import { IENJobTitle } from './entity/ienjobtitles.entity';
 import { IENJobLocation } from './entity/ienjoblocation.entity';
+import { IENStatusReason } from './entity/ienstatus-reason.entity';
 
 @Injectable()
 export class IENApplicantUtilService {
@@ -39,6 +40,8 @@ export class IENApplicantUtilService {
     private readonly ienapplicantStatusAuditRepository: Repository<IENApplicantStatusAudit>,
     @InjectRepository(IENHaPcn)
     private readonly ienHaPcnRepository: Repository<IENHaPcn>,
+    @InjectRepository(IENStatusReason)
+    private readonly ienStatusReasonRepository: Repository<IENStatusReason>,
     @InjectRepository(IENUsers)
     private readonly ienUsersRepository: Repository<IENUsers>,
     @InjectRepository(IENJobTitle)
@@ -359,5 +362,13 @@ export class IENApplicantUtilService {
       this.logger.log(`Error in update latest status on applicant`);
       this.logger.error(e);
     }
+  }
+
+  async geStatustReason(id: number): Promise<IENStatusReason> {
+    const statusReason = await this.ienStatusReasonRepository.findOne(id);
+    if (!statusReason) {
+      throw new NotFoundException('Provided Milestone/Status reason not found');
+    }
+    return statusReason;
   }
 }

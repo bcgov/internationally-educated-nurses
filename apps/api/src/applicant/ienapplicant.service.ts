@@ -83,7 +83,7 @@ export class IENApplicantService {
           applicant: applicant,
           job: IsNull(),
         },
-        relations: ['status'],
+        relations: ['status', 'reason'],
       });
     }
     return applicant;
@@ -210,13 +210,18 @@ export class IENApplicantService {
     applicantUpdate: IENApplicantAddStatusAPIDTO,
   ): Promise<IENApplicantStatusAudit | any> {
     const applicant = await this.getApplicantById(id);
-    const { status, start_date, end_date, added_by, job_id, notes } = applicantUpdate;
+    const { status, start_date, end_date, added_by, job_id, notes, reason } = applicantUpdate;
     const data: any = {};
     if (added_by) {
       const added_by_data = await this.ienUsersRepository.findOne(parseInt(added_by));
       if (added_by_data) {
         data.added_by = added_by_data;
       }
+    }
+
+    if (reason) {
+      const statusReason = await this.ienapplicantUtilService.geStatustReason(+reason);
+      data.reason = statusReason;
     }
 
     const status_obj = await this.ienapplicantUtilService.getStatusById(status);
@@ -284,12 +289,17 @@ export class IENApplicantService {
     if (!status_audit) {
       throw new NotFoundException('Provided status/milestone record not found');
     }
-    const { status, start_date, end_date, added_by, notes } = applicantUpdate;
+    const { status, start_date, end_date, added_by, notes, reason } = applicantUpdate;
     if (added_by) {
       const updated_by_data = await this.ienUsersRepository.findOne(parseInt(added_by));
       if (updated_by_data) {
         status_audit.updated_by = updated_by_data;
       }
+    }
+
+    if (reason) {
+      const statusReason = await this.ienapplicantUtilService.geStatustReason(+reason);
+      status_audit.reason = statusReason;
     }
 
     if (status) {
@@ -388,7 +398,7 @@ export class IENApplicantService {
       where: {
         applicant: id,
       },
-      relations: ['ha_pcn', 'job_title', 'job_location', 'status_audit', 'status_audit.status'],
+      relations: this.applicantRelations.applicant_job,
     });
     return jobs;
   }
