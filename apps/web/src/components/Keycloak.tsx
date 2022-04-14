@@ -23,17 +23,12 @@ const withAuth = (Component: any, roles: ValidRoles[]) => {
     }, [kc?.initialized, authUser, authUserLoading]);
 
     // Handle intermediate states
-    if (
-      authUserLoading ||
-      !kc.initialized ||
-      !authUser ||
-      (authUser.role && !roles.includes(authUser.role))
-    ) {
+    if (authUserLoading || !kc.initialized || !authUser || !authUser.role) {
       return <Spinner className='h-10 w-10' />;
     }
 
     // Show pending if the user hasn't been assigned a role
-    if (!authUser?.role) {
+    if (authUser.role && !roles.includes(authUser.role)) {
       return (
         <main className='flex flex-col'>
           {/* <Navigation logoutOnly={true} /> */}
