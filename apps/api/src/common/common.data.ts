@@ -10,4 +10,12 @@ export const CommonData = {
     'applicant_status_audit',
   ],
   applicantaudit: ['applicant_audit', 'applicant_audit.added_by'],
+  applicant_job: [
+    'ha_pcn',
+    'job_title',
+    'job_location',
+    'status_audit',
+    'status_audit.status',
+    'status_audit.reason',
+  ],
 };
