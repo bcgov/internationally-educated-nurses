@@ -19,7 +19,7 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
             <th className='pl-6 py-3'>
               <div className='flex align-middle justify-between '>
                 <span>ID</span>
-                <button id='sort-by-id' onClick={() => onSortChange('id')}>
+                <button id='sort-by-id' onClick={() => onSortChange('applicant_id')}>
                   <img src={sortIcon.src} alt='sort' />
                 </button>
               </div>
