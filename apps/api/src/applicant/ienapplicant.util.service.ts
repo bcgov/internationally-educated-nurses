@@ -246,7 +246,6 @@ export class IENApplicantUtilService {
             list_status.push({
               ...previousStatus[i],
               ...updateData,
-              status_period: 0, // added for entity restriction error
             });
           }
           await this.ienapplicantStatusAuditRepository.save(list_status);

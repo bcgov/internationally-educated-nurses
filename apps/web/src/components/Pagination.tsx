@@ -13,7 +13,7 @@ export interface PaginationProps {
   onChange: (options: PageOptions) => void;
 }
 
-const PAGE_SIZES = [5, 10, 25, 50, 100];
+const PAGE_SIZES = [5, 10, 25, 50];
 
 export const Pagination = (props: PaginationProps) => {
   const {
@@ -21,10 +21,12 @@ export const Pagination = (props: PaginationProps) => {
     onChange,
   } = props;
 
-  const start = (pageIndex - 1) * pageSize + 1;
-  const end = pageIndex * pageSize > total ? total : pageIndex * pageSize;
   const numOfPages = Math.ceil(total / pageSize);
   const pageList = Array.from(Array(numOfPages).keys()).map(i => i + 1);
+
+  const startIndex = (pageIndex - 1) * pageSize + 1;
+  const start = startIndex > total ? 1 : startIndex;
+  const end = pageIndex * pageSize > total ? total : pageIndex * pageSize;
 
   const goToPage = (pageIndex: number) => {
     onChange({ pageSize, pageIndex, total });
@@ -35,7 +37,7 @@ export const Pagination = (props: PaginationProps) => {
   };
 
   return (
-    <div className='flex flex-row w-full bg-white pl-4 mt-1 text-bcBlack border-b border-t'>
+    <div className='flex flex-row w-full bg-white pl-4 text-bcBlack border-b border-t'>
       <div className='text-sm py-3'>
         <span className='mr-3'>Items per page: </span>
       </div>

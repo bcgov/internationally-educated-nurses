@@ -104,12 +104,12 @@ const Applicants = () => {
       </div>
       <div className='flex justify-content-center flex-col bg-white px-4 pb-4'>
         <Pagination
-          pageOptions={{ pageIndex: pageIndex, pageSize: limit, total }}
+          pageOptions={{ pageIndex, pageSize: limit, total }}
           onChange={handlePageOptions}
         />
         <ApplicantTable applicants={applicants} onSortChange={handleSort} />
         <Pagination
-          pageOptions={{ pageIndex: pageIndex, pageSize: limit, total }}
+          pageOptions={{ pageIndex, pageSize: limit, total }}
           onChange={handlePageOptions}
         />
       </div>

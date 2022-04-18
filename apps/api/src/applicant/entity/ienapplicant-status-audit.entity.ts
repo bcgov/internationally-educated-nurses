@@ -1,4 +1,3 @@
-import { Expose } from 'class-transformer';
 import {
   Entity,
   Column,
@@ -67,18 +66,4 @@ export class IENApplicantStatusAudit {
 
   @UpdateDateColumn()
   updated_date!: Date;
-
-  @Expose()
-  public get status_period() {
-    if (this.start_date != null && this.end_date != null) {
-      const time = new Date(this.end_date).getTime() - new Date(this.start_date).getTime();
-      return time / (24 * 60 * 60 * 1000);
-    }
-    if (this.start_date != null && this.end_date === null) {
-      const time = new Date().getTime() - new Date(this.start_date).getTime();
-      return parseInt((time / (24 * 60 * 60 * 1000)).toString());
-    } else {
-      return null;
-    }
-  }
 }
