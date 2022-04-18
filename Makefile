@@ -29,7 +29,7 @@ export TFCTK:=$(shell cat ~/.terraform.d/credentials.tfrc.json | jq -r '.credent
 
 # FE Env Vars
 export NEXT_PUBLIC_API_URL = /api/v1
-export NEXT_PUBLIC_AUTH_URL = https://common-logon-dev.hlth.gov.bc.ca/auth/realms/moh_applications/protocol/openid-connect/auth
+export NEXT_PUBLIC_AUTH_URL = https://common-logon-dev.hlth.gov.bc.ca/auth
 
 # Docker container names
 LOCAL_API_CONTAINER_NAME = $(PROJECT)_api
@@ -60,7 +60,7 @@ ifeq ($(ENV_NAME), test)
 DOMAIN=test.ien.freshworks.club
 BASTION_INSTANCE_ID = $(BASTION_INSTANCE_ID_TEST)
 DB_HOST = $(DB_HOST_PROD_TEST)
-NEXT_PUBLIC_AUTH_URL=https://keycloak.freshworks.club/auth/realms/ien/protocol/openid-connect/certs
+NEXT_PUBLIC_AUTH_URL=https://keycloak.freshworks.club/auth
 endif
 
 define TFVARS_DATA
