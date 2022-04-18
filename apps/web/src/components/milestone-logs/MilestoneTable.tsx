@@ -61,7 +61,7 @@ export const MilestoneTable = ({ milestones }: MilestoneTableProps) => {
                 <td className='pl-8 py-5 max-w-xs'>{getMilestone(audit)}</td>
                 <td className='px-4'>{formatDate(audit.start_date || '')}</td>
                 <td className='px-4'>{formatDate(audit.end_date || '')}</td>
-                <td className='px-4'>{audit.status_period} days</td>
+                <td className='px-4'></td>
               </tr>
             ))}
           </tbody>

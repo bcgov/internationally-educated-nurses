@@ -1,4 +1,3 @@
-import { Expose } from 'class-transformer';
 import {
   Entity,
   Column,
@@ -9,7 +8,6 @@ import {
   UpdateDateColumn,
   Index,
 } from 'typeorm';
-import dayjs from 'dayjs';
 import { IENApplicantStatus } from './ienapplicant-status.entity';
 import { IENApplicant } from './ienapplicant.entity';
 import { IENApplicantJob } from './ienjob.entity';
@@ -68,10 +66,4 @@ export class IENApplicantStatusAudit {
 
   @UpdateDateColumn()
   updated_date!: Date;
-
-  @Expose()
-  public get status_period() {
-    if (!this.start_date) return null;
-    return dayjs(this.end_date || new Date()).diff(dayjs(this.start_date), 'day');
-  }
 }

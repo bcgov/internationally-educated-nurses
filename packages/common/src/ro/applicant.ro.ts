@@ -61,7 +61,6 @@ export interface ApplicantStatusAuditRO {
   updated_by?: IENUserRO | null;
   created_date?: Date;
   updated_date?: Date;
-  status_period?: number | null;
   reason?: IENStatusReasonRO | null;
   reason_other?: string | null;
   effective_date?: Date;
