@@ -22,6 +22,7 @@ import { FormService } from 'src/form/form.service';
 import { FormEntity } from './entities/form.entity';
 @Controller('form')
 @ApiTags('Form')
+@UseGuards(AuthGuard)
 export class FormController {
   constructor(
     @Inject(Logger) private readonly logger: AppLogger,
@@ -38,7 +39,6 @@ export class FormController {
     ValidRoles.HEALTH_MATCH,
     ValidRoles.MINISTRY_OF_HEALTH,
   )
-  @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async name(@Body() body: FormDTO): Promise<FormEntity> {
