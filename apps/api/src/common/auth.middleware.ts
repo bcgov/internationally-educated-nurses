@@ -1,8 +1,7 @@
 import { HttpException, HttpStatus, Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction } from 'express';
-import jwksRsa from 'jwks-rsa';
 import { AuthService } from '../auth/auth.service';
-import jwt from 'jsonwebtoken';
+
 import { EmployeeService } from 'src/employee/employee.service';
 import { EmployeeEntity } from 'src/employee/employee.entity';
 import { ValidRoles } from 'src/auth/auth.constants';
@@ -18,26 +17,13 @@ export class AuthenticationMiddleware implements NestMiddleware {
     res: { locals: { kcUser: any; roles: ValidRoles; user: EmployeeEntity } },
     next: NextFunction,
   ) {
-    const token = this.authService.extractToken(req.headers);
+    const token: string = this.authService.extractToken(req.headers) || '';
 
-    // @TODO gracefully handle missing token
     if (!token) {
       throw new HttpException('Token not found', HttpStatus.BAD_GATEWAY);
     }
     try {
-      const uri = 'https://keycloak.freshworks.club/auth/realms/ien/protocol/openid-connect/certs';
-      const jwksClient = jwksRsa({
-        jwksUri: uri,
-      });
-      const decoded = jwt.decode(token as any, { complete: true });
-      const kid = decoded?.header.kid;
-      const jwks = await jwksClient.getSigningKey(kid);
-      const signingKey = jwks.getPublicKey();
-      const verified = jwt.verify(token || '', signingKey);
-      if (typeof verified !== 'string' && verified.azp !== 'IEN') {
-        throw new HttpException('Authentication token does not match', HttpStatus.FORBIDDEN);
-      }
-      const { ...user }: any = decoded?.payload;
+      const user: any = await this.authService.getUserFromToken(token);
       res.locals.kcUser = user;
 
       // Retrieve user roles

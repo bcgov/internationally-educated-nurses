@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
-import { getApplicant, milestoneTabs } from '@services';
+import { getApplicant, milestoneTabs, ValidRoles } from '@services';
 import { HeaderTab } from 'src/components/display/HeaderTab';
 import { Recruitment } from 'src/components/milestone-logs/Recruitment';
 import { DetailsItem } from '@components';
@@ -10,6 +10,7 @@ import { Spinner } from 'src/components/Spinner';
 import detailIcon from '@assets/img/details.svg';
 import historyIcon from '@assets/img/history.svg';
 import { MilestoneTable } from '../../components/milestone-logs/MilestoneTable';
+import withAuth from 'src/components/Keycloak';
 
 const Details = () => {
   const [applicant, setApplicant] = useState<ApplicantRO>();
@@ -142,4 +143,8 @@ const Details = () => {
   );
 };
 
-export default Details;
+export default withAuth(Details, [
+  ValidRoles.MINISTRY_OF_HEALTH,
+  ValidRoles.HEALTH_MATCH,
+  ValidRoles.HEALTH_AUTHORITY,
+]);

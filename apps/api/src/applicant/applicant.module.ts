@@ -20,6 +20,8 @@ import { ExternalAPIController } from './external-api.controller';
 import { ExternalAPIService } from './external-api.service';
 import { ExternalRequest } from 'src/common/external-request';
 import { IENStatusReason } from './entity/ienstatus-reason.entity';
+import { AuthModule } from 'src/auth/auth.module';
+import { EmployeeModule } from 'src/employee/employee.module';
 
 @Module({
   imports: [
@@ -36,6 +38,8 @@ import { IENStatusReason } from './entity/ienstatus-reason.entity';
       IENApplicantJob,
       IENStatusReason,
     ]),
+    AuthModule,
+    EmployeeModule,
     MailModule,
   ],
   controllers: [IENApplicantController, IENMasterController, ExternalAPIController],

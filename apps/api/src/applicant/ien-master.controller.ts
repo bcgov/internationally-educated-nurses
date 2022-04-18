@@ -22,7 +22,6 @@ import {
   IENStatusReasonRO,
   IENUserRO,
 } from '@ien/common';
-
 @Controller('ienmaster')
 @ApiTags('IEN Master')
 export class IENMasterController {
