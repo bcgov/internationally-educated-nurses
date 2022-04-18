@@ -1,12 +1,13 @@
-import { faCircle, faPencilAlt } from '@fortawesome/free-solid-svg-icons';
+import { faCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 
 import { buttonBase, buttonColor, DetailsItem, Disclosure } from '@components';
 import { AddMilestones, EditMilestones } from './Milestone';
-import { useEffect, useState } from 'react';
 import { ApplicantJobRO, formatDate } from '@ien/common';
+import pencilIcon from '@assets/img/pencil.svg';
 
 interface RecordProps {
   job: ApplicantJobRO;
@@ -58,10 +59,10 @@ export const Record: React.FC<RecordProps> = ({ job }) => {
           <div className='bg-blue-100 rounded py-2 pl-5 w-full'>
             <div className='flex items-center'>
               <span className='font-bold text-black'>{ha_pcn.title}</span>
-              <span className='text-xs text-blue-500 font-bold mr-3 ml-auto capitalize'>
+              <span className='text-xs text-blue-700 font-bold mr-3 ml-auto capitalize'>
                 <FontAwesomeIcon
                   icon={faCircle}
-                  className='text-blue-500 h-2 inline-block mb-0.5 mr-1'
+                  className='text-blue-700 h-2 inline-block mb-0.5 mr-1'
                 />
                 {recordStatus ? recordStatus : 'On Going'}
               </span>
@@ -90,7 +91,7 @@ export const Record: React.FC<RecordProps> = ({ job }) => {
               shallow={true}
             >
               <a className={`px-6 mb-2 ${buttonColor.secondary} ${buttonBase} pointer-events-none`}>
-                <FontAwesomeIcon className='h-4 mr-2' icon={faPencilAlt}></FontAwesomeIcon>
+                <img src={pencilIcon.src} className='mr-1' />
                 Edit Details
               </a>
             </Link>

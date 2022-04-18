@@ -1,27 +1,33 @@
 import { useState } from 'react';
-import {
-  faCalendar,
-  faPencilAlt,
-  faPlusCircle,
-  faTrash,
-  IconDefinition,
-} from '@fortawesome/free-solid-svg-icons';
+import { faPlusCircle, IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import createValidator from 'class-validator-formik';
 import { Formik, Form as FormikForm } from 'formik';
 
 import { buttonBase, buttonColor, Select, Option, Field } from '@components';
-import { IENApplicantAddStatusDTO, formatDate } from '@ien/common';
-import { addMilestone, getMilestoneOptions, MilestoneType } from '@services';
+import { IENApplicantAddStatusDTO, formatDate, IENStatusReasonRO } from '@ien/common';
+import {
+  addMilestone,
+  GetMilestoneOptions,
+  GetWithdrawReasonOptions,
+  MilestoneType,
+} from '@services';
+import circlePlusIcon from '@assets/img/circle_plus.svg';
+import calendarIcon from '@assets/img/calendar.svg';
+import trashCanIcon from '@assets/img/trash_can.svg';
+import pencilIcon from '@assets/img/pencil.svg';
 
 //@todo change any type
-const initialValues: IENApplicantAddStatusDTO = {
+const initialValues: any = {
   status: '',
   job_id: '',
   added_by: '',
   start_date: new Date(),
   end_date: undefined,
   notes: '',
+  reason: '',
+  effective_date: new Date(),
+  target_start_date: new Date(),
 };
 
 const milestoneValidator = createValidator(IENApplicantAddStatusDTO);
@@ -86,18 +92,15 @@ export const EditMilestones: React.FC<EditMilestoneProps> = milestones => {
             <div className='flex items-center'>
               <span className='text-sm font-bold text-black capitalize'>
                 {milestones.milestones.status.status} |{' '}
-                <FontAwesomeIcon icon={faCalendar} className='h-3 inline-block mr-2' />
+                <img src={calendarIcon.src} className='inline-block mr-2' />
                 {formatDate(milestones.milestones.start_date)}
               </span>
               <span className='mr-3 ml-auto'>
-                <button onClick={onEditClick} type='button'>
-                  <FontAwesomeIcon
-                    icon={faPencilAlt}
-                    className='text-bcBluePrimary h-4 inline-block mr-3'
-                  />
+                <button onClick={onEditClick} type='button' className='mr-2'>
+                  <img src={pencilIcon.src} />
                 </button>
                 <button>
-                  <FontAwesomeIcon icon={faTrash} className='text-red-500 h-4 inline-block' />
+                  <img src={trashCanIcon.src} />
                 </button>
               </span>
             </div>
@@ -126,16 +129,17 @@ interface MilestoneFormProps {
 }
 
 const MilestoneForm: React.FC<MilestoneFormProps> = ({ buttonText, icon, handleSubmit }) => {
-  const milestones = getMilestoneOptions();
+  const milestones = GetMilestoneOptions();
+  const reasons = GetWithdrawReasonOptions();
 
   return (
     <div className='border border-gray-200 rounded bg-gray-200 my-3 px-3 pb-4'>
       <div className='w-full pt-4'>
         <Formik initialValues={initialValues} onSubmit={handleSubmit} validate={milestoneValidator}>
-          {({ dirty, isValid }) => (
+          {({ dirty, isValid, values }) => (
             <FormikForm>
-              <div className='flex justify-between mb-4'>
-                <span className='flex-grow pr-1 md:pr-2'>
+              <div className='grid grid-cols-9 gap-y-2 mb-4'>
+                <span className='col-span-12 sm:col-span-6 lg:col-span-3 pr-1 md:pr-2'>
                   <Select name='status' label='Milestone'>
                     {milestones &&
                       milestones.length > 0 &&
@@ -144,13 +148,53 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({ buttonText, icon, handleS
                       ))}
                   </Select>
                 </span>
-                <span className='flex-grow pr-1 md:pr-2'>
+                <span className='col-span-12 sm:col-span-6 lg:col-span-3 pr-1 md:pr-2'>
                   <Field name='start_date' label='Date' type='date' />
                 </span>
-                <span className='flex-grow pr-1 md:pr-2'>
+                <span className='col-span-12 sm:col-span-6 lg:col-span-3 pr-1 md:pr-2'>
                   <Field name='notes' label='Note' type='text' />
                 </span>
+                {/* Withdraw reason conditional */}
+                {values.status === '305' ? (
+                  <>
+                    <span className='col-span-12 sm:col-span-6 lg:col-span-3 pr-1 md:pr-2'>
+                      <Select name='reason' label='Withdraw Reason'>
+                        {reasons &&
+                          reasons.length > 0 &&
+                          reasons.map((opt: IENStatusReasonRO) => (
+                            <Option
+                              key={opt.id}
+                              label={opt.name as string}
+                              value={opt.id.toString()}
+                            />
+                          ))}
+                      </Select>
+                    </span>
+                    <div className='col-span-12 sm:col-span-6 lg:col-span-2 md:pr-2 mt-auto'>
+                      <button
+                        className={`border border-bcGray rounded text-bcGray ${buttonBase} pointer-events-none`}
+                      >
+                        <span className='whitespace-nowrap px-1 text-bcGray text-xs'>
+                          Add New Reason
+                        </span>
+                        <img src={circlePlusIcon.src} />
+                      </button>
+                    </div>
+
+                    <span className='col-span-12 sm:col-span-6 lg:col-span-4 pr-1 md:pr-2'>
+                      <Field name='effective_date' label='Effective Date' type='date' />
+                    </span>
+                  </>
+                ) : null}
+
+                {/* Position offered conditional */}
+                {values.status === '304' ? (
+                  <span className='col-span-12 sm:col-span-6 lg:col-span-3 pr-1 md:pr-2'>
+                    <Field name='effective_date' label='Target Start Date' type='date' />
+                  </span>
+                ) : null}
               </div>
+
               <button
                 className={`px-6 ${buttonColor.secondary} ${buttonBase}`}
                 disabled={!dirty || !isValid}
