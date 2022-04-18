@@ -7,7 +7,6 @@ import {
   Inject,
   InternalServerErrorException,
   Logger,
-  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -23,13 +22,8 @@ import {
   IENStatusReasonRO,
   IENUserRO,
 } from '@ien/common';
-import { AuthGuard } from 'src/auth/auth.guard';
-import { ValidRoles } from 'src/auth/auth.constants';
-import { RouteAcceptsRoles } from 'src/common/decorators';
-
 @Controller('ienmaster')
 @ApiTags('IEN Master')
-@UseGuards(AuthGuard)
 export class IENMasterController {
   constructor(
     @Inject(Logger) private readonly logger: AppLogger,
@@ -42,11 +36,6 @@ export class IENMasterController {
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
   @HttpCode(HttpStatus.OK)
-  @RouteAcceptsRoles(
-    ValidRoles.HEALTH_AUTHORITY,
-    ValidRoles.HEALTH_MATCH,
-    ValidRoles.MINISTRY_OF_HEALTH,
-  )
   @Get('/status')
   async getApplicantStatus(): Promise<IENApplicantStatusRO[]> {
     try {
@@ -63,11 +52,6 @@ export class IENMasterController {
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
   @HttpCode(HttpStatus.OK)
-  @RouteAcceptsRoles(
-    ValidRoles.HEALTH_AUTHORITY,
-    ValidRoles.HEALTH_MATCH,
-    ValidRoles.MINISTRY_OF_HEALTH,
-  )
   @Get('/ha-pcn')
   async getHaPcn(): Promise<IENHaPcnRO[]> {
     try {
@@ -86,11 +70,6 @@ export class IENMasterController {
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
   @HttpCode(HttpStatus.OK)
-  @RouteAcceptsRoles(
-    ValidRoles.HEALTH_AUTHORITY,
-    ValidRoles.HEALTH_MATCH,
-    ValidRoles.MINISTRY_OF_HEALTH,
-  )
   @Get('/users')
   async getUsers(): Promise<IENUserRO[]> {
     try {
@@ -107,11 +86,6 @@ export class IENMasterController {
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
   @HttpCode(HttpStatus.OK)
-  @RouteAcceptsRoles(
-    ValidRoles.HEALTH_AUTHORITY,
-    ValidRoles.HEALTH_MATCH,
-    ValidRoles.MINISTRY_OF_HEALTH,
-  )
   @Get('/education')
   async getEducation(): Promise<IENEducationRO[]> {
     try {
@@ -128,11 +102,6 @@ export class IENMasterController {
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
   @HttpCode(HttpStatus.OK)
-  @RouteAcceptsRoles(
-    ValidRoles.HEALTH_AUTHORITY,
-    ValidRoles.HEALTH_MATCH,
-    ValidRoles.MINISTRY_OF_HEALTH,
-  )
   @Get('/job-titles')
   async getJobTitles(): Promise<IENJobTitleRO[]> {
     try {
@@ -149,11 +118,6 @@ export class IENMasterController {
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
   @HttpCode(HttpStatus.OK)
-  @RouteAcceptsRoles(
-    ValidRoles.HEALTH_AUTHORITY,
-    ValidRoles.HEALTH_MATCH,
-    ValidRoles.MINISTRY_OF_HEALTH,
-  )
   @Get('/job-locations')
   async getJobLocations(): Promise<IENJobLocationRO[]> {
     try {
@@ -170,11 +134,6 @@ export class IENMasterController {
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
   @HttpCode(HttpStatus.OK)
-  @RouteAcceptsRoles(
-    ValidRoles.HEALTH_AUTHORITY,
-    ValidRoles.HEALTH_MATCH,
-    ValidRoles.MINISTRY_OF_HEALTH,
-  )
   @Get('/reasons')
   async getStatusReasons(): Promise<IENStatusReasonRO[]> {
     try {
