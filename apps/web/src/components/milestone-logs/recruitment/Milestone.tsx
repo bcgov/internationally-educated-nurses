@@ -23,11 +23,10 @@ const initialValues: any = {
   job_id: '',
   added_by: '',
   start_date: new Date(),
-  end_date: undefined,
+  end_date: new Date(),
   notes: '',
   reason: '',
   effective_date: new Date(),
-  target_start_date: new Date(),
 };
 
 const milestoneValidator = createValidator(IENApplicantAddStatusDTO);
