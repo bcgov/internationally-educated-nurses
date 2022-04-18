@@ -10,8 +10,12 @@ import {
   Body,
   InternalServerErrorException,
   Controller,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ValidRoles } from 'src/auth/auth.constants';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { RouteAcceptsRoles } from 'src/common/decorators';
 import { AppLogger } from 'src/common/logger.service';
 import { EmptyResponse } from 'src/common/ro/empty-response.ro';
 import { FormService } from 'src/form/form.service';
@@ -29,6 +33,12 @@ export class FormController {
   })
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiResponse({ status: HttpStatus.CREATED, type: EmptyResponse })
+  @RouteAcceptsRoles(
+    ValidRoles.HEALTH_AUTHORITY,
+    ValidRoles.HEALTH_MATCH,
+    ValidRoles.MINISTRY_OF_HEALTH,
+  )
+  @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async name(@Body() body: FormDTO): Promise<FormEntity> {

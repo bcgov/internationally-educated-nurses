@@ -15,6 +15,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -29,6 +30,9 @@ import { QueryFailedError } from 'typeorm';
 import { IENApplicantUpdateStatusAPIDTO } from './dto/ienapplicant-update-status.dto';
 import { IENApplicantJobCreateUpdateAPIDTO } from './dto/ienapplicant-job-create.dto';
 import { ApplicantJobRO, ApplicantRO, ApplicantStatusAuditRO } from '@ien/common';
+import { ValidRoles } from 'src/auth/auth.constants';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { RouteAcceptsRoles } from 'src/common/decorators';
 
 @Controller('ien')
 @ApiTags('IEN Applicant')
@@ -43,6 +47,12 @@ export class IENApplicantController {
   })
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
+  @RouteAcceptsRoles(
+    ValidRoles.HEALTH_AUTHORITY,
+    ValidRoles.HEALTH_MATCH,
+    ValidRoles.MINISTRY_OF_HEALTH,
+  )
+  @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.OK)
   @Get('/')
   async getApplicants(@Query() filter: IENApplicantFilterAPIDTO): Promise<[ApplicantRO[], number]> {
@@ -59,6 +69,12 @@ export class IENApplicantController {
   })
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
+  @RouteAcceptsRoles(
+    ValidRoles.HEALTH_AUTHORITY,
+    ValidRoles.HEALTH_MATCH,
+    ValidRoles.MINISTRY_OF_HEALTH,
+  )
+  @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.OK)
   @Get('/:id')
   getApplicant(
@@ -84,6 +100,12 @@ export class IENApplicantController {
   })
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiResponse({ status: HttpStatus.CREATED, type: EmptyResponse })
+  @RouteAcceptsRoles(
+    ValidRoles.HEALTH_AUTHORITY,
+    ValidRoles.HEALTH_MATCH,
+    ValidRoles.MINISTRY_OF_HEALTH,
+  )
+  @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.CREATED)
   @Post('/')
   async addApplicant(@Body() addApplicant: IENApplicantCreateUpdateAPIDTO): Promise<ApplicantRO> {
@@ -106,6 +128,12 @@ export class IENApplicantController {
     summary: 'Update applicant information',
   })
   @UseInterceptors(ClassSerializerInterceptor)
+  @RouteAcceptsRoles(
+    ValidRoles.HEALTH_AUTHORITY,
+    ValidRoles.HEALTH_MATCH,
+    ValidRoles.MINISTRY_OF_HEALTH,
+  )
+  @UseGuards(AuthGuard)
   @Patch('/:id')
   updateApplicant(
     @Param('id') id: string,
@@ -130,6 +158,12 @@ export class IENApplicantController {
     summary: 'Add applicant milestone/status',
   })
   @UseInterceptors(ClassSerializerInterceptor)
+  @RouteAcceptsRoles(
+    ValidRoles.HEALTH_AUTHORITY,
+    ValidRoles.HEALTH_MATCH,
+    ValidRoles.MINISTRY_OF_HEALTH,
+  )
+  @UseGuards(AuthGuard)
   @Post('/:id/status')
   addApplicantStatus(
     @Param('id') id: string,
@@ -157,6 +191,12 @@ export class IENApplicantController {
   })
   @UseInterceptors(ClassSerializerInterceptor)
   @Patch('/:id/status/:status_id')
+  @RouteAcceptsRoles(
+    ValidRoles.HEALTH_AUTHORITY,
+    ValidRoles.HEALTH_MATCH,
+    ValidRoles.MINISTRY_OF_HEALTH,
+  )
+  @UseGuards(AuthGuard)
   updateApplicantStatus(
     @Param('id') id: string,
     @Param('status_id') status_id: string,
@@ -183,6 +223,12 @@ export class IENApplicantController {
     summary: 'Add applicant job record',
   })
   @UseInterceptors(ClassSerializerInterceptor)
+  @RouteAcceptsRoles(
+    ValidRoles.HEALTH_AUTHORITY,
+    ValidRoles.HEALTH_MATCH,
+    ValidRoles.MINISTRY_OF_HEALTH,
+  )
+  @UseGuards(AuthGuard)
   @Post('/:id/job')
   addApplicantJob(
     @Param('id') id: string,

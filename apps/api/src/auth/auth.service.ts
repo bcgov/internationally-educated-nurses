@@ -1,6 +1,8 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
-
+import jwt from 'jsonwebtoken';
+import jwksRsa from 'jwks-rsa';
 export class AuthService {
+  uri = `${process.env.AUTH_URL}/realms/${process.env.AUTH_REALM}/protocol/openid-connect/certs`;
   extractToken = (headers: { [key: string]: string }): string | undefined => {
     if (headers.authorization) {
       const auth = headers.authorization.split(' ');
@@ -13,4 +15,20 @@ export class AuthService {
       return headers['x-api-key'];
     }
   };
+
+  async getUserFromToken(token: string) {
+    const jwksClient = jwksRsa({
+      jwksUri: this.uri,
+    });
+    const decoded = jwt.decode(token, { complete: true });
+    const kid = decoded?.header.kid;
+    const jwks = await jwksClient.getSigningKey(kid);
+    const signingKey = jwks.getPublicKey();
+    const verified = jwt.verify(token || '', signingKey);
+    if (typeof verified !== 'string' && verified.azp !== 'IEN') {
+      throw new HttpException('Authentication token does not match', HttpStatus.FORBIDDEN);
+    }
+    const { ...user }: any = decoded?.payload;
+    return user;
+  }
 }
