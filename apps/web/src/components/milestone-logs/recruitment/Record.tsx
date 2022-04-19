@@ -1,12 +1,12 @@
-import { faCircle, faPencilAlt } from '@fortawesome/free-solid-svg-icons';
+import { faCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 import { buttonBase, buttonColor, DetailsItem, Disclosure } from '@components';
 import { AddMilestones, EditMilestones } from './Milestone';
 import { useEffect, useState } from 'react';
 import { ApplicantJobRO, formatDate } from '@ien/common';
+import editIcon from '@assets/img/edit.svg';
 
 interface RecordProps {
   job: ApplicantJobRO;
@@ -81,19 +81,12 @@ export const Record: React.FC<RecordProps> = ({ job }) => {
               <DetailsItem title='Recruiter Name' text={recruiter_name} />
               <DetailsItem title='Date Job Was First Posted' text={formatDate(job_post_date)} />
             </div>
-            <Link
-              as={`/details/${applicantId}?recruitment=edit`}
-              href={{
-                pathname: `/details/${applicantId}`,
-                query: { ...router.query, recruitment: 'edit' },
-              }}
-              shallow={true}
+            <button
+              className={`px-6 mb-2 ${buttonColor.secondary} ${buttonBase} pointer-events-none`}
             >
-              <a className={`px-6 mb-2 ${buttonColor.secondary} ${buttonBase} pointer-events-none`}>
-                <FontAwesomeIcon className='h-4 mr-2' icon={faPencilAlt}></FontAwesomeIcon>
-                Edit Details
-              </a>
-            </Link>
+              <img src={editIcon.src} alt='edit' className='mr-2' />
+              Edit Details
+            </button>
             {jobMilestones &&
               jobMilestones.map(mil => <EditMilestones key={mil.id} milestones={mil} />)}
             <AddMilestones

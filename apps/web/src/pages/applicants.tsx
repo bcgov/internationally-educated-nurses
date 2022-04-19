@@ -62,7 +62,7 @@ const Applicants = () => {
     setLoading(false);
   }, [name, status, sortKey, order, pageIndex, limit]);
 
-  const viewDetail = (id: string) => router.push(`/details/${id}`);
+  const viewDetail = (id: string) => router.push(`/details?id=${id}`);
 
   const handleSort = (key: string) => {
     if (key === sortKey) {

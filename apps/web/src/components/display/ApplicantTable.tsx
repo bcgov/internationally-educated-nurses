@@ -49,15 +49,7 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
                 <td className='px-6'>{app.status?.status}</td>
                 <td className='px-6'>{app.updated_date && formatDate(app.updated_date)}</td>
                 <td className='px-6 text-right'>
-                  <Link
-                    href={{
-                      pathname: `details/${app.id}`,
-                      query: {
-                        applicantId: app.id,
-                      },
-                    }}
-                    as={`details/?id=${app.id}`}
-                  >
+                  <Link href={`/details?id=${app.id}`}>
                     <a className={`px-4 ${buttonColor.outline} ${buttonBase} text-bcGray`}>
                       Details
                     </a>

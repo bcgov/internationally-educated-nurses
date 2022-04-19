@@ -11,32 +11,28 @@ import { Field, Select, Option } from '../form';
 interface AddRecordProps {
   jobRecords: any;
   setJobRecords: any;
+  close: () => void;
+  visible: boolean;
 }
 
-export const AddRecordModal: React.FC<AddRecordProps> = ({ jobRecords, setJobRecords }) => {
+export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) => {
+  const { jobRecords, setJobRecords, visible, close } = props;
+
   const router = useRouter();
 
-  const applicantId = router?.query?.applicantId;
-  const isOpen = !!router.query.record;
+  const applicantId = router?.query?.id;
 
   const newJobRecordSchema = createValidator(IENApplicantJobCreateUpdateDTO);
 
   // deconstruct and get record options
   const { haPcn, jobLocation, jobTitle } = getAddRecordOptions();
 
-  const handleClose = () => {
-    delete router.query.record;
-    router.back();
-  };
-
   const handleSubmit = async (values: IENApplicantJobCreateUpdateDTO) => {
     const data = await addJobRecord(applicantId as string, values);
-
     if (data) {
       setJobRecords([data, ...jobRecords]);
-      delete router.query.record;
-      router.back();
     }
+    close();
   };
 
   //@todo change any type
@@ -50,7 +46,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = ({ jobRecords, setJobRec
   };
 
   return (
-    <Modal open={isOpen} handleClose={handleClose}>
+    <Modal open={visible} handleClose={close}>
       <Modal.Title as='h1' className='text-lg font-bold leading-6 text-bcBlueLink border-b p-4'>
         Add Record
       </Modal.Title>
@@ -94,7 +90,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = ({ jobRecords, setJobRec
                 </div>
                 <span className='border-b-2 col-span-4 mt-2'></span>
                 <div className='col-span-4 flex items-center justify-between'>
-                  <Button variant='secondary' forModal={true} type='button' onClick={handleClose}>
+                  <Button variant='secondary' forModal={true} type='button' onClick={close}>
                     Cancel
                   </Button>
                   <Button
