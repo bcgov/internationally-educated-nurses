@@ -9,7 +9,7 @@ import { ApplicantRO, ApplicantStatusAuditRO, formatDate } from '@ien/common';
 import { Spinner } from 'src/components/Spinner';
 import detailIcon from '@assets/img/details.svg';
 import historyIcon from '@assets/img/history.svg';
-import { MilestoneTable } from '../../components/milestone-logs/MilestoneTable';
+import { MilestoneTable } from 'src/components/milestone-logs/MilestoneTable';
 import withAuth from 'src/components/Keycloak';
 
 const Details = () => {
@@ -18,7 +18,7 @@ const Details = () => {
   const [milestones, setMilestones] = useState<ApplicantStatusAuditRO[]>([]);
 
   const router = useRouter();
-  const applicantId = router.query.applicantId;
+  const applicantId = router.query.id;
 
   useEffect(() => {
     if (router.isReady) {
