@@ -13,7 +13,7 @@ import { ApplicantJobRO } from '@ien/common';
 
 export const Recruitment: React.FC = () => {
   const router = useRouter();
-  const applicantId = router.query.applicantId;
+  const applicantId = router.query.id;
   const [isLoading, setIsLoading] = useState(false);
   const [jobRecords, setJobRecords] = useState<ApplicantJobRO[]>();
 
