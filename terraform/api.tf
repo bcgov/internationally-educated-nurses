@@ -30,7 +30,7 @@ resource "aws_lambda_function" "api" {
       NODE_ENV          = "production"
       RUNTIME_ENV       = "hosted"
       AUTH_URL          = data.aws_ssm_parameter.keycloak_url.value
-      AUTH_RELM         = data.aws_ssm_parameter.keycloak_realm.value
+      AUTH_REALM         = data.aws_ssm_parameter.keycloak_realm.value
       TARGET_ENV        = var.target_env
       AWS_S3_REGION     = var.region
       BUILD_ID          = var.build_id

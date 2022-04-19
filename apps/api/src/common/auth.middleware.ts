@@ -44,9 +44,7 @@ export class AuthenticationMiddleware implements NestMiddleware {
       next();
     } catch (e: any) {
       this.logger.log('Error triggered inside auth.middleware', e);
-      // eslint-disable-next-line no-console
-      console.log(e);
-      throw new HttpException('Authentication Header did not match', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Authentication Error', HttpStatus.UNAUTHORIZED);
     }
   }
 }
