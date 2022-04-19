@@ -1,14 +1,16 @@
-import { HttpException, HttpStatus, Injectable, NestMiddleware } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction } from 'express';
 import { AuthService } from '../auth/auth.service';
 
 import { EmployeeService } from 'src/employee/employee.service';
 import { EmployeeEntity } from 'src/employee/employee.entity';
 import { ValidRoles } from 'src/auth/auth.constants';
+import { AppLogger } from './logger.service';
 
 @Injectable()
 export class AuthenticationMiddleware implements NestMiddleware {
   constructor(
+    @Inject(AppLogger) private readonly logger: AppLogger,
     private readonly authService: AuthService,
     private readonly employeeService: EmployeeService,
   ) {}
@@ -40,8 +42,9 @@ export class AuthenticationMiddleware implements NestMiddleware {
 
       res.locals.user = applicationUser;
       next();
-    } catch (e) {
-      throw new HttpException('Authentication header does not match', HttpStatus.BAD_REQUEST);
+    } catch (e: any) {
+      this.logger.log('Error triggered inside auth.middleware', e);
+      throw new HttpException('Authentication Error', HttpStatus.UNAUTHORIZED);
     }
   }
 }
