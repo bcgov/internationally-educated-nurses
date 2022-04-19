@@ -17,7 +17,7 @@ interface RecordProps {
 
 export const Record: React.FC<RecordProps> = ({ job }) => {
   const router = useRouter();
-  const applicantId = router.query.applicantId;
+  const applicantId = router.query.id;
   const [recordStatus, setRecordStatus] = useState('');
 
   // set status_audit to empty array on record create
