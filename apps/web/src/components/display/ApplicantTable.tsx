@@ -56,7 +56,7 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
                         applicantId: app.id,
                       },
                     }}
-                    as={`details/${app.id}`}
+                    as={`details/?id=${app.id}`}
                   >
                     <a className={`px-4 ${buttonColor.outline} ${buttonBase} text-bcGray`}>
                       Details
