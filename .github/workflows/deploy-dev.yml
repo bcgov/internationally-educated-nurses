@@ -57,6 +57,9 @@ jobs:
 
       - name: Build api
         run: make build-api
+      
+      - name: Build lambda
+        run: make build-lambda
 
       - name: Deploy All
         run: make deploy-all

@@ -76,6 +76,7 @@ ches_client_id = "$(CHES_CLIENT_ID)"
 mail_from = "$(MAIL_FROM)"
 build_id = "$(COMMIT_SHA)"
 build_info = "$(LAST_COMMIT_MESSAGE)"
+sync_applicants_js = "lambda/index.js"
 endef
 export TFVARS_DATA
 
@@ -222,6 +223,13 @@ build-web:
 	@mv ./apps/web/out ./terraform/build/app
 	@echo "++\n*****"
 
+build-lambda:
+	@echo "++\n***** Build Lambda for AWS\n++"
+	@mkdir -p ./terraform/lambda
+	@echo 'Copy lambda ...\n' && cp -r ./apps/lambda/* ./terraform/lambda/
+	@echo 'Creating Zip ...\n' && cd ./terraform/lambda/import-applicants && zip -r import-applicants.zip ./* && cd ../..
+	@echo "++\n*****"
+
 	
 # ===================================
 # Terraform commands
@@ -264,7 +272,10 @@ deploy-app:
 deploy-api:
 	aws lambda update-function-code --function-name ien-$(ENV_NAME)-api --zip-file fileb://./terraform/build/api.zip --region $(AWS_REGION)
 
-deploy-all: sync-app deploy-api
+deploy-lambda:
+	aws lambda update-function-code --function-name sync-applicants --zip-file fileb://./terraform/lambda/import-applicants/import-applicants.zip --region $(AWS_REGION)
+
+deploy-all: sync-app deploy-api deploy-lambda
 	@echo "Deploying Webapp and API"
 
 # ===================================
