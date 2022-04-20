@@ -38,7 +38,6 @@ export const Recruitment: React.FC = () => {
 
   const handleNewRecord = (record?: ApplicantJobRO) => {
     setRecordModalVisible(false);
-
     if (record) {
       setJobRecords([...jobRecords, record]);
     }
