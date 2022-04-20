@@ -234,34 +234,18 @@ export class IENApplicantService {
       data.reason = statusReason;
     }
 
-    data.reason_other = null;
-    if (reason_other) {
-      data.reason_other = reason_other;
-    }
+    data.reason_other = reason_other || null;
 
     const status_obj = await this.ienapplicantUtilService.getStatusById(status);
     data.status = status_obj;
 
-    data.start_date = null;
-    if (start_date) {
-      data.start_date = start_date;
-    } else {
-      data.start_date = new Date();
-    }
+    data.start_date = start_date || new Date();
 
-    data.end_date = null;
-    if (end_date) {
-      data.end_date = end_date;
-    }
+    data.end_date = end_date || null;
 
-    data.effective_date = null;
-    if (effective_date) {
-      data.effective_date = effective_date;
-    }
+    data.effective_date = effective_date || null;
 
-    if (notes) {
-      data.notes = notes;
-    }
+    data.notes = notes || null;
 
     let job = null;
     if (job_id) {
