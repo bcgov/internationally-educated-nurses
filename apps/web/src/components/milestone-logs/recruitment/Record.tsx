@@ -133,7 +133,7 @@ export const Record: React.FC<RecordProps> = ({ job, update }) => {
               <img src={editIcon.src} alt='edit' className='mr-2' />
               Edit Details
             </button>
-            <AddRecordModal job={job} close={handleModalClose} visible={modalVisible} />
+            <AddRecordModal job={job} onClose={handleModalClose} visible={modalVisible} />
             {jobMilestones &&
               jobMilestones.map(mil => <EditMilestones key={mil.id} milestones={mil} />)}
             <AddMilestones

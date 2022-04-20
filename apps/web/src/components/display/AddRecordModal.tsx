@@ -13,15 +13,16 @@ import {
 } from '@services';
 import { ApplicantJobRO, IENApplicantJobCreateUpdateDTO } from '@ien/common';
 import { Field } from '../form';
+import dayjs from 'dayjs';
 
 interface AddRecordProps {
   job?: ApplicantJobRO;
-  close: (jobRecord?: ApplicantJobRO) => void;
+  onClose: (jobRecord?: ApplicantJobRO) => void;
   visible: boolean;
 }
 
 export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) => {
-  const { job, visible, close } = props;
+  const { job, visible, onClose } = props;
 
   const router = useRouter();
 
@@ -37,17 +38,17 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
       ? await updateJobRecord(applicantId, job.id, values)
       : await addJobRecord(applicantId, values);
 
-    close(data);
+    onClose(data);
   };
 
   //@todo change any type
   const initialValues: IENApplicantJobCreateUpdateDTO = {
-    ha_pcn: `${job?.ha_pcn?.id}` || '',
-    job_id: `${job?.job_id}` || '',
-    job_title: `${job?.job_title.id}` || '',
-    job_location: `${job?.job_location?.id}` || '',
+    ha_pcn: `${job?.ha_pcn?.id || ''}`,
+    job_id: `${job?.job_id || ''}`,
+    job_title: `${job?.job_title.id || ''}`,
+    job_location: `${job?.job_location?.id || ''}`,
     recruiter_name: job?.recruiter_name || '',
-    job_post_date: job?.job_post_date || new Date(),
+    job_post_date: dayjs(job?.job_post_date).format('YYYY-MM-DD'),
   };
 
   return (
@@ -130,7 +131,12 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
                 </div>
                 <span className='border-b-2 col-span-4 mt-2'></span>
                 <div className='col-span-4 flex items-center justify-between'>
-                  <Button variant='secondary' forModal={true} type='button' onClick={close}>
+                  <Button
+                    variant='secondary'
+                    forModal={true}
+                    type='button'
+                    onClick={() => onClose()}
+                  >
                     Cancel
                   </Button>
                   <Button

@@ -38,6 +38,7 @@ export const Recruitment: React.FC = () => {
 
   const handleNewRecord = (record?: ApplicantJobRO) => {
     setRecordModalVisible(false);
+
     if (record) {
       setJobRecords([...jobRecords, record]);
     }
@@ -72,7 +73,7 @@ export const Recruitment: React.FC = () => {
           <span>Add Record</span>
         </button>
       </div>
-      <AddRecordModal close={handleNewRecord} visible={recordModalVisible} />
+      <AddRecordModal onClose={handleNewRecord} visible={recordModalVisible} />
     </>
   );
 };
