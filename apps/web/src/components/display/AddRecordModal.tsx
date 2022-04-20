@@ -4,7 +4,7 @@ import createValidator from 'class-validator-formik';
 
 import { Modal } from '../Modal';
 import { Button } from '@components';
-import { addJobRecord, getAddRecordOptions, RecordTypeOptions } from '@services';
+import { addJobRecord, useGetAddRecordOptions, RecordTypeOptions } from '@services';
 import { IENApplicantJobCreateUpdateDTO } from '@ien/common';
 import { Field, Select, Option } from '../form';
 
@@ -22,7 +22,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = ({ jobRecords, setJobRec
   const newJobRecordSchema = createValidator(IENApplicantJobCreateUpdateDTO);
 
   // deconstruct and get record options
-  const { haPcn, jobLocation, jobTitle } = getAddRecordOptions();
+  const { haPcn, jobLocation, jobTitle } = useGetAddRecordOptions();
 
   const handleClose = () => {
     delete router.query.record;
