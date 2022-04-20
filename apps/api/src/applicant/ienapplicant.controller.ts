@@ -289,9 +289,12 @@ export class IENApplicantController {
     ValidRoles.MINISTRY_OF_HEALTH,
   )
   @Get('/:id/jobs')
-  getApplicantJobs(@Param('id') id: string): Promise<ApplicantJobRO[]> {
+  getApplicantJobs(
+    @Param('id') id: string,
+    @Query('job_id') job_id: string,
+  ): Promise<ApplicantJobRO[]> {
     try {
-      return this.ienapplicantService.getApplicantJobs(id);
+      return this.ienapplicantService.getApplicantJobs(id, job_id);
     } catch (e) {
       if (e instanceof NotFoundException) {
         throw e;

@@ -81,11 +81,16 @@ export const addMilestone = async (
 };
 
 // get job and milestone data
-export const getJobAndMilestones = async (id: string): Promise<ApplicantJobRO[] | undefined> => {
+export const getJobAndMilestones = async (
+  id: string,
+  jobId?: string,
+): Promise<ApplicantJobRO[] | undefined> => {
   try {
     const {
       data: { data },
-    } = await axios.get<{ data: ApplicantJobRO[] }>(`/ien/${id}/jobs`);
+    } = await axios.get<{ data: ApplicantJobRO[] }>(
+      !jobId ? `/ien/${id}/jobs` : `/ien/${id}/jobs?job_id=${jobId}`,
+    );
 
     return data;
   } catch (error) {

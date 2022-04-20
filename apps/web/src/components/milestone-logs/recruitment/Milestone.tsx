@@ -11,17 +11,23 @@ import createValidator from 'class-validator-formik';
 import { Formik, Form as FormikForm } from 'formik';
 
 import { buttonBase, buttonColor, Select, Option, Field } from '@components';
-import { IENApplicantAddStatusDTO, formatDate } from '@ien/common';
-import { addMilestone, getMilestoneOptions, MilestoneType } from '@services';
+import { IENApplicantAddStatusDTO, formatDate, IENStatusReasonRO } from '@ien/common';
+import {
+  addMilestone,
+  useGetMilestoneOptions,
+  useGetWithdrawReasonOptions,
+  MilestoneType,
+  getJobAndMilestones,
+} from '@services';
 
-//@todo change any type
-const initialValues: IENApplicantAddStatusDTO = {
+const initialValues: any = {
   status: '',
   job_id: '',
   added_by: '',
   start_date: new Date(),
-  end_date: undefined,
   notes: '',
+  reason: '',
+  effective_date: new Date().toISOString(),
 };
 
 const milestoneValidator = createValidator(IENApplicantAddStatusDTO);
@@ -29,7 +35,6 @@ const milestoneValidator = createValidator(IENApplicantAddStatusDTO);
 interface AddMilestoneProps {
   applicantId: string;
   jobId: string;
-  jobMilestones: any;
   setJobMilestones: any;
 }
 
@@ -37,7 +42,6 @@ interface AddMilestoneProps {
 export const AddMilestones: React.FC<AddMilestoneProps> = ({
   applicantId,
   jobId,
-  jobMilestones,
   setJobMilestones,
 }) => {
   const handleSubmit = async (values: any, { resetForm }: any) => {
@@ -45,10 +49,19 @@ export const AddMilestones: React.FC<AddMilestoneProps> = ({
     values.job_id = jobId.toString();
     values.added_by = '1';
 
+    if (values.status !== '304' && values.status !== '305') {
+      values.effective_date = undefined;
+    }
+
     const data = await addMilestone(applicantId as string, values);
 
-    if (data) {
-      setJobMilestones([...jobMilestones, data]);
+    // get updated milestones
+    if (data && data.id) {
+      const reFetchData = await getJobAndMilestones(applicantId, jobId);
+
+      if (reFetchData) {
+        setJobMilestones(reFetchData[0].status_audit);
+      }
     }
 
     // reset form after submitting
@@ -126,16 +139,17 @@ interface MilestoneFormProps {
 }
 
 const MilestoneForm: React.FC<MilestoneFormProps> = ({ buttonText, icon, handleSubmit }) => {
-  const milestones = getMilestoneOptions();
+  const milestones = useGetMilestoneOptions();
+  const reasons = useGetWithdrawReasonOptions();
 
   return (
     <div className='border border-gray-200 rounded bg-gray-200 my-3 px-3 pb-4'>
       <div className='w-full pt-4'>
         <Formik initialValues={initialValues} onSubmit={handleSubmit} validate={milestoneValidator}>
-          {({ dirty, isValid }) => (
+          {({ dirty, isValid, values }) => (
             <FormikForm>
-              <div className='flex justify-between mb-4'>
-                <span className='flex-grow pr-1 md:pr-2'>
+              <div className='grid grid-cols-9 gap-y-2 mb-4'>
+                <span className='col-span-12 sm:col-span-6 lg:col-span-3 pr-1 md:pr-2'>
                   <Select name='status' label='Milestone'>
                     {milestones &&
                       milestones.length > 0 &&
@@ -144,12 +158,51 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({ buttonText, icon, handleS
                       ))}
                   </Select>
                 </span>
-                <span className='flex-grow pr-1 md:pr-2'>
+                <span className='col-span-12 sm:col-span-6 lg:col-span-3 pr-1 md:pr-2'>
                   <Field name='start_date' label='Date' type='date' />
                 </span>
-                <span className='flex-grow pr-1 md:pr-2'>
+                <span className='col-span-12 sm:col-span-6 lg:col-span-3 pr-1 md:pr-2'>
                   <Field name='notes' label='Note' type='text' />
                 </span>
+                {/* Withdraw reason conditional */}
+                {values.status === '305' ? (
+                  <>
+                    <span className='col-span-12 sm:col-span-6 lg:col-span-3 pr-1 md:pr-2'>
+                      <Select name='reason' label='Withdraw Reason'>
+                        {reasons &&
+                          reasons.length > 0 &&
+                          reasons.map((opt: IENStatusReasonRO) => (
+                            <Option
+                              key={opt.id}
+                              label={opt.name as string}
+                              value={opt.id.toString()}
+                            />
+                          ))}
+                      </Select>
+                    </span>
+                    <div className='col-span-12 sm:col-span-6 lg:col-span-2 md:pr-2 mt-auto'>
+                      <button
+                        className={`border border-bcGray rounded text-bcGray ${buttonBase} pointer-events-none`}
+                      >
+                        <span className='whitespace-nowrap px-1 text-bcGray text-xs'>
+                          Add New Reason
+                        </span>
+                        <FontAwesomeIcon className='h-4 mr-2' icon={faPlusCircle} />
+                      </button>
+                    </div>
+
+                    <span className='col-span-12 sm:col-span-6 lg:col-span-4 pr-1 md:pr-2'>
+                      <Field name='effective_date' label='Effective Date' type='date' />
+                    </span>
+                  </>
+                ) : null}
+
+                {/* Position offered conditional */}
+                {values.status === '304' ? (
+                  <span className='col-span-12 sm:col-span-6 lg:col-span-3 pr-1 md:pr-2'>
+                    <Field name='effective_date' label='Target Start Date' type='date' />
+                  </span>
+                ) : null}
               </div>
               <button
                 className={`px-6 ${buttonColor.secondary} ${buttonBase}`}

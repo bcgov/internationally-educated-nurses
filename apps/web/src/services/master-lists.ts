@@ -1,3 +1,4 @@
+import { IENStatusReasonRO } from '@ien/common';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import useSWRImmutable from 'swr/immutable';
@@ -22,7 +23,7 @@ export interface RecordType {
 }
 
 // get record options for adding new record modal
-export const getAddRecordOptions = (): RecordType => {
+export const useGetAddRecordOptions = (): RecordType => {
   const { data: haPcn } = useSWRImmutable('ienmaster/ha-pcn', fetcher);
   const { data: jobLocation } = useSWRImmutable('ienmaster/job-locations', fetcher);
   const { data: jobTitle } = useSWRImmutable('ienmaster/job-titles', fetcher);
@@ -36,8 +37,14 @@ export interface MilestoneType {
 }
 
 // milestone status' for adding milestones
-export const getMilestoneOptions = (): MilestoneType[] => {
+export const useGetMilestoneOptions = (): MilestoneType[] => {
   const { data: milestones } = useSWRImmutable('ienmaster/status', fetcher);
 
   return milestones?.data.filter((item: { id: number }) => item.id == 10003)[0].children;
+};
+
+export const useGetWithdrawReasonOptions = (): IENStatusReasonRO[] => {
+  const { data: reasons } = useSWRImmutable('ienmaster/reasons', fetcher);
+
+  return reasons?.data;
 };

@@ -2,10 +2,13 @@ import { faCircle, faPencilAlt } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
+import relativeTime from 'dayjs/plugin/relativeTime';
 
 import { buttonBase, buttonColor, DetailsItem, Disclosure } from '@components';
 import { AddMilestones, EditMilestones } from './Milestone';
-import { useEffect, useState } from 'react';
 import { ApplicantJobRO, formatDate } from '@ien/common';
 
 interface RecordProps {
@@ -33,6 +36,9 @@ export const Record: React.FC<RecordProps> = ({ job }) => {
 
   const [jobMilestones, setJobMilestones] = useState(status_audit);
 
+  // @todo - remove hard coded values
+  const completionIdArray = [305, 306, 307, 308];
+
   useEffect(() => {
     if (jobMilestones) {
       lastMilestones();
@@ -47,8 +53,37 @@ export const Record: React.FC<RecordProps> = ({ job }) => {
       }
 
       const lastItem = jobMilestones.length - 1;
-      setRecordStatus(jobMilestones[lastItem].status.status);
+      const statusId = jobMilestones[lastItem].status.id;
+
+      setRecordStatus(
+        completionIdArray.includes(statusId)
+          ? 'Complete - ' + jobMilestones[lastItem].status.status
+          : jobMilestones[lastItem].status.status,
+      );
     }
+  };
+
+  // get duration difference between previous milestones start date and new milestones start date
+  const getMilestoneDuration = () => {
+    dayjs.extend(duration);
+    dayjs.extend(relativeTime);
+
+    let endDate = new Date();
+
+    if (jobMilestones) {
+      const lastItem = jobMilestones.length - 1;
+
+      if (jobMilestones.length > 1) {
+        endDate = jobMilestones[lastItem - 1].start_date as Date;
+      }
+
+      const prevDate = dayjs(endDate);
+      const newDate = dayjs(jobMilestones[lastItem].start_date);
+      const dur = dayjs.duration(prevDate.diff(newDate)).humanize();
+
+      return dur;
+    }
+    return;
   };
 
   return (
@@ -58,17 +93,19 @@ export const Record: React.FC<RecordProps> = ({ job }) => {
           <div className='bg-blue-100 rounded py-2 pl-5 w-full'>
             <div className='flex items-center'>
               <span className='font-bold text-black'>{ha_pcn.title}</span>
-              <span className='text-xs text-blue-500 font-bold mr-3 ml-auto capitalize'>
+              <span className='text-xs text-blue-700 font-bold mr-3 ml-auto capitalize'>
                 <FontAwesomeIcon
                   icon={faCircle}
-                  className='text-blue-500 h-2 inline-block mb-0.5 mr-1'
+                  className='text-blue-700 h-2 inline-block mb-0.5 mr-1'
                 />
                 {recordStatus ? recordStatus : 'On Going'}
               </span>
             </div>
             <div className='flex justify-between'>
               <span className='text-sm text-black '>{job_title.title}</span>
-              <span className='text-xs text-black mr-3'>1 month</span>
+              <span className='text-xs text-black mr-3 capitalize'>
+                {jobMilestones && jobMilestones.length > 0 && getMilestoneDuration()}
+              </span>
             </div>
           </div>
         }
@@ -99,7 +136,6 @@ export const Record: React.FC<RecordProps> = ({ job }) => {
             <AddMilestones
               applicantId={applicantId as string}
               jobId={id}
-              jobMilestones={jobMilestones}
               setJobMilestones={setJobMilestones}
             />
           </div>
