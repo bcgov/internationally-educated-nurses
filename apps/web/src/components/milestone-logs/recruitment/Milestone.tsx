@@ -13,16 +13,17 @@ import {
 } from '@services';
 import addIcon from '@assets/img/add.svg';
 import calendarIcon from '@assets/img/calendar.svg';
+import dayjs from 'dayjs';
 
 //@todo change any type
 const initialValues: IENApplicantAddStatusDTO = {
   status: '',
   job_id: '',
   added_by: '',
-  start_date: new Date(),
+  start_date: dayjs().format('YYYY-MM-DD'),
   notes: '',
   reason: '',
-  effective_date: new Date(),
+  effective_date: dayjs().format('YYYY-MM-DD'),
 };
 
 const milestoneValidator = createValidator(IENApplicantAddStatusDTO);
@@ -170,7 +171,7 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({ buttonText, handleSubmit 
                         <span className='whitespace-nowrap px-1 text-bcGray text-xs'>
                           Add New Reason
                         </span>
-                        <img src={addIcon.src} alt="add reason" />
+                        <img src={addIcon.src} alt='add reason' />
                       </button>
                     </div>
 

@@ -15,11 +15,11 @@ export class IENApplicantAddStatusDTO {
 
   @IsDateString()
   @IsOptional()
-  start_date?: Date;
+  start_date?: string;
 
   @IsDateString()
   @IsOptional()
-  end_date?: Date;
+  end_date?: string;
 
   @IsString({ message: 'Notes/Reason must be a string' })
   @IsOptional()
@@ -35,5 +35,5 @@ export class IENApplicantAddStatusDTO {
 
   @IsDateString()
   @IsOptional()
-  effective_date?: Date;
+  effective_date?: string;
 }
