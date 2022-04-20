@@ -81,28 +81,16 @@ export const addMilestone = async (
 };
 
 // get job and milestone data
-export const getJobAndMilestones = async (id: string): Promise<ApplicantJobRO[] | undefined> => {
+export const getJobAndMilestones = async (
+  id: string,
+  jobId?: string,
+): Promise<ApplicantJobRO[] | undefined> => {
   try {
     const {
       data: { data },
-    } = await axios.get<{ data: ApplicantJobRO[] }>(`/ien/${id}/jobs`);
-
-    return data;
-  } catch (error) {
-    const e = error as AxiosError;
-    toast.error(`${e.response?.data.errorType}: ${e.response?.data.errorMessage}`);
-  }
-};
-
-// get single job and milestone data
-export const getJobAndMilestone = async (
-  applicantId: string,
-  jobId: string,
-): Promise<ApplicantJobRO | undefined> => {
-  try {
-    const {
-      data: { data },
-    } = await axios.get<{ data: ApplicantJobRO }>(`/ien/${applicantId}/job/${jobId}`);
+    } = await axios.get<{ data: ApplicantJobRO[] }>(
+      !jobId ? `/ien/${id}/jobs` : `/ien/${id}/jobs?job_id=${jobId}`,
+    );
 
     return data;
   } catch (error) {

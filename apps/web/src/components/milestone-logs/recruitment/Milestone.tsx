@@ -14,10 +14,10 @@ import { buttonBase, buttonColor, Select, Option, Field } from '@components';
 import { IENApplicantAddStatusDTO, formatDate, IENStatusReasonRO } from '@ien/common';
 import {
   addMilestone,
-  getJobAndMilestone,
   useGetMilestoneOptions,
   useGetWithdrawReasonOptions,
   MilestoneType,
+  getJobAndMilestones,
 } from '@services';
 
 const initialValues: any = {
@@ -27,7 +27,7 @@ const initialValues: any = {
   start_date: new Date(),
   notes: '',
   reason: '',
-  effective_date: new Date(),
+  effective_date: new Date().toISOString(),
 };
 
 const milestoneValidator = createValidator(IENApplicantAddStatusDTO);
@@ -57,10 +57,10 @@ export const AddMilestones: React.FC<AddMilestoneProps> = ({
 
     // get updated milestones
     if (data && data.id) {
-      const reFetchData = await getJobAndMilestone(applicantId, jobId);
+      const reFetchData = await getJobAndMilestones(applicantId, jobId);
 
       if (reFetchData) {
-        setJobMilestones(reFetchData.status_audit);
+        setJobMilestones(reFetchData[0].status_audit);
       }
     }
 

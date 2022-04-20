@@ -210,7 +210,17 @@ export class IENApplicantService {
     applicantUpdate: IENApplicantAddStatusAPIDTO,
   ): Promise<IENApplicantStatusAudit | any> {
     const applicant = await this.getApplicantById(id);
-    const { status, start_date, end_date, added_by, job_id, notes, reason } = applicantUpdate;
+    const {
+      status,
+      start_date,
+      end_date,
+      added_by,
+      job_id,
+      notes,
+      reason,
+      effective_date,
+      reason_other,
+    } = applicantUpdate;
     const data: any = {};
     if (added_by) {
       const added_by_data = await this.ienUsersRepository.findOne(parseInt(added_by));
@@ -222,6 +232,11 @@ export class IENApplicantService {
     if (reason) {
       const statusReason = await this.ienapplicantUtilService.geStatustReason(+reason);
       data.reason = statusReason;
+    }
+
+    data.reason_other = null;
+    if (reason_other) {
+      data.reason_other = reason_other;
     }
 
     const status_obj = await this.ienapplicantUtilService.getStatusById(status);
@@ -237,6 +252,11 @@ export class IENApplicantService {
     data.end_date = null;
     if (end_date) {
       data.end_date = end_date;
+    }
+
+    data.effective_date = null;
+    if (effective_date) {
+      data.effective_date = effective_date;
     }
 
     if (notes) {
@@ -393,30 +413,17 @@ export class IENApplicantService {
    * @param id Applicant ID of IEN App
    * @returns
    */
-  async getApplicantJobs(id: string): Promise<IENApplicantJob[]> {
+  async getApplicantJobs(id: string, job_id: string): Promise<IENApplicantJob[]> {
+    const where: any = {
+      applicant: id,
+    };
+    if (job_id && job_id != '') {
+      where['id'] = job_id;
+    }
     const jobs = await this.ienapplicantJobRepository.find({
-      where: {
-        applicant: id,
-      },
+      where: where,
       relations: this.applicantRelations.applicant_job,
     });
     return jobs;
-  }
-
-  /**
-   * Get specific applicant job details for recruitment process
-   * @param id Applicant ID of IEN App
-   * @param job_id job ID of IEN App
-   * @returns
-   */
-  async getApplicantJob(id: string, job_id: string | number): Promise<IENApplicantJob | undefined> {
-    const job = await this.ienapplicantJobRepository.findOne({
-      where: {
-        applicant: id,
-        id: job_id,
-      },
-      relations: this.applicantRelations.applicant_job,
-    });
-    return job;
   }
 }

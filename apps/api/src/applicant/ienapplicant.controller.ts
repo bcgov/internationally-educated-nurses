@@ -289,39 +289,12 @@ export class IENApplicantController {
     ValidRoles.MINISTRY_OF_HEALTH,
   )
   @Get('/:id/jobs')
-  getApplicantJobs(@Param('id') id: string): Promise<ApplicantJobRO[]> {
-    try {
-      return this.ienapplicantService.getApplicantJobs(id);
-    } catch (e) {
-      if (e instanceof NotFoundException) {
-        throw e;
-      } else if (e instanceof QueryFailedError) {
-        throw new BadRequestException(e);
-      } else {
-        // statements to handle any unspecified exceptions
-        throw new InternalServerErrorException('An unknown error occured while fetching ');
-      }
-    }
-  }
-
-  @ApiOperation({
-    summary: 'Get Specific Applicant job and related milestone',
-  })
-  @UseInterceptors(ClassSerializerInterceptor)
-  @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
-  @HttpCode(HttpStatus.OK)
-  @RouteAcceptsRoles(
-    ValidRoles.HEALTH_AUTHORITY,
-    ValidRoles.HEALTH_MATCH,
-    ValidRoles.MINISTRY_OF_HEALTH,
-  )
-  @Get('/:id/job/:job_id')
-  getApplicantJob(
+  getApplicantJobs(
     @Param('id') id: string,
-    @Param('job_id') job_id: string,
-  ): Promise<ApplicantJobRO | undefined> {
+    @Query('job_id') job_id: string,
+  ): Promise<ApplicantJobRO[]> {
     try {
-      return this.ienapplicantService.getApplicantJob(id, job_id);
+      return this.ienapplicantService.getApplicantJobs(id, job_id);
     } catch (e) {
       if (e instanceof NotFoundException) {
         throw e;
