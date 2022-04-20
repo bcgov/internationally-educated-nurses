@@ -10,6 +10,8 @@ import {
   ApplicantJobRO,
   ApplicantStatusAuditRO,
 } from '@ien/common';
+import { JobFilterOptions } from '../components/milestone-logs/recruitment/JobFilters';
+import { PageOptions } from '../components/Pagination';
 
 // get all applicants
 export const getApplicants = async (filter: IENApplicantFilterDTO = {}) => {
@@ -97,17 +99,31 @@ export const addMilestone = async (
   }
 };
 
+export interface JobQueryOptions extends JobFilterOptions, Partial<PageOptions> {
+  jobId?: string;
+}
+
 // get job and milestone data
 export const getJobAndMilestones = async (
   id: string,
-  jobId?: string,
+  options: JobQueryOptions,
 ): Promise<ApplicantJobRO[] | undefined> => {
+  const { jobId, ha, specialty, pageIndex, pageSize } = options;
   try {
+    let path = `/ien/${id}/jobs?`;
+    if (jobId) path += `job_id=${jobId}`;
+
+    if (ha) path += `&ha=${ha}`;
+    if (specialty) path += `&job_title=${specialty}`;
+
+    if (pageSize && pageIndex) {
+      const skip = (pageIndex - 1) * pageSize;
+      path += `&limit=${pageSize}&skip=${skip}`;
+    }
+
     const {
       data: { data },
-    } = await axios.get<{ data: ApplicantJobRO[] }>(
-      !jobId ? `/ien/${id}/jobs` : `/ien/${id}/jobs?job_id=${jobId}`,
-    );
+    } = await axios.get<{ data: ApplicantJobRO[] }>(path);
 
     return data;
   } catch (error) {

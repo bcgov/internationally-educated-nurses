@@ -8,6 +8,10 @@ import { getJobAndMilestones } from '@services';
 import { buttonBase, buttonColor } from '@components';
 import { ApplicantJobRO } from '@ien/common';
 import addIcon from '@assets/img/add.svg';
+import { JobFilterOptions, JobFilters } from './recruitment/JobFilters';
+import { PageOptions, Pagination } from '../Pagination';
+
+const DEFAULT_JOB_PAGE_SIZE = 5;
 
 export const Recruitment: React.FC = () => {
   const router = useRouter();
@@ -16,11 +20,18 @@ export const Recruitment: React.FC = () => {
   const [jobRecords, setJobRecords] = useState<ApplicantJobRO[]>([]);
   const [recordModalVisible, setRecordModalVisible] = useState(false);
 
+  const [filters, setFilters] = useState<Partial<JobFilterOptions>>({});
+  const [pageOptions, setPageOptions] = useState<PageOptions>({
+    pageIndex: 1,
+    pageSize: DEFAULT_JOB_PAGE_SIZE,
+    total: 0,
+  });
+
   useEffect(() => {
     const getJobAndMilestonesData = async (id: string) => {
       setIsLoading(true);
 
-      const data = await getJobAndMilestones(id);
+      const data = await getJobAndMilestones(id, { ...filters, ...pageOptions });
 
       if (data) {
         setJobRecords(data);
@@ -30,7 +41,7 @@ export const Recruitment: React.FC = () => {
     };
 
     getJobAndMilestonesData(applicantId as string);
-  }, []);
+  }, [pageOptions, filters]);
 
   if (isLoading || !jobRecords) {
     return <Spinner className='h-10 my-5' />;
@@ -56,6 +67,8 @@ export const Recruitment: React.FC = () => {
 
   return (
     <>
+      <JobFilters options={filters} update={setFilters} />
+
       {jobRecords.map(job => (
         <Record key={job.job_id} job={job} update={handleRecordUpdate} />
       ))}
@@ -74,6 +87,11 @@ export const Recruitment: React.FC = () => {
         </button>
       </div>
       <AddRecordModal onClose={handleNewRecord} visible={recordModalVisible} />
+
+      <Pagination
+        pageOptions={{ ...pageOptions, total: jobRecords.length }}
+        onChange={setPageOptions}
+      />
     </>
   );
 };
