@@ -36,6 +36,9 @@ export const Record: React.FC<RecordProps> = ({ job }) => {
 
   const [jobMilestones, setJobMilestones] = useState(status_audit);
 
+  // @todo - remove hard coded values
+  const completionIdArray = [305, 306, 307, 308];
+
   useEffect(() => {
     if (jobMilestones) {
       lastMilestones();
@@ -50,8 +53,13 @@ export const Record: React.FC<RecordProps> = ({ job }) => {
       }
 
       const lastItem = jobMilestones.length - 1;
+      const statusId = jobMilestones[lastItem].status.id;
 
-      setRecordStatus(jobMilestones[lastItem].status.status);
+      setRecordStatus(
+        completionIdArray.includes(statusId)
+          ? 'Complete - ' + jobMilestones[lastItem].status.status
+          : jobMilestones[lastItem].status.status,
+      );
     }
   };
 

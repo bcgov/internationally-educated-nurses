@@ -25,10 +25,9 @@ const initialValues: any = {
   job_id: '',
   added_by: '',
   start_date: new Date(),
-  end_date: undefined,
   notes: '',
   reason: '',
-  effective_date: undefined,
+  effective_date: new Date(),
 };
 
 const milestoneValidator = createValidator(IENApplicantAddStatusDTO);
@@ -49,6 +48,10 @@ export const AddMilestones: React.FC<AddMilestoneProps> = ({
     // hardcoding some values for now, specifically logged in user
     values.job_id = jobId.toString();
     values.added_by = '1';
+
+    if (values.status !== '304' && values.status !== '305') {
+      values.effective_date = undefined;
+    }
 
     const data = await addMilestone(applicantId as string, values);
 
