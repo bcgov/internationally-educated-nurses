@@ -402,4 +402,21 @@ export class IENApplicantService {
     });
     return jobs;
   }
+
+  /**
+   * Get specific applicant job details for recruitment process
+   * @param id Applicant ID of IEN App
+   * @param job_id job ID of IEN App
+   * @returns
+   */
+  async getApplicantJob(id: string, job_id: string | number): Promise<IENApplicantJob | undefined> {
+    const job = await this.ienapplicantJobRepository.findOne({
+      where: {
+        applicant: id,
+        id: job_id,
+      },
+      relations: this.applicantRelations.applicant_job,
+    });
+    return job;
+  }
 }

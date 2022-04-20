@@ -93,3 +93,20 @@ export const getJobAndMilestones = async (id: string): Promise<ApplicantJobRO[] 
     toast.error(`${e.response?.data.errorType}: ${e.response?.data.errorMessage}`);
   }
 };
+
+// get single job and milestone data
+export const getJobAndMilestone = async (
+  applicantId: string,
+  jobId: string,
+): Promise<ApplicantJobRO | undefined> => {
+  try {
+    const {
+      data: { data },
+    } = await axios.get<{ data: ApplicantJobRO }>(`/ien/${applicantId}/job/${jobId}`);
+
+    return data;
+  } catch (error) {
+    const e = error as AxiosError;
+    toast.error(`${e.response?.data.errorType}: ${e.response?.data.errorMessage}`);
+  }
+};
