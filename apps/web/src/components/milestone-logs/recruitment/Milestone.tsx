@@ -1,12 +1,4 @@
 import { useState } from 'react';
-import {
-  faCalendar,
-  faPencilAlt,
-  faPlusCircle,
-  faTrash,
-  IconDefinition,
-} from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import createValidator from 'class-validator-formik';
 import { Formik, Form as FormikForm } from 'formik';
 
@@ -19,15 +11,19 @@ import {
   MilestoneType,
   getJobAndMilestones,
 } from '@services';
+import addIcon from '@assets/img/add.svg';
+import calendarIcon from '@assets/img/calendar.svg';
+import dayjs from 'dayjs';
 
-const initialValues: any = {
+//@todo change any type
+const initialValues: IENApplicantAddStatusDTO = {
   status: '',
   job_id: '',
   added_by: '',
-  start_date: new Date(),
+  start_date: dayjs().format('YYYY-MM-DD'),
   notes: '',
   reason: '',
-  effective_date: new Date().toISOString(),
+  effective_date: dayjs().format('YYYY-MM-DD'),
 };
 
 const milestoneValidator = createValidator(IENApplicantAddStatusDTO);
@@ -68,9 +64,7 @@ export const AddMilestones: React.FC<AddMilestoneProps> = ({
     resetForm(initialValues);
   };
 
-  return (
-    <MilestoneForm buttonText='Add Milestone' icon={faPlusCircle} handleSubmit={handleSubmit} />
-  );
+  return <MilestoneForm buttonText='Add Milestone' handleSubmit={handleSubmit} />;
 };
 
 interface EditMilestoneProps {
@@ -87,10 +81,6 @@ export const EditMilestones: React.FC<EditMilestoneProps> = milestones => {
     console.log('record values: ', values);
   };
 
-  const onEditClick = () => {
-    setIsEdit(true);
-  };
-
   return (
     <>
       {!isEdit ? (
@@ -99,19 +89,14 @@ export const EditMilestones: React.FC<EditMilestoneProps> = milestones => {
             <div className='flex items-center'>
               <span className='text-sm font-bold text-black capitalize'>
                 {milestones.milestones.status.status} |{' '}
-                <FontAwesomeIcon icon={faCalendar} className='h-3 inline-block mr-2' />
+                <img
+                  src={calendarIcon.src}
+                  alt='calendar'
+                  className='inline-block mr-1'
+                  width={13}
+                  height={13}
+                />
                 {formatDate(milestones.milestones.start_date)}
-              </span>
-              <span className='mr-3 ml-auto'>
-                <button onClick={onEditClick} type='button'>
-                  <FontAwesomeIcon
-                    icon={faPencilAlt}
-                    className='text-bcBluePrimary h-4 inline-block mr-3'
-                  />
-                </button>
-                <button>
-                  <FontAwesomeIcon icon={faTrash} className='text-red-500 h-4 inline-block' />
-                </button>
               </span>
             </div>
             <span className='text-xs text-black'>
@@ -134,11 +119,10 @@ export const EditMilestones: React.FC<EditMilestoneProps> = milestones => {
 
 interface MilestoneFormProps {
   buttonText: string;
-  icon?: IconDefinition;
   handleSubmit: (values: IENApplicantAddStatusDTO, { resetForm }: any) => void;
 }
 
-const MilestoneForm: React.FC<MilestoneFormProps> = ({ buttonText, icon, handleSubmit }) => {
+const MilestoneForm: React.FC<MilestoneFormProps> = ({ buttonText, handleSubmit }) => {
   const milestones = useGetMilestoneOptions();
   const reasons = useGetWithdrawReasonOptions();
 
@@ -187,7 +171,7 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({ buttonText, icon, handleS
                         <span className='whitespace-nowrap px-1 text-bcGray text-xs'>
                           Add New Reason
                         </span>
-                        <FontAwesomeIcon className='h-4 mr-2' icon={faPlusCircle} />
+                        <img src={addIcon.src} alt='add reason' />
                       </button>
                     </div>
 
@@ -209,7 +193,7 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({ buttonText, icon, handleS
                 disabled={!dirty || !isValid}
                 type='submit'
               >
-                {icon ? <FontAwesomeIcon className='h-4 mr-2' icon={icon}></FontAwesomeIcon> : null}
+                <img src={addIcon.src} alt='add' className='mr-2' />
                 {buttonText}
               </button>
             </FormikForm>

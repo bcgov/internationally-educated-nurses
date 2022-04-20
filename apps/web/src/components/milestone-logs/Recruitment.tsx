@@ -1,6 +1,3 @@
-import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
@@ -10,12 +7,14 @@ import { Record } from './recruitment/Record';
 import { getJobAndMilestones } from '@services';
 import { buttonBase, buttonColor } from '@components';
 import { ApplicantJobRO } from '@ien/common';
+import addIcon from '@assets/img/add.svg';
 
 export const Recruitment: React.FC = () => {
   const router = useRouter();
-  const applicantId = router.query.applicantId;
+  const applicantId = router.query.id;
   const [isLoading, setIsLoading] = useState(false);
   const [jobRecords, setJobRecords] = useState<ApplicantJobRO[]>();
+  const [recordModalVisible, setRecordModalVisible] = useState(false);
 
   useEffect(() => {
     const getJobAndMilestonesData = async (id: string) => {
@@ -48,21 +47,20 @@ export const Recruitment: React.FC = () => {
           {jobRecords.length == 0 ? 'There is no record yet.' : ''} Please click on the &ldquo;Add
           Record&rdquo; button to create a new job competition.
         </span>
-        <Link
-          as={`/details/${applicantId}?record=add`}
-          href={{
-            pathname: `/details/${applicantId}`,
-            query: { ...router.query, record: 'add' },
-          }}
-          shallow={true}
+        <button
+          className={`mr-2 ${buttonColor.secondary} ${buttonBase}`}
+          onClick={() => setRecordModalVisible(true)}
         >
-          <a className={`mr-2 ${buttonColor.secondary} ${buttonBase}`}>
-            <FontAwesomeIcon className='h-4 mr-2' icon={faPlusCircle}></FontAwesomeIcon>
-            Add Record
-          </a>
-        </Link>
+          <img src={addIcon.src} alt='add' className='mr-2' />
+          <span>Add Record</span>
+        </button>
       </div>
-      <AddRecordModal jobRecords={jobRecords} setJobRecords={setJobRecords} />
+      <AddRecordModal
+        jobRecords={jobRecords}
+        setJobRecords={setJobRecords}
+        close={() => setRecordModalVisible(false)}
+        visible={recordModalVisible}
+      />
     </>
   );
 };
