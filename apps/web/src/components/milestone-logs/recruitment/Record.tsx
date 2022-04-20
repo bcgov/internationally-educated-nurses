@@ -10,15 +10,18 @@ import { buttonBase, buttonColor, DetailsItem, Disclosure } from '@components';
 import { AddMilestones, EditMilestones } from './Milestone';
 import { ApplicantJobRO, formatDate } from '@ien/common';
 import editIcon from '@assets/img/edit.svg';
+import { AddRecordModal } from '../../display/AddRecordModal';
 
 interface RecordProps {
   job: ApplicantJobRO;
+  update: (record?: ApplicantJobRO) => void;
 }
 
-export const Record: React.FC<RecordProps> = ({ job }) => {
+export const Record: React.FC<RecordProps> = ({ job, update }) => {
   const router = useRouter();
   const applicantId = router.query.id;
   const [recordStatus, setRecordStatus] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
 
   // set status_audit to empty array on record create
   // is not included in response when a new record gets created and only gets initialized on refresh
@@ -86,6 +89,11 @@ export const Record: React.FC<RecordProps> = ({ job }) => {
     return;
   };
 
+  const handleModalClose = (record?: ApplicantJobRO) => {
+    if (record) update(record);
+    setModalVisible(false);
+  };
+
   return (
     <div className='mb-3'>
       <Disclosure
@@ -119,11 +127,13 @@ export const Record: React.FC<RecordProps> = ({ job }) => {
               <DetailsItem title='Date Job Was First Posted' text={formatDate(job_post_date)} />
             </div>
             <button
-              className={`px-6 mb-2 ${buttonColor.secondary} ${buttonBase} pointer-events-none`}
+              className={`px-6 mb-2 ${buttonColor.secondary} ${buttonBase}`}
+              onClick={() => setModalVisible(true)}
             >
               <img src={editIcon.src} alt='edit' className='mr-2' />
               Edit Details
             </button>
+            <AddRecordModal job={job} close={handleModalClose} visible={modalVisible} />
             {jobMilestones &&
               jobMilestones.map(mil => <EditMilestones key={mil.id} milestones={mil} />)}
             <AddMilestones

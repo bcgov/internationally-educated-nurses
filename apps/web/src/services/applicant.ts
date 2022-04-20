@@ -63,6 +63,23 @@ export const addJobRecord = async (
   }
 };
 
+export const updateJobRecord = async (
+  id: string,
+  job_id: string,
+  record: IENApplicantJobCreateUpdateDTO,
+): Promise<ApplicantJobRO | undefined> => {
+  try {
+    const {
+      data: { data },
+    } = await axios.put<{ data: ApplicantJobRO }>(`/ien/${id}/job/${job_id}`, record);
+
+    return data;
+  } catch (error) {
+    const e = error as AxiosError;
+    toast.error(`${e.response?.data.errorType}: ${e.response?.data.errorMessage}`);
+  }
+};
+
 // add a new milestone
 export const addMilestone = async (
   id: string,
