@@ -5,7 +5,7 @@ resource "aws_lambda_function" "SyncApplicants" {
   runtime             = "nodejs14.x"
   filename            = "./build/empty_lambda.zip"
   source_code_hash    = filebase64sha256("./build/empty_lambda.zip")
-  handler             = "api/syncdata.handler" 
+  handler             = "api/syncdata.handler"
   memory_size         = var.function_memory_mb
   timeout             = 300
 
@@ -26,7 +26,9 @@ resource "aws_lambda_function" "SyncApplicants" {
   }
 
   environment {
-    variables = {}
+    variables = {
+      RUNTIME_ENV = "hosted"
+    }
   }
 }
 
