@@ -1,3 +1,5 @@
+// source https://gist.github.com/maephisto/9228207?permalink_comment_id=1617275#gistcomment-1617275
+
 export const isoCountries = {
   AF: {
     name: 'Afghanistan',
