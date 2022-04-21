@@ -9,12 +9,12 @@ import { AppLogger } from './common/logger.service';
  * All the schedule and backgroud job trigger will be added here.
  * Opertion like sync data, update database view or trigger db function, etc.
  */
-export const handler: Handler = async (event, contect: Context) => {
+export const handler: Handler = async (event, context: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
   const externalAPIService = app.get(ExternalAPIService);
   const appLogger = app.get(AppLogger);
   appLogger.log({ event });
-  appLogger.log({ contect });
+  appLogger.log({ context });
   try {
     if (event.hasOwnProperty('path')) {
       if (event.path === 'master-data') {
