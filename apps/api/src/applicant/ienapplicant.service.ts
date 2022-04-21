@@ -365,13 +365,13 @@ export class IENApplicantService {
     }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { ha_pcn, job_title, job_location, ...data } = jobData;
-    if ('job_id' in data) {
+    if (data.job_id) {
       job.job_id = data.job_id;
     }
-    if ('job_post_date' in data) {
-      job.job_post_date = data.job_post_date;
+    if (data.job_post_date) {
+      job.job_post_date = new Date(data.job_post_date);
     }
-    if ('recruiter_name' in data) {
+    if (data.recruiter_name) {
       job.recruiter_name = data.recruiter_name;
     }
     return await this.saveApplicantJob(job, jobData);

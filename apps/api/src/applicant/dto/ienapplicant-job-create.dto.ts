@@ -41,5 +41,5 @@ export class IENApplicantJobCreateUpdateAPIDTO extends IENApplicantJobCreateUpda
   })
   @IsDateString()
   @IsOptional()
-  job_post_date?: Date;
+  job_post_date?: string;
 }
