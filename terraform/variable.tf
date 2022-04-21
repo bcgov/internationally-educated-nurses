@@ -45,5 +45,3 @@ variable "root_block_device" {
     size = "10"
   }
 }
-
-variable "sync_applicants_js" {}

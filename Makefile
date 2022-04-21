@@ -76,7 +76,6 @@ ches_client_id = "$(CHES_CLIENT_ID)"
 mail_from = "$(MAIL_FROM)"
 build_id = "$(COMMIT_SHA)"
 build_info = "$(LAST_COMMIT_MESSAGE)"
-sync_applicants_js = "lambda/index.js"
 endef
 export TFVARS_DATA
 
