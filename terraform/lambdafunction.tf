@@ -67,7 +67,7 @@ resource "aws_cloudwatch_event_target" "hmbc_to_ien_applicants" {
 }
 
 resource "aws_lambda_permission" "hmbc_to_ien_applicants" {
-  statement_id  = "AllowExecutionFromCloudWatch_Morning"
+  statement_id  = "AllowExecutionFromCloudWatch_EarlyMorning"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.SyncApplicants.function_name
   principal     = "events.amazonaws.com"
