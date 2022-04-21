@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
-import { getApplicant, milestoneTabs, ValidRoles } from '@services';
+import { getApplicant, isoCountries, milestoneTabs, ValidRoles } from '@services';
 import { HeaderTab } from 'src/components/display/HeaderTab';
 import { Recruitment } from 'src/components/milestone-logs/Recruitment';
 import { DetailsItem } from '@components';
@@ -11,6 +11,16 @@ import detailIcon from '@assets/img/details.svg';
 import historyIcon from '@assets/img/history.svg';
 import { MilestoneTable } from 'src/components/milestone-logs/MilestoneTable';
 import withAuth from 'src/components/Keycloak';
+
+// convert alpha 2 code for countries to full name
+const convertCountryCode = (code: string | undefined) => {
+  if (!code || !isoCountries[code as keyof typeof isoCountries]) {
+    return 'N/A';
+  }
+
+  const { name } = isoCountries[code as keyof typeof isoCountries];
+  return name;
+};
 
 const Details = () => {
   const [applicant, setApplicant] = useState<ApplicantRO>();
@@ -102,11 +112,19 @@ const Details = () => {
         <div className='col-span-12 sm:col-span-6 lg:col-span-3'>
           <DetailsItem
             title='Country of Citizenship'
-            text={applicant.country_of_citizenship?.join(', ')}
+            text={
+              applicant.country_of_citizenship &&
+              Object.values(applicant.country_of_citizenship)
+                .map((c: string) => convertCountryCode(c.toUpperCase()))
+                .join(', ')
+            }
           />
         </div>
         <div className='col-span-12 sm:col-span-6 lg:col-span-3'>
-          <DetailsItem title='Country of Residence' text={applicant.country_of_residence} />
+          <DetailsItem
+            title='Country of Residence'
+            text={convertCountryCode(applicant.country_of_residence?.toUpperCase())}
+          />
         </div>
         <div className='col-span-12 sm:col-span-6 lg:col-span-3'>
           <DetailsItem title='Permanent Resident Status' text={applicant.pr_status} />
