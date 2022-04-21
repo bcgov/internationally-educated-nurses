@@ -40,7 +40,7 @@ const Details = () => {
             setApplicant(applicantData);
           }
         };
-        // console.log(convertCountryCode('CA'));
+
         getApplicantData(applicantId as string);
       }
     }
