@@ -222,13 +222,6 @@ build-web:
 	@mv ./apps/web/out ./terraform/build/app
 	@echo "++\n*****"
 
-build-lambda:
-	@echo "++\n***** Build Lambda for AWS\n++"
-	@mkdir -p ./terraform/lambda
-	@echo 'Copy lambda ...\n' && cp -r ./apps/lambda/* ./terraform/lambda/
-	@echo 'Creating Zip ...\n' && cd ./terraform/lambda/import-applicants && zip -r import-applicants.zip ./* && cd ../..
-	@echo "++\n*****"
-
 	
 # ===================================
 # Terraform commands
