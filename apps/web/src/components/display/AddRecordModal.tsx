@@ -2,18 +2,18 @@ import { useRouter } from 'next/router';
 import { Formik, Form as FormikForm, FieldProps } from 'formik';
 import createValidator from 'class-validator-formik';
 import ReactSelect from 'react-select';
+import dayjs from 'dayjs';
 
-import { Modal } from '../Modal';
 import { Button, getSelectStyleOverride } from '@components';
+import { ApplicantJobRO, IENApplicantJobCreateUpdateDTO } from '@ien/common';
 import {
   addJobRecord,
   useGetAddRecordOptions,
   RecordTypeOptions,
   updateJobRecord,
 } from '@services';
-import { ApplicantJobRO, IENApplicantJobCreateUpdateDTO } from '@ien/common';
 import { Field } from '../form';
-import dayjs from 'dayjs';
+import { Modal } from '../Modal';
 
 interface AddRecordProps {
   job?: ApplicantJobRO;
