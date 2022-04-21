@@ -58,7 +58,7 @@ export const Record: React.FC<RecordProps> = ({ job }) => {
       setRecordStatus(
         completionIdArray.includes(statusId)
           ? 'Complete - ' + jobMilestones[lastItem].status.status
-          : jobMilestones[lastItem].status.status,
+          : 'On Going',
       );
     }
   };
@@ -98,7 +98,7 @@ export const Record: React.FC<RecordProps> = ({ job }) => {
                   icon={faCircle}
                   className='text-blue-700 h-2 inline-block mb-0.5 mr-1'
                 />
-                {recordStatus ? recordStatus : 'On Going'}
+                {recordStatus}
               </span>
             </div>
             <div className='flex justify-between'>
