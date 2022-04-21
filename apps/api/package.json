@@ -21,7 +21,7 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "NODE_ENV=test jest --config ./jest-e2e.json",
+    "test:e2e": "NODE_ENV=test jest --config ./jest-e2e.json --runInBand",
     "typeorm": "ts-node -r tsconfig-paths/register ../../node_modules/typeorm/cli.js --config src/ormconfig.ts"
   },
   "dependencies": {
@@ -42,7 +42,7 @@
     "js-yaml": "4.1.0",
     "jsonwebtoken": "8.5.1",
     "jwks-rsa": "2.0.5",
-    "nanoid": "3.1.30",
+    "nanoid": "3.3.3",
     "nest-winston": "1.6.2",
     "pg": "8.7.1",
     "reflect-metadata": "0.1.13",
