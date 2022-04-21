@@ -32,6 +32,9 @@ locals {
   namespace = "${var.project_code}-${var.target_env}"
   app_name  = "${local.namespace}-app"
   api_name  = "${local.namespace}-api"
+  syncdata_lambda_name  = "${local.namespace}-syncdata"
+  sync_master_data_scheduler  = "${local.namespace}-hmbc-to-ien-masters"
+  sync_applicant_data_scheduler  = "${local.namespace}-hmbc-to-ien-applicants"
 
   db_name = "${local.namespace}-db"
 
