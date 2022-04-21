@@ -13,7 +13,7 @@ export const Recruitment: React.FC = () => {
   const router = useRouter();
   const applicantId = router.query.id;
   const [isLoading, setIsLoading] = useState(false);
-  const [jobRecords, setJobRecords] = useState<ApplicantJobRO[]>();
+  const [jobRecords, setJobRecords] = useState<ApplicantJobRO[]>([]);
   const [recordModalVisible, setRecordModalVisible] = useState(false);
 
   useEffect(() => {
@@ -36,10 +36,28 @@ export const Recruitment: React.FC = () => {
     return <Spinner className='h-10 my-5' />;
   }
 
+  const handleNewRecord = (record?: ApplicantJobRO) => {
+    setRecordModalVisible(false);
+
+    if (record) {
+      setJobRecords([...jobRecords, record]);
+    }
+  };
+
+  const handleRecordUpdate = (record?: ApplicantJobRO) => {
+    if (record) {
+      const index = jobRecords.findIndex(job => job.id === record.id);
+      if (index >= 0) {
+        jobRecords.splice(index, 1, record);
+        setJobRecords([...jobRecords]);
+      }
+    }
+  };
+
   return (
     <>
       {jobRecords.map(job => (
-        <Record key={job.job_id} job={job} />
+        <Record key={job.job_id} job={job} update={handleRecordUpdate} />
       ))}
 
       <div className='border rounded bg-blue-100 flex justify-between items-center mb-4 h-12'>
@@ -55,12 +73,7 @@ export const Recruitment: React.FC = () => {
           <span>Add Record</span>
         </button>
       </div>
-      <AddRecordModal
-        jobRecords={jobRecords}
-        setJobRecords={setJobRecords}
-        close={() => setRecordModalVisible(false)}
-        visible={recordModalVisible}
-      />
+      <AddRecordModal onClose={handleNewRecord} visible={recordModalVisible} />
     </>
   );
 };

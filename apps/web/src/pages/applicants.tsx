@@ -44,6 +44,7 @@ const Applicants = () => {
 
   const handleKeywordChange = (name: string) => {
     setStatus(0);
+    setPageIndex(1);
     setName(name);
   };
 

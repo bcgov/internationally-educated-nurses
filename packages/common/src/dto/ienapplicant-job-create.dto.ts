@@ -25,5 +25,5 @@ export class IENApplicantJobCreateUpdateDTO {
 
   @IsDateString()
   @IsOptional()
-  job_post_date?: Date;
+  job_post_date?: string;
 }
