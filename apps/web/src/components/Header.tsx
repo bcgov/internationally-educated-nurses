@@ -14,7 +14,7 @@ export const Header: React.FC = () => {
   }, [router.asPath]);
 
   return (
-    <header className='w-full py-2 border-b-2 bg-bcBluePrimary border-bcYellowPrimary flex justify-center'>
+    <header className='w-full py-2 bg-bcBluePrimary flex justify-center'>
       <div className='w-full 2xl:w-5/6 h-full flex flex-row items-center align-center justify-between px-2 md:px-12'>
         <div className='layout-grid gap-0 h-full flex flex-row items-center align-center'>
           <Link href='/'>

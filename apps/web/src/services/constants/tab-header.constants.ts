@@ -14,3 +14,8 @@ export const milestoneTabs = [
   { title: 'BC PNP', value: 4 },
   { title: 'Final', value: 5 },
 ];
+
+export const menuBarTabs = [
+  { title: 'Manage Applicants', path: '/applicants' },
+  { title: 'Reporting', path: '/' },
+];

@@ -7,7 +7,7 @@ import Head from 'next/head';
 import { ToastContainer } from 'react-toastify';
 
 import type { AppProps } from 'next/app';
-import { Footer, Header } from '@components';
+import { Footer, Header, MenuBar } from '@components';
 import cookie from 'cookie';
 import { AuthProvider } from 'src/components/AuthContexts';
 import { KeycloakInstance } from 'keycloak-js';
@@ -45,6 +45,7 @@ function App({ Component, pageProps }: AppProps) {
           <AuthProvider>
             <div className='h-full flex flex-col'>
               <Header />
+              <MenuBar />
               <main className='flex flex-grow w-full justify-center'>
                 <Component {...pageProps} />
               </main>
