@@ -1,18 +1,28 @@
 resource "aws_lambda_function" "SyncApplicants" {
-  description                    = "Trigger Sync applicant data API"
-  function_name                  = "sync-applicants"
-  role                           = aws_iam_role.lambda.arn
-  runtime                        = "nodejs14.x"
-  filename                       = var.sync_applicants_js
-  source_code_hash               = filebase64sha256(var.sync_applicants_js)
-  handler                        = "index.handler"
-  memory_size                    = 2048
-  timeout                        = 450
-  reserved_concurrent_executions = 1
+  description         = "Trigger Sync applicant and master data service"
+  function_name       = local.syncdata_lambda_name
+  role                = aws_iam_role.lambda.arn
+  runtime             = "nodejs14.x"
+  filename            = "./build/empty_lambda.zip"
+  source_code_hash    = filebase64sha256("./build/empty_lambda.zip")
+  handler             = "api/syncdata.handler" 
+  memory_size         = var.function_memory_mb
+  timeout             = 300
 
   vpc_config {
     security_group_ids = [data.aws_security_group.app.id]
     subnet_ids         = data.aws_subnet_ids.app.ids
+  }
+
+  lifecycle {
+    ignore_changes = [
+      # Ignore changes to tags, e.g. because a management agent
+      # updates these based on some ruleset managed elsewhere.
+      filename,
+      source_code_hash,
+      source_code_size,
+      last_modified,
+    ]
   }
 
   environment {
@@ -23,14 +33,14 @@ resource "aws_lambda_function" "SyncApplicants" {
 
 # Scheduler to sync master tables
 resource "aws_cloudwatch_event_rule" "hmbc_to_ien_masters" {
-  name                = "hmbc_to_ien_masters-daily"
+  name                = local.sync_master_data_scheduler
   description         = "7:00AM UTC - 12:00AM PST"
   schedule_expression = "cron(0 7 * * ? *)"
 }
 resource "aws_cloudwatch_event_target" "hmbc_to_ien_masters" {
   rule  = aws_cloudwatch_event_rule.hmbc_to_ien_masters.name
   arn   = aws_lambda_function.SyncApplicants.arn
-  input = "{\"hostname\": \"${aws_cloudfront_distribution.app.domain_name}\",\"path\": \"/api/v1/external-api/save\"}"
+  input = "{\"path\": \"master-data\"}"
 }
 
 resource "aws_lambda_permission" "hmbc_to_ien_masters" {
@@ -44,14 +54,14 @@ resource "aws_lambda_permission" "hmbc_to_ien_masters" {
 
 # Scheduler to sync applicant and applicant-milestones
 resource "aws_cloudwatch_event_rule" "hmbc_to_ien_applicants" {
-  name                = "hmbc_to_ien_applicants-daily"
+  name                = local.sync_applicant_data_scheduler
   description         = "8:00AM UTC - 1:00AM PST"
   schedule_expression = "cron(0 8 * * ? *)"
 }
 resource "aws_cloudwatch_event_target" "hmbc_to_ien_applicants" {
   rule  = aws_cloudwatch_event_rule.hmbc_to_ien_applicants.name
   arn   = aws_lambda_function.SyncApplicants.arn
-  input = "{\"hostname\": \"${aws_cloudfront_distribution.app.domain_name}\",\"path\": \"/api/v1/external-api/save-applicant\"}"
+  input = "{\"path\": \"applicant-data\"}"
 }
 
 resource "aws_lambda_permission" "hmbc_to_ien_applicants" {
