@@ -375,7 +375,7 @@ export class IENApplicantService {
       job.job_id = data.job_id;
     }
     if (data.job_post_date) {
-      job.job_post_date = new Date(data.job_post_date);
+      job.job_post_date = data.job_post_date as any;
     }
     if (data.recruiter_name) {
       job.recruiter_name = data.recruiter_name;
