@@ -49,7 +49,7 @@ const Details = () => {
   const filterMilestones = () => {
     const audits =
       applicant?.applicant_status_audit?.filter(audit => {
-        return audit.status.id < (currentTab + 1) * 100 && audit.status.id > currentTab * 100;
+        return audit.status.parent?.id === 10000 + currentTab;
       }) || [];
     setMilestones(audits);
   };

@@ -84,7 +84,7 @@ export class IENApplicantService {
           applicant: applicant,
           job: IsNull(),
         },
-        relations: ['status', 'reason'],
+        relations: ['status', 'reason', 'status.parent'],
       });
     }
     return applicant;
