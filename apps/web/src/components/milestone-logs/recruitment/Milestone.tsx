@@ -1,9 +1,16 @@
 import { useState } from 'react';
 import createValidator from 'class-validator-formik';
-import { Formik, Form as FormikForm } from 'formik';
+import dayjs from 'dayjs';
+import { Formik, Form as FormikForm, FormikHelpers } from 'formik';
 
 import { buttonBase, buttonColor, Select, Option, Field } from '@components';
-import { IENApplicantAddStatusDTO, formatDate, IENStatusReasonRO } from '@ien/common';
+import {
+  IENApplicantAddStatusDTO,
+  formatDate,
+  IENStatusReasonRO,
+  ApplicantStatusAuditRO,
+  IENApplicantUpdateStatusDTO,
+} from '@ien/common';
 import {
   addMilestone,
   useGetMilestoneOptions,
@@ -12,19 +19,21 @@ import {
   getJobAndMilestones,
 } from '@services';
 import addIcon from '@assets/img/add.svg';
+import editIcon from '@assets/img/edit.svg';
 import calendarIcon from '@assets/img/calendar.svg';
-import dayjs from 'dayjs';
 
 //@todo change any type
-const initialValues: IENApplicantAddStatusDTO = {
-  status: '',
-  job_id: '',
-  added_by: '',
-  start_date: dayjs().format('YYYY-MM-DD'),
-  notes: '',
-  reason: '',
-  effective_date: dayjs().format('YYYY-MM-DD'),
-};
+const getInitialValues = (
+  status?: ApplicantStatusAuditRO,
+): IENApplicantAddStatusDTO | IENApplicantUpdateStatusDTO => ({
+  status: `${status?.status?.id || ''}`,
+  job_id: `${status?.job?.job_id || ''}`,
+  added_by: `${status?.added_by || ''}`,
+  start_date: `${status?.start_date || dayjs().format('YYYY-MM-DD')}`,
+  notes: `${status?.notes || ''}`,
+  reason: `${status?.reason || ''}`,
+  effective_date: `${status?.effective_date || dayjs().format('YYYY-MM-DD')}`,
+});
 
 const milestoneValidator = createValidator(IENApplicantAddStatusDTO);
 
@@ -34,14 +43,13 @@ interface AddMilestoneProps {
   setJobMilestones: any;
 }
 
-// Add milestone comp ***
 export const AddMilestones: React.FC<AddMilestoneProps> = ({
   applicantId,
   jobId,
   setJobMilestones,
 }) => {
   const handleSubmit = async (values: any, { resetForm }: any) => {
-    // hardcoding some values for now, specifically logged in user
+    // TODO: fix added_by field
     values.job_id = jobId.toString();
     values.added_by = '1';
 
@@ -62,34 +70,29 @@ export const AddMilestones: React.FC<AddMilestoneProps> = ({
     }
 
     // reset form after submitting
-    resetForm(initialValues);
+    resetForm(getInitialValues());
   };
 
-  return <MilestoneForm buttonText='Add Milestone' handleSubmit={handleSubmit} />;
+  return <MilestoneForm handleSubmit={handleSubmit} />;
 };
 
 interface EditMilestoneProps {
-  milestones: any;
+  milestone: ApplicantStatusAuditRO;
+  handleSubmit: (milestone: IENApplicantUpdateStatusDTO) => void;
 }
 
 // Edit milestone comp *** currently unsure if this will be included moving forward
-export const EditMilestones: React.FC<EditMilestoneProps> = milestones => {
+export const EditMilestones: React.FC<EditMilestoneProps> = ({ milestone, handleSubmit }) => {
   const [isEdit, setIsEdit] = useState(false);
-
-  const handleSubmit = async (values: any) => {
-    // @todo hook up endpoint and remove log
-    // eslint-disable-next-line no-console
-    console.log('record values: ', values);
-  };
 
   return (
     <>
       {!isEdit ? (
-        <div className='border border-gray-200 rounded bg-gray-200 my-2 px-3 pb-4'>
-          <div className='w-full pt-4'>
+        <div className='border border-gray-200 rounded bg-bcLightGray my-2 p-5'>
+          <div className='w-full'>
             <div className='flex items-center'>
-              <span className='text-sm font-bold text-black capitalize'>
-                {milestones.milestones.status.status} |{' '}
+              <span className='font-bold text-black capitalize'>
+                {milestone.status.status} |{' '}
                 <img
                   src={calendarIcon.src}
                   alt='calendar'
@@ -97,21 +100,24 @@ export const EditMilestones: React.FC<EditMilestoneProps> = milestones => {
                   width={13}
                   height={13}
                 />
-                {formatDate(milestones.milestones.start_date)}
+                {formatDate(milestone.start_date)}
               </span>
+              <button className='ml-auto mr-1'>
+                <img src={editIcon.src} alt='edit' onClick={() => setIsEdit(true)} />
+              </button>
             </div>
-            <span className='text-xs text-black'>
-              {milestones.milestones.notes ? milestones.milestones.notes : 'No Notes Added'}
+            <span className='text-sm text-black'>
+              {milestone.notes ? milestone.notes : 'No Notes Added'}
             </span>
           </div>
         </div>
       ) : (
         <>
-          <MilestoneForm buttonText='Save Changes' handleSubmit={handleSubmit} />
-          {/* will remove this button, easier testing purposes */}
-          <button onClick={() => setIsEdit(false)} type='button'>
-            Close
-          </button>
+          <MilestoneForm
+            milestone={milestone}
+            handleSubmit={values => handleSubmit(values as IENApplicantUpdateStatusDTO)}
+            onClose={() => setIsEdit(false)}
+          />
         </>
       )}
     </>
@@ -119,18 +125,34 @@ export const EditMilestones: React.FC<EditMilestoneProps> = milestones => {
 };
 
 interface MilestoneFormProps {
-  buttonText: string;
-  handleSubmit: (values: IENApplicantAddStatusDTO, { resetForm }: any) => void;
+  milestone?: ApplicantStatusAuditRO;
+  handleSubmit: (
+    values: IENApplicantAddStatusDTO | IENApplicantUpdateStatusDTO,
+    { resetForm }?: any,
+  ) => void;
+  onClose?: () => void;
 }
 
-const MilestoneForm: React.FC<MilestoneFormProps> = ({ buttonText, handleSubmit }) => {
+const MilestoneForm: React.FC<MilestoneFormProps> = ({ milestone, handleSubmit, onClose }) => {
   const milestones = useGetMilestoneOptions();
   const reasons = useGetWithdrawReasonOptions();
+
+  const submit = (
+    values: IENApplicantUpdateStatusDTO | IENApplicantAddStatusDTO,
+    helpers: FormikHelpers<IENApplicantUpdateStatusDTO | IENApplicantAddStatusDTO>,
+  ) => {
+    handleSubmit(values, helpers);
+    if (onClose) onClose();
+  };
 
   return (
     <div className='border border-gray-200 rounded bg-gray-200 my-3 px-3 pb-4'>
       <div className='w-full pt-4'>
-        <Formik initialValues={initialValues} onSubmit={handleSubmit} validate={milestoneValidator}>
+        <Formik
+          initialValues={getInitialValues(milestone)}
+          onSubmit={submit}
+          validate={milestoneValidator}
+        >
           {({ dirty, isValid, values }) => (
             <FormikForm>
               <div className='grid grid-cols-9 gap-y-2 mb-4'>
@@ -190,13 +212,28 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({ buttonText, handleSubmit 
                 ) : null}
               </div>
               <button
-                className={`px-6 ${buttonColor.secondary} ${buttonBase}`}
+                className={`px-3 ${
+                  milestone ? buttonColor.primary : buttonColor.outline
+                } ${buttonBase}`}
                 disabled={!dirty || !isValid}
                 type='submit'
               >
-                <img src={addIcon.src} alt='add' className='mr-2' />
-                {buttonText}
+                {milestone ? (
+                  'Save Changes'
+                ) : (
+                  <>
+                    <img src={addIcon.src} alt='add' className='mr-2' /> Add Milestones
+                  </>
+                )}
               </button>
+              {milestone && (
+                <button
+                  className={`ml-2 px-7 border-2 ${buttonBase} ${buttonColor.outline} border-bcBluePrimary`}
+                  onClick={onClose}
+                >
+                  Cancel
+                </button>
+              )}
             </FormikForm>
           )}
         </Formik>

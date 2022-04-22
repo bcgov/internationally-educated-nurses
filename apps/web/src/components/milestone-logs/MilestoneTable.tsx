@@ -28,13 +28,18 @@ export const MilestoneTable = ({ milestones }: MilestoneTableProps) => {
   };
 
   const getMilestone = (audit: ApplicantStatusAuditRO) => {
-    const { status } = audit.status;
+    let { status } = audit.status;
     if (!status) return '';
-    const [label, milestone] = status.split(/\s+-\s+/, 2);
+
+    let label = audit.status.party;
+    if (!label) {
+      [label, status] = status.split(/\s+-\s+/, 2);
+    }
+
     return (
       <div className='flex flex-row'>
         <div className='bg-bcGrayLabel px-2 py-0.5 mr-2 text-xs text-white rounded'>{label}</div>
-        <div className='text-ellipsis overflow-hidden ...'>{milestone}</div>
+        <div className='text-ellipsis overflow-hidden ...'>{status}</div>
       </div>
     );
   };

@@ -1,12 +1,24 @@
 import { useKeycloak } from '@react-keycloak/ssr';
 import { KeycloakInstance } from 'keycloak-js';
 import { useRouter } from 'next/router';
+import { Spinner } from '../components/Spinner';
 
 const Login = () => {
   const { push } = useRouter();
-  const { keycloak } = useKeycloak<KeycloakInstance>();
+  const { keycloak, initialized } = useKeycloak<KeycloakInstance>();
+
+  if (!initialized || keycloak?.authenticated === undefined) {
+    return (
+      <div className='w-full h-full flex items-center justify-center'>
+        <Spinner className='h-10 w-10' />
+      </div>
+    );
+  } else if (keycloak.authenticated) {
+    push('/');
+    return '';
+  }
+
   function login() {
-    // Only bceid for now, but this can do IDIR and bceid without the idpHint
     if (keycloak) {
       push(keycloak?.createLoginUrl({ redirectUri: location.origin + '/' }) || '/');
     }
@@ -15,6 +27,7 @@ const Login = () => {
     <>
       <div className='container'>
         <div className='w-full h-full flex items-center justify-center'>
+          {initialized}
           <div className='flex flex-col items-center justify-center bg-bcLightBlueBackground rounded py-6 px-24'>
             <h1 className='font-bold text-4xl mb-3'>Login</h1>
             <div className='text-center mb-7'>

@@ -10,6 +10,7 @@ import {
   ApplicantJobRO,
   ApplicantStatusAuditRO,
   JobQueryOptions,
+  IENApplicantUpdateStatusDTO,
 } from '@ien/common';
 
 // get all applicants
@@ -116,6 +117,23 @@ export const getJobAndMilestones = async (
       data: { data },
     } = await axios.get<{ data: [ApplicantJobRO[], number] }>(path);
 
+    return data;
+  } catch (error) {
+    const e = error as AxiosError;
+    toast.error(`${e.response?.data.errorType}: ${e.response?.data.errorMessage}`);
+  }
+};
+
+export const updateMilestone = async (
+  id: string,
+  status_id: string,
+  status: IENApplicantUpdateStatusDTO,
+): Promise<ApplicantStatusAuditRO | undefined> => {
+  try {
+    const path = `/ien/${id}/status/${status_id}`;
+    const {
+      data: { data },
+    } = await axios.patch<{ data: ApplicantStatusAuditRO }>(path, status);
     return data;
   } catch (error) {
     const e = error as AxiosError;
