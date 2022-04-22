@@ -101,9 +101,11 @@ export const Record: React.FC<RecordProps> = ({ job, update }) => {
 
   const handleUpdateMilestone = async (id: string, values: IENApplicantUpdateStatusDTO) => {
     const milestone = await updateMilestone(applicantId, id, values);
-    const index = jobMilestones.findIndex(m => m.id === id);
-    if (index >= 0) jobMilestones.splice(index, 1, milestone);
-    setJobMilestones([...jobMilestones]);
+    if (milestone) {
+      const index = jobMilestones.findIndex(m => m.id === id);
+      if (index >= 0) jobMilestones.splice(index, 1, milestone);
+      setJobMilestones([...jobMilestones]);
+    }
   };
 
   return (
