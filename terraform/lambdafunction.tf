@@ -27,7 +27,20 @@ resource "aws_lambda_function" "SyncApplicants" {
 
   environment {
     variables = {
-      RUNTIME_ENV = "hosted"
+      NODE_ENV          = "production"
+      RUNTIME_ENV       = "hosted"
+      AUTH_URL          = data.aws_ssm_parameter.keycloak_url.value
+      AUTH_REALM         = data.aws_ssm_parameter.keycloak_realm.value
+      TARGET_ENV        = var.target_env
+      AWS_S3_REGION     = var.region
+      BUILD_ID          = var.build_id
+      BUILD_INFO        = var.build_info
+      POSTGRES_USERNAME = var.db_username
+      POSTGRES_PASSWORD = data.aws_ssm_parameter.postgres_password.value
+      POSTGRES_HOST     = aws_rds_cluster.pgsql.endpoint
+      POSTGRES_DATABASE = aws_rds_cluster.pgsql.database_name
+      HMBC_ATS_BASE_URL = data.aws_ssm_parameter.hmbc_ats_base_url.value
+      HMBC_ATS_AUTH_KEY = data.aws_ssm_parameter.hmbc_ats_auth_key.value
     }
   }
 }
