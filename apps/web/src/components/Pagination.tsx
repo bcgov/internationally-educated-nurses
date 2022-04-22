@@ -25,7 +25,7 @@ export const Pagination = (props: PaginationProps) => {
   const pageList = Array.from(Array(numOfPages).keys()).map(i => i + 1);
 
   const startIndex = (pageIndex - 1) * pageSize + 1;
-  const start = startIndex > total ? 1 : startIndex;
+  const start = startIndex > total ? 0 : startIndex;
   const end = pageIndex * pageSize > total ? total : pageIndex * pageSize;
 
   const goToPage = (pageIndex: number) => {

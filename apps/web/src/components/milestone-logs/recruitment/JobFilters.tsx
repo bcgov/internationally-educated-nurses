@@ -1,17 +1,9 @@
+import { useState } from 'react';
 import ReactSelect from 'react-select';
-import {
-  MilestoneType,
-  RecordTypeOptions,
-  useGetAddRecordOptions,
-  useGetMilestoneOptions,
-} from '@services';
+import { RecordTypeOptions, useGetAddRecordOptions } from '@services';
+import { JobFilterOptions } from '@ien/common';
+import { buttonBase, buttonColor } from '@components';
 import { getSelectStyleOverride } from '../../form';
-
-export interface JobFilterOptions {
-  ha?: string;
-  specialty?: string;
-  outcome?: string;
-}
 
 interface JobFilterProps {
   options: JobFilterOptions;
@@ -19,43 +11,49 @@ interface JobFilterProps {
 }
 
 export const JobFilters = ({ options, update }: JobFilterProps) => {
-  const { ha, specialty, outcome } = options;
   const { haPcn, jobTitle } = useGetAddRecordOptions();
-  const milestones = useGetMilestoneOptions();
+
+  const [regions, setRegions] = useState(options.ha_pcn);
+  const [specialties, setSpecialties] = useState(options.job_title);
 
   return (
     <div className='flex flex-col md:flex-row  items-center my-5'>
       <div className='font-bold mr-2'>Filter by</div>
-      <ReactSelect<RecordTypeOptions>
+      <ReactSelect
         inputId='ha'
         placeholder='Health Region'
-        value={haPcn?.data?.find(s => s.id === ha)}
-        onChange={value => update({ ...options, ha: value?.id })}
-        options={haPcn?.data?.map(s => ({ ...s, isDisabled: s.id === ha }))}
+        value={haPcn?.data?.filter(ha => regions?.includes(ha.id))}
+        onChange={value => setRegions(value?.map(ha => ha.id) || [])}
+        options={haPcn?.data?.map(ha => ({ ...ha, isDisabled: regions?.includes(ha.id) }))}
         getOptionLabel={option => option.title}
+        getOptionValue={option => option.id}
         styles={getSelectStyleOverride<RecordTypeOptions>()}
-        className='w-64 min-w-full md:min-w-0 mx-1'
+        isMulti
+        isClearable
+        className='w-80 min-w-full md:min-w-0 mx-1'
       />
-      <ReactSelect<RecordTypeOptions>
+      <ReactSelect
         inputId='specialty'
         placeholder='Specialty'
-        value={jobTitle?.data?.find(s => s.id === specialty)}
-        onChange={value => update({ ...options, specialty: value?.id })}
-        options={jobTitle?.data?.map(s => ({ ...s, isDisabled: s.id === specialty }))}
+        value={jobTitle?.data?.filter(title => specialties?.includes(title.id))}
+        onChange={value => setSpecialties(value?.map(title => title.id))}
+        options={jobTitle?.data?.map(title => ({
+          ...title,
+          isDisabled: specialties?.includes(title.id),
+        }))}
         getOptionLabel={option => option.title}
+        getOptionValue={option => option.id}
         styles={getSelectStyleOverride<RecordTypeOptions>()}
-        className='w-64 min-w-full md:min-w-0 mx-1'
+        isMulti
+        isClearable
+        className='w-80 min-w-full md:min-w-0 mx-1'
       />
-      <ReactSelect<MilestoneType>
-        inputId='outcome'
-        placeholder='Outcome'
-        value={milestones?.find(s => s.id === outcome)}
-        onChange={value => update({ ...options, outcome: value?.id })}
-        options={milestones?.map(s => ({ ...s, isDisabled: s.id === outcome }))}
-        getOptionLabel={option => option.status}
-        styles={getSelectStyleOverride<MilestoneType>()}
-        className='w-64 min-w-full md:min-w-0 mx-1'
-      />
+      <button
+        className={`ml-2 ${buttonColor.secondary} ${buttonBase}`}
+        onClick={() => update({ ha_pcn: regions, job_title: specialties })}
+      >
+        Apply
+      </button>
     </div>
   );
 };

@@ -6,9 +6,9 @@ import { Spinner } from '../Spinner';
 import { Record } from './recruitment/Record';
 import { getJobAndMilestones } from '@services';
 import { buttonBase, buttonColor } from '@components';
-import { ApplicantJobRO } from '@ien/common';
+import { ApplicantJobRO, JobFilterOptions } from '@ien/common';
 import addIcon from '@assets/img/add.svg';
-import { JobFilterOptions, JobFilters } from './recruitment/JobFilters';
+import { JobFilters } from './recruitment/JobFilters';
 import { PageOptions, Pagination } from '../Pagination';
 
 const DEFAULT_JOB_PAGE_SIZE = 5;
@@ -21,27 +21,31 @@ export const Recruitment: React.FC = () => {
   const [recordModalVisible, setRecordModalVisible] = useState(false);
 
   const [filters, setFilters] = useState<Partial<JobFilterOptions>>({});
-  const [pageOptions, setPageOptions] = useState<PageOptions>({
-    pageIndex: 1,
-    pageSize: DEFAULT_JOB_PAGE_SIZE,
-    total: 0,
-  });
+  const [pageIndex, setPageIndex] = useState(1);
+  const [pageSize, setPageSize] = useState(DEFAULT_JOB_PAGE_SIZE);
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
     const getJobAndMilestonesData = async (id: string) => {
       setIsLoading(true);
 
-      const data = await getJobAndMilestones(id, { ...filters, ...pageOptions });
+      const data = await getJobAndMilestones(id, {
+        ...filters,
+        skip: total <= pageSize ? 0 : (pageIndex - 1) * pageSize,
+        limit: pageSize,
+      });
 
       if (data) {
-        setJobRecords(data);
+        const [jobs, totalCount] = data;
+        setJobRecords(jobs);
+        setTotal(totalCount);
       }
 
       setIsLoading(false);
     };
 
     getJobAndMilestonesData(applicantId as string);
-  }, [pageOptions, filters]);
+  }, [pageIndex, pageSize, filters]);
 
   if (isLoading || !jobRecords) {
     return <Spinner className='h-10 my-5' />;
@@ -51,7 +55,10 @@ export const Recruitment: React.FC = () => {
     setRecordModalVisible(false);
 
     if (record) {
-      setJobRecords([...jobRecords, record]);
+      if (jobRecords.length === pageSize) {
+        jobRecords.pop();
+      }
+      setJobRecords([record, ...jobRecords]);
     }
   };
 
@@ -65,15 +72,25 @@ export const Recruitment: React.FC = () => {
     }
   };
 
+  const handlePageOptions = (options: PageOptions) => {
+    setPageIndex(options.pageIndex);
+    setPageSize(options.pageSize);
+  };
+
+  const handleFilters = (filters: JobFilterOptions) => {
+    setPageIndex(1);
+    setFilters(filters);
+  };
+
   return (
     <>
-      <JobFilters options={filters} update={setFilters} />
+      <JobFilters options={filters} update={handleFilters} />
 
       {jobRecords.map(job => (
         <Record key={job.job_id} job={job} update={handleRecordUpdate} />
       ))}
 
-      <div className='border rounded bg-blue-100 flex justify-between items-center mb-4 h-12'>
+      <div className='border rounded bg-bcBlueBar flex justify-between items-center mb-4 h-12'>
         <span className='py-2 pl-5 font-bold text-xs sm:text-sm'>
           {jobRecords.length == 0 ? 'There is no record yet.' : ''} Please click on the &ldquo;Add
           Record&rdquo; button to create a new job competition.
@@ -88,10 +105,7 @@ export const Recruitment: React.FC = () => {
       </div>
       <AddRecordModal onClose={handleNewRecord} visible={recordModalVisible} />
 
-      <Pagination
-        pageOptions={{ ...pageOptions, total: jobRecords.length }}
-        onChange={setPageOptions}
-      />
+      <Pagination pageOptions={{ pageIndex, pageSize, total }} onChange={handlePageOptions} />
     </>
   );
 };

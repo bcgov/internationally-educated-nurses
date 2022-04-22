@@ -9,9 +9,8 @@ import {
   ApplicantRO,
   ApplicantJobRO,
   ApplicantStatusAuditRO,
+  JobQueryOptions,
 } from '@ien/common';
-import { JobFilterOptions } from '../components/milestone-logs/recruitment/JobFilters';
-import { PageOptions } from '../components/Pagination';
 
 // get all applicants
 export const getApplicants = async (filter: IENApplicantFilterDTO = {}) => {
@@ -99,31 +98,23 @@ export const addMilestone = async (
   }
 };
 
-export interface JobQueryOptions extends JobFilterOptions, Partial<PageOptions> {
-  jobId?: string;
-}
-
-// get job and milestone data
 export const getJobAndMilestones = async (
   id: string,
   options: JobQueryOptions,
-): Promise<ApplicantJobRO[] | undefined> => {
-  const { jobId, ha, specialty, pageIndex, pageSize } = options;
+): Promise<[ApplicantJobRO[], number] | undefined> => {
+  const { job_id, ha_pcn, job_title, skip, limit } = options;
   try {
     let path = `/ien/${id}/jobs?`;
-    if (jobId) path += `job_id=${jobId}`;
+    if (job_id) path += `job_id=${job_id}`;
 
-    if (ha) path += `&ha=${ha}`;
-    if (specialty) path += `&job_title=${specialty}`;
-
-    if (pageSize && pageIndex) {
-      const skip = (pageIndex - 1) * pageSize;
-      path += `&limit=${pageSize}&skip=${skip}`;
-    }
+    if (ha_pcn && ha_pcn.length) path += `&ha_pcn=${ha_pcn.join(',')}`;
+    if (job_title && job_title.length) path += `&job_title=${job_title.join(',')}`;
+    if (skip) path += `&skip=${skip}`;
+    if (limit) path += `&limit=${limit}`;
 
     const {
       data: { data },
-    } = await axios.get<{ data: ApplicantJobRO[] }>(path);
+    } = await axios.get<{ data: [ApplicantJobRO[], number] }>(path);
 
     return data;
   } catch (error) {
