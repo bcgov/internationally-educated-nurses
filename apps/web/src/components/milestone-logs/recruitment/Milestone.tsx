@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import createValidator from 'class-validator-formik';
 import dayjs from 'dayjs';
-import { Formik, Form as FormikForm, FormikHelpers } from 'formik';
+import { Formik, Form as FormikForm, FormikHelpers, FieldProps } from 'formik';
 
-import { buttonBase, buttonColor, Select, Option, Field } from '@components';
+import { buttonBase, buttonColor, Field, getSelectStyleOverride } from '@components';
 import {
   IENApplicantAddStatusDTO,
   formatDate,
@@ -21,6 +21,7 @@ import {
 import addIcon from '@assets/img/add.svg';
 import editIcon from '@assets/img/edit.svg';
 import calendarIcon from '@assets/img/calendar.svg';
+import ReactSelect from 'react-select';
 
 //@todo change any type
 const getInitialValues = (
@@ -31,7 +32,7 @@ const getInitialValues = (
   added_by: `${status?.added_by || ''}`,
   start_date: `${status?.start_date || dayjs().format('YYYY-MM-DD')}`,
   notes: `${status?.notes || ''}`,
-  reason: `${status?.reason || ''}`,
+  reason: `${status?.reason?.id || ''}`,
   effective_date: `${status?.effective_date || dayjs().format('YYYY-MM-DD')}`,
 });
 
@@ -157,13 +158,21 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({ milestone, handleSubmit, 
             <FormikForm>
               <div className='grid grid-cols-9 gap-y-2 mb-4'>
                 <span className='col-span-12 sm:col-span-6 lg:col-span-3 pr-1 md:pr-2'>
-                  <Select name='status' label='Milestone'>
-                    {milestones &&
-                      milestones.length > 0 &&
-                      milestones.map((opt: MilestoneType) => (
-                        <Option key={opt.id} label={opt.status} value={opt.id} />
-                      ))}
-                  </Select>
+                  <Field
+                    name='status'
+                    label='Milestone'
+                    component={({ field, form }: FieldProps) => (
+                      <ReactSelect<MilestoneType>
+                        inputId={field.name}
+                        value={milestones?.find(s => s.id == field.value)}
+                        onBlur={field.onBlur}
+                        onChange={value => form.setFieldValue(field.name, `${value?.id}`)}
+                        options={milestones?.map(s => ({ ...s, isDisabled: s.id == field.value }))}
+                        getOptionLabel={option => option.status}
+                        styles={getSelectStyleOverride<MilestoneType>()}
+                      />
+                    )}
+                  />
                 </span>
                 <span className='col-span-12 sm:col-span-6 lg:col-span-3 pr-1 md:pr-2'>
                   <Field name='start_date' label='Date' type='date' />
@@ -175,17 +184,25 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({ milestone, handleSubmit, 
                 {values.status === '305' ? (
                   <>
                     <span className='col-span-12 sm:col-span-6 lg:col-span-3 pr-1 md:pr-2'>
-                      <Select name='reason' label='Withdraw Reason'>
-                        {reasons &&
-                          reasons.length > 0 &&
-                          reasons.map((opt: IENStatusReasonRO) => (
-                            <Option
-                              key={opt.id}
-                              label={opt.name as string}
-                              value={opt.id.toString()}
-                            />
-                          ))}
-                      </Select>
+                      <Field
+                        name='reason'
+                        label='Withdraw Reason'
+                        component={({ field, form }: FieldProps) => (
+                          <ReactSelect<IENStatusReasonRO>
+                            inputId={field.name}
+                            value={reasons?.find(opt => opt.id == field.value)}
+                            onBlur={field.onBlur}
+                            onChange={value => form.setFieldValue(field.name, `${value?.id}`)}
+                            options={reasons?.map(opt => ({
+                              ...opt,
+                              isDisabled: opt.id == field.value,
+                            }))}
+                            getOptionLabel={opt => `${opt.name}`}
+                            getOptionValue={opt => `${opt.id}`}
+                            styles={getSelectStyleOverride<IENStatusReasonRO>()}
+                          />
+                        )}
+                      />
                     </span>
                     <div className='col-span-12 sm:col-span-6 lg:col-span-2 md:pr-2 mt-auto'>
                       <button
