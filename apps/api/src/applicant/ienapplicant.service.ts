@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { IsNull, Repository } from 'typeorm';
+import { FindManyOptions, In, IsNull, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantCreateUpdateAPIDTO } from './dto/ienapplicant-create.dto';
@@ -14,6 +14,7 @@ import { IENApplicantJob } from './entity/ienjob.entity';
 import { IENApplicantUpdateStatusAPIDTO } from './dto/ienapplicant-update-status.dto';
 import { IENApplicantStatusAudit } from './entity/ienapplicant-status-audit.entity';
 import { IENApplicantJobCreateUpdateAPIDTO } from './dto/ienapplicant-job-create.dto';
+import { IENApplicantJobQueryDTO } from './dto/ienapplicant-job-filter.dto';
 
 @Injectable()
 export class IENApplicantService {
@@ -83,7 +84,7 @@ export class IENApplicantService {
           applicant: applicant,
           job: IsNull(),
         },
-        relations: ['status', 'reason'],
+        relations: ['status', 'reason', 'status.parent'],
       });
     }
     return applicant;
@@ -395,19 +396,30 @@ export class IENApplicantService {
   /**
    * Get applicant job details for recruitment process
    * @param id Applicant ID of IEN App
-   * @returns
+   * @param options filter and pagination options
+   * @returns array of jobs and count
    */
-  async getApplicantJobs(id: string, job_id: string): Promise<IENApplicantJob[]> {
-    const where: any = {
-      applicant: id,
-    };
-    if (job_id && job_id != '') {
-      where['id'] = job_id;
-    }
-    const jobs = await this.ienapplicantJobRepository.find({
-      where: where,
+  async getApplicantJobs(
+    id: string,
+    options: IENApplicantJobQueryDTO,
+  ): Promise<[IENApplicantJob[], number]> {
+    const { job_id, ha_pcn, job_title, skip, limit } = options;
+
+    const where: any = { applicant: id };
+
+    if (job_id) where.id = job_id;
+    if (ha_pcn) where.ha_pcn = In(ha_pcn);
+    if (job_title) where.job_title = In(job_title);
+
+    const query: FindManyOptions<IENApplicantJob> = {
+      where,
+      order: {
+        updated_date: 'DESC',
+      },
+      skip,
+      take: limit,
       relations: this.applicantRelations.applicant_job,
-    });
-    return jobs;
+    };
+    return this.ienapplicantJobRepository.findAndCount(query);
   }
 }

@@ -1,6 +1,6 @@
-import { faMinusCircle, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Disclosure as HeadlessDisclosure, Transition } from '@headlessui/react';
+import plusIcon from '@assets/img/plus.svg';
+import minusIcon from '@assets/img/minus.svg';
 
 interface DisclosureProps {
   buttonText: React.ReactNode;
@@ -13,13 +13,11 @@ export const Disclosure: React.FC<DisclosureProps> = ({ buttonText, content }) =
       {({ open }) => (
         <div className='border border-gray-200 rounded'>
           <HeadlessDisclosure.Button
-            className={'bg-blue-100 rounded-b-none flex justify-between w-full'}
+            className={'bg-bcBlueBar rounded-b-none flex justify-between w-full py-2'}
           >
             {buttonText}
-            <FontAwesomeIcon
-              icon={open ? faMinusCircle : faPlusCircle}
-              className='text-black mr-5 h-5 mt-2'
-            />
+
+            <img src={open ? minusIcon.src : plusIcon.src} alt='expand' className='mr-5 mt-2' />
           </HeadlessDisclosure.Button>
           <Transition
             enter='transition ease-in duration-500 transform'

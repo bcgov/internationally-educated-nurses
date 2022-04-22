@@ -9,6 +9,7 @@ import {
   ApplicantRO,
   ApplicantJobRO,
   ApplicantStatusAuditRO,
+  JobQueryOptions,
 } from '@ien/common';
 
 // get all applicants
@@ -97,17 +98,23 @@ export const addMilestone = async (
   }
 };
 
-// get job and milestone data
 export const getJobAndMilestones = async (
   id: string,
-  jobId?: string,
-): Promise<ApplicantJobRO[] | undefined> => {
+  options: JobQueryOptions,
+): Promise<[ApplicantJobRO[], number] | undefined> => {
+  const { job_id, ha_pcn, job_title, skip, limit } = options;
   try {
+    let path = `/ien/${id}/jobs?`;
+    if (job_id) path += `job_id=${job_id}`;
+
+    if (ha_pcn && ha_pcn.length) path += `&ha_pcn=${ha_pcn.join(',')}`;
+    if (job_title && job_title.length) path += `&job_title=${job_title.join(',')}`;
+    if (skip) path += `&skip=${skip}`;
+    if (limit) path += `&limit=${limit}`;
+
     const {
       data: { data },
-    } = await axios.get<{ data: ApplicantJobRO[] }>(
-      !jobId ? `/ien/${id}/jobs` : `/ien/${id}/jobs?job_id=${jobId}`,
-    );
+    } = await axios.get<{ data: [ApplicantJobRO[], number] }>(path);
 
     return data;
   } catch (error) {

@@ -53,10 +53,11 @@ export const AddMilestones: React.FC<AddMilestoneProps> = ({
 
     // get updated milestones
     if (data && data.id) {
-      const reFetchData = await getJobAndMilestones(applicantId, jobId);
+      const reFetchData = await getJobAndMilestones(applicantId, { job_id: jobId });
 
       if (reFetchData) {
-        setJobMilestones(reFetchData[0].status_audit);
+        const [jobs] = reFetchData;
+        setJobMilestones(jobs[0]?.status_audit || '');
       }
     }
 

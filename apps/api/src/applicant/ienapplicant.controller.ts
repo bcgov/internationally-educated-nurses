@@ -33,6 +33,7 @@ import { ApplicantJobRO, ApplicantRO, ApplicantStatusAuditRO } from '@ien/common
 import { ValidRoles } from 'src/auth/auth.constants';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { RouteAcceptsRoles } from 'src/common/decorators';
+import { IENApplicantJobQueryDTO } from './dto/ienapplicant-job-filter.dto';
 
 @Controller('ien')
 @ApiTags('IEN Applicant')
@@ -291,10 +292,10 @@ export class IENApplicantController {
   @Get('/:id/jobs')
   getApplicantJobs(
     @Param('id') id: string,
-    @Query('job_id') job_id: string,
-  ): Promise<ApplicantJobRO[]> {
+    @Query() options: IENApplicantJobQueryDTO,
+  ): Promise<[ApplicantJobRO[], number]> {
     try {
-      return this.ienapplicantService.getApplicantJobs(id, job_id);
+      return this.ienapplicantService.getApplicantJobs(id, options);
     } catch (e) {
       if (e instanceof NotFoundException) {
         throw e;
