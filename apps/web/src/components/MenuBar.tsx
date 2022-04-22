@@ -10,7 +10,7 @@ export const MenuBar: React.FC = () => {
 
   // disabled Reporting tab for now
   return (
-    <div className='w-full py-2 bg-bcBlueNav flex justify-center'>
+    <div className='w-full py-2 bg-bcBlueAccent flex justify-center'>
       <div className='w-full 2xl:w-5/6 h-full flex flex-row items-center align-center justify-between px-2 md:px-12'>
         <div className='layout-grid gap-0 h-full flex flex-row items-center align-center'>
           {menuBarTabs.map(({ title, path }) => (
