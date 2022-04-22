@@ -1,6 +1,7 @@
 export interface IENApplicantStatusRO {
   id: number;
   status: string;
+  party?: string;
   parent?: IENApplicantStatusRO;
   children?: IENApplicantStatusRO[];
 }

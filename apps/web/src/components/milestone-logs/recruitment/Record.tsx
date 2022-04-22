@@ -1,5 +1,3 @@
-import { faCircle } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
@@ -8,9 +6,16 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 
 import { buttonBase, buttonColor, DetailsItem, Disclosure } from '@components';
 import { AddMilestones, EditMilestones } from './Milestone';
-import { ApplicantJobRO, formatDate } from '@ien/common';
+import {
+  ApplicantJobRO,
+  ApplicantStatusAuditRO,
+  formatDate,
+  IENApplicantUpdateStatusDTO,
+} from '@ien/common';
 import editIcon from '@assets/img/edit.svg';
+import dotIcon from '@assets/img/dot.svg';
 import { AddRecordModal } from '../../display/AddRecordModal';
+import { updateMilestone } from '@services';
 
 interface RecordProps {
   job: ApplicantJobRO;
@@ -19,7 +24,7 @@ interface RecordProps {
 
 export const Record: React.FC<RecordProps> = ({ job, update }) => {
   const router = useRouter();
-  const applicantId = router.query.id;
+  const applicantId = router.query.id as string;
   const [recordStatus, setRecordStatus] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -37,7 +42,7 @@ export const Record: React.FC<RecordProps> = ({ job, update }) => {
     status_audit = [],
   } = job;
 
-  const [jobMilestones, setJobMilestones] = useState(status_audit);
+  const [jobMilestones, setJobMilestones] = useState<ApplicantStatusAuditRO[]>(status_audit || []);
 
   // @todo - remove hard coded values
   const completionIdArray = [305, 306, 307, 308];
@@ -94,19 +99,23 @@ export const Record: React.FC<RecordProps> = ({ job, update }) => {
     setModalVisible(false);
   };
 
+  const handleUpdateMilestone = async (id: string, values: IENApplicantUpdateStatusDTO) => {
+    const milestone = await updateMilestone(applicantId, id, values);
+    const index = jobMilestones.findIndex(m => m.id === id);
+    if (index >= 0) jobMilestones.splice(index, 1, milestone);
+    setJobMilestones([...jobMilestones]);
+  };
+
   return (
     <div className='mb-3'>
       <Disclosure
         buttonText={
-          <div className='bg-blue-100 rounded py-2 pl-5 w-full'>
+          <div className='rounded py-2 pl-5 w-full'>
             <div className='flex items-center'>
               <span className='font-bold text-black'>{ha_pcn.title}</span>
-              <span className='text-xs text-blue-700 font-bold mr-3 ml-auto capitalize'>
-                <FontAwesomeIcon
-                  icon={faCircle}
-                  className='text-blue-700 h-2 inline-block mb-0.5 mr-1'
-                />
-                {recordStatus}
+              <span className='text-sm text-bcBlueLink font-bold mr-3 ml-auto capitalize'>
+                <img src={dotIcon.src} alt='dot heading' className='inline-block mr-2' />
+                {recordStatus || 'On going'}
               </span>
             </div>
             <div className='flex justify-between'>
@@ -135,7 +144,13 @@ export const Record: React.FC<RecordProps> = ({ job, update }) => {
             </button>
             <AddRecordModal job={job} onClose={handleModalClose} visible={modalVisible} />
             {jobMilestones &&
-              jobMilestones.map(mil => <EditMilestones key={mil.id} milestones={mil} />)}
+              jobMilestones.map(mil => (
+                <EditMilestones
+                  key={mil.id}
+                  milestone={mil}
+                  handleSubmit={values => handleUpdateMilestone(mil.id, values)}
+                />
+              ))}
             <AddMilestones
               applicantId={applicantId as string}
               jobId={id}
