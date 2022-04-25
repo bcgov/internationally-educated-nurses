@@ -188,14 +188,17 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({ milestone, handleSubmit, 
                       </Select>
                     </span>
                     <div className='col-span-12 sm:col-span-6 lg:col-span-2 md:pr-2 mt-auto'>
-                      <button
-                        className={`border border-bcGray rounded text-bcGray ${buttonBase} pointer-events-none`}
-                      >
-                        <span className='whitespace-nowrap px-1 text-bcGray text-xs'>
-                          Add New Reason
-                        </span>
-                        <img src={addIcon.src} alt='add reason' />
-                      </button>
+                      {/* hiding add new reason button until implemented, kept in dom for layout purposes */}
+                      <div className='invisible'>
+                        <button
+                          className={`border border-bcGray rounded text-bcGray ${buttonBase} pointer-events-none`}
+                        >
+                          <span className='whitespace-nowrap px-1 text-bcGray text-xs'>
+                            Add New Reason
+                          </span>
+                          <img src={addIcon.src} alt='add reason' />
+                        </button>
+                      </div>
                     </div>
 
                     <span className='col-span-12 sm:col-span-6 lg:col-span-4 pr-1 md:pr-2'>
