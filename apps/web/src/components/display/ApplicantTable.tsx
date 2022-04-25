@@ -25,7 +25,7 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
               </div>
             </th>
             <th className='px-6'>
-              <div className='flex align-middle justify-between '>
+              <div className='flex align-middle justify-between'>
                 <span>Name</span>
                 <button id='sort-by-name' onClick={() => onSortChange('name')}>
                   <img src={sortIcon.src} alt='sort' />
