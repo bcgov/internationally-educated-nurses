@@ -13,11 +13,11 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
 
   return (
     <div className='overflow-x-auto'>
-      <table className='text-left w-full'>
+      <table className='text-left w-full table-fixed'>
         <thead className='whitespace-nowrap bg-bcLightGray text-bcDeepBlack'>
           <tr className='border-b-2 border-yellow-300 text-sm'>
-            <th className='pl-6 py-4'>
-              <div className='flex align-middle justify-between '>
+            <th className='px-6 py-4'>
+              <div className='flex align-middle justify-between'>
                 <span>ID</span>
                 <button id='sort-by-id' onClick={() => onSortChange('applicant_id')}>
                   <img src={sortIcon.src} alt='sort' />

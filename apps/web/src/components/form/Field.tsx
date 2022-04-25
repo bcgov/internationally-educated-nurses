@@ -41,7 +41,7 @@ export const Field: React.FC<FieldProps> = props => {
           className ??
           classnames(
             `w-full rounded-none bg-gray-100 block h-10
-            border-b-2 border-bcBlack pl-1 disabled:bg-bcDisabled text-sm`,
+            border-b-2 border-bcBlack pl-1 disabled:bg-bcDisabled`,
             {
               'border-red-500': meta.touched && meta.error,
             },
