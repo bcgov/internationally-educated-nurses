@@ -49,7 +49,7 @@ export const JobFilters = ({ options, update }: JobFilterProps) => {
         className='w-80 min-w-full md:min-w-0 mx-1'
       />
       <button
-        className={`ml-2 ${buttonColor.secondary} ${buttonBase}`}
+        className={`ml-2 px-6 text-sm ${buttonColor.primary} ${buttonBase}`}
         onClick={() => update({ ha_pcn: regions, job_title: specialties })}
       >
         Apply

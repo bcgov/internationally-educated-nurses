@@ -294,7 +294,8 @@ export class IENApplicantService {
     if (!status_audit) {
       throw new NotFoundException('Provided status/milestone record not found');
     }
-    const { status, start_date, end_date, added_by, notes, reason } = applicantUpdate;
+    const { status, start_date, effective_date, end_date, added_by, notes, reason } =
+      applicantUpdate;
     if (added_by) {
       const updated_by_data = await this.ienUsersRepository.findOne(parseInt(added_by));
       if (updated_by_data) {
@@ -318,6 +319,10 @@ export class IENApplicantService {
 
     if (end_date) {
       status_audit.end_date = end_date;
+    }
+
+    if (effective_date) {
+      status_audit.effective_date = effective_date;
     }
 
     if (notes) {
@@ -370,7 +375,7 @@ export class IENApplicantService {
       job.job_id = data.job_id;
     }
     if (data.job_post_date) {
-      job.job_post_date = new Date(data.job_post_date);
+      job.job_post_date = data.job_post_date as any;
     }
     if (data.recruiter_name) {
       job.recruiter_name = data.recruiter_name;
