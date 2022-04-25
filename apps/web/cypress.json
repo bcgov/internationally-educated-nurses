@@ -1,0 +1,7 @@
+{
+  "baseUrl": "http://localhost:3000",
+  "env": {
+    "FAIL_FAST_STRATEGY": "run",
+    "FAIL_FAST_ENABLED": true
+  }
+}
