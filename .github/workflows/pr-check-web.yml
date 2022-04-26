@@ -31,15 +31,8 @@ jobs:
       - name: Lint web package
         run: yarn workspace @ien/web lint
 
-      - name: Test web package
+      - name: Unit-test web package
         run: yarn workspace @ien/web test
 
       - name: Test web package cypress
-        uses: cypress-io/github-action@v2
-        with:
-          start: make web-integration-test
-          working-directory: ./
-          wait-on: 'http://localhost:3000'
-
-      - name: Build web package
-        run: yarn workspace @ien/web build
+        run: make web-integration-test

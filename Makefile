@@ -172,13 +172,11 @@ api-integration-test:
 	@echo "++\n*****"
 	@make stop-test-db
 
-web-integration-test: 
-	@make start-test-db 
+web-integration-test:
+	@make start-test-db
 	@echo "++\n***** Running Web integration tests\n++"
-	@yarn workspace @ien/api build
-	@yarn workspace @ien/api test:e2e
-	@yarn workspace @ien/web build
-	@yarn test:e2e
+	@yarn build
+	@NODE_ENV=test yarn test:e2e
 	@echo "++\n*****"
 	@make stop-test-db
 

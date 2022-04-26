@@ -8,7 +8,7 @@
     "format:write": "yarn prettier --write .",
     "lint": "echo 'Linting all packages' && wsrun --parallel --exclude-missing lint",
     "test": "echo 'Running tests' && wsrun --parallel --exclude-missing test",
-    "test:e2e": "run-p 'start:web:local' 'start:cypress'",
+    "test:e2e": "run-p 'start:local' 'start:cypress'",
     "build-common": "echo 'Building all common packages packages' && wsrun --stages --exclude @ien/api --exclude @ien/web --exclude-missing build",
     "build": "echo 'Building packages' && wsrun --stages --exclude-missing build",
     "check": "run-p 'lint' 'format:check'",
