@@ -169,6 +169,8 @@ api-integration-test:
 	@echo "++\n***** Running API integration tests\n++"
 	@yarn workspace @ien/api build
 	@yarn workspace @ien/api test:e2e
+	@yarn workspace @ien/web build
+	@yarn test:e2e
 	@echo "++\n*****"
 	@make stop-test-db
 

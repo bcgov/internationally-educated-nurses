@@ -8,6 +8,7 @@
     "format:write": "yarn prettier --write .",
     "lint": "echo 'Linting all packages' && wsrun --parallel --exclude-missing lint",
     "test": "echo 'Running tests' && wsrun --parallel --exclude-missing test",
+    "test:e2e": "run-p 'start:web:local' 'start:cypress'",
     "build-common": "echo 'Building all common packages packages' && wsrun --stages --exclude @ien/api --exclude @ien/web --exclude-missing build",
     "build": "echo 'Building packages' && wsrun --stages --exclude-missing build",
     "check": "run-p 'lint' 'format:check'",
@@ -19,7 +20,7 @@
     "start:api:local": "yarn workspace @ien/api start:dev:local",
     "start:web:local": "yarn workspace @ien/web start",
     "start:local": "run-p 'watch:common' 'start:api:local' 'start:web:local'",
-    "start": "yarn workspace @ien/api start && yarn workspace @ien/web start"
+    "start:cypress": "yarn workspace @ien/web cypress"
   },
   "workspaces": [
     "packages/*",

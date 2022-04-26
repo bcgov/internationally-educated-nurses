@@ -38,7 +38,7 @@ jobs:
         uses: cypress-io/github-action@v2
         with:
           start: yarn start
-          working-directory: ./apps/web
+          working-directory: ./
           wait-on: 'http://localhost:3000'
 
       - name: Build web package
