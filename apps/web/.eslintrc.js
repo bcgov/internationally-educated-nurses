@@ -4,5 +4,7 @@ module.exports = {
   rules: {
     '@next/next/no-img-element': 'off',
   },
-  ignorePatterns: ['/cypress', '*.js'],
+  globals: {
+    cy: true,
+  },
 };
