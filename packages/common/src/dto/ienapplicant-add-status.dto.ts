@@ -1,4 +1,4 @@
-import { IsDateString, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsDateString, IsNotEmpty, IsOptional, IsString, ValidateIf } from 'class-validator';
 
 export class IENApplicantAddStatusDTO {
   @IsString()
@@ -25,8 +25,9 @@ export class IENApplicantAddStatusDTO {
   @IsOptional()
   notes?: string;
 
+  @ValidateIf(s => s.status === '305')
   @IsString()
-  @IsOptional()
+  @IsNotEmpty()
   reason?: string;
 
   @IsString()
