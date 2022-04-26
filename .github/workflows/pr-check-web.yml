@@ -37,7 +37,7 @@ jobs:
       - name: Test web package cypress
         uses: cypress-io/github-action@v2
         with:
-          start: yarn start
+          start: make web-integration-test
           working-directory: ./
           wait-on: 'http://localhost:3000'
 
