@@ -172,7 +172,14 @@ api-integration-test:
 	@echo "++\n*****"
 	@make stop-test-db
 
-web-integration-test:
+run-test-backend:
+	@make start-test-db
+	@yarn build
+	NODE_ENV=test yarn watch
+	@echo "++\n*****"
+	@make stop-test-db
+
+web-integration-test-local:
 	@make start-test-db
 	@echo "++\n***** Running Web integration tests\n++"
 	@yarn build
