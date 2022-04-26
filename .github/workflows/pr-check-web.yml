@@ -35,7 +35,11 @@ jobs:
         run: yarn workspace @ien/web test
 
       - name: Test web package cypress
-        run: yarn workspace @ien/web cypress
+        uses: cypress-io/github-action@v2
+        with:
+          start: yarn start
+          working-directory: ./apps/web
+          wait-on: 'http://localhost:3000'
 
       - name: Build web package
         run: yarn workspace @ien/web build
