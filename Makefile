@@ -168,13 +168,12 @@ api-integration-test:
 	@make start-test-db 
 	@echo "++\n***** Running API integration tests\n++"
 	@yarn workspace @ien/api build
-	@yarn workspace @ien/api test:e2e
+	@NODE_ENV=test yarn workspace @ien/api test:e2e
 	@echo "++\n*****"
 	@make stop-test-db
 
 run-test-backend:
 	@make start-test-db
-	@yarn build
 	NODE_ENV=test yarn watch
 	@echo "++\n*****"
 	@make stop-test-db
