@@ -12,6 +12,10 @@
 // This function is called when a project is opened or re-opened (e.g. due to
 // the project's config changing)
 
+import dotenv from 'dotenv';
+import * as path from 'path';
+dotenv.config({ path: path.join(__dirname, '../../.env.local') });
+
 /**
  * @param on
  * @param config
@@ -19,7 +23,10 @@
  */
 // eslint-disable-next-line no-unused-vars,
 // @typescript-eslint/no-unused-vars
-module.exports = () => {
+module.exports = (on: any, config: any) => {
   // `on` is used to hook into various events Cypress emits
   // `config` is the resolved Cypress config
+  config.env.username = process.env.E2E_TEST_USERNAME;
+  config.env.password = process.env.E2E_TEST_PASSWORD;
+  return config;
 };

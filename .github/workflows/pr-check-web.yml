@@ -9,6 +9,11 @@ jobs:
   pr-checks:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      E2E_TEST_USERNAME: '${{ secrets.E2E_TEST_USERNAME}}'
+      E2E_TEST_PASSWORD: '${{ secrets.E2E_TEST_PASSWORD}}'
+    environment:
+      name: dev
     steps:
       - uses: actions/checkout@v2
         name: checkout

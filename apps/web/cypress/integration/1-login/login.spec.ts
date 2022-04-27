@@ -1,8 +1,9 @@
 /// <reference types="cypress" />
+/// <reference path="../../support/index.ts"/>
 
 describe('Login page', () => {
-  it('has login button', () => {
-    cy.visit('http://localhost:3000');
-    cy.contains('Login');
+  it('login with user account', () => {
+    cy.visit('/');
+    cy.login();
   });
 });
