@@ -9,9 +9,6 @@ jobs:
   pr-checks:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    env:
-      E2E_TEST_USERNAME: '${{ secrets.E2E_TEST_USERNAME}}'
-      E2E_TEST_PASSWORD: '${{ secrets.E2E_TEST_PASSWORD}}'
     environment:
       name: dev
     steps:
@@ -46,6 +43,10 @@ jobs:
           working-directory: ./
           project: ./apps/web
           wait-on: 'http://localhost:3000'
+        env:
+          E2E_TEST_USERNAME: '${{ secrets.E2E_TEST_USERNAME}}'
+          E2E_TEST_PASSWORD: '${{ secrets.E2E_TEST_PASSWORD}}'
+          AUTH_REALM: 'moh_applications'
 
       - name: Build web package
         run: yarn workspace @ien/web build

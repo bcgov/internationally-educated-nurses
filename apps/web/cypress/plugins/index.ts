@@ -28,5 +28,6 @@ module.exports = (on: any, config: any) => {
   // `config` is the resolved Cypress config
   config.env.username = process.env.E2E_TEST_USERNAME;
   config.env.password = process.env.E2E_TEST_PASSWORD;
+  config.env.realm = process.env.AUTH_REALM;
   return config;
 };
