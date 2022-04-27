@@ -176,7 +176,9 @@ export class IENApplicantUtilService {
     }
     if (statusObj) {
       if (statusObj.parent?.id != 10003) {
-        throw new BadRequestException(`Only recruitment-related milestones/statuses are allowed here`);
+        throw new BadRequestException(
+          `Only recruitment-related milestones/statuses are allowed here`,
+        );
       }
     }
     return statusObj;
