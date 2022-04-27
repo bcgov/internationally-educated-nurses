@@ -87,7 +87,7 @@ export const Recruitment: React.FC = () => {
       <JobFilters options={filters} update={handleFilters} />
 
       {jobRecords.map(job => (
-        <Record key={job.job_id} job={job} update={handleRecordUpdate} />
+        <Record key={job.id} job={job} update={handleRecordUpdate} />
       ))}
 
       <div className='border rounded bg-bcBlueBar flex justify-between items-center mb-4 h-12'>

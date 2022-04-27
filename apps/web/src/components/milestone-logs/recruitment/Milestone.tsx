@@ -10,6 +10,7 @@ import {
   IENStatusReasonRO,
   ApplicantStatusAuditRO,
   IENApplicantUpdateStatusDTO,
+  ApplicantJobRO,
 } from '@ien/common';
 import {
   addMilestone,
@@ -40,18 +41,18 @@ const milestoneValidator = createValidator(IENApplicantAddStatusDTO);
 
 interface AddMilestoneProps {
   applicantId: string;
-  jobId: string;
-  setJobMilestones: any;
+  job: ApplicantJobRO;
+  setJobMilestones: (milestones: ApplicantStatusAuditRO[]) => void;
 }
 
 export const AddMilestones: React.FC<AddMilestoneProps> = ({
   applicantId,
-  jobId,
+  job,
   setJobMilestones,
 }) => {
   const handleSubmit = async (values: any, { resetForm }: any) => {
     // TODO: fix added_by field
-    values.job_id = jobId.toString();
+    values.job_id = job.job_id;
     values.added_by = '1';
 
     if (values.status !== '304' && values.status !== '305') {
@@ -62,11 +63,11 @@ export const AddMilestones: React.FC<AddMilestoneProps> = ({
 
     // get updated milestones
     if (data && data.id) {
-      const reFetchData = await getJobAndMilestones(applicantId, { job_id: jobId });
+      const reFetchData = await getJobAndMilestones(applicantId, { job_id: job.job_id });
 
       if (reFetchData) {
         const [jobs] = reFetchData;
-        setJobMilestones(jobs[0]?.status_audit || '');
+        setJobMilestones(jobs[0]?.status_audit || []);
       }
     }
 
@@ -74,16 +75,17 @@ export const AddMilestones: React.FC<AddMilestoneProps> = ({
     resetForm(getInitialValues());
   };
 
-  return <MilestoneForm handleSubmit={handleSubmit} />;
+  return <MilestoneForm job={job} handleSubmit={handleSubmit} />;
 };
 
 interface EditMilestoneProps {
+  job: ApplicantJobRO;
   milestone: ApplicantStatusAuditRO;
   handleSubmit: (milestone: IENApplicantUpdateStatusDTO) => void;
 }
 
 // Edit milestone comp *** currently unsure if this will be included moving forward
-export const EditMilestones: React.FC<EditMilestoneProps> = ({ milestone, handleSubmit }) => {
+export const EditMilestones: React.FC<EditMilestoneProps> = ({ job, milestone, handleSubmit }) => {
   const [isEdit, setIsEdit] = useState(false);
 
   return (
@@ -115,6 +117,7 @@ export const EditMilestones: React.FC<EditMilestoneProps> = ({ milestone, handle
       ) : (
         <>
           <MilestoneForm
+            job={job}
             milestone={milestone}
             handleSubmit={values => handleSubmit(values as IENApplicantUpdateStatusDTO)}
             onClose={() => setIsEdit(false)}
@@ -126,6 +129,7 @@ export const EditMilestones: React.FC<EditMilestoneProps> = ({ milestone, handle
 };
 
 interface MilestoneFormProps {
+  job: ApplicantJobRO;
   milestone?: ApplicantStatusAuditRO;
   handleSubmit: (
     values: IENApplicantAddStatusDTO | IENApplicantUpdateStatusDTO,
@@ -134,7 +138,7 @@ interface MilestoneFormProps {
   onClose?: () => void;
 }
 
-const MilestoneForm: React.FC<MilestoneFormProps> = ({ milestone, handleSubmit, onClose }) => {
+const MilestoneForm: React.FC<MilestoneFormProps> = ({ job, milestone, handleSubmit, onClose }) => {
   const milestones = useGetMilestoneOptions();
   const reasons = useGetWithdrawReasonOptions();
 
@@ -144,6 +148,15 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({ milestone, handleSubmit, 
   ) => {
     handleSubmit(values, helpers);
     if (onClose) onClose();
+  };
+
+  const validateStartDate = (value: string) => {
+    if (dayjs(value).diff(job.job_post_date) < 0) {
+      return 'Date must be later than the date job was first posted.';
+    }
+    if (dayjs().diff(value) < 0) {
+      return 'Date must be a past date';
+    }
   };
 
   return (
@@ -175,7 +188,12 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({ milestone, handleSubmit, 
                   />
                 </span>
                 <span className='col-span-12 sm:col-span-6 lg:col-span-3 pr-1 md:pr-2'>
-                  <Field name='start_date' label='Date' type='date' />
+                  <Field
+                    name='start_date'
+                    label='Date'
+                    type='date'
+                    validate={val => validateStartDate(val)}
+                  />
                 </span>
                 <span className='col-span-12 sm:col-span-6 lg:col-span-3 pr-1 md:pr-2'>
                   <Field name='notes' label='Note' type='text' />
@@ -220,6 +238,12 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({ milestone, handleSubmit, 
 
                     <span className='col-span-12 sm:col-span-6 lg:col-span-4 pr-1 md:pr-2'>
                       <Field name='effective_date' label='Effective Date' type='date' />
+                      {/*<Field name='effective_date' label='Effective Date' component={({ field, form }: FieldProps) => (*/}
+                      {/*  <DatePicker*/}
+                      {/*    selected={field.value && new Date(field.value)}*/}
+                      {/*    onChange={val => form.setFieldValue(field.name, val)}*/}
+                      {/*  />*/}
+                      {/*)}/>*/}
                     </span>
                   </>
                 ) : null}

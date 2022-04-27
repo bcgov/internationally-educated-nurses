@@ -23,6 +23,7 @@ export const Field: React.FC<FieldProps> = props => {
     className,
     maxLength,
     children,
+    ...others
   } = props;
   const [field, meta] = useField(name);
 
@@ -53,6 +54,7 @@ export const Field: React.FC<FieldProps> = props => {
         maxLength={maxLength}
         component={component}
         {...field}
+        {...others}
       >
         {children}
       </FormikField>
