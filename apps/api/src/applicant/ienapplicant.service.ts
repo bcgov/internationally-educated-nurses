@@ -223,6 +223,22 @@ export class IENApplicantService {
       reason_other,
     } = applicantUpdate;
     const data: any = {};
+
+    /** Only allowing recruiment related milestones here */
+    const status_obj = await this.ienapplicantUtilService.getStatusById(status);
+    data.status = status_obj;
+
+    let job = null;
+    if (job_id) {
+      job = await this.ienapplicantUtilService.getJob(job_id);
+      if (id !== job.applicant.id) {
+        throw new BadRequestException('Provided applicant and competition/job does not match');
+      }
+    }
+    if (!job) {
+      throw new BadRequestException(`Competition/job are required to add a milestone`);
+    }
+
     if (added_by) {
       const added_by_data = await this.ienUsersRepository.findOne(parseInt(added_by));
       if (added_by_data) {
@@ -237,9 +253,6 @@ export class IENApplicantService {
 
     data.reason_other = reason_other || null;
 
-    const status_obj = await this.ienapplicantUtilService.getStatusById(status);
-    data.status = status_obj;
-
     data.start_date = start_date || new Date();
 
     data.end_date = end_date || null;
@@ -247,14 +260,6 @@ export class IENApplicantService {
     data.effective_date = effective_date || null;
 
     data.notes = notes || null;
-
-    let job = null;
-    if (job_id) {
-      job = await this.ienapplicantUtilService.getJob(job_id);
-      if (id !== job.applicant.id) {
-        throw new BadRequestException('Provided applicant and competition/job does not match');
-      }
-    }
 
     const status_audit = await this.ienapplicantUtilService.addApplicantStatusAudit(
       applicant,
