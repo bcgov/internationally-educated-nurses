@@ -77,12 +77,12 @@ export class IENApplicantController {
   )
   @HttpCode(HttpStatus.OK)
   @Get('/:id')
-  getApplicant(
+  async getApplicant(
     @Param('id') id: string,
     @Query() relation: IENApplicantFilterByIdAPIDTO,
   ): Promise<ApplicantRO> {
     try {
-      return this.ienapplicantService.getApplicantById(id, relation);
+      return await this.ienapplicantService.getApplicantById(id, relation);
     } catch (e) {
       if (e instanceof NotFoundException) {
         throw e;
@@ -133,12 +133,12 @@ export class IENApplicantController {
     ValidRoles.MINISTRY_OF_HEALTH,
   )
   @Patch('/:id')
-  updateApplicant(
+  async updateApplicant(
     @Param('id') id: string,
     @Body() applicantUpdate: IENApplicantCreateUpdateAPIDTO,
   ): Promise<ApplicantRO | undefined> {
     try {
-      return this.ienapplicantService.updateApplicantInfo(id, applicantUpdate);
+      return await this.ienapplicantService.updateApplicantInfo(id, applicantUpdate);
     } catch (e) {
       this.logger.error(e);
       if (e instanceof NotFoundException) {
@@ -162,18 +162,23 @@ export class IENApplicantController {
     ValidRoles.MINISTRY_OF_HEALTH,
   )
   @Post('/:id/status')
-  addApplicantStatus(
+  async addApplicantStatus(
     @Param('id') id: string,
     @Body() applicantStatus: IENApplicantAddStatusAPIDTO,
   ): Promise<ApplicantStatusAuditRO | undefined> {
     try {
-      return this.ienapplicantService.addApplicantStatus(id, applicantStatus);
+      return await this.ienapplicantService.addApplicantStatus(id, applicantStatus);
     } catch (e) {
       this.logger.error(e);
       if (e instanceof NotFoundException) {
         throw e;
       } else if (e instanceof QueryFailedError) {
-        throw new BadRequestException(e);
+        if (e.message.indexOf('duplicate') !== -1) {
+          throw new BadRequestException(`Duplicate milestone with same date found!`);
+        }
+        throw new BadRequestException(e.message);
+      } else if (e instanceof BadRequestException) {
+        throw e;
       } else {
         // statements to handle any unspecified exceptions
         throw new InternalServerErrorException(
@@ -193,19 +198,24 @@ export class IENApplicantController {
     ValidRoles.HEALTH_MATCH,
     ValidRoles.MINISTRY_OF_HEALTH,
   )
-  updateApplicantStatus(
+  async updateApplicantStatus(
     @Param('id') id: string,
     @Param('status_id') status_id: string,
     @Body() applicantStatus: IENApplicantUpdateStatusAPIDTO,
   ): Promise<ApplicantStatusAuditRO | undefined> {
     try {
-      return this.ienapplicantService.updateApplicantStatus(status_id, applicantStatus);
+      return await this.ienapplicantService.updateApplicantStatus(status_id, applicantStatus);
     } catch (e) {
       this.logger.error(e);
       if (e instanceof NotFoundException) {
         throw e;
       } else if (e instanceof QueryFailedError) {
-        throw new BadRequestException(e);
+        if (e.message.indexOf('duplicate') !== -1) {
+          throw new BadRequestException(`Duplicate milestone with same date found!`);
+        }
+        throw new BadRequestException(e.message);
+      } else if (e instanceof BadRequestException) {
+        throw e;
       } else {
         // statements to handle any unspecified exceptions
         throw new InternalServerErrorException(
@@ -225,18 +235,20 @@ export class IENApplicantController {
     ValidRoles.MINISTRY_OF_HEALTH,
   )
   @Post('/:id/job')
-  addApplicantJob(
+  async addApplicantJob(
     @Param('id') id: string,
     @Body() jobData: IENApplicantJobCreateUpdateAPIDTO,
   ): Promise<ApplicantJobRO | undefined> {
     try {
-      return this.ienapplicantService.addApplicantJob(id, jobData);
+      return await this.ienapplicantService.addApplicantJob(id, jobData);
     } catch (e) {
       this.logger.error(e);
       if (e instanceof NotFoundException) {
         throw e;
       } else if (e instanceof QueryFailedError) {
         throw new BadRequestException(e);
+      } else if (e instanceof BadRequestException) {
+        throw e;
       } else {
         // statements to handle any unspecified exceptions
         throw new InternalServerErrorException(
@@ -256,19 +268,21 @@ export class IENApplicantController {
     ValidRoles.HEALTH_MATCH,
     ValidRoles.MINISTRY_OF_HEALTH,
   )
-  updateApplicantJob(
+  async updateApplicantJob(
     @Param('id') id: string,
     @Param('job_applicant_id') job_applicant_id: string,
     @Body() jobData: IENApplicantJobCreateUpdateAPIDTO,
   ): Promise<ApplicantJobRO | undefined> {
     try {
-      return this.ienapplicantService.updateApplicantJob(id, job_applicant_id, jobData);
+      return await this.ienapplicantService.updateApplicantJob(id, job_applicant_id, jobData);
     } catch (e) {
       this.logger.error(e);
       if (e instanceof NotFoundException) {
         throw e;
       } else if (e instanceof QueryFailedError) {
         throw new BadRequestException(e);
+      } else if (e instanceof BadRequestException) {
+        throw e;
       } else {
         // statements to handle any unspecified exceptions
         throw new InternalServerErrorException(
@@ -290,12 +304,12 @@ export class IENApplicantController {
     ValidRoles.MINISTRY_OF_HEALTH,
   )
   @Get('/:id/jobs')
-  getApplicantJobs(
+  async getApplicantJobs(
     @Param('id') id: string,
     @Query() options: IENApplicantJobQueryDTO,
   ): Promise<[ApplicantJobRO[], number]> {
     try {
-      return this.ienapplicantService.getApplicantJobs(id, options);
+      return await this.ienapplicantService.getApplicantJobs(id, options);
     } catch (e) {
       if (e instanceof NotFoundException) {
         throw e;

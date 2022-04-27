@@ -1,5 +1,5 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
-import jwt from 'jsonwebtoken';
+import { BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
+import jwt, { TokenExpiredError } from 'jsonwebtoken';
 import jwksRsa from 'jwks-rsa';
 export class AuthService {
   uri = `${process.env.AUTH_URL}/realms/${process.env.AUTH_REALM}/protocol/openid-connect/certs`;
@@ -17,18 +17,26 @@ export class AuthService {
   };
 
   async getUserFromToken(token: string) {
-    const jwksClient = jwksRsa({
-      jwksUri: this.uri,
-    });
-    const decoded = jwt.decode(token, { complete: true });
-    const kid = decoded?.header.kid;
-    const jwks = await jwksClient.getSigningKey(kid);
-    const signingKey = jwks.getPublicKey();
-    const verified = jwt.verify(token || '', signingKey);
-    if (typeof verified !== 'string' && verified.azp !== 'IEN') {
-      throw new HttpException('Authentication token does not match', HttpStatus.FORBIDDEN);
+    try {
+      const jwksClient = jwksRsa({
+        jwksUri: this.uri,
+      });
+      const decoded = jwt.decode(token, { complete: true });
+      const kid = decoded?.header.kid;
+      const jwks = await jwksClient.getSigningKey(kid);
+      const signingKey = jwks.getPublicKey();
+      const verified = jwt.verify(token || '', signingKey);
+      if (typeof verified !== 'string' && verified.azp !== 'IEN') {
+        throw new HttpException('Authentication token does not match', HttpStatus.FORBIDDEN);
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { ...user }: any = decoded?.payload;
+      return user;
+    } catch (e) {
+      if (e instanceof TokenExpiredError) {
+        throw new BadRequestException('Authentication token expired');
+      }
+      throw e;
     }
-    const { ...user }: any = decoded?.payload;
-    return user;
   }
 }

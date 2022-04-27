@@ -31,7 +31,10 @@ export class ExternalRequest {
   }
 
   async getStaff() {
-    return await this.getData(`/staff`);
+    const header = {
+      ApiKey: process.env.HMBC_ATS_AUTH_KEY,
+    };
+    return await this.getData(`/staff`, header);
   }
 
   async getReason() {
