@@ -238,12 +238,6 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({ job, milestone, handleSub
 
                     <span className='col-span-12 sm:col-span-6 lg:col-span-4 pr-1 md:pr-2'>
                       <Field name='effective_date' label='Effective Date' type='date' />
-                      {/*<Field name='effective_date' label='Effective Date' component={({ field, form }: FieldProps) => (*/}
-                      {/*  <DatePicker*/}
-                      {/*    selected={field.value && new Date(field.value)}*/}
-                      {/*    onChange={val => form.setFieldValue(field.name, val)}*/}
-                      {/*  />*/}
-                      {/*)}/>*/}
                     </span>
                   </>
                 ) : null}
