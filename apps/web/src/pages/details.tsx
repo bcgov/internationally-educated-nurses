@@ -12,6 +12,7 @@ import historyIcon from '@assets/img/history.svg';
 import { MilestoneTable } from 'src/components/milestone-logs/MilestoneTable';
 import withAuth from 'src/components/Keycloak';
 import Link from 'next/link';
+import { IEN_EVENTS, emitter } from '../services/event-emitter';
 
 // convert alpha 2 code for countries to full name
 const convertCountryCode = (code: string | undefined) => {
@@ -24,34 +25,38 @@ const convertCountryCode = (code: string | undefined) => {
 };
 
 const Details = () => {
-  const [applicant, setApplicant] = useState<ApplicantRO>();
+  const [applicant, setApplicant] = useState<ApplicantRO>({} as ApplicantRO);
   const [currentTab, setCurrentTab] = useState(0);
   const [milestones, setMilestones] = useState<ApplicantStatusAuditRO[]>([]);
 
   const router = useRouter();
-  const applicantId = router.query.id;
+  const applicantId = router.query.id as string;
 
   const selectDefaultLandingTab = (status_id?: number) => {
     if (currentTab) return;
     setCurrentTab(status_id ? +`${status_id}`.charAt(0) : 1);
   };
 
+  const fetchApplicant = async () => {
+    const applicantData = await getApplicant(applicantId);
+    if (applicantData) {
+      setApplicant(applicantData);
+    }
+    selectDefaultLandingTab(applicantData?.status?.id);
+  };
+
   useEffect(() => {
     if (router.isReady) {
-      if (applicantId !== undefined) {
-        const getApplicantData = async (id: string) => {
-          const applicantData = await getApplicant(id);
-
-          if (applicantData) {
-            setApplicant(applicantData);
-          }
-          selectDefaultLandingTab(applicantData?.status?.id);
-        };
-
-        getApplicantData(applicantId as string);
-      }
+      fetchApplicant();
     }
   }, [router, applicantId]);
+
+  useEffect(() => {
+    emitter.on(IEN_EVENTS.UPDATE_JOB, fetchApplicant);
+    return () => {
+      emitter.off(IEN_EVENTS.UPDATE_JOB, fetchApplicant);
+    };
+  }, []);
 
   const filterMilestones = () => {
     const audits =

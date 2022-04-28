@@ -996,6 +996,7 @@ __metadata:
     eslint-config-next: 12.0.4
     eslint-plugin-jest-dom: 3.9.2
     eslint-plugin-testing-library: 5.0.0
+    eventemitter3: 4.0.7
     formik: 2.2.9
     identity-obj-proxy: 3.0.0
     jest: 27.4.2
@@ -6312,6 +6313,13 @@ __metadata:
   version: 6.4.5
   resolution: "eventemitter2@npm:6.4.5"
   checksum: 84504f9cf0cc30205cdd46783fe9df3733435e5097f13070b678023110b5ef07847651808ae280cd94c42cd5976880211c7a40321a8ff8fa56f7c5f9c5c11960
+  languageName: node
+  linkType: hard
+
+"eventemitter3@npm:4.0.7":
+  version: 4.0.7
+  resolution: "eventemitter3@npm:4.0.7"
+  checksum: 1875311c42fcfe9c707b2712c32664a245629b42bb0a5a84439762dd0fd637fc54d078155ea83c2af9e0323c9ac13687e03cfba79b03af9f40c89b4960099374
   languageName: node
   linkType: hard
 
