@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import { Entity, Column, OneToMany, PrimaryColumn, ManyToOne } from 'typeorm';
 import { IENApplicantStatusAudit } from './ienapplicant-status-audit.entity';
 import { IENApplicant } from './ienapplicant.entity';
@@ -12,6 +13,10 @@ export class IENApplicantStatus {
 
   @Column('varchar', { nullable: true })
   party?: string;
+
+  @Column('varchar', { nullable: true })
+  @Exclude()
+  full_name?: string;
 
   @ManyToOne(() => IENApplicantStatus, status => status.id)
   parent?: IENApplicantStatus;

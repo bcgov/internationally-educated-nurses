@@ -10,7 +10,7 @@ export class ExternalRequest {
     this.baseurl = process.env.HMBC_ATS_BASE_URL || `https://ien.heabc.bc.ca`;
     this.api_instance = axios.create({
       baseURL: this.baseurl,
-      timeout: 3000,
+      timeout: 50000,
     });
   }
 
@@ -45,10 +45,10 @@ export class ExternalRequest {
     return await this.getData(`/Milestone`);
   }
 
-  async getApplicants() {
+  async getApplicants(url: string) {
     const header = {
       ApiKey: process.env.HMBC_ATS_AUTH_KEY,
     };
-    return await this.getData(`/Applicant`, header);
+    return await this.getData(url, header);
   }
 }

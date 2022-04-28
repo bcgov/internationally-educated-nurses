@@ -9,6 +9,10 @@ export class IENUsers {
   @Column('varchar')
   name!: string;
 
+  @Column('varchar', { nullable: true })
+  @Exclude()
+  email?: string;
+
   // description: User's unique id from authentication system
   @Index({ unique: true })
   @Column('varchar', { nullable: true })

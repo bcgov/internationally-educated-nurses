@@ -78,10 +78,12 @@ export class ExternalAPIService {
     try {
       const data = await this.external_request.getHa();
       if (Array.isArray(data)) {
-        const listHa = data.map((item: { title: string; name: any }) => {
-          item.title = item.name;
-          delete item.name;
-          return item;
+        const listHa = data.map(item => {
+          return {
+            id: item.id,
+            title: item.name,
+            abbreviation: item?.abbreviation,
+          };
         });
         await this.ienHaPcnRepository.upsert(listHa, ['id']);
       }
@@ -98,7 +100,14 @@ export class ExternalAPIService {
     try {
       const data = await this.external_request.getStaff();
       if (Array.isArray(data)) {
-        await this.ienUsersRepository.upsert(data, ['id']);
+        const listUsers = data.map(item => {
+          return {
+            id: item.id,
+            name: item.name,
+            email: item?.email,
+          };
+        });
+        await this.ienUsersRepository.upsert(listUsers, ['id']);
       }
     } catch (e) {
       this.logger.log(`Error in saveUsers(): ${e}`);
@@ -138,8 +147,20 @@ export class ExternalAPIService {
   cleanAndFilterMilestone(data: any) {
     return data.reduce(
       (
-        filtered: { parent: number; id: string | number; status: string; party: string }[],
-        item: { category: string; id: string | number; name: string; party: string },
+        filtered: {
+          parent: number;
+          id: string | number;
+          status: string;
+          party: string;
+          full_name: string;
+        }[],
+        item: {
+          category: string;
+          id: string | number;
+          name: string;
+          party: string;
+          full_name: string;
+        },
       ) => {
         const category = getMilestoneCategory(item.category);
         if (category && category !== 10003) {
@@ -148,6 +169,7 @@ export class ExternalAPIService {
             status: item.name,
             party: item.party,
             parent: category,
+            full_name: item?.full_name,
           });
         }
         return filtered;
@@ -156,13 +178,91 @@ export class ExternalAPIService {
     );
   }
 
+  createParallelRequestRun(input: {
+    parallel_requests: number;
+    per_page: number;
+    offset: number;
+    from_date?: string | null;
+    to_date?: string | null;
+  }) {
+    const { parallel_requests, per_page, from_date, to_date } = input;
+    let { offset } = input;
+    const pages = [];
+
+    for (let i = 0; i < parallel_requests; i++) {
+      pages.push(
+        this.external_request.getApplicants(
+          `/Applicant?next=${per_page}&offset=${offset}&from=${from_date}&to=${to_date}`,
+        ),
+      );
+      this.logger.log(
+        `/Applicant?next=${per_page}&offset=${offset}&from=${from_date}&to=${to_date}`,
+      );
+      offset += per_page;
+    }
+    return pages;
+  }
+
   /**
    * fetch and upsert applicant details
    */
-  async saveApplicant(): Promise<void> {
+  async saveApplicant(from?: string, to?: string): Promise<void> {
     try {
-      const data = await this.external_request.getApplicants();
-      await this.createBulkApplicants(data);
+      /**
+       * We want to sync yesterday's data on everyday basis
+       * On daily basis we will use auto generated from and to date
+       * If we pass from-to date, It will sync data between given dates.
+       * That helps to import data on any environment and correct past data anytime.
+       */
+      const yesterday = new Date();
+      yesterday.setDate(new Date().getDate() - 1);
+      const from_date = from ? from : yesterday.toISOString().slice(0, 10);
+      const to_date = to ? to : new Date().toISOString().slice(0, 10);
+      const parallel_requests = 5;
+      const per_page = 50;
+      let offset = 0;
+      let is_next = true;
+      let pages: any = [];
+      let newData: any[] = [];
+      /**
+       * Here we do not have the total page count and the total number of records that we have to fetch.
+       * We will run ${parallel_requests} numbers parallel requests. It helps o reduce fetch time.
+       * The higher number of records per page does not perform well due to external server limitations.
+       * So set up a few default values like five(5) pages and 50 records per page simultaneously.
+       * A developer responsible for an external API on HMBC ATS data has verified these parameters' values.
+       */
+      while (is_next) {
+        is_next = false; // It will set true if next page is available.
+        const input = {
+          parallel_requests,
+          per_page,
+          offset,
+          from_date,
+          to_date,
+        };
+        pages = pages.concat(this.createParallelRequestRun(input));
+        let temp: any[] = [];
+        await Promise.all(pages).then(res => {
+          res.forEach(r => {
+            this.logger.log(`${temp.length}, ${Array.isArray(r) ? r.length : 0}`);
+            temp = temp.concat(r);
+          });
+        });
+        this.logger.log(`temp ${temp.length} and ${parallel_requests * per_page}`);
+        // let's check if next pages are available
+        if (temp.length >= parallel_requests * per_page) {
+          is_next = true;
+          offset += parallel_requests * per_page;
+        }
+        // Cleanup & set data for the next iteration
+        newData = newData.concat(temp);
+        temp = [];
+        pages = [];
+      }
+
+      this.logger.log(`prosessing ${newData.length} applicants record now`);
+      await this.createBulkApplicants(newData);
+      this.logger.log('Done!');
     } catch (e) {
       this.logger.error(e);
     }
@@ -203,8 +303,7 @@ export class ExternalAPIService {
       const processed_applicant = await this.ienapplicantRepository.upsert(applicants, [
         'applicant_id',
       ]);
-      this.logger.log(`processed_applicant`);
-      this.logger.log(processed_applicant.raw);
+      this.logger.log(`processed applicants`);
       const mappedApplicantList = processed_applicant?.raw.map((item: { id: string | number }) => {
         return item.id;
       });
@@ -221,9 +320,10 @@ export class ExternalAPIService {
             .orIgnore(`("status_id", "applicant_id", "start_date") WHERE job_id IS NULL`)
             .execute();
           this.logger.log(`updatedstatus`);
-          this.logger.log(updatedstatus.raw);
+          this.logger.log(`milestone count ${milestones.length}`);
+          this.logger.log(`updatedstatus.raw count ${updatedstatus.raw.length}`);
         } catch (e) {
-          this.logger.log(`milestone upsert`);
+          this.logger.log(`milestone upsert error`);
           this.logger.error(e);
         }
       }
@@ -244,7 +344,7 @@ export class ExternalAPIService {
     const { users, ha } = await this.getApplicantMasterData();
     return data.map(
       (a: {
-        health_authorities: { title: string; id: number | string }[] | undefined;
+        health_authorities: { title: string; id: number | string; name?: string }[] | undefined;
         assigned_to: { id: string | number; name: string }[] | undefined;
         registration_date: string;
         applicant_id: string | number;
@@ -252,18 +352,23 @@ export class ExternalAPIService {
         last_name: string;
         email_address: string;
         phone_number: string;
-        country_of_citizenship: string[] | string;
+        countries_of_citizenship: string[] | string;
         country_of_residence: string;
         bccnm_license_number: string;
         pr_status: string;
         nursing_educations: any;
         notes: any;
+        created_date: string;
+        updated_date: string;
       }) => {
         let health_authorities = null;
         if (a.health_authorities && a.health_authorities != undefined) {
           health_authorities = a.health_authorities.map(
-            (h: { title: string; id: number | string }) => {
+            (h: { title: string; id: number | string; name?: string }) => {
               h.title = ha[`${h.id}`].title;
+              if (h.hasOwnProperty('name')) {
+                delete h.name;
+              }
               return h;
             },
           );
@@ -278,10 +383,10 @@ export class ExternalAPIService {
         }
 
         let citizenship = null;
-        if (a.country_of_citizenship && Array.isArray(a.country_of_citizenship)) {
-          citizenship = a.country_of_citizenship;
+        if (a.countries_of_citizenship && Array.isArray(a.countries_of_citizenship)) {
+          citizenship = a.countries_of_citizenship;
         } else {
-          citizenship = [a.country_of_citizenship];
+          citizenship = a.countries_of_citizenship ? [a.countries_of_citizenship] : null;
         }
 
         return {
@@ -291,17 +396,19 @@ export class ExternalAPIService {
           phone_number: a.phone_number,
           registration_date: new Date(a.registration_date),
           country_of_citizenship: citizenship,
-          country_of_residence: a.country_of_residence,
+          country_of_residence: a?.country_of_residence,
           bccnm_license_number: a?.bccnm_license_number,
           pr_status: a?.pr_status,
-          nursing_educations: a.nursing_educations,
+          nursing_educations: a?.nursing_educations,
           health_authorities: health_authorities,
-          notes: a.notes,
+          notes: a?.notes,
           assigned_to: assigned_to,
           additional_data: {
             first_name: a.first_name,
             last_name: a.last_name,
           },
+          created_date: a.created_date,
+          updated_date: a.updated_date,
         };
       },
     );
@@ -329,6 +436,7 @@ export class ExternalAPIService {
    * @returns object that use in upsert milestone/status
    */
   async mapMilestones(data: any, mappedApplicantList: string[]) {
+    const { users } = await this.getApplicantMasterData();
     const savedApplicants = await this.ienapplicantRepository.findByIds(mappedApplicantList);
     const applicantIdsMapping: any = {};
     const milestones: any = [];
@@ -336,7 +444,8 @@ export class ExternalAPIService {
       savedApplicants.forEach(item => {
         applicantIdsMapping[`${item.applicant_id}`] = item.id;
       });
-      const allowedMilestones = await this.allowedMilestones();
+      const allowedMilestones: number[] = await this.allowedMilestones();
+      this.logger.log({ allowedMilestones });
       data.forEach(
         (item: {
           applicant_id: string | number;
@@ -347,18 +456,21 @@ export class ExternalAPIService {
           if (item.hasOwnProperty('milestones')) {
             const existingMilestones = item.milestones;
             if (Array.isArray(existingMilestones)) {
-              existingMilestones.forEach(m => {
-                if (m.id in allowedMilestones) {
+              existingMilestones.forEach(async m => {
+                if (allowedMilestones.includes(m.id)) {
                   const temp: any = {
                     status: m.id,
                     start_date: m.start_date,
                     created_date: m.created_date,
                     updated_date: m.created_date,
                     applicant: tableId,
+                    notes: m?.note,
                     added_by: null,
                   };
                   if ('added_by' in m && m.added_by > 0) {
-                    temp['added_by'] = m.added_by;
+                    if (users[m.added_by]) {
+                      temp['added_by'] = m.added_by;
+                    }
                   }
                   if ('reason_id' in m) {
                     temp['reason'] = m.reason_id;
@@ -370,6 +482,8 @@ export class ExternalAPIService {
                     temp['effective_date'] = m.effective_date;
                   }
                   milestones.push(temp);
+                } else {
+                  this.logger.log(`rejected Id ${m.id}`);
                 }
               });
             }
