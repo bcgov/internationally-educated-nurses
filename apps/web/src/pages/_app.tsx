@@ -49,6 +49,11 @@ function App({ Component, pageProps }: AppProps) {
               <MenuBar />
               <main className='flex flex-grow w-full justify-center'>
                 <Component {...pageProps} />
+                {/**  
+                In case of maintenence
+                
+                <Maintenance /> 
+                 * */}
               </main>
               <Footer />
             </div>

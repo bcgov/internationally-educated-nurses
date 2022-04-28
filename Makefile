@@ -13,6 +13,8 @@ export POSTGRES_USERNAME ?= freshworks
 export CHES_CLIENT_ID ?= IEN_SERVICE_CLIENT
 export MAIL_FROM ?= IENDoNotReply@gov.bc.ca
 
+export MAINTENENCE = 1
+
 # Integration testing variables
 export TEST_POSTGRES_HOST := localhost
 export TEST_POSTGRES_USERNAME := freshworks
