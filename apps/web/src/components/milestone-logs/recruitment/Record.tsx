@@ -32,7 +32,6 @@ export const Record: React.FC<RecordProps> = ({ job, update }) => {
   // is not included in response when a new record gets created and only gets initialized on refresh
   // which prevents creation of milestones for new record
   const {
-    id,
     ha_pcn,
     job_id,
     job_location,
@@ -148,6 +147,7 @@ export const Record: React.FC<RecordProps> = ({ job, update }) => {
             {jobMilestones &&
               jobMilestones.map(mil => (
                 <EditMilestones
+                  job={job}
                   key={mil.id}
                   milestone={mil}
                   handleSubmit={values => handleUpdateMilestone(mil.id, values)}
@@ -155,7 +155,7 @@ export const Record: React.FC<RecordProps> = ({ job, update }) => {
               ))}
             <AddMilestones
               applicantId={applicantId as string}
-              jobId={id}
+              job={job}
               setJobMilestones={setJobMilestones}
             />
           </div>

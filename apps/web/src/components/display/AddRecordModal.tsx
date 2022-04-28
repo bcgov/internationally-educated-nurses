@@ -41,6 +41,16 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
     onClose(data);
   };
 
+  const validatePostDate = (value: string) => {
+    const milestoneDates = job?.status_audit?.map(s => s.start_date).sort();
+    if (milestoneDates?.length && dayjs(milestoneDates[0]).diff(value) < 0) {
+      return 'Date must be earlier than milestone start dates. ';
+    }
+    if (dayjs().diff(value) < 0) {
+      return 'Date must be a past date';
+    }
+  };
+
   //@todo change any type
   const initialValues: IENApplicantJobCreateUpdateDTO = {
     ha_pcn: `${job?.ha_pcn?.id || ''}`,
@@ -127,7 +137,12 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
                   <Field name='recruiter_name' label='Recruiter Name' type='text' />
                 </div>
                 <div className='mb-3 col-span-2'>
-                  <Field name='job_post_date' label='Date Job Was First Posted' type='date' />
+                  <Field
+                    name='job_post_date'
+                    label='Date Job Was First Posted'
+                    type='date'
+                    validate={val => validatePostDate(val)}
+                  />
                 </div>
                 <span className='border-b-2 col-span-4 mt-2'></span>
                 <div className='col-span-4 flex items-center justify-between'>
