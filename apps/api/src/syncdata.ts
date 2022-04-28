@@ -24,7 +24,7 @@ export const handler: Handler = async (event, context: Context) => {
         appLogger.log('Start applicant data import...');
         let from = undefined;
         let to = undefined;
-        const regex = new RegExp(/^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$/); //yyyy-mm-dd
+        const regex = new RegExp(/^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12]\d{1}|3[01])$/); //yyyy-mm-dd
         if (event.hasOwnProperty('from') && regex.test(event.from)) {
           from = event.from;
         }

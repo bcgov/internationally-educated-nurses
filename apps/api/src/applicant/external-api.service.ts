@@ -79,12 +79,11 @@ export class ExternalAPIService {
       const data = await this.external_request.getHa();
       if (Array.isArray(data)) {
         const listHa = data.map(item => {
-          const temp = {
+          return {
             id: item.id,
             title: item.name,
             abbreviation: item?.abbreviation,
           };
-          return temp;
         });
         await this.ienHaPcnRepository.upsert(listHa, ['id']);
       }
@@ -102,12 +101,11 @@ export class ExternalAPIService {
       const data = await this.external_request.getStaff();
       if (Array.isArray(data)) {
         const listUsers = data.map(item => {
-          const temp = {
+          return {
             id: item.id,
             name: item.name,
             email: item?.email,
           };
-          return temp;
         });
         await this.ienUsersRepository.upsert(listUsers, ['id']);
       }
@@ -448,7 +446,6 @@ export class ExternalAPIService {
       });
       const allowedMilestones: number[] = await this.allowedMilestones();
       this.logger.log({ allowedMilestones });
-      const rejectedIds: number[] = [0];
       data.forEach(
         (item: {
           applicant_id: string | number;
@@ -486,7 +483,7 @@ export class ExternalAPIService {
                   }
                   milestones.push(temp);
                 } else {
-                  rejectedIds.push(m.id);
+                  this.logger.log(`rejected Id ${m.id}`);
                 }
               });
             }
