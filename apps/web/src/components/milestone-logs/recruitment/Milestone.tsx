@@ -29,8 +29,6 @@ const getInitialValues = (
   status?: ApplicantStatusAuditRO,
 ): IENApplicantAddStatusDTO | IENApplicantUpdateStatusDTO => ({
   status: `${status?.status?.id || ''}`,
-  job_id: `${status?.job?.job_id || ''}`,
-  added_by: `${status?.added_by || ''}`,
   start_date: `${status?.start_date || dayjs().format('YYYY-MM-DD')}`,
   notes: `${status?.notes || ''}`,
   reason: `${status?.reason?.id || ''}`,
@@ -51,9 +49,7 @@ export const AddMilestones: React.FC<AddMilestoneProps> = ({
   setJobMilestones,
 }) => {
   const handleSubmit = async (values: any, { resetForm }: any) => {
-    // TODO: fix added_by field
-    values.job_id = job.job_id;
-    values.added_by = '1';
+    values.job_id = `${job.id}`;
 
     if (values.status !== '304' && values.status !== '305') {
       values.effective_date = undefined;
@@ -63,7 +59,7 @@ export const AddMilestones: React.FC<AddMilestoneProps> = ({
 
     // get updated milestones
     if (data && data.id) {
-      const reFetchData = await getJobAndMilestones(applicantId, { job_id: job.job_id });
+      const reFetchData = await getJobAndMilestones(applicantId, { job_id: job.id });
 
       if (reFetchData) {
         const [jobs] = reFetchData;

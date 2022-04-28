@@ -16,6 +16,7 @@ import editIcon from '@assets/img/edit.svg';
 import dotIcon from '@assets/img/dot.svg';
 import { AddRecordModal } from '../../display/AddRecordModal';
 import { updateMilestone } from '@services';
+import { emitter, IEN_EVENTS } from '../../../services/event-emitter';
 
 interface RecordProps {
   job: ApplicantJobRO;
@@ -104,7 +105,13 @@ export const Record: React.FC<RecordProps> = ({ job, update }) => {
       const index = jobMilestones.findIndex(m => m.id === id);
       if (index >= 0) jobMilestones.splice(index, 1, milestone);
       setJobMilestones([...jobMilestones]);
+      emitter.emit(IEN_EVENTS.UPDATE_JOB);
     }
+  };
+
+  const handleNewMilestones = (milestones: ApplicantStatusAuditRO[]) => {
+    setJobMilestones(milestones);
+    emitter.emit(IEN_EVENTS.UPDATE_JOB);
   };
 
   return (
@@ -156,7 +163,7 @@ export const Record: React.FC<RecordProps> = ({ job, update }) => {
             <AddMilestones
               applicantId={applicantId as string}
               job={job}
-              setJobMilestones={setJobMilestones}
+              setJobMilestones={handleNewMilestones}
             />
           </div>
         }
