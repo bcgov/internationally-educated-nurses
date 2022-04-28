@@ -8,6 +8,7 @@ export interface ButtonProps {
   type?: 'submit' | 'reset' | 'button';
   disabled?: boolean;
   forModal?: boolean;
+  className?: string;
 }
 
 export const buttonColor: Record<string, string> = {
@@ -26,12 +27,13 @@ export const modalButtonBase = `inline-flex justify-center items-center rounded 
                               focus:ring-2 focus:ring-offset-2 sm:mt-0 sm:text-sm`;
 
 export const Button: React.FC<ButtonProps> = props => {
-  const { variant, type, children, disabled, loading, forModal, onClick } = props;
+  const { variant, type, children, disabled, loading, forModal, className, onClick } = props;
   return (
     <button
       onClick={onClick}
       type={type}
       className={`
+        ${className}
         ${buttonColor[variant]}
         ${forModal ? modalButtonBase : variant !== 'link' ? buttonBase : ''}
       `}
