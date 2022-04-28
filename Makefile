@@ -264,10 +264,11 @@ deploy-api:
 	aws lambda update-function-code --function-name ien-$(ENV_NAME)-api --zip-file fileb://./terraform/build/api.zip --region $(AWS_REGION)
 	aws lambda update-function-code --function-name ien-$(ENV_NAME)-syncdata --zip-file fileb://./terraform/build/api.zip --region $(AWS_REGION)
 
-deploy-all: sync-app deploy-api
+deploy-all: sync-app backup-db deploy-api
 	@echo "Deploying Webapp and API"
 
 backup-db:
+	@echo "Creating a database snapshot"
 	aws rds create-db-cluster-snapshot --db-cluster-identifier ien-$(ENV_NAME)-db --db-cluster-snapshot-identifier  ien-$(ENV_NAME)-db-snapshot-$(COMMIT_SHA)
 
 # ===================================
