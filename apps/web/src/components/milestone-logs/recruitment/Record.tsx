@@ -1,11 +1,11 @@
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
 import { buttonBase, buttonColor, DetailsItem, Disclosure } from '@components';
-import { AddMilestones, EditMilestones } from './Milestone';
+import { AddMilestone, EditMilestone } from './Milestone';
 import {
   ApplicantJobRO,
   ApplicantStatusAuditRO,
@@ -18,80 +18,62 @@ import { AddRecordModal } from '../../display/AddRecordModal';
 import { updateMilestone } from '@services';
 import { emitter, IEN_EVENTS } from '../../../services/event-emitter';
 
+dayjs.extend(duration);
+dayjs.extend(relativeTime);
+
 interface RecordProps {
   job: ApplicantJobRO;
   update: (record?: ApplicantJobRO) => void;
 }
 
+const COMPLETE_STATUSES = [305, 306, 307, 308];
+
 export const Record: React.FC<RecordProps> = ({ job, update }) => {
   const router = useRouter();
   const applicantId = router.query.id as string;
-  const [recordStatus, setRecordStatus] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
 
   // set status_audit to empty array on record create
   // is not included in response when a new record gets created and only gets initialized on refresh
   // which prevents creation of milestones for new record
-  const {
-    ha_pcn,
-    job_id,
-    job_location,
-    job_post_date,
-    job_title,
-    recruiter_name,
-    status_audit = [],
-  } = job;
+  const { ha_pcn, job_id, job_location, job_post_date, job_title, recruiter_name, status_audit } =
+    job;
 
-  const [jobMilestones, setJobMilestones] = useState<ApplicantStatusAuditRO[]>(status_audit || []);
-
-  // @todo - remove hard coded values
-  const completionIdArray = [305, 306, 307, 308];
-
-  useEffect(() => {
-    if (jobMilestones) {
-      lastMilestones();
-    }
-  }, [jobMilestones]);
-
-  // set status for Record, returns in ASC, need to grab last item in array
-  const lastMilestones = () => {
-    if (jobMilestones) {
-      if (jobMilestones[jobMilestones.length - 1] === undefined) {
-        return;
+  // sort milestones by start_date and status id
+  const getSortedMilestones = (milestones: ApplicantStatusAuditRO[]) => {
+    if (!milestones?.length) return [];
+    const sortedMilestones = [...milestones];
+    sortedMilestones.sort((a, b) => {
+      if (a.start_date === b.start_date) {
+        return a.status.id - b.status.id;
       }
-
-      const lastItem = jobMilestones.length - 1;
-      const statusId = jobMilestones[lastItem].status.id;
-
-      setRecordStatus(
-        completionIdArray.includes(statusId)
-          ? 'Complete - ' + jobMilestones[lastItem].status.status
-          : 'On Going',
-      );
-    }
+      return dayjs(a.start_date).diff(b.start_date);
+    });
+    return sortedMilestones;
   };
 
-  // get duration difference between previous milestones start date and new milestones start date
-  const getMilestoneDuration = () => {
-    dayjs.extend(duration);
-    dayjs.extend(relativeTime);
+  const [jobMilestones, setJobMilestones] = useState<ApplicantStatusAuditRO[]>(
+    getSortedMilestones(status_audit || []),
+  );
 
-    let endDate = new Date();
+  // set status for Record, returns in ASC, need to grab last item in array
+  const getRecordStatus = () => {
+    if (!jobMilestones.length) return;
 
-    if (jobMilestones) {
-      const lastItem = jobMilestones.length - 1;
+    const lastMilestone = jobMilestones[jobMilestones.length - 1];
+    const { id, status } = lastMilestone.status;
 
-      if (jobMilestones.length > 1) {
-        endDate = jobMilestones[lastItem - 1].start_date as Date;
-      }
+    const done = COMPLETE_STATUSES.includes(id);
+    return `${done ? 'Complete - ' : 'On Going - '} ${status}`;
+  };
 
-      const prevDate = dayjs(endDate);
-      const newDate = dayjs(jobMilestones[lastItem].start_date);
-      const dur = dayjs.duration(prevDate.diff(newDate)).humanize();
+  // time passed since the last milestone only for incomplete job competitions
+  const getMilestoneDuration = (): string => {
+    if (!jobMilestones.length) return '';
 
-      return dur;
-    }
-    return;
+    const lastItem = jobMilestones[jobMilestones.length - 1];
+
+    return dayjs.duration(dayjs(lastItem.start_date).diff(new Date())).humanize();
   };
 
   const handleModalClose = (record?: ApplicantJobRO) => {
@@ -104,13 +86,13 @@ export const Record: React.FC<RecordProps> = ({ job, update }) => {
     if (milestone) {
       const index = jobMilestones.findIndex(m => m.id === id);
       if (index >= 0) jobMilestones.splice(index, 1, milestone);
-      setJobMilestones([...jobMilestones]);
+      setJobMilestones(getSortedMilestones(jobMilestones));
       emitter.emit(IEN_EVENTS.UPDATE_JOB);
     }
   };
 
   const handleNewMilestones = (milestones: ApplicantStatusAuditRO[]) => {
-    setJobMilestones(milestones);
+    setJobMilestones(getSortedMilestones(milestones));
     emitter.emit(IEN_EVENTS.UPDATE_JOB);
   };
 
@@ -123,7 +105,7 @@ export const Record: React.FC<RecordProps> = ({ job, update }) => {
               <span className='font-bold text-black'>{ha_pcn.title}</span>
               <span className='text-sm text-bcBlueLink font-bold mr-3 ml-auto capitalize'>
                 <img src={dotIcon.src} alt='dot heading' className='inline-block mr-2' />
-                {recordStatus || 'On going'}
+                {getRecordStatus()}
               </span>
             </div>
             <div className='flex justify-between'>
@@ -150,21 +132,20 @@ export const Record: React.FC<RecordProps> = ({ job, update }) => {
               <img src={editIcon.src} alt='edit' className='mr-2' />
               Edit Details
             </button>
-            <AddRecordModal job={job} onClose={handleModalClose} visible={modalVisible} />
-            {jobMilestones &&
-              jobMilestones.map(mil => (
-                <EditMilestones
-                  job={job}
-                  key={mil.id}
-                  milestone={mil}
-                  handleSubmit={values => handleUpdateMilestone(mil.id, values)}
-                />
-              ))}
-            <AddMilestones
+            {jobMilestones.map(mil => (
+              <EditMilestone
+                job={job}
+                key={mil.id}
+                milestone={mil}
+                handleSubmit={values => handleUpdateMilestone(mil.id, values)}
+              />
+            ))}
+            <AddMilestone
               applicantId={applicantId as string}
               job={job}
               setJobMilestones={handleNewMilestones}
             />
+            <AddRecordModal job={job} onClose={handleModalClose} visible={modalVisible} />
           </div>
         }
       />
