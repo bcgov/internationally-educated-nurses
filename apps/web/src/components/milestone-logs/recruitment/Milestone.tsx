@@ -198,7 +198,7 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({ job, milestone, handleSub
                 <span className='col-span-12 sm:col-span-6 lg:col-span-3 pr-1 md:pr-2'>
                   <Field name='notes' label='Note' type='text' />
                 </span>
-                {/* Withdraw reason conditional */}
+                {/* Withdraw reason conditional field */}
                 {values.status === '305' ? (
                   <>
                     <span className='col-span-12 sm:col-span-6 lg:col-span-3 pr-1 md:pr-2'>
