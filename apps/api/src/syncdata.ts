@@ -22,7 +22,16 @@ export const handler: Handler = async (event, context: Context) => {
         await externalAPIService.saveData();
       } else if (event.path === 'applicant-data') {
         appLogger.log('Start applicant data import...');
-        await externalAPIService.saveApplicant();
+        let from = undefined;
+        let to = undefined;
+        const regex = new RegExp(/^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$/); //yyyy-mm-dd
+        if (event.hasOwnProperty('from') && regex.test(event.from)) {
+          from = event.from;
+        }
+        if (event.hasOwnProperty('to') && regex.test(event.to)) {
+          to = event.to;
+        }
+        await externalAPIService.saveApplicant(from, to);
       }
     }
   } catch (e) {
