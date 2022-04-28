@@ -278,6 +278,7 @@ export class IENApplicantService {
 
     // Let's check and updated latest status on applicant
     await this.ienapplicantUtilService.updateLatestStatusOnApplicant([applicant.id]);
+    await this.ienapplicantRepository.update(id, { updated_date: new Date() });
 
     delete status_audit.applicant;
     return status_audit;
@@ -334,6 +335,9 @@ export class IENApplicantService {
       status_audit.notes = notes;
     }
     await this.ienapplicantStatusAuditRepository.save(status_audit);
+    await this.ienapplicantRepository.update(status_audit.applicant.id, {
+      updated_date: new Date(),
+    });
 
     // Let's check and updated latest status on applicant
     await this.ienapplicantUtilService.updateLatestStatusOnApplicant([status_audit.applicant.id]);
