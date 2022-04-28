@@ -68,7 +68,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
       </Modal.Title>
       <div className='w-full'>
         <Formik initialValues={initialValues} onSubmit={handleSubmit} validate={newJobRecordSchema}>
-          {({ dirty, isValid }) => (
+          {({ isSubmitting }) => (
             <FormikForm>
               <div className='grid grid-cols-4 gap-4 bg-white rounded px-8 pt-6 pb-7 mb-4'>
                 <div className='mb-3 col-span-2'>
@@ -158,9 +158,10 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
                     variant='primary'
                     forModal={true}
                     type='submit'
-                    disabled={!dirty || !isValid}
+                    disabled={isSubmitting}
+                    loading={isSubmitting}
                   >
-                    Submit
+                    Create
                   </Button>
                 </div>
               </div>

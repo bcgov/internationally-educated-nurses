@@ -3,7 +3,7 @@ import createValidator from 'class-validator-formik';
 import dayjs from 'dayjs';
 import { Formik, Form as FormikForm, FormikHelpers, FieldProps } from 'formik';
 
-import { buttonBase, buttonColor, Field, getSelectStyleOverride } from '@components';
+import { Button, buttonBase, Field, getSelectStyleOverride } from '@components';
 import {
   IENApplicantAddStatusDTO,
   formatDate,
@@ -167,7 +167,7 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({ job, milestone, handleSub
           onSubmit={submit}
           validate={milestoneValidator}
         >
-          {({ dirty, isValid, values }) => (
+          {({ isSubmitting, values }) => (
             <FormikForm>
               <div className='grid grid-cols-9 gap-y-2 mb-4'>
                 <span className='col-span-12 sm:col-span-6 lg:col-span-3 pr-1 md:pr-2'>
@@ -249,12 +249,12 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({ job, milestone, handleSub
                   </span>
                 ) : null}
               </div>
-              <button
-                className={`px-3 ${
-                  milestone ? buttonColor.primary : buttonColor.outline
-                } ${buttonBase}`}
-                disabled={!dirty || !isValid}
+              <Button
+                className='px-3'
+                variant={milestone ? 'primary' : 'outline'}
+                disabled={isSubmitting}
                 type='submit'
+                loading={isSubmitting}
               >
                 {milestone ? (
                   'Save Changes'
@@ -263,14 +263,15 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({ job, milestone, handleSub
                     <img src={addIcon.src} alt='add' className='mr-2' /> Add Milestones
                   </>
                 )}
-              </button>
+              </Button>
               {milestone && (
-                <button
-                  className={`ml-2 px-7 border-2 ${buttonBase} ${buttonColor.outline} border-bcBluePrimary`}
+                <Button
+                  className='ml-2 px-7 border-2 border-bcBluePrimary'
+                  variant='outline'
                   onClick={onClose}
                 >
                   Cancel
-                </button>
+                </Button>
               )}
             </FormikForm>
           )}

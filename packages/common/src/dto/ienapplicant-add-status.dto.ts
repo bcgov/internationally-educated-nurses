@@ -27,7 +27,7 @@ export class IENApplicantAddStatusDTO {
 
   @ValidateIf(s => s.status === '305')
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Reason is required' })
   reason?: string;
 
   @IsString()

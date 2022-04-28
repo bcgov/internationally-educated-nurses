@@ -2,7 +2,7 @@ import { useState } from 'react';
 import ReactSelect from 'react-select';
 import { RecordTypeOptions, useGetAddRecordOptions } from '@services';
 import { JobFilterOptions } from '@ien/common';
-import { buttonBase, buttonColor } from '@components';
+import { Button } from '@components';
 import { getSelectStyleOverride } from '../../form';
 
 interface JobFilterProps {
@@ -48,12 +48,13 @@ export const JobFilters = ({ options, update }: JobFilterProps) => {
         isClearable
         className='w-80 min-w-full md:min-w-0 mx-1'
       />
-      <button
-        className={`ml-2 px-6 text-sm ${buttonColor.primary} ${buttonBase}`}
+      <Button
+        className='ml-2 px-6 text-sm'
         onClick={() => update({ ha_pcn: regions, job_title: specialties })}
+        variant='primary'
       >
         Apply
-      </button>
+      </Button>
     </div>
   );
 };
