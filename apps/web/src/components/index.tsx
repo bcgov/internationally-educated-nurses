@@ -10,6 +10,7 @@ export * from './Notice';
 export * from './Disclosure';
 export * from './Alert';
 export * from './DetailsItem';
+export * from './MenuBar';
 
 // Form Controls
 export * from './form';
