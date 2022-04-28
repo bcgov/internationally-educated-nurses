@@ -24,11 +24,16 @@ const convertCountryCode = (code: string | undefined) => {
 
 const Details = () => {
   const [applicant, setApplicant] = useState<ApplicantRO>();
-  const [currentTab, setCurrentTab] = useState(1);
+  const [currentTab, setCurrentTab] = useState(0);
   const [milestones, setMilestones] = useState<ApplicantStatusAuditRO[]>([]);
 
   const router = useRouter();
   const applicantId = router.query.id;
+
+  const selectDefaultLandingTab = (status_id?: number) => {
+    if (currentTab) return;
+    setCurrentTab(status_id ? +`${status_id}`.charAt(0) : 1);
+  };
 
   useEffect(() => {
     if (router.isReady) {
@@ -39,6 +44,7 @@ const Details = () => {
           if (applicantData) {
             setApplicant(applicantData);
           }
+          selectDefaultLandingTab(applicantData?.status?.id);
         };
 
         getApplicantData(applicantId as string);
@@ -154,7 +160,7 @@ const Details = () => {
           <img src={historyIcon.src} alt='history icon' />
           <h2 className='ml-2 font-bold text-bcBluePrimary text-xl'>Milestones Logs</h2>
         </div>
-        <HeaderTab tabs={milestoneTabs} tabIndex={currentTab} onTabClick={setCurrentTab} />
+        <HeaderTab tabs={milestoneTabs} tabIndex={currentTab || 1} onTabClick={setCurrentTab} />
         {logType[currentTab - 1]?.component}
       </div>
     </div>
