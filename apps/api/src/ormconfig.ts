@@ -7,7 +7,7 @@ dotenv.config();
 const config: PostgresConnectionOptions = {
   host: process.env.POSTGRES_HOST,
   type: 'postgres',
-  port: 5432,
+  port: +(process.env.PORTGRES_PORT || 5432),
   connectTimeoutMS: 5000,
   username: process.env.POSTGRES_USERNAME || 'freshworks',
   password: process.env.POSTGRES_PASSWORD,

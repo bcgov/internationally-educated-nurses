@@ -8,7 +8,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "jest"
+    "test": "jest",
+    "cypress": "cypress run",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run"
   },
   "dependencies": {
     "@babel/plugin-proposal-decorators": "7.17.8",
@@ -42,6 +45,8 @@
     "@types/react": "17.0.37",
     "autoprefixer": "10.4.0",
     "babel-jest": "27.4.2",
+    "cypress": "9.6.0",
+    "dotenv": "16.0.0",
     "eslint": "7.32.0",
     "eslint-config-next": "12.0.4",
     "eslint-plugin-jest-dom": "3.9.2",

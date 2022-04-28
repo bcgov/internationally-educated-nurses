@@ -3,5 +3,6 @@ module.exports = {
   plugins: ['testing-library', 'jest-dom'],
   rules: {
     '@next/next/no-img-element': 'off',
+    '@typescript-eslint/no-namespace': 'off',
   },
 };
