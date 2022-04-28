@@ -251,6 +251,13 @@ runs:
 	./terraform/scripts/runs.sh $(TFCTK) $(ENV_NAME)
 
 # ===================================
+# AWS Backup and Restore db instance
+# ===================================
+
+db-backup:
+	aws rds create-db-snapshot --db-instance-identifier ien-$(ENV_NAME)-db --db-snapshot-identifier ien-$(ENV_NAME)-db-$(COMMIT_SHA)
+
+# ===================================
 # AWS Deployments
 # ===================================
 

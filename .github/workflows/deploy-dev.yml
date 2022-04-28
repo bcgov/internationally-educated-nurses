@@ -45,6 +45,9 @@ jobs:
           role-to-assume: ${{ secrets.AWS_SA_ROLE_ARN }}
           role-duration-seconds: 900
           role-session-name: ci-deployment
+      
+      - name: Take Database Backup
+        run: make db-backup
 
       - name: Install dependencies
         run: yarn
