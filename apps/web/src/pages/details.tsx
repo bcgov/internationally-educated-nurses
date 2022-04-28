@@ -11,6 +11,7 @@ import detailIcon from '@assets/img/details.svg';
 import historyIcon from '@assets/img/history.svg';
 import { MilestoneTable } from 'src/components/milestone-logs/MilestoneTable';
 import withAuth from 'src/components/Keycloak';
+import Link from 'next/link';
 
 // convert alpha 2 code for countries to full name
 const convertCountryCode = (code: string | undefined) => {
@@ -77,9 +78,13 @@ const Details = () => {
 
   return (
     <div className='container w-full mx-6 xl:w-xl mb-4 px-4'>
-      <p className='text-xs text-gray-400 mt-3 mb-5'>
-        Manage Applicants / <span className='text-blue-800 font-bold'>Applicant Details</span>
-      </p>
+      <div className='text-xs mt-4 mb-5 font-bold'>
+        <Link href='/'>
+          <a className='text-bcGray hover:text-bcBlueLink hover:underline'>Manage Applicants</a>
+        </Link>
+        <span className='mx-3'>&gt;</span>
+        <span className='text-bcBlueLink'>Applicant Details</span>
+      </div>
       <h1 className='font-bold text-3xl'>
         {applicant.name} #{applicant.applicant_id ? applicant.applicant_id : 'NA'}
       </h1>
