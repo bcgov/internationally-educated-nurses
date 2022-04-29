@@ -12,6 +12,7 @@ import cookie from 'cookie';
 import { AuthProvider } from 'src/components/AuthContexts';
 import { KeycloakInstance } from 'keycloak-js';
 import { CachePolicies, Provider } from 'use-http';
+import { AuthClientTokens } from '@react-keycloak/core/lib/types';
 
 axios.defaults.baseURL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -22,7 +23,7 @@ const keycloakConfig = {
 };
 
 function App({ Component, pageProps }: AppProps) {
-  const handleTokens = (tokens: any) => {
+  const handleTokens = (tokens: AuthClientTokens) => {
     axios.defaults.headers.common['Authorization'] = `Bearer ${tokens.token}`;
   };
   return (

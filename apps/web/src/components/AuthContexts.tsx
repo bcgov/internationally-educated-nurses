@@ -3,6 +3,7 @@ import axios from 'axios';
 import { KeycloakInstance } from 'keycloak-js';
 import React, { useEffect, useState } from 'react';
 import { ValidRoles } from '@services';
+import { useRouter } from 'next/router';
 
 export interface UserType {
   id: string;
@@ -22,17 +23,24 @@ const AuthProvider = ({ children }: any) => {
   const [authUser, setAuthUser] = useState<UserType | undefined>(undefined);
   const [authUserLoading, setAuthUserLoading] = useState(false);
   const { keycloak } = useKeycloak<KeycloakInstance>();
+  const router = useRouter();
+
   const keycloakId = keycloak?.idTokenParsed?.sub;
 
+  const fetchData = async (id?: string) => {
+    if (!id) return;
+    setAuthUserLoading(true);
+    const user = await getUser(id);
+    setAuthUser(user);
+    setAuthUserLoading(false);
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      setAuthUserLoading(true);
-      const user = await getUser(keycloakId || '');
-      setAuthUser(user);
-      setAuthUserLoading(false);
-    };
     if (keycloakId) {
-      fetchData();
+      fetchData(keycloakId);
+    } else if (authUser) {
+      setAuthUser(undefined);
+      router.push('/login');
     }
   }, [keycloakId]);
 

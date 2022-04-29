@@ -11,7 +11,6 @@ import detailIcon from '@assets/img/details.svg';
 import historyIcon from '@assets/img/history.svg';
 import { MilestoneTable } from 'src/components/milestone-logs/MilestoneTable';
 import withAuth from 'src/components/Keycloak';
-import Link from 'next/link';
 import { IEN_EVENTS, emitter } from '../services/event-emitter';
 
 // convert alpha 2 code for countries to full name
@@ -81,12 +80,16 @@ const Details = () => {
     { component: <MilestoneTable milestones={milestones} /> },
   ];
 
+  const backToApplicants = () => {
+    router.back();
+  };
+
   return (
     <div className='container w-full mx-6 xl:w-xl mb-4 px-4'>
       <div className='text-xs mt-4 mb-5 font-bold'>
-        <Link href='/'>
+        <button onClick={backToApplicants}>
           <a className='text-bcGray hover:text-bcBlueLink hover:underline'>Manage Applicants</a>
-        </Link>
+        </button>
         <span className='mx-3'>&gt;</span>
         <span className='text-bcBlueLink'>Applicant Details</span>
       </div>
