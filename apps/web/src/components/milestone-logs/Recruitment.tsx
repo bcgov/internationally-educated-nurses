@@ -77,9 +77,9 @@ export const Recruitment: React.FC = () => {
     setPageSize(options.pageSize);
   };
 
-  const handleFilters = (filters: JobFilterOptions) => {
+  const handleFilters = (filterBy: JobFilterOptions) => {
     setPageIndex(1);
-    setFilters(filters);
+    setFilters(filterBy);
   };
 
   return (

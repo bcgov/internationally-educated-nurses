@@ -28,6 +28,7 @@ export const modalButtonBase = `inline-flex justify-center items-center rounded 
 
 export const Button: React.FC<ButtonProps> = props => {
   const { variant, type, children, disabled, loading, forModal, className, onClick } = props;
+
   return (
     <button
       onClick={onClick}
@@ -35,7 +36,7 @@ export const Button: React.FC<ButtonProps> = props => {
       className={`
         ${className}
         ${buttonColor[variant]}
-        ${forModal ? modalButtonBase : variant !== 'link' ? buttonBase : ''}
+        ${forModal ? modalButtonBase : buttonBase}
       `}
       disabled={disabled}
     >

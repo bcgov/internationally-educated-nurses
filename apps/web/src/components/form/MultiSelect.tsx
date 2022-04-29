@@ -26,7 +26,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = props => {
           onChange={value =>
             form.setFieldValue(
               name,
-              value.map(value => ({ id: value.value, ...value })), // also set the name field to match DTOs
+              value.map(val => ({ id: val.value, ...val })), // also set the name field to match DTOs
             )
           }
           onBlur={field.onBlur}

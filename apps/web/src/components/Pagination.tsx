@@ -28,12 +28,12 @@ export const Pagination = (props: PaginationProps) => {
   const start = startIndex > total ? 0 : startIndex;
   const end = pageIndex * pageSize > total ? total : pageIndex * pageSize;
 
-  const goToPage = (pageIndex: number) => {
-    onChange({ pageSize, pageIndex, total });
+  const goToPage = (pgIndex: number) => {
+    onChange({ pageSize, pageIndex: pgIndex, total });
   };
 
-  const changePageSize = (pageSize: number) => {
-    onChange({ pageSize, pageIndex, total });
+  const changePageSize = (pgSize: number) => {
+    onChange({ pageSize: pgSize, pageIndex, total });
   };
 
   return (
