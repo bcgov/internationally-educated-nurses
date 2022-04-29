@@ -51,7 +51,6 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
     }
   };
 
-  //@todo change any type
   const initialValues: IENApplicantJobCreateUpdateDTO = {
     ha_pcn: `${job?.ha_pcn?.id || ''}`,
     job_id: `${job?.job_id || ''}`,

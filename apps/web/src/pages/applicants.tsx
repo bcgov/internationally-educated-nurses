@@ -38,14 +38,14 @@ const Applicants = () => {
     return getApplicants(options);
   };
 
-  const searchByName = async (name: string, limit: number) => {
-    return searchApplicants({ name, limit }).then(({ data }) => data);
+  const searchByName = async (searchName: string, searchLimit: number) => {
+    return searchApplicants({ name: searchName, limit: searchLimit }).then(({ data }) => data);
   };
 
-  const handleKeywordChange = (name: string) => {
+  const handleKeywordChange = (searchName: string) => {
     setStatus(0);
     setPageIndex(1);
-    setName(name);
+    setName(searchName);
   };
 
   useEffect(() => {

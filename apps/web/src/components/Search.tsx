@@ -1,5 +1,4 @@
-import React from 'react';
-import { ChangeEvent, KeyboardEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, KeyboardEvent, useEffect, useState } from 'react';
 import searchIcon from '@assets/img/search.svg';
 import { ApplicantRO } from '@ien/common';
 
@@ -18,15 +17,15 @@ export const Search = (props: SearchProps) => {
   const { keyword, search, onChange, onSelect } = props;
 
   const [options, setOptions] = useState<ApplicantRO[]>([]);
-  const [name, setName] = useState(keyword || '');
+  const [searchName, setSearchName] = useState(keyword || '');
   const [delayedName, setDelayedName] = useState('');
   const [focus, setFocus] = useState(false);
   const inputRef = React.createRef<HTMLInputElement>();
 
   useEffect(() => {
-    const timer = setTimeout(() => setDelayedName(name), QUERY_DELAY);
+    const timer = setTimeout(() => setDelayedName(searchName), QUERY_DELAY);
     return () => clearTimeout(timer);
-  }, [name]);
+  }, [searchName]);
 
   useEffect(() => {
     if (!delayedName.trim()) return;
@@ -34,19 +33,19 @@ export const Search = (props: SearchProps) => {
   }, [delayedName, search]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setName(e.target.value);
+    setSearchName(e.target.value);
   };
 
   const handleEnter = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       inputRef.current?.blur();
-      onChange(name);
+      onChange(searchName);
     }
   };
 
-  const handleFocus = (focus: boolean) => {
+  const handleFocus = (inFocus: boolean) => {
     // without delay, redirection to detail page on selection won't work
-    setTimeout(() => setFocus(focus), FOCUS_OUT_DELAY);
+    setTimeout(() => setFocus(inFocus), FOCUS_OUT_DELAY);
   };
 
   return (
@@ -56,15 +55,15 @@ export const Search = (props: SearchProps) => {
         <input
           ref={inputRef}
           type='text'
-          value={name}
+          value={searchName}
           onChange={handleChange}
           onFocus={() => handleFocus(true)}
           onKeyDown={handleEnter}
           placeholder='Search by first name or last name'
           className='flex-grow focus:outline-none'
         />
-        {name && focus && (
-          <button className='flex-grow-0 text-bcBlueAccent ' onClick={() => onChange(name)}>
+        {searchName && focus && (
+          <button className='flex-grow-0 text-bcBlueAccent ' onClick={() => onChange(searchName)}>
             Show all results
           </button>
         )}

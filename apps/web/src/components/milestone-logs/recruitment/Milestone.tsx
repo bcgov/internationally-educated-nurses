@@ -24,7 +24,6 @@ import editIcon from '@assets/img/edit.svg';
 import calendarIcon from '@assets/img/calendar.svg';
 import ReactSelect from 'react-select';
 
-//@todo change any type
 const getInitialValues = (
   status?: ApplicantStatusAuditRO,
 ): IENApplicantAddStatusDTO | IENApplicantUpdateStatusDTO => ({
