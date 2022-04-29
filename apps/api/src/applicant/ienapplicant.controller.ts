@@ -169,22 +169,7 @@ export class IENApplicantController {
     try {
       return await this.ienapplicantService.addApplicantStatus(id, applicantStatus);
     } catch (e) {
-      this.logger.error(e);
-      if (e instanceof NotFoundException) {
-        throw e;
-      } else if (e instanceof QueryFailedError) {
-        if (e.message.indexOf('duplicate') !== -1) {
-          throw new BadRequestException(`Duplicate milestone with same date found!`);
-        }
-        throw new BadRequestException(e.message);
-      } else if (e instanceof BadRequestException) {
-        throw e;
-      } else {
-        // statements to handle any unspecified exceptions
-        throw new InternalServerErrorException(
-          'An unknown error occured while adding applicant status',
-        );
-      }
+      throw this._handleStatusException(e);
     }
   }
 
@@ -206,22 +191,7 @@ export class IENApplicantController {
     try {
       return await this.ienapplicantService.updateApplicantStatus(status_id, applicantStatus);
     } catch (e) {
-      this.logger.error(e);
-      if (e instanceof NotFoundException) {
-        throw e;
-      } else if (e instanceof QueryFailedError) {
-        if (e.message.indexOf('duplicate') !== -1) {
-          throw new BadRequestException(`Duplicate milestone with same date found!`);
-        }
-        throw new BadRequestException(e.message);
-      } else if (e instanceof BadRequestException) {
-        throw e;
-      } else {
-        // statements to handle any unspecified exceptions
-        throw new InternalServerErrorException(
-          'An unknown error occured while update applicant status',
-        );
-      }
+      throw this._handleStatusException(e);
     }
   }
 
@@ -319,6 +289,25 @@ export class IENApplicantController {
         // statements to handle any unspecified exceptions
         throw new InternalServerErrorException('An unknown error occured while fetching ');
       }
+    }
+  }
+
+  _handleStatusException(e: unknown) {
+    this.logger.error(e);
+    if (e instanceof NotFoundException) {
+      return e;
+    } else if (e instanceof QueryFailedError) {
+      if (e.message.indexOf('duplicate') !== -1) {
+        return new BadRequestException(`Duplicate milestone with same date found!`);
+      }
+      throw new BadRequestException(e.message);
+    } else if (e instanceof BadRequestException) {
+      return e;
+    } else {
+      // statements to handle any unspecified exceptions
+      return new InternalServerErrorException(
+        'An unknown error occured while update applicant status',
+      );
     }
   }
 }
