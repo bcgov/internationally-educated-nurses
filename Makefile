@@ -48,6 +48,8 @@ ifeq ($(ENV_NAME), prod)
 DOMAIN=
 BASTION_INSTANCE_ID = $(BASTION_INSTANCE_ID_PROD)
 DB_HOST = $(DB_HOST_PROD)
+NEXT_PUBLIC_AUTH_URL=https://common-logon.hlth.gov.bc.ca/auth
+BASTION_INSTANCE_ID = $(BASTION_INSTANCE_ID_PROD)
 endif
 
 ifeq ($(ENV_NAME), dev) 
