@@ -35,18 +35,3 @@ jobs:
 
       - name: Unit-test web package
         run: yarn workspace @ien/web test
-
-      - name: Build web package
-        run: yarn workspace @ien/web build
-
-      - name: Test web package cypress
-        uses: cypress-io/github-action@v2
-        with:
-          start: make run-test-backend
-          working-directory: ./
-          project: ./apps/web
-          wait-on: 'http://localhost:3000'
-        env:
-          E2E_TEST_USERNAME: '${{ secrets.E2E_TEST_USERNAME}}'
-          E2E_TEST_PASSWORD: '${{ secrets.E2E_TEST_PASSWORD}}'
-          AUTH_REALM: 'moh_applications'

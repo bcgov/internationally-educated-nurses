@@ -28,7 +28,7 @@ jobs:
       - name: Build dependencies
         run: yarn build
 
-      - name: Test web package cypress
+      - name: Run Cypress
         uses: cypress-io/github-action@v2
         with:
           start: make run-test-backend
