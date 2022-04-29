@@ -31,15 +31,11 @@ export const MilestoneTable = ({ milestones }: MilestoneTableProps) => {
     const { status } = audit.status;
     if (!status) return '';
 
-    const label = audit.status.party || '';
+    const label = audit.status.party || '-';
 
     return (
       <div className='flex flex-row'>
-        {label != '' ? (
-          <div className='bg-bcGrayLabel px-2 py-0.5 mr-2 text-xs text-white rounded'>{label}</div>
-        ) : (
-          ''
-        )}
+        <div className='bg-bcGrayLabel px-2 py-0.5 mr-2 text-xs text-white rounded'>{label}</div>
         <div className='text-ellipsis overflow-hidden ...'>{status}</div>
       </div>
     );
