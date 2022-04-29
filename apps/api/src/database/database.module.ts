@@ -14,7 +14,6 @@ import { IENStatusReason } from 'src/applicant/entity/ienstatus-reason.entity';
 import { IENUsers } from 'src/applicant/entity/ienusers.entity';
 import { EmployeeEntity } from 'src/employee/employee.entity';
 import { FormEntity } from 'src/form/entities/form.entity';
-import { SubmissionEntity } from 'src/submission/entity/submission.entity';
 import { LoggerOptions } from 'typeorm';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 
@@ -37,7 +36,6 @@ const getEnvironmentSpecificConfig = (env?: string) => {
         database: process.env.TEST_POSTGRES_DATABASE,
         entities: [
           EmployeeEntity,
-          SubmissionEntity,
           FormEntity,
           IENApplicant,
           IENApplicantAudit,

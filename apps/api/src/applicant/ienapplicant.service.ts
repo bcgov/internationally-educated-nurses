@@ -170,7 +170,7 @@ export class IENApplicantService {
       );
     }
     if (country_of_citizenship) {
-      if (country_of_citizenship && country_of_citizenship instanceof Array) {
+      if (country_of_citizenship instanceof Array) {
         applicant.country_of_citizenship = country_of_citizenship;
       } else {
         applicant.country_of_citizenship = [`${country_of_citizenship}`];
