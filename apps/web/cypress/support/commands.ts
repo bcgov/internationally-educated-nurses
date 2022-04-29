@@ -16,7 +16,6 @@ Cypress.Commands.add('login', () => {
   if (Cypress.env('realm') === 'moh_applications') {
     cy.get('li').contains('Login with Keycloak').click();
   }
-  cy.get('li').contains('Login with Keycloak').click();
   cy.get('#username').type(Cypress.env('username'));
   cy.get('#password').type(Cypress.env('password'));
   cy.get('#kc-login').click();
