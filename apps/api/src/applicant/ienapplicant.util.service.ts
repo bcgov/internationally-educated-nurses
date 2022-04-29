@@ -152,12 +152,12 @@ export class IENApplicantUtilService {
       relations: ['children'],
     });
     if (parent_status.length > 0) {
-      for (let i = 0; i < parent_status.length; i++) {
-        const children = parent_status[i].children;
-        for (let j = 0; j < children.length; j++) {
-          status_list.push(`${children[j].id}`);
-        }
-      }
+      parent_status.forEach(status => {
+        const children = status.children;
+        children.forEach(c => {
+          status_list.push(`${c.id}`);
+        });
+      });
     }
     return status_list;
   }
@@ -249,12 +249,12 @@ export class IENApplicantUtilService {
             end_date: data.start_date,
           };
           const list_status: IENApplicantStatusAudit[] = [];
-          for (let i = 0; i < previousStatus.length; i++) {
+          previousStatus.forEach(status => {
             list_status.push({
-              ...previousStatus[i],
+              ...status,
               ...updateData,
             });
-          }
+          });
           await this.ienapplicantStatusAuditRepository.save(list_status);
         }
       }

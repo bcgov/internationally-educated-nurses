@@ -42,7 +42,7 @@ export class IENMasterService {
   }
 
   async getHaPcn(): Promise<IENHaPcn[]> {
-    return await this.ienHaPcnRepository.find({
+    return this.ienHaPcnRepository.find({
       order: {
         title: 'ASC',
       },
@@ -50,7 +50,7 @@ export class IENMasterService {
   }
 
   async getUsers(): Promise<IENUsers[]> {
-    return await this.ienUsersRepository.find({
+    return this.ienUsersRepository.find({
       order: {
         name: 'ASC',
       },
@@ -58,7 +58,7 @@ export class IENMasterService {
   }
 
   async getEducation(): Promise<IENEducation[]> {
-    return await this.ienEducationListRepository.find({
+    return this.ienEducationListRepository.find({
       order: {
         title: 'ASC',
       },
@@ -66,7 +66,7 @@ export class IENMasterService {
   }
 
   async getJobTitles(): Promise<IENJobTitle[]> {
-    return await this.ienJobTitleRepository.find({
+    return this.ienJobTitleRepository.find({
       order: {
         title: 'ASC',
       },
@@ -74,7 +74,7 @@ export class IENMasterService {
   }
 
   async getJobLocations(): Promise<IENJobLocation[]> {
-    return await this.ienJobLoactionRepository.find({
+    return this.ienJobLoactionRepository.find({
       order: {
         title: 'ASC',
       },
@@ -82,7 +82,7 @@ export class IENMasterService {
   }
 
   async getStatusReasons(): Promise<IENStatusReason[]> {
-    return await this.ienStatusReasonRepository.find({
+    return this.ienStatusReasonRepository.find({
       order: {
         name: 'ASC',
       },

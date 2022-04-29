@@ -43,7 +43,7 @@ export class IENApplicantService {
   async getApplicants(
     filter: IENApplicantFilterAPIDTO,
   ): Promise<[data: IENApplicant[], count: number]> {
-    return await this.ienapplicantUtilService.applicantFilterQueryBuilder(filter);
+    return this.ienapplicantUtilService.applicantFilterQueryBuilder(filter);
   }
 
   /**
@@ -59,14 +59,14 @@ export class IENApplicantService {
     try {
       if (data && data.relation && data.relation !== '') {
         const relations_array = data.relation.split(',');
-        for (let i = 0; i < relations_array.length; i++) {
-          if (relations_array[i] in this.applicantRelations && relations_array[i].trim() != '') {
-            relations = relations.concat(this.applicantRelations[relations_array[i]]);
-            if (relations_array[i] === 'audit') {
+        relations_array.forEach((rel: string) => {
+          if (rel in this.applicantRelations && rel.trim() != '') {
+            relations = relations.concat(this.applicantRelations[rel]);
+            if (rel === 'audit') {
               is_status_audit = true;
             }
           }
-        }
+        });
       }
       applicant = await this.ienapplicantRepository.findOne(id, {
         relations: relations,
@@ -360,7 +360,7 @@ export class IENApplicantService {
     const { ha_pcn, job_title, job_location, ...data } = jobData;
     const job = this.ienapplicantJobRepository.create(data);
     job.applicant = applicant;
-    return await this.saveApplicantJob(job, jobData);
+    return this.saveApplicantJob(job, jobData);
   }
 
   /**
@@ -389,7 +389,7 @@ export class IENApplicantService {
     if (data.recruiter_name) {
       job.recruiter_name = data.recruiter_name;
     }
-    return await this.saveApplicantJob(job, jobData);
+    return this.saveApplicantJob(job, jobData);
   }
 
   /**
