@@ -10,13 +10,7 @@ import { AuthenticationMiddleware } from './common/auth.middleware';
 import { AuthModule } from './auth/auth.module';
 
 @Module({
-  imports: [
-    DatabaseModule,
-    FormModule,
-    ApplicantModule,
-    EmployeeModule,
-    AuthModule,
-  ],
+  imports: [DatabaseModule, FormModule, ApplicantModule, EmployeeModule, AuthModule],
   controllers: [AppController],
   providers: [AppService, AppLogger],
 })
