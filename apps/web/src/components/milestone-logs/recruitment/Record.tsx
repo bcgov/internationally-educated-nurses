@@ -26,7 +26,7 @@ interface RecordProps {
   update: (record?: ApplicantJobRO) => void;
 }
 
-const COMPLETE_STATUSES = [305, 306, 307, 308];
+const COMPLETED_STATUSES = [305, 306, 307, 308];
 
 export const Record: React.FC<RecordProps> = ({ job, update }) => {
   const router = useRouter();
@@ -58,12 +58,12 @@ export const Record: React.FC<RecordProps> = ({ job, update }) => {
 
   // set status for Record, returns in ASC, need to grab last item in array
   const getRecordStatus = () => {
-    if (!jobMilestones.length) return;
+    if (!jobMilestones.length) return 'On Going';
 
     const lastMilestone = jobMilestones[jobMilestones.length - 1];
     const { id, status } = lastMilestone.status;
 
-    const done = COMPLETE_STATUSES.includes(id);
+    const done = COMPLETED_STATUSES.includes(id);
     return `${done ? 'Complete - ' : 'On Going - '} ${status}`;
   };
 
