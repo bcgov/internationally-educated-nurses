@@ -9,6 +9,7 @@ import { AddMilestone, EditMilestone } from './Milestone';
 import {
   ApplicantJobRO,
   ApplicantStatusAuditRO,
+  COMPLETED_STATUSES,
   formatDate,
   IENApplicantUpdateStatusDTO,
 } from '@ien/common';
@@ -25,8 +26,6 @@ interface RecordProps {
   job: ApplicantJobRO;
   update: (record?: ApplicantJobRO) => void;
 }
-
-const COMPLETED_STATUSES = [305, 306, 307, 308];
 
 export const Record: React.FC<RecordProps> = ({ job, update }) => {
   const router = useRouter();
