@@ -132,7 +132,7 @@ export class IENApplicantUtilService {
         where: (qb: SelectQueryBuilder<IENApplicant>) => {
           const condition = conditions.shift();
           if (condition) qb.where(condition);
-          conditions.forEach(condition => qb.andWhere(condition));
+          conditions.forEach(c => qb.andWhere(c));
         },
         ...query,
       });

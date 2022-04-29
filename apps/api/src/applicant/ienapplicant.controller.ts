@@ -199,7 +199,7 @@ export class IENApplicantController {
     ValidRoles.MINISTRY_OF_HEALTH,
   )
   async updateApplicantStatus(
-    @Param('id') id: string,
+    @Param('id') _id: string,
     @Param('status_id') status_id: string,
     @Body() applicantStatus: IENApplicantUpdateStatusAPIDTO,
   ): Promise<ApplicantStatusAuditRO | undefined> {

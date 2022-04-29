@@ -1,4 +1,3 @@
-// import { LoggerService } from '@nestjs/common';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import axios, { AxiosResponse } from 'axios';
 

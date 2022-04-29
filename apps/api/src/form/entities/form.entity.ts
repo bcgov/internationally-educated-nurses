@@ -17,8 +17,6 @@ export class FormEntity {
   @Column('varchar', { length: 1024, nullable: true })
   file_path!: string;
 
-  // TODO Add assigned_to column
-
   @CreateDateColumn()
   @Exclude()
   created_date!: Date;
@@ -28,6 +26,6 @@ export class FormEntity {
   updated_date!: Date;
 
   @Column('jsonb', { nullable: false })
-  // TODO create DTO for form
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form_data!: any;
 }
