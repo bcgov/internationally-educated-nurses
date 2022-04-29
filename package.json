@@ -19,7 +19,7 @@
     "watch": "run-p 'watch:common' 'watch:api' 'watch:web'",
     "start:api:local": "yarn workspace @ien/api start:dev:local",
     "start:web:local": "yarn workspace @ien/web start",
-    "start:local": "run-p 'watch:common' 'start:api:local' 'start:web:local'",
+    "start:local": "run-p 'start:api:local' 'start:web:local'",
     "start:cypress": "yarn workspace @ien/web cypress"
   },
   "workspaces": [

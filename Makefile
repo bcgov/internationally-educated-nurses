@@ -174,7 +174,7 @@ api-integration-test:
 
 run-test-backend:
 	@make start-test-db
-	NODE_ENV=test yarn watch
+	NODE_ENV=test yarn start
 	@echo "++\n*****"
 	@make stop-test-db
 

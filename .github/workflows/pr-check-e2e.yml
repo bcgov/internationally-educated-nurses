@@ -1,7 +1,8 @@
-name: Web PR Checks
+name: PR e2e Checks
 on:
   pull_request:
     paths:
+      - 'apps/api/**'
       - 'apps/web/**'
       - 'packages/common/**'
 
@@ -24,20 +25,8 @@ jobs:
       - name: Install dependencies
         run: yarn workspace @ien/web install
 
-      - name: Run formatting check
-        run: yarn format:check
-
       - name: Build dependencies
-        run: yarn build-common
-
-      - name: Lint web package
-        run: yarn workspace @ien/web lint
-
-      - name: Unit-test web package
-        run: yarn workspace @ien/web test
-
-      - name: Build web package
-        run: yarn workspace @ien/web build
+        run: yarn build
 
       - name: Test web package cypress
         uses: cypress-io/github-action@v2
