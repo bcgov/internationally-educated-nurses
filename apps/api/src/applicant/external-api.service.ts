@@ -51,26 +51,6 @@ export class ExternalAPIService {
   }
 
   /**
-   * All data has one unique column(for the upsert),
-   * which is replicate and reflact multipletime in received array,
-   * Here if the same id occured we wil use most recent value of it and update it in our database,
-   * Due to this cleanup upsert transaction works fine.
-   * Update: 31-March-2022, Received correct data so commenting this function out for now
-   * @param data Data array
-   */
-  _cleanData(data: string | any[], uniquecolumn: string) {
-    const keys: any = {};
-    for (let i = 0; i < data.length; i++) {
-      keys[data[i][uniquecolumn]] = data[i];
-    }
-    data = [];
-    for (const [key] of Object.entries(keys)) {
-      data.push(keys[key]);
-    }
-    return data;
-  }
-
-  /**
    * Collect HealthAuthorities data from <domain>/HealthAuthority Url.
    * and Save in ien_ha_pcn table in database for applicant reference.
    */
@@ -440,57 +420,53 @@ export class ExternalAPIService {
     const savedApplicants = await this.ienapplicantRepository.findByIds(mappedApplicantList);
     const applicantIdsMapping: any = {};
     const milestones: any = [];
-    if (savedApplicants.length > 0) {
-      savedApplicants.forEach(item => {
-        applicantIdsMapping[`${item.applicant_id}`] = item.id;
-      });
-      const allowedMilestones: number[] = await this.allowedMilestones();
-      this.logger.log({ allowedMilestones });
-      data.forEach(
-        (item: {
-          applicant_id: string | number;
-          hasOwnProperty: (arg0: string) => any;
-          milestones: any;
-        }) => {
-          const tableId = applicantIdsMapping[item.applicant_id];
-          if (item.hasOwnProperty('milestones')) {
-            const existingMilestones = item.milestones;
-            if (Array.isArray(existingMilestones)) {
-              existingMilestones.forEach(async m => {
-                if (allowedMilestones.includes(m.id)) {
-                  const temp: any = {
-                    status: m.id,
-                    start_date: m.start_date,
-                    created_date: m.created_date,
-                    updated_date: m.created_date,
-                    applicant: tableId,
-                    notes: m?.note,
-                    added_by: null,
-                  };
-                  if ('added_by' in m && m.added_by > 0) {
-                    if (users[m.added_by]) {
-                      temp['added_by'] = m.added_by;
-                    }
-                  }
-                  if ('reason_id' in m) {
-                    temp['reason'] = m.reason_id;
-                  }
-                  if ('reason_other' in m) {
-                    temp['reason_other'] = m.reason_other;
-                  }
-                  if ('effective_date' in m) {
-                    temp['effective_date'] = m.effective_date;
-                  }
-                  milestones.push(temp);
-                } else {
-                  this.logger.log(`rejected Id ${m.id}`);
-                }
-              });
-            }
-          }
-        },
-      );
+    if (savedApplicants.length <= 0) {
+      return [];
     }
+    savedApplicants.forEach(item => {
+      applicantIdsMapping[`${item.applicant_id}`] = item.id;
+    });
+    const allowedMilestones: number[] = await this.allowedMilestones();
+    data.forEach(
+      (item: {
+        applicant_id: string | number;
+        hasOwnProperty: (arg0: string) => any;
+        milestones: any;
+      }) => {
+        const tableId = applicantIdsMapping[item.applicant_id];
+        if (item.hasOwnProperty('milestones') && Array.isArray(item.milestones)) {
+          const existingMilestones = item.milestones;
+          existingMilestones.forEach(m => {
+            if (allowedMilestones.includes(m.id)) {
+              const temp: any = {
+                status: m.id,
+                start_date: m.start_date,
+                created_date: m.created_date,
+                updated_date: m.created_date,
+                applicant: tableId,
+                notes: m?.note,
+                added_by: null,
+              };
+              if ('added_by' in m && m.added_by > 0 && users[m.added_by]) {
+                temp['added_by'] = m.added_by;
+              }
+              if ('reason_id' in m) {
+                temp['reason'] = m.reason_id;
+              }
+              if ('reason_other' in m) {
+                temp['reason_other'] = m.reason_other;
+              }
+              if ('effective_date' in m) {
+                temp['effective_date'] = m.effective_date;
+              }
+              milestones.push(temp);
+            } else {
+              this.logger.log(`rejected Id ${m.id}`);
+            }
+          });
+        }
+      },
+    );
     return milestones;
   }
 }
