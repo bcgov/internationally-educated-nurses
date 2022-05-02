@@ -181,7 +181,7 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({ job, milestone, handleSub
                             isDisabled: s.id == field.value,
                           }))}
                           getOptionLabel={option => option.status}
-                          styles={getSelectStyleOverride<MilestoneType>()}
+                          styles={getSelectStyleOverride<MilestoneType>('bg-white')}
                         />
                       )}
                     />
@@ -192,6 +192,7 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({ job, milestone, handleSub
                       name='start_date'
                       label='Date'
                       type='date'
+                      bgColour='bg-white'
                       validate={val => validateStartDate(val)}
                     />
                   </div>
@@ -219,7 +220,7 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({ job, milestone, handleSub
                             }))}
                             getOptionLabel={opt => `${opt.name}`}
                             getOptionValue={opt => `${opt.id}`}
-                            styles={getSelectStyleOverride<IENStatusReasonRO>()}
+                            styles={getSelectStyleOverride<IENStatusReasonRO>('bg-white')}
                           />
                         )}
                       />
@@ -239,7 +240,12 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({ job, milestone, handleSub
                     </div>
 
                     <span className='col-span-12 sm:col-span-6 lg:col-span-4 pr-1 md:pr-2'>
-                      <Field name='effective_date' label='Effective Date' type='date' />
+                      <Field
+                        name='effective_date'
+                        label='Effective Date'
+                        type='date'
+                        bgColour='bg-white'
+                      />
                     </span>
                   </>
                 ) : null}
@@ -247,7 +253,12 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({ job, milestone, handleSub
                 {/* Position offered conditional */}
                 {values.status === '304' ? (
                   <span className='col-span-12 sm:col-span-6 lg:col-span-3 pr-1 md:pr-2'>
-                    <Field name='effective_date' label='Target Start Date' type='date' />
+                    <Field
+                      name='effective_date'
+                      label='Target Start Date'
+                      type='date'
+                      bgColour='bg-white'
+                    />
                   </span>
                 ) : null}
               </div>

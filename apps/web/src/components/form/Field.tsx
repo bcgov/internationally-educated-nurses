@@ -9,6 +9,7 @@ export interface FieldProps extends FieldConfig {
   disabled?: boolean;
   className?: string;
   maxLength?: number;
+  bgColour?: string;
 }
 
 export const Field: React.FC<FieldProps> = props => {
@@ -23,6 +24,7 @@ export const Field: React.FC<FieldProps> = props => {
     className,
     maxLength,
     children,
+    bgColour,
     ...others
   } = props;
   const [field, meta] = useField(name);
@@ -41,8 +43,10 @@ export const Field: React.FC<FieldProps> = props => {
         className={
           className ??
           classnames(
-            `w-full rounded-none bg-gray-100 block h-10
-            border-b-2 border-bcBlack pl-1 disabled:bg-bcDisabled`,
+            `w-full rounded-none block h-10
+            border-b-2 border-bcBlack pl-1 disabled:bg-bcDisabled ${
+              bgColour ? bgColour : 'bg-gray-100'
+            }`,
             {
               'border-red-500': meta.touched && meta.error,
             },
