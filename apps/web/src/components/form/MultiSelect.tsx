@@ -40,6 +40,13 @@ export const MultiSelect: React.FC<MultiSelectProps> = props => {
 };
 
 export function getSelectStyleOverride<T>(bgColour?: string): StylesConfig<T, boolean> {
+  const getBgColour = () => {
+    if (bgColour) {
+      return bgColour;
+    }
+
+    return '#F5F5F5';
+  };
   const selectStyleOverride: StylesConfig<T, boolean> = {
     indicatorSeparator: styles => ({ ...styles }),
     clearIndicator: styles => ({ ...styles, color: 'black' }),
@@ -56,7 +63,7 @@ export function getSelectStyleOverride<T>(bgColour?: string): StylesConfig<T, bo
       padding: '1px',
       border: '0',
       borderBottom: isDisabled ? 'none' : '2px solid #313132',
-      background: isDisabled ? 'rgb(215, 215, 215)' : bgColour ? bgColour : '#F5F5F5',
+      background: isDisabled ? 'rgb(215, 215, 215)' : getBgColour(),
       borderRadius: '0',
     }),
     option: (styles, { isDisabled }) => ({
