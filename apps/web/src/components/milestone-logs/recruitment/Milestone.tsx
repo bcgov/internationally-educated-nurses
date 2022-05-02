@@ -147,7 +147,7 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({ job, milestone, handleSub
 
   const validateStartDate = (value: string) => {
     if (dayjs(value).diff(job.job_post_date) < 0) {
-      return 'Date must be later than the date job was first posted.';
+      return 'Date must be later than the date job was first posted';
     }
     if (dayjs().diff(value) < 0) {
       return 'Date must be a past date';
