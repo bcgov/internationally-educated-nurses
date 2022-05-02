@@ -17,7 +17,9 @@ export const Disclosure: React.FC<DisclosureProps> = ({ buttonText, content }) =
             <img
               src={chevronUp.src}
               alt='expand'
-              className={`ml-4 my-auto ${!open ? 'transform rotate-180' : ''}`}
+              className={`ml-4 my-auto ${
+                !open ? 'transform rotate-180 duration-300' : 'duration-300'
+              }`}
             />
             {buttonText}
           </HeadlessDisclosure.Button>
