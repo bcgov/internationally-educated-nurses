@@ -1,7 +1,8 @@
-name: Web PR Checks
+name: PR e2e Checks
 on:
   pull_request:
     paths:
+      - 'apps/api/**'
       - 'apps/web/**'
       - 'packages/common/**'
 
@@ -24,14 +25,17 @@ jobs:
       - name: Install dependencies
         run: yarn workspace @ien/web install
 
-      - name: Run formatting check
-        run: yarn format:check
-
       - name: Build dependencies
-        run: yarn build-common
+        run: yarn build
 
-      - name: Lint web package
-        run: yarn workspace @ien/web lint
-
-      - name: Unit-test web package
-        run: yarn workspace @ien/web test
+      - name: Run Cypress
+        uses: cypress-io/github-action@v2
+        with:
+          start: make run-test-backend
+          working-directory: ./
+          project: ./apps/web
+          wait-on: 'http://localhost:3000'
+        env:
+          E2E_TEST_USERNAME: '${{ secrets.E2E_TEST_USERNAME}}'
+          E2E_TEST_PASSWORD: '${{ secrets.E2E_TEST_PASSWORD}}'
+          AUTH_REALM: 'moh_applications'

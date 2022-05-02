@@ -42,7 +42,7 @@ interface AddMilestoneProps {
   setJobMilestones: (milestones: ApplicantStatusAuditRO[]) => void;
 }
 
-export const AddMilestones: React.FC<AddMilestoneProps> = ({
+export const AddMilestone: React.FC<AddMilestoneProps> = ({
   applicantId,
   job,
   setJobMilestones,
@@ -80,7 +80,7 @@ interface EditMilestoneProps {
 }
 
 // Edit milestone comp *** currently unsure if this will be included moving forward
-export const EditMilestones: React.FC<EditMilestoneProps> = ({ job, milestone, handleSubmit }) => {
+export const EditMilestone: React.FC<EditMilestoneProps> = ({ job, milestone, handleSubmit }) => {
   const [isEdit, setIsEdit] = useState(false);
 
   return (
