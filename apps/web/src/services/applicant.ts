@@ -13,6 +13,10 @@ import {
   IENApplicantUpdateStatusDTO,
 } from '@ien/common';
 
+const notifyError = (e: AxiosError) => {
+  toast.error(`${e.response?.data.errorType}: ${e.response?.data.errorMessage}`);
+};
+
 // get all applicants
 export const getApplicants = async (filter: IENApplicantFilterDTO = {}) => {
   const query = Object.entries(filter)
@@ -36,15 +40,25 @@ export const getApplicant = async (id: string): Promise<ApplicantRO | undefined>
     } = await axios.get<{ data: ApplicantRO }>(`/ien/${id}?relation=audit`);
 
     return data;
-  } catch (error) {
-    const e = error as AxiosError;
-    toast.error(`${e.response?.data.errorType}: ${e.response?.data.errorMessage}`);
+  } catch (e) {
+    notifyError(e as AxiosError);
   }
 };
 
 // currently unused
 export const updateApplicant = async (id: string, applicant: IENApplicantCreateUpdateDTO) => {
-  return await axios.patch(`/ien/${id}`, applicant);
+  return axios.patch(`/ien/${id}`, applicant);
+};
+
+export const getJobRecord = async (job_id: number): Promise<ApplicantJobRO | undefined> => {
+  try {
+    const {
+      data: { data },
+    } = await axios.get<{ data: ApplicantJobRO }>(`/ien/job/${job_id}`);
+    return data;
+  } catch (e) {
+    notifyError(e as AxiosError);
+  }
 };
 
 // Recruitment Tab - job records
@@ -59,9 +73,8 @@ export const addJobRecord = async (
     } = await axios.post<{ data: ApplicantJobRO }>(`/ien/${id}/job`, record);
 
     return data;
-  } catch (error) {
-    const e = error as AxiosError;
-    toast.error(`${e.response?.data.errorType}: ${e.response?.data.errorMessage}`);
+  } catch (e) {
+    notifyError(e as AxiosError);
   }
 };
 
@@ -76,9 +89,8 @@ export const updateJobRecord = async (
     } = await axios.put<{ data: ApplicantJobRO }>(`/ien/${id}/job/${job_id}`, record);
 
     return data;
-  } catch (error) {
-    const e = error as AxiosError;
-    toast.error(`${e.response?.data.errorType}: ${e.response?.data.errorMessage}`);
+  } catch (e) {
+    notifyError(e as AxiosError);
   }
 };
 
@@ -93,9 +105,8 @@ export const addMilestone = async (
     } = await axios.post<{ data: ApplicantStatusAuditRO }>(`/ien/${id}/status`, milestone);
 
     return data;
-  } catch (error) {
-    const e = error as AxiosError;
-    toast.error(`${e.response?.data.errorType}: ${e.response?.data.errorMessage}`);
+  } catch (e) {
+    notifyError(e as AxiosError);
   }
 };
 
@@ -118,9 +129,8 @@ export const getJobAndMilestones = async (
     } = await axios.get<{ data: [ApplicantJobRO[], number] }>(path);
 
     return data;
-  } catch (error) {
-    const e = error as AxiosError;
-    toast.error(`${e.response?.data.errorType}: ${e.response?.data.errorMessage}`);
+  } catch (e) {
+    notifyError(e as AxiosError);
   }
 };
 
@@ -135,8 +145,7 @@ export const updateMilestone = async (
       data: { data },
     } = await axios.patch<{ data: ApplicantStatusAuditRO }>(path, status);
     return data;
-  } catch (error) {
-    const e = error as AxiosError;
-    toast.error(`${e.response?.data.errorType}: ${e.response?.data.errorMessage}`);
+  } catch (e) {
+    notifyError(e as AxiosError);
   }
 };

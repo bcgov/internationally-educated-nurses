@@ -4,18 +4,19 @@ import { useEffect, useState } from 'react';
 import { AddRecordModal } from '../display/AddRecordModal';
 import { Spinner } from '../Spinner';
 import { Record } from './recruitment/Record';
-import { getJobAndMilestones } from '@services';
+import { getJobAndMilestones, getJobRecord } from '@services';
 import { buttonBase, buttonColor } from '@components';
 import { ApplicantJobRO, JobFilterOptions } from '@ien/common';
 import addIcon from '@assets/img/add.svg';
 import { JobFilters } from './recruitment/JobFilters';
 import { PageOptions, Pagination } from '../Pagination';
+import { emitter, IEN_EVENTS } from '../../services/event-emitter';
 
 const DEFAULT_JOB_PAGE_SIZE = 5;
 
 export const Recruitment: React.FC = () => {
   const router = useRouter();
-  const applicantId = router.query.id;
+  const applicantId = router.query.id as string;
   const [isLoading, setIsLoading] = useState(false);
   const [jobRecords, setJobRecords] = useState<ApplicantJobRO[]>([]);
   const [recordModalVisible, setRecordModalVisible] = useState(false);
@@ -25,27 +26,46 @@ export const Recruitment: React.FC = () => {
   const [pageSize, setPageSize] = useState(DEFAULT_JOB_PAGE_SIZE);
   const [total, setTotal] = useState(0);
 
+  const getJobAndMilestonesData = async (id: string) => {
+    setIsLoading(true);
+
+    const data = await getJobAndMilestones(id, {
+      ...filters,
+      skip: total <= pageSize ? 0 : (pageIndex - 1) * pageSize,
+      limit: pageSize,
+    });
+
+    if (data) {
+      const [jobs, totalCount] = data;
+      setJobRecords(jobs);
+      setTotal(totalCount);
+    }
+
+    setIsLoading(false);
+  };
+
   useEffect(() => {
-    const getJobAndMilestonesData = async (id: string) => {
-      setIsLoading(true);
-
-      const data = await getJobAndMilestones(id, {
-        ...filters,
-        skip: total <= pageSize ? 0 : (pageIndex - 1) * pageSize,
-        limit: pageSize,
-      });
-
-      if (data) {
-        const [jobs, totalCount] = data;
-        setJobRecords(jobs);
-        setTotal(totalCount);
-      }
-
-      setIsLoading(false);
-    };
-
-    getJobAndMilestonesData(applicantId as string);
+    getJobAndMilestonesData(applicantId);
   }, [pageIndex, pageSize, filters]);
+
+  const fetchJob = async (job_id: number) => {
+    if (!job_id) return;
+
+    const job = await getJobRecord(job_id);
+    if (job) {
+      const index = jobRecords.findIndex(j => j.id === job.id);
+      if (index >= 0) {
+        jobRecords.splice(index, 1, job);
+        setJobRecords([...jobRecords]);
+      }
+    }
+  };
+  useEffect(() => {
+    emitter.on(IEN_EVENTS.UPDATE_JOB, fetchJob);
+    return () => {
+      emitter.off(IEN_EVENTS.UPDATE_JOB, fetchJob);
+    };
+  }, []);
 
   if (isLoading || !jobRecords) {
     return <Spinner className='h-10 my-5' />;

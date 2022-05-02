@@ -14,15 +14,17 @@ import {
 } from '@services';
 import { Field } from '../form';
 import { Modal } from '../Modal';
+import { ApplicantStatusAuditRO } from '@ien/common/src/ro/applicant.ro';
 
 interface AddRecordProps {
   job?: ApplicantJobRO;
+  milestones?: ApplicantStatusAuditRO[];
   onClose: (jobRecord?: ApplicantJobRO) => void;
   visible: boolean;
 }
 
 export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) => {
-  const { job, visible, onClose } = props;
+  const { job, milestones, visible, onClose } = props;
 
   const router = useRouter();
 
@@ -42,7 +44,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
   };
 
   const validatePostDate = (value: string) => {
-    const milestoneDates = job?.status_audit?.map(s => s.start_date).sort();
+    const milestoneDates = milestones?.map(s => s.start_date).sort();
     if (milestoneDates?.length && dayjs(milestoneDates[0]).diff(value) < 0) {
       return 'Date must be earlier than milestone start dates. ';
     }
@@ -57,7 +59,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
     job_title: `${job?.job_title?.id || ''}`,
     job_location: `${job?.job_location?.id || ''}`,
     recruiter_name: job?.recruiter_name || '',
-    job_post_date: dayjs(job?.job_post_date).format('YYYY-MM-DD'),
+    job_post_date: job?.job_post_date ? dayjs(job?.job_post_date).format('YYYY-MM-DD') : '',
   };
 
   return (

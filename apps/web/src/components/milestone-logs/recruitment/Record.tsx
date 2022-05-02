@@ -51,15 +51,15 @@ export const Record: React.FC<RecordProps> = ({ job, update }) => {
     return sortedMilestones;
   };
 
-  const [jobMilestones, setJobMilestones] = useState<ApplicantStatusAuditRO[]>(
+  const [milestones, setMilestones] = useState<ApplicantStatusAuditRO[]>(
     getSortedMilestones(status_audit || []),
   );
 
   // set status for Record, returns in ASC, need to grab last item in array
   const getRecordStatus = () => {
-    if (!jobMilestones.length) return 'On Going';
+    if (!milestones.length) return 'On Going';
 
-    const lastMilestone = jobMilestones[jobMilestones.length - 1];
+    const lastMilestone = milestones[milestones.length - 1];
     const { id, status } = lastMilestone.status;
 
     const done = COMPLETED_STATUSES.includes(id);
@@ -68,9 +68,9 @@ export const Record: React.FC<RecordProps> = ({ job, update }) => {
 
   // time passed since the last milestone only for incomplete job competitions
   const getMilestoneDuration = (): string => {
-    if (!jobMilestones.length) return '';
+    if (!milestones.length) return '';
 
-    const lastItem = jobMilestones[jobMilestones.length - 1];
+    const lastItem = milestones[milestones.length - 1];
 
     return dayjs.duration(dayjs(lastItem.start_date).diff(new Date())).humanize();
   };
@@ -83,15 +83,16 @@ export const Record: React.FC<RecordProps> = ({ job, update }) => {
   const handleUpdateMilestone = async (id: string, values: IENApplicantUpdateStatusDTO) => {
     const milestone = await updateMilestone(applicantId, id, values);
     if (milestone) {
-      const index = jobMilestones.findIndex(m => m.id === id);
-      if (index >= 0) jobMilestones.splice(index, 1, milestone);
-      setJobMilestones(getSortedMilestones(jobMilestones));
-      emitter.emit(IEN_EVENTS.UPDATE_JOB);
+      const index = milestones.findIndex(m => m.id === id);
+      if (index >= 0) {
+        milestones.splice(index, 1, milestone);
+        emitter.emit(IEN_EVENTS.UPDATE_JOB);
+      }
     }
   };
 
   const handleNewMilestones = (milestones: ApplicantStatusAuditRO[]) => {
-    setJobMilestones(getSortedMilestones(milestones));
+    setMilestones(getSortedMilestones(milestones));
     emitter.emit(IEN_EVENTS.UPDATE_JOB);
   };
 
@@ -112,7 +113,7 @@ export const Record: React.FC<RecordProps> = ({ job, update }) => {
                 {job_title?.title ? job_title?.title : 'N/A'}
               </span>
               <span className='text-xs text-black mr-3 capitalize'>
-                {jobMilestones && jobMilestones.length > 0 && getMilestoneDuration()}
+                {milestones && milestones.length > 0 && getMilestoneDuration()}
               </span>
             </div>
           </div>
@@ -136,7 +137,7 @@ export const Record: React.FC<RecordProps> = ({ job, update }) => {
               <img src={editIcon.src} alt='edit' className='mr-2' />
               Edit Details
             </button>
-            {jobMilestones.map(mil => (
+            {milestones.map(mil => (
               <EditMilestone
                 job={job}
                 key={mil.id}
@@ -145,11 +146,16 @@ export const Record: React.FC<RecordProps> = ({ job, update }) => {
               />
             ))}
             <AddMilestone
-              applicantId={applicantId as string}
+              applicantId={applicantId}
               job={job}
               setJobMilestones={handleNewMilestones}
             />
-            <AddRecordModal job={job} onClose={handleModalClose} visible={modalVisible} />
+            <AddRecordModal
+              job={job}
+              milestones={milestones}
+              onClose={handleModalClose}
+              visible={modalVisible}
+            />
           </div>
         }
       />

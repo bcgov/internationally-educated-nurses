@@ -389,7 +389,14 @@ export class IENApplicantService {
     if (data.recruiter_name) {
       job.recruiter_name = data.recruiter_name;
     }
-    return this.saveApplicantJob(job, jobData);
+    await this.saveApplicantJob(job, jobData);
+    return this.getApplicantJob(job_id);
+  }
+
+  async getApplicantJob(job_id: string | number): Promise<IENApplicantJob | undefined> {
+    return this.ienapplicantJobRepository.findOne(job_id, {
+      relations: this.applicantRelations.applicant_job,
+    });
   }
 
   /**

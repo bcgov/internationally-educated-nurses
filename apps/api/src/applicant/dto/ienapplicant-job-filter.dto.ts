@@ -9,7 +9,7 @@ export class IENApplicantJobQueryDTO implements JobQueryOptions {
   })
   @IsOptional()
   @IsString()
-  job_id?: string;
+  job_id?: number;
 
   @ApiPropertyOptional({
     description: 'Provide list of health authority IDs separated by ","',
