@@ -93,7 +93,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
                 <div className='mb-3 col-span-2'>
                   <Field
                     name='job_title'
-                    label='Job Title'
+                    label='Department'
                     component={({ field, form }: FieldProps) => (
                       <ReactSelect<RecordTypeOptions>
                         inputId={field.name}
@@ -133,7 +133,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
                   />
                 </div>
                 <div className='mb-3 col-span-2'>
-                  <Field name='recruiter_name' label='Recruiter Name' type='text' />
+                  <Field name='recruiter_name' label='HA Recruiter Name' type='text' />
                 </div>
                 <div className='mb-3 col-span-2'>
                   <Field

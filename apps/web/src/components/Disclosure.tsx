@@ -1,6 +1,5 @@
 import { Disclosure as HeadlessDisclosure, Transition } from '@headlessui/react';
-import plusIcon from '@assets/img/plus.svg';
-import minusIcon from '@assets/img/minus.svg';
+import chevronUp from '@assets/img/chevron_up.svg';
 
 interface DisclosureProps {
   buttonText: React.ReactNode;
@@ -15,9 +14,12 @@ export const Disclosure: React.FC<DisclosureProps> = ({ buttonText, content }) =
           <HeadlessDisclosure.Button
             className={'bg-bcBlueBar rounded-b-none flex justify-between w-full py-2'}
           >
+            <img
+              src={chevronUp.src}
+              alt='expand'
+              className={`ml-4 my-auto ${!open ? 'transform rotate-180' : ''}`}
+            />
             {buttonText}
-
-            <img src={open ? minusIcon.src : plusIcon.src} alt='expand' className='mr-5 mt-2' />
           </HeadlessDisclosure.Button>
           <Transition
             enter='transition ease-in duration-500 transform'

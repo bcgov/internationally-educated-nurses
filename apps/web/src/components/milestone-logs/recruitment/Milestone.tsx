@@ -3,7 +3,7 @@ import createValidator from 'class-validator-formik';
 import dayjs from 'dayjs';
 import { Formik, Form as FormikForm, FormikHelpers, FieldProps } from 'formik';
 
-import { Button, buttonBase, Field, getSelectStyleOverride } from '@components';
+import { Button, buttonBase, Field, getSelectStyleOverride, Textarea } from '@components';
 import {
   IENApplicantAddStatusDTO,
   formatDate,
@@ -104,7 +104,7 @@ export const EditMilestones: React.FC<EditMilestoneProps> = ({ job, milestone, h
                 <img src={editIcon.src} alt='edit' onClick={() => setIsEdit(true)} />
               </button>
             </div>
-            <span className='text-sm text-black'>
+            <span className='text-sm text-black break-words'>
               {milestone.notes ? milestone.notes : 'No Notes Added'}
             </span>
           </div>
@@ -164,34 +164,41 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({ job, milestone, handleSub
         >
           {({ isSubmitting, values }) => (
             <FormikForm>
-              <div className='grid grid-cols-9 gap-y-2 mb-4'>
-                <span className='col-span-12 sm:col-span-6 lg:col-span-3 pr-1 md:pr-2'>
-                  <Field
-                    name='status'
-                    label='Milestone'
-                    component={({ field, form }: FieldProps) => (
-                      <ReactSelect<MilestoneType>
-                        inputId={field.name}
-                        value={milestones?.find(s => s.id == field.value)}
-                        onBlur={field.onBlur}
-                        onChange={value => form.setFieldValue(field.name, `${value?.id}`)}
-                        options={milestones?.map(s => ({ ...s, isDisabled: s.id == field.value }))}
-                        getOptionLabel={option => option.status}
-                        styles={getSelectStyleOverride<MilestoneType>()}
-                      />
-                    )}
-                  />
+              <div className='grid grid-cols-12 gap-y-2 mb-4'>
+                <span className='col-span-12 sm:col-span-6 pr-1 md:pr-2'>
+                  <div>
+                    <Field
+                      name='status'
+                      label='Milestone'
+                      component={({ field, form }: FieldProps) => (
+                        <ReactSelect<MilestoneType>
+                          inputId={field.name}
+                          value={milestones?.find(s => s.id == field.value)}
+                          onBlur={field.onBlur}
+                          onChange={value => form.setFieldValue(field.name, `${value?.id}`)}
+                          options={milestones?.map(s => ({
+                            ...s,
+                            isDisabled: s.id == field.value,
+                          }))}
+                          getOptionLabel={option => option.status}
+                          styles={getSelectStyleOverride<MilestoneType>()}
+                        />
+                      )}
+                    />
+                  </div>
+
+                  <div className='pt-4'>
+                    <Field
+                      name='start_date'
+                      label='Date'
+                      type='date'
+                      validate={val => validateStartDate(val)}
+                    />
+                  </div>
                 </span>
-                <span className='col-span-12 sm:col-span-6 lg:col-span-3 pr-1 md:pr-2'>
-                  <Field
-                    name='start_date'
-                    label='Date'
-                    type='date'
-                    validate={val => validateStartDate(val)}
-                  />
-                </span>
-                <span className='col-span-12 sm:col-span-6 lg:col-span-3 pr-1 md:pr-2'>
-                  <Field name='notes' label='Note' type='text' />
+
+                <span className='col-span-12 sm:col-span-6  pr-1 md:pr-2 ml-3'>
+                  <Textarea name='notes' label='Notes' />
                 </span>
                 {/* Withdraw reason conditional field */}
                 {values.status === '305' ? (
@@ -251,13 +258,7 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({ job, milestone, handleSub
                 type='submit'
                 loading={isSubmitting}
               >
-                {milestone ? (
-                  'Save Changes'
-                ) : (
-                  <>
-                    <img src={addIcon.src} alt='add' className='mr-2' /> Add Milestones
-                  </>
-                )}
+                {milestone ? 'Save Changes' : <span className='px-10'>Save</span>}
               </Button>
               {milestone && (
                 <Button
