@@ -276,9 +276,10 @@ sync-app:
 deploy-app:
 	aws --region $(AWS_REGION) cloudfront create-invalidation --distribution-id $(CLOUDFRONT_ID) --paths "/*"
 
+# Full redirection to /dev/null is required to not leak env variables
 deploy-api:
-	aws lambda update-function-code --function-name ien-$(ENV_NAME)-api --zip-file fileb://./terraform/build/api.zip --region $(AWS_REGION)
-	aws lambda update-function-code --function-name ien-$(ENV_NAME)-syncdata --zip-file fileb://./terraform/build/api.zip --region $(AWS_REGION)
+	aws lambda update-function-code --function-name ien-$(ENV_NAME)-api --zip-file fileb://./terraform/build/api.zip --region $(AWS_REGION) > /dev/null 2>&1
+	aws lambda update-function-code --function-name ien-$(ENV_NAME)-syncdata --zip-file fileb://./terraform/build/api.zip --region $(AWS_REGION) > /dev/null 2>&1
 
 deploy-all: sync-app deploy-api
 	@echo "Deploying Webapp and API"
