@@ -127,7 +127,9 @@ export const Record: React.FC<RecordProps> = ({ job, update }) => {
               </span>
             </div>
             <div className='flex justify-between'>
-              <span className='text-sm text-black '>{job_title.title}</span>
+              <span className='text-sm text-black '>
+                {job_title?.title ? job_title?.title : 'N/A'}
+              </span>
               <span className='text-xs text-black mr-3 capitalize'>
                 {jobMilestones && jobMilestones.length > 0 && getMilestoneDuration()}
               </span>
@@ -137,8 +139,11 @@ export const Record: React.FC<RecordProps> = ({ job, update }) => {
         content={
           <div className='px-5 mb-3'>
             <div className='flex justify-between'>
-              <DetailsItem title='Job ID' text={job_id} />
-              <DetailsItem title='Location' text={job_location.title} />
+              <DetailsItem title='Job ID' text={job_id ? job_id : 'N/A'} />
+              <DetailsItem
+                title='Location'
+                text={job_location?.title ? job_location?.title : 'N/A'}
+              />
 
               <DetailsItem title='Recruiter Name' text={recruiter_name} />
               <DetailsItem title='Date Job Was First Posted' text={formatDate(job_post_date)} />

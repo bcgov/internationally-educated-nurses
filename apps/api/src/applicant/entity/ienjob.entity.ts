@@ -29,20 +29,20 @@ export class IENApplicantJob {
   job_id?: string;
 
   @ManyToOne(() => IENJobTitle)
-  job_title!: IENJobTitle;
+  job_title?: IENJobTitle | null;
 
   @ManyToOne(() => IENJobLocation)
-  job_location!: IENJobLocation;
+  job_location?: IENJobLocation | null;
 
   @Column('varchar', { nullable: true })
-  recruiter_name?: string;
+  recruiter_name!: string;
 
   @Column('date', { nullable: true })
   job_post_date?: Date;
 
   @ManyToOne(() => IENUsers, user => user.id)
   @Exclude()
-  added_by!: IENUsers;
+  added_by?: IENUsers;
 
   // It's for reverse relation but we are not using it in services
   @ManyToOne(() => IENApplicant, applicant => applicant.jobs)
