@@ -14,24 +14,23 @@ export class IENApplicantJobCreateUpdateAPIDTO extends IENApplicantJobCreateUpda
   })
   @IsString()
   @IsOptional()
-  @Length(1, 255, { message: 'JobID must be between 1 and 255 characters' })
   job_id?: string;
 
   @ApiProperty({ description: 'Job title Id', default: '1' })
-  @IsNotEmpty({ message: 'Job Title is required' })
+  @IsOptional()
   @IsString()
-  job_title!: string;
+  job_title?: string;
 
   @ApiProperty({ description: 'Job location Id', default: '1' })
-  @IsNotEmpty({ message: 'Job Location is required' })
+  @IsOptional()
   @IsString()
-  job_location!: string;
+  job_location?: string;
 
   @ApiPropertyOptional({ description: 'recruiter name', default: 'Mark Brown' })
   @IsString()
   @IsOptional()
   @Length(1, 255, { message: 'Recruiter Name must be between 1 and 255 characters' })
-  recruiter_name?: string;
+  recruiter_name!: string;
 
   @ApiPropertyOptional({
     description: 'Date job was first posted',

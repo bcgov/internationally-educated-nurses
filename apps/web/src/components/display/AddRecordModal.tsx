@@ -54,7 +54,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
   const initialValues: IENApplicantJobCreateUpdateDTO = {
     ha_pcn: `${job?.ha_pcn?.id || ''}`,
     job_id: `${job?.job_id || ''}`,
-    job_title: `${job?.job_title.id || ''}`,
+    job_title: `${job?.job_title?.id || ''}`,
     job_location: `${job?.job_location?.id || ''}`,
     recruiter_name: job?.recruiter_name || '',
     job_post_date: dayjs(job?.job_post_date).format('YYYY-MM-DD'),
