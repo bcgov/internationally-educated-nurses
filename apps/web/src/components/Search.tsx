@@ -1,5 +1,6 @@
 import React, { ChangeEvent, KeyboardEvent, useEffect, useState } from 'react';
 import searchIcon from '@assets/img/search.svg';
+import clearIcon from '@assets/img/x_clear.svg';
 import { ApplicantRO } from '@ien/common';
 
 interface SearchProps {
@@ -48,6 +49,11 @@ export const Search = (props: SearchProps) => {
     setTimeout(() => setFocus(inFocus), FOCUS_OUT_DELAY);
   };
 
+  // clear search bar text
+  const handleClear = () => {
+    setSearchName('');
+  };
+
   return (
     <div className='relative bg-white z-10' onBlur={() => handleFocus(false)}>
       <div className='flex py-2 px-2 mb-1 border rounded'>
@@ -63,9 +69,14 @@ export const Search = (props: SearchProps) => {
           className='flex-grow focus:outline-none'
         />
         {searchName && focus && (
-          <button className='flex-grow-0 text-bcBlueAccent ' onClick={() => onChange(searchName)}>
-            Show all results
-          </button>
+          <>
+            <button onClick={handleClear}>
+              <img src={clearIcon.src} alt='search' className='flex-grow-0 mr-3' />
+            </button>
+            <button className='flex-grow-0 text-bcBlueAccent ' onClick={() => onChange(searchName)}>
+              Show all results
+            </button>
+          </>
         )}
       </div>
       {delayedName && focus && (
