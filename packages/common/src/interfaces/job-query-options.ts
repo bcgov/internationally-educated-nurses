@@ -4,7 +4,7 @@ export interface JobFilterOptions {
 }
 
 export interface JobQueryOptions extends JobFilterOptions {
-  job_id?: string;
+  job_id?: number;
   skip?: number;
   limit?: number;
 }

@@ -229,10 +229,24 @@ export class IENApplicantController {
   }
 
   @ApiOperation({
+    summary: 'Get applicant job record',
+  })
+  @UseInterceptors(ClassSerializerInterceptor)
+  @Get('/job/:job_id')
+  @RouteAcceptsRoles(
+    ValidRoles.HEALTH_AUTHORITY,
+    ValidRoles.HEALTH_MATCH,
+    ValidRoles.MINISTRY_OF_HEALTH,
+  )
+  async getJob(@Param('job_id') job_id: string): Promise<ApplicantJobRO | undefined> {
+    return this.ienapplicantService.getApplicantJob(job_id);
+  }
+
+  @ApiOperation({
     summary: 'Update applicant job record',
   })
   @UseInterceptors(ClassSerializerInterceptor)
-  @Put('/:id/job/:job_applicant_id')
+  @Put('/:id/job/:job_id')
   @RouteAcceptsRoles(
     ValidRoles.HEALTH_AUTHORITY,
     ValidRoles.HEALTH_MATCH,
@@ -240,11 +254,11 @@ export class IENApplicantController {
   )
   async updateApplicantJob(
     @Param('id') id: string,
-    @Param('job_applicant_id') job_applicant_id: string,
+    @Param('job_id') job_id: string,
     @Body() jobData: IENApplicantJobCreateUpdateAPIDTO,
   ): Promise<ApplicantJobRO | undefined> {
     try {
-      return await this.ienapplicantService.updateApplicantJob(id, job_applicant_id, jobData);
+      return await this.ienapplicantService.updateApplicantJob(id, job_id, jobData);
     } catch (e) {
       this.logger.error(e);
       if (e instanceof NotFoundException) {

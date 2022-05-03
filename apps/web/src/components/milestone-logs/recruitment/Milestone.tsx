@@ -28,10 +28,10 @@ const getInitialValues = (
   status?: ApplicantStatusAuditRO,
 ): IENApplicantAddStatusDTO | IENApplicantUpdateStatusDTO => ({
   status: `${status?.status?.id || ''}`,
-  start_date: `${status?.start_date || dayjs().format('YYYY-MM-DD')}`,
+  start_date: `${status?.start_date || ''}`,
   notes: `${status?.notes || ''}`,
   reason: `${status?.reason?.id || ''}`,
-  effective_date: `${status?.effective_date || dayjs().format('YYYY-MM-DD')}`,
+  effective_date: `${status?.effective_date || ''}`,
 });
 
 const milestoneValidator = createValidator(IENApplicantAddStatusDTO);
@@ -58,7 +58,7 @@ export const AddMilestone: React.FC<AddMilestoneProps> = ({
 
     // get updated milestones
     if (data && data.id) {
-      const reFetchData = await getJobAndMilestones(applicantId, { job_id: job.id });
+      const reFetchData = await getJobAndMilestones(applicantId, { job_id: +job.id });
 
       if (reFetchData) {
         const [jobs] = reFetchData;
