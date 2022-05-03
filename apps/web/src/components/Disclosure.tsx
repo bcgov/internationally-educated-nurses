@@ -4,11 +4,12 @@ import chevronUp from '@assets/img/chevron_up.svg';
 interface DisclosureProps {
   buttonText: React.ReactNode;
   content: React.ReactNode;
+  shouldExpand?: boolean;
 }
 
-export const Disclosure: React.FC<DisclosureProps> = ({ buttonText, content }) => {
+export const Disclosure: React.FC<DisclosureProps> = ({ buttonText, content, shouldExpand }) => {
   return (
-    <HeadlessDisclosure>
+    <HeadlessDisclosure defaultOpen={shouldExpand}>
       {({ open }) => (
         <div className='border border-gray-200 rounded'>
           <HeadlessDisclosure.Button
