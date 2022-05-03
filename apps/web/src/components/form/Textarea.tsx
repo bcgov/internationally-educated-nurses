@@ -18,7 +18,7 @@ export const Textarea: React.FC<TextareaProps> = ({ name, label, description, ma
         description={description}
         maxLength={maxLength}
         as='textarea'
-        className='bg-white h-20 w-full border rounded border-bcBlack p-1.5'
+        className='bg-white h-32 w-full border rounded border-bcGray p-1.5 '
       />
       {maxLength ? (
         <>

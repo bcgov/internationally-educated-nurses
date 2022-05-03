@@ -127,7 +127,10 @@ export const Record: React.FC<RecordProps> = ({ job, update }) => {
               />
 
               <DetailsItem title='Recruiter Name' text={recruiter_name} />
-              <DetailsItem title='Date Job Was First Posted' text={formatDate(job_post_date)} />
+              <DetailsItem
+                title='Date Job Was First Posted'
+                text={job_post_date ? formatDate(job_post_date) : 'N/A'}
+              />
             </div>
             <button
               className={`px-6 mb-2 ${buttonColor.secondary} ${buttonBase}`}

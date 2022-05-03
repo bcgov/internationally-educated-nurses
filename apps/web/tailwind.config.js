@@ -12,6 +12,7 @@ module.exports = {
         bcBlack: '#313132',
         bcDeepBlack: '#272833',
         bcGray: '#606060',
+        bcGrayInput: '#F5F5F5',
         bcGrayLabel: '#574F5A',
         bcLightGray: '#F2F2F2',
         bcBlueBar: 'rgba(139, 199, 255, 0.2)',
