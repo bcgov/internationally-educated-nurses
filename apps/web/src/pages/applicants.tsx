@@ -26,8 +26,10 @@ const Applicants = () => {
   const router = useRouter();
 
   // search options
-  const [name, setName] = useState('');
-  const [status, setStatus] = useState<number>(0);
+  // const [name, setName] = useState('');
+  const name = router.query.name as string;
+  const status = +(router.query.status as string);
+
   const [sortKey, setSortKey] = useState('');
   const [order, setOrder] = useState<'ASC' | 'DESC'>('DESC');
   const [limit, setLimit] = useState(DEFAULT_PAGE_SIZE);
@@ -40,12 +42,6 @@ const Applicants = () => {
 
   const searchByName = async (searchName: string, searchLimit: number) => {
     return searchApplicants({ name: searchName, limit: searchLimit }).then(({ data }) => data);
-  };
-
-  const handleKeywordChange = (searchName: string) => {
-    setStatus(0);
-    setPageIndex(1);
-    setName(searchName);
   };
 
   useEffect(() => {
@@ -82,6 +78,27 @@ const Applicants = () => {
     }
   };
 
+  const changeRoute = (keyword: string, status: number) => {
+    let url = '/applicants?';
+    if (keyword) {
+      url += `name=${keyword}`;
+    }
+    if (!url.endsWith('?')) {
+      url += '&';
+    }
+    url += `status=${status}`;
+    router.push(url, undefined, { shallow: true });
+  };
+
+  const handleKeywordChange = (keyword: string) => {
+    setPageIndex(1);
+    changeRoute(keyword, 0);
+  };
+
+  const handleTabChange = (index: number) => {
+    changeRoute(name, index ? index + 10000 : 0);
+  };
+
   if (loading) {
     return <h1>Loading...</h1>;
   }
@@ -99,7 +116,7 @@ const Applicants = () => {
         <HeaderTab
           tabs={[{ title: 'All', value: 0 }, ...milestoneTabs]}
           tabIndex={status ? status - 10000 : 0}
-          onTabClick={index => setStatus(index ? index + 10000 : 0)}
+          onTabClick={handleTabChange}
         />
         <div className='opacity-50 pb-3 px-4'>{`Showing ${applicants.length} results`}</div>
       </div>
