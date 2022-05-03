@@ -1,6 +1,7 @@
 import React, { ChangeEvent, KeyboardEvent, useEffect, useState } from 'react';
 import searchIcon from '@assets/img/search.svg';
 import clearIcon from '@assets/img/x_clear.svg';
+import barIcon from '@assets/img/bar.svg';
 import { ApplicantRO } from '@ien/common';
 
 interface SearchProps {
@@ -52,6 +53,7 @@ export const Search = (props: SearchProps) => {
   // clear search bar text
   const handleClear = () => {
     setSearchName('');
+    onChange(''); // refresh the applicant page
   };
 
   return (
@@ -68,14 +70,22 @@ export const Search = (props: SearchProps) => {
           placeholder='Search by first name or last name'
           className='flex-grow focus:outline-none'
         />
-        {searchName && focus && (
+        {searchName && (
           <>
             <button onClick={handleClear}>
               <img src={clearIcon.src} alt='search' className='flex-grow-0 mr-3' />
             </button>
-            <button className='flex-grow-0 text-bcBlueAccent ' onClick={() => onChange(searchName)}>
-              Show all results
-            </button>
+            {focus && (
+              <>
+                <img src={barIcon.src} alt='search' className='flex-grow-0 mr-3' />
+                <button
+                  className='flex-grow-0 text-bcBlueAccent '
+                  onClick={() => onChange(searchName)}
+                >
+                  Show all results
+                </button>
+              </>
+            )}
           </>
         )}
       </div>
