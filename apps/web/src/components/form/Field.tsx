@@ -45,7 +45,7 @@ export const Field: React.FC<FieldProps> = props => {
           classnames(
             `w-full rounded-none block h-10
             border-b-2 border-bcBlack pl-1 disabled:bg-bcDisabled ${
-              bgColour ? bgColour : 'bg-gray-100'
+              bgColour ? bgColour : 'bg-bcGrayInput'
             }`,
             {
               'border-red-500': meta.touched && meta.error,
