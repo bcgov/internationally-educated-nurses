@@ -21,6 +21,20 @@ Cypress.Commands.add('login', () => {
   cy.get('#kc-login').click();
 });
 
+Cypress.Commands.add('search', (name: string) => {
+  cy.contains('Manage Applicants');
+
+  cy.get('input').type(name);
+
+  cy.get('div > span[class=my-auto]').each(() => {
+    cy.contains(name);
+  });
+
+  cy.get('div > span[class=my-auto]').contains(name).click();
+
+  cy.contains(name);
+});
+
 //
 // -- This is a child command --
 // Cypress.Commands.add('drag', { prevSubject: 'element'}, (subject, options) => { ... })

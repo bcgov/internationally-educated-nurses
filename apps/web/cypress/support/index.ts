@@ -19,6 +19,7 @@ declare global {
   namespace Cypress {
     interface Chainable {
       login(): Chainable<Element>;
+      search(name: string): Chainable<Element>;
     }
   }
 }
