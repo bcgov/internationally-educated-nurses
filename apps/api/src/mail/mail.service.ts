@@ -91,7 +91,7 @@ export class MailService {
     const template = handlebars.compile(templateContent, { strict: true });
     const body = template(mailable.context);
 
-    return await this.sendMailWithChes({
+    return this.sendMailWithChes({
       ...mailOptions,
       body,
     } as MailOptions);

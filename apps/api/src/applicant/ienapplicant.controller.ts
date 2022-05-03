@@ -15,6 +15,7 @@ import {
   Post,
   Put,
   Query,
+  Req,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -34,6 +35,7 @@ import { ValidRoles } from 'src/auth/auth.constants';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { RouteAcceptsRoles } from 'src/common/decorators';
 import { IENApplicantJobQueryDTO } from './dto/ienapplicant-job-filter.dto';
+import { RequestObj } from 'src/common/interface/RequestObj';
 
 @Controller('ien')
 @ApiTags('IEN Applicant')
@@ -163,11 +165,16 @@ export class IENApplicantController {
   )
   @Post('/:id/status')
   async addApplicantStatus(
+    @Req() req: RequestObj,
     @Param('id') id: string,
     @Body() applicantStatus: IENApplicantAddStatusAPIDTO,
   ): Promise<ApplicantStatusAuditRO | undefined> {
     try {
-      return await this.ienapplicantService.addApplicantStatus(id, applicantStatus);
+      return await this.ienapplicantService.addApplicantStatus(
+        req?.user.user_id,
+        id,
+        applicantStatus,
+      );
     } catch (e) {
       throw this._handleStatusException(e);
     }
@@ -184,12 +191,17 @@ export class IENApplicantController {
     ValidRoles.MINISTRY_OF_HEALTH,
   )
   async updateApplicantStatus(
+    @Req() req: RequestObj,
     @Param('id') _id: string,
     @Param('status_id') status_id: string,
     @Body() applicantStatus: IENApplicantUpdateStatusAPIDTO,
   ): Promise<ApplicantStatusAuditRO | undefined> {
     try {
-      return await this.ienapplicantService.updateApplicantStatus(status_id, applicantStatus);
+      return await this.ienapplicantService.updateApplicantStatus(
+        req?.user.user_id,
+        status_id,
+        applicantStatus,
+      );
     } catch (e) {
       throw this._handleStatusException(e);
     }

@@ -30,6 +30,7 @@ export class AuthGuard implements CanActivate {
       name: tokenUser.preferred_username,
       email: tokenUser.email,
     });
+    request.user = employee;
     if (acceptedRoles.includes(employee.role as ValidRoles)) {
       return true;
     }

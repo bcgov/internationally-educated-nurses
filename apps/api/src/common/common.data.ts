@@ -6,6 +6,8 @@ export const CommonData = {
     'jobs.job_title',
     'jobs.job_location',
     'jobs.status_audit',
+    'jobs.status_audit.added_by',
+    'jobs.status_audit.updated_by',
     'jobs.status_audit.status',
     'applicant_status_audit',
   ],
@@ -17,5 +19,7 @@ export const CommonData = {
     'status_audit',
     'status_audit.status',
     'status_audit.reason',
+    'status_audit.added_by',
+    'status_audit.updated_by',
   ],
 };

@@ -33,7 +33,7 @@ export class IENMasterService {
   ) {}
 
   async getStatus(): Promise<IENApplicantStatus[]> {
-    return await this.ienapplicantStatusRepository.find({
+    return this.ienapplicantStatusRepository.find({
       where: {
         parent: IsNull(),
       },
