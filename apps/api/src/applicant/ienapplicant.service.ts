@@ -84,7 +84,7 @@ export class IENApplicantService {
           applicant: applicant,
           job: IsNull(),
         },
-        relations: ['status', 'reason', 'status.parent'],
+        relations: ['status', 'reason', 'status.parent', 'added_by', 'updated_by'],
       });
     }
     return applicant;
@@ -207,21 +207,13 @@ export class IENApplicantService {
    * @returns
    */
   async addApplicantStatus(
+    user_id: number | null,
     id: string,
     applicantUpdate: IENApplicantAddStatusAPIDTO,
   ): Promise<IENApplicantStatusAudit | any> {
     const applicant = await this.getApplicantById(id);
-    const {
-      status,
-      start_date,
-      end_date,
-      added_by,
-      job_id,
-      notes,
-      reason,
-      effective_date,
-      reason_other,
-    } = applicantUpdate;
+    const { status, start_date, end_date, job_id, notes, reason, effective_date, reason_other } =
+      applicantUpdate;
     const data: any = {};
 
     /** Only allowing recruiment related milestones here */
@@ -239,8 +231,8 @@ export class IENApplicantService {
       throw new BadRequestException(`Competition/job are required to add a milestone`);
     }
 
-    if (added_by) {
-      const added_by_data = await this.ienUsersRepository.findOne(parseInt(added_by));
+    if (user_id) {
+      const added_by_data = await this.ienUsersRepository.findOne(user_id);
       if (added_by_data) {
         data.added_by = added_by_data;
       }
@@ -291,6 +283,7 @@ export class IENApplicantService {
    * @returns
    */
   async updateApplicantStatus(
+    user_id: number | null,
     status_id: string,
     applicantUpdate: IENApplicantUpdateStatusAPIDTO,
   ): Promise<IENApplicantStatusAudit | any> {
@@ -300,10 +293,9 @@ export class IENApplicantService {
     if (!status_audit) {
       throw new NotFoundException('Provided status/milestone record not found');
     }
-    const { status, start_date, effective_date, end_date, added_by, notes, reason } =
-      applicantUpdate;
-    if (added_by) {
-      const updated_by_data = await this.ienUsersRepository.findOne(parseInt(added_by));
+    const { status, start_date, effective_date, end_date, notes, reason } = applicantUpdate;
+    if (user_id) {
+      const updated_by_data = await this.ienUsersRepository.findOne(user_id);
       if (updated_by_data) {
         status_audit.updated_by = updated_by_data;
       }

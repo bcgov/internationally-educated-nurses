@@ -24,7 +24,7 @@ export class EmployeeEntity {
   name!: string;
   @Column('varchar', { length: 128, nullable: false })
   email!: string;
-  // TODO maybe change this to an enum
+
   @Column('varchar', { length: 128, nullable: false })
   role!: string;
 

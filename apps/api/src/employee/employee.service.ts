@@ -1,28 +1,46 @@
 import { BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { FindManyOptions, In, Repository, getManager } from 'typeorm';
 import { ValidRoles } from 'src/auth/auth.constants';
-import { FindManyOptions, ILike, In, Repository } from 'typeorm';
 import { EmployeeEntity } from './employee.entity';
+import { IENUsers } from 'src/applicant/entity/ienusers.entity';
+import { EmployeeUser } from 'src/common/interface/EmployeeUser';
 
 export class EmployeeService {
   constructor(
     @InjectRepository(EmployeeEntity)
     private employeeRepository: Repository<EmployeeEntity>,
+    @InjectRepository(IENUsers)
+    private ienUsersRepository: Repository<IENUsers>,
   ) {}
-  // TODO Find a more elegant way of upserting a user
-  async resolveUser(
-    keycloakId: string,
-    userData: Partial<EmployeeEntity>,
-  ): Promise<EmployeeEntity> {
+
+  async resolveUser(keycloakId: string, userData: Partial<EmployeeEntity>): Promise<EmployeeUser> {
     const existingEmployee = await this.getUserByKeycloakId(keycloakId);
     if (existingEmployee) {
       return existingEmployee;
     }
     const newUser = this.employeeRepository.create(userData);
-    return await this.employeeRepository.save(newUser);
+    const employee = await this.employeeRepository.save(newUser);
+    const user = await this.getUserId(userData.email);
+    const empUser: EmployeeUser = {
+      ...employee,
+      user_id: user ? user.id : null,
+    };
+    return empUser;
   }
-  async getUserByKeycloakId(keycloakId: string): Promise<EmployeeEntity | undefined> {
-    return await this.employeeRepository.findOne({ keycloakId });
+
+  async getUserByKeycloakId(keycloakId: string): Promise<EmployeeUser | undefined> {
+    return getManager()
+      .createQueryBuilder(EmployeeEntity, 'employee')
+      .select('employee.*')
+      .addSelect('users.id', 'user_id')
+      .leftJoin('ien_users', 'users', 'employee.email = users.email')
+      .where('employee.keycloak_id = :keyclock', { keyclock: keycloakId }) // WHERE t3.event = 2019
+      .getRawOne();
+  }
+
+  async getUserId(email: string | undefined): Promise<IENUsers | undefined> {
+    return this.ienUsersRepository.findOne({ email });
   }
 
   /**
@@ -33,13 +51,16 @@ export class EmployeeService {
    * @returns Employee/User's list
    */
   async getEmployeeList(name: string): Promise<EmployeeEntity[]> {
-    const query: FindManyOptions<EmployeeEntity> = {
-      select: ['id', 'name', 'role'],
-    };
-    if (name && name != '') {
-      query.where = { name: ILike(`%${name}%`) };
+    if (!name) {
+      name = '';
     }
-    return await this.employeeRepository.find(query);
+    return getManager()
+      .createQueryBuilder(EmployeeEntity, 'employee')
+      .select('employee.id, employee.name, employee.role')
+      .addSelect('users.id', 'user_id')
+      .leftJoin('ien_users', 'users', 'employee.email = users.email')
+      .where('employee.name ilike :name', { name: `%${name}%` })
+      .getRawMany();
   }
 
   /**
@@ -50,6 +71,9 @@ export class EmployeeService {
   async updateRole(ids: string[], role: string): Promise<void> {
     if (!Object.values<string>(ValidRoles).includes(role)) {
       throw new BadRequestException(`Provided role does not exist`);
+    }
+    if (role == ValidRoles.ROLEADMIN) {
+      throw new BadRequestException(`ROLE-ADMIN is only assigned in the database.`);
     }
 
     const query: FindManyOptions<EmployeeEntity> = {};

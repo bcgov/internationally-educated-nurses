@@ -152,8 +152,8 @@ export class IENApplicantUtilService {
       relations: ['children'],
     });
     if (parent_status.length > 0) {
-      parent_status.forEach(status => {
-        const children = status.children;
+      parent_status.forEach(s => {
+        const children = s.children;
         children.forEach(c => {
           status_list.push(`${c.id}`);
         });

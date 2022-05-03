@@ -1,11 +1,10 @@
 import { HttpException, HttpStatus, Inject, Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction } from 'express';
 import { AuthService } from '../auth/auth.service';
-
 import { EmployeeService } from 'src/employee/employee.service';
-import { EmployeeEntity } from 'src/employee/employee.entity';
 import { ValidRoles } from 'src/auth/auth.constants';
 import { AppLogger } from './logger.service';
+import { RequestObj } from './interface/RequestObj';
 
 @Injectable()
 export class AuthenticationMiddleware implements NestMiddleware {
@@ -15,8 +14,9 @@ export class AuthenticationMiddleware implements NestMiddleware {
     private readonly employeeService: EmployeeService,
   ) {}
   async use(
-    req: { headers: { [key: string]: string } },
-    res: { locals: { kcUser: any; roles: ValidRoles; user: EmployeeEntity } },
+    req: RequestObj,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    res: { locals: { kcUser: any; roles: ValidRoles } },
     next: NextFunction,
   ) {
     const token: string = this.authService.extractToken(req.headers) || '';
@@ -25,7 +25,7 @@ export class AuthenticationMiddleware implements NestMiddleware {
       throw new HttpException('Token not found', HttpStatus.BAD_GATEWAY);
     }
     try {
-      const user: any = await this.authService.getUserFromToken(token);
+      const user = await this.authService.getUserFromToken(token);
       res.locals.kcUser = user;
 
       // Retrieve user roles
@@ -40,7 +40,7 @@ export class AuthenticationMiddleware implements NestMiddleware {
         email: user.email,
       });
 
-      res.locals.user = applicationUser;
+      req.user = applicationUser;
       next();
     } catch (e: any) {
       this.logger.log('Error triggered inside auth.middleware', e);
