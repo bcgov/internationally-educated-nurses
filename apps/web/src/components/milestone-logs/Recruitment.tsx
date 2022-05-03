@@ -25,6 +25,7 @@ export const Recruitment: React.FC = () => {
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_JOB_PAGE_SIZE);
   const [total, setTotal] = useState(0);
+  const [expandRecord, setExpandRecord] = useState(false);
 
   const getJobAndMilestonesData = async (id: string) => {
     setIsLoading(true);
@@ -95,11 +96,13 @@ export const Recruitment: React.FC = () => {
   const handlePageOptions = (options: PageOptions) => {
     setPageIndex(options.pageIndex);
     setPageSize(options.pageSize);
+    setExpandRecord(false);
   };
 
   const handleFilters = (filterBy: JobFilterOptions) => {
     setPageIndex(1);
     setFilters(filterBy);
+    setExpandRecord(false);
   };
 
   return (
@@ -107,7 +110,7 @@ export const Recruitment: React.FC = () => {
       <JobFilters options={filters} update={handleFilters} />
 
       {jobRecords.map(job => (
-        <Record key={job.id} job={job} update={handleRecordUpdate} />
+        <Record key={job.id} job={job} update={handleRecordUpdate} expandRecord={expandRecord} />
       ))}
 
       <div className='border rounded bg-bcBlueBar flex justify-between items-center mb-4 h-12'>
@@ -123,7 +126,11 @@ export const Recruitment: React.FC = () => {
           <span>Add Record</span>
         </button>
       </div>
-      <AddRecordModal onClose={handleNewRecord} visible={recordModalVisible} />
+      <AddRecordModal
+        onClose={handleNewRecord}
+        visible={recordModalVisible}
+        setExpandRecord={setExpandRecord}
+      />
 
       <Pagination pageOptions={{ pageIndex, pageSize, total }} onChange={handlePageOptions} />
     </>

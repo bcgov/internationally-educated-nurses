@@ -25,9 +25,10 @@ dayjs.extend(relativeTime);
 interface RecordProps {
   job: ApplicantJobRO;
   update: (record?: ApplicantJobRO) => void;
+  expandRecord: boolean;
 }
 
-export const Record: React.FC<RecordProps> = ({ job, update }) => {
+export const Record: React.FC<RecordProps> = ({ job, update, expandRecord }) => {
   const router = useRouter();
   const applicantId = router.query.id as string;
   const [modalVisible, setModalVisible] = useState(false);
@@ -99,6 +100,7 @@ export const Record: React.FC<RecordProps> = ({ job, update }) => {
   return (
     <div className='mb-3'>
       <Disclosure
+        shouldExpand={expandRecord}
         buttonText={
           <div className='rounded py-2 pl-5 w-full'>
             <div className='flex items-center'>

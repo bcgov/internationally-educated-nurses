@@ -21,10 +21,11 @@ interface AddRecordProps {
   milestones?: ApplicantStatusAuditRO[];
   onClose: (jobRecord?: ApplicantJobRO) => void;
   visible: boolean;
+  setExpandRecord?: (expand: boolean) => void | undefined;
 }
 
 export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) => {
-  const { job, milestones, visible, onClose } = props;
+  const { job, milestones, visible, onClose, setExpandRecord } = props;
 
   const router = useRouter();
 
@@ -39,6 +40,10 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
     const data = job
       ? await updateJobRecord(applicantId, job.id, values)
       : await addJobRecord(applicantId, values);
+
+    if (setExpandRecord) {
+      setExpandRecord(true);
+    }
 
     onClose(data);
   };
