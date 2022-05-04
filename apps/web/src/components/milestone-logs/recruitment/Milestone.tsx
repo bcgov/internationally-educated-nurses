@@ -269,7 +269,7 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({ job, milestone, handleSub
                 type='submit'
                 loading={isSubmitting}
               >
-                {milestone ? 'Save Changes' : <span className='px-10'>Save</span>}
+                {milestone ? 'Save Changes' : 'Save Milestone'}
               </Button>
               {milestone && (
                 <Button
