@@ -24,6 +24,7 @@ const convertCountryCode = (code: string | undefined) => {
 };
 
 const Details = () => {
+  const [loading, setLoading] = useState(true);
   const [applicant, setApplicant] = useState<ApplicantRO>({} as ApplicantRO);
   const [currentTab, setCurrentTab] = useState(0);
   const [milestones, setMilestones] = useState<ApplicantStatusAuditRO[]>([]);
@@ -37,11 +38,15 @@ const Details = () => {
   };
 
   const fetchApplicant = async () => {
+    setLoading(true);
+
     const applicantData = await getApplicant(applicantId);
     if (applicantData) {
       setApplicant(applicantData);
     }
     selectDefaultLandingTab(applicantData?.status?.id);
+
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -67,10 +72,6 @@ const Details = () => {
 
   useEffect(() => filterMilestones(), [applicant, currentTab]);
 
-  if (!applicant) {
-    return <Spinner className='h-20' />;
-  }
-
   const logType = [
     // waiting for hmbc api for remaining 4 components
     { component: <MilestoneTable milestones={milestones} /> },
@@ -80,14 +81,15 @@ const Details = () => {
     { component: <MilestoneTable milestones={milestones} /> },
   ];
 
-  const backToApplicants = () => {
-    router.back();
-  };
+  if (loading && !applicant.id) {
+    // spinner only for the initial loading not for updating
+    return <Spinner className='h-10' />;
+  }
 
   return (
     <div className='container w-full mx-6 xl:w-xl mb-4 px-4'>
       <div className='text-xs mt-4 mb-5 font-bold'>
-        <button onClick={backToApplicants}>
+        <button onClick={() => router.back()}>
           <a className='text-bcGray hover:text-bcBlueLink hover:underline'>Manage Applicants</a>
         </button>
         <span className='mx-3'>&gt;</span>

@@ -26,7 +26,6 @@ const Applicants = () => {
   const router = useRouter();
 
   // search options
-  // const [name, setName] = useState('');
   const name = router.query.name as string;
   const status = +(router.query.status as string);
 
