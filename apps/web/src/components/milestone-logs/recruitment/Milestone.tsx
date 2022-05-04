@@ -31,7 +31,7 @@ const getInitialValues = (
   start_date: `${status?.start_date || ''}`,
   notes: `${status?.notes || ''}`,
   reason: `${status?.reason?.id || ''}`,
-  effective_date: `${status?.effective_date || ''}`,
+  effective_date: `${status?.effective_date || new Date().toISOString()}`,
 });
 
 const milestoneValidator = createValidator(IENApplicantAddStatusDTO);
@@ -58,7 +58,7 @@ export const AddMilestone: React.FC<AddMilestoneProps> = ({
 
     // get updated milestones
     if (data && data.id) {
-      const reFetchData = await getJobAndMilestones(applicantId, { job_id: +job.id });
+      const reFetchData = await getJobAndMilestones(applicantId, { job_id: job.id });
 
       if (reFetchData) {
         const [jobs] = reFetchData;
