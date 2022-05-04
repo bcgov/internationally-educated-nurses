@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import ReactSelect from 'react-select';
 import { RecordTypeOptions, useGetAddRecordOptions } from '@services';
 import { JobFilterOptions } from '@ien/common';
@@ -11,10 +10,21 @@ interface JobFilterProps {
 }
 
 export const JobFilters = ({ options, update }: JobFilterProps) => {
+  const { ha_pcn: regions, job_title: specialties } = options;
+
   const { haPcn, jobTitle } = useGetAddRecordOptions();
 
-  const [regions, setRegions] = useState(options.ha_pcn);
-  const [specialties, setSpecialties] = useState(options.job_title);
+  const clearFilters = () => {
+    update({ ha_pcn: [], job_title: [] });
+  };
+
+  const applyRegions = (regions: string[]) => {
+    update({ ha_pcn: regions, job_title: specialties });
+  };
+
+  const applySpecialties = (specialties: string[]) => {
+    update({ ha_pcn: regions, job_title: specialties });
+  };
 
   return (
     <div className='flex flex-col md:flex-row  items-center my-5'>
@@ -23,7 +33,7 @@ export const JobFilters = ({ options, update }: JobFilterProps) => {
         inputId='ha'
         placeholder='Health Region'
         value={haPcn?.data?.filter(ha => regions?.includes(ha.id))}
-        onChange={value => setRegions(value?.map(ha => ha.id) || [])}
+        onChange={value => applyRegions(value?.map(ha => ha.id) || [])}
         options={haPcn?.data?.map(ha => ({ ...ha, isDisabled: regions?.includes(ha.id) }))}
         getOptionLabel={option => option.title}
         getOptionValue={option => option.id}
@@ -36,7 +46,7 @@ export const JobFilters = ({ options, update }: JobFilterProps) => {
         inputId='specialty'
         placeholder='Specialty'
         value={jobTitle?.data?.filter(title => specialties?.includes(title.id))}
-        onChange={value => setSpecialties(value?.map(title => title.id))}
+        onChange={value => applySpecialties(value?.map(title => title.id) || [])}
         options={jobTitle?.data?.map(title => ({
           ...title,
           isDisabled: specialties?.includes(title.id),
@@ -48,12 +58,8 @@ export const JobFilters = ({ options, update }: JobFilterProps) => {
         isClearable
         className='w-80 min-w-full md:min-w-0 mx-1'
       />
-      <Button
-        className='ml-2 px-6 text-sm'
-        onClick={() => update({ ha_pcn: regions, job_title: specialties })}
-        variant='primary'
-      >
-        Apply
+      <Button className='ml-2 px-6 text-sm' onClick={clearFilters} variant='outline'>
+        Clear
       </Button>
     </div>
   );
