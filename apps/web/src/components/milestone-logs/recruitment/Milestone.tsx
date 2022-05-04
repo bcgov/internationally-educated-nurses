@@ -31,7 +31,7 @@ const getInitialValues = (
   start_date: `${status?.start_date || ''}`,
   notes: `${status?.notes || ''}`,
   reason: `${status?.reason?.id || ''}`,
-  effective_date: `${status?.effective_date || ''}`,
+  effective_date: `${status?.effective_date || new Date().toISOString()}`,
 });
 
 const milestoneValidator = createValidator(IENApplicantAddStatusDTO);
