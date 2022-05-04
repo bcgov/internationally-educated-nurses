@@ -9,8 +9,7 @@ export interface IENApplicantStatusRO {
 export interface IENUserRO {
   id: number;
   name: string;
-  user_id?: string;
-  created_date?: Date;
+  email?: string;
 }
 
 export interface IENHaPcnRO {

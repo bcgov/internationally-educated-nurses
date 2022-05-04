@@ -2,6 +2,7 @@ import { useState } from 'react';
 import createValidator from 'class-validator-formik';
 import dayjs from 'dayjs';
 import { Formik, Form as FormikForm, FormikHelpers, FieldProps } from 'formik';
+import ReactSelect from 'react-select';
 
 import { Button, buttonBase, Field, getSelectStyleOverride, Textarea } from '@components';
 import {
@@ -22,7 +23,7 @@ import {
 import addIcon from '@assets/img/add.svg';
 import editIcon from '@assets/img/edit.svg';
 import calendarIcon from '@assets/img/calendar.svg';
-import ReactSelect from 'react-select';
+import userIcon from '@assets/img/user.svg';
 
 const getInitialValues = (
   status?: ApplicantStatusAuditRO,
@@ -88,18 +89,28 @@ export const EditMilestone: React.FC<EditMilestoneProps> = ({ job, milestone, ha
       {!isEdit ? (
         <div className='border border-gray-200 rounded bg-bcLightGray my-2 p-5'>
           <div className='w-full'>
-            <div className='flex items-center'>
-              <span className='font-bold text-black capitalize'>
-                {milestone.status.status} |{' '}
-                <img
-                  src={calendarIcon.src}
-                  alt='calendar'
-                  className='inline-block mr-1'
-                  width={13}
-                  height={13}
-                />
-                {formatDate(milestone.start_date)}
+            <div className='flex items-center font-bold text-black '>
+              <span className='capitalize'>{milestone.status.status}</span>
+              <span className='mx-2'>|</span>
+              <span className='mr-2'>
+                <img src={calendarIcon.src} alt='calendar' width={16} height={16} />
               </span>
+              <span>{formatDate(milestone.start_date)}</span>
+              {(milestone.updated_by?.email || milestone.added_by?.email) && (
+                <>
+                  <span className='mx-2'>|</span>
+                  <span className='mr-2'>
+                    <img src={userIcon.src} alt='user' />
+                  </span>
+                  <span>Latest updated:</span>
+                  <a
+                    className='ml-2'
+                    href={`mailto: ${milestone.updated_by?.email || milestone.added_by?.email}`}
+                  >
+                    {milestone.updated_by?.email || milestone.added_by?.email}
+                  </a>
+                </>
+              )}
               <button className='ml-auto mr-1'>
                 <img src={editIcon.src} alt='edit' onClick={() => setIsEdit(true)} />
               </button>
