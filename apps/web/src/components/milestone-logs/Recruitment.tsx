@@ -4,13 +4,12 @@ import { useEffect, useState } from 'react';
 import { AddRecordModal } from '../display/AddRecordModal';
 import { Spinner } from '../Spinner';
 import { Record } from './recruitment/Record';
-import { getJobAndMilestones, getJobRecord } from '@services';
+import { getJobAndMilestones, getJobRecord, emitter, IEN_EVENTS } from '@services';
 import { buttonBase, buttonColor } from '@components';
 import { ApplicantJobRO, JobFilterOptions } from '@ien/common';
 import addIcon from '@assets/img/add.svg';
 import { JobFilters } from './recruitment/JobFilters';
 import { PageOptions, Pagination } from '../Pagination';
-import { emitter, IEN_EVENTS } from '../../services/event-emitter';
 
 const DEFAULT_JOB_PAGE_SIZE = 5;
 
