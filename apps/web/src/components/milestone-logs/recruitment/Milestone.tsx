@@ -11,6 +11,7 @@ import {
   ApplicantStatusAuditRO,
   IENApplicantUpdateStatusDTO,
   ApplicantJobRO,
+  STATUS,
 } from '@ien/common';
 import {
   addMilestone,
@@ -50,7 +51,7 @@ export const AddMilestone: React.FC<AddMilestoneProps> = ({
   const handleSubmit = async (values: any, { resetForm }: any) => {
     values.job_id = `${job.id}`;
 
-    if (values.status !== '304' && values.status !== '305') {
+    if (values.status !== `${STATUS.Candidate_withdrew}`) {
       values.effective_date = undefined;
     }
 
@@ -251,7 +252,7 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({ job, milestone, handleSub
                 ) : null}
 
                 {/* Position offered conditional */}
-                {values.status === '304' ? (
+                {values.status === `${STATUS.Candidate_withdrew}` ? (
                   <span className='col-span-12 sm:col-span-6 lg:col-span-3 pr-1 md:pr-2'>
                     <Field
                       name='effective_date'

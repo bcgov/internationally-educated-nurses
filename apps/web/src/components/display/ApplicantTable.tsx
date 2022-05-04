@@ -2,14 +2,16 @@ import Link from 'next/link';
 import sortIcon from '@assets/img/sort.svg';
 import { buttonBase, buttonColor } from '@components';
 import { ApplicantRO, formatDate } from '@ien/common';
+import { Spinner } from '../Spinner';
 
 export interface ApplicantTableProps {
   applicants: ApplicantRO[];
+  loading?: boolean;
   onSortChange: (field: string) => void;
 }
 
 export const ApplicantTable = (props: ApplicantTableProps) => {
-  const { applicants, onSortChange } = props;
+  const { applicants, loading, onSortChange } = props;
 
   return (
     <div className='overflow-x-auto'>
@@ -39,6 +41,7 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
         </thead>
         <tbody className='text-bcBlack'>
           {applicants &&
+            !loading &&
             applicants.map((app: ApplicantRO) => (
               <tr
                 key={app.id}
@@ -57,6 +60,13 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
                 </td>
               </tr>
             ))}
+          {loading && (
+            <tr className='text-left shadow-xs whitespace-nowrap even:bg-bcLightGray text-sm'>
+              <td colSpan={5} className='h-64'>
+                <Spinner className='h-10' />
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
     </div>
