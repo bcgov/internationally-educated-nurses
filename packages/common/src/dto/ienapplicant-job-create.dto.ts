@@ -1,4 +1,11 @@
-import { IsDateString, IsNotEmpty, IsOptional, IsString, Length } from 'class-validator';
+import {
+  IsDateString,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Length,
+  ValidateIf,
+} from 'class-validator';
 
 export class IENApplicantJobCreateUpdateDTO {
   @IsString()
@@ -22,6 +29,7 @@ export class IENApplicantJobCreateUpdateDTO {
   @Length(1, 255, { message: 'Recruiter Name must be between 1 and 255 characters' })
   recruiter_name!: string;
 
+  @ValidateIf(d => d.job_post_date !== '')
   @IsDateString()
   @IsOptional()
   job_post_date?: string;

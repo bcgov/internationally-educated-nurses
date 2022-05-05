@@ -1,6 +1,13 @@
 import { IENApplicantJobCreateUpdateDTO } from '@ien/common';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsDateString, IsOptional, IsString, Length, IsNotEmpty } from 'class-validator';
+import {
+  IsDateString,
+  IsOptional,
+  IsString,
+  Length,
+  IsNotEmpty,
+  ValidateIf,
+} from 'class-validator';
 
 export class IENApplicantJobCreateUpdateAPIDTO extends IENApplicantJobCreateUpdateDTO {
   @ApiProperty({ description: "Job's HA/PCN", default: '1' })
@@ -38,6 +45,7 @@ export class IENApplicantJobCreateUpdateAPIDTO extends IENApplicantJobCreateUpda
     format: 'date',
     pattern: 'YYYY-MM-DD',
   })
+  @ValidateIf(d => d.job_post_date !== '')
   @IsDateString()
   @IsOptional()
   job_post_date?: string;
