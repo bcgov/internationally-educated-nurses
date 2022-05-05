@@ -4,7 +4,9 @@
 describe('Search User', () => {
   it('searches user in search bar', () => {
     cy.visit('/');
-    cy.login();
+    if (Cypress.env('realm') === 'ien') {
+      cy.login();
+    }
     cy.search('Mark');
   });
 });
