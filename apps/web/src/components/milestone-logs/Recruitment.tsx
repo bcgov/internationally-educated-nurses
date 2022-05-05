@@ -16,7 +16,7 @@ const DEFAULT_JOB_PAGE_SIZE = 5;
 export const Recruitment: React.FC = () => {
   const router = useRouter();
   const applicantId = router.query.id as string;
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [jobRecords, setJobRecords] = useState<ApplicantJobRO[]>([]);
   const [recordModalVisible, setRecordModalVisible] = useState(false);
 

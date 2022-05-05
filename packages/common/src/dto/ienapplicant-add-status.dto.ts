@@ -1,4 +1,5 @@
 import { IsDateString, IsNotEmpty, IsOptional, IsString, ValidateIf } from 'class-validator';
+import { STATUS } from '../enum';
 
 export class IENApplicantAddStatusDTO {
   @IsString()
@@ -25,7 +26,7 @@ export class IENApplicantAddStatusDTO {
   @IsOptional()
   notes?: string;
 
-  @ValidateIf(s => s.status === '305')
+  @ValidateIf(s => s.status === `${STATUS.Candidate_withdrew}`)
   @IsString()
   @IsNotEmpty({ message: 'Reason is required' })
   reason?: string;
@@ -34,6 +35,7 @@ export class IENApplicantAddStatusDTO {
   @IsOptional()
   reason_other?: string;
 
+  @ValidateIf(s => s.status === `${STATUS.Candidate_withdrew}`)
   @IsDateString()
   @IsOptional()
   effective_date?: string;

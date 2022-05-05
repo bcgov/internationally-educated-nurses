@@ -1,6 +1,6 @@
-import { IENApplicantUpdateStatusDTO } from '@ien/common';
+import { IENApplicantUpdateStatusDTO, STATUS } from '@ien/common';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsDateString, IsOptional, IsString } from 'class-validator';
+import { IsDateString, IsOptional, IsString, ValidateIf } from 'class-validator';
 
 export class IENApplicantUpdateStatusAPIDTO extends IENApplicantUpdateStatusDTO {
   @ApiPropertyOptional({ description: 'Applicant active or last updated status', default: '3' })
@@ -60,6 +60,7 @@ export class IENApplicantUpdateStatusAPIDTO extends IENApplicantUpdateStatusDTO 
     format: 'date',
     pattern: 'YYYY-MM-DD',
   })
+  @ValidateIf(s => s.status === `${STATUS.Candidate_withdrew}`)
   @IsDateString()
   @IsOptional()
   effective_date?: Date;
