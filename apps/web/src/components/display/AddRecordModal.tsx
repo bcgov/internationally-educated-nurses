@@ -37,6 +37,10 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
   const { haPcn, jobLocation, jobTitle } = useGetAddRecordOptions();
 
   const handleSubmit = async (values: IENApplicantJobCreateUpdateDTO) => {
+    if (values.job_post_date === '') {
+      values.job_post_date = undefined;
+    }
+
     const data = job
       ? await updateJobRecord(applicantId, job.id, values)
       : await addJobRecord(applicantId, values);
@@ -64,7 +68,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
     job_title: `${job?.job_title?.id || ''}`,
     job_location: `${job?.job_location?.id || ''}`,
     recruiter_name: job?.recruiter_name || '',
-    job_post_date: job?.job_post_date ? dayjs(job?.job_post_date).format('YYYY-MM-DD') : '',
+    job_post_date: `${job?.job_post_date || ''}`,
   };
 
   return (
