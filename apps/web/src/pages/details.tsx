@@ -1,7 +1,14 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
-import { getApplicant, isoCountries, milestoneTabs, ValidRoles } from '@services';
+import {
+  emitter,
+  getApplicant,
+  IEN_EVENTS,
+  isoCountries,
+  milestoneTabs,
+  ValidRoles,
+} from '@services';
 import { HeaderTab } from 'src/components/display/HeaderTab';
 import { Recruitment } from 'src/components/milestone-logs/Recruitment';
 import { DetailsItem } from '@components';
@@ -11,7 +18,6 @@ import detailIcon from '@assets/img/details.svg';
 import historyIcon from '@assets/img/history.svg';
 import { MilestoneTable } from 'src/components/milestone-logs/MilestoneTable';
 import withAuth from 'src/components/Keycloak';
-import { IEN_EVENTS, emitter } from '@services';
 
 // convert alpha 2 code for countries to full name
 const convertCountryCode = (code: string | undefined) => {
@@ -53,6 +59,7 @@ const Details = () => {
     if (router.isReady) {
       fetchApplicant();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router, applicantId]);
 
   useEffect(() => {
@@ -60,17 +67,16 @@ const Details = () => {
     return () => {
       emitter.off(IEN_EVENTS.UPDATE_JOB, fetchApplicant);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const filterMilestones = () => {
+  useEffect(() => {
     const audits =
       applicant?.applicant_status_audit?.filter(audit => {
         return audit.status.parent?.id === 10000 + currentTab;
       }) || [];
     setMilestones(audits);
-  };
-
-  useEffect(() => filterMilestones(), [applicant, currentTab]);
+  }, [applicant, currentTab]);
 
   const logType = [
     // waiting for hmbc api for remaining 4 components

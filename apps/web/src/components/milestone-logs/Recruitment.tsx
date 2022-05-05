@@ -46,6 +46,7 @@ export const Recruitment: React.FC = () => {
 
   useEffect(() => {
     getJobAndMilestonesData(applicantId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageIndex, pageSize, filters]);
 
   const fetchJob = async (job_id: number) => {
@@ -60,11 +61,13 @@ export const Recruitment: React.FC = () => {
       }
     }
   };
+
   useEffect(() => {
     emitter.on(IEN_EVENTS.UPDATE_JOB, fetchJob);
     return () => {
       emitter.off(IEN_EVENTS.UPDATE_JOB, fetchJob);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleNewRecord = (record?: ApplicantJobRO) => {

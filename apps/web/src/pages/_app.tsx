@@ -13,6 +13,7 @@ import { AuthProvider } from 'src/components/AuthContexts';
 import { KeycloakInstance } from 'keycloak-js';
 import { CachePolicies, Provider } from 'use-http';
 import { AuthClientTokens } from '@react-keycloak/core/lib/types';
+import { PropsWithChildren, ReactNode } from 'react';
 
 axios.defaults.baseURL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -68,16 +69,18 @@ function App({ Component, pageProps }: AppProps) {
   );
 }
 
-function FetchWrapper(props: any) {
+function FetchWrapper(props: PropsWithChildren<ReactNode>) {
   const { keycloak } = useKeycloak<KeycloakInstance>();
   return (
     <Provider
       url={process.env.NEXT_PUBLIC_API_URL}
       options={{
         interceptors: {
-          request: async ({ options }: any) => {
-            if (keycloak?.token) {
-              options.headers['Authorization'] = `Bearer ${keycloak.token}`;
+          request: async ({ options }) => {
+            if (keycloak?.token && options.headers) {
+              (options.headers as { [key: string]: string })[
+                'Authorization'
+              ] = `Bearer ${keycloak.token}`;
             }
             return options;
           },

@@ -30,19 +30,19 @@ export class AuthenticationMiddleware implements NestMiddleware {
 
       // Retrieve user roles
       const resourceAccess = user['resource_access'];
-      const ltcvx = resourceAccess && resourceAccess[process.env.AUTH_CLIENTID as any];
-      const roles = ltcvx && ltcvx.roles;
-      res.locals.roles = roles;
-      const applicationUser = await this.employeeService.resolveUser(user.sub, {
+      if (resourceAccess && process.env.AUTH_CLIENTID) {
+        res.locals.roles = resourceAccess[process.env.AUTH_CLIENTID]?.roles;
+      }
+
+      req.user = await this.employeeService.resolveUser(user.sub, {
         keycloakId: user.sub,
         role: 'pending',
         name: user.preferred_username,
         email: user.email,
       });
 
-      req.user = applicationUser;
       next();
-    } catch (e: any) {
+    } catch (e) {
       this.logger.log('Error triggered inside auth.middleware', e);
       throw new HttpException('Authentication Error', HttpStatus.UNAUTHORIZED);
     }

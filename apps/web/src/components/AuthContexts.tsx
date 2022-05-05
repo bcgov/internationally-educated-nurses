@@ -1,7 +1,7 @@
 import { useKeycloak } from '@react-keycloak/ssr';
 import axios from 'axios';
 import { KeycloakInstance } from 'keycloak-js';
-import React, { useEffect, useState } from 'react';
+import React, { PropsWithChildren, ReactNode, useEffect, useState } from 'react';
 import { ValidRoles } from '@services';
 import { useRouter } from 'next/router';
 
@@ -18,17 +18,15 @@ const AuthContext = React.createContext<{
   authUserLoading: boolean;
 }>({ authUser: undefined, authUserLoading: false });
 
-const AuthProvider = ({ children }: any) => {
-  // eslint-disable-next-line
-  const [authUser, setAuthUser] = useState<UserType | undefined>(undefined);
+const AuthProvider = ({ children }: PropsWithChildren<ReactNode>) => {
+  const [authUser, setAuthUser] = useState<UserType | undefined>();
   const [authUserLoading, setAuthUserLoading] = useState(false);
   const { keycloak } = useKeycloak<KeycloakInstance>();
   const router = useRouter();
 
   const keycloakId = keycloak?.idTokenParsed?.sub;
 
-  const fetchData = async (id?: string) => {
-    if (!id) return;
+  const fetchData = async (id: string) => {
     setAuthUserLoading(true);
     const user = await getUser(id);
     setAuthUser(user);
@@ -42,6 +40,7 @@ const AuthProvider = ({ children }: any) => {
       setAuthUser(undefined);
       router.push('/login');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [keycloakId]);
 
   const value = { authUser, authUserLoading };
