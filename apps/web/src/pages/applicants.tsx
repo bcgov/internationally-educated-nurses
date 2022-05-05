@@ -77,7 +77,7 @@ const Applicants = () => {
     }
   };
 
-  const changeRoute = (keyword: string, status: number) => {
+  const changeRoute = (keyword: string, tabIndex: number) => {
     let url = '/applicants?';
     if (keyword) {
       url += `name=${keyword}`;
@@ -85,7 +85,7 @@ const Applicants = () => {
     if (!url.endsWith('?')) {
       url += '&';
     }
-    url += `status=${status}`;
+    url += `status=${tabIndex}`;
     router.push(url, undefined, { shallow: true });
   };
 
