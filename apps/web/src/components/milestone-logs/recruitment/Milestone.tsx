@@ -252,7 +252,7 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({ job, milestone, handleSub
                 ) : null}
 
                 {/* Position offered conditional */}
-                {values.status === `${STATUS.Candidate_withdrew}` ? (
+                {values.status === `${STATUS.Offered_position}` ? (
                   <span className='col-span-12 sm:col-span-6 lg:col-span-3 pr-1 md:pr-2'>
                     <Field
                       name='effective_date'
