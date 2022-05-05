@@ -11,7 +11,7 @@ import detailIcon from '@assets/img/details.svg';
 import historyIcon from '@assets/img/history.svg';
 import { MilestoneTable } from 'src/components/milestone-logs/MilestoneTable';
 import withAuth from 'src/components/Keycloak';
-import { IEN_EVENTS, emitter } from '../services/event-emitter';
+import { IEN_EVENTS, emitter } from '@services';
 
 // convert alpha 2 code for countries to full name
 const convertCountryCode = (code: string | undefined) => {

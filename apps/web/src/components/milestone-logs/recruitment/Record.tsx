@@ -1,8 +1,6 @@
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import dayjs from 'dayjs';
-import duration from 'dayjs/plugin/duration';
-import relativeTime from 'dayjs/plugin/relativeTime';
 
 import { buttonBase, buttonColor, DetailsItem, Disclosure } from '@components';
 import { AddMilestone, EditMilestone } from './Milestone';
@@ -16,11 +14,7 @@ import {
 import editIcon from '@assets/img/edit.svg';
 import dotIcon from '@assets/img/dot.svg';
 import { AddRecordModal } from '../../display/AddRecordModal';
-import { updateMilestone } from '@services';
-import { emitter, IEN_EVENTS } from '../../../services/event-emitter';
-
-dayjs.extend(duration);
-dayjs.extend(relativeTime);
+import { updateMilestone, getHumanizedDuration, emitter, IEN_EVENTS } from '@services';
 
 interface RecordProps {
   job: ApplicantJobRO;
@@ -73,7 +67,7 @@ export const Record: React.FC<RecordProps> = ({ job, update, expandRecord }) => 
 
     const lastItem = milestones[milestones.length - 1];
 
-    return dayjs.duration(dayjs(lastItem.start_date).diff(new Date())).humanize();
+    return getHumanizedDuration(lastItem.start_date);
   };
 
   const handleModalClose = (record?: ApplicantJobRO) => {
