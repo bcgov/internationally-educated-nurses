@@ -1,3 +1,3 @@
-export interface SuccessResponse<C = any> {
+export interface SuccessResponse<C = unknown> {
   data: C | C[];
 }

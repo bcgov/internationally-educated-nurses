@@ -38,8 +38,8 @@ export class DatabaseNamingStrategy
   }
 
   classTableInheritanceParentColumnName(
-    parentTableName: any,
-    parentTableIdPropertyName: any,
+    parentTableName: string,
+    parentTableIdPropertyName: string,
   ): string {
     return snakeCase(parentTableName + '_' + parentTableIdPropertyName);
   }

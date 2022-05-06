@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Dropzone } from '../Dropzone';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimesCircle } from '@fortawesome/free-solid-svg-icons';
@@ -34,11 +34,13 @@ interface UploadPageProps {
 }
 
 const UploadPage: React.FC<UploadPageProps> = ({ closeModal }) => {
-  const [file, setFile] = useState<any>(null);
+  const [file, setFile] = useState<File | null>(null);
   const router = useRouter();
 
   // parses csv file using papaparse, header uses column headers as keys in JSON data
   const handleFileUpload = async () => {
+    if (!file) return;
+
     Papa.parse(file, {
       header: true,
       complete: function (results) {
@@ -57,14 +59,14 @@ const UploadPage: React.FC<UploadPageProps> = ({ closeModal }) => {
   };
 
   // handles user dragging and dropping file in dropzone area
-  const handleOnDrop: onDropType = async acceptedFiles => {
+  const handleOnDrop: onDropType = async (acceptedFiles: File[]) => {
     // @todo - implement error handling here
     if (acceptedFiles[0] === null) {
       return;
     }
 
     const file = acceptedFiles[0];
-    if ((file as File).name.toLowerCase().endsWith('.csv')) {
+    if (file.name.toLowerCase().endsWith('.csv')) {
       // @todo - implement error handling here
       if (file.size == 0 || file.name === '') {
         return;

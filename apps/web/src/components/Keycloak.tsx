@@ -5,8 +5,9 @@ import router from 'next/router';
 import { ValidRoles } from '@services';
 import { Pending } from './Pending';
 import { Spinner } from './Spinner';
+import { NextPage } from 'next';
 
-const withAuth = (Component: any, roles: ValidRoles[]) => {
+const withAuth = (Component: React.FunctionComponent, roles: ValidRoles[]) => {
   const Auth = (props: JSX.IntrinsicAttributes) => {
     // Login data added to props via redux-store (or use react context for example)
     const { authUser, authUserLoading } = useAuthContext();
@@ -20,7 +21,7 @@ const withAuth = (Component: any, roles: ValidRoles[]) => {
       if (!authUser && !authUserLoading && kc.initialized && !kc?.keycloak?.authenticated) {
         router.replace('/login');
       }
-    }, [kc?.initialized, authUser, authUserLoading]);
+    }, [kc?.initialized, kc?.keycloak?.authenticated, authUser, authUserLoading]);
 
     // Handle intermediate states
     if (authUserLoading || !kc.initialized || !authUser || !authUser.role) {
@@ -46,8 +47,8 @@ const withAuth = (Component: any, roles: ValidRoles[]) => {
   };
 
   // Copy getInitial props so it will run as well
-  if (Component.getInitialProps) {
-    Auth.getInitialProps = Component.getInitialProps;
+  if ((Component as NextPage).getInitialProps) {
+    Auth.getInitialProps = (Component as NextPage).getInitialProps;
   }
 
   return Auth;

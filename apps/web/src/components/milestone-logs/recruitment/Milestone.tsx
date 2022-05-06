@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import createValidator from 'class-validator-formik';
 import dayjs from 'dayjs';
 import { Formik, Form as FormikForm, FormikHelpers, FieldProps } from 'formik';
@@ -26,15 +26,16 @@ import editIcon from '@assets/img/edit.svg';
 import calendarIcon from '@assets/img/calendar.svg';
 import userIcon from '@assets/img/user.svg';
 
-const getInitialValues = (
-  status?: ApplicantStatusAuditRO,
-): IENApplicantAddStatusDTO | IENApplicantUpdateStatusDTO => ({
-  status: `${status?.status?.id || ''}`,
-  start_date: `${status?.start_date || ''}`,
-  notes: `${status?.notes || ''}`,
-  reason: `${status?.reason?.id || ''}`,
-  effective_date: `${status?.effective_date || ''}`,
-});
+type MilestoneFormValues = IENApplicantAddStatusDTO | IENApplicantUpdateStatusDTO;
+
+const getInitialValues = <T extends MilestoneFormValues>(status?: ApplicantStatusAuditRO): T =>
+  ({
+    status: `${status?.status?.id || ''}`,
+    start_date: `${status?.start_date || ''}`,
+    notes: `${status?.notes || ''}`,
+    reason: `${status?.reason?.id || ''}`,
+    effective_date: `${status?.effective_date || ''}`,
+  } as T);
 
 const milestoneValidator = createValidator(IENApplicantAddStatusDTO);
 
@@ -44,12 +45,11 @@ interface AddMilestoneProps {
   setJobMilestones: (milestones: ApplicantStatusAuditRO[]) => void;
 }
 
-export const AddMilestone: React.FC<AddMilestoneProps> = ({
-  applicantId,
-  job,
-  setJobMilestones,
-}) => {
-  const handleSubmit = async (values: any, { resetForm }: any) => {
+export const AddMilestone = ({ applicantId, job, setJobMilestones }: AddMilestoneProps) => {
+  const handleSubmit = async (
+    values: IENApplicantAddStatusDTO,
+    helpers?: FormikHelpers<IENApplicantAddStatusDTO>,
+  ) => {
     values.job_id = `${job.id}`;
 
     if (values.status !== `${STATUS.Candidate_withdrew}`) {
@@ -69,16 +69,16 @@ export const AddMilestone: React.FC<AddMilestoneProps> = ({
     }
 
     // reset form after submitting
-    resetForm(getInitialValues());
+    helpers && helpers.resetForm(getInitialValues());
   };
 
-  return <MilestoneForm job={job} handleSubmit={handleSubmit} />;
+  return <MilestoneForm<IENApplicantAddStatusDTO> job={job} handleSubmit={handleSubmit} />;
 };
 
 interface EditMilestoneProps {
   job: ApplicantJobRO;
   milestone: ApplicantStatusAuditRO;
-  handleSubmit: (milestone: IENApplicantUpdateStatusDTO) => void;
+  handleSubmit: (milestone: IENApplicantUpdateStatusDTO) => Promise<void>;
 }
 
 // Edit milestone comp *** currently unsure if this will be included moving forward
@@ -103,7 +103,7 @@ export const EditMilestone: React.FC<EditMilestoneProps> = ({ job, milestone, ha
                   <span className='mr-2'>
                     <img src={userIcon.src} alt='user' />
                   </span>
-                  <span>Latest updated:</span>
+                  <span>Last updated by</span>
                   <a
                     className='ml-2'
                     href={`mailto: ${milestone.updated_by?.email || milestone.added_by?.email}`}
@@ -123,7 +123,7 @@ export const EditMilestone: React.FC<EditMilestoneProps> = ({ job, milestone, ha
         </div>
       ) : (
         <>
-          <MilestoneForm
+          <MilestoneForm<IENApplicantUpdateStatusDTO>
             job={job}
             milestone={milestone}
             handleSubmit={values => handleSubmit(values as IENApplicantUpdateStatusDTO)}
@@ -135,25 +135,24 @@ export const EditMilestone: React.FC<EditMilestoneProps> = ({ job, milestone, ha
   );
 };
 
-interface MilestoneFormProps {
+interface MilestoneFormProps<T extends MilestoneFormValues> {
   job: ApplicantJobRO;
   milestone?: ApplicantStatusAuditRO;
-  handleSubmit: (
-    values: IENApplicantAddStatusDTO | IENApplicantUpdateStatusDTO,
-    { resetForm }?: any,
-  ) => void;
+  handleSubmit: (values: T, { resetForm }?: FormikHelpers<T>) => Promise<void>;
   onClose?: () => void;
 }
 
-const MilestoneForm: React.FC<MilestoneFormProps> = ({ job, milestone, handleSubmit, onClose }) => {
+const MilestoneForm = <T extends MilestoneFormValues>({
+  job,
+  milestone,
+  handleSubmit,
+  onClose,
+}: MilestoneFormProps<T>) => {
   const milestones = useGetMilestoneOptions();
   const reasons = useGetWithdrawReasonOptions();
 
-  const submit = (
-    values: IENApplicantUpdateStatusDTO | IENApplicantAddStatusDTO,
-    helpers: FormikHelpers<IENApplicantUpdateStatusDTO | IENApplicantAddStatusDTO>,
-  ) => {
-    handleSubmit(values, helpers);
+  const submit = async (values: T, helpers: FormikHelpers<T>) => {
+    await handleSubmit(values, helpers);
     if (onClose) onClose();
   };
 
@@ -169,8 +168,8 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({ job, milestone, handleSub
   return (
     <div className='border border-gray-200 rounded bg-gray-200 my-3 px-3 pb-4'>
       <div className='w-full pt-4'>
-        <Formik
-          initialValues={getInitialValues(milestone)}
+        <Formik<T>
+          initialValues={getInitialValues<T>(milestone)}
           onSubmit={submit}
           validate={milestoneValidator}
         >
