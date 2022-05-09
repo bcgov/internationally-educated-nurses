@@ -57,7 +57,7 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
                   <Link
                     href={{
                       pathname: `/details`,
-                      query: { ...router.query, id: app.id },
+                      query: { ...router?.query, id: app.id },
                     }}
                   >
                     <a className={`px-4 ${buttonColor.outline} ${buttonBase} text-bcGray`}>
