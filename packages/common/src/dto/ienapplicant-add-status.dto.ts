@@ -3,7 +3,7 @@ import { STATUS } from '../enum';
 
 export class IENApplicantAddStatusDTO {
   @IsString()
-  @IsNotEmpty({ message: 'Status is required' })
+  @IsNotEmpty({ message: 'Milestone/Status is required' })
   status!: string;
 
   @IsString()
