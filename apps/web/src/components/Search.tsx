@@ -7,7 +7,7 @@ import { ApplicantRO } from '@ien/common';
 interface SearchProps {
   onChange: (name: string) => void;
   search: (name: string, limit: number) => Promise<ApplicantRO[]>;
-  onSelect: (id: string) => void;
+  onSelect: (name: string, status: number | undefined, id: string) => void;
   keyword?: string;
 }
 
@@ -96,7 +96,7 @@ export const Search = (props: SearchProps) => {
               <div
                 key={id}
                 className='flex border-b h-10 w-full px-4 hover:bg-bcLightBlueBackground'
-                onClick={() => onSelect(id)}
+                onClick={() => onSelect(name, status?.id, id)}
               >
                 <span className='my-auto'>
                   <b>{name}</b> found in <b>{status?.status}</b>

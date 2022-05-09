@@ -58,7 +58,9 @@ const Applicants = () => {
     setLoading(false);
   }, [name, status, sortKey, order, pageIndex, limit]);
 
-  const viewDetail = (id: string) => router.push(`/details?id=${id}`);
+  // to-do change to URLSearch params during next sprint
+  const viewDetail = (name: string, status: number | undefined, id: string) =>
+    router.push(`/details?name=${name}&status=${status}&id=${id}`);
 
   const handleSort = (key: string) => {
     if (key === sortKey) {
