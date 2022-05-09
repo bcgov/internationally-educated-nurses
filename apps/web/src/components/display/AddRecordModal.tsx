@@ -74,7 +74,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
   return (
     <Modal open={visible} handleClose={close}>
       <Modal.Title as='h1' className='text-lg font-bold leading-6 text-bcBlueLink border-b p-4'>
-        Add Record
+        {job ? 'Edit Record' : 'Add Record'}
       </Modal.Title>
       <div className='w-full'>
         <Formik initialValues={initialValues} onSubmit={handleSubmit} validate={newJobRecordSchema}>
