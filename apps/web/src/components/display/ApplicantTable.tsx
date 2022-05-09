@@ -3,6 +3,7 @@ import sortIcon from '@assets/img/sort.svg';
 import { buttonBase, buttonColor } from '@components';
 import { ApplicantRO, formatDate } from '@ien/common';
 import { Spinner } from '../Spinner';
+import { useRouter } from 'next/router';
 
 export interface ApplicantTableProps {
   applicants: ApplicantRO[];
@@ -12,6 +13,7 @@ export interface ApplicantTableProps {
 
 export const ApplicantTable = (props: ApplicantTableProps) => {
   const { applicants, loading, onSortChange } = props;
+  const router = useRouter();
 
   return (
     <div className='overflow-x-auto'>
@@ -52,7 +54,12 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
                 <td className='px-6'>{app.status?.status}</td>
                 <td className='px-6'>{app.updated_date && formatDate(app.updated_date)}</td>
                 <td className='px-6 text-right'>
-                  <Link href={`/details?id=${app.id}`}>
+                  <Link
+                    href={{
+                      pathname: `/details`,
+                      query: { ...router?.query, id: app.id },
+                    }}
+                  >
                     <a className={`px-4 ${buttonColor.outline} ${buttonBase} text-bcGray`}>
                       Details
                     </a>

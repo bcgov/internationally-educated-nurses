@@ -36,6 +36,8 @@ const Details = () => {
   const [milestones, setMilestones] = useState<ApplicantStatusAuditRO[]>([]);
 
   const router = useRouter();
+  const searchedByName = router.query.name;
+
   const applicantId = router.query.id as string;
 
   const selectDefaultLandingTab = (status_id?: number) => {
@@ -96,7 +98,9 @@ const Details = () => {
     <div className='container w-full mx-6 xl:w-xl mb-4 px-4'>
       <div className='text-xs mt-4 mb-5 font-bold'>
         <button onClick={() => router.back()}>
-          <a className='text-bcGray hover:text-bcBlueLink hover:underline'>Manage Applicants</a>
+          <a className='text-bcGray hover:text-bcBlueLink hover:underline'>
+            {searchedByName ? 'Search Results' : 'Manage Applicants'}
+          </a>
         </button>
         <span className='mx-3'>&gt;</span>
         <span className='text-bcBlueLink'>Applicant Details</span>
