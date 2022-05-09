@@ -58,7 +58,7 @@ export const JobFilters = ({ options, update }: JobFilterProps) => {
         isClearable
         className='w-80 min-w-full md:min-w-0 mx-1'
       />
-      <Button className='ml-2 px-6 text-sm' onClick={clearFilters} variant='outline'>
+      <Button className='ml-2 px-6 text-sm' onClick={clearFilters} variant='primary'>
         Clear
       </Button>
     </div>
