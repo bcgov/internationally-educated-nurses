@@ -261,8 +261,8 @@ const MilestoneForm = <T extends MilestoneFormValues>({
                   </>
                 ) : null}
 
-                {/* Position offered conditional */}
-                {values.status === `${STATUS.Offered_position}` ? (
+                {/* Candidate accepted job offer conditional */}
+                {values.status === `${STATUS.Candidate_accepted_the_job_offer}` ? (
                   <span className='col-span-12 sm:col-span-6 lg:col-span-3 pr-1 md:pr-2'>
                     <Field
                       name='effective_date'

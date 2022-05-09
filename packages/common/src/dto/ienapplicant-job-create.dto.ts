@@ -24,9 +24,9 @@ export class IENApplicantJobCreateUpdateDTO {
   @IsOptional()
   job_location?: string;
 
-  @IsString({ message: 'Recruiter Name must be a string' })
-  @IsOptional()
+  @IsString({ message: 'HA Recruiter Name must be a string' })
   @Length(1, 255, { message: 'Recruiter Name must be between 1 and 255 characters' })
+  @IsNotEmpty({ message: 'HA Recruiter Name is required' })
   recruiter_name!: string;
 
   @ValidateIf(d => d.job_post_date !== '')

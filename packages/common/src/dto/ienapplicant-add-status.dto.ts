@@ -3,7 +3,7 @@ import { STATUS } from '../enum';
 
 export class IENApplicantAddStatusDTO {
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Milestone/Status is required' })
   status!: string;
 
   @IsString()
@@ -14,7 +14,7 @@ export class IENApplicantAddStatusDTO {
   @IsOptional()
   added_by?: string;
 
-  @IsDateString()
+  @IsDateString({}, { message: 'Must be a valid Date' })
   @IsOptional()
   start_date?: string;
 
@@ -35,8 +35,8 @@ export class IENApplicantAddStatusDTO {
   @IsOptional()
   reason_other?: string;
 
-  @ValidateIf(s => s.status === `${STATUS.Candidate_withdrew}`)
-  @IsDateString()
+  @ValidateIf(s => s.status === `${STATUS.Candidate_accepted_the_job_offer}`)
+  @IsDateString({}, { message: 'Must be a valid Date' })
   @IsOptional()
   effective_date?: string;
 }
