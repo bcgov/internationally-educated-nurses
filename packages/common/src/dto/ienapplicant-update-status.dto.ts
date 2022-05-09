@@ -10,7 +10,7 @@ export class IENApplicantUpdateStatusDTO {
   @IsOptional()
   added_by?: string;
 
-  @IsDateString()
+  @IsDateString({}, { message: 'Must be a valid Date' })
   @IsOptional()
   start_date?: Date;
 
