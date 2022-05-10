@@ -1,14 +1,17 @@
 /// <reference types="cypress" />
 /// <reference path="../../support/index.ts"/>
 
-describe('Search User', () => {
+describe('Search Applicants', () => {
   beforeEach(() => {
     cy.visit('/');
-    if (Cypress.config('isInteractive')) {
-      cy.login();
-    }
+    cy.login();
   });
-  it('searches user in search bar', () => {
+
+  afterEach(() => {
+    cy.logout();
+  });
+
+  it('searches applicants in search bar', () => {
     cy.search('Neoma');
   });
 });

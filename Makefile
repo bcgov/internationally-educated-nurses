@@ -28,7 +28,7 @@ export LAST_COMMIT_MESSAGE:=$(shell git log -1 --oneline --decorate=full --no-co
 export TFCTK:=$(shell cat ~/.terraform.d/credentials.tfrc.json | jq -r '.credentials."app.terraform.io".token')
 
 # FE Env Vars
-export NEXT_PUBLIC_API_URL = /api/v1
+export NEXT_PUBLIC_API_URL ?= /api/v1
 export NEXT_PUBLIC_AUTH_URL ?= https://common-logon-dev.hlth.gov.bc.ca/auth
 export NEXT_PUBLIC_AUTH_REALM ?= moh_applications
 # Docker container names
@@ -174,13 +174,13 @@ api-integration-test:
 	@echo "++\n*****"
 	@make stop-test-db
 
-run-test-backend:
+run-test-apps:
+	@make stop-test-db
 	@make start-test-db
 	NODE_ENV=test yarn start:local
 	@echo "++\n*****"
-	@make stop-test-db
 
-web-integration-test-local:
+web-integration-test:
 	@make start-test-db
 	@echo "++\n***** Running Web integration tests\n++"
 	@yarn build

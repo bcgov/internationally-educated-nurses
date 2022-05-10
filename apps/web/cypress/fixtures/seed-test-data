@@ -1,12 +1,5 @@
+UPDATE ien_users SET email = (SELECT email FROM employee WHERE role = 'pending') WHERE id = 1;
 UPDATE employee SET role = 'moh' WHERE role = 'pending';
-UPDATE
-    ien_users
-SET
-    email = (SELECT email FROM employee WHERE role = 'moh' LIMIT 1)
-WHERE
-    id = 1
-;
-
 
 COPY public.ien_applicants (id, name, registration_date, additional_data, is_open, created_date, updated_date, status_id, added_by_id, updated_by_id, email_address, phone_number, assigned_to, country_of_residence, pr_status, nursing_educations, bccnm_license_number, health_authorities, notes, applicant_id, country_of_citizenship) FROM stdin;
 336c302e-c821-4032-87a0-fbe9cc3ff6f6	Neoma Kling	2022-01-13	{"last_name": "Kling", "first_name": "Neoma"}	t	2022-05-10 21:25:16.102058	2022-05-10 21:25:16.102058	\N	\N	\N	Edmond69@gmail.com	565-443-4985	[{"id": 1, "name": "Chadi"}]	Philippines	PR	[{"name": "PhD", "country": "ca"}, {"name": "Master of Nursing", "country": "ca"}]	\N	[{"id": 1, "title": "Fraser Health Authority", "description": null, "abbreviation": "FHA", "referral_date": "2021-05-18T13:31:38.779"}]	\N	8520709999914793	["Philippines"]

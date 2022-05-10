@@ -25,30 +25,35 @@ dotenv.config({ path: path.join(__dirname, '../../.env.local') });
  */
 // eslint-disable-next-line no-unused-vars,
 // @typescript-eslint/no-unused-vars
+
+const execute = (task: string, script: string, ...args: string[]): Promise<boolean> => {
+  return new Promise((resolve, reject) => {
+    const p = spawn('bash', [script, ...args]);
+    p.stdout.on('data', data => {
+      // eslint-disable-next-line no-console
+      console.log(`${task} stdout: ${data}`);
+    });
+
+    p.stderr.on('data', data => {
+      // eslint-disable-next-line no-console
+      console.log(`${task} stderr: ${data}`);
+    });
+
+    p.on('close', code => {
+      if (code === 0) {
+        resolve(true);
+      } else {
+        reject(`${task} child process exited with code ${code}`);
+      }
+    });
+  });
+};
+
 module.exports = (on: any, config: any) => {
   // `on` is used to hook into various events Cypress emits
   on('task', {
     'db:seed': async () => {
-      return new Promise((resolve, reject) => {
-        const p = spawn('bash', ['cypress/fixtures/feed.sh']);
-        p.stdout.on('data', data => {
-          // eslint-disable-next-line no-console
-          console.log(`db:seed stdout: ${data}`);
-        });
-
-        p.stderr.on('data', data => {
-          // eslint-disable-next-line no-console
-          console.log(`db:seed stderr: ${data}`);
-        });
-
-        p.on('close', code => {
-          if (code === 0) {
-            resolve(true);
-          } else {
-            reject(`db:seed child process exited with code ${code}`);
-          }
-        });
-      });
+      return execute('db:seed', 'cypress/fixtures/feed-data.sh');
     },
   });
   // `config` is the resolved Cypress config
