@@ -2,8 +2,12 @@
 /// <reference path="../../support/index.ts"/>
 
 describe('Login page', () => {
-  it('login with user account', () => {
+  beforeEach(() => {
     cy.visit('/');
+  });
+
+  it('login with user account', () => {
     cy.login();
+    cy.task('db:seed');
   });
 });

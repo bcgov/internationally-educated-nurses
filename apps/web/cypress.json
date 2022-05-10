@@ -1,10 +1,11 @@
 {
-  "baseUrl": "https://test.ien.freshworks.club/",
+  "baseUrl": "http://localhost:3000",
   "env": {
     "FAIL_FAST_STRATEGY": "run",
     "FAIL_FAST_ENABLED": true
   },
   "pageLoadTimeout": 60000,
+  "defaultCommandTimeout": 30000,
   "chromeWebSecurity": false,
   "viewportWidth": 1280,
   "viewportHeight": 768

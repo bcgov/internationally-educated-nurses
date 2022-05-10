@@ -14,6 +14,8 @@
 
 import dotenv from 'dotenv';
 import * as path from 'path';
+import { spawn } from 'child_process';
+
 dotenv.config({ path: path.join(__dirname, '../../.env.local') });
 
 /**
@@ -25,6 +27,30 @@ dotenv.config({ path: path.join(__dirname, '../../.env.local') });
 // @typescript-eslint/no-unused-vars
 module.exports = (on: any, config: any) => {
   // `on` is used to hook into various events Cypress emits
+  on('task', {
+    'db:seed': async () => {
+      return new Promise((resolve, reject) => {
+        const p = spawn('bash', ['cypress/fixtures/feed.sh']);
+        p.stdout.on('data', data => {
+          // eslint-disable-next-line no-console
+          console.log(`db:seed stdout: ${data}`);
+        });
+
+        p.stderr.on('data', data => {
+          // eslint-disable-next-line no-console
+          console.log(`db:seed stderr: ${data}`);
+        });
+
+        p.on('close', code => {
+          if (code === 0) {
+            resolve(true);
+          } else {
+            reject(`db:seed child process exited with code ${code}`);
+          }
+        });
+      });
+    },
+  });
   // `config` is the resolved Cypress config
   config.env.username = process.env.E2E_TEST_USERNAME;
   config.env.password = process.env.E2E_TEST_PASSWORD;

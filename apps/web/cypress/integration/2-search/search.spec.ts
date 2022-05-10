@@ -2,11 +2,13 @@
 /// <reference path="../../support/index.ts"/>
 
 describe('Search User', () => {
-  it('searches user in search bar', () => {
+  beforeEach(() => {
     cy.visit('/');
-    if (Cypress.env('realm') === 'ien') {
+    if (Cypress.config('isInteractive')) {
       cy.login();
     }
-    cy.search('Mark');
+  });
+  it('searches user in search bar', () => {
+    cy.search('Neoma');
   });
 });

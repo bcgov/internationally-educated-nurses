@@ -2,9 +2,14 @@
 /// <reference path="../../support/index.ts"/>
 
 describe('Log out', () => {
-  it('log out', () => {
+  beforeEach(() => {
     cy.visit('/');
-    // cy.login();
+    if (Cypress.config('isInteractive')) {
+      cy.login();
+    }
+  });
+
+  it('log out', () => {
     cy.get('button').contains(Cypress.env('username'), { timeout: 60000 }).click();
     cy.get('button').contains('Logout').click();
     cy.contains('Login');
