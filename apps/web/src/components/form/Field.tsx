@@ -1,8 +1,10 @@
+import React from 'react';
 import classnames from 'classnames';
 import { Error, Label, Description } from '@components';
-import { Field as FormikField, useField, FieldConfig } from 'formik';
+import { Field as FormikField, useField, FieldAttributes } from 'formik';
 
-export interface FieldProps extends FieldConfig {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export interface FieldProps extends FieldAttributes<any> {
   name: string;
   label: string | React.ReactNode;
   description?: string | React.ReactNode;

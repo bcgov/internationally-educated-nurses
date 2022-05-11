@@ -1,3 +1,4 @@
+import React from 'react';
 import { useRouter } from 'next/router';
 import { Formik, Form as FormikForm, FieldProps } from 'formik';
 import createValidator from 'class-validator-formik';
@@ -88,6 +89,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
                     component={({ field, form }: FieldProps) => (
                       <ReactSelect<RecordTypeOptions>
                         inputId={field.name}
+                        placeholder='__Select HA'
                         value={haPcn?.data?.find(s => s.id == field.value)}
                         onBlur={field.onBlur}
                         onChange={value => form.setFieldValue(field.name, `${value?.id}`)}
@@ -151,7 +153,8 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
                     name='job_post_date'
                     label='Date Job Was First Posted'
                     type='date'
-                    validate={val => validatePostDate(val)}
+                    max={dayjs().format('YYYY-MM-DD')}
+                    validate={(val: string) => validatePostDate(val)}
                   />
                 </div>
                 <span className='border-b-2 col-span-4 mt-2'></span>
