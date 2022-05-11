@@ -28,17 +28,17 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
-      - name: Build apps
-        run: yarn build
-
       - name: Run Cypress
         uses: cypress-io/github-action@v2
         with:
           start: make run-test-apps
           working-directory: ./
           project: ./apps/web
+          record: true
           wait-on: 'http://localhost:3000'
         env:
+          CYPRESS_RECORD_KEY: '${{ secrets.CYPRESS_RECORD_KEY }}'
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
           ENV_NAME: 'local'
           E2E_TEST_USERNAME: '${{ secrets.E2E_TEST_USERNAME}}'
           E2E_TEST_PASSWORD: '${{ secrets.E2E_TEST_PASSWORD}}'

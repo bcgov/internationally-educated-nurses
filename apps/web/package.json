@@ -10,7 +10,7 @@
     "lint": "next lint",
     "test": "jest",
     "cypress:open": "cypress open",
-    "cypress": "cypress run --record --key b5e3087d-8a5a-41fa-9ec8-caf9287e1ad2"
+    "cypress": "cypress run"
   },
   "dependencies": {
     "@babel/plugin-proposal-decorators": "7.17.8",

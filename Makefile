@@ -62,7 +62,7 @@ ifeq ($(ENV_NAME), test)
 DOMAIN=test.ien.freshworks.club
 BASTION_INSTANCE_ID = $(BASTION_INSTANCE_ID_TEST)
 DB_HOST = $(DB_HOST_PROD_TEST)
-NEXT_PUBLIC_AUTH_URL ?= https://common-logon-test.hlth.gov.bc.ca/auth
+NEXT_PUBLIC_AUTH_URL = https://common-logon-test.hlth.gov.bc.ca/auth
 endif
 
 define TFVARS_DATA
@@ -176,17 +176,18 @@ api-integration-test:
 
 run-test-apps:
 	@make stop-test-db
+	@yarn build
 	@make start-test-db
 	NODE_ENV=test yarn start:local
 	@echo "++\n*****"
 
 web-integration-test:
+	@make stop-test-db
 	@make start-test-db
 	@echo "++\n***** Running Web integration tests\n++"
 	@yarn build
 	@NODE_ENV=test yarn test:e2e
 	@echo "++\n*****"
-	@make stop-test-db
 
 accessibility-test:
 	@echo "++\n***** Running front end accessibility tests\n++"

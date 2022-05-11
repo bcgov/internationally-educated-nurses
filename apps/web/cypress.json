@@ -5,8 +5,8 @@
     "FAIL_FAST_STRATEGY": "run",
     "FAIL_FAST_ENABLED": true
   },
-  "pageLoadTimeout": 60000,
-  "defaultCommandTimeout": 30000,
+  "pageLoadTimeout": 30000,
+  "defaultCommandTimeout": 10000,
   "chromeWebSecurity": false,
   "viewportWidth": 1280,
   "viewportHeight": 768

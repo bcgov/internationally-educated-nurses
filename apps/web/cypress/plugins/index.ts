@@ -53,7 +53,7 @@ module.exports = (on: any, config: any) => {
   // `on` is used to hook into various events Cypress emits
   on('task', {
     'db:seed': async () => {
-      return execute('db:seed', 'cypress/fixtures/feed-data.sh');
+      return execute('db:seed', 'cypress/fixtures/seed.sh');
     },
   });
   // `config` is the resolved Cypress config
