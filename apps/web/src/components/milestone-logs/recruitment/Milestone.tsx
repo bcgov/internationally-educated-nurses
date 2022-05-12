@@ -52,10 +52,6 @@ export const AddMilestone = ({ applicantId, job, setJobMilestones }: AddMileston
   ) => {
     values.job_id = `${job.id}`;
 
-    if (values.status !== `${STATUS.Candidate_withdrew}`) {
-      values.effective_date = undefined;
-    }
-
     const data = await addMilestone(applicantId as string, values);
 
     // get updated milestones
@@ -152,6 +148,10 @@ const MilestoneForm = <T extends MilestoneFormValues>({
   const reasons = useGetWithdrawReasonOptions();
 
   const submit = async (values: T, helpers: FormikHelpers<T>) => {
+    if (values.status !== `${STATUS.Candidate_withdrew}`) {
+      values.effective_date = undefined;
+    }
+
     await handleSubmit(values, helpers);
     if (onClose) onClose();
   };
@@ -251,16 +251,6 @@ const MilestoneForm = <T extends MilestoneFormValues>({
                         </button>
                       </div>
                     </div>
-
-                    <span className='col-span-12 sm:col-span-6 lg:col-span-4 pr-1 md:pr-2'>
-                      <Field
-                        name='effective_date'
-                        label='Effective Date'
-                        type='date'
-                        bgColour='bg-white'
-                        max='9999-12-31'
-                      />
-                    </span>
                   </>
                 ) : null}
 
