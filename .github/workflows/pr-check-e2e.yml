@@ -22,20 +22,35 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('./yarn.lock') }}
           restore-keys: ${{ runner.os }}-yarn-${{ hashFiles('./yarn.lock') }}
 
-      - name: Install dependencies
-        run: yarn workspace @ien/web install
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
 
-      - name: Build dependencies
-        run: yarn build
+      - name: Install dependencies
+        run: yarn install
 
       - name: Run Cypress
         uses: cypress-io/github-action@v2
         with:
-          start: make run-test-backend
+          start: make run-test-apps
           working-directory: ./
           project: ./apps/web
+          record: true
           wait-on: 'http://localhost:3000'
         env:
+          CYPRESS_RECORD_KEY: '${{ secrets.CYPRESS_RECORD_KEY }}'
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+          ENV_NAME: 'local'
           E2E_TEST_USERNAME: '${{ secrets.E2E_TEST_USERNAME}}'
           E2E_TEST_PASSWORD: '${{ secrets.E2E_TEST_PASSWORD}}'
-          AUTH_REALM: 'moh_applications'
+          AUTH_URL: 'https://keycloak.freshworks.club/auth'
+          AUTH_REALM: 'ien'
+          AUTH_CLIENTID: 'IEN'
+          NEXT_PUBLIC_API_URL: 'http://localhost:4000/api/v1'
+          NEXT_PUBLIC_AUTH_REALM: 'ien'
+          NEXT_PUBLIC_AUTH_CLIENTID: 'IEN'
+          NEXT_PUBLIC_AUTH_URL: 'https://keycloak.freshworks.club/auth'
+          TEST_POSTGRES_HOST: 'localhost'
+          TEST_POSTGRES_USERNAME: 'freshworks'
+          TEST_POSTGRES_PASSWORD: 'password'
+          TEST_POSTGRES_DATABASE: 'ien_test'
+          TEST_POSTGRES_PORT: '5433'

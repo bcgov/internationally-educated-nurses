@@ -28,9 +28,9 @@ export LAST_COMMIT_MESSAGE:=$(shell git log -1 --oneline --decorate=full --no-co
 export TFCTK:=$(shell cat ~/.terraform.d/credentials.tfrc.json | jq -r '.credentials."app.terraform.io".token')
 
 # FE Env Vars
-export NEXT_PUBLIC_API_URL = /api/v1
-export NEXT_PUBLIC_AUTH_URL = https://common-logon-dev.hlth.gov.bc.ca/auth
-export NEXT_PUBLIC_AUTH_REALM = moh_applications
+export NEXT_PUBLIC_API_URL ?= /api/v1
+export NEXT_PUBLIC_AUTH_URL ?= https://common-logon-dev.hlth.gov.bc.ca/auth
+export NEXT_PUBLIC_AUTH_REALM ?= moh_applications
 # Docker container names
 LOCAL_API_CONTAINER_NAME = $(PROJECT)_api
 
@@ -62,7 +62,7 @@ ifeq ($(ENV_NAME), test)
 DOMAIN=test.ien.freshworks.club
 BASTION_INSTANCE_ID = $(BASTION_INSTANCE_ID_TEST)
 DB_HOST = $(DB_HOST_PROD_TEST)
-NEXT_PUBLIC_AUTH_URL=https://common-logon-test.hlth.gov.bc.ca/auth
+NEXT_PUBLIC_AUTH_URL = https://common-logon-test.hlth.gov.bc.ca/auth
 endif
 
 define TFVARS_DATA
@@ -174,19 +174,20 @@ api-integration-test:
 	@echo "++\n*****"
 	@make stop-test-db
 
-run-test-backend:
+run-test-apps:
+	@make stop-test-db
+	@yarn build
 	@make start-test-db
 	NODE_ENV=test yarn start:local
 	@echo "++\n*****"
-	@make stop-test-db
 
-web-integration-test-local:
+web-integration-test:
+	@make stop-test-db
 	@make start-test-db
 	@echo "++\n***** Running Web integration tests\n++"
 	@yarn build
 	@NODE_ENV=test yarn test:e2e
 	@echo "++\n*****"
-	@make stop-test-db
 
 accessibility-test:
 	@echo "++\n***** Running front end accessibility tests\n++"

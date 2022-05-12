@@ -1,12 +1,17 @@
 /// <reference types="cypress" />
 /// <reference path="../../support/index.ts"/>
 
-describe('Search User', () => {
-  it('searches user in search bar', () => {
+describe('Search Applicants', () => {
+  beforeEach(() => {
     cy.visit('/');
-    if (Cypress.env('realm') === 'ien') {
-      cy.login();
-    }
-    cy.search('Mark');
+    cy.login();
+  });
+
+  afterEach(() => {
+    cy.logout();
+  });
+
+  it('searches applicants in search bar', () => {
+    cy.search('Neoma');
   });
 });

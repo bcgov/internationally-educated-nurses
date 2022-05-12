@@ -1,10 +1,12 @@
 {
-  "baseUrl": "https://test.ien.freshworks.club/",
+  "projectId": "zad925",
+  "baseUrl": "http://localhost:3000",
   "env": {
     "FAIL_FAST_STRATEGY": "run",
     "FAIL_FAST_ENABLED": true
   },
-  "pageLoadTimeout": 60000,
+  "pageLoadTimeout": 30000,
+  "defaultCommandTimeout": 10000,
   "chromeWebSecurity": false,
   "viewportWidth": 1280,
   "viewportHeight": 768

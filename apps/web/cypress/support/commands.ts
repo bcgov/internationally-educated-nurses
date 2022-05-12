@@ -21,6 +21,12 @@ Cypress.Commands.add('login', () => {
   cy.get('#kc-login').click();
 });
 
+Cypress.Commands.add('logout', () => {
+  cy.get('button').contains(Cypress.env('username')).click();
+  cy.get('button').contains('Logout').click();
+  cy.contains('Login');
+});
+
 Cypress.Commands.add('search', (name: string) => {
   cy.contains('Manage Applicants');
 
