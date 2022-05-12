@@ -9,9 +9,8 @@
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
-    "cypress": "cypress run",
     "cypress:open": "cypress open",
-    "cypress:run": "cypress run"
+    "cypress": "cypress run"
   },
   "dependencies": {
     "@babel/plugin-proposal-decorators": "7.17.8",

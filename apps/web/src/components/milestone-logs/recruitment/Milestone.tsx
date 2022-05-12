@@ -204,7 +204,9 @@ const MilestoneForm = <T extends MilestoneFormValues>({
                       label='Date'
                       type='date'
                       bgColour='bg-white'
-                      validate={val => validateStartDate(val)}
+                      min={job.job_post_date}
+                      max={dayjs().format('YYYY-MM-DD')}
+                      validate={(val: string) => validateStartDate(val)}
                     />
                   </div>
                 </span>
@@ -213,7 +215,7 @@ const MilestoneForm = <T extends MilestoneFormValues>({
                   <Textarea name='notes' label='Notes' />
                 </span>
                 {/* Withdraw reason conditional field */}
-                {values.status === '305' ? (
+                {values.status === `${STATUS.Candidate_withdrew}` ? (
                   <>
                     <span className='col-span-12 sm:col-span-6 lg:col-span-3 pr-1 md:pr-2'>
                       <Field
@@ -256,6 +258,7 @@ const MilestoneForm = <T extends MilestoneFormValues>({
                         label='Effective Date'
                         type='date'
                         bgColour='bg-white'
+                        max='9999-12-31'
                       />
                     </span>
                   </>
@@ -269,6 +272,7 @@ const MilestoneForm = <T extends MilestoneFormValues>({
                       label='Target Start Date'
                       type='date'
                       bgColour='bg-white'
+                      max='9999-12-31'
                     />
                   </span>
                 ) : null}
