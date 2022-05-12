@@ -10,6 +10,8 @@
 //
 //
 // -- This is a parent command --
+import { IENApplicantJobCreateUpdateDTO } from '@ien/common';
+
 Cypress.Commands.add('login', () => {
   cy.contains('Login');
   cy.get('button').click();
@@ -41,6 +43,25 @@ Cypress.Commands.add('search', (name: string) => {
   cy.contains(name);
 });
 
+Cypress.Commands.add('addJob', (job: IENApplicantJobCreateUpdateDTO) => {
+  cy.contains('button', 'Add Record').click();
+  cy.get('#ha_pcn').click().type(`${job.ha_pcn}{enter}`);
+  cy.get('#job_id').type(`${job.job_id}`);
+  cy.get('#job_title').click();
+  cy.get('#job_title').click().type(`${job.job_title}{enter}`);
+  cy.get('#job_location').click().type(`${job.job_location}{enter}`);
+  cy.get('#job_post_date').click().type(`${job.job_post_date}`);
+  cy.get('#recruiter_name').type(`${job.recruiter_name}`);
+  cy.contains('button', 'Create').click();
+});
+
+Cypress.Commands.add('visitDetails', (applicantId: string) => {
+  cy.visit(`/details?id=${applicantId}`);
+});
+
+Cypress.Commands.add('tabRecruitment', () => {
+  cy.get('#3').click();
+});
 //
 // -- This is a child command --
 // Cypress.Commands.add('drag', { prevSubject: 'element'}, (subject, options) => { ... })

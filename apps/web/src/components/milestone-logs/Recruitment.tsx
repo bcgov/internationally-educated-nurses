@@ -78,6 +78,7 @@ export const Recruitment: React.FC = () => {
         jobRecords.pop();
       }
       setJobRecords([record, ...jobRecords]);
+      setTotal(total + 1);
     }
   };
 

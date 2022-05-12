@@ -370,7 +370,7 @@ export class IENApplicantUtilService {
     }
   }
 
-  async geStatustReason(id: number): Promise<IENStatusReason> {
+  async getStatusReason(id: number): Promise<IENStatusReason> {
     const statusReason = await this.ienStatusReasonRepository.findOne(id);
     if (!statusReason) {
       throw new NotFoundException('Provided Milestone/Status reason not found');
