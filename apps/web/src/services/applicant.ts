@@ -19,13 +19,13 @@ const notifyError = (e: AxiosError) => {
 
 // get all applicants
 export const getApplicants = async (filter: IENApplicantFilterDTO = {}) => {
-  const query = Object.entries(filter)
-    .map(entry => (entry[1] ? entry.join('=') : null))
-    .filter(v => v)
-    .join('&');
-  const response = await axios.get<{ data: [ApplicantRO[], number] }>(
-    query ? `/ien?${query}` : '/ien',
-  );
+  const params = new URLSearchParams();
+
+  Object.entries(filter).forEach(parameter => {
+    parameter[0] && parameter[1] && params.append(parameter[0], parameter[1].toString());
+  });
+
+  const response = await axios.get<{ data: [ApplicantRO[], number] }>(`/ien?${params.toString()}`);
   const {
     data: [data, count],
   } = response.data;
@@ -114,19 +114,22 @@ export const getJobAndMilestones = async (
   id: string,
   options: JobQueryOptions,
 ): Promise<[ApplicantJobRO[], number] | undefined> => {
-  const { job_id, ha_pcn, job_title, skip, limit } = options;
   try {
-    let path = `/ien/${id}/jobs?`;
-    if (job_id) path += `job_id=${job_id}`;
+    const params = new URLSearchParams();
 
-    if (ha_pcn && ha_pcn.length) path += `&ha_pcn=${ha_pcn.join(',')}`;
-    if (job_title && job_title.length) path += `&job_title=${job_title.join(',')}`;
-    if (skip) path += `&skip=${skip}`;
-    if (limit) path += `&limit=${limit}`;
+    Object.entries(options).forEach(parameter => {
+      Array.isArray(parameter[1])
+        ? parameter[0] &&
+          parameter[1].length > 0 &&
+          params.append(parameter[0], parameter[1].toString())
+        : parameter[0] && parameter[1] && params.append(parameter[0], parameter[1].toString());
+    });
 
     const {
       data: { data },
-    } = await axios.get<{ data: [ApplicantJobRO[], number] }>(path);
+    } = await axios.get<{ data: [ApplicantJobRO[], number] }>(
+      `/ien/${id}/jobs?${params.toString()}`,
+    );
 
     return data;
   } catch (e) {

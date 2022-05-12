@@ -78,15 +78,12 @@ const Applicants = () => {
   };
 
   const changeRoute = (keyword: string, tabIndex: number) => {
-    let url = '/applicants?';
-    if (keyword) {
-      url += `name=${keyword}`;
-    }
-    if (!url.endsWith('?')) {
-      url += '&';
-    }
-    url += `status=${tabIndex}`;
-    router.push(url, undefined, { shallow: true });
+    const urlParams = new URLSearchParams();
+
+    keyword && urlParams.append('name', keyword);
+    urlParams.append('status', tabIndex.toString());
+
+    router.push(`?${urlParams.toString()}`, undefined, { shallow: true });
   };
 
   const handleKeywordChange = (keyword: string) => {
