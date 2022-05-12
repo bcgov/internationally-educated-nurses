@@ -15,11 +15,6 @@ export class AuthGuard implements CanActivate {
     /** Grab reference to the request */
     const request = context.switchToHttp().getRequest();
 
-    if (process.env.NODE_ENV === 'test') {
-      request.user = { user_id: 1 };
-      return true;
-    }
-
     const tokenUser = await this.authService.getUserFromToken(
       this.authService.extractToken(request.headers || '') || '',
     );
