@@ -20,13 +20,5 @@ dayjs.extend(duration);
 dayjs.extend(relativeTime, { thresholds });
 
 export const getHumanizedDuration = (start: dayjs.ConfigType, end?: dayjs.ConfigType): string => {
-  // since we don't keep track of time, start_date from the DB gets set to 00:00:00:00
-  // so anything less than a day will take the current locale time and compare it to start_date
-  // ex if new status is added at 12pm locale time,
-  // it will be a 12hr duration when compared to start_date from DB
-  if (start === dayjs().format('YYYY-MM-DD')) {
-    return 'today';
-  }
-
   return dayjs.duration(dayjs(start).diff(end || new Date())).humanize();
 };
