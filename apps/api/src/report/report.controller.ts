@@ -11,13 +11,13 @@ import { ReportService } from './report.service';
 export class ReportController {
   constructor(@Inject(ReportService) private readonly reportService: ReportService) {}
 
-  @Get('/applicant/country-wise')
+  @Get('/applicant/education-country')
   @RouteAcceptsRoles(
     ValidRoles.HEALTH_AUTHORITY,
     ValidRoles.HEALTH_MATCH,
     ValidRoles.MINISTRY_OF_HEALTH,
   )
-  async getCountryWiseApplicantList(): Promise<any> {
+  async getCountryWiseApplicantList(): Promise<object[]> {
     return this.reportService.getCountryWiseApplicantList();
   }
 

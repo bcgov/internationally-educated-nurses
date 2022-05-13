@@ -6,7 +6,7 @@ const WEEKS_PER_PERIOD = 4;
 export class ReportService {
   async getCountryWiseApplicantList() {
     const entityManager = getManager();
-    return await entityManager.query(`
+    const data = await entityManager.query(`
         SELECT count(id) as applicants, t2.country FROM
         (
             SELECT * FROM (
@@ -19,6 +19,10 @@ export class ReportService {
         GROUP BY t2.country
         ORDER BY applicants desc;
     `);
+    return data.map((ele: { applicants: number }) => {
+      ele.applicants = +ele.applicants;
+      return ele;
+    });
   }
 
   async getRegisteredApplicantList(from: string, to: string) {
@@ -95,8 +99,6 @@ export class ReportService {
         period: `Period ${++periodCount}`,
         from: startdate.toISOString().slice(0, 10),
         to: enddate.toISOString().slice(0, 10),
-        year: weekData.yearly,
-        week: weekData.weekly,
         applicants: weekData.applicants,
       };
       let tempYear = weekData.yearly;
