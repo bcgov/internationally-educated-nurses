@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function sortStatus(data: any[]): any[] {
   data.sort((a, b) => {
@@ -39,4 +41,24 @@ export function getMilestoneCategory(name: string) {
     return 10005;
   }
   return null;
+}
+
+export function isValidDateFormat(dt: string) {
+  const regx = /^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12]\d{1}|3[01])$/;
+  return !!dt.match(regx);
+}
+
+export function getStartEndDateOfWeek(w: number, y: number, period: number) {
+  const startdate = getDateOfWeek(w, y);
+  const enddate = dayjs(startdate).add(period * 7 - 1, 'day');
+  return { startdate, enddate };
+}
+
+function getDateOfWeek(w: number, y: number) {
+  const simple = new Date(y, 0, 1 + (w - 1) * 7);
+  const dow = simple.getDay();
+  const ISOweekStart = simple;
+  if (dow <= 4) ISOweekStart.setDate(simple.getDate() - simple.getDay() + 1);
+  else ISOweekStart.setDate(simple.getDate() + 8 - simple.getDay());
+  return ISOweekStart;
 }

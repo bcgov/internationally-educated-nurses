@@ -8,9 +8,10 @@ import { FormModule } from './form/form.module';
 import { EmployeeModule } from './employee/employee.module';
 import { AuthenticationMiddleware } from './common/auth.middleware';
 import { AuthModule } from './auth/auth.module';
+import { ReportModule } from './report/report.module';
 
 @Module({
-  imports: [DatabaseModule, FormModule, ApplicantModule, EmployeeModule, AuthModule],
+  imports: [DatabaseModule, FormModule, ApplicantModule, EmployeeModule, AuthModule, ReportModule],
   controllers: [AppController],
   providers: [AppService, AppLogger],
 })
