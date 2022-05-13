@@ -4,6 +4,19 @@ import { getManager } from 'typeorm';
 const WEEKS_PER_PERIOD = 4;
 
 export class ReportService {
+  buildQuery(from: string, to: string) {
+    let query = '';
+    if (from) {
+      query = `created_date::date >= '${from}'`;
+    }
+    if (to) {
+      const tempTo = `created_date::date <= '${to}'`;
+      query = query === '' ? tempTo : `${query} AND ${tempTo}`;
+    }
+    query = query != '' ? `WHERE ${query}` : '';
+    return query;
+  }
+
   async getCountryWiseApplicantList(from: string, to: string) {
     this.isValidDateValue(from);
     this.isValidDateValue(to);
@@ -68,19 +81,6 @@ export class ReportService {
       return data;
     }
     return [];
-  }
-
-  buildQuery(from: string, to: string) {
-    let query = '';
-    if (from) {
-      query = `created_date::date >= '${from}'`;
-    }
-    if (to) {
-      const tempTo = `created_date::date <= '${to}'`;
-      query = query === '' ? tempTo : `${query} AND ${tempTo}`;
-    }
-    query = query != '' ? `WHERE ${query}` : '';
-    return query;
   }
 
   isValidDateValue(date: string) {

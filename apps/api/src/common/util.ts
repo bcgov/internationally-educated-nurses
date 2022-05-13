@@ -43,10 +43,7 @@ export function getMilestoneCategory(name: string) {
 
 export function isValidDateFormat(dt: string) {
   const regx = /^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12]\d{1}|3[01])$/;
-  if (dt.match(regx)) {
-    return true;
-  }
-  return false;
+  return !!dt.match(regx);
 }
 
 export function getStartEndDateOfWeek(w: number, y: number, period: number) {
