@@ -18,7 +18,7 @@ export class ReportController {
     ValidRoles.MINISTRY_OF_HEALTH,
   )
   async getCountryWiseApplicantList(): Promise<any> {
-    return await this.reportService.getCountryWiseApplicantList();
+    return this.reportService.getCountryWiseApplicantList();
   }
 
   @Get('/applicant/registered')
@@ -31,6 +31,6 @@ export class ReportController {
     @Query('from') from: string,
     @Query('to') to: string,
   ): Promise<object[]> {
-    return await this.reportService.getRegisteredApplicantList(from, to);
+    return this.reportService.getRegisteredApplicantList(from, to);
   }
 }

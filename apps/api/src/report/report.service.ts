@@ -4,9 +4,9 @@ import { getManager } from 'typeorm';
 const WEEKS_PER_PERIOD = 4;
 
 export class ReportService {
-  getCountryWiseApplicantList() {
+  async getCountryWiseApplicantList() {
     const entityManager = getManager();
-    return entityManager.query(`
+    return await entityManager.query(`
         SELECT count(id) as applicants, t2.country FROM
         (
             SELECT * FROM (
@@ -29,15 +29,8 @@ export class ReportService {
       throw new BadRequestException(`Please provide to date in YYYY-MM-DD format`);
     }
     /**design where clause */
-    let query = '';
-    if (from) {
-      query = `created_date::date >= '${from}'`;
-    }
-    if (to) {
-      const tempTo = `created_date::date <= '${to}'`;
-      query = query === '' ? tempTo : `${query} AND ${tempTo}`;
-    }
-    query = query != '' ? `WHERE ${query}` : '';
+    const query = this.buildQuery(from, to);
+
     const entityManager = getManager();
     const result = await entityManager.query(`
         SELECT 	
@@ -73,6 +66,19 @@ export class ReportService {
     return [];
   }
 
+  buildQuery(from: string, to: string) {
+    let query = '';
+    if (from) {
+      query = `created_date::date >= '${from}'`;
+    }
+    if (to) {
+      const tempTo = `created_date::date <= '${to}'`;
+      query = query === '' ? tempTo : `${query} AND ${tempTo}`;
+    }
+    query = query != '' ? `WHERE ${query}` : '';
+    return query;
+  }
+
   prepareWeeklyApplicantsCount(result: any) {
     let i = 0;
     const count = result.length;
@@ -104,7 +110,7 @@ export class ReportService {
         weekData = result[++i];
         tempWeek += 1;
         if (tempWeek > 53) {
-          tempWeek = 1;
+          tempWeek = 1; //need to reset it to 1 for a new year.
           tempYear += 1;
         }
         if (tempWeek === weekData?.weekly && tempYear === weekData?.yearly) {

@@ -42,7 +42,7 @@ export function getMilestoneCategory(name: string) {
 }
 
 export function isValidDateFormat(dt: string) {
-  const regx = /^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$/;
+  const regx = /^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12]\d{1}|3[01])$/;
   if (dt.match(regx)) {
     return true;
   }
