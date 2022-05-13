@@ -1,0 +1,100 @@
+{
+  "applicant": {
+    "id": "d276f7e4-786e-480d-a517-6a49c6361a88",
+    "name": "Mae Hayes",
+    "applicant_id": "2117109999978829",
+    "email_address": "Miller_Ryan@gmail.com",
+    "phone_number": "552-544-9849",
+    "registration_date": "2021-10-16",
+    "assigned_to": [
+      {
+        "id": 1,
+        "name": "Chadi"
+      }
+    ],
+    "country_of_citizenship": ["Benin"],
+    "country_of_residence": "Benin",
+    "pr_status": "PR",
+    "nursing_educations": [
+      {
+        "name": "PhD",
+        "country": "ca"
+      },
+      {
+        "name": "Master of Nursing",
+        "country": "ca"
+      }
+    ],
+    "bccnm_license_number": null,
+    "health_authorities": [
+      {
+        "id": 5,
+        "title": "Vancouver Coastal Health Authority",
+        "description": null,
+        "abbreviation": "VCHA",
+        "referral_date": "2021-06-23T23:33:28.943"
+      }
+    ],
+    "notes": null,
+    "additional_data": {
+      "last_name": "Hayes",
+      "first_name": "Mae"
+    },
+    "updated_date": "2022-05-11T04:25:26.027Z",
+    "status": null,
+    "added_by": null,
+    "updated_by": null,
+    "jobs": [],
+    "applicant_status_audit": []
+  },
+  "jobs": [
+    {
+      "ha_pcn": "Fraser Health Authority",
+      "job_id": "1234567891",
+      "job_title": "Nursing practitioner",
+      "job_location": "Surrey Memorial Hospital",
+      "job_post_date": "2018-01-01",
+      "recruiter_name": "Recruit1"
+    },
+    {
+      "ha_pcn": "Interior Health Authority",
+      "job_id": "1234567892",
+      "job_title": "Nursing practitioner",
+      "job_location": "Zeballos",
+      "job_post_date": "2019-02-02",
+      "recruiter_name": "Recruit2"
+    },
+    {
+      "ha_pcn": "Northern Health Authority",
+      "job_id": "1234567893",
+      "job_title": "Aboriginal Health Nursing",
+      "job_location": "100 Mile House",
+      "job_post_date": "2020-03-03",
+      "recruiter_name": "Recruit3"
+    },
+    {
+      "ha_pcn": "Vancouver Island Health Authority",
+      "job_id": "1234567894",
+      "job_title": "Administration",
+      "job_location": "Abbotsford",
+      "job_post_date": "2021-05-05",
+      "recruiter_name": "Recruit4"
+    },
+    {
+      "ha_pcn": "Vancouver Coastal Health Authority",
+      "job_id": "1234567895",
+      "job_title": "Advanced Practice",
+      "job_location": "Agassiz and Harrison",
+      "job_post_date": "2022-01-01",
+      "recruiter_name": "Recruit5"
+    },
+    {
+      "ha_pcn": "Fraser Health Authority",
+      "job_id": "1234567896",
+      "job_title": "Ambulatory Care",
+      "job_location": "Ahousat",
+      "job_post_date": "2022-05-12",
+      "recruiter_name": "Recruit6"
+    }
+  ]
+}

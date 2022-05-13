@@ -15,12 +15,17 @@
 
 /// <reference types="cypress" />
 
+import { IENApplicantJobCreateUpdateDTO } from '@ien/common';
+
 declare global {
   namespace Cypress {
     interface Chainable {
       login(): Chainable<Element>;
       logout(): Chainable<Element>;
       search(name: string): Chainable<Element>;
+      addJob(job: IENApplicantJobCreateUpdateDTO): void;
+      visitDetails(applicantId: string): void;
+      tabRecruitment(): void;
     }
   }
 }
