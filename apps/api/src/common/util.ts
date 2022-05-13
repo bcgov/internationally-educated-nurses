@@ -40,3 +40,32 @@ export function getMilestoneCategory(name: string) {
   }
   return null;
 }
+
+export function isValidDateFormat(dt: string) {
+  const regx = /^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$/;
+  if (dt.match(regx)) {
+    return true;
+  }
+  return false;
+}
+
+export function getStartEndDateOfWeek(w: number, y: number, period: number) {
+  const startdate = getDateOfWeek(w, y);
+  const enddate = addDays(startdate, period * 7);
+  return { startdate, enddate };
+}
+
+function addDays(date: Date, days: number) {
+  const result = new Date(date);
+  result.setDate(result.getDate() + (days - 1));
+  return result;
+}
+
+function getDateOfWeek(w: number, y: number) {
+  const simple = new Date(y, 0, 1 + (w - 1) * 7);
+  const dow = simple.getDay();
+  const ISOweekStart = simple;
+  if (dow <= 4) ISOweekStart.setDate(simple.getDate() - simple.getDay() + 1);
+  else ISOweekStart.setDate(simple.getDate() + 8 - simple.getDay());
+  return ISOweekStart;
+}
