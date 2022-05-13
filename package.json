@@ -20,7 +20,8 @@
     "start:api:local": "yarn workspace @ien/api start:dev:local",
     "start:web:local": "yarn workspace @ien/web start",
     "start:local": "run-p 'start:api:local' 'start:web:local'",
-    "start:cypress": "yarn workspace @ien/web cypress"
+    "start:cypress": "yarn workspace @ien/web cypress",
+    "open:cypress": "yarn workspace @ien/web open:cypress"
   },
   "workspaces": [
     "packages/*",
