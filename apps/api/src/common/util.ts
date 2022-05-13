@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function sortStatus(data: any[]): any[] {
   data.sort((a, b) => {
@@ -48,14 +50,8 @@ export function isValidDateFormat(dt: string) {
 
 export function getStartEndDateOfWeek(w: number, y: number, period: number) {
   const startdate = getDateOfWeek(w, y);
-  const enddate = addDays(startdate, period * 7);
+  const enddate = dayjs(startdate).add(period * 7 - 1, 'day');
   return { startdate, enddate };
-}
-
-function addDays(date: Date, days: number) {
-  const result = new Date(date);
-  result.setDate(result.getDate() + (days - 1));
-  return result;
 }
 
 function getDateOfWeek(w: number, y: number) {
