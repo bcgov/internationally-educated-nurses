@@ -89,7 +89,6 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
                     component={({ field, form }: FieldProps) => (
                       <ReactSelect<RecordTypeOptions>
                         inputId={field.name}
-                        placeholder='__Select HA'
                         value={haPcn?.data?.find(s => s.id == field.value)}
                         onBlur={field.onBlur}
                         onChange={value => form.setFieldValue(field.name, `${value?.id}`)}
