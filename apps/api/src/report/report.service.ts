@@ -4,7 +4,10 @@ import { getManager } from 'typeorm';
 const WEEKS_PER_PERIOD = 4;
 
 export class ReportService {
-  async getCountryWiseApplicantList() {
+  async getCountryWiseApplicantList(from: string, to: string) {
+    this.isValidDateValue(from);
+    this.isValidDateValue(to);
+    const query = this.buildQuery(from, to);
     const entityManager = getManager();
     const data = await entityManager.query(`
         SELECT count(id) as applicants, t2.country FROM
@@ -13,6 +16,7 @@ export class ReportService {
             SELECT id, TRIM(BOTH '"'
                             FROM (json_array_elements(nursing_educations::json)->'country')::TEXT) as country
             FROM public.ien_applicants
+            ${query}
             ) AS t1 GROUP BY t1.id, t1.country
         ) AS t2
         WHERE t2.country IS NOT NULL
@@ -26,12 +30,8 @@ export class ReportService {
   }
 
   async getRegisteredApplicantList(from: string, to: string) {
-    if (from && !isValidDateFormat(from)) {
-      throw new BadRequestException(`Please provide from date in YYYY-MM-DD format`);
-    }
-    if (to && !isValidDateFormat(to)) {
-      throw new BadRequestException(`Please provide to date in YYYY-MM-DD format`);
-    }
+    this.isValidDateValue(from);
+    this.isValidDateValue(to);
     /**design where clause */
     const query = this.buildQuery(from, to);
 
@@ -81,6 +81,14 @@ export class ReportService {
     }
     query = query != '' ? `WHERE ${query}` : '';
     return query;
+  }
+
+  isValidDateValue(date: string) {
+    if (date && !isValidDateFormat(date)) {
+      throw new BadRequestException(
+        `${date} is not a validate date, Please provide date in YYYY-MM-DD format.`,
+      );
+    }
   }
 
   prepareWeeklyApplicantsCount(result: any) {

@@ -17,8 +17,11 @@ export class ReportController {
     ValidRoles.HEALTH_MATCH,
     ValidRoles.MINISTRY_OF_HEALTH,
   )
-  async getCountryWiseApplicantList(): Promise<object[]> {
-    return this.reportService.getCountryWiseApplicantList();
+  async getCountryWiseApplicantList(
+    @Query('from') from: string,
+    @Query('to') to: string,
+  ): Promise<object[]> {
+    return this.reportService.getCountryWiseApplicantList(from, to);
   }
 
   @Get('/applicant/registered')
