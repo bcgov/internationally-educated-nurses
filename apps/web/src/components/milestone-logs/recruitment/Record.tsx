@@ -67,7 +67,10 @@ export const Record: React.FC<RecordProps> = ({ job, update, expandRecord }) => 
 
     const lastItem = milestones[milestones.length - 1];
 
-    return getHumanizedDuration(lastItem.start_date);
+    if (`${lastItem.start_date}` === dayjs().format('YYYY-MM-DD')) {
+      return 'Today';
+    }
+    return getHumanizedDuration(lastItem.start_date, dayjs().format('YYYY-MM-DD'));
   };
 
   const handleModalClose = (record?: ApplicantJobRO) => {
