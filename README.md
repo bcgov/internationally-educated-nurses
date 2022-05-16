@@ -42,8 +42,9 @@ To restore the database form a backup the following steps need to performed in t
 * Find the snapshot to restore from the AWS console 
 * snapshots created during a build are tagged with the commit sha
 * Uncomment everything from the file `terraform/db_backup.tf`
+* Comment everything from the file `terraform/db.tf`. **This deletes the existing RDS cluster**. If any debugging needs to be done on the bad rds cluster do not do this step
 * Update local var `snapshot_name` to the snapshot name from the console
 * Uncomment the line `POSTGRES_HOST     = aws_rds_cluster.pgsql_backup.endpoint` from `terraform/api.tf`
 * Comment out the line  `POSTGRES_HOST     = aws_rds_cluster.pgsql.endpoint` from `terraform/api.tf`
-* Run `make plan` and `make apply`
+* Run `ENV_NAME=prod make plan` and `ENV_NAME=prod make apply`. *Change ENV_NAME based on the needs*
 * This should create a new rds cluster from the snapshot provided and update api to point to the new backup cluster
