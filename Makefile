@@ -285,6 +285,10 @@ deploy-api:
 deploy-all: sync-app deploy-api
 	@echo "Deploying Webapp and API"
 
+backup-db:
+	@echo "Creating a database snapshot"
+	aws rds create-db-cluster-snapshot --db-cluster-identifier ien-$(ENV_NAME)-db --db-cluster-snapshot-identifier  ien-$(ENV_NAME)-db-snapshot-$(COMMIT_SHA)
+
 # ===================================
 # Tag Based Deployments
 # ===================================

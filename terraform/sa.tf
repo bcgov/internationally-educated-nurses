@@ -49,6 +49,18 @@ data "aws_iam_policy_document" "service_account" {
       "arn:aws:lambda:${var.region}:${var.target_aws_account_id}:function:ien*",
     ]
   }
+
+  statement {
+    sid    = "AllowDBClusterSnapshot"
+    effect = "Allow"
+    actions = [
+      "rds:AddTagsToResource",
+      "rds:CreateDBClusterSnapshot",
+    ]
+    resources = [
+      "arn:aws:lambda:${var.region}:${var.target_aws_account_id}:cluster:ien*",
+    ]
+  }
 }
 
 # Uncomment when output iam is required - Less noisy this way
