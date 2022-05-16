@@ -93,7 +93,7 @@ endef
 export TF_BACKEND_CFG
 
 
-.PHONY: app-local print-env start-local-services bootstrap bootstrap-terraform
+.PHONY: start-local print-env start-local-db bootstrap bootstrap-terraform
 
 # ===================================
 # Aliases 
@@ -124,17 +124,18 @@ print-env:
 	@echo "$$TF_BACKEND_CFG"
 	@echo "\n*********************\n"
 
-app-local: print-env start-local-services
+start-local: print-env start-local-db
 	@echo "++\n***** Running api + web in local Node server\n++"
 	@yarn 
 	@yarn start:local
-start-local-services:
-	@echo "++\n***** Starting local services\n++"
+
+start-local-db:
+	@echo "++\n***** Starting local database\n++"
 	@docker-compose up -d db 
 	@echo "++\n*****"
 
-stop-local-services:
-	@echo "++\n***** Stopping local services\n++"
+stop-local-db:
+	@echo "++\n***** Stopping local database\n++"
 	@docker-compose down db
 	@echo "++\n*****"
 
@@ -171,8 +172,8 @@ start-test-db:
 stop-test-db:
 	NODE_ENV=test docker-compose -f docker-compose.test.yaml down
 
-api-integration-test: 
-	@make start-test-db 
+api-integration-test:
+	@make start-test-db
 	@echo "++\n***** Running API integration tests\n++"
 	@yarn workspace @ien/api build
 	@NODE_ENV=test yarn workspace @ien/api test:e2e
@@ -180,18 +181,17 @@ api-integration-test:
 	@make stop-test-db
 
 run-test-apps:
-	@make stop-test-db
-	@yarn build
 	@make start-test-db
+	@yarn build
 	NODE_ENV=test yarn start:local
 	@echo "++\n*****"
 
 web-integration-test:
-	@make stop-test-db
 	@make start-test-db
 	@echo "++\n***** Running Web integration tests\n++"
 	@yarn build
 	@NODE_ENV=test yarn test:e2e
+	@make stop-test-db
 	@echo "++\n*****"
 
 accessibility-test:
