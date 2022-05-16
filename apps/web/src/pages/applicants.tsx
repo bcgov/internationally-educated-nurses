@@ -92,6 +92,7 @@ const Applicants = () => {
   };
 
   const handleTabChange = (index: number) => {
+    setPageIndex(1);
     changeRoute(name, index ? index + 10000 : 0);
   };
 
