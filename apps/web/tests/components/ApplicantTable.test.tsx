@@ -32,9 +32,9 @@ describe('ApplicantTable', () => {
       expect(screen.getByText(app.name)).toBeInTheDocument();
     });
 
-    const sortKeyIds = ['#sort-by-id', '#sort-by-name'];
+    const sortKeyIds = ['applicant_id', 'name', 'updated_date'];
     sortKeyIds.forEach(key => {
-      const button = result.container.querySelector(key);
+      const button = result.container.querySelector(`#sort-by-${key}`);
       expect(button).toBeInTheDocument();
       button &&
         fireEvent(

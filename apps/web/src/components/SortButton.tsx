@@ -10,7 +10,7 @@ export const SortButton = ({ label, sortKey, onChange }: SortButtonProps) => {
   return (
     <div className='flex align-middle justify-between'>
       <span>{label}</span>
-      <button id='sort-by-id' onClick={() => onChange(sortKey)}>
+      <button id={`sort-by-${sortKey}`} onClick={() => onChange(sortKey)}>
         <img src={sortIcon.src} alt='sort' />
       </button>
     </div>
