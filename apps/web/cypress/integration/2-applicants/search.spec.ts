@@ -1,7 +1,7 @@
 /// <reference types="cypress" />
 /// <reference path="../../support/index.ts"/>
 
-describe('Search Applicants', () => {
+describe('Applicants - search', () => {
   beforeEach(() => {
     cy.visit('/');
     cy.login();
