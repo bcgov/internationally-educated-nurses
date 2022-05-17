@@ -160,6 +160,11 @@ api-unit-test:
 	@yarn workspace @ien/api test
 	@echo "++\n*****"
 
+web-unit-test:
+	@echo "++\n***** Running WEB unit tests\n++"
+	@yarn workspace @ien/web test
+	@echo "++\n*****"
+
 start-test-db:
 	NODE_ENV=test docker-compose -f docker-compose.test.yaml up --build -d
 

@@ -64,6 +64,7 @@ const Applicants = () => {
     if (key === sortKey) {
       setOrder(order === 'ASC' ? 'DESC' : 'ASC');
     } else {
+      setOrder(key === 'updated_date' ? 'DESC' : 'ASC');
       setSortKey(key);
     }
   };

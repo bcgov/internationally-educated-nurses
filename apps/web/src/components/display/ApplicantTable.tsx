@@ -1,9 +1,9 @@
 import Link from 'next/link';
-import sortIcon from '@assets/img/sort.svg';
 import { buttonBase, buttonColor } from '@components';
 import { ApplicantRO, formatDate } from '@ien/common';
 import { Spinner } from '../Spinner';
 import { useRouter } from 'next/router';
+import { SortButton } from '../SortButton';
 
 export interface ApplicantTableProps {
   applicants: ApplicantRO[];
@@ -21,23 +21,15 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
         <thead className='whitespace-nowrap bg-bcLightGray text-bcDeepBlack'>
           <tr className='border-b-2 border-yellow-300 text-sm'>
             <th className='pl-6 py-4'>
-              <div className='flex align-middle justify-between'>
-                <span>ID</span>
-                <button id='sort-by-id' onClick={() => onSortChange('applicant_id')}>
-                  <img src={sortIcon.src} alt='sort' />
-                </button>
-              </div>
+              <SortButton label='ID' sortKey='applicant_id' onChange={onSortChange} />
             </th>
             <th className='px-6'>
-              <div className='flex align-middle justify-between'>
-                <span>Name</span>
-                <button id='sort-by-name' onClick={() => onSortChange('name')}>
-                  <img src={sortIcon.src} alt='sort' />
-                </button>
-              </div>
+              <SortButton label='Name' sortKey='name' onChange={onSortChange} />
             </th>
             <th className='px-6 w-1/4'>Current Milestones</th>
-            <th className='px-6'>Last Updated</th>
+            <th className='px-6'>
+              <SortButton label='Last Updated' sortKey='updated_date' onChange={onSortChange} />
+            </th>
             <th className=''></th>
           </tr>
         </thead>
