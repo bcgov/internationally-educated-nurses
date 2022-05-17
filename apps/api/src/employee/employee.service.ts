@@ -56,7 +56,7 @@ export class EmployeeService {
     }
     return getManager()
       .createQueryBuilder(EmployeeEntity, 'employee')
-      .select('employee.id, employee.name, employee.role')
+      .select('employee.id, employee.name, employee.role, employee.email, employee.created_date')
       .addSelect('users.id', 'user_id')
       .leftJoin('ien_users', 'users', 'employee.email = users.email')
       .where('employee.name ilike :name', { name: `%${name}%` })

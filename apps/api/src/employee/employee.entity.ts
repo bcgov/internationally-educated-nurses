@@ -13,7 +13,6 @@ export class EmployeeEntity {
   id!: string;
 
   @CreateDateColumn()
-  @Exclude()
   createdDate!: Date;
 
   @UpdateDateColumn()
