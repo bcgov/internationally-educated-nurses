@@ -3,7 +3,7 @@
 
 import { IENApplicantJobCreateUpdateDTO } from '@ien/common';
 
-describe('Add Job', () => {
+describe('Details - add jobs', () => {
   beforeEach(() => {
     cy.visit('/');
     cy.login();
