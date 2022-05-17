@@ -3,4 +3,5 @@ export enum ValidRoles {
   HEALTH_AUTHORITY = 'ha',
   HEALTH_MATCH = 'hmbc',
   PENDING = 'pending',
+  ROLEADMIN = 'roleadmin',
 }

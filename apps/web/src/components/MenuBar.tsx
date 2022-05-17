@@ -17,7 +17,7 @@ export const MenuBar: React.FC = () => {
             <Link key={title} href={defaultPath}>
               <a
                 className={`text-white text-sm py-2 pr-12 ${
-                  paths.includes(router.pathname) ? active : 'pointer-events-none'
+                  paths.includes(router.pathname) ? active : ''
                 }`}
               >
                 {title}
