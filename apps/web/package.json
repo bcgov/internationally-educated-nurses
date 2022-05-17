@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
-    "cypress:open": "cypress open",
+    "open:cypress": "cypress open",
     "cypress": "cypress run"
   },
   "dependencies": {
