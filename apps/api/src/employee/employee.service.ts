@@ -1,6 +1,14 @@
+import { EmployeeFilterAPIDTO } from './dto/employee-filter.dto';
 import { BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindManyOptions, In, Repository, getManager } from 'typeorm';
+import {
+  FindManyOptions,
+  In,
+  Repository,
+  getManager,
+  ObjectLiteral,
+  SelectQueryBuilder,
+} from 'typeorm';
 import { ValidRoles } from 'src/auth/auth.constants';
 import { EmployeeEntity } from './employee.entity';
 import { IENUsers } from 'src/applicant/entity/ienusers.entity';
@@ -43,6 +51,26 @@ export class EmployeeService {
     return this.ienUsersRepository.findOne({ email });
   }
 
+  _nameSearchQuery(keyword: string) {
+    let keywords = keyword.split(' ');
+    keywords = keywords.filter(item => item.length);
+    if (keywords.length === 1) {
+      return `(Employee.name ilike '%${keywords[0].toLowerCase()}%')`;
+    } else if (keywords.length === 2) {
+      return `(Employee.name ilike '%${keywords[0]}%${keywords[1]}%' OR Employee.name ilike '%${keywords[1]}%${keywords[0]}%')`;
+    } else if (keywords.length === 3) {
+      const possibleShuffle = [];
+      possibleShuffle.push(`Employee.name ilike '%${keywords[0]}%${keywords[1]}%${keywords[2]}%'`);
+      possibleShuffle.push(`Employee.name ilike '%${keywords[0]}%${keywords[2]}%${keywords[1]}%'`);
+      possibleShuffle.push(`Employee.name ilike '%${keywords[1]}%${keywords[0]}%${keywords[2]}%'`);
+      possibleShuffle.push(`Employee.name ilike '%${keywords[1]}%${keywords[2]}%${keywords[0]}%'`);
+      possibleShuffle.push(`Employee.name ilike '%${keywords[2]}%${keywords[0]}%${keywords[1]}%'`);
+      possibleShuffle.push(`Employee.name ilike '%${keywords[2]}%${keywords[1]}%${keywords[0]}%'`);
+      return `( ${possibleShuffle.join(' OR ')} )`;
+    }
+    return `Employee.name ilike '%${keyword}%'`;
+  }
+
   /**
    * List and filter employees,
    * Only for administrator purposes
@@ -50,17 +78,56 @@ export class EmployeeService {
    * @param name optional name wise filter
    * @returns Employee/User's list
    */
-  async getEmployeeList(name: string): Promise<EmployeeEntity[]> {
-    if (!name) {
-      name = '';
+  async getEmployeeList(filter: EmployeeFilterAPIDTO) {
+    const { role, name, sortKey, order, limit, skip } = filter;
+    const query: FindManyOptions<EmployeeEntity> = {
+      order: {
+        [sortKey || 'createdDate']: sortKey ? order : 'DESC',
+      },
+    };
+
+    if (limit) query.take = limit;
+    if (skip) query.skip = skip;
+
+    if (!role && !name) {
+      return this.employeeRepository.findAndCount(query);
     }
-    return getManager()
-      .createQueryBuilder(EmployeeEntity, 'employee')
-      .select('employee.id, employee.name, employee.role, employee.email, employee.created_date')
-      .addSelect('users.id', 'user_id')
-      .leftJoin('ien_users', 'users', 'employee.email = users.email')
-      .where('employee.name ilike :name', { name: `%${name}%` })
-      .getRawMany();
+
+    const conditions: (string | ObjectLiteral)[] = [];
+
+    if (role) {
+    }
+
+    if (name) {
+      conditions.push(this._nameSearchQuery(name));
+    }
+
+    if (conditions.length > 0) {
+      return this.employeeRepository.findAndCount({
+        where: (qb: SelectQueryBuilder<EmployeeEntity>) => {
+          const condition = conditions.shift();
+          if (condition) qb.where(condition);
+          conditions.forEach(c => qb.andWhere(c));
+        },
+        ...query,
+      });
+    } else {
+      return this.employeeRepository.findAndCount(query);
+    }
+    // if (!name) {
+    //   name = '';
+    // }
+    // return getManager()
+    //   .createQueryBuilder(EmployeeEntity, 'employee')
+    //   .select('employee.id, employee.name, employee.role, employee.email, employee.created_date')
+    //   .addSelect('users.id', 'user_id')
+    //   .leftJoin('ien_users', 'users', 'employee.email = users.email')
+    //   .where('employee.name ilike :name and employee.role not ilike :role', {
+    //     name: `%${name}%`,
+    //     role: 'roleadmin',
+    //   })
+
+    //   .getRawMany();
   }
 
   /**

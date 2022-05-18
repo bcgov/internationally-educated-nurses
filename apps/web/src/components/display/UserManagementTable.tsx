@@ -3,17 +3,16 @@ import { useRouter } from 'next/router';
 
 import sortIcon from '@assets/img/sort.svg';
 import { buttonBase, buttonColor } from '@components';
-import { formatDate } from '@ien/common';
+import { EmployeeRO, formatDate } from '@ien/common';
 
 export interface UserManagementProps {
-  employees: any[];
+  employees: EmployeeRO[];
   onSortChange: (field: string) => void;
 }
 
 export const UserManagementTable = (props: UserManagementProps) => {
   const { employees, onSortChange } = props;
   const router = useRouter();
-
   return (
     <div className='overflow-x-auto'>
       <table className='text-left w-full'>
@@ -39,7 +38,7 @@ export const UserManagementTable = (props: UserManagementProps) => {
             <th className='px-6'>
               <div className='flex align-middle justify-between'>
                 <span>Role</span>
-                <button id='sort-by-name' onClick={() => onSortChange('name')}>
+                <button id='sort-by-name' onClick={() => onSortChange('role')}>
                   <img src={sortIcon.src} alt='sort' />
                 </button>
               </div>
@@ -49,28 +48,26 @@ export const UserManagementTable = (props: UserManagementProps) => {
         </thead>
         <tbody className='text-bcBlack'>
           {employees &&
-            employees.map((employee: any) => (
+            employees.map((employee: EmployeeRO) => (
               <tr
                 key={employee.id}
                 className='text-left shadow-xs whitespace-nowrap even:bg-bcLightGray text-sm '
               >
                 <td className='pl-6 py-5'>{employee.name}</td>
                 <td className='px-6'>{employee.email}</td>
-                <td className='px-6'>
-                  {employee.created_date && formatDate(employee.created_date)}
-                </td>
-                <td className='px-6'>{employee.role}</td>
+                <td className='px-6'>{employee.createdDate && formatDate(employee.createdDate)}</td>
+                <td className='px-6'>{employee.role.toUpperCase()}</td>
 
                 <td className='px-6 text-right'>
                   {employee.role.toLowerCase() !== 'pending' ? (
                     <Link
                       href={{
-                        pathname: `/details`,
+                        pathname: `/`,
                         query: { ...router?.query, id: employee.id },
                       }}
                     >
                       <a
-                        className={`px-4 ${buttonColor.outline} ${buttonBase} border-bcGray text-bcGray`}
+                        className={` pointer-events-none px-4 ${buttonColor.outline} ${buttonBase} border-bcGray text-bcGray`}
                       >
                         Change Role
                       </a>
