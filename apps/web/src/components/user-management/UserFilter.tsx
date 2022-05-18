@@ -42,7 +42,7 @@ export const UserFilters = () => {
     <div className='flex flex-col md:flex-row items-center mt-2 mb-5'>
       <div className='font-bold mr-2'>Filter by</div>
       <ReactSelect
-        inputId='ole'
+        inputId='role'
         placeholder='Role'
         // onChange={value => applyRoles(value?.map(title => title.id) || [])}
         options={rolesFake}
