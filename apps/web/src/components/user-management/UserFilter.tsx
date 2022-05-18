@@ -55,9 +55,9 @@ export const UserFilters = () => {
       />
       <Button
         className='ml-2 px-6 text-sm'
-        onClick={() => {
-          null;
-        }}
+        // onClick={() => {
+        //   null;
+        // }}
         variant='primary'
       >
         Clear
