@@ -26,7 +26,7 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
             <th className='px-6'>
               <SortButton label='Name' sortKey='name' onChange={onSortChange} />
             </th>
-            <th className='px-6 w-1/4'>Current Milestones</th>
+            <th className='px-6 w-1/4'>Latest Milestone</th>
             <th className='px-6'>
               <SortButton label='Last Updated' sortKey='updated_date' onChange={onSortChange} />
             </th>
