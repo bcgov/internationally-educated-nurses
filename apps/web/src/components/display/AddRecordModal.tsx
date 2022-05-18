@@ -107,7 +107,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
                         onBlur={field.onBlur}
                         onChange={value => form.setFieldValue(field.name, `${value?.id}`)}
                         options={haPcn?.data?.map(s => ({ ...s, isDisabled: s.id == field.value }))}
-                        getOptionLabel={option => option.title}
+                        getOptionLabel={option => `${option.title}`}
                         styles={getSelectStyleOverride<RecordTypeOptions>()}
                       />
                     )}
@@ -132,7 +132,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
                           ...s,
                           isDisabled: s.id == field.value,
                         }))}
-                        getOptionLabel={option => option.title}
+                        getOptionLabel={option => `${option.title}`}
                         styles={getSelectStyleOverride<RecordTypeOptions>()}
                       />
                     )}
@@ -152,7 +152,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
                           ...s,
                           isDisabled: `${s.id}` === field.value,
                         }))}
-                        getOptionLabel={option => option.title}
+                        getOptionLabel={option => `${option.title}`}
                         styles={getSelectStyleOverride<RecordTypeOptions>()}
                       />
                     )}

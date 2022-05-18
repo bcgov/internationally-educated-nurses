@@ -12,8 +12,8 @@ const fetcher = (url: string) =>
     );
 
 export interface RecordTypeOptions {
-  id: string;
-  title: string;
+  id: number;
+  title: number;
 }
 
 export interface RecordType {

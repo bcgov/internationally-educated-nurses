@@ -18,11 +18,11 @@ export const JobFilters = ({ options, update }: JobFilterProps) => {
     update({ ha_pcn: [], job_title: [] });
   };
 
-  const applyRegions = (regions: string[]) => {
+  const applyRegions = (regions: number[]) => {
     update({ ha_pcn: regions, job_title: specialties });
   };
 
-  const applySpecialties = (specialties: string[]) => {
+  const applySpecialties = (specialties: number[]) => {
     update({ ha_pcn: regions, job_title: specialties });
   };
 
@@ -35,8 +35,8 @@ export const JobFilters = ({ options, update }: JobFilterProps) => {
         value={haPcn?.data?.filter(ha => regions?.includes(ha.id))}
         onChange={value => applyRegions(value?.map(ha => ha.id) || [])}
         options={haPcn?.data?.map(ha => ({ ...ha, isDisabled: regions?.includes(ha.id) }))}
-        getOptionLabel={option => option.title}
-        getOptionValue={option => option.id}
+        getOptionLabel={option => `${option.title}`}
+        getOptionValue={option => `${option.id}`}
         styles={getSelectStyleOverride<RecordTypeOptions>()}
         isMulti
         isClearable
@@ -51,8 +51,8 @@ export const JobFilters = ({ options, update }: JobFilterProps) => {
           ...title,
           isDisabled: specialties?.includes(title.id),
         }))}
-        getOptionLabel={option => option.title}
-        getOptionValue={option => option.id}
+        getOptionLabel={option => `${option.title}`}
+        getOptionValue={option => `${option.id}`}
         styles={getSelectStyleOverride<RecordTypeOptions>()}
         isMulti
         isClearable

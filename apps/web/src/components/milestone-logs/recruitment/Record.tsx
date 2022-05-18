@@ -1,12 +1,10 @@
-import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 
 import { buttonBase, buttonColor, DetailsItem, Disclosure } from '@components';
 import { AddMilestone, EditMilestone } from './Milestone';
 import {
   ApplicantJobRO,
-  ApplicantStatusAuditRO,
   COMPLETED_STATUSES,
   formatDate,
   IENApplicantUpdateStatusDTO,
@@ -14,7 +12,8 @@ import {
 import editIcon from '@assets/img/edit.svg';
 import dotIcon from '@assets/img/dot.svg';
 import { AddRecordModal } from '../../display/AddRecordModal';
-import { updateMilestone, getHumanizedDuration, emitter, IEN_EVENTS } from '@services';
+import { updateMilestone, getHumanizedDuration } from '@services';
+import { useApplicantContext } from '../../../applicant/ApplicantContext';
 
 interface RecordProps {
   job: ApplicantJobRO;
@@ -23,20 +22,18 @@ interface RecordProps {
 }
 
 export const Record: React.FC<RecordProps> = ({ job, update, expandRecord }) => {
-  const router = useRouter();
-  const applicantId = router.query.id as string;
+  const { applicant, updateJob } = useApplicantContext();
   const [modalVisible, setModalVisible] = useState(false);
 
   // set status_audit to empty array on record create
   // is not included in response when a new record gets created and only gets initialized on refresh
   // which prevents creation of milestones for new record
-  const { ha_pcn, job_id, job_location, job_post_date, job_title, recruiter_name, status_audit } =
-    job;
+  const { ha_pcn, job_id, job_location, job_post_date, job_title, recruiter_name } = job;
 
   // sort milestones by start_date and status id
-  const getSortedMilestones = (milestones: ApplicantStatusAuditRO[]) => {
-    if (!milestones?.length) return [];
-    const sortedMilestones = [...milestones];
+  const getSortedMilestones = () => {
+    if (!job.status_audit?.length) return [];
+    const sortedMilestones = [...job.status_audit];
     sortedMilestones.sort((a, b) => {
       if (a.start_date === b.start_date) {
         return a.status.id - b.status.id;
@@ -46,9 +43,12 @@ export const Record: React.FC<RecordProps> = ({ job, update, expandRecord }) => 
     return sortedMilestones;
   };
 
-  const [milestones, setMilestones] = useState<ApplicantStatusAuditRO[]>(
-    getSortedMilestones(status_audit || []),
-  );
+  const [milestones, setMilestones] = useState(getSortedMilestones());
+
+  useEffect(() => {
+    setMilestones(getSortedMilestones());
+    // eslint-disable-next-line
+  }, [job]);
 
   // set status for Record, returns in ASC, need to grab last item in array
   const getRecordStatus = () => {
@@ -79,19 +79,15 @@ export const Record: React.FC<RecordProps> = ({ job, update, expandRecord }) => 
   };
 
   const handleUpdateMilestone = async (id: string, values: IENApplicantUpdateStatusDTO) => {
-    const milestone = await updateMilestone(applicantId, id, values);
+    const milestone = await updateMilestone(applicant.id, id, values);
     if (milestone) {
-      const index = milestones.findIndex(m => m.id === id);
-      if (index >= 0) {
-        milestones.splice(index, 1, milestone);
-        emitter.emit(IEN_EVENTS.UPDATE_JOB);
+      const index = job.status_audit?.findIndex(m => m.id === id);
+      if (index !== undefined && index >= 0) {
+        const audits = [...(job.status_audit || [])];
+        audits.splice(index, 1, milestone);
+        updateJob({ ...job, status_audit: audits });
       }
     }
-  };
-
-  const handleNewMilestones = (milestones: ApplicantStatusAuditRO[]) => {
-    setMilestones(getSortedMilestones(milestones));
-    emitter.emit(IEN_EVENTS.UPDATE_JOB);
   };
 
   return (
@@ -147,11 +143,7 @@ export const Record: React.FC<RecordProps> = ({ job, update, expandRecord }) => 
                 handleSubmit={values => handleUpdateMilestone(mil.id, values)}
               />
             ))}
-            <AddMilestone
-              applicantId={applicantId}
-              job={job}
-              setJobMilestones={handleNewMilestones}
-            />
+            <AddMilestone job={job} />
             <AddRecordModal
               job={job}
               milestones={milestones}

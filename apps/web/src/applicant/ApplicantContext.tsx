@@ -7,18 +7,21 @@ import {
   useState,
 } from 'react';
 import { ApplicantRO, ApplicantStatusAuditRO } from '@ien/common';
-import { emitter, getApplicant, IEN_EVENTS } from '@services';
+import { getApplicant } from '@services';
 import { Spinner } from '../components/Spinner';
 import { useRouter } from 'next/router';
+import { ApplicantJobRO } from '@ien/common/src/ro/applicant.ro';
 
 export const ApplicantContext = createContext<{
-  applicant: ApplicantRO | null;
+  applicant: ApplicantRO;
   milestones: ApplicantStatusAuditRO[];
   currentTab: number;
   setCurrentTab: (index: number) => void;
+  updateJob: (job: ApplicantJobRO) => void;
 }>({
   setCurrentTab: () => void 0,
-  applicant: null,
+  updateJob: () => void 0,
+  applicant: {} as ApplicantRO,
   milestones: [],
   currentTab: 0,
 });
@@ -48,6 +51,20 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
     }
   };
 
+  const updateJob = (job: ApplicantJobRO) => {
+    const index = applicant.jobs?.findIndex(
+      j => job.job_id === j.job_id && +job.ha_pcn.id === j.ha_pcn.id,
+    );
+    if (index === undefined) {
+      applicant.jobs = [job];
+    } else if (index >= 0) {
+      applicant.jobs?.splice(index, 1, job);
+    } else {
+      applicant.jobs?.push(job);
+    }
+    setApplicant({ ...applicant });
+  };
+
   const fetchApplicant = async (id: string) => {
     setLoading(true);
     const applicantData = await getApplicant(id);
@@ -61,14 +78,15 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
 
   useEffect(() => {
     fetchApplicant(id);
-    emitter.on(IEN_EVENTS.UPDATE_JOB, fetchApplicant);
-    return () => {
-      emitter.off(IEN_EVENTS.UPDATE_JOB, fetchApplicant);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const value = { applicant, milestones, currentTab, setCurrentTab };
+  const value = {
+    applicant,
+    milestones,
+    currentTab,
+    setCurrentTab,
+    updateJob,
+  };
   return (
     <ApplicantContext.Provider value={value}>
       {loading && !applicant.id ? <Spinner className='h-10' /> : children}
