@@ -9,6 +9,6 @@
   "defaultCommandTimeout": 10000,
   "chromeWebSecurity": false,
   "viewportWidth": 1280,
-  "viewportHeight": 768,
+  "viewportHeight": 960,
   "videoUploadOnPasses": false
 }

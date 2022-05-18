@@ -10,7 +10,7 @@
 //
 //
 // -- This is a parent command --
-import { IENApplicantJobCreateUpdateDTO } from '@ien/common';
+import { IENApplicantAddStatusDTO, IENApplicantJobCreateUpdateDTO } from '@ien/common';
 
 Cypress.Commands.add('login', () => {
   cy.contains('Login');
@@ -53,6 +53,17 @@ Cypress.Commands.add('addJob', (job: IENApplicantJobCreateUpdateDTO) => {
   cy.get('#job_post_date').click().type(`${job.job_post_date}`);
   cy.get('#recruiter_name').type(`${job.recruiter_name}`);
   cy.contains('button', 'Create').click();
+});
+
+Cypress.Commands.add('addMilestone', (milestone: IENApplicantAddStatusDTO) => {
+  cy.get('form').find('.css-ackcql').click({ force: true });
+  cy.get('#status').focus().type(`${milestone.status}{enter}`);
+  cy.get('#start_date').click().type(`${milestone.start_date}`);
+  cy.get('#notes').click().type(`${milestone.notes}`);
+  if (milestone.reason) {
+    cy.get('#reason').click().type(`${milestone.reason}{enter}`);
+  }
+  cy.contains('button', 'Save Milestone').click();
 });
 
 Cypress.Commands.add('visitDetails', (applicantId: string) => {

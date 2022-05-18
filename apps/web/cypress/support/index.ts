@@ -15,7 +15,7 @@
 
 /// <reference types="cypress" />
 
-import { IENApplicantJobCreateUpdateDTO } from '@ien/common';
+import { IENApplicantAddStatusDTO, IENApplicantJobCreateUpdateDTO } from '@ien/common';
 
 declare global {
   namespace Cypress {
@@ -24,6 +24,7 @@ declare global {
       logout(): Chainable<Element>;
       search(name: string): Chainable<Element>;
       addJob(job: IENApplicantJobCreateUpdateDTO): void;
+      addMilestone(milestone: IENApplicantAddStatusDTO): void;
       visitDetails(applicantId: string): void;
       tabRecruitment(): void;
     }
