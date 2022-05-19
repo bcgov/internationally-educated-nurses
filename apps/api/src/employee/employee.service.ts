@@ -96,8 +96,13 @@ export class EmployeeService {
     const conditions: (string | ObjectLiteral)[] = [];
 
     if (role) {
+      const query: FindManyOptions<EmployeeEntity> = {
+        where: { role: In(role) },
+      };
+      return this.employeeRepository.findAndCount(query);
     }
 
+    // need to figure out how we are going to handle the way search works
     if (name) {
       conditions.push(this._nameSearchQuery(name));
     }
@@ -114,20 +119,6 @@ export class EmployeeService {
     } else {
       return this.employeeRepository.findAndCount(query);
     }
-    // if (!name) {
-    //   name = '';
-    // }
-    // return getManager()
-    //   .createQueryBuilder(EmployeeEntity, 'employee')
-    //   .select('employee.id, employee.name, employee.role, employee.email, employee.created_date')
-    //   .addSelect('users.id', 'user_id')
-    //   .leftJoin('ien_users', 'users', 'employee.email = users.email')
-    //   .where('employee.name ilike :name and employee.role not ilike :role', {
-    //     name: `%${name}%`,
-    //     role: 'roleadmin',
-    //   })
-
-    //   .getRawMany();
   }
 
   /**

@@ -2,8 +2,8 @@ import { IsNumberString, IsOptional, IsString } from 'class-validator';
 
 export class EmployeeFilterDTO {
   @IsOptional()
-  @IsString()
-  role?: string;
+  @IsString({ each: true })
+  role?: string[];
 
   @IsOptional()
   @IsString()

@@ -4,15 +4,18 @@ import { useRouter } from 'next/router';
 import sortIcon from '@assets/img/sort.svg';
 import { buttonBase, buttonColor } from '@components';
 import { EmployeeRO, formatDate } from '@ien/common';
+import { Spinner } from '../Spinner';
 
 export interface UserManagementProps {
   employees: EmployeeRO[];
+  loading: boolean;
   onSortChange: (field: string) => void;
 }
 
 export const UserManagementTable = (props: UserManagementProps) => {
-  const { employees, onSortChange } = props;
+  const { employees, loading, onSortChange } = props;
   const router = useRouter();
+
   return (
     <div className='overflow-x-auto'>
       <table className='text-left w-full'>
@@ -76,13 +79,13 @@ export const UserManagementTable = (props: UserManagementProps) => {
                 </td>
               </tr>
             ))}
-          {/* {loading && (
+          {loading && (
             <tr className='text-left shadow-xs whitespace-nowrap even:bg-bcLightGray text-sm'>
               <td colSpan={5} className='h-64'>
                 <Spinner className='h-10' />
               </td>
             </tr>
-          )} */}
+          )}
         </tbody>
       </table>
     </div>

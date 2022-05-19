@@ -1,65 +1,56 @@
 import ReactSelect from 'react-select';
 
 import { Button, getSelectStyleOverride } from '@components';
+import { EmployeeFilterOptions } from 'src/pages/user-management';
+import { rolesFake } from '@services';
 
-// interface RoleTypeOptions {
-//   id: string;
-//   title: string;
-// }
-const rolesFake = [
-  { id: '1', r: 'Pending' },
-  { id: '2', r: 'All' },
-  { id: '3', r: 'MOH' },
-  { id: '4', r: 'HMBC' },
-];
-export interface UserFilterOptions {
-  name?: string[];
-  role?: string[];
+interface EmployeeFilterProps {
+  options: EmployeeFilterOptions;
+  update: (options: EmployeeFilterOptions) => void;
 }
 
-// interface UserFilterProps {
-//   options: UserFilterOptions;
-//   update: (options: UserFilterOptions) => void;
-// }
+export const EmployeeFilters = ({ options, update }: EmployeeFilterProps) => {
+  const { name: name, role: roles } = options;
 
-// export const UserFilters = ({ options, update }: UserFilterProps) => {
-export const UserFilters = () => {
-  // const { name: name, role: roles } = options;
+  const fakeRoles = rolesFake;
 
-  // const clearFilters = () => {
-  //   update({ name: [], role: [] });
-  // };
+  const clearFilters = () => {
+    update({ name: [], role: [] });
+  };
 
+  // need to figure out how search will work
   // const applyName = (name: string[]) => {
   //   update({ name: name, role: roles });
   // };
 
-  // const applyRoles = (roles: string[]) => {
-  //   update({ name: name, role: roles });
-  // };
+  const applyRoles = (roles: string[]) => {
+    update({ name: name, role: roles });
+  };
 
+  // @todo remove fake values for options and figure out search functionality
   return (
     <div className='flex flex-col md:flex-row items-center mt-2 mb-5'>
       <div className='font-bold mr-2'>Filter by</div>
+      <input
+        placeholder='Name'
+        type='text'
+        className='w-60 min-w-full md:min-w-0 rounded-none block h-10 border-b-2 
+        border-bcBlack pl-1 bg-bcGrayInput mr-2'
+      />
       <ReactSelect
         inputId='role'
         placeholder='Role'
-        // onChange={value => applyRoles(value?.map(title => title.id) || [])}
-        options={rolesFake}
-        getOptionLabel={option => option.r}
+        value={fakeRoles.filter(role => roles?.includes(role.r))}
+        onChange={value => applyRoles(value?.map(title => title.r) || [])}
+        options={fakeRoles}
+        getOptionLabel={option => option.r.toUpperCase()}
         getOptionValue={option => option.id}
         styles={getSelectStyleOverride<any>()}
         isMulti
         isClearable
-        className='w-80 min-w-full md:min-w-0 mx-1'
+        className='w-60 min-w-full md:min-w-0 mx-1'
       />
-      <Button
-        className='ml-2 px-6 text-sm'
-        // onClick={() => {
-        //   null;
-        // }}
-        variant='primary'
-      >
+      <Button className='ml-2 px-6 text-sm' onClick={clearFilters} variant='primary'>
         Clear
       </Button>
     </div>
