@@ -64,6 +64,7 @@ const UserManagement = () => {
       }
       setEmployees(data);
     });
+
     setLoading(false);
   }, [name, sortKey, order, page, limit, role]);
 
