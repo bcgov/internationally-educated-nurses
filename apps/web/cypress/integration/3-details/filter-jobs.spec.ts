@@ -33,18 +33,18 @@ describe('Details - filter jobs', () => {
     return filteredJobs;
   };
 
-  it('filter jobs by health authority', () => {
+  it('filters jobs by health authority', () => {
     filterJobsByHa();
   });
 
-  it('filter jobs by specialty', () => {
+  it('filters jobs by specialty', () => {
     // set 'health authority' filter
     cy.get('#specialty').click().type(`${jobs[0].job_title}{enter}`);
     const matchedJobs = jobs.filter(j => jobs[0].job_title === j.job_title);
     cy.get('[id^=headlessui-]').should('have.length', matchedJobs.length);
   });
 
-  it('filter jobs by health authority and specialty', () => {
+  it('filters jobs by health authority and specialty', () => {
     // set 'health authority' filter
     let matchedJobs = filterJobsByHa();
 

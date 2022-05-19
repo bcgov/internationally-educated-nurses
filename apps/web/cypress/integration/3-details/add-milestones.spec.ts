@@ -3,7 +3,7 @@
 
 import { IENApplicantJobCreateUpdateDTO } from '@ien/common';
 
-describe('Details - add jobs', () => {
+describe('Details - add milestones', () => {
   beforeEach(() => {
     cy.visit('/');
     cy.login();
@@ -13,19 +13,17 @@ describe('Details - add jobs', () => {
     cy.logout();
   });
 
-  it('adds job competitions', () => {
+  it('adds milestones', () => {
     cy.fixture('jobs.json').then(({ applicant, jobs }) => {
       cy.visitDetails(applicant.id);
-      cy.contains('Milestones Logs');
-
       cy.tabRecruitment();
 
-      jobs.forEach((job: IENApplicantJobCreateUpdateDTO, index: number) => {
-        cy.addJob(job);
-        cy.contains(`${index + 1} items`);
-      });
+      const old: IENApplicantJobCreateUpdateDTO = jobs[0];
+      cy.get('#headlessui-disclosure-button-1').click();
 
-      cy.contains(`${jobs.length} items`);
+      cy.fixture('milestones.json').then(({ milestones }) => {
+        milestones.forEach(cy.addMilestone);
+      });
     });
   });
 });
