@@ -42,7 +42,7 @@ export class EmployeeController {
       return await this.employeeService.getEmployeeList(filter);
     } catch (e) {
       this.logger.error(e);
-      throw new InternalServerErrorException('An unknown error occured retriving applicants');
+      throw new InternalServerErrorException('An unknown error occured retrieving employees');
     }
   }
 

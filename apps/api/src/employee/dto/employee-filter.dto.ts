@@ -1,5 +1,7 @@
 import { IsNumberString, IsOptional, IsString } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
+
 import { EmployeeFilterDTO } from '@ien/common';
 
 export class EmployeeFilterAPIDTO extends EmployeeFilterDTO {
@@ -7,8 +9,8 @@ export class EmployeeFilterAPIDTO extends EmployeeFilterDTO {
     description: 'Provide optional role(with comma separated values e.g. 9,10,11)',
   })
   @IsOptional()
-  @IsString()
-  role?: string;
+  @Transform(({ value }) => value.split(','))
+  role?: string[];
 
   @ApiPropertyOptional({
     description: 'Keyword that use to filter name',
