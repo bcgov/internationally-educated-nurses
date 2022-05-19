@@ -55,6 +55,7 @@ export class IENApplicantController {
     ValidRoles.HEALTH_AUTHORITY,
     ValidRoles.HEALTH_MATCH,
     ValidRoles.MINISTRY_OF_HEALTH,
+    ValidRoles.ROLEADMIN,
   )
   @HttpCode(HttpStatus.OK)
   @Get('/')
@@ -76,6 +77,7 @@ export class IENApplicantController {
     ValidRoles.HEALTH_AUTHORITY,
     ValidRoles.HEALTH_MATCH,
     ValidRoles.MINISTRY_OF_HEALTH,
+    ValidRoles.ROLEADMIN,
   )
   @HttpCode(HttpStatus.OK)
   @Get('/:id')
@@ -133,6 +135,7 @@ export class IENApplicantController {
     ValidRoles.HEALTH_AUTHORITY,
     ValidRoles.HEALTH_MATCH,
     ValidRoles.MINISTRY_OF_HEALTH,
+    ValidRoles.ROLEADMIN,
   )
   @Patch('/:id')
   async updateApplicant(
@@ -162,6 +165,7 @@ export class IENApplicantController {
     ValidRoles.HEALTH_AUTHORITY,
     ValidRoles.HEALTH_MATCH,
     ValidRoles.MINISTRY_OF_HEALTH,
+    ValidRoles.ROLEADMIN,
   )
   @Post('/:id/status')
   async addApplicantStatus(
@@ -189,6 +193,7 @@ export class IENApplicantController {
     ValidRoles.HEALTH_AUTHORITY,
     ValidRoles.HEALTH_MATCH,
     ValidRoles.MINISTRY_OF_HEALTH,
+    ValidRoles.ROLEADMIN,
   )
   async updateApplicantStatus(
     @Req() req: RequestObj,
@@ -215,6 +220,7 @@ export class IENApplicantController {
     ValidRoles.HEALTH_AUTHORITY,
     ValidRoles.HEALTH_MATCH,
     ValidRoles.MINISTRY_OF_HEALTH,
+    ValidRoles.ROLEADMIN,
   )
   @Post('/:id/job')
   async addApplicantJob(
@@ -249,6 +255,7 @@ export class IENApplicantController {
     ValidRoles.HEALTH_AUTHORITY,
     ValidRoles.HEALTH_MATCH,
     ValidRoles.MINISTRY_OF_HEALTH,
+    ValidRoles.ROLEADMIN,
   )
   async getJob(@Param('job_id') job_id: string): Promise<ApplicantJobRO | undefined> {
     return this.ienapplicantService.getApplicantJob(job_id);
@@ -263,6 +270,7 @@ export class IENApplicantController {
     ValidRoles.HEALTH_AUTHORITY,
     ValidRoles.HEALTH_MATCH,
     ValidRoles.MINISTRY_OF_HEALTH,
+    ValidRoles.ROLEADMIN,
   )
   async updateApplicantJob(
     @Param('id') id: string,
@@ -298,6 +306,7 @@ export class IENApplicantController {
     ValidRoles.HEALTH_AUTHORITY,
     ValidRoles.HEALTH_MATCH,
     ValidRoles.MINISTRY_OF_HEALTH,
+    ValidRoles.ROLEADMIN,
   )
   @Get('/:id/jobs')
   async getApplicantJobs(

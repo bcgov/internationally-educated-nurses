@@ -8,6 +8,7 @@ import { ValidRoles } from '@services';
 import { EmployeeRO } from '@ien/common';
 import { Spinner } from 'src/components/Spinner';
 import { EmployeeFilters } from 'src/components/user-management/UserFilter';
+import { Search } from 'src/components/Search';
 
 interface SearchOptions {
   name?: string;
@@ -48,9 +49,9 @@ const UserManagement = () => {
   };
 
   // will be implemented once search is discussed
-  // const searchByName = async (searchName: string, searchLimit: number) => {
-  //   return searchEmployees({ name: searchName, limit: searchLimit }).then(({ data }) => data);
-  // };
+  const searchByName = async (searchName: string, searchLimit: number) => {
+    return searchEmployees({ name: searchName, limit: searchLimit }).then(({ data }) => data);
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -92,6 +93,15 @@ const UserManagement = () => {
     setFilters(filterBy);
   };
 
+  const viewDetail = () => {
+    return null;
+  };
+
+  const handleKeywordChange = () => {
+    setPage(1);
+    //changeRoute(keyword, 0);
+  };
+
   if (loading) {
     return <Spinner className='h-10' />;
   }
@@ -102,6 +112,14 @@ const UserManagement = () => {
       <h4 className='pb-5'>Manage user access and user roles</h4>
       <div className='bg-white p-4'>
         <h3 className='font-bold text-lg text-bcBluePrimary'>All Users</h3>
+        <div className='py-2'>
+          <Search
+            onChange={handleKeywordChange}
+            keyword={name}
+            onSelect={viewDetail}
+            search={searchByName}
+          />
+        </div>
         <EmployeeFilters options={filters} update={handleFilters} />
         <div className='opacity-50'>{`Showing ${employees && employees.length} users`}</div>
       </div>

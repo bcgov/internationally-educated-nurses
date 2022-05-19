@@ -7,9 +7,8 @@ export enum ValidRoles {
 }
 
 //@todo determine whether coming from master table
-export const rolesFake = [
+export const roleFilters = [
   { id: '1', r: 'pending' },
-  { id: '2', r: 'all' },
-  { id: '3', r: 'moh' },
-  { id: '4', r: 'hmbc' },
+  { id: '2', r: 'moh' },
+  { id: '3', r: 'hmbc' },
 ];

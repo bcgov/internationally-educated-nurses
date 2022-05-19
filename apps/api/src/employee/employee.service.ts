@@ -55,20 +55,32 @@ export class EmployeeService {
     let keywords = keyword.split(' ');
     keywords = keywords.filter(item => item.length);
     if (keywords.length === 1) {
-      return `(Employee.name ilike '%${keywords[0].toLowerCase()}%')`;
+      return `(EmployeeEntity.name ilike '%${keywords[0].toLowerCase()}%')`;
     } else if (keywords.length === 2) {
-      return `(Employee.name ilike '%${keywords[0]}%${keywords[1]}%' OR Employee.name ilike '%${keywords[1]}%${keywords[0]}%')`;
+      return `(EmployeeEntity.name ilike '%${keywords[0]}%${keywords[1]}%' OR EmployeeEntity.name ilike '%${keywords[1]}%${keywords[0]}%')`;
     } else if (keywords.length === 3) {
       const possibleShuffle = [];
-      possibleShuffle.push(`Employee.name ilike '%${keywords[0]}%${keywords[1]}%${keywords[2]}%'`);
-      possibleShuffle.push(`Employee.name ilike '%${keywords[0]}%${keywords[2]}%${keywords[1]}%'`);
-      possibleShuffle.push(`Employee.name ilike '%${keywords[1]}%${keywords[0]}%${keywords[2]}%'`);
-      possibleShuffle.push(`Employee.name ilike '%${keywords[1]}%${keywords[2]}%${keywords[0]}%'`);
-      possibleShuffle.push(`Employee.name ilike '%${keywords[2]}%${keywords[0]}%${keywords[1]}%'`);
-      possibleShuffle.push(`Employee.name ilike '%${keywords[2]}%${keywords[1]}%${keywords[0]}%'`);
+      possibleShuffle.push(
+        `EmployeeEntity.name ilike '%${keywords[0]}%${keywords[1]}%${keywords[2]}%'`,
+      );
+      possibleShuffle.push(
+        `EmployeeEntity.name ilike '%${keywords[0]}%${keywords[2]}%${keywords[1]}%'`,
+      );
+      possibleShuffle.push(
+        `EmployeeEntity.name ilike '%${keywords[1]}%${keywords[0]}%${keywords[2]}%'`,
+      );
+      possibleShuffle.push(
+        `EmployeeEntity.name ilike '%${keywords[1]}%${keywords[2]}%${keywords[0]}%'`,
+      );
+      possibleShuffle.push(
+        `EmployeeEntity.name ilike '%${keywords[2]}%${keywords[0]}%${keywords[1]}%'`,
+      );
+      possibleShuffle.push(
+        `EmployeeEntity.name ilike '%${keywords[2]}%${keywords[1]}%${keywords[0]}%'`,
+      );
       return `( ${possibleShuffle.join(' OR ')} )`;
     }
-    return `Employee.name ilike '%${keyword}%'`;
+    return `EmployeeEntity.name ilike '%${keyword}%'`;
   }
 
   /**
