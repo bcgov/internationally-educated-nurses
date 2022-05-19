@@ -14,7 +14,7 @@ import { KeycloakInstance } from 'keycloak-js';
 import { CachePolicies, Provider } from 'use-http';
 import { AuthClientTokens } from '@react-keycloak/core/lib/types';
 import { PropsWithChildren, ReactNode } from 'react';
-import { Maintenance } from './maintenance';
+import { Maintenance } from '../components/Maintenance';
 
 axios.defaults.baseURL = process.env.NEXT_PUBLIC_API_URL;
 
