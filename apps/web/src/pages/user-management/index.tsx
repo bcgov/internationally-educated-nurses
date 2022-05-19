@@ -40,7 +40,7 @@ const UserManagement = () => {
   const [sortKey, setSortKey] = useState('');
   const [order, setOrder] = useState<'ASC' | 'DESC'>('DESC');
   const [limit, setLimit] = useState(DEFAULT_PAGE_SIZE);
-  const [pageIndex, setPageIndex] = useState(1);
+  const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
 
   const searchEmployees = async (options: SearchOptions) => {
@@ -54,18 +54,18 @@ const UserManagement = () => {
 
   useEffect(() => {
     setLoading(true);
-    const skip = (pageIndex - 1) * limit;
+    const skip = (page - 1) * limit;
     const options: SearchOptions = { name, role, sortKey, order, limit, skip };
 
     searchEmployees(options).then(({ data, count }) => {
       setTotal(count);
       if (count < limit) {
-        setPageIndex(1);
+        setPage(1);
       }
       setEmployees(data);
     });
     setLoading(false);
-  }, [name, sortKey, order, pageIndex, limit, role]);
+  }, [name, sortKey, order, page, limit, role]);
 
   const handleSort = (key: string) => {
     if (key === sortKey) {
@@ -79,15 +79,15 @@ const UserManagement = () => {
   const handlePageOptions = ({ pageIndex, pageSize }: PageOptions) => {
     if (pageSize !== limit) {
       setLimit(pageSize);
-      setPageIndex(1);
+      setPage(1);
     } else {
-      setPageIndex(pageIndex);
+      setPage(pageIndex);
     }
   };
 
   const handleFilters = (filterBy: EmployeeFilterOptions) => {
     setRole(filterBy.role);
-    setPageIndex(1);
+    setPage(1);
     setFilters(filterBy);
   };
 
@@ -107,14 +107,14 @@ const UserManagement = () => {
       {employees && employees.length > 0 && (
         <div className='flex justify-content-center flex-col bg-white px-4 pb-4'>
           <Pagination
-            pageOptions={{ pageIndex, pageSize: limit, total }}
+            pageOptions={{ pageIndex: page, pageSize: limit, total }}
             onChange={handlePageOptions}
           />
 
           <UserManagementTable employees={employees} loading={loading} onSortChange={handleSort} />
 
           <Pagination
-            pageOptions={{ pageIndex, pageSize: limit, total }}
+            pageOptions={{ pageIndex: page, pageSize: limit, total }}
             onChange={handlePageOptions}
           />
         </div>
