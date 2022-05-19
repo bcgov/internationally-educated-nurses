@@ -23,8 +23,8 @@ export const EmployeeFilters = ({ options, update }: EmployeeFilterProps) => {
   //   update({ name: name, role: roles });
   // };
 
-  const applyRoles = (roles: string[]) => {
-    update({ name: name, role: roles });
+  const applyRoles = (rolesToFilter: string[]) => {
+    update({ name: name, role: rolesToFilter });
   };
 
   // @todo remove fake values for options and figure out search functionality
