@@ -12,7 +12,7 @@ const FooterLink: React.FC<{ href: string }> = ({ href, children }) => {
 
 export const Footer: React.FC = () => {
   return (
-    <footer className='w-full bg-bcBluePrimary border-t-2 border-bcYellowPrimary md:px-12'>
+    <footer className='fixed left-0 bottom-0 w-full bg-bcBluePrimary border-t-2 border-bcYellowPrimary md:px-12'>
       <div className='bar-separator mx-2 md:mx-0 flex-col flex md:flex-row md:items-center md:align-center text-white py-2'>
         <FooterLink href='https://www2.gov.bc.ca/gov/content/about-gov-bc-ca'>
           About gov.bc.ca

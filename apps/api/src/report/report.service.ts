@@ -1,7 +1,16 @@
 import { BadRequestException } from '@nestjs/common';
 import { getStartEndDateOfWeek, isValidDateFormat } from 'src/common/util';
 import { getManager } from 'typeorm';
+import dayjs from 'dayjs';
+
 const WEEKS_PER_PERIOD = 4;
+const PERIOD_START_DATE = '2022-05-01';
+
+interface ApplicantsByWeek {
+  weekly: number;
+  yearly: number;
+  applicants: number;
+}
 
 export class ReportService {
   buildQuery(from: string, to: string) {
@@ -49,16 +58,25 @@ export class ReportService {
     const query = this.buildQuery(from, to);
 
     const entityManager = getManager();
-    const result = await entityManager.query(`
+    const result: ApplicantsByWeek[] = await entityManager.query(`
         SELECT 	
-            date_part('week', created_date::date) AS weekly,
-            date_part('year', created_date::date) AS yearly,
+            date_part('week', registration_date::date) AS weekly,
+            date_part('year', registration_date::date) AS yearly,
             COUNT(*)::integer as applicants          
         FROM public.ien_applicants
         ${query}
         GROUP BY yearly, weekly
         ORDER BY yearly, weekly;
     `);
+
+    result.sort((e1, e2) => {
+      if (e1.yearly > e2.yearly) return 1;
+      if (e2.yearly > e1.yearly) return -1;
+      if (e1.weekly > e2.weekly) return 1;
+      if (e2.weekly > e1.weekly) return -1;
+      return 0;
+    });
+
     if (result.length) {
       const data = this.prepareWeeklyApplicantsCount(result);
       if (data.length > 0) {
@@ -91,11 +109,14 @@ export class ReportService {
     }
   }
 
-  prepareWeeklyApplicantsCount(result: any) {
+  private getPeriodIndex(start: Date): number {
+    return dayjs(start).diff(PERIOD_START_DATE, 'month') + 1;
+  }
+
+  prepareWeeklyApplicantsCount(result: ApplicantsByWeek[]) {
     let i = 0;
     const count = result.length;
     const periodData = [];
-    let periodCount = 0;
     while (i < count) {
       let weekData = result[i];
       const { startdate, enddate } = getStartEndDateOfWeek(
@@ -104,7 +125,7 @@ export class ReportService {
         WEEKS_PER_PERIOD,
       );
       const period = {
-        period: `Period ${++periodCount}`,
+        period: `Period ${this.getPeriodIndex(startdate)}`,
         from: startdate.toISOString().slice(0, 10),
         to: enddate.toISOString().slice(0, 10),
         applicants: weekData.applicants,

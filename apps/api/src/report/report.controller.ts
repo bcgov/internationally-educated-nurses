@@ -1,9 +1,10 @@
-import { Controller, Get, Inject, Query, UseGuards } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { Controller, Get, HttpStatus, Inject, Query, UseGuards } from '@nestjs/common';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ValidRoles } from 'src/auth/auth.constants';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { RouteAcceptsRoles } from 'src/common/decorators';
 import { ReportService } from './report.service';
+import { PeriodRO } from '../common/ro/period.ro';
 
 @Controller('reports')
 @ApiTags('IEN Reports')
@@ -24,6 +25,8 @@ export class ReportController {
     return this.reportService.getCountryWiseApplicantList(from, to);
   }
 
+  @ApiOperation({ summary: 'List report periods within the given time range' })
+  @ApiResponse({ status: HttpStatus.OK, isArray: true, type: PeriodRO })
   @Get('/applicant/registered')
   @RouteAcceptsRoles(
     ValidRoles.HEALTH_AUTHORITY,

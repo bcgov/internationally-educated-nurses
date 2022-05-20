@@ -1,6 +1,7 @@
-import { IsNumberString, IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
+import { SortFilterDTO } from './sort-filter.dto';
 
-export class IENApplicantFilterDTO {
+export class IENApplicantFilterDTO extends SortFilterDTO {
   @IsOptional()
   @IsString()
   ha_pcn?: string;
@@ -12,20 +13,4 @@ export class IENApplicantFilterDTO {
   @IsOptional()
   @IsString()
   name?: string;
-
-  @IsOptional()
-  @IsString()
-  sortKey?: string;
-
-  @IsOptional()
-  @IsString()
-  order?: 'ASC' | 'DESC';
-
-  @IsOptional()
-  @IsNumberString()
-  limit?: number;
-
-  @IsOptional()
-  @IsNumberString()
-  skip?: number;
 }

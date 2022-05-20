@@ -53,7 +53,7 @@ function App({ Component, pageProps }: AppProps) {
             <div className='h-full flex flex-col'>
               <Header />
               <MenuBar />
-              <main className='flex flex-grow w-full justify-center'>
+              <main className='flex h-full w-full justify-center pb-12'>
                 <Component {...pageProps} />
               </main>
               <Footer />
