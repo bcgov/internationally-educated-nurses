@@ -50,7 +50,13 @@ export const UserManagementTable = (props: UserManagementProps) => {
           </tr>
         </thead>
         <tbody className='text-bcBlack'>
-          {employees &&
+          {employees.length === 0 ? (
+            <tr className='text-center shadow-xs text-base font-bold'>
+              <td colSpan={4} className='py-4'>
+                No Results
+              </td>
+            </tr>
+          ) : (
             employees.map((employee: EmployeeRO) => (
               <tr
                 key={employee.id}
@@ -78,7 +84,8 @@ export const UserManagementTable = (props: UserManagementProps) => {
                   ) : null}
                 </td>
               </tr>
-            ))}
+            ))
+          )}
           {loading && (
             <tr className='text-left shadow-xs whitespace-nowrap even:bg-bcLightGray text-sm'>
               <td colSpan={5} className='h-64'>

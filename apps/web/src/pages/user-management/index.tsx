@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 
 import { UserManagementTable } from 'src/components/display/UserManagementTable';
 import withAuth from 'src/components/Keycloak';
@@ -8,6 +9,8 @@ import { ValidRoles } from '@services';
 import { EmployeeRO } from '@ien/common';
 import { Spinner } from 'src/components/Spinner';
 import { EmployeeFilters } from 'src/components/user-management/UserFilter';
+import { Search } from 'src/components/Search';
+
 interface SearchOptions {
   name?: string;
   role?: string[];
@@ -31,8 +34,8 @@ const UserManagement = () => {
   const [employees, setEmployees] = useState<EmployeeRO[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // will change this when search functionality is figured out
-  const name = '';
+  const router = useRouter();
+  const name = router.query?.name as string;
 
   const [filters, setFilters] = useState<Partial<EmployeeFilterOptions>>({});
   const [role, setRole] = useState<string[] | undefined>([]);
@@ -42,21 +45,16 @@ const UserManagement = () => {
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
 
-  const searchEmployees = async (options: SearchOptions) => {
-    return getEmployees(options);
+  const searchByName = async (searchName: string, searchLimit: number) => {
+    return getEmployees({ name: searchName, limit: searchLimit }).then(({ data }) => data);
   };
-
-  // will be implemented once search is discussed
-  // const searchByName = async (searchName: string, searchLimit: number) => {
-  //   return searchEmployees({ name: searchName, limit: searchLimit }).then(({ data }) => data);
-  // };
 
   useEffect(() => {
     setLoading(true);
     const skip = (page - 1) * limit;
     const options: SearchOptions = { name, role, sortKey, order, limit, skip };
 
-    searchEmployees(options).then(({ data, count }) => {
+    getEmployees(options).then(({ data, count }) => {
       setTotal(count);
       if (count < limit) {
         setPage(1);
@@ -91,6 +89,19 @@ const UserManagement = () => {
     setFilters(filterBy);
   };
 
+  const changeRoute = (keyword: string) => {
+    const urlParams = new URLSearchParams();
+
+    keyword && urlParams.append('name', keyword);
+
+    router.push(`?${urlParams.toString()}`, undefined, { shallow: true });
+  };
+
+  const handleKeywordChange = (keyword: string) => {
+    setPage(1);
+    changeRoute(keyword);
+  };
+
   if (loading) {
     return <Spinner className='h-10' />;
   }
@@ -101,24 +112,30 @@ const UserManagement = () => {
       <h4 className='pb-5'>Manage user access and user roles</h4>
       <div className='bg-white p-4'>
         <h3 className='font-bold text-lg text-bcBluePrimary'>All Users</h3>
+        <div className='py-2'>
+          <Search
+            onChange={handleKeywordChange}
+            keyword={name}
+            search={searchByName}
+            showDropdown={false}
+          />
+        </div>
         <EmployeeFilters options={filters} update={handleFilters} />
         <div className='opacity-50'>{`Showing ${employees && employees.length} users`}</div>
       </div>
-      {employees && employees.length > 0 && (
-        <div className='flex justify-content-center flex-col bg-white px-4 pb-4'>
-          <Pagination
-            pageOptions={{ pageIndex: page, pageSize: limit, total }}
-            onChange={handlePageOptions}
-          />
+      <div className='flex justify-content-center flex-col bg-white px-4 pb-4'>
+        <Pagination
+          pageOptions={{ pageIndex: page, pageSize: limit, total }}
+          onChange={handlePageOptions}
+        />
 
-          <UserManagementTable employees={employees} loading={loading} onSortChange={handleSort} />
+        <UserManagementTable employees={employees} loading={loading} onSortChange={handleSort} />
 
-          <Pagination
-            pageOptions={{ pageIndex: page, pageSize: limit, total }}
-            onChange={handlePageOptions}
-          />
-        </div>
-      )}
+        <Pagination
+          pageOptions={{ pageIndex: page, pageSize: limit, total }}
+          onChange={handlePageOptions}
+        />
+      </div>
     </div>
   );
 };
