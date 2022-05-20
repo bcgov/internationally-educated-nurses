@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
-import sortIcon from '@assets/img/sort.svg';
 import { buttonBase, buttonColor } from '@components';
 import { EmployeeRO, formatDate } from '@ien/common';
 import { Spinner } from '../Spinner';
+import { SortButton } from '../SortButton';
 
 export interface UserManagementProps {
   employees: EmployeeRO[];
@@ -22,29 +22,14 @@ export const UserManagementTable = (props: UserManagementProps) => {
         <thead className='whitespace-nowrap bg-bcLightGray text-bcDeepBlack'>
           <tr className='border-b-2 border-yellow-300 text-sm'>
             <th className='px-6 py-4'>
-              <div className='flex align-middle justify-between'>
-                <span>Name</span>
-                <button id='sort-by-name' onClick={() => onSortChange('name')}>
-                  <img src={sortIcon.src} alt='sort' />
-                </button>
-              </div>
+              <SortButton label='Name' sortKey='name' onChange={onSortChange} />
             </th>
             <th className='px-6'>Email Address</th>
             <th className='px-6'>
-              <div className='flex align-middle justify-between'>
-                <span>Created On</span>
-                <button id='sort-by-name' onClick={() => onSortChange('name')}>
-                  <img src={sortIcon.src} alt='sort' />
-                </button>
-              </div>
+              <SortButton label='Created On' sortKey='createdDate' onChange={onSortChange} />
             </th>
             <th className='px-6'>
-              <div className='flex align-middle justify-between'>
-                <span>Role</span>
-                <button id='sort-by-name' onClick={() => onSortChange('role')}>
-                  <img src={sortIcon.src} alt='sort' />
-                </button>
-              </div>
+              <SortButton label='Role' sortKey='role' onChange={onSortChange} />
             </th>
             <th className=''></th>
           </tr>
@@ -68,20 +53,18 @@ export const UserManagementTable = (props: UserManagementProps) => {
                 <td className='px-6'>{employee.role.toUpperCase()}</td>
 
                 <td className='px-6 text-right'>
-                  {employee.role.toLowerCase() !== 'pending' ? (
-                    <Link
-                      href={{
-                        pathname: `/`,
-                        query: { ...router?.query, id: employee.id },
-                      }}
+                  <Link
+                    href={{
+                      pathname: `/`,
+                      query: { ...router?.query, id: employee.id },
+                    }}
+                  >
+                    <a
+                      className={` pointer-events-none px-4 ${buttonColor.outline} ${buttonBase} border-bcGray text-bcGray`}
                     >
-                      <a
-                        className={` pointer-events-none px-4 ${buttonColor.outline} ${buttonBase} border-bcGray text-bcGray`}
-                      >
-                        Change Role
-                      </a>
-                    </Link>
-                  ) : null}
+                      Change Role
+                    </a>
+                  </Link>
                 </td>
               </tr>
             ))
