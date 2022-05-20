@@ -16,6 +16,8 @@ import {
 import { Field } from '../form';
 import { Modal } from '../Modal';
 import { ApplicantStatusAuditRO } from '@ien/common/src/ro/applicant.ro';
+import { useApplicantContext } from '../../applicant/ApplicantContext';
+import { toast } from 'react-toastify';
 
 interface AddRecordProps {
   job?: ApplicantJobRO;
@@ -28,6 +30,8 @@ interface AddRecordProps {
 export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) => {
   const { job, milestones, visible, onClose, setExpandRecord } = props;
 
+  const { applicant } = useApplicantContext();
+
   const router = useRouter();
 
   const applicantId = router?.query?.id as string;
@@ -37,9 +41,19 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
   // deconstruct and get record options
   const { haPcn, jobLocation, jobTitle } = useGetAddRecordOptions();
 
+  const isDuplicate = ({ job_id, ha_pcn }: IENApplicantJobCreateUpdateDTO) => {
+    const result = applicant?.jobs?.find(j => j.job_id === job_id && j.ha_pcn.id === +ha_pcn);
+    return result && (!job || result !== job);
+  };
+
   const handleSubmit = async (values: IENApplicantJobCreateUpdateDTO) => {
     if (values.job_post_date === '') {
       values.job_post_date = undefined;
+    }
+
+    if (isDuplicate(values)) {
+      toast.error('There is a job record with the same health authority and job id.');
+      return;
     }
 
     const data = job
@@ -93,7 +107,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
                         onBlur={field.onBlur}
                         onChange={value => form.setFieldValue(field.name, `${value?.id}`)}
                         options={haPcn?.data?.map(s => ({ ...s, isDisabled: s.id == field.value }))}
-                        getOptionLabel={option => option.title}
+                        getOptionLabel={option => `${option.title}`}
                         styles={getSelectStyleOverride<RecordTypeOptions>()}
                       />
                     )}
@@ -118,7 +132,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
                           ...s,
                           isDisabled: s.id == field.value,
                         }))}
-                        getOptionLabel={option => option.title}
+                        getOptionLabel={option => `${option.title}`}
                         styles={getSelectStyleOverride<RecordTypeOptions>()}
                       />
                     )}
@@ -138,7 +152,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
                           ...s,
                           isDisabled: `${s.id}` === field.value,
                         }))}
-                        getOptionLabel={option => option.title}
+                        getOptionLabel={option => `${option.title}`}
                         styles={getSelectStyleOverride<RecordTypeOptions>()}
                       />
                     )}

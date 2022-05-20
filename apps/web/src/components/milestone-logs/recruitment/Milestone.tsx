@@ -19,12 +19,12 @@ import {
   useGetMilestoneOptions,
   useGetWithdrawReasonOptions,
   MilestoneType,
-  getJobAndMilestones,
 } from '@services';
 import addIcon from '@assets/img/add.svg';
 import editIcon from '@assets/img/edit.svg';
 import calendarIcon from '@assets/img/calendar.svg';
 import userIcon from '@assets/img/user.svg';
+import { useApplicantContext } from '../../../applicant/ApplicantContext';
 
 type MilestoneFormValues = IENApplicantAddStatusDTO | IENApplicantUpdateStatusDTO;
 
@@ -40,28 +40,24 @@ const getInitialValues = <T extends MilestoneFormValues>(status?: ApplicantStatu
 const milestoneValidator = createValidator(IENApplicantAddStatusDTO);
 
 interface AddMilestoneProps {
-  applicantId: string;
   job: ApplicantJobRO;
-  setJobMilestones: (milestones: ApplicantStatusAuditRO[]) => void;
 }
 
-export const AddMilestone = ({ applicantId, job, setJobMilestones }: AddMilestoneProps) => {
+export const AddMilestone = ({ job }: AddMilestoneProps) => {
+  const { applicant, updateJob } = useApplicantContext();
+
   const handleSubmit = async (
     values: IENApplicantAddStatusDTO,
     helpers?: FormikHelpers<IENApplicantAddStatusDTO>,
   ) => {
     values.job_id = `${job.id}`;
 
-    const data = await addMilestone(applicantId as string, values);
+    const milestone = await addMilestone(applicant.id, values);
 
     // get updated milestones
-    if (data && data.id) {
-      const reFetchData = await getJobAndMilestones(applicantId, { job_id: +job.id });
-
-      if (reFetchData) {
-        const [jobs] = reFetchData;
-        setJobMilestones(jobs[0]?.status_audit || []);
-      }
+    if (milestone && milestone.id) {
+      const milestones = [...(job.status_audit || []), milestone];
+      updateJob({ ...job, status_audit: milestones });
     }
 
     // reset form after submitting
