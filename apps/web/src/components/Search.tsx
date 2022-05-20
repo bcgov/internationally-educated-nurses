@@ -2,13 +2,13 @@ import React, { ChangeEvent, KeyboardEvent, useEffect, useState } from 'react';
 import searchIcon from '@assets/img/search.svg';
 import clearIcon from '@assets/img/x_clear.svg';
 import barIcon from '@assets/img/bar.svg';
-import { ApplicantRO } from '@ien/common';
 
 interface SearchProps {
   onChange: (name: string) => void;
-  search: (name: string, limit: number) => Promise<ApplicantRO[]>;
-  onSelect: (id: string) => void;
+  search: (name: string, limit: number) => Promise<any[]>;
+  onSelect?: (id: string) => void;
   keyword?: string;
+  showDropdown?: boolean;
 }
 
 const QUERY_LIMIT = 5; // limit the number of search results
@@ -16,9 +16,9 @@ const QUERY_DELAY = 300; // to reduce number of api calls
 const FOCUS_OUT_DELAY = 300; // to make redirection to detail page working
 
 export const Search = (props: SearchProps) => {
-  const { keyword, search, onChange, onSelect } = props;
+  const { keyword, search, onChange, onSelect, showDropdown } = props;
 
-  const [options, setOptions] = useState<ApplicantRO[]>([]);
+  const [options, setOptions] = useState<any[]>([]);
   const [searchName, setSearchName] = useState(keyword || '');
   const [delayedName, setDelayedName] = useState('');
   const [focus, setFocus] = useState(false);
@@ -36,6 +36,11 @@ export const Search = (props: SearchProps) => {
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchName(e.target.value);
+
+    // make request if length of search field is greater than 2, .length starts at 0
+    if (!showDropdown && searchName.length > 1) {
+      setTimeout(() => onChange(searchName), 1000);
+    }
   };
 
   const handleEnter = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -75,7 +80,7 @@ export const Search = (props: SearchProps) => {
             <button onClick={handleClear}>
               <img src={clearIcon.src} alt='search' className='flex-grow-0 mr-3' />
             </button>
-            {focus && (
+            {showDropdown && focus && (
               <>
                 <img src={barIcon.src} alt='search' className='flex-grow-0 mr-3' />
                 <button
@@ -89,14 +94,14 @@ export const Search = (props: SearchProps) => {
           </>
         )}
       </div>
-      {delayedName && focus && (
+      {showDropdown && delayedName && focus && (
         <div className='absolute bg-white w-full px-2 pt-3'>
           {options.map(({ id, name, status }) => {
             return (
               <div
                 key={id}
                 className='flex border-b h-10 w-full px-4 hover:bg-bcLightBlueBackground'
-                onClick={() => onSelect(id)}
+                onClick={() => onSelect && onSelect(id)}
               >
                 <span className='my-auto'>
                   <b>{name}</b> found in <b>{status?.status}</b>
