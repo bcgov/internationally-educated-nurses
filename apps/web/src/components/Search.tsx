@@ -30,6 +30,7 @@ export const Search = (props: SearchProps) => {
   }, [searchName]);
 
   useEffect(() => {
+    inputRef.current?.focus();
     if (!delayedName.trim()) return;
     search(delayedName, QUERY_LIMIT).then(setOptions);
   }, [delayedName, search]);
@@ -39,7 +40,7 @@ export const Search = (props: SearchProps) => {
 
     // make request if length of search field is greater than 2, .length starts at 0
     if (!showDropdown && searchName.length > 1) {
-      setTimeout(() => onChange(searchName), 1000);
+      setTimeout(() => onChange(e.target.value), QUERY_DELAY);
     }
   };
 
@@ -47,6 +48,12 @@ export const Search = (props: SearchProps) => {
     if (e.key === 'Enter') {
       inputRef.current?.blur();
       onChange(searchName);
+    }
+
+    if (!showDropdown && e.key === 'Backspace') {
+      if (searchName.length - 1 === 0) {
+        handleClear();
+      }
     }
   };
 
