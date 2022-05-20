@@ -14,6 +14,7 @@ import { KeycloakInstance } from 'keycloak-js';
 import { CachePolicies, Provider } from 'use-http';
 import { AuthClientTokens } from '@react-keycloak/core/lib/types';
 import { PropsWithChildren, ReactNode } from 'react';
+import { Maintenance } from '../components/Maintenance';
 
 axios.defaults.baseURL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -27,6 +28,10 @@ function App({ Component, pageProps }: AppProps) {
   const handleTokens = (tokens: AuthClientTokens) => {
     axios.defaults.headers.common['Authorization'] = `Bearer ${tokens.token}`;
   };
+
+  if (process.env.NEXT_PUBLIC_MAINTENANCE) {
+    return <Maintenance />;
+  }
   return (
     <>
       <Head>
