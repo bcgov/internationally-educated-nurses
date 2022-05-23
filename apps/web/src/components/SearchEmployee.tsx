@@ -1,7 +1,6 @@
 import React, { ChangeEvent, KeyboardEvent, useEffect, useState } from 'react';
 import searchIcon from '@assets/img/search.svg';
 import clearIcon from '@assets/img/x_clear.svg';
-import barIcon from '@assets/img/bar.svg';
 import { EmployeeRO } from '@ien/common';
 
 interface SearchProps {
@@ -14,14 +13,12 @@ interface SearchProps {
 
 const QUERY_LIMIT = 10; // limit the number of search results
 const QUERY_DELAY = 0; // to reduce number of api calls
-const FOCUS_OUT_DELAY = 300; // to make redirection to detail page working
 
 export const SearchEmployee = (props: SearchProps) => {
   const { keyword, search, onChange } = props;
 
   const [searchName, setSearchName] = useState(keyword || '');
   const [delayedName, setDelayedName] = useState('');
-  const [focus, setFocus] = useState(false);
   const inputRef = React.createRef<HTMLInputElement>();
 
   useEffect(() => {
@@ -57,11 +54,6 @@ export const SearchEmployee = (props: SearchProps) => {
     }
   };
 
-  const handleFocus = (inFocus: boolean) => {
-    // without delay, redirection to detail page on selection won't work
-    setTimeout(() => setFocus(inFocus), FOCUS_OUT_DELAY);
-  };
-
   // clear search bar text
   const handleClear = () => {
     setSearchName('');
@@ -69,16 +61,15 @@ export const SearchEmployee = (props: SearchProps) => {
   };
 
   return (
-    <div className='relative bg-white z-10' onBlur={() => handleFocus(false)}>
+    <div className='relative bg-white z-10'>
       <div className='flex py-2 px-2 mb-1 border rounded'>
         <img src={searchIcon.src} alt='search' className='flex-grow-0 mr-3' />
         <input
           ref={inputRef}
-          type='text'
-          value={searchName}
           onChange={handleChange}
-          onFocus={() => handleFocus(true)}
           onKeyDown={handleEnter}
+          value={searchName}
+          type='text'
           placeholder='Search by first name or last name'
           className='flex-grow focus:outline-none'
         />
@@ -87,17 +78,6 @@ export const SearchEmployee = (props: SearchProps) => {
             <button onClick={handleClear}>
               <img src={clearIcon.src} alt='search' className='flex-grow-0 mr-3' />
             </button>
-            {focus && (
-              <>
-                <img src={barIcon.src} alt='search' className='flex-grow-0 mr-3' />
-                <button
-                  className='flex-grow-0 text-bcBlueAccent '
-                  onClick={() => onChange(searchName)}
-                >
-                  Show all results
-                </button>
-              </>
-            )}
           </>
         )}
       </div>
