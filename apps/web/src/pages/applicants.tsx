@@ -55,7 +55,6 @@ const Applicants = () => {
       }
       setApplicants(data);
     });
-
     setLoading(false);
   }, [name, status, sortKey, order, pageIndex, limit]);
 
@@ -109,7 +108,6 @@ const Applicants = () => {
         keyword={name}
         onSelect={viewDetail}
         search={searchByName}
-        showDropdown={true}
       />
 
       <div className='bg-white'>
