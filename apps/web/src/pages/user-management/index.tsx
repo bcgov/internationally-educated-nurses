@@ -9,7 +9,7 @@ import { ValidRoles } from '@services';
 import { EmployeeRO } from '@ien/common';
 import { Spinner } from 'src/components/Spinner';
 import { EmployeeFilters } from 'src/components/user-management/UserFilter';
-import { Search } from 'src/components/Search';
+import { SearchEmployee } from 'src/components/SearchEmployee';
 
 interface SearchOptions {
   name?: string;
@@ -46,6 +46,7 @@ const UserManagement = () => {
   const [total, setTotal] = useState(0);
 
   const searchByName = async (searchName: string, searchLimit: number) => {
+    setLimit(searchLimit);
     return getEmployees({ name: searchName, limit: searchLimit }).then(({ data }) => data);
   };
 
@@ -113,7 +114,7 @@ const UserManagement = () => {
       <div className='bg-white p-4'>
         <h3 className='font-bold text-lg text-bcBluePrimary'>All Users</h3>
         <div className='py-2'>
-          <Search
+          <SearchEmployee
             onChange={handleKeywordChange}
             keyword={name}
             search={searchByName}
