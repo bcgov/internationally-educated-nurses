@@ -54,31 +54,12 @@ export class EmployeeService {
   _nameSearchQuery(keyword: string) {
     let keywords = keyword.split(' ');
     keywords = keywords.filter(item => item.length);
-    if (keywords.length === 1) {
-      return `(EmployeeEntity.name ilike '%${keywords[0].toLowerCase()}%')`;
-    } else if (keywords.length === 2) {
-      return `(EmployeeEntity.name ilike '%${keywords[0]}%${keywords[1]}%' OR EmployeeEntity.name ilike '%${keywords[1]}%${keywords[0]}%')`;
-    } else if (keywords.length === 3) {
-      const possibleShuffle = [];
-      possibleShuffle.push(
-        `EmployeeEntity.name ilike '%${keywords[0]}%${keywords[1]}%${keywords[2]}%'`,
-      );
-      possibleShuffle.push(
-        `EmployeeEntity.name ilike '%${keywords[0]}%${keywords[2]}%${keywords[1]}%'`,
-      );
-      possibleShuffle.push(
-        `EmployeeEntity.name ilike '%${keywords[1]}%${keywords[0]}%${keywords[2]}%'`,
-      );
-      possibleShuffle.push(
-        `EmployeeEntity.name ilike '%${keywords[1]}%${keywords[2]}%${keywords[0]}%'`,
-      );
-      possibleShuffle.push(
-        `EmployeeEntity.name ilike '%${keywords[2]}%${keywords[0]}%${keywords[1]}%'`,
-      );
-      possibleShuffle.push(
-        `EmployeeEntity.name ilike '%${keywords[2]}%${keywords[1]}%${keywords[0]}%'`,
-      );
-      return `( ${possibleShuffle.join(' OR ')} )`;
+    if (keywords.length > 0) {
+      const tempConditions: string[] = [];
+      keywords.forEach(ele => {
+        tempConditions.push(`EmployeeEntity.name ilike '%${ele}%'`)
+      });
+      return tempConditions.join(' AND ');
     }
     return `EmployeeEntity.name ilike '%${keyword}%'`;
   }
