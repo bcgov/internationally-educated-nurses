@@ -57,7 +57,7 @@ export class EmployeeService {
     if (keywords.length > 0) {
       const tempConditions: string[] = [];
       keywords.forEach(ele => {
-        tempConditions.push(`EmployeeEntity.name ilike '%${ele}%'`)
+        tempConditions.push(`EmployeeEntity.name ilike '%${ele}%'`);
       });
       return tempConditions.join(' AND ');
     }
