@@ -2,23 +2,23 @@ import React, { ChangeEvent, KeyboardEvent, useEffect, useState } from 'react';
 import searchIcon from '@assets/img/search.svg';
 import clearIcon from '@assets/img/x_clear.svg';
 import barIcon from '@assets/img/bar.svg';
-import { ApplicantRO } from '@ien/common';
+import { EmployeeRO } from '@ien/common';
 
 interface SearchProps {
   onChange: (name: string) => void;
-  search: (name: string, limit: number) => Promise<ApplicantRO[]>;
-  onSelect: (id: string) => void;
+  search: (name: string, limit: number) => Promise<EmployeeRO[]>;
+  onSelect?: (id: string) => void;
   keyword?: string;
+  showDropdown?: boolean;
 }
 
-const QUERY_LIMIT = 5; // limit the number of search results
-const QUERY_DELAY = 300; // to reduce number of api calls
+const QUERY_LIMIT = 10; // limit the number of search results
+const QUERY_DELAY = 0; // to reduce number of api calls
 const FOCUS_OUT_DELAY = 300; // to make redirection to detail page working
 
-export const Search = (props: SearchProps) => {
-  const { keyword, search, onChange, onSelect } = props;
+export const SearchEmployee = (props: SearchProps) => {
+  const { keyword, search, onChange } = props;
 
-  const [options, setOptions] = useState<ApplicantRO[]>([]);
   const [searchName, setSearchName] = useState(keyword || '');
   const [delayedName, setDelayedName] = useState('');
   const [focus, setFocus] = useState(false);
@@ -30,18 +30,30 @@ export const Search = (props: SearchProps) => {
   }, [searchName]);
 
   useEffect(() => {
+    inputRef.current?.focus();
     if (!delayedName.trim()) return;
-    search(delayedName, QUERY_LIMIT).then(setOptions);
+    search(delayedName, QUERY_LIMIT);
   }, [delayedName, search]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchName(e.target.value);
+
+    // make request if length of search field is greater than 2, .length starts at 0
+    if (searchName.length > 1) {
+      setTimeout(() => onChange(e.target.value), QUERY_DELAY);
+    }
   };
 
   const handleEnter = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       inputRef.current?.blur();
       onChange(searchName);
+    }
+
+    if (e.key === 'Backspace') {
+      if (searchName.length - 1 === 0) {
+        handleClear();
+      }
     }
   };
 
@@ -53,7 +65,7 @@ export const Search = (props: SearchProps) => {
   // clear search bar text
   const handleClear = () => {
     setSearchName('');
-    onChange(''); // refresh the applicant page
+    onChange(''); // refresh the employee/user page
   };
 
   return (
@@ -89,23 +101,6 @@ export const Search = (props: SearchProps) => {
           </>
         )}
       </div>
-      {delayedName && focus && (
-        <div className='absolute bg-white w-full px-2 pt-3'>
-          {options.map(({ id, name, status }) => {
-            return (
-              <div
-                key={id}
-                className='flex border-b h-10 w-full px-4 hover:bg-bcLightBlueBackground'
-                onClick={() => onSelect(id)}
-              >
-                <span className='my-auto'>
-                  <b>{name}</b> found in <b>{status?.status}</b>
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      )}
     </div>
   );
 };

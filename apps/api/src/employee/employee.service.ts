@@ -91,6 +91,7 @@ export class EmployeeService {
     if (role) {
       const roleQuery: FindManyOptions<EmployeeEntity> = {
         where: { role: In(role) },
+        ...query,
       };
       return this.employeeRepository.findAndCount(roleQuery);
     }
