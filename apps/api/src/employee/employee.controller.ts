@@ -34,7 +34,6 @@ export class EmployeeController {
   }
 
   @UseGuards(AuthGuard)
-  @RouteAcceptsRoles(ValidRoles.ROLEADMIN)
   @Get('/list/all')
   async getEmployeeList(
     @Query() filter: EmployeeFilterAPIDTO,
@@ -48,7 +47,7 @@ export class EmployeeController {
   }
 
   @UseGuards(AuthGuard)
-  @RouteAcceptsRoles(ValidRoles.ROLEADMIN, ValidRoles.MINISTRY_OF_HEALTH)
+  @RouteAcceptsRoles(ValidRoles.MINISTRY_OF_HEALTH)
   @Patch('/update/role')
   async updateRole(@Body('ids') ids: string[], @Body('role') role: string): Promise<void> {
     return await this.employeeService.updateRole(ids, role);

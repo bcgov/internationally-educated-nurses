@@ -6,7 +6,6 @@ import { AppLogger } from './common/logger.service';
 import { ApplicantModule } from './applicant/applicant.module';
 import { FormModule } from './form/form.module';
 import { EmployeeModule } from './employee/employee.module';
-// import { AuthenticationMiddleware } from './common/auth.middleware';
 import { AuthModule } from './auth/auth.module';
 import { ReportModule } from './report/report.module';
 
