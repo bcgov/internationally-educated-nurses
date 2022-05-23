@@ -27,6 +27,7 @@ export class EmployeeController {
     @Inject(EmployeeService) private readonly employeeService: EmployeeService,
     @Inject(Logger) private readonly logger: AppLogger,
   ) {}
+  @UseGuards(AuthGuard)
   @Get('/:userid')
   async getEmployee(@Req() req: RequestObj): Promise<EmployeeEntity> {
     return req.user;

@@ -12,7 +12,7 @@ interface SearchProps {
 }
 
 const QUERY_LIMIT = 5; // limit the number of search results
-const QUERY_DELAY = 300; // to reduce number of api calls
+const QUERY_DELAY = 0; // to reduce number of api calls
 const FOCUS_OUT_DELAY = 300; // to make redirection to detail page working
 
 export const Search = (props: SearchProps) => {
@@ -32,7 +32,10 @@ export const Search = (props: SearchProps) => {
   useEffect(() => {
     inputRef.current?.focus();
     if (!delayedName.trim()) return;
-    search(delayedName, QUERY_LIMIT).then(setOptions);
+    // make request if length of keyword is greater than 2.
+    if (delayedName.trim().length > 2) {
+      search(delayedName, QUERY_LIMIT).then(setOptions);
+    }
   }, [delayedName, search]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
