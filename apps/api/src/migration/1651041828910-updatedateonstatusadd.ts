@@ -19,7 +19,11 @@ export class Updatedateonstatusadd1651041828910 implements MigrationInterface {
     );
 
     await queryRunner.query(
-      `CREATE OR REPLACE TRIGGER trg_job_updated_date_on_status
+      `DROP TRIGGER IF EXISTS trg_job_updated_date_on_status ON public.ien_applicant_status_audit;`,
+    );
+
+    await queryRunner.query(
+      `CREATE TRIGGER trg_job_updated_date_on_status
         AFTER INSERT ON public.ien_applicant_status_audit
         FOR EACH ROW EXECUTE PROCEDURE job_updated_date();`,
     );
@@ -27,7 +31,7 @@ export class Updatedateonstatusadd1651041828910 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `DROP TRIGGER trg_job_updated_date_on_status ON public.ien_applicant_status_audit;`,
+      `DROP TRIGGER IF EXISTS trg_job_updated_date_on_status ON public.ien_applicant_status_audit;`,
     );
     await queryRunner.query(`DROP FUNCTION IF EXISTS job_updated_date;`);
   }
