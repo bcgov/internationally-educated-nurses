@@ -8,6 +8,7 @@ import addIcon from '@assets/img/add.svg';
 import { JobFilters } from './recruitment/JobFilters';
 import { PageOptions, Pagination } from '../Pagination';
 import { useApplicantContext } from '../../applicant/ApplicantContext';
+import dayjs from 'dayjs';
 
 const DEFAULT_JOB_PAGE_SIZE = 5;
 
@@ -23,6 +24,12 @@ export const Recruitment: React.FC = () => {
   const [total, setTotal] = useState(0);
   const [expandRecord, setExpandRecord] = useState(false);
 
+  const sortJobs = (jobs?: ApplicantJobRO[]): void => {
+    jobs?.sort((a, b) => {
+      return dayjs(b.updated_date || b.created_date).diff(a.updated_date || a.created_date);
+    });
+  };
+
   useEffect(() => {
     const jobs = applicant?.jobs
       ?.filter(
@@ -34,8 +41,8 @@ export const Recruitment: React.FC = () => {
           !filters.job_title.length ||
           (job.job_title && filters.job_title.includes(job.job_title.id)),
       )
-      .slice(0, pageSize);
-
+      .slice(pageSize * (pageIndex - 1), pageSize * pageIndex);
+    sortJobs(jobs);
     setJobRecords(jobs || []);
 
     setTotal(applicant?.jobs?.length || 0);

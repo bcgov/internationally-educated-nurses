@@ -24,7 +24,7 @@ const Login = () => {
     }
   }
   return (
-    <div className='container'>
+    <div className='fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2'>
       <div className='w-full h-full flex items-center justify-center'>
         {initialized}
         <div className='flex flex-col items-center justify-center bg-bcLightBlueBackground rounded py-6 px-24'>

@@ -19,7 +19,7 @@ describe.skip('Details - edit job', () => {
       cy.visitDetails(applicant.id);
       cy.tabRecruitment();
 
-      const old: IENApplicantJobCreateUpdateDTO = jobs[0];
+      const old: IENApplicantJobCreateUpdateDTO = jobs[jobs.length - 1];
       cy.get('#headlessui-disclosure-button-1').click();
       cy.contains('button', 'Edit Details').click();
 
