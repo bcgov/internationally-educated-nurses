@@ -1,20 +1,20 @@
 import { SSRKeycloakProvider, SSRCookies, useKeycloak } from '@react-keycloak/ssr';
-import '../styles/globals.css';
-import 'react-toastify/dist/ReactToastify.min.css';
-
 import axios from 'axios';
 import Head from 'next/head';
 import { ToastContainer } from 'react-toastify';
-
 import type { AppProps } from 'next/app';
-import { Footer, Header, MenuBar } from '@components';
 import cookie from 'cookie';
-import { AuthProvider } from 'src/components/AuthContexts';
 import { KeycloakInstance } from 'keycloak-js';
 import { CachePolicies, Provider } from 'use-http';
 import { AuthClientTokens } from '@react-keycloak/core/lib/types';
 import { PropsWithChildren, ReactNode } from 'react';
+
+import { Footer, Header, MenuBar } from '@components';
+import { AuthProvider } from 'src/components/AuthContexts';
 import { Maintenance } from '../components/Maintenance';
+
+import '../styles/globals.css';
+import 'react-toastify/dist/ReactToastify.min.css';
 
 axios.defaults.baseURL = process.env.NEXT_PUBLIC_API_URL;
 

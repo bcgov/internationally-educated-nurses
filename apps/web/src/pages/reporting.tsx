@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { PageOptions, Pagination } from '../components/Pagination';
 import { getPeriods } from '../services/report';
 import { Period } from '@ien/common';
-import { ReportTable } from '../reporting/report-table';
+import { ReportTable } from '../reporting/ReportTable';
 import withAuth from '../components/Keycloak';
 import { ValidRoles } from '@services';
 
