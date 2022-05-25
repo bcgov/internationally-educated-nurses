@@ -136,7 +136,7 @@ start-local-db:
 
 stop-local-db:
 	@echo "++\n***** Stopping local database\n++"
-	@docker-compose down db
+	@docker stop "$(PROJECT)_db"
 	@echo "++\n*****"
 
 docker-down:
@@ -167,10 +167,10 @@ web-unit-test:
 	@echo "++\n*****"
 
 start-test-db:
-	NODE_ENV=test docker-compose -f docker-compose.test.yaml up --build -d
+	docker-compose -f docker-compose.test.yaml up --build -d
 
 stop-test-db:
-	NODE_ENV=test docker-compose -f docker-compose.test.yaml down
+	docker-compose -f docker-compose.test.yaml down
 
 api-integration-test:
 	@make start-test-db

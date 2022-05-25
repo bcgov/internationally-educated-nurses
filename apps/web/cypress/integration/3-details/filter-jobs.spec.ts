@@ -3,7 +3,7 @@
 
 import { ApplicantRO, IENApplicantJobCreateUpdateDTO } from '@ien/common';
 
-describe('Details - filter jobs', () => {
+describe.skip('Details - filter jobs', () => {
   let applicant: ApplicantRO;
   let jobs: IENApplicantJobCreateUpdateDTO[];
 

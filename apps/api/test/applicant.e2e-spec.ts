@@ -1,3 +1,5 @@
+import { AuthGuard } from '../src/auth/auth.guard';
+
 require('../env');
 import request from 'supertest';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -21,7 +23,10 @@ describe('ApplicantController (e2e)', () => {
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideGuard(AuthGuard)
+      .useValue({ canActivate: () => ({ user_id: 1 }) })
+      .compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();
@@ -117,7 +122,7 @@ describe('ApplicantController (e2e)', () => {
       .end(done);
   });
 
-  it('Add applicant milestone /ien/:id/status (POST)', done => {
+  it.skip('Add applicant milestone /ien/:id/status (POST)', done => {
     const addStatusUrl = `/ien/${applicant.id}/status`;
     addMilestone.job_id = jobTempId;
     request(app.getHttpServer())
@@ -131,7 +136,7 @@ describe('ApplicantController (e2e)', () => {
       .end(done);
   });
 
-  it('Add duplicate applicant milestone /ien/:id/status (POST)', done => {
+  it.skip('Add duplicate applicant milestone /ien/:id/status (POST)', done => {
     const addStatusUrl = `/ien/${applicant.id}/status`;
     addMilestone.job_id = jobTempId;
     request(app.getHttpServer())
@@ -145,7 +150,7 @@ describe('ApplicantController (e2e)', () => {
       .end(done);
   });
 
-  it('Patch applicant milestone detail /ien/:id/status/:id (POST)', done => {
+  it.skip('Patch applicant milestone detail /ien/:id/status/:id (POST)', done => {
     const addStatusUrl = `/ien/${applicant.id}/status/${applicantStatusId}`;
     addMilestone.notes = 'Update note';
     request(app.getHttpServer())
@@ -182,7 +187,7 @@ describe('ApplicantController (e2e)', () => {
       .end(done);
   });
 
-  it('Fetch applicant job detail /ien/job/:id (GET)', done => {
+  it.skip('Fetch applicant job detail /ien/job/:id (GET)', done => {
     request(app.getHttpServer())
       .get(`/ien/job/${jobTempId}`)
       .expect(res => {

@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
 
 import { UserManagementTable } from 'src/components/display/UserManagementTable';
 import withAuth from 'src/components/Keycloak';
@@ -14,7 +13,6 @@ import { SearchEmployee } from 'src/components/SearchEmployee';
 interface SearchOptions {
   name?: string;
   role?: string[];
-  status?: string;
   sortKey?: string;
   order?: 'ASC' | 'DESC';
   limit?: number;
@@ -23,7 +21,7 @@ interface SearchOptions {
 
 export interface EmployeeFilterOptions {
   name?: string[];
-  role?: string[];
+  roles?: string[];
   skip?: number;
   limit?: number;
 }
@@ -34,26 +32,19 @@ const UserManagement = () => {
   const [employees, setEmployees] = useState<EmployeeRO[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const router = useRouter();
-  const name = router.query?.name as string;
-
+  const [name, setName] = useState<string>('');
   const [filters, setFilters] = useState<Partial<EmployeeFilterOptions>>({});
-  const [role, setRole] = useState<string[] | undefined>([]);
+  const [roles, setRoles] = useState<string[] | undefined>([]);
   const [sortKey, setSortKey] = useState('');
   const [order, setOrder] = useState<'ASC' | 'DESC'>('DESC');
   const [limit, setLimit] = useState(DEFAULT_PAGE_SIZE);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
 
-  const searchByName = async (searchName: string, searchLimit: number) => {
-    setLimit(searchLimit);
-    return getEmployees({ name: searchName, limit: searchLimit }).then(({ data }) => data);
-  };
-
   useEffect(() => {
     setLoading(true);
     const skip = (page - 1) * limit;
-    const options: SearchOptions = { name, role, sortKey, order, limit, skip };
+    const options: SearchOptions = { name, role: roles, sortKey, order, limit, skip };
 
     getEmployees(options).then(({ data, count }) => {
       setTotal(count);
@@ -64,7 +55,7 @@ const UserManagement = () => {
     });
 
     setLoading(false);
-  }, [name, sortKey, order, page, limit, role]);
+  }, [name, sortKey, order, page, limit, roles]);
 
   const handleSort = (key: string) => {
     if (key === sortKey) {
@@ -85,22 +76,9 @@ const UserManagement = () => {
   };
 
   const handleFilters = (filterBy: EmployeeFilterOptions) => {
-    setRole(filterBy.role);
+    setRoles(filterBy.roles);
     setPage(1);
     setFilters(filterBy);
-  };
-
-  const changeRoute = (keyword: string) => {
-    const urlParams = new URLSearchParams();
-
-    keyword && urlParams.append('name', keyword);
-
-    router.push(`?${urlParams.toString()}`, undefined, { shallow: true });
-  };
-
-  const handleKeywordChange = (keyword: string) => {
-    setPage(1);
-    changeRoute(keyword);
   };
 
   if (loading) {
@@ -114,12 +92,7 @@ const UserManagement = () => {
       <div className='bg-white p-4'>
         <h3 className='font-bold text-lg text-bcBluePrimary'>All Users</h3>
         <div className='py-2'>
-          <SearchEmployee
-            onChange={handleKeywordChange}
-            keyword={name}
-            search={searchByName}
-            showDropdown={false}
-          />
+          <SearchEmployee keyword={name} onChange={setName} />
         </div>
         <EmployeeFilters options={filters} update={handleFilters} />
         <div className='opacity-50'>{`Showing ${employees && employees.length} users`}</div>

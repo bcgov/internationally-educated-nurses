@@ -1,21 +1,16 @@
-import React, { ChangeEvent, KeyboardEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import searchIcon from '@assets/img/search.svg';
 import clearIcon from '@assets/img/x_clear.svg';
-import { EmployeeRO } from '@ien/common';
 
 interface SearchProps {
   onChange: (name: string) => void;
-  search: (name: string, limit: number) => Promise<EmployeeRO[]>;
-  onSelect?: (id: string) => void;
   keyword?: string;
-  showDropdown?: boolean;
 }
 
-const QUERY_LIMIT = 10; // limit the number of search results
-const QUERY_DELAY = 0; // to reduce number of api calls
+const QUERY_DELAY = 300; // to reduce number of api calls
 
 export const SearchEmployee = (props: SearchProps) => {
-  const { keyword, search, onChange } = props;
+  const { keyword, onChange } = props;
 
   const [searchName, setSearchName] = useState(keyword || '');
   const [delayedName, setDelayedName] = useState('');
@@ -27,37 +22,16 @@ export const SearchEmployee = (props: SearchProps) => {
   }, [searchName]);
 
   useEffect(() => {
-    inputRef.current?.focus();
-    if (!delayedName.trim()) return;
-    search(delayedName, QUERY_LIMIT);
-  }, [delayedName, search]);
+    onChange(delayedName);
+  }, [delayedName, onChange]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchName(e.target.value);
-
-    // make request if length of search field is greater than 2, .length starts at 0
-    if (searchName.length > 1) {
-      setTimeout(() => onChange(e.target.value), QUERY_DELAY);
-    }
-  };
-
-  const handleEnter = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      inputRef.current?.blur();
-      onChange(searchName);
-    }
-
-    if (e.key === 'Backspace') {
-      if (searchName.length - 1 === 0) {
-        handleClear();
-      }
-    }
   };
 
   // clear search bar text
   const handleClear = () => {
     setSearchName('');
-    onChange(''); // refresh the employee/user page
   };
 
   return (
@@ -67,7 +41,6 @@ export const SearchEmployee = (props: SearchProps) => {
         <input
           ref={inputRef}
           onChange={handleChange}
-          onKeyDown={handleEnter}
           value={searchName}
           type='text'
           placeholder='Search by first name or last name'

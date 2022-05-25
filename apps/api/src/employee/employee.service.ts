@@ -89,14 +89,9 @@ export class EmployeeService {
     const conditions: (string | ObjectLiteral)[] = [];
 
     if (role) {
-      const roleQuery: FindManyOptions<EmployeeEntity> = {
-        where: { role: In(role) },
-        ...query,
-      };
-      return this.employeeRepository.findAndCount(roleQuery);
+      conditions.push({ role: In(role) });
     }
 
-    // need to figure out how we are going to handle the way search works
     if (name) {
       conditions.push(this._nameSearchQuery(name));
     }

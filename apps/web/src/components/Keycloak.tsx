@@ -6,6 +6,7 @@ import { ValidRoles } from '@services';
 import { Pending } from './Pending';
 import { Spinner } from './Spinner';
 import { NextPage } from 'next';
+import { toast } from 'react-toastify';
 
 const withAuth = (Component: React.FunctionComponent, roles: ValidRoles[]) => {
   const Auth = (props: JSX.IntrinsicAttributes) => {
@@ -16,6 +17,7 @@ const withAuth = (Component: React.FunctionComponent, roles: ValidRoles[]) => {
     // eslint-disable-next-line
     useEffect(() => {
       if (kc?.initialized && authUser && !roles.includes(authUser?.role)) {
+        toast.error('Users with admin role can access the page.');
         router.replace('/applicants');
       }
       if (!authUser && !authUserLoading && kc.initialized && !kc?.keycloak?.authenticated) {
