@@ -1,7 +1,8 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
-import { getApplicants, milestoneTabs, ValidRoles } from '@services';
+import { ValidRoles } from '@ien/common';
+import { getApplicants, milestoneTabs } from '@services';
 import { Search } from '../components/Search';
 import { HeaderTab } from '../components/display/HeaderTab';
 import { PageOptions, Pagination } from '../components/Pagination';

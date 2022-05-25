@@ -9,7 +9,7 @@ import {
   ObjectLiteral,
   SelectQueryBuilder,
 } from 'typeorm';
-import { ValidRoles } from 'src/auth/auth.constants';
+import { ValidRoles } from '@ien/common';
 import { EmployeeEntity } from './employee.entity';
 import { IENUsers } from 'src/applicant/entity/ienusers.entity';
 import { EmployeeUser } from 'src/common/interface/EmployeeUser';

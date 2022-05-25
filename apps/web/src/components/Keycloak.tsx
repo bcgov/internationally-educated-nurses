@@ -2,7 +2,7 @@ import { useAuthContext } from './AuthContexts';
 import React, { useEffect } from 'react';
 import { useKeycloak } from '@react-keycloak/ssr';
 import { useRouter } from 'next/router';
-import { ValidRoles } from '@services';
+import { ValidRoles } from '@ien/common';
 import { Pending } from './Pending';
 import { Spinner } from './Spinner';
 import { NextPage } from 'next';
@@ -23,6 +23,7 @@ const withAuth = (Component: React.FunctionComponent, roles: ValidRoles[]) => {
       if (!authUser && !authUserLoading && kc.initialized && !kc?.keycloak?.authenticated) {
         router.replace('/login');
       }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [kc?.initialized, kc?.keycloak?.authenticated, authUser, authUserLoading]);
 
     // Handle intermediate states

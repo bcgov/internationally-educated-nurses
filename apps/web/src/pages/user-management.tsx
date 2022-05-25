@@ -4,10 +4,10 @@ import { UserManagementTable } from 'src/components/display/UserManagementTable'
 import withAuth from 'src/components/Keycloak';
 import { PageOptions, Pagination } from 'src/components/Pagination';
 import { getEmployees } from 'src/services/user-management';
-import { ValidRoles } from '@services';
+import { ValidRoles } from '@ien/common';
 import { EmployeeRO } from '@ien/common';
 import { Spinner } from 'src/components/Spinner';
-import { EmployeeFilters } from 'src/components/user-management/UserFilter';
+import { UserFilter } from 'src/components/user-management/UserFilter';
 import { SearchEmployee } from 'src/components/SearchEmployee';
 
 interface SearchOptions {
@@ -19,9 +19,9 @@ interface SearchOptions {
   skip?: number;
 }
 
-export interface EmployeeFilterOptions {
+export interface UserFilterOptions {
   name?: string[];
-  roles?: string[];
+  roles?: ValidRoles[];
   skip?: number;
   limit?: number;
 }
@@ -33,8 +33,7 @@ const UserManagement = () => {
   const [loading, setLoading] = useState(false);
 
   const [name, setName] = useState<string>('');
-  const [filters, setFilters] = useState<Partial<EmployeeFilterOptions>>({});
-  const [roles, setRoles] = useState<string[] | undefined>([]);
+  const [roles, setRoles] = useState<ValidRoles[]>([]);
   const [sortKey, setSortKey] = useState('');
   const [order, setOrder] = useState<'ASC' | 'DESC'>('DESC');
   const [limit, setLimit] = useState(DEFAULT_PAGE_SIZE);
@@ -75,10 +74,17 @@ const UserManagement = () => {
     }
   };
 
-  const handleFilters = (filterBy: EmployeeFilterOptions) => {
-    setRoles(filterBy.roles);
+  const handleFilters = (roles: ValidRoles[]) => {
+    setRoles(roles);
     setPage(1);
-    setFilters(filterBy);
+  };
+
+  const updateUser = (id: string, role: ValidRoles) => {
+    const employee = employees.find(e => e.id === id);
+    if (employee) {
+      employee.role = role;
+      setEmployees([...employees]);
+    }
   };
 
   if (loading) {
@@ -94,7 +100,7 @@ const UserManagement = () => {
         <div className='py-2'>
           <SearchEmployee keyword={name} onChange={setName} />
         </div>
-        <EmployeeFilters options={filters} update={handleFilters} />
+        <UserFilter roles={roles} updateRoles={handleFilters} />
         <div className='opacity-50'>{`Showing ${employees && employees.length} users`}</div>
       </div>
       <div className='flex justify-content-center flex-col bg-white px-4 pb-4'>
@@ -103,7 +109,12 @@ const UserManagement = () => {
           onChange={handlePageOptions}
         />
 
-        <UserManagementTable employees={employees} loading={loading} onSortChange={handleSort} />
+        <UserManagementTable
+          employees={employees}
+          loading={loading}
+          onSortChange={handleSort}
+          updateUser={updateUser}
+        />
 
         <Pagination
           pageOptions={{ pageIndex: page, pageSize: limit, total }}

@@ -1,37 +1,30 @@
 import ReactSelect from 'react-select';
 
 import { Button, getSelectStyleOverride } from '@components';
-import { EmployeeFilterOptions } from 'src/pages/user-management';
-import { roleFilters, RoleOption } from '@services';
+import { ValidRoles } from '@ien/common';
+import { RoleOption, roleSelectOptions } from '@services';
 
-interface EmployeeFilterProps {
-  options: EmployeeFilterOptions;
-  update: (options: EmployeeFilterOptions) => void;
+interface UserFilterProps {
+  roles: ValidRoles[];
+  updateRoles: (roles: ValidRoles[]) => void;
 }
 
-export const EmployeeFilters = ({ options, update }: EmployeeFilterProps) => {
-  const { name, roles } = options;
-
+export const UserFilter = ({ roles, updateRoles }: UserFilterProps) => {
   const clearFilters = () => {
-    update({ name, roles: [] });
-  };
-
-  const applyRoles = (roles: string[]) => {
-    update({ name, roles });
+    updateRoles([]);
   };
 
   // @todo remove fake values for options and figure out search functionality
   return (
     <div className='flex flex-col md:flex-row items-center mt-1 mb-5'>
       <div className='font-bold mr-2'>Filter by</div>
-      <ReactSelect
+      <ReactSelect<RoleOption, true>
         inputId='role'
         placeholder='Role'
-        value={roleFilters.filter(({ role }) => roles?.includes(role))}
-        onChange={value => applyRoles(value?.map(({ role }) => role) || [])}
-        options={roleFilters}
-        getOptionLabel={option => option.role.toUpperCase()}
-        getOptionValue={option => option.id}
+        value={roleSelectOptions.filter(option => roles.includes(option.value))}
+        onChange={value => updateRoles(value.map(v => v.value))}
+        options={[...roleSelectOptions]}
+        getOptionLabel={option => option.value.toUpperCase()}
         styles={getSelectStyleOverride<RoleOption>()}
         isMulti
         isClearable

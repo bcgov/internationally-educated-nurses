@@ -1,7 +1,7 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { EmployeeService } from 'src/employee/employee.service';
-import { ValidRoles } from './auth.constants';
+import { ValidRoles } from '@ien/common';
 import { AuthService } from './auth.service';
 
 @Injectable()

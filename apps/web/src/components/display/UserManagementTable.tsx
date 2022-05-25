@@ -1,20 +1,37 @@
-import Link from 'next/link';
-import { useRouter } from 'next/router';
-
-import { buttonBase, buttonColor } from '@components';
-import { EmployeeRO, formatDate } from '@ien/common';
+import { EmployeeRO, formatDate, ValidRoles } from '@ien/common';
 import { Spinner } from '../Spinner';
 import { SortButton } from '../SortButton';
+import { ChangeRoleModal } from '../user-management/ChangeRoleModal';
+import { useState } from 'react';
+import { updateRole } from '../../services/user-management';
 
 export interface UserManagementProps {
   employees: EmployeeRO[];
   loading: boolean;
+  updateUser: (id: string, role: ValidRoles) => void;
   onSortChange: (field: string) => void;
 }
 
 export const UserManagementTable = (props: UserManagementProps) => {
-  const { employees, loading, onSortChange } = props;
-  const router = useRouter();
+  const { employees, loading, onSortChange, updateUser } = props;
+
+  const [selectedUser, setSelectedUser] = useState<EmployeeRO | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const openModal = (user: EmployeeRO) => {
+    setSelectedUser(user);
+    setModalOpen(true);
+  };
+
+  const changeRole = async (role: ValidRoles) => {
+    if (selectedUser) {
+      const res = await updateRole(selectedUser.id, role);
+      if (res) {
+        updateUser(selectedUser.id, role);
+        setModalOpen(false);
+      }
+    }
+  };
 
   return (
     <div className='overflow-x-auto'>
@@ -53,18 +70,16 @@ export const UserManagementTable = (props: UserManagementProps) => {
                 <td className='px-6'>{employee.role.toUpperCase()}</td>
 
                 <td className='px-6 text-right'>
-                  <Link
-                    href={{
-                      pathname: `/`,
-                      query: { ...router?.query, id: employee.id },
-                    }}
-                  >
-                    <a
-                      className={` pointer-events-none px-4 ${buttonColor.outline} ${buttonBase} border-bcGray text-bcGray`}
+                  {employee.role === ValidRoles.ROLEADMIN ? (
+                    ''
+                  ) : (
+                    <button
+                      className='px-3 py-1 text-bcGray border rounded border-bcGray'
+                      onClick={() => openModal(employee)}
                     >
                       Change Role
-                    </a>
-                  </Link>
+                    </button>
+                  )}
                 </td>
               </tr>
             ))
@@ -78,6 +93,12 @@ export const UserManagementTable = (props: UserManagementProps) => {
           )}
         </tbody>
       </table>
+      <ChangeRoleModal
+        open={modalOpen}
+        user={selectedUser}
+        submit={changeRole}
+        closeModal={() => setModalOpen(false)}
+      />
     </div>
   );
 };

@@ -2,7 +2,7 @@ import { useKeycloak } from '@react-keycloak/ssr';
 import axios from 'axios';
 import { KeycloakInstance } from 'keycloak-js';
 import React, { PropsWithChildren, ReactNode, useEffect, useState } from 'react';
-import { ValidRoles } from '@services';
+import { ValidRoles } from '@ien/common';
 import { useRouter } from 'next/router';
 
 export interface UserType {
