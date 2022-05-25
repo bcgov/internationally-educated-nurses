@@ -9,8 +9,18 @@ export class Updatedateonstatusadd1651041828910 implements MigrationInterface {
         RETURNS trigger AS
         $$
         BEGIN
-            IF NEW.job_id IS NOT null THEN
-                UPDATE public.ien_applicant_jobs SET updated_date = NOW() WHERE id=NEW.job_id;
+            --code for Insert
+            IF  (TG_OP = 'INSERT') THEN
+              IF NEW.job_id IS NOT null THEN
+                  UPDATE public.ien_applicant_jobs SET updated_date = NOW() WHERE id=NEW.job_id;
+              END IF;
+            END IF;
+
+            --code for Update
+            IF  (TG_OP = 'UPDATE') THEN
+              IF OLD.job_id IS NOT null THEN
+                  UPDATE public.ien_applicant_jobs SET updated_date = NOW() WHERE id=OLD.job_id;
+              END IF;
             END IF;
             RETURN NEW;
         END;
@@ -24,7 +34,7 @@ export class Updatedateonstatusadd1651041828910 implements MigrationInterface {
 
     await queryRunner.query(
       `CREATE TRIGGER trg_job_updated_date_on_status
-        AFTER INSERT ON public.ien_applicant_status_audit
+        AFTER INSERT OR UPDATE ON public.ien_applicant_status_audit
         FOR EACH ROW EXECUTE PROCEDURE job_updated_date();`,
     );
   }
