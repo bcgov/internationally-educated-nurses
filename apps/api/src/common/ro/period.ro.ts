@@ -2,7 +2,7 @@ import { Period } from '@ien/common';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class PeriodRO implements Period {
-  @ApiProperty({ description: 'Reporting Period', example: 'Period 1' })
+  @ApiProperty({ description: 'Reporting Period', example: '1' })
   period!: string;
 
   @ApiProperty({ description: 'Start date of report', example: '2022-05-09' })
