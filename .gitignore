@@ -18,5 +18,6 @@ node_modules
 .pgdata
 .build
 *.mp4
+**/screenshots/**/*.png
 yarn.build.json
 ssh-keypair*

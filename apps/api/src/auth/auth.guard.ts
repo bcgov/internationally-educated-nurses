@@ -12,12 +12,7 @@ export class AuthGuard implements CanActivate {
     private readonly employeeService: EmployeeService,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    /** Grab reference to the request */
     const request = context.switchToHttp().getRequest();
-    if (process.env.NODE_ENV === 'test') {
-      request.user = { user_id: 1 };
-      return true;
-    }
 
     const tokenUser = await this.authService.getUserFromToken(
       this.authService.extractToken(request.headers || '') || '',
@@ -35,6 +30,7 @@ export class AuthGuard implements CanActivate {
       email: tokenUser.email,
     });
     request.user = employee;
+    if (acceptedRoles.length === 0 || employee.role === ValidRoles.ROLEADMIN) return true;
     if (acceptedRoles.includes(employee.role as ValidRoles)) {
       return true;
     }

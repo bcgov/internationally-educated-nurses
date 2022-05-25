@@ -1,4 +1,4 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { forwardRef, Logger, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from 'src/auth/auth.module';
 import { EmployeeController } from './employee.controller';
@@ -9,7 +9,7 @@ import { EmployeeService } from './employee.service';
 @Module({
   controllers: [EmployeeController],
   imports: [TypeOrmModule.forFeature([EmployeeEntity, IENUsers]), forwardRef(() => AuthModule)],
-  providers: [EmployeeService],
+  providers: [EmployeeService, Logger],
   exports: [EmployeeService],
 })
 export class EmployeeModule {}

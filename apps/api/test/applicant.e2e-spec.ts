@@ -1,7 +1,9 @@
+import { AuthGuard } from '../src/auth/auth.guard';
+
 require('../env');
 import request from 'supertest';
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { ExecutionContext, INestApplication } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { AppModule } from '../src/app.module';
@@ -21,7 +23,16 @@ describe('ApplicantController (e2e)', () => {
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideGuard(AuthGuard)
+      .useValue({
+        canActivate: (context: ExecutionContext) => {
+          const request = context.switchToHttp().getRequest();
+          request.user = { user_id: 1 };
+          return true;
+        },
+      })
+      .compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();
