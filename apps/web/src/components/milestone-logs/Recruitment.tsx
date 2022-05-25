@@ -24,13 +24,15 @@ export const Recruitment: React.FC = () => {
   const [total, setTotal] = useState(0);
   const [expandRecord, setExpandRecord] = useState(false);
 
-  const sortJobs = (jobs?: ApplicantJobRO[]): void => {
+  const sortJobs = (jobs?: ApplicantJobRO[] | null): void => {
     jobs?.sort((a, b) => {
       return dayjs(b.updated_date || b.created_date).diff(a.updated_date || a.created_date);
     });
   };
 
   useEffect(() => {
+    sortJobs(applicant?.jobs);
+
     const jobs = applicant?.jobs
       ?.filter(
         job => !filters.ha_pcn || !filters.ha_pcn.length || filters.ha_pcn.includes(job.ha_pcn.id),
@@ -42,7 +44,6 @@ export const Recruitment: React.FC = () => {
           (job.job_title && filters.job_title.includes(job.job_title.id)),
       )
       .slice(pageSize * (pageIndex - 1), pageSize * pageIndex);
-    sortJobs(jobs);
     setJobRecords(jobs || []);
 
     setTotal(applicant?.jobs?.length || 0);

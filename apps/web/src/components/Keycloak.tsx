@@ -23,6 +23,7 @@ const withAuth = (Component: React.FunctionComponent, roles: ValidRoles[]) => {
       if (!authUser && !authUserLoading && kc.initialized && !kc?.keycloak?.authenticated) {
         router.replace('/login');
       }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [kc?.initialized, kc?.keycloak?.authenticated, authUser, authUserLoading]);
 
     // Handle intermediate states

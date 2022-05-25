@@ -10,20 +10,22 @@ export const MenuBar: React.FC = () => {
 
   // disabled Reporting tab for now
   return (
-    <div className='w-full py-2 bg-bcBlueAccent flex justify-center'>
-      <div className='w-full 2xl:w-5/6 h-full flex flex-row items-center align-center justify-between px-2 md:px-12'>
-        <div className='layout-grid gap-0 h-full flex flex-row items-center align-center'>
-          {menuBarTabs.map(({ title, paths, defaultPath }) => (
-            <Link key={title} href={defaultPath}>
-              <a
-                className={`text-white text-sm py-2 pr-12 ${
-                  paths.includes(router.pathname) ? active : ''
-                }`}
-              >
-                {title}
-              </a>
-            </Link>
-          ))}
+    <div className='w-full bg-bcBlueAccent flex flex-row justify-center'>
+      <div className='container flex w-full mx-6 xl:w-xl my-2'>
+        <div className='flex flex-grow w-full justify-between items-center'>
+          <div className='layout-grid gap-0 h-full flex flex-row items-center align-center'>
+            {menuBarTabs.map(({ title, paths, defaultPath }) => (
+              <Link key={title} href={defaultPath}>
+                <a
+                  className={`text-white text-sm py-2 pr-12 ${
+                    paths.includes(router.pathname) && active
+                  }`}
+                >
+                  {title}
+                </a>
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     </div>
