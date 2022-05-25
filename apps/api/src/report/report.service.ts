@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 const PERIOD_START_DATE = '2021-04-01';
 
 interface ApplicantsByPeriod {
-  period: number,
+  period: number;
   from: string;
   to: string;
   applicants: number;
@@ -58,9 +58,9 @@ export class ReportService {
       from = PERIOD_START_DATE;
     }
     if (!to) {
-      to = dayjs().format("YYYY-MM-DD");
+      to = dayjs().format('YYYY-MM-DD');
     }
-    const requestedPeriods = Math.abs(Math.ceil(dayjs(to).diff(dayjs(from), 'day')/28));
+    const requestedPeriods = Math.abs(Math.ceil(dayjs(to).diff(dayjs(from), 'day') / 28));
     const entityManager = getManager();
     const applicantsCountSQL = `
       with ien_applicants as (
@@ -95,8 +95,12 @@ export class ReportService {
         result.push({
           period: i,
           applicants: 0,
-          from: dayjs(from).add((i-1)*28, 'day').toISOString(),
-          to: dayjs(from).add(((i-1)*28)+27, 'day').toISOString()
+          from: dayjs(from)
+            .add((i - 1) * 28, 'day')
+            .toISOString(),
+          to: dayjs(from)
+            .add((i - 1) * 28 + 27, 'day')
+            .toISOString(),
         });
       }
       i++;
@@ -107,9 +111,9 @@ export class ReportService {
 
   _updateLastPeriodToDate(result: ApplicantsByPeriod[], to: string) {
     if (result.length) {
-      const lastPeriodEndDate = result[result.length-1].to;
+      const lastPeriodEndDate = result[result.length - 1].to;
       if (dayjs(lastPeriodEndDate).isAfter(dayjs(to), 'day')) {
-        result[result.length-1].to = dayjs(to).toISOString();
+        result[result.length - 1].to = dayjs(to).toISOString();
       }
     }
   }
