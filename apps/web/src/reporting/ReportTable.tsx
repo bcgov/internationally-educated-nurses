@@ -2,6 +2,7 @@ import { Period } from '@ien/common';
 import { SortButton } from '../components/SortButton';
 import { Spinner } from '../components/Spinner';
 import { getTimeRange } from '../services/report';
+import { buttonBase, buttonColor } from '@components';
 
 export interface ReportTableProps {
   periods: Period[];
@@ -40,7 +41,7 @@ export const ReportTable = (props: ReportTableProps) => {
                 <td className='px-6'>{getTimeRange(period)}</td>
                 <td className='px-6 text-right'>
                   <button
-                    className='px-3 py-1 text-bcGray border rounded border-bcGray'
+                    className={`px-4 ${buttonColor.outline} ${buttonBase} border-bcGray text-bcGray`}
                     onClick={() => download(period)}
                   >
                     Download
