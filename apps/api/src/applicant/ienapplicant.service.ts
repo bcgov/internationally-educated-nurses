@@ -262,7 +262,7 @@ export class IENApplicantService {
      * Note:
      * Based on scope we are only managing recruitment status.
      * For that we do need job/competition record,
-     * So if that is exist we are updating previous status
+     * So if that exists, we are updating previous status
      */
     if (job) {
       await this.ienapplicantUtilService.updatePreviousActiveStatusForJob(job, data);

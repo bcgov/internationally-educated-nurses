@@ -245,7 +245,6 @@ export class IENApplicantUtilService {
         // Let's not put hard limit right now, and accept multiple records here.
         if (previousStatus.length > 0) {
           const updateData = {
-            updated_by: data.added_by,
             end_date: data.start_date,
           };
           const list_status: IENApplicantStatusAudit[] = [];

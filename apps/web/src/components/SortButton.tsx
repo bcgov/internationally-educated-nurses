@@ -8,9 +8,9 @@ export interface SortButtonProps {
 
 export const SortButton = ({ label, sortKey, onChange }: SortButtonProps) => {
   return (
-    <div className='flex align-middle justify-between'>
+    <div className='flex align-middle'>
       <span>{label}</span>
-      <button id={`sort-by-${sortKey}`} onClick={() => onChange(sortKey)}>
+      <button id={`sort-by-${sortKey}`} onClick={() => onChange(sortKey)} className='ml-4'>
         <img src={sortIcon.src} alt='sort' />
       </button>
     </div>

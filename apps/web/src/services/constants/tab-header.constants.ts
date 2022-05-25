@@ -17,6 +17,6 @@ export const milestoneTabs = [
 
 export const menuBarTabs = [
   { title: 'Manage Applicants', defaultPath: '/', paths: ['/applicants', '/details'] },
-  { title: 'Reporting', defaultPath: '/', paths: ['/'] },
+  { title: 'Reporting', defaultPath: '/reporting', paths: ['/reporting'] },
   { title: 'User Management', defaultPath: '/user-management', paths: ['/user-management'] },
 ];

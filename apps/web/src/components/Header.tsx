@@ -14,25 +14,27 @@ export const Header: React.FC = () => {
   }, [router.asPath]);
 
   return (
-    <header className='w-full py-2 bg-bcBluePrimary flex justify-center'>
-      <div className='w-full 2xl:w-5/6 h-full flex flex-row items-center align-center justify-between px-2 md:px-12'>
-        <div className='layout-grid gap-0 h-full flex flex-row items-center align-center'>
-          <Link href='/'>
-            <a>
-              <img src={logo.src} alt='government of british columbia' width={160} height={45} />
-            </a>
-          </Link>
-          <div className='ml-7 pl-7 border-l-2 border-bcYellowPrimary'>
-            <h1
-              tabIndex={-1}
-              ref={headerRef}
-              className=' font-semibold tracking-wider text-white lg:text-xl md:text-xl text-sm focus:outline-none'
-            >
-              Internationally Educated Nurses
-            </h1>
+    <header className='w-full bg-bcBluePrimary flex flex-row justify-center'>
+      <div className='container flex w-full mx-6 xl:w-xl my-2'>
+        <div className='flex flex-grow w-full justify-between items-center'>
+          <div className='layout-grid gap-0 h-full flex flex-row items-center'>
+            <Link href='/'>
+              <a>
+                <img src={logo.src} alt='government of british columbia' width={160} height={45} />
+              </a>
+            </Link>
+            <div className='ml-7 pl-7 border-l-2 border-bcYellowPrimary'>
+              <h1
+                tabIndex={-1}
+                ref={headerRef}
+                className=' font-semibold tracking-wider text-white lg:text-xl md:text-xl text-sm focus:outline-none'
+              >
+                Internationally Educated Nurses
+              </h1>
+            </div>
           </div>
+          <UserDropdown />
         </div>
-        <UserDropdown />
       </div>
     </header>
   );

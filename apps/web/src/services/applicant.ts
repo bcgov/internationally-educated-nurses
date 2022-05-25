@@ -1,5 +1,4 @@
 import axios, { AxiosError } from 'axios';
-import { toast } from 'react-toastify';
 
 import {
   IENApplicantCreateUpdateDTO,
@@ -11,21 +10,15 @@ import {
   ApplicantStatusAuditRO,
   JobQueryOptions,
   IENApplicantUpdateStatusDTO,
+  convertToParams,
 } from '@ien/common';
-
-const notifyError = (e: AxiosError) => {
-  toast.error(`${e.response?.data.errorType}: ${e.response?.data.errorMessage}`);
-};
+import { notifyError } from '../utils/notify-error';
 
 // get all applicants
 export const getApplicants = async (filter: IENApplicantFilterDTO = {}) => {
-  const params = new URLSearchParams();
-
-  Object.entries(filter).forEach(parameter => {
-    parameter[0] && parameter[1] && params.append(parameter[0], parameter[1].toString());
-  });
-
-  const response = await axios.get<{ data: [ApplicantRO[], number] }>(`/ien?${params.toString()}`);
+  const response = await axios.get<{ data: [ApplicantRO[], number] }>(
+    `/ien?${convertToParams(filter)}`,
+  );
   const {
     data: [data, count],
   } = response.data;

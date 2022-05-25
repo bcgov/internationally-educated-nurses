@@ -33,19 +33,14 @@ const withAuth = (Component: React.FunctionComponent, roles: ValidRoles[]) => {
     // Show pending if the user hasn't been assigned a role
     if (authUser.role && !roles.includes(authUser.role)) {
       return (
-        <main className='flex flex-col'>
+        <main className='flex w-full justify-center'>
           {/* <Navigation logoutOnly={true} /> */}
           <Pending />
         </main>
       );
     }
     // Finally, if all goes well, show the page the user is requesting
-    return (
-      <main className='flex flex-col'>
-        {/* <Navigation logoutOnly={false} /> */}
-        <Component {...props} />
-      </main>
-    );
+    return <Component {...props} />;
   };
 
   // Copy getInitial props so it will run as well

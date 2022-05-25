@@ -6,6 +6,7 @@ import { ApplicantRO, IENApplicantJobCreateUpdateDTO } from '@ien/common';
 describe.skip('Details - filter jobs', () => {
   let applicant: ApplicantRO;
   let jobs: IENApplicantJobCreateUpdateDTO[];
+  let job: IENApplicantJobCreateUpdateDTO;
 
   beforeEach(() => {
     cy.visit('/');
@@ -13,6 +14,7 @@ describe.skip('Details - filter jobs', () => {
     cy.fixture('jobs.json').then(data => {
       applicant = data.applicant;
       jobs = data.jobs;
+      job = jobs[jobs.length - 1];
       cy.visitDetails(applicant.id);
       cy.tabRecruitment();
     });
@@ -39,8 +41,8 @@ describe.skip('Details - filter jobs', () => {
 
   it('filters jobs by specialty', () => {
     // set 'health authority' filter
-    cy.get('#specialty').click().type(`${jobs[0].job_title}{enter}`);
-    const matchedJobs = jobs.filter(j => jobs[0].job_title === j.job_title);
+    cy.get('#specialty').click().type(`${job.job_title}{enter}`);
+    const matchedJobs = jobs.filter(j => job.job_title === j.job_title);
     cy.get('[id^=headlessui-]').should('have.length', matchedJobs.length);
   });
 
@@ -49,8 +51,8 @@ describe.skip('Details - filter jobs', () => {
     let matchedJobs = filterJobsByHa();
 
     // set specialty filter
-    cy.get('#specialty').click().type(`${jobs[0].job_title}{enter}`);
-    matchedJobs = matchedJobs.filter(j => jobs[0].job_title === j.job_title);
+    cy.get('#specialty').click().type(`${job.job_title}{enter}`);
+    matchedJobs = matchedJobs.filter(j => job.job_title === j.job_title);
     cy.get('[id^=headlessui-]').should('have.length', matchedJobs.length);
 
     // clear filters

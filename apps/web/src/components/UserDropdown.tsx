@@ -19,7 +19,7 @@ export const UserDropdown = () => {
   if (!authUser) return null;
 
   return (
-    <div className='relative pr-3'>
+    <div className='relative'>
       <button className='flex' onClick={() => setShowMenu(!showMenu)} onBlur={hideMenu}>
         <div className='text-white'>{authUser?.name}</div>
         <img src={downArrowIcon.src} alt='down arrow' />
