@@ -4,7 +4,7 @@
 import { IENApplicantJobCreateUpdateDTO } from '@ien/common';
 import dayjs from 'dayjs';
 
-describe.skip('Details - edit job', () => {
+describe('Details - edit job', () => {
   beforeEach(() => {
     cy.visit('/');
     cy.login();

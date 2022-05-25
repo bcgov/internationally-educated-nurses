@@ -3,7 +3,7 @@
 
 import { ApplicantRO } from '@ien/common';
 
-describe.skip('Details - filter milestones by tabs', () => {
+describe('Details - filter milestones by tabs', () => {
   let applicant: ApplicantRO;
 
   beforeEach(() => {

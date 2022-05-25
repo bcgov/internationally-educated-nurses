@@ -17,11 +17,10 @@ import { useApplicantContext } from '../../../applicant/ApplicantContext';
 
 interface RecordProps {
   job: ApplicantJobRO;
-  update: (record?: ApplicantJobRO) => void;
   expandRecord: boolean;
 }
 
-export const Record: React.FC<RecordProps> = ({ job, update, expandRecord }) => {
+export const Record: React.FC<RecordProps> = ({ job, expandRecord }) => {
   const { applicant, updateJob } = useApplicantContext();
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -74,7 +73,7 @@ export const Record: React.FC<RecordProps> = ({ job, update, expandRecord }) => 
   };
 
   const handleModalClose = (record?: ApplicantJobRO) => {
-    if (record) update(record);
+    if (record) updateJob(record);
     setModalVisible(false);
   };
 

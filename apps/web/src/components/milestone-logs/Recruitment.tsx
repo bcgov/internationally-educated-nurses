@@ -56,12 +56,6 @@ export const Recruitment: React.FC = () => {
     }
   };
 
-  const handleRecordUpdate = (record?: ApplicantJobRO) => {
-    if (record) {
-      updateJob(record);
-    }
-  };
-
   const handlePageOptions = (options: PageOptions) => {
     setPageIndex(options.pageIndex);
     setPageSize(options.pageSize);
@@ -79,7 +73,7 @@ export const Recruitment: React.FC = () => {
       <JobFilters options={filters} update={handleFilters} />
 
       {jobRecords.map(job => (
-        <Record key={job.id} job={job} update={handleRecordUpdate} expandRecord={expandRecord} />
+        <Record key={job.id} job={job} expandRecord={expandRecord} />
       ))}
 
       <div className='border rounded bg-bcBlueBar flex justify-between items-center mb-4 h-12'>

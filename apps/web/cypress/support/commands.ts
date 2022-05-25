@@ -21,6 +21,7 @@ Cypress.Commands.add('login', () => {
   cy.get('#username').type(Cypress.env('username'));
   cy.get('#password').type(Cypress.env('password'));
   cy.get('#kc-login').click();
+  cy.get('button').contains(Cypress.env('username'), { timeout: 30000 });
 });
 
 Cypress.Commands.add('logout', () => {
@@ -56,7 +57,7 @@ Cypress.Commands.add('addJob', (job: IENApplicantJobCreateUpdateDTO) => {
 });
 
 Cypress.Commands.add('addMilestone', (milestone: IENApplicantAddStatusDTO) => {
-  cy.get('form').find('.css-ackcql').click({ force: true });
+  cy.get('form').find('#status').click({ force: true });
   cy.get('#status').focus().type(`${milestone.status}{enter}`);
   cy.get('#start_date').click().type(`${milestone.start_date}`);
   cy.get('#notes').click().type(`${milestone.notes}`);
