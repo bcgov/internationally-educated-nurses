@@ -52,9 +52,7 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
   };
 
   const updateJob = (job: ApplicantJobRO) => {
-    const index = applicant.jobs?.findIndex(
-      j => job.job_id === j.job_id && +job.ha_pcn.id === j.ha_pcn.id,
-    );
+    const index = applicant.jobs?.findIndex(j => job.id === j.id);
     if (index === undefined) {
       applicant.jobs = [job];
     } else if (index >= 0) {

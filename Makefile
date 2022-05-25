@@ -190,7 +190,7 @@ web-integration-test:
 	@make start-test-db
 	@echo "++\n***** Running Web integration tests\n++"
 	@yarn build
-	@NODE_ENV=test yarn test:e2e
+	@NODE_ENV=test yarn test:e2e || true
 	@make stop-test-db
 	@echo "++\n*****"
 

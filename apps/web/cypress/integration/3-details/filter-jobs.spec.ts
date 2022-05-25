@@ -3,7 +3,7 @@
 
 import { ApplicantRO, IENApplicantJobCreateUpdateDTO } from '@ien/common';
 
-describe.skip('Details - filter jobs', () => {
+describe('Details - filter jobs', () => {
   let applicant: ApplicantRO;
   let jobs: IENApplicantJobCreateUpdateDTO[];
   let job: IENApplicantJobCreateUpdateDTO;
@@ -14,7 +14,7 @@ describe.skip('Details - filter jobs', () => {
     cy.fixture('jobs.json').then(data => {
       applicant = data.applicant;
       jobs = data.jobs;
-      job = jobs[jobs.length - 1];
+      job = jobs[3];
       cy.visitDetails(applicant.id);
       cy.tabRecruitment();
     });
@@ -25,7 +25,7 @@ describe.skip('Details - filter jobs', () => {
   });
 
   const filterJobsByHa = () => {
-    const filteredJobs = jobs.slice(0, 2);
+    const filteredJobs = jobs.slice(2, 4);
     filteredJobs.forEach(job => {
       cy.get('#ha').click().type(`${job.ha_pcn}{enter}`);
     });
