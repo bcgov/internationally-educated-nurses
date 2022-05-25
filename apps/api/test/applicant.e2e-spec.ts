@@ -3,7 +3,7 @@ import { AuthGuard } from '../src/auth/auth.guard';
 require('../env');
 import request from 'supertest';
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { ExecutionContext, INestApplication } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { AppModule } from '../src/app.module';
@@ -25,7 +25,13 @@ describe('ApplicantController (e2e)', () => {
       imports: [AppModule],
     })
       .overrideGuard(AuthGuard)
-      .useValue({ canActivate: () => ({ user_id: 1 }) })
+      .useValue({
+        canActivate: (context: ExecutionContext) => {
+          const request = context.switchToHttp().getRequest();
+          request.user = { user_id: 1 };
+          return true;
+        },
+      })
       .compile();
 
     app = moduleFixture.createNestApplication();
@@ -122,7 +128,7 @@ describe('ApplicantController (e2e)', () => {
       .end(done);
   });
 
-  it.skip('Add applicant milestone /ien/:id/status (POST)', done => {
+  it('Add applicant milestone /ien/:id/status (POST)', done => {
     const addStatusUrl = `/ien/${applicant.id}/status`;
     addMilestone.job_id = jobTempId;
     request(app.getHttpServer())
@@ -136,7 +142,7 @@ describe('ApplicantController (e2e)', () => {
       .end(done);
   });
 
-  it.skip('Add duplicate applicant milestone /ien/:id/status (POST)', done => {
+  it('Add duplicate applicant milestone /ien/:id/status (POST)', done => {
     const addStatusUrl = `/ien/${applicant.id}/status`;
     addMilestone.job_id = jobTempId;
     request(app.getHttpServer())
@@ -150,7 +156,7 @@ describe('ApplicantController (e2e)', () => {
       .end(done);
   });
 
-  it.skip('Patch applicant milestone detail /ien/:id/status/:id (POST)', done => {
+  it('Patch applicant milestone detail /ien/:id/status/:id (POST)', done => {
     const addStatusUrl = `/ien/${applicant.id}/status/${applicantStatusId}`;
     addMilestone.notes = 'Update note';
     request(app.getHttpServer())
@@ -187,7 +193,7 @@ describe('ApplicantController (e2e)', () => {
       .end(done);
   });
 
-  it.skip('Fetch applicant job detail /ien/job/:id (GET)', done => {
+  it('Fetch applicant job detail /ien/job/:id (GET)', done => {
     request(app.getHttpServer())
       .get(`/ien/job/${jobTempId}`)
       .expect(res => {
