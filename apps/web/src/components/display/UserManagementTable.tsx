@@ -4,6 +4,7 @@ import { SortButton } from '../SortButton';
 import { ChangeRoleModal } from '../user-management/ChangeRoleModal';
 import { useState } from 'react';
 import { updateRole } from '../../services/user-management';
+import { buttonBase, buttonColor } from '@components';
 
 export interface UserManagementProps {
   employees: EmployeeRO[];
@@ -74,7 +75,7 @@ export const UserManagementTable = (props: UserManagementProps) => {
                     ''
                   ) : (
                     <button
-                      className='px-3 py-1 text-bcGray border rounded border-bcGray'
+                      className={`px-4 ${buttonColor.outline} ${buttonBase} border-bcGray text-bcGray`}
                       onClick={() => openModal(employee)}
                     >
                       Change Role
