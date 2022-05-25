@@ -1,14 +1,14 @@
 import { BadRequestException } from '@nestjs/common';
-import { getStartEndDateOfWeek, isValidDateFormat } from 'src/common/util';
+import { isValidDateFormat } from 'src/common/util';
 import { getManager } from 'typeorm';
 import dayjs from 'dayjs';
 
-const WEEKS_PER_PERIOD = 4;
-const PERIOD_START_DATE = '2022-05-01';
+const PERIOD_START_DATE = '2021-04-01';
 
-interface ApplicantsByWeek {
-  weekly: number;
-  yearly: number;
+interface ApplicantsByPeriod {
+  period: number;
+  from: string;
+  to: string;
   applicants: number;
 }
 
@@ -54,51 +54,68 @@ export class ReportService {
   async getRegisteredApplicantList(from: string, to: string) {
     this.isValidDateValue(from);
     this.isValidDateValue(to);
-    /**design where clause */
-    const query = this.buildQuery(from, to);
-
-    const entityManager = getManager();
-    const result: ApplicantsByWeek[] = await entityManager.query(`
-        SELECT 	
-            date_part('week', registration_date::date) AS weekly,
-            date_part('year', registration_date::date) AS yearly,
-            COUNT(*)::integer as applicants          
-        FROM public.ien_applicants
-        ${query}
-        GROUP BY yearly, weekly
-        ORDER BY yearly, weekly;
-    `);
-
-    result.sort((e1, e2) => {
-      if (e1.yearly > e2.yearly) return 1;
-      if (e2.yearly > e1.yearly) return -1;
-      if (e1.weekly > e2.weekly) return 1;
-      if (e2.weekly > e1.weekly) return -1;
-      return 0;
-    });
-
-    if (result.length) {
-      const data = this.prepareWeeklyApplicantsCount(result);
-      if (data.length > 0) {
-        /** We have apply filter based on from-to date
-         * and query return a week number
-         * So we need to adjust first and last records' period start and end date.
-         * for example,
-         * we enter from date 2022-01-06 (Wednesday, 2nd week of 2022)
-         * then record fetch from 2022-01-06 in the query,
-         * but 2nd week of 2022's start date is 2022-01-02.
-         * SHere we are going to adjust it in return result.
-         */
-        if (new Date(from) > new Date(data[0].from)) {
-          data[0].from = new Date(from).toISOString().slice(0, 10);
-        }
-        if (new Date(to) < new Date(data[data.length - 1].to)) {
-          data[data.length - 1].to = new Date(to).toISOString().slice(0, 10);
-        }
-      }
-      return data;
+    if (!from) {
+      from = PERIOD_START_DATE;
     }
-    return [];
+    if (!to) {
+      to = dayjs().format('YYYY-MM-DD');
+    }
+    const requestedPeriods = Math.abs(Math.ceil(dayjs(to).diff(dayjs(from), 'day') / 28));
+    const entityManager = getManager();
+    const applicantsCountSQL = `
+      with ien_applicants as (
+        SELECT
+          (registration_date::date - '${from}'::date)/28 as periods,
+          COUNT(*)::integer as applicants          
+        FROM public.ien_applicants
+        WHERE
+          registration_date::date >= '${from}' AND
+          registration_date::date <= '${to}'
+        GROUP BY 1
+        ORDER BY 1
+      )
+      
+      SELECT 
+        (periods + 1) as period,
+        applicants,
+        '${from}'::date + (periods*28) as from,
+        '${from}'::date + (periods*28) + 27 as to
+      FROM ien_applicants;
+    `;
+    const data: ApplicantsByPeriod[] = await entityManager.query(applicantsCountSQL);
+    const result: ApplicantsByPeriod[] = [];
+    let i = 1;
+    let temp = data.shift();
+    while (i <= requestedPeriods) {
+      if (temp?.period === i) {
+        result.push(temp);
+        temp = data.shift();
+      } else {
+        // If period data missing, Add it with 0 applicants
+        result.push({
+          period: i,
+          applicants: 0,
+          from: dayjs(from)
+            .add((i - 1) * 28, 'day')
+            .toISOString(),
+          to: dayjs(from)
+            .add((i - 1) * 28 + 27, 'day')
+            .toISOString(),
+        });
+      }
+      i++;
+    }
+    this._updateLastPeriodToDate(result, to);
+    return result;
+  }
+
+  _updateLastPeriodToDate(result: ApplicantsByPeriod[], to: string) {
+    if (result.length) {
+      const lastPeriodEndDate = result[result.length - 1].to;
+      if (dayjs(lastPeriodEndDate).isAfter(dayjs(to), 'day')) {
+        result[result.length - 1].to = dayjs(to).toISOString();
+      }
+    }
   }
 
   isValidDateValue(date: string) {
@@ -107,50 +124,5 @@ export class ReportService {
         `${date} is not a validate date, Please provide date in YYYY-MM-DD format.`,
       );
     }
-  }
-
-  private getPeriodIndex(start: Date): number {
-    return dayjs(start).diff(PERIOD_START_DATE, 'month') + 1;
-  }
-
-  prepareWeeklyApplicantsCount(result: ApplicantsByWeek[]) {
-    let i = 0;
-    const count = result.length;
-    const periodData = [];
-    while (i < count) {
-      let weekData = result[i];
-      const { startdate, enddate } = getStartEndDateOfWeek(
-        weekData.weekly,
-        weekData.yearly,
-        WEEKS_PER_PERIOD,
-      );
-      const period = {
-        period: `Period ${this.getPeriodIndex(startdate)}`,
-        from: startdate.toISOString().slice(0, 10),
-        to: enddate.toISOString().slice(0, 10),
-        applicants: weekData.applicants,
-      };
-      let tempYear = weekData.yearly;
-      let tempWeek = weekData.weekly;
-      let remainWeeks = WEEKS_PER_PERIOD;
-      // We have decided to group data into 4 weeks
-      // We can create function in database which is less readable
-      // So here we will fetch next 3 upcoming weeks' data and
-      // Update the existing period with the same.
-      while (remainWeeks > 0) {
-        weekData = result[++i];
-        tempWeek += 1;
-        if (tempWeek > 53) {
-          tempWeek = 1; //need to reset it to 1 for a new year.
-          tempYear += 1;
-        }
-        if (tempWeek === weekData?.weekly && tempYear === weekData?.yearly) {
-          period.applicants += weekData.applicants;
-        }
-        remainWeeks--;
-      }
-      periodData.push(period);
-    }
-    return periodData;
   }
 }
