@@ -15,6 +15,7 @@ import { IENApplicantUpdateStatusAPIDTO } from './dto/ienapplicant-update-status
 import { IENApplicantStatusAudit } from './entity/ienapplicant-status-audit.entity';
 import { IENApplicantJobCreateUpdateAPIDTO } from './dto/ienapplicant-job-create.dto';
 import { IENApplicantJobQueryDTO } from './dto/ienapplicant-job-filter.dto';
+import { IENJobLocation } from './entity/ienjoblocation.entity';
 
 @Injectable()
 export class IENApplicantService {
@@ -401,11 +402,21 @@ export class IENApplicantService {
     const { ha_pcn, job_title, job_location } = jobData;
     job.ha_pcn = await this.ienapplicantUtilService.getHaPcn(parseInt(ha_pcn));
     job.job_title = job_title ? await this.ienapplicantUtilService.getJobTitle(job_title) : null;
-    job.job_location = job_location
-      ? await this.ienapplicantUtilService.getJobLocation(job_location)
-      : null;
+    job.job_location = job_location ? await this.fetchJobLocations(job_location) : null;
     await this.ienapplicantJobRepository.save(job);
     return job;
+  }
+
+  /**
+   * Fetch all job_locations
+   */
+  async fetchJobLocations(locations: string | string[]): Promise<IENJobLocation[] | null> {
+    const locationIds = Array.isArray(locations) ? locations : [locations];
+    const job_locations = await this.ienapplicantUtilService.getJobLocations(locationIds);
+    if (job_locations.length) {
+      return job_locations;
+    }
+    return null;
   }
 
   /**

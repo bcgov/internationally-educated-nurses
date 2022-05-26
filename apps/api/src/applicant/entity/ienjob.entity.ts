@@ -9,6 +9,8 @@ import {
   PrimaryGeneratedColumn,
   OneToMany,
   AfterLoad,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { IENApplicantStatusAudit } from './ienapplicant-status-audit.entity';
 import { IENApplicant } from './ienapplicant.entity';
@@ -31,8 +33,9 @@ export class IENApplicantJob {
   @ManyToOne(() => IENJobTitle)
   job_title?: IENJobTitle | null;
 
-  @ManyToOne(() => IENJobLocation)
-  job_location?: IENJobLocation | null;
+  @ManyToMany(() => IENJobLocation)
+  @JoinTable()
+  job_location?: IENJobLocation[] | null;
 
   @Column('varchar', { nullable: true })
   recruiter_name!: string;
