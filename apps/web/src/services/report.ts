@@ -8,7 +8,7 @@ export const getPeriods = async (filter?: PeriodFilter) => {
   try {
     const url = `/reports/applicant/registered?${convertToParams(filter)}`;
     const { data } = await axios.get<{ data: Period[] }>(url);
-    return data;
+    return data?.data;
   } catch (e) {
     notifyError(e as AxiosError);
   }

@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
+import dayjs from 'dayjs';
+import { writeFileXLSX } from 'xlsx';
+import { Period, ValidRoles } from '@ien/common';
 import { PageOptions, Pagination } from '../components/Pagination';
 import { getPeriods, getReportWorkbook } from '../services/report';
-import { Period } from '@ien/common';
 import { ReportTable } from '../reporting/ReportTable';
 import withAuth from '../components/Keycloak';
-import { ValidRoles } from '@services';
-import { writeFileXLSX } from 'xlsx';
 
 const DEFAULT_PAGE_SIZE = 10;
 const REPORT_PREFIX = 'ien-report-period';
@@ -40,16 +40,24 @@ const Reporting = () => {
     setPeriods(sorted);
   };
 
-  const download = (period: Period) => {
-    const workbook = getReportWorkbook(period, periods);
-    writeFileXLSX(workbook, `${REPORT_PREFIX}-${period.period}.xlsx`);
+  const download = async (period: Period) => {
+    const startPeriod = periods.find(p => p.period === 1);
+    if (startPeriod) {
+      const from = dayjs(startPeriod.from).format('YYYY-MM-DD');
+      const to = dayjs(period.to).format('YYYY-MM-DD');
+      const data = await getPeriods({ from, to });
+      if (data) {
+        const workbook = getReportWorkbook(period, data);
+        writeFileXLSX(workbook, `${REPORT_PREFIX}-${period.period}.xlsx`);
+      }
+    }
   };
 
   useEffect(() => {
     getPeriods().then(data => {
       if (data) {
-        sortPeriods(data.data);
-        setTotal(data.data.length);
+        sortPeriods(data);
+        setTotal(data.length);
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
