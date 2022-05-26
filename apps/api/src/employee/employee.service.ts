@@ -119,9 +119,9 @@ export class EmployeeService {
     if (!Object.values<string>(ValidRoles).includes(role)) {
       throw new BadRequestException(`Provided role does not exist`);
     }
-    // if (role == ValidRoles.ROLEADMIN) {
-    //   throw new BadRequestException(`ROLE-ADMIN is only assigned in the database.`);
-    // }
+    if (role == ValidRoles.ROLEADMIN) {
+      throw new BadRequestException(`ROLE-ADMIN is only assigned in the database.`);
+    }
 
     const query: FindManyOptions<EmployeeEntity> = {};
     if (ids && ids.length > 0) {
