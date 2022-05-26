@@ -118,7 +118,7 @@ export const Record: React.FC<RecordProps> = ({ job, expandRecord }) => {
               <DetailsItem title='Job ID' text={job_id ? job_id : 'N/A'} />
               <DetailsItem
                 title='Location'
-                text={job_location?.title ? job_location?.title : 'N/A'}
+                text={job_location?.length ? job_location.map(e => e?.title).join(', ') : 'N/A'}
               />
 
               <DetailsItem title='Recruiter Name' text={recruiter_name} />

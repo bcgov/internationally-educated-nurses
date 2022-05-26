@@ -20,7 +20,6 @@ export class IENApplicantJobCreateUpdateDTO {
   @IsOptional()
   job_title?: string;
 
-  @IsString()
   @IsOptional()
   job_location?: string | string[];
 
