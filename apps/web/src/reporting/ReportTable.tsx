@@ -1,25 +1,18 @@
-import { SortButton } from '../components/SortButton';
 import { Period } from '@ien/common';
+import { SortButton } from '../components/SortButton';
 import { Spinner } from '../components/Spinner';
-import dayjs from 'dayjs';
+import { getTimeRange } from '../services/report';
+import { buttonBase, buttonColor } from '@components';
 
 export interface ReportTableProps {
   periods: Period[];
   loading?: boolean;
   onSortChange: (field: string) => void;
+  download: (period: Period) => void;
 }
 
 export const ReportTable = (props: ReportTableProps) => {
-  const { periods, loading, onSortChange } = props;
-
-  const getTimeRange = (period: Period): string => {
-    const from =
-      dayjs(period.from).year() === dayjs(period.to).year()
-        ? dayjs(period.from).format('MMM DD')
-        : dayjs(period.from).format('MMM DD, YYYY');
-
-    return `${from} - ${dayjs(period.to).format('MMM DD, YYYY')}`;
-  };
+  const { periods, loading, onSortChange, download } = props;
 
   return (
     <div className='overflow-x-auto'>
@@ -44,10 +37,13 @@ export const ReportTable = (props: ReportTableProps) => {
                 key={period.period}
                 className='text-left shadow-xs whitespace-nowrap even:bg-bcLightGray text-sm '
               >
-                <td className='pl-6 py-5'>{period.period}</td>
+                <td className='pl-6 py-5'>{`Period ${period.period}`}</td>
                 <td className='px-6'>{getTimeRange(period)}</td>
                 <td className='px-6 text-right'>
-                  <button className='px-3 py-1 text-bcGray border rounded border-bcGray'>
+                  <button
+                    className={`px-4 ${buttonColor.outline} ${buttonBase} border-bcGray text-bcGray`}
+                    onClick={() => download(period)}
+                  >
                     Download
                   </button>
                 </td>

@@ -1,5 +1,5 @@
 export interface Period {
-  period: string;
+  period: number;
   from: string;
   to: string;
   applicants: number;

@@ -1,17 +1,20 @@
 import { useEffect, useState } from 'react';
-import { PageOptions, Pagination } from '../components/Pagination';
-import { getPeriods } from '../services/report';
+import dayjs from 'dayjs';
+import { writeFileXLSX } from 'xlsx';
 import { Period, ValidRoles } from '@ien/common';
+import { PageOptions, Pagination } from '../components/Pagination';
+import { getPeriods, getReportWorkbook } from '../services/report';
 import { ReportTable } from '../reporting/ReportTable';
 import withAuth from '../components/Keycloak';
 
 const DEFAULT_PAGE_SIZE = 10;
+const REPORT_PREFIX = 'ien-report-period';
 
 const Reporting = () => {
   const [periods, setPeriods] = useState<Period[]>([]);
   const [scopedPeriods, setScopedPeriods] = useState<Period[]>([]);
 
-  const [order, setOrder] = useState<'ASC' | 'DESC'>('ASC');
+  const [order, setOrder] = useState<'ASC' | 'DESC'>('DESC');
   const [limit, setLimit] = useState(DEFAULT_PAGE_SIZE);
   const [pageIndex, setPageIndex] = useState(1);
   const [total, setTotal] = useState(0);
@@ -29,14 +32,35 @@ const Reporting = () => {
     setOrder(order === 'ASC' ? 'DESC' : 'ASC');
   };
 
+  const sortPeriods = (periods: Period[]) => {
+    const sorted = [...periods];
+    sorted.sort((a, b) => {
+      return (a.period > b.period ? 1 : -1) * (order === 'ASC' ? 1 : -1);
+    });
+    setPeriods(sorted);
+  };
+
+  const download = async (period: Period) => {
+    const startPeriod = periods.find(p => p.period === 1);
+    if (startPeriod) {
+      const from = dayjs(startPeriod.from).format('YYYY-MM-DD');
+      const to = dayjs(period.to).format('YYYY-MM-DD');
+      const data = await getPeriods({ from, to });
+      if (data) {
+        const workbook = getReportWorkbook(period, data);
+        writeFileXLSX(workbook, `${REPORT_PREFIX}-${period.period}.xlsx`);
+      }
+    }
+  };
+
   useEffect(() => {
     getPeriods().then(data => {
       if (data) {
-        setPeriods(data.data);
-        setPageIndex(1);
-        setTotal(data.data.length);
+        sortPeriods(data);
+        setTotal(data.length);
       }
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -48,11 +72,7 @@ const Reporting = () => {
   }, [periods, pageIndex, limit]);
 
   useEffect(() => {
-    const sorted = [...periods];
-    sorted.sort((a, b) => {
-      return (a.period > b.period ? 1 : -1) * (order === 'ASC' ? 1 : -1);
-    });
-    setPeriods(sorted);
+    sortPeriods(periods);
     // eslint-disable-next-line
   }, [order]);
 
@@ -69,7 +89,7 @@ const Reporting = () => {
           pageOptions={{ pageIndex, pageSize: limit, total }}
           onChange={handlePageOptions}
         />
-        <ReportTable periods={scopedPeriods} onSortChange={handleSort} />
+        <ReportTable periods={scopedPeriods} onSortChange={handleSort} download={download} />
 
         <Pagination
           pageOptions={{ pageIndex, pageSize: limit, total }}
@@ -84,4 +104,5 @@ export default withAuth(Reporting, [
   ValidRoles.MINISTRY_OF_HEALTH,
   ValidRoles.HEALTH_MATCH,
   ValidRoles.HEALTH_AUTHORITY,
+  ValidRoles.ROLEADMIN,
 ]);
