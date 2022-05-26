@@ -1,4 +1,4 @@
-import { FormDTO } from '@ien/common';
+import { FormDTO, ValidRoles } from '@ien/common';
 import {
   Inject,
   Logger,
@@ -13,7 +13,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ValidRoles } from '@ien/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { RouteAcceptsRoles } from 'src/common/decorators';
 import { AppLogger } from 'src/common/logger.service';

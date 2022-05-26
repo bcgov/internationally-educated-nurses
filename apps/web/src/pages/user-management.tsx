@@ -4,8 +4,7 @@ import { UserManagementTable } from 'src/components/display/UserManagementTable'
 import withAuth from 'src/components/Keycloak';
 import { PageOptions, Pagination } from 'src/components/Pagination';
 import { getEmployees } from 'src/services/user-management';
-import { ValidRoles } from '@ien/common';
-import { EmployeeRO } from '@ien/common';
+import { EmployeeRO, ValidRoles } from '@ien/common';
 import { Spinner } from 'src/components/Spinner';
 import { UserFilter } from 'src/components/user-management/UserFilter';
 import { SearchEmployee } from 'src/components/SearchEmployee';

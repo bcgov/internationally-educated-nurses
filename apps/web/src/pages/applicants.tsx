@@ -1,14 +1,13 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
-import { ValidRoles } from '@ien/common';
 import { getApplicants, milestoneTabs } from '@services';
 import { Search } from '../components/Search';
 import { HeaderTab } from '../components/display/HeaderTab';
 import { PageOptions, Pagination } from '../components/Pagination';
 import { ApplicantTable } from '../components/display/ApplicantTable';
 import withAuth from '../components/Keycloak';
-import { ApplicantRO } from '@ien/common';
+import { ApplicantRO, ValidRoles } from '@ien/common';
 
 interface SearchOptions {
   name?: string;
