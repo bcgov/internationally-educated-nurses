@@ -41,15 +41,11 @@ const Reporting = () => {
   };
 
   const download = async (period: Period) => {
-    const startPeriod = periods.find(p => p.period === 1);
-    if (startPeriod) {
-      const from = dayjs(startPeriod.from).format('YYYY-MM-DD');
-      const to = dayjs(period.to).format('YYYY-MM-DD');
-      const data = await getPeriods({ from, to });
-      if (data) {
-        const workbook = getReportWorkbook(period, data);
-        writeFileXLSX(workbook, `${REPORT_PREFIX}-${period.period}.xlsx`);
-      }
+    const to = dayjs(period.to).format('YYYY-MM-DD');
+    const data = await getPeriods({ to });
+    if (data) {
+      const workbook = getReportWorkbook(period, data);
+      writeFileXLSX(workbook, `${REPORT_PREFIX}-${period.period}.xlsx`);
     }
   };
 

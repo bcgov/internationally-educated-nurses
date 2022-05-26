@@ -12,8 +12,8 @@ export class IENApplicantJobCreateUpdateDTO {
   @IsNotEmpty({ message: 'HA is required' })
   ha_pcn!: string;
 
-  @IsString({ message: 'JobID must be a string' })
-  @IsOptional()
+  @IsString({ message: 'Job ID must be a string' })
+  @IsNotEmpty({ message: 'Job ID is required' })
   job_id?: string;
 
   @IsString()
@@ -21,7 +21,7 @@ export class IENApplicantJobCreateUpdateDTO {
   job_title?: string;
 
   @IsOptional()
-  job_location?: string | string[];
+  job_location?: number[];
 
   @IsString({ message: 'HA Recruiter Name must be a string' })
   @Length(1, 255, { message: 'Recruiter Name must be between 1 and 255 characters' })

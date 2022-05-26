@@ -81,7 +81,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
     ha_pcn: `${job?.ha_pcn?.id || ''}`,
     job_id: `${job?.job_id || ''}`,
     job_title: `${job?.job_title?.id || ''}`,
-    job_location: `${job?.job_location?.length ? job?.job_location[0].id : ''}`,
+    job_location: job?.job_location ? job?.job_location.map(j => j.id) : [],
     recruiter_name: job?.recruiter_name || '',
     job_post_date: `${job?.job_post_date || ''}`,
   };
@@ -125,13 +125,9 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
                         inputId={field.name}
                         value={jobTitle?.data?.find(s => s.id == field.value)}
                         onBlur={field.onBlur}
-                        onChange={value => {
-                          form.setFieldValue(field.name, `${value?.id}`);
-                        }}
-                        options={jobTitle?.data?.map(s => ({
-                          ...s,
-                          isDisabled: s.id == field.value,
-                        }))}
+                        onChange={value => form.setFieldValue(field.name, `${value?.id}`)}
+                        options={jobTitle?.data}
+                        isOptionDisabled={o => o.id == field.value}
                         getOptionLabel={option => `${option.title}`}
                         styles={getSelectStyleOverride<RecordTypeOptions>()}
                       />
@@ -143,17 +139,22 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
                     name='job_location'
                     label='Location'
                     component={({ field, form }: FieldProps) => (
-                      <ReactSelect<RecordTypeOptions>
+                      <ReactSelect<RecordTypeOptions, true>
                         inputId={field.name}
-                        value={jobLocation?.data?.find(s => `${s.id}` === field.value)}
+                        value={jobLocation?.data?.filter(s => field.value.includes(s.id))}
                         onBlur={field.onBlur}
-                        onChange={value => form.setFieldValue(field.name, `${value?.id}`)}
-                        options={jobLocation?.data?.map(s => ({
-                          ...s,
-                          isDisabled: `${s.id}` === field.value,
-                        }))}
+                        onChange={value =>
+                          form.setFieldValue(
+                            field.name,
+                            value.map(v => v.id),
+                          )
+                        }
+                        options={jobLocation?.data}
                         getOptionLabel={option => `${option.title}`}
+                        getOptionValue={option => `${option.id}`}
+                        isOptionDisabled={option => field.value.includes(option.id)}
                         styles={getSelectStyleOverride<RecordTypeOptions>()}
+                        isMulti
                       />
                     )}
                   />

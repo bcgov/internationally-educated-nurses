@@ -410,9 +410,8 @@ export class IENApplicantService {
   /**
    * Fetch all job_locations
    */
-  async fetchJobLocations(locations: string | string[]): Promise<IENJobLocation[] | null> {
-    const locationIds = Array.isArray(locations) ? locations : [locations];
-    const job_locations = await this.ienapplicantUtilService.getJobLocations(locationIds);
+  async fetchJobLocations(locations: number[]): Promise<IENJobLocation[] | null> {
+    const job_locations = await this.ienapplicantUtilService.getJobLocations(locations);
     if (job_locations.length) {
       return job_locations;
     }

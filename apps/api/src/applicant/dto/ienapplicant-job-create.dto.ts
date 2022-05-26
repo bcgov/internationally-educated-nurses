@@ -30,7 +30,7 @@ export class IENApplicantJobCreateUpdateAPIDTO extends IENApplicantJobCreateUpda
 
   @ApiProperty({ description: 'Job location Id', default: '1' })
   @IsOptional()
-  job_location?: string | string[];
+  job_location?: number[];
 
   @ApiPropertyOptional({ description: 'recruiter name', default: 'Mark Brown' })
   @IsString()
