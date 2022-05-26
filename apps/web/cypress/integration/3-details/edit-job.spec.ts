@@ -29,9 +29,11 @@ describe('Details - edit job', () => {
         cy.get('#job_title').click(); // it gets 'dom element not found error' without this repeated clicks
         cy.get('#job_title').click();
         cy.get('#job_title').click().clear().type(`${job.job_title}{enter}`);
-        cy.get('#job_location').click().clear().type(`${job.job_location}{enter}`);
+        cy.get('#job_location').click().type('{backspace}');
+        cy.get('#job_location').click().type(`${job.job_location}{enter}`);
         cy.get('#job_post_date').click().clear().type(`${job.job_post_date}`);
         cy.get('#recruiter_name').clear().type(`${job.recruiter_name}`);
+
         cy.contains('button', 'Update').click();
 
         cy.get('#headlessui-disclosure-button-1').contains(job.ha_pcn);
