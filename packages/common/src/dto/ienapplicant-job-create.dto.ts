@@ -22,7 +22,7 @@ export class IENApplicantJobCreateUpdateDTO {
 
   @IsString()
   @IsOptional()
-  job_location?: string;
+  job_location?: string | string[];
 
   @IsString({ message: 'HA Recruiter Name must be a string' })
   @Length(1, 255, { message: 'Recruiter Name must be between 1 and 255 characters' })

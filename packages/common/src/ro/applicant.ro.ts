@@ -39,7 +39,7 @@ export interface ApplicantJobRO {
   ha_pcn: IENHaPcnRO;
   job_id?: string;
   job_title?: IENJobTitleRO | null;
-  job_location?: IENJobLocationRO | null;
+  job_location?: IENJobLocationRO[] | null;
   recruiter_name: string;
   job_post_date?: Date;
   added_by?: IENUserRO | null;

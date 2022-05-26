@@ -349,11 +349,15 @@ export class IENApplicantUtilService {
    * @param id
    */
   async getJobLocation(id: string | number): Promise<IENJobLocation> {
-    const job_title = await this.ienapplicantJobLocationRepository.findOne(id);
-    if (!job_title) {
+    const job_location = await this.ienapplicantJobLocationRepository.findOne(id);
+    if (!job_location) {
       throw new NotFoundException('Provided job location not found');
     }
-    return job_title;
+    return job_location;
+  }
+
+  async getJobLocations(ids: string[] | number[]): Promise<IENJobLocation[] | []> {
+    return this.ienapplicantJobLocationRepository.findByIds(ids);
   }
 
   async updateLatestStatusOnApplicant(mappedApplicantList: string[]): Promise<void> {
