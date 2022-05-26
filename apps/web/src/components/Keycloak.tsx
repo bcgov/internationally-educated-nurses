@@ -2,7 +2,7 @@ import { useAuthContext } from './AuthContexts';
 import React, { useEffect } from 'react';
 import { useKeycloak } from '@react-keycloak/ssr';
 import { useRouter } from 'next/router';
-import { ValidRoles } from '@services';
+import { ValidRoles } from '@ien/common';
 import { Pending } from './Pending';
 import { Spinner } from './Spinner';
 import { NextPage } from 'next';

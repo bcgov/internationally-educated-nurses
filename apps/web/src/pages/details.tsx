@@ -1,4 +1,4 @@
-import { ValidRoles } from '@services';
+import { ValidRoles } from '@ien/common';
 import withAuth from 'src/components/Keycloak';
 import { ApplicantProvider } from '../applicant/ApplicantContext';
 import { ApplicantProfile } from '../applicant/ApplicantProfile';

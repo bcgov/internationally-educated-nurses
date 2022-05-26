@@ -1,2 +1,2 @@
 export * from './milestone-status';
-export * from './role-filters';
+export * from './valid-roles';

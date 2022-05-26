@@ -1,4 +1,4 @@
-import { EmployeeFilterDTO, EmployeeRO } from '@ien/common';
+import { EmployeeFilterDTO, EmployeeRO, ValidRoles } from '@ien/common';
 import axios from 'axios';
 
 // get all employees
@@ -22,4 +22,13 @@ export const getEmployees = async (filter: EmployeeFilterDTO = {}) => {
   } = response.data;
 
   return { data, count };
+};
+
+export const updateRole = async (id: string, role: ValidRoles): Promise<boolean> => {
+  try {
+    await axios.patch('/employee/update/role', { ids: [id], role });
+    return true;
+  } catch (e) {
+    return false;
+  }
 };

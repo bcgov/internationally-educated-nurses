@@ -1,8 +1,8 @@
 import { HttpException, HttpStatus, Inject, Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction } from 'express';
-import { AuthService } from '../auth/auth.service';
+import { ValidRoles } from '@ien/common';
 import { EmployeeService } from 'src/employee/employee.service';
-import { ValidRoles } from 'src/auth/auth.constants';
+import { AuthService } from '../auth/auth.service';
 import { AppLogger } from './logger.service';
 import { RequestObj } from './interface/RequestObj';
 
