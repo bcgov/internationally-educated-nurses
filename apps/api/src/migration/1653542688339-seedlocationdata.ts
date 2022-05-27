@@ -7,9 +7,7 @@ export class Seedlocationdata1653542688334 implements MigrationInterface {
     await queryRunner.query(
       `DELETE FROM public.ien_applicant_jobs_job_location_ien_job_locations WHERE ien_job_locations_id > 84`,
     );
-    await queryRunner.query(
-      `DELETE FROM public.ien_job_locations WHERE id > 84`,
-    );
+    await queryRunner.query(`DELETE FROM public.ien_job_locations WHERE id > 84`);
     await queryRunner.query(
       `INSERT INTO public.ien_job_locations(id, title) VALUES (1, '100 Mile House') ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title;
       INSERT INTO public.ien_job_locations(id, title) VALUES (2, 'Abbotsford') ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title;
@@ -100,8 +98,6 @@ export class Seedlocationdata1653542688334 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `DELETE FROM public.ien_job_locations WHERE id <= 84`,
-    );
+    await queryRunner.query(`DELETE FROM public.ien_job_locations WHERE id <= 84`);
   }
 }
