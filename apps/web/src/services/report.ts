@@ -1,8 +1,32 @@
 import axios, { AxiosError } from 'axios';
+import _ from 'lodash';
 import { convertToParams, Period, PeriodFilter } from '@ien/common';
 import { notifyError } from '../utils/notify-error';
 import dayjs from 'dayjs';
 import { utils, WorkBook, WorkSheet } from 'xlsx';
+
+interface SheetData {
+  name: string;
+  data: string[][];
+  colWidths?: { wch: number }[];
+}
+
+interface EducationCountry extends PeriodFilter {
+  period: number;
+  us: number;
+  uk: number;
+  ireland: number;
+  australia: number;
+  philippines: number;
+  india: number;
+  nigeria: number;
+  jamaica: number;
+  kenya: number;
+  canada: number;
+  other: number;
+  'n/a': number;
+  total: number;
+}
 
 export const getPeriods = async (filter?: PeriodFilter) => {
   try {
@@ -14,13 +38,17 @@ export const getPeriods = async (filter?: PeriodFilter) => {
   }
 };
 
-interface SheetData {
-  name: string;
-  data: string[][];
-  colWidths?: { wch: number }[];
-}
+export const getEducationCountryReport = async (filter?: PeriodFilter) => {
+  try {
+    const url = `/reports/applicant/education-country?${convertToParams(filter)}`;
+    const { data } = await axios.get<{ data: EducationCountry[] }>(url);
+    return data?.data;
+  } catch (e) {
+    notifyError(e as AxiosError);
+  }
+};
 
-export const getTimeRange = (period: Period): string => {
+export const getTimeRange = (period: PeriodFilter): string => {
   const from =
     dayjs(period.from).year() === dayjs(period.to).year()
       ? dayjs(period.from).format('MMM DD')
@@ -29,17 +57,15 @@ export const getTimeRange = (period: Period): string => {
   return `${from} - ${dayjs(period.to).format('MMM DD, YYYY')}`;
 };
 
-const getRegApplicantsReportData = (period: Period, periods: Period[]): SheetData => {
+const getRegApplicantsReportData = (periods: Period[]): SheetData => {
   const data = [
     [`${dayjs(periods[0].from).format('MMM DD, YYYY')} to Present`, 'Total Applicants'],
   ];
 
   data.push(
-    ...periods
-      .filter(p => p.period <= period.period)
-      .map(p => {
-        return [`Period ${p.period}: ${getTimeRange(p)}`, `${p.applicants}`];
-      }),
+    ...periods.map(p => {
+      return [`Period ${p.period}: ${getTimeRange(p)}`, `${p.applicants}`];
+    }),
   );
 
   const colWidths = [{ wch: 40 }, { wch: 20 }];
@@ -47,19 +73,43 @@ const getRegApplicantsReportData = (period: Period, periods: Period[]): SheetDat
   return { name: 'Report 1', data, colWidths };
 };
 
-const getReportSheet1 = (period: Period, periods: Period[]): [string, WorkSheet] => {
-  const { name, data, colWidths } = getRegApplicantsReportData(period, periods);
+const getReportSheet1 = (periods: Period[]): [string, WorkSheet] => {
+  const { name, data, colWidths } = getRegApplicantsReportData(periods);
   const sheet = utils.aoa_to_sheet(data);
   if (colWidths) sheet['!cols'] = colWidths;
   return [name, sheet];
 };
 
-export const getReportWorkbook = (period: Period, periods: Period[]): WorkBook => {
+const getReportSheet2 = (data: EducationCountry[]): [string, WorkSheet] => {
+  const sheetData = data.map(d => {
+    return {
+      ..._.omit(d, ['from', 'to']),
+      period: d.period ? `Period ${d.period}: ${getTimeRange(d)} ` : '',
+    };
+  });
+  const sheet = utils.json_to_sheet(sheetData);
+  sheet['!cols'] = [{ wch: 40 }];
+
+  return ['Report 2', sheet];
+};
+
+export const getReportWorkbook = (
+  periods?: Period[],
+  educationCountry?: EducationCountry[],
+): WorkBook => {
   const workbook = utils.book_new();
 
   // Report 1
-  const [name, sheet] = getReportSheet1(period, periods);
-  utils.book_append_sheet(workbook, sheet, name);
+  if (periods) {
+    const [name, sheet] = getReportSheet1(periods);
+    utils.book_append_sheet(workbook, sheet, name);
+  }
+
+  // Report 2
+  if (educationCountry) {
+    const [name, sheet] = getReportSheet2(educationCountry);
+    utils.book_append_sheet(workbook, sheet, name);
+  }
 
   return workbook;
 };
