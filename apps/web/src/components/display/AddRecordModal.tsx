@@ -137,7 +137,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
                 <div className='mb-3 col-span-2'>
                   <Field
                     name='job_location'
-                    label='Location'
+                    label='Communities'
                     component={({ field, form }: FieldProps) => (
                       <ReactSelect<RecordTypeOptions, true>
                         inputId={field.name}

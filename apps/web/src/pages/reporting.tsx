@@ -11,6 +11,7 @@ const DEFAULT_PAGE_SIZE = 10;
 const REPORT_PREFIX = 'ien-report-period';
 
 const Reporting = () => {
+  const [loading, setLoading] = useState(true);
   const [periods, setPeriods] = useState<Period[]>([]);
   const [scopedPeriods, setScopedPeriods] = useState<Period[]>([]);
 
@@ -50,10 +51,12 @@ const Reporting = () => {
   };
 
   useEffect(() => {
+    setLoading(true);
     getPeriods().then(data => {
       if (data) {
         sortPeriods(data);
         setTotal(data.length);
+        setLoading(false);
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -85,7 +88,12 @@ const Reporting = () => {
           pageOptions={{ pageIndex, pageSize: limit, total }}
           onChange={handlePageOptions}
         />
-        <ReportTable periods={scopedPeriods} onSortChange={handleSort} download={download} />
+        <ReportTable
+          periods={scopedPeriods}
+          onSortChange={handleSort}
+          download={download}
+          loading={loading}
+        />
 
         <Pagination
           pageOptions={{ pageIndex, pageSize: limit, total }}

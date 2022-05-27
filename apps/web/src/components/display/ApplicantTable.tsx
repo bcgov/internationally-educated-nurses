@@ -62,7 +62,7 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
           {loading && (
             <tr className='text-left shadow-xs whitespace-nowrap even:bg-bcLightGray text-sm'>
               <td colSpan={5} className='h-64'>
-                <Spinner className='h-10' />
+                <Spinner className='h-10' relative />
               </td>
             </tr>
           )}
