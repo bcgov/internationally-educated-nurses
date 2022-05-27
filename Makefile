@@ -45,7 +45,7 @@ export BOOTSTRAP_ENV=terraform/bootstrap
 
 
 ifeq ($(ENV_NAME), prod)
-DOMAIN=
+DOMAIN=ien.gov.bc.ca
 BASTION_INSTANCE_ID = $(BASTION_INSTANCE_ID_PROD)
 DB_HOST = $(DB_HOST_PROD)
 NEXT_PUBLIC_AUTH_URL=https://common-logon.hlth.gov.bc.ca/auth
