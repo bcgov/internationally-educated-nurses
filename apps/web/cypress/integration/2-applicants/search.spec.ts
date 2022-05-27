@@ -12,6 +12,8 @@ describe('Applicants - search', () => {
   });
 
   it('searches applicants in search bar', () => {
-    cy.search('Neoma');
+    cy.fixture('jobs.json').then(({ applicant }) => {
+      cy.search(applicant.name);
+    });
   });
 });

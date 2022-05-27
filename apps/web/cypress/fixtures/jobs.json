@@ -1,58 +1,56 @@
 {
   "applicant": {
-    "id": "d276f7e4-786e-480d-a517-6a49c6361a88",
-    "name": "Mae Hayes",
-    "applicant_id": "2117109999978829",
-    "email_address": "Miller_Ryan@gmail.com",
-    "phone_number": "552-544-9849",
-    "registration_date": "2021-10-16",
+    "id": "f4c7da10-92c2-4f7f-a3a4-12dc2db1a368",
+    "name": "Ethel Hermiston",
+    "applicant_id": "7059909999929401",
+    "email_address": "Eda.OHara@gmail.com",
+    "phone_number": "328-615-1755",
+    "registration_date": "2021-09-21",
     "assigned_to": [
       {
         "id": 1,
         "name": "Chadi"
       }
     ],
-    "country_of_citizenship": ["Benin"],
-    "country_of_residence": "Benin",
+    "country_of_citizenship": ["Montserrat"],
+    "country_of_residence": "Montserrat",
     "pr_status": "PR",
     "nursing_educations": [
       {
-        "name": "PhD",
-        "country": "ca"
+        "name": "Master of Nursing - Nurse Practitioner",
+        "country": "tv"
       },
       {
         "name": "Master of Nursing",
-        "country": "ca"
+        "country": "gl"
       }
     ],
     "bccnm_license_number": null,
     "health_authorities": [
       {
-        "id": 5,
-        "title": "Vancouver Coastal Health Authority",
+        "id": 2,
+        "title": "Interior Health Authority",
         "description": null,
-        "abbreviation": "VCHA",
-        "referral_date": "2021-06-23T23:33:28.943"
+        "abbreviation": "IHA",
+        "referral_date": "2021-06-01T07:12:39.700"
       }
     ],
     "notes": null,
     "additional_data": {
-      "last_name": "Hayes",
-      "first_name": "Mae"
+      "last_name": "Hermiston",
+      "first_name": "Ethel"
     },
-    "updated_date": "2022-05-11T04:25:26.027Z",
+    "updated_date": "2022-05-27T04:01:20.453Z",
     "status": null,
     "added_by": null,
-    "updated_by": null,
-    "jobs": [],
-    "applicant_status_audit": []
+    "updated_by": null
   },
   "jobs": [
     {
       "ha_pcn": "Fraser Health Authority",
       "job_id": "1234567891",
       "job_title": "Nursing practitioner",
-      "job_location": "Surrey Memorial Hospital",
+      "job_location": "100 Mile House",
       "job_post_date": "2018-01-01",
       "recruiter_name": "Recruit1"
     },
@@ -60,7 +58,7 @@
       "ha_pcn": "Interior Health Authority",
       "job_id": "1234567892",
       "job_title": "Nursing practitioner",
-      "job_location": "Zeballos",
+      "job_location": "Abbotsford",
       "job_post_date": "2019-02-02",
       "recruiter_name": "Recruit2"
     },
@@ -68,7 +66,7 @@
       "ha_pcn": "Northern Health Authority",
       "job_id": "1234567893",
       "job_title": "Aboriginal Health Nursing",
-      "job_location": "100 Mile House",
+      "job_location": "Agassiz-Harrison",
       "job_post_date": "2019-03-02",
       "recruiter_name": "Recruit3"
     },
@@ -76,7 +74,7 @@
       "ha_pcn": "Vancouver Island Health Authority",
       "job_id": "1234567894",
       "job_title": "Administration",
-      "job_location": "Abbotsford",
+      "job_location": "Alberni-Clayoquot",
       "job_post_date": "2019-04-02",
       "recruiter_name": "Recruit4"
     },
@@ -84,7 +82,7 @@
       "ha_pcn": "Vancouver Coastal Health Authority",
       "job_id": "1234567895",
       "job_title": "Advanced Practice",
-      "job_location": "Agassiz and Harrison",
+      "job_location": "Armstrong-Spallumcheen",
       "job_post_date": "2019-05-02",
       "recruiter_name": "Recruit5"
     },
@@ -92,7 +90,7 @@
       "ha_pcn": "Fraser Health Authority",
       "job_id": "1234567896",
       "job_title": "Ambulatory Care",
-      "job_location": "Ahousat",
+      "job_location": "Arrow Lakes",
       "job_post_date": "2019-06-02",
       "recruiter_name": "Recruit6"
     }
