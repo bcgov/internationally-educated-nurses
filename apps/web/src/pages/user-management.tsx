@@ -5,7 +5,6 @@ import withAuth from 'src/components/Keycloak';
 import { PageOptions, Pagination } from 'src/components/Pagination';
 import { getEmployees } from 'src/services/user-management';
 import { EmployeeRO, ValidRoles } from '@ien/common';
-import { Spinner } from 'src/components/Spinner';
 import { UserFilter } from 'src/components/user-management/UserFilter';
 import { SearchEmployee } from 'src/components/SearchEmployee';
 
@@ -16,13 +15,6 @@ interface SearchOptions {
   order?: 'ASC' | 'DESC';
   limit?: number;
   skip?: number;
-}
-
-export interface UserFilterOptions {
-  name?: string[];
-  roles?: ValidRoles[];
-  skip?: number;
-  limit?: number;
 }
 
 const DEFAULT_PAGE_SIZE = 10;
@@ -50,9 +42,8 @@ const UserManagement = () => {
         setPage(1);
       }
       setEmployees(data);
+      setLoading(false);
     });
-
-    setLoading(false);
   }, [name, sortKey, order, page, limit, roles]);
 
   const handleSort = (key: string) => {
@@ -85,10 +76,6 @@ const UserManagement = () => {
       setEmployees([...employees]);
     }
   };
-
-  if (loading) {
-    return <Spinner className='h-10' />;
-  }
 
   return (
     <div className='container w-full mx-6 xl:w-xl mb-4'>

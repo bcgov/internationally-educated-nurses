@@ -12,7 +12,6 @@ interface SearchProps {
 }
 
 const QUERY_LIMIT = 5; // limit the number of search results
-const QUERY_DELAY = 300; // to reduce number of api calls
 const FOCUS_OUT_DELAY = 300; // to make redirection to detail page working
 
 export const Search = (props: SearchProps) => {
@@ -20,19 +19,14 @@ export const Search = (props: SearchProps) => {
 
   const [options, setOptions] = useState<ApplicantRO[]>([]);
   const [searchName, setSearchName] = useState(keyword || '');
-  const [delayedName, setDelayedName] = useState('');
   const [focus, setFocus] = useState(false);
   const inputRef = React.createRef<HTMLInputElement>();
 
   useEffect(() => {
-    const timer = setTimeout(() => setDelayedName(searchName), QUERY_DELAY);
-    return () => clearTimeout(timer);
+    if (!searchName.trim()) return;
+    search(searchName, QUERY_LIMIT).then(setOptions);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchName]);
-
-  useEffect(() => {
-    if (!delayedName.trim()) return;
-    search(delayedName, QUERY_LIMIT).then(setOptions);
-  }, [delayedName, search]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchName(e.target.value);
@@ -89,7 +83,7 @@ export const Search = (props: SearchProps) => {
           </>
         )}
       </div>
-      {delayedName && focus && (
+      {searchName && focus && (
         <div className='absolute bg-white w-full px-2 pt-3'>
           {options.map(({ id, name, status }) => {
             return (

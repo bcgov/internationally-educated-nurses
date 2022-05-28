@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { getApplicants, milestoneTabs } from '@services';
 import { Search } from '../components/Search';
@@ -19,6 +19,7 @@ interface SearchOptions {
 }
 
 const DEFAULT_PAGE_SIZE = 10;
+const QUERY_DELAY = 300;
 
 const Applicants = () => {
   const [applicants, setApplicants] = useState<ApplicantRO[]>([]);
@@ -35,8 +36,26 @@ const Applicants = () => {
   const [pageIndex, setPageIndex] = useState(1);
   const [total, setTotal] = useState(0);
 
-  const searchApplicants = async (options: SearchOptions) => {
-    return getApplicants(options);
+  const timer = useRef<number>();
+
+  const searchApplicants = async (
+    options: SearchOptions,
+  ): Promise<{ data: ApplicantRO[]; count: number }> => {
+    if (timer.current) {
+      clearTimeout(timer.current);
+    }
+    return new Promise((resolve, reject) => {
+      timer.current = window.setTimeout(async () => {
+        try {
+          const data = await getApplicants(options);
+          resolve(data);
+        } catch (e) {
+          reject(e);
+        } finally {
+          timer.current = 0;
+        }
+      }, QUERY_DELAY);
+    });
   };
 
   const searchByName = async (searchName: string, searchLimit: number) => {
@@ -44,18 +63,18 @@ const Applicants = () => {
   };
 
   useEffect(() => {
-    setLoading(true);
     const skip = (pageIndex - 1) * limit;
     const options: SearchOptions = { name, sortKey, order, limit, skip };
     if (status) options.status = `${status}`;
+    setLoading(true);
     searchApplicants(options).then(({ data, count }) => {
       setTotal(count);
       if (count < limit) {
         setPageIndex(1);
       }
       setApplicants(data);
+      setLoading(false);
     });
-    setLoading(false);
   }, [name, status, sortKey, order, pageIndex, limit]);
 
   const viewDetail = (id: string) => router.push(`/details?id=${id}`);
@@ -97,9 +116,6 @@ const Applicants = () => {
     changeRoute(name, index ? index + 10000 : 0);
   };
 
-  if (loading) {
-    return <h1>Loading...</h1>;
-  }
   return (
     <div className='container w-full mx-6 xl:w-xl mb-4'>
       <h1 className='font-bold text-3xl py-5'>Manage Applicants</h1>
@@ -123,7 +139,7 @@ const Applicants = () => {
           pageOptions={{ pageIndex, pageSize: limit, total }}
           onChange={handlePageOptions}
         />
-        <ApplicantTable applicants={applicants} onSortChange={handleSort} />
+        <ApplicantTable applicants={applicants} onSortChange={handleSort} loading={loading} />
         <Pagination
           pageOptions={{ pageIndex, pageSize: limit, total }}
           onChange={handlePageOptions}
