@@ -1,3 +1,5 @@
+import { ValidRoles } from '@ien/common';
+
 export const landingPageTabs = [
   { title: 'All', value: '1' },
   { title: 'IEN HMBC Process', value: '2' },
@@ -16,7 +18,32 @@ export const milestoneTabs = [
 ];
 
 export const menuBarTabs = [
-  { title: 'Manage Applicants', defaultPath: '/', paths: ['/applicants', '/details'] },
-  { title: 'Reporting', defaultPath: '/reporting', paths: ['/reporting'] },
-  { title: 'User Management', defaultPath: '/user-management', paths: ['/user-management'] },
+  {
+    title: 'Manage Applicants',
+    defaultPath: '/',
+    paths: ['/applicants', '/details'],
+    roles: [
+      ValidRoles.HEALTH_AUTHORITY,
+      ValidRoles.HEALTH_MATCH,
+      ValidRoles.MINISTRY_OF_HEALTH,
+      ValidRoles.ROLEADMIN,
+    ],
+  },
+  {
+    title: 'Reporting',
+    defaultPath: '/reporting',
+    paths: ['/reporting'],
+    roles: [
+      ValidRoles.HEALTH_AUTHORITY,
+      ValidRoles.HEALTH_MATCH,
+      ValidRoles.MINISTRY_OF_HEALTH,
+      ValidRoles.ROLEADMIN,
+    ],
+  },
+  {
+    title: 'User Management',
+    defaultPath: '/user-management',
+    paths: ['/user-management'],
+    roles: [ValidRoles.ROLEADMIN],
+  },
 ];
