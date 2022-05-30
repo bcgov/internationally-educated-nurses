@@ -1,10 +1,10 @@
+import { useState } from 'react';
 import { EmployeeRO, formatDate, ValidRoles } from '@ien/common';
+import { updateRole } from '@services';
+import { buttonBase, buttonColor } from '@components';
 import { Spinner } from '../Spinner';
 import { SortButton } from '../SortButton';
 import { ChangeRoleModal } from '../user-management/ChangeRoleModal';
-import { useState } from 'react';
-import { updateRole } from '../../services/user-management';
-import { buttonBase, buttonColor } from '@components';
 
 export interface UserManagementProps {
   employees: EmployeeRO[];

@@ -1,7 +1,7 @@
 import { Period } from '@ien/common';
 import { SortButton } from '../components/SortButton';
 import { Spinner } from '../components/Spinner';
-import { getTimeRange } from '../services/report';
+import { getTimeRange } from '@services';
 import { buttonBase, buttonColor } from '@components';
 
 export interface ReportTableProps {

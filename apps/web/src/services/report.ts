@@ -3,13 +3,7 @@ import _ from 'lodash';
 import { convertToParams, Period, PeriodFilter } from '@ien/common';
 import { notifyError } from '../utils/notify-error';
 import dayjs from 'dayjs';
-import { utils, WorkBook, WorkSheet } from 'xlsx';
-
-interface SheetData {
-  name: string;
-  data: string[][];
-  colWidths?: { wch: number }[];
-}
+import { CellAddress, utils, WorkBook, WorkSheet } from 'xlsx';
 
 interface EducationCountry extends PeriodFilter {
   period: number;
@@ -57,12 +51,29 @@ export const getTimeRange = (period: PeriodFilter): string => {
   return `${from} - ${dayjs(period.to).format('MMM DD, YYYY')}`;
 };
 
-const getRegApplicantsReportData = (periods: Period[]): SheetData => {
-  const data = [
-    [`${dayjs(periods[0].from).format('MMM DD, YYYY')} to Present`, 'Total Applicants'],
+const applyNumberFormat = (sheet: WorkSheet, s: CellAddress, e: CellAddress): void => {
+  for (let r = s.r; r <= e.r; ++r) {
+    for (let c = s.c; c <= e.c; ++c) {
+      const cell = sheet[utils.encode_cell({ r, c })];
+      if (cell) {
+        cell.t = 'n';
+        cell.z = '0';
+      }
+    }
+  }
+};
+
+const getReportSheet1 = (periods: Period[]): [string, WorkSheet] => {
+  const rows = [
+    ['Number of New Internationally Educated Nurse Registrant EOIs Processed'],
+    [],
+    [
+      getTimeRange({ from: periods[0].from, to: periods[periods.length - 1].to }),
+      'Total' + ' Applicants',
+    ],
   ];
 
-  data.push(
+  rows.push(
     ...periods.map(p => {
       return [`Period ${p.period}: ${getTimeRange(p)}`, `${p.applicants}`];
     }),
@@ -70,25 +81,34 @@ const getRegApplicantsReportData = (periods: Period[]): SheetData => {
 
   const colWidths = [{ wch: 40 }, { wch: 20 }];
 
-  return { name: 'Report 1', data, colWidths };
-};
-
-const getReportSheet1 = (periods: Period[]): [string, WorkSheet] => {
-  const { name, data, colWidths } = getRegApplicantsReportData(periods);
-  const sheet = utils.aoa_to_sheet(data);
+  const sheet = utils.aoa_to_sheet(rows);
   if (colWidths) sheet['!cols'] = colWidths;
-  return [name, sheet];
+
+  applyNumberFormat(sheet, { r: 3, c: 1 }, { r: rows.length - 1, c: 1 });
+
+  return ['Report 1', sheet];
 };
 
 const getReportSheet2 = (data: EducationCountry[]): [string, WorkSheet] => {
-  const sheetData = data.map(d => {
-    return {
-      ..._.omit(d, ['from', 'to']),
-      period: d.period ? `Period ${d.period}: ${getTimeRange(d)} ` : '',
-    };
-  });
-  const sheet = utils.json_to_sheet(sheetData);
-  sheet['!cols'] = [{ wch: 40 }];
+  const rows = [['Country of Training of Internationally Educated Nurse Registrants'], []];
+
+  //remove from and to fields and change period to time range
+  const temp = data.map(d => ({
+    ..._.omit(d, ['from', 'to']),
+    period: d.period ? `Period ${d.period}: ${getTimeRange(d)} ` : 'TOTAL',
+  }));
+
+  // add table header
+  const headers = Object.keys(temp[0]).map(key => key.toUpperCase());
+  headers[0] = getTimeRange({ from: data[0].from, to: data[data.length - 2].to });
+  rows.push(headers);
+
+  rows.push(...temp.map(Object.values));
+  const sheet = utils.aoa_to_sheet(rows);
+  sheet['!cols'] = [{ wch: 40 }]; // column width
+
+  // apply number format
+  applyNumberFormat(sheet, { r: 4, c: 1 }, { r: rows.length - 1, c: headers.length });
 
   return ['Report 2', sheet];
 };

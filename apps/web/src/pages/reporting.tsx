@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import { writeFileXLSX } from 'xlsx';
 import { Period, ValidRoles } from '@ien/common';
+import { getEducationCountryReport, getPeriods, getReportWorkbook } from '@services';
 import { PageOptions, Pagination } from '../components/Pagination';
-import { getEducationCountryReport, getPeriods, getReportWorkbook } from '../services/report';
 import { ReportTable } from '../reporting/ReportTable';
 import withAuth from '../components/Keycloak';
 
