@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import { writeFileXLSX } from 'xlsx';
 import { Period, ValidRoles } from '@ien/common';
 import { PageOptions, Pagination } from '../components/Pagination';
-import { getPeriods, getReportWorkbook } from '../services/report';
+import { getEducationCountryReport, getPeriods, getReportWorkbook } from '../services/report';
 import { ReportTable } from '../reporting/ReportTable';
 import withAuth from '../components/Keycloak';
 
@@ -43,9 +43,10 @@ const Reporting = () => {
 
   const download = async (period: Period) => {
     const to = dayjs(period.to).format('YYYY-MM-DD');
-    const data = await getPeriods({ to });
-    if (data) {
-      const workbook = getReportWorkbook(period, data);
+    const applicants = await getPeriods({ to });
+    const educationCountry = await getEducationCountryReport({ to });
+    if (applicants || educationCountry) {
+      const workbook = getReportWorkbook(applicants, educationCountry);
       writeFileXLSX(workbook, `${REPORT_PREFIX}-${period.period}.xlsx`);
     }
   };

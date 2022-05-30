@@ -35,7 +35,7 @@ export class ReportService {
       uk: 0,
       ireland: 0,
       australia: 0,
-      phillipines: 0,
+      philippines: 0,
       india: 0,
       nigeria: 0,
       jamaica: 0,
