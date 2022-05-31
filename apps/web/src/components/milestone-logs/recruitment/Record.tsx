@@ -120,8 +120,15 @@ export const Record: React.FC<RecordProps> = ({ job, expandRecord }) => {
             <div className='flex justify-between'>
               <DetailsItem title='Job ID' text={job_id ? job_id : 'N/A'} />
               <DetailsItem
-                title='Location'
-                text={job_location?.length ? job_location.map(e => e?.title).join(', ') : 'N/A'}
+                title='Communities'
+                text={
+                  job_location?.length
+                    ? job_location
+                        .map(e => e?.title)
+                        .sort()
+                        .join(', ')
+                    : 'N/A'
+                }
               />
 
               <DetailsItem title='Recruiter Name' text={recruiter_name} />
