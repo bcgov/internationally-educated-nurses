@@ -18,7 +18,6 @@ describe('Details - add milestones', () => {
       cy.visitDetails(applicant.id);
       cy.tabRecruitment();
 
-      const old: IENApplicantJobCreateUpdateDTO = jobs[0];
       cy.get('#headlessui-disclosure-button-1').click();
 
       cy.fixture('milestones.json').then(({ milestones }) => {

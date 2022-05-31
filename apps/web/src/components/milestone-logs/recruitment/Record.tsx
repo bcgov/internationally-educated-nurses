@@ -5,6 +5,7 @@ import { buttonBase, buttonColor, DetailsItem, Disclosure } from '@components';
 import { AddMilestone, EditMilestone } from './Milestone';
 import {
   ApplicantJobRO,
+  ApplicantStatusAuditRO,
   COMPLETED_STATUSES,
   formatDate,
   IENApplicantUpdateStatusDTO,
@@ -23,6 +24,7 @@ interface RecordProps {
 export const Record: React.FC<RecordProps> = ({ job, expandRecord }) => {
   const { applicant, updateJob } = useApplicantContext();
   const [modalVisible, setModalVisible] = useState(false);
+  const [editing, setEditing] = useState<ApplicantStatusAuditRO | null>(null); // milestone being edited
 
   // set status_audit to empty array on record create
   // is not included in response when a new record gets created and only gets initialized on refresh
@@ -78,6 +80,7 @@ export const Record: React.FC<RecordProps> = ({ job, expandRecord }) => {
   };
 
   const handleUpdateMilestone = async (id: string, values: IENApplicantUpdateStatusDTO) => {
+    setEditing(null);
     const milestone = await updateMilestone(applicant.id, id, values);
     if (milestone) {
       const index = job.status_audit?.findIndex(m => m.id === id);
@@ -131,7 +134,7 @@ export const Record: React.FC<RecordProps> = ({ job, expandRecord }) => {
               className={`px-6 mb-2 ${buttonColor.secondary} ${buttonBase}`}
               onClick={() => setModalVisible(true)}
             >
-              <img src={editIcon.src} alt='edit' className='mr-2' />
+              <img src={editIcon.src} alt='edit job' className='mr-2' />
               Edit Details
             </button>
             {milestones.map(mil => (
@@ -139,10 +142,12 @@ export const Record: React.FC<RecordProps> = ({ job, expandRecord }) => {
                 job={job}
                 key={mil.id}
                 milestone={mil}
+                editing={editing}
+                onEditing={setEditing}
                 handleSubmit={values => handleUpdateMilestone(mil.id, values)}
               />
             ))}
-            <AddMilestone job={job} />
+            {!editing && <AddMilestone job={job} />}
             <AddRecordModal
               job={job}
               milestones={milestones}

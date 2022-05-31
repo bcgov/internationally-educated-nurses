@@ -59,7 +59,7 @@ Cypress.Commands.add('addJob', (job: IENApplicantJobCreateUpdateDTO) => {
 Cypress.Commands.add('addMilestone', (milestone: IENApplicantAddStatusDTO) => {
   cy.get('form').find('#status').click({ force: true });
   cy.get('#status').focus().type(`${milestone.status}{enter}`);
-  cy.get('#start_date').click().type(`${milestone.start_date}`);
+  cy.get('#start_date').focus().click().type(`${milestone.start_date}`);
   cy.get('#notes').click().type(`${milestone.notes}`);
   if (milestone.reason) {
     cy.get('#reason').click().type(`${milestone.reason}{enter}`);
