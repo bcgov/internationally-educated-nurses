@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import createValidator from 'class-validator-formik';
 import dayjs from 'dayjs';
 import { Formik, Form as FormikForm, FormikHelpers, FieldProps } from 'formik';
@@ -71,15 +71,17 @@ interface EditMilestoneProps {
   job: ApplicantJobRO;
   milestone: ApplicantStatusAuditRO;
   handleSubmit: (milestone: IENApplicantUpdateStatusDTO) => Promise<void>;
+  editing: ApplicantStatusAuditRO | null;
+  onEditing: (editing: ApplicantStatusAuditRO | null) => void;
 }
 
 // Edit milestone comp *** currently unsure if this will be included moving forward
-export const EditMilestone: React.FC<EditMilestoneProps> = ({ job, milestone, handleSubmit }) => {
-  const [isEdit, setIsEdit] = useState(false);
+export const EditMilestone: React.FC<EditMilestoneProps> = props => {
+  const { job, milestone, handleSubmit, editing, onEditing } = props;
 
   return (
     <>
-      {!isEdit ? (
+      {editing !== milestone ? (
         <div className='border border-gray-200 rounded bg-bcLightGray my-2 p-5'>
           <div className='w-full'>
             <div className='flex items-center font-bold text-black '>
@@ -104,8 +106,12 @@ export const EditMilestone: React.FC<EditMilestoneProps> = ({ job, milestone, ha
                   </a>
                 </>
               )}
-              <button className='ml-auto mr-1'>
-                <img src={editIcon.src} alt='edit' onClick={() => setIsEdit(true)} />
+              <button
+                className='ml-auto mr-1'
+                onClick={() => onEditing(milestone)}
+                disabled={!!editing && milestone === editing}
+              >
+                <img src={editIcon.src} alt='edit milestone' />
               </button>
             </div>
             <span className='text-sm text-black break-words'>
@@ -119,7 +125,7 @@ export const EditMilestone: React.FC<EditMilestoneProps> = ({ job, milestone, ha
             job={job}
             milestone={milestone}
             handleSubmit={values => handleSubmit(values as IENApplicantUpdateStatusDTO)}
-            onClose={() => setIsEdit(false)}
+            onClose={() => onEditing(null)}
           />
         </>
       )}

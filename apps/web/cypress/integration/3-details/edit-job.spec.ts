@@ -1,7 +1,6 @@
 /// <reference types="cypress" />
 /// <reference path="../../support/index.ts"/>
 
-import { IENApplicantJobCreateUpdateDTO } from '@ien/common';
 import dayjs from 'dayjs';
 
 describe('Details - edit job', () => {
@@ -19,7 +18,6 @@ describe('Details - edit job', () => {
       cy.visitDetails(applicant.id);
       cy.tabRecruitment();
 
-      const old: IENApplicantJobCreateUpdateDTO = jobs[jobs.length - 1];
       cy.get('#headlessui-disclosure-button-1').click();
       cy.contains('button', 'Edit Details').click();
 
