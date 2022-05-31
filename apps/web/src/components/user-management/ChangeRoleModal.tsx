@@ -39,7 +39,7 @@ export const ChangeRoleModal = ({ open, user, submit, closeModal }: ChangeRoleMo
         <div>
           <div className='text-sm'>* User Role</div>
           <ReactSelect<RoleOption>
-            inputId='role'
+            inputId='role-change'
             placeholder='Please select'
             value={roleSelectOptions.find(option => option.value === role)}
             onChange={value => value && setRole(value.value)}
@@ -53,6 +53,7 @@ export const ChangeRoleModal = ({ open, user, submit, closeModal }: ChangeRoleMo
           <Button className='ml-2 px-6 text-sm' onClick={handleCancel} variant='secondary'>
             Cancel
           </Button>
+
           <Button
             className='ml-2 px-6 text-sm'
             disabled={!role}

@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { toast } from 'react-toastify';
+
 import { EmployeeRO, formatDate, ValidRoles } from '@ien/common';
 import { updateRole } from '@services';
 import { buttonBase, buttonColor } from '@components';
@@ -30,6 +32,7 @@ export const UserManagementTable = (props: UserManagementProps) => {
       if (res) {
         updateUser(selectedUser.id, role);
         setModalOpen(false);
+        toast.success('User Role was successfully updated');
       }
     }
   };

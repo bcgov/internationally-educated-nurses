@@ -67,12 +67,24 @@ Cypress.Commands.add('addMilestone', (milestone: IENApplicantAddStatusDTO) => {
   cy.contains('button', 'Save Milestone').click();
 });
 
+Cypress.Commands.add('changeRole', (role: string) => {
+  cy.get('[id=role-change]').focus().type(`${role}{enter}`);
+  cy.get('button:contains(Submit)').should('not.be.disabled').click();
+
+  cy.contains('successfully updated');
+  cy.get('div[class=Toastify__toast-body]').should('not.exist', { timeout: 4000 });
+});
+
 Cypress.Commands.add('visitDetails', (applicantId: string) => {
   cy.visit(`/details?id=${applicantId}`);
 });
 
 Cypress.Commands.add('tabRecruitment', () => {
   cy.get('#3').click();
+});
+
+Cypress.Commands.add('userManagement', () => {
+  cy.get('a:contains(User Management)').click();
 });
 //
 // -- This is a child command --
