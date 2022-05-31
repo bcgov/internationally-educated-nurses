@@ -17,14 +17,11 @@ const withAuth = (Component: React.FunctionComponent, roles: ValidRoles[]) => {
 
     // eslint-disable-next-line
     useEffect(() => {
-      if (kc?.initialized && authUser) {
-        if (authUser?.role === ValidRoles.MINISTRY_OF_HEALTH) {
-          router.replace('/reporting');
-        } else if (!roles.includes(authUser?.role)) {
-          router.replace('/applicants');
-        }
+      if (kc?.initialized && authUser && !roles.includes(authUser?.role)) {
+        authUser?.role === ValidRoles.MINISTRY_OF_HEALTH
+          ? router.replace('/reporting')
+          : router.replace('/applicants');
       }
-
       if (!authUser && !authUserLoading && kc.initialized && !kc?.keycloak?.authenticated) {
         router.replace('/login');
       }
