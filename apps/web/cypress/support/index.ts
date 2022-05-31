@@ -27,6 +27,8 @@ declare global {
       addMilestone(milestone: IENApplicantAddStatusDTO): void;
       visitDetails(applicantId: string): void;
       tabRecruitment(): void;
+      changeRole(role: string): void;
+      userManagement(): void;
     }
   }
 }

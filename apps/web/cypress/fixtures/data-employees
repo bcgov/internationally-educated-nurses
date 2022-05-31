@@ -1,0 +1,5 @@
+INSERT INTO employee (id, created_date, updated_date, name, email, role, keycloak_id)
+  VALUES ('efb33797-e40c-1dc9-8d99-13007d40dba1', '2022-05-30 19:46:26.841586', '2022-05-30 19:46:26.841586', 'test1', 'test1@mailinator.ca', 'moh', '1873a32a-29e2-4f69-8913-05c65819a9b6'), 
+  ('sdb33797-e40c-2dc9-8d88-13007d40dab1', '2022-05-29 19:46:26.841586', '2022-05-29 19:46:26.841586', 'test2', 'test2@mailinator.ca', 'pending', '6663a33a-29e2-4f69-8913-05c65419a9b6'),
+  ('sab33797-e40c-3dc9-8d90-13007d40bda1', '2022-05-28 19:46:26.841586', '2022-05-28 19:46:26.841586', 'test3', 'test3@mailinator.ca', 'hmbc', '9993a34a-29e2-4f69-8913-05c65419a9b6')
+  

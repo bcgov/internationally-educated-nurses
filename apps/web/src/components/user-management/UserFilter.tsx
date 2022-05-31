@@ -19,7 +19,7 @@ export const UserFilter = ({ roles, updateRoles }: UserFilterProps) => {
     <div className='flex flex-col md:flex-row items-center mt-1 mb-5'>
       <div className='font-bold mr-2'>Filter by</div>
       <ReactSelect<RoleOption, true>
-        inputId='role'
+        inputId='role-filter'
         placeholder='Role'
         value={roleSelectOptions.filter(option => roles.includes(option.value))}
         onChange={value => updateRoles(value.map(v => v.value))}
