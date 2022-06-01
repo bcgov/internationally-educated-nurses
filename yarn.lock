@@ -1007,6 +1007,7 @@ __metadata:
     class-validator-formik: 1.0.1
     classnames: 2.3.1
     cookie: 0.4.2
+    cy-verify-downloads: 0.1.8
     cypress: 9.6.0
     dotenv: 16.0.0
     eslint: 7.32.0
@@ -5167,6 +5168,13 @@ __metadata:
   version: 6.0.4
   resolution: "csv-stringify@npm:6.0.4"
   checksum: f8efdfc1ed84b3f5dd9a52d561ff0a57363910f8f264b486713cc3b69e1e6d4b33067c43423f1462a5eeaa98bdb25554dbf1898d57590a20235ae31ad2b3d4ca
+  languageName: node
+  linkType: hard
+
+"cy-verify-downloads@npm:0.1.8":
+  version: 0.1.8
+  resolution: "cy-verify-downloads@npm:0.1.8"
+  checksum: 88768a83def5a92b4600d99c942c4aa6148ddd2d165bb8e7cfdf8e927d477cf1c20a1dcaf4c35b5c09dfdb7302f7a57fe97253f03480826cb9a768f9cecbc303
   languageName: node
   linkType: hard
 
