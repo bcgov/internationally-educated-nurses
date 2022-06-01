@@ -22,12 +22,7 @@ export const menuBarTabs = [
     title: 'Manage Applicants',
     defaultPath: '/',
     paths: ['/applicants', '/details'],
-    roles: [
-      ValidRoles.HEALTH_AUTHORITY,
-      ValidRoles.HEALTH_MATCH,
-      ValidRoles.MINISTRY_OF_HEALTH,
-      ValidRoles.ROLEADMIN,
-    ],
+    roles: [ValidRoles.HEALTH_AUTHORITY, ValidRoles.HEALTH_MATCH, ValidRoles.ROLEADMIN],
   },
   {
     title: 'Reporting',

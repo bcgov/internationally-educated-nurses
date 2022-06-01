@@ -16,7 +16,6 @@ const Details = () => {
 };
 
 export default withAuth(Details, [
-  ValidRoles.MINISTRY_OF_HEALTH,
   ValidRoles.HEALTH_MATCH,
   ValidRoles.HEALTH_AUTHORITY,
   ValidRoles.ROLEADMIN,
