@@ -33,7 +33,7 @@ export class ReportService {
     const data = await entityManager.query(
       this.reportUtilService.counrtyWiseApplicantQuery(from, to),
     );
-    this.logger.log(`query completed a total of ${data.length-1} record returns`);
+    this.logger.log(`query completed a total of ${data.length - 1} record returns`);
     const defaultData = {
       us: 0,
       uk: 0,
@@ -56,7 +56,7 @@ export class ReportService {
       to,
     );
     // We have an additional row that holds the total count, so substracting it to get the final number of periods.
-    this.logger.log(`After adding missing periods, a total of ${result.length-1} record returns`);
+    this.logger.log(`After adding missing periods, a total of ${result.length - 1} record returns`);
     this.reportUtilService._updateLastPeriodToDate(result, to, 1);
     return result;
   }

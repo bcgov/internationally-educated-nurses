@@ -60,7 +60,7 @@ export class IENApplicantController {
   async getApplicants(@Query() filter: IENApplicantFilterAPIDTO): Promise<[ApplicantRO[], number]> {
     try {
       this.logger.log(`list applicant called with the below filter parameters`);
-      this.logger.log({filter});
+      this.logger.log({ filter });
       return await this.ienapplicantService.getApplicants(filter);
     } catch (e) {
       this.logger.error(e);
@@ -174,7 +174,8 @@ export class IENApplicantController {
     try {
       this.logger.log(
         `Add milestone/status for applicant (${id}) requested by
-        userId (${req?.user.user_id})/ employeeId/loginId (${req?.user.id})`);
+        userId (${req?.user.user_id})/ employeeId/loginId (${req?.user.id})`,
+      );
       return await this.ienapplicantService.addApplicantStatus(
         req?.user.user_id,
         id,
@@ -204,7 +205,8 @@ export class IENApplicantController {
     try {
       this.logger.log(
         `Update milestone/status (${status_id}) on applicant (${_id}) requested by
-        userId (${req?.user.user_id})/ employeeId/loginId (${req?.user.id})`);
+        userId (${req?.user.user_id})/ employeeId/loginId (${req?.user.id})`,
+      );
       return await this.ienapplicantService.updateApplicantStatus(
         req?.user.user_id,
         status_id,
@@ -231,7 +233,7 @@ export class IENApplicantController {
   ): Promise<ApplicantJobRO | undefined> {
     try {
       this.logger.log(`Add job competition for the applicant ${id}`);
-      this.logger.log({jobData});
+      this.logger.log({ jobData });
       return await this.ienapplicantService.addApplicantJob(id, jobData);
     } catch (e) {
       this.logger.error(e);
@@ -281,7 +283,7 @@ export class IENApplicantController {
   ): Promise<ApplicantJobRO | undefined> {
     try {
       this.logger.log(`Update job competition (${job_id}) for the applicant ${id}`);
-      this.logger.log({jobData});
+      this.logger.log({ jobData });
       return await this.ienapplicantService.updateApplicantJob(id, job_id, jobData);
     } catch (e) {
       this.logger.error(e);

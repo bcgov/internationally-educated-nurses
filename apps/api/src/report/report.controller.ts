@@ -13,7 +13,8 @@ import { AppLogger } from 'src/common/logger.service';
 export class ReportController {
   constructor(
     @Inject(Logger) private readonly logger: AppLogger,
-    @Inject(ReportService) private readonly reportService: ReportService) {}
+    @Inject(ReportService) private readonly reportService: ReportService,
+  ) {}
 
   @Get('/applicant/education-country')
   @RouteAcceptsRoles(
@@ -25,7 +26,9 @@ export class ReportController {
     @Query('from') from: string,
     @Query('to') to: string,
   ): Promise<object[]> {
-    this.logger.log(`Report: nursing education country wise applicants requested from (${from}) and to (${to})`)
+    this.logger.log(
+      `Report: nursing education country wise applicants requested from (${from}) and to (${to})`,
+    );
     return this.reportService.getCountryWiseApplicantList(from, to);
   }
 
