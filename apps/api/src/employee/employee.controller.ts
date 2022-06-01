@@ -39,6 +39,8 @@ export class EmployeeController {
     @Query() filter: EmployeeFilterAPIDTO,
   ): Promise<[EmployeeEntity[], number]> {
     try {
+      this.logger.log(`List employee/staff called with below filter options`);
+      this.logger.log({filter});
       return await this.employeeService.getEmployeeList(filter);
     } catch (e) {
       this.logger.error(e);
@@ -50,6 +52,8 @@ export class EmployeeController {
   @RouteAcceptsRoles(ValidRoles.MINISTRY_OF_HEALTH)
   @Patch('/update/role')
   async updateRole(@Body('ids') ids: string[], @Body('role') role: string): Promise<void> {
-    return await this.employeeService.updateRole(ids, role);
+    this.logger.log(`Update role to (${role}) requested for below user ids`);
+    this.logger.log({ids});
+    return await this.employeeService.updateRole(ids, role+'1');
   }
 }

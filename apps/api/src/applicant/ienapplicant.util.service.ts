@@ -110,6 +110,8 @@ export class IENApplicantUtilService {
 
     if (status) {
       const status_list = await this.fetchChildStatusList(status);
+      this.logger.log(`milestone/status list: If the category chose, then the fetch related milestones and applied in the filter`);
+      this.logger.log({status_list});
       conditions.push({ status: In(status_list) });
     }
 

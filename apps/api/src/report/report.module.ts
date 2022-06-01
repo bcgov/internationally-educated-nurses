@@ -1,4 +1,4 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { forwardRef, Logger, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from 'src/auth/auth.module';
 import { EmployeeModule } from 'src/employee/employee.module';
@@ -13,7 +13,7 @@ import { ReportUtilService } from './report.util.service';
     forwardRef(() => AuthModule),
     forwardRef(() => EmployeeModule),
   ],
-  providers: [ReportService, ReportUtilService],
+  providers: [ReportService, ReportUtilService, Logger],
   exports: [ReportService, ReportUtilService],
 })
 export class ReportModule {}

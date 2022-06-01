@@ -59,6 +59,8 @@ export class IENApplicantController {
   @Get('/')
   async getApplicants(@Query() filter: IENApplicantFilterAPIDTO): Promise<[ApplicantRO[], number]> {
     try {
+      this.logger.log(`list applicant called with the below filter parameters`);
+      this.logger.log({filter});
       return await this.ienapplicantService.getApplicants(filter);
     } catch (e) {
       this.logger.error(e);
@@ -83,6 +85,7 @@ export class IENApplicantController {
     @Query() relation: IENApplicantFilterByIdAPIDTO,
   ): Promise<ApplicantRO> {
     try {
+      this.logger.log(`Fetch applicant with id: ${id}`);
       return await this.ienapplicantService.getApplicantById(id, relation);
     } catch (e) {
       if (e instanceof NotFoundException) {
@@ -169,6 +172,9 @@ export class IENApplicantController {
     @Body() applicantStatus: IENApplicantAddStatusAPIDTO,
   ): Promise<ApplicantStatusAuditRO | undefined> {
     try {
+      this.logger.log(
+        `Add milestone/status for applicant (${id}) requested by
+        userId (${req?.user.user_id})/ employeeId/loginId (${req?.user.id})`);
       return await this.ienapplicantService.addApplicantStatus(
         req?.user.user_id,
         id,
@@ -196,6 +202,9 @@ export class IENApplicantController {
     @Body() applicantStatus: IENApplicantUpdateStatusAPIDTO,
   ): Promise<ApplicantStatusAuditRO | undefined> {
     try {
+      this.logger.log(
+        `Update milestone/status (${status_id}) on applicant (${_id}) requested by
+        userId (${req?.user.user_id})/ employeeId/loginId (${req?.user.id})`);
       return await this.ienapplicantService.updateApplicantStatus(
         req?.user.user_id,
         status_id,
@@ -221,6 +230,8 @@ export class IENApplicantController {
     @Body() jobData: IENApplicantJobCreateUpdateAPIDTO,
   ): Promise<ApplicantJobRO | undefined> {
     try {
+      this.logger.log(`Add job competition for the applicant ${id}`);
+      this.logger.log({jobData});
       return await this.ienapplicantService.addApplicantJob(id, jobData);
     } catch (e) {
       this.logger.error(e);
@@ -269,6 +280,8 @@ export class IENApplicantController {
     @Body() jobData: IENApplicantJobCreateUpdateAPIDTO,
   ): Promise<ApplicantJobRO | undefined> {
     try {
+      this.logger.log(`Update job competition (${job_id}) for the applicant ${id}`);
+      this.logger.log({jobData});
       return await this.ienapplicantService.updateApplicantJob(id, job_id, jobData);
     } catch (e) {
       this.logger.error(e);
@@ -304,6 +317,8 @@ export class IENApplicantController {
     @Query() options: IENApplicantJobQueryDTO,
   ): Promise<[ApplicantJobRO[], number]> {
     try {
+      this.logger.log(`Fetch job competition for the applicant ${id} with below options/filter`);
+      this.logger.log({});
       return await this.ienapplicantService.getApplicantJobs(id, options);
     } catch (e) {
       if (e instanceof NotFoundException) {
