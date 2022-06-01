@@ -15,6 +15,9 @@
 import dotenv from 'dotenv';
 import * as path from 'path';
 import { spawn } from 'child_process';
+import { isFileExist, findFiles } from 'cy-verify-downloads';
+import * as fs from 'fs';
+import { readFile } from 'xlsx';
 
 dotenv.config({ path: path.join(__dirname, '../../.env.local') });
 
@@ -55,7 +58,28 @@ module.exports = (on: any, config: any) => {
     'db:seed': async () => {
       return execute('db:seed', 'cypress/fixtures/seed.sh');
     },
+    checkReport: (): boolean => {
+      const files = fs.readdirSync(config.downloadsFolder);
+      if (!files?.length) {
+        throw Error('no files downloaded.');
+      }
+      files.forEach(name => {
+        if (!name.endsWith('.xlsx')) return;
+
+        const wb = readFile(path.join(config.downloadsFolder, name));
+        const sheetNames = ['Report 1', 'Report 2'];
+        sheetNames.forEach(sheet => {
+          if (!wb.Sheets[sheet]) {
+            throw Error(`${name} doesn't have ${sheet} sheet`);
+          }
+        });
+      });
+      return true;
+    },
+    isFileExist,
+    findFiles,
   });
+
   // `config` is the resolved Cypress config
   config.env.username = process.env.E2E_TEST_USERNAME;
   config.env.password = process.env.E2E_TEST_PASSWORD;

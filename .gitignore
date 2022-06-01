@@ -17,7 +17,8 @@ node_modules
 .eslintcache
 .pgdata
 .build
-*.mp4
-**/screenshots/**/*.png
+**/videos
+**/downloads
+**/screenshots
 yarn.build.json
 ssh-keypair*
