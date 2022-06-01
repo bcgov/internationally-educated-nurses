@@ -69,8 +69,6 @@ Cypress.Commands.add('addDuplicateJob', (job: IENApplicantJobCreateUpdateDTO) =>
 });
 
 Cypress.Commands.add('editDuplicateJob', (job: IENApplicantJobCreateUpdateDTO) => {
-  cy.contains('button', 'Edit Details').click();
-
   cy.get('#ha_pcn').clear().type(`${job.ha_pcn}{enter}`);
   cy.get('#job_id').click().clear().type(`${job.job_id}`);
 
