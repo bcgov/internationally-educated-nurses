@@ -10,11 +10,13 @@ describe('Details - edit job', () => {
   });
 
   afterEach(() => {
-    cy.logout();
+    // cy.logout();
   });
 
   it('edit a job competition', () => {
     cy.fixture('jobs.json').then(({ applicant, jobs }) => {
+      const duplicateJob = jobs[2];
+
       cy.visitDetails(applicant.id);
       cy.tabRecruitment();
 
@@ -39,6 +41,9 @@ describe('Details - edit job', () => {
         cy.contains(job.job_title);
         cy.contains(job.job_location);
         cy.contains(dayjs(job.job_post_date).format('MMM DD, YYYY'));
+
+        // test for duplicates
+        cy.editDuplicateJob(duplicateJob);
       });
     });
   });

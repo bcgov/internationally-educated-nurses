@@ -15,6 +15,8 @@ describe('Details - add jobs', () => {
 
   it('adds job competitions', () => {
     cy.fixture('jobs.json').then(({ applicant, jobs }) => {
+      const duplicateJob = jobs[0];
+
       cy.visitDetails(applicant.id);
       cy.contains('Milestones Logs');
 
@@ -26,6 +28,8 @@ describe('Details - add jobs', () => {
       });
 
       cy.contains(`${jobs.length} items`);
+      // test for duplicates
+      cy.addDuplicateJob(duplicateJob);
     });
   });
 });
