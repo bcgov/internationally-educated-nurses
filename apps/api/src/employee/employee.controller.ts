@@ -54,6 +54,6 @@ export class EmployeeController {
   async updateRole(@Body('ids') ids: string[], @Body('role') role: string): Promise<void> {
     this.logger.log(`Update role to (${role}) requested for below user ids`);
     this.logger.log({ids});
-    return await this.employeeService.updateRole(ids, role+'1');
+    return this.employeeService.updateRole(ids, role);
   }
 }
