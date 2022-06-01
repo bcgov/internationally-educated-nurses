@@ -233,7 +233,6 @@ export class IENApplicantController {
   ): Promise<ApplicantJobRO | undefined> {
     try {
       this.logger.log(`Add job competition for the applicant ${id}`);
-      this.logger.log({ jobData });
       return await this.ienapplicantService.addApplicantJob(id, jobData);
     } catch (e) {
       this.logger.error(e);
@@ -283,7 +282,6 @@ export class IENApplicantController {
   ): Promise<ApplicantJobRO | undefined> {
     try {
       this.logger.log(`Update job competition (${job_id}) for the applicant ${id}`);
-      this.logger.log({ jobData });
       return await this.ienapplicantService.updateApplicantJob(id, job_id, jobData);
     } catch (e) {
       this.logger.error(e);
@@ -320,7 +318,6 @@ export class IENApplicantController {
   ): Promise<[ApplicantJobRO[], number]> {
     try {
       this.logger.log(`Fetch job competition for the applicant ${id} with below options/filter`);
-      this.logger.log({});
       return await this.ienapplicantService.getApplicantJobs(id, options);
     } catch (e) {
       if (e instanceof NotFoundException) {
