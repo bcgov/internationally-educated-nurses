@@ -10,7 +10,7 @@ describe('Details - edit job', () => {
   });
 
   afterEach(() => {
-    // cy.logout();
+    cy.logout();
   });
 
   it('edit a job competition', () => {
