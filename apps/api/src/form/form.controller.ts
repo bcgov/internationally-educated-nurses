@@ -33,11 +33,7 @@ export class FormController {
   })
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiResponse({ status: HttpStatus.CREATED, type: EmptyResponse })
-  @RouteAcceptsRoles(
-    ValidRoles.HEALTH_AUTHORITY,
-    ValidRoles.HEALTH_MATCH,
-    ValidRoles.MINISTRY_OF_HEALTH,
-  )
+  @RouteAcceptsRoles(ValidRoles.HEALTH_AUTHORITY, ValidRoles.HEALTH_MATCH)
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async name(@Body() body: FormDTO): Promise<FormEntity> {

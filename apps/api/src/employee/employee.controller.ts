@@ -12,9 +12,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { ValidRoles } from '@ien/common';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { RouteAcceptsRoles } from 'src/common/decorators';
 import { RequestObj } from 'src/common/interface/RequestObj';
 import { EmployeeEntity } from './employee.entity';
 import { EmployeeService } from './employee.service';
@@ -47,7 +45,6 @@ export class EmployeeController {
   }
 
   @UseGuards(AuthGuard)
-  @RouteAcceptsRoles(ValidRoles.MINISTRY_OF_HEALTH)
   @Patch('/update/role')
   async updateRole(@Body('ids') ids: string[], @Body('role') role: string): Promise<void> {
     return await this.employeeService.updateRole(ids, role);
