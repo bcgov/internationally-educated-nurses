@@ -150,7 +150,7 @@ const MilestoneForm = <T extends MilestoneFormValues>({
   const reasons = useGetWithdrawReasonOptions();
 
   const submit = async (values: T, helpers: FormikHelpers<T>) => {
-    if (values.status !== `${STATUS.Candidate_withdrew}`) {
+    if (values.status !== `${STATUS.Candidate_accepted_the_job_offer}`) {
       values.effective_date = undefined;
     }
 
