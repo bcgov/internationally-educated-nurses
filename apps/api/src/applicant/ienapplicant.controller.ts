@@ -59,8 +59,7 @@ export class IENApplicantController {
   @Get('/')
   async getApplicants(@Query() filter: IENApplicantFilterAPIDTO): Promise<[ApplicantRO[], number]> {
     try {
-      this.logger.log(`list applicant called with the below filter parameters`);
-      this.logger.log({ filter });
+      this.logger.log(`list applicants`);
       return await this.ienapplicantService.getApplicants(filter);
     } catch (e) {
       this.logger.error(e);
