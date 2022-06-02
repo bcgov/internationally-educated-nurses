@@ -12,7 +12,7 @@ Cypress.Commands.add('login', () => {
   cy.get('#username').type(Cypress.env('username'));
   cy.get('#password').type(Cypress.env('password'));
   cy.get('#kc-login').click();
-  cy.get('button').contains(Cypress.env('username'), { timeout: 60000 });
+  cy.contains('button', Cypress.env('username'), { timeout: 60000 });
 });
 
 Cypress.Commands.add('logout', () => {
