@@ -2,9 +2,13 @@
 /// <reference path="../../support/index.ts"/>
 
 describe('Applicants - search', () => {
-  beforeEach(() => {
+  before(() => {
     cy.visit('/');
     cy.login();
+  });
+
+  after(() => {
+    cy.logout();
   });
 
   it('searches applicants in search bar', () => {

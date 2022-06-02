@@ -84,11 +84,12 @@ Cypress.Commands.add('editDuplicateJob', (job: IENApplicantJobCreateUpdateDTO) =
 });
 
 Cypress.Commands.add('addMilestone', (milestone: IENApplicantAddStatusDTO) => {
-  cy.get('#status').each(el => {
-    cy.wrap(el).type(`${milestone.status}{enter}`);
-  });
   cy.get('#start_date').focus().click().type(`${milestone.start_date}`);
   cy.get('#notes').click().clear().type(`${milestone.notes}`);
+  cy.get('form').find('#status').click({ force: true });
+  cy.get('#status').each(el => {
+    cy.wrap(el).focus().wait(100).type(`${milestone.status}{enter}`);
+  });
   if (milestone.reason) {
     cy.get('form').find('#reason').click({ force: true });
     cy.get('#reason').click().type(`${milestone.reason}{enter}`);

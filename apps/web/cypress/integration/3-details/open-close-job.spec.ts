@@ -8,9 +8,13 @@ describe('Details - close/reopen a job', () => {
   let applicant: ApplicantRO;
   let jobs: IENApplicantJobCreateUpdateDTO[];
 
-  beforeEach(() => {
+  before(() => {
     cy.visit('/');
     cy.login();
+  });
+
+  beforeEach(() => {
+    cy.visit('/');
     cy.fixture('jobs.json').then(data => {
       applicant = data.applicant;
       jobs = data.jobs;
@@ -18,6 +22,10 @@ describe('Details - close/reopen a job', () => {
       cy.tabRecruitment();
       cy.get('#headlessui-disclosure-button-1').click();
     });
+  });
+
+  after(() => {
+    cy.logout();
   });
 
   it('closes a job competition by withdraw', () => {
