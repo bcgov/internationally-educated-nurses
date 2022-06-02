@@ -14,7 +14,7 @@ describe('Details - edit job', () => {
   });
 
   it('edit a job competition', () => {
-    cy.fixture('jobs.json').then(({ applicant, jobs }) => {
+    cy.fixture('jobs.json').then(({ applicant }) => {
       cy.visitDetails(applicant.id);
       cy.tabRecruitment();
 
@@ -40,6 +40,20 @@ describe('Details - edit job', () => {
         cy.contains(job.job_location);
         cy.contains(dayjs(job.job_post_date).format('MMM DD, YYYY'));
       });
+    });
+  });
+
+  it('edit - rejects a duplicate job record', () => {
+    cy.fixture('jobs.json').then(({ applicant, jobs }) => {
+      const duplicateJob = jobs[2];
+
+      cy.visitDetails(applicant.id);
+      cy.tabRecruitment();
+
+      cy.get('#headlessui-disclosure-button-1').click();
+      cy.contains('button', 'Edit Details').click();
+
+      cy.editDuplicateJob(duplicateJob);
     });
   });
 });

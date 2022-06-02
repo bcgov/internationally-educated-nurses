@@ -56,6 +56,29 @@ Cypress.Commands.add('addJob', (job: IENApplicantJobCreateUpdateDTO) => {
   cy.contains('button', 'Create').click();
 });
 
+Cypress.Commands.add('addDuplicateJob', (job: IENApplicantJobCreateUpdateDTO) => {
+  cy.contains('button', 'Add Record').click();
+  cy.get('#ha_pcn').click().type(`${job.ha_pcn}{enter}`);
+  cy.get('#job_id').type(`${job.job_id}`);
+  cy.get('#recruiter_name').type(`${job.recruiter_name}`);
+  cy.contains('button', 'Create').click();
+
+  cy.contains(/^There is a job record with the same health authority and job id.$/);
+  cy.get('div[class=Toastify__toast-body]').should('not.exist', { timeout: 4000 });
+  cy.contains('button', 'Cancel').click();
+});
+
+Cypress.Commands.add('editDuplicateJob', (job: IENApplicantJobCreateUpdateDTO) => {
+  cy.get('#ha_pcn').clear().type(`${job.ha_pcn}{enter}`);
+  cy.get('#job_id').click().clear().type(`${job.job_id}`);
+
+  cy.contains('button', 'Update').click();
+
+  cy.contains(/^There is a job record with the same health authority and job id.$/);
+  cy.get('div[class=Toastify__toast-body]').should('not.exist', { timeout: 4000 });
+  cy.contains('button', 'Cancel').click();
+});
+
 Cypress.Commands.add('addMilestone', (milestone: IENApplicantAddStatusDTO) => {
   cy.get('form').find('#status').click({ force: true });
   cy.get('#status').focus().type(`${milestone.status}{enter}`);

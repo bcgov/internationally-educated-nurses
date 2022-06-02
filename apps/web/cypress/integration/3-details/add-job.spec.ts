@@ -28,4 +28,17 @@ describe('Details - add jobs', () => {
       cy.contains(`${jobs.length} items`);
     });
   });
+
+  it('add - rejects duplicate job record', () => {
+    cy.fixture('jobs.json').then(({ applicant, jobs }) => {
+      const duplicateJob = jobs[0];
+
+      cy.visitDetails(applicant.id);
+      cy.contains('Milestones Logs');
+
+      cy.tabRecruitment();
+
+      cy.addDuplicateJob(duplicateJob);
+    });
+  });
 });
