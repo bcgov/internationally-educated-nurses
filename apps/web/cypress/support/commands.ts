@@ -4,7 +4,7 @@ import { addCustomCommand } from 'cy-verify-downloads';
 addCustomCommand();
 
 Cypress.Commands.add('login', () => {
-  cy.contains('Login');
+  cy.contains('Login', { timeout: 60000 });
   cy.get('button').click();
   if (Cypress.env('realm') === 'moh_applications') {
     cy.get('li').contains('Login with Keycloak').click();

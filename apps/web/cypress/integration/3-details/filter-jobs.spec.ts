@@ -20,10 +20,6 @@ describe('Details - filter jobs', () => {
     });
   });
 
-  afterEach(() => {
-    cy.logout();
-  });
-
   const filterJobsByHa = () => {
     const filteredJobs = jobs.slice(2, 4);
     filteredJobs.forEach(job => {
