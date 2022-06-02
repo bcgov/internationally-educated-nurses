@@ -110,6 +110,7 @@ export class IENApplicantUtilService {
 
     if (status) {
       const status_list = await this.fetchChildStatusList(status);
+      this.logger.log(`milestone/status list that are apply as a filter: [${status_list}]`);
       conditions.push({ status: In(status_list) });
     }
 

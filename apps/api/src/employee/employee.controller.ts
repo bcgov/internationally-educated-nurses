@@ -37,6 +37,7 @@ export class EmployeeController {
     @Query() filter: EmployeeFilterAPIDTO,
   ): Promise<[EmployeeEntity[], number]> {
     try {
+      this.logger.log(`List filtered Employee/Staff`);
       return await this.employeeService.getEmployeeList(filter);
     } catch (e) {
       this.logger.error(e);
@@ -47,6 +48,7 @@ export class EmployeeController {
   @UseGuards(AuthGuard)
   @Patch('/update/role')
   async updateRole(@Body('ids') ids: string[], @Body('role') role: string): Promise<void> {
-    return await this.employeeService.updateRole(ids, role);
+    this.logger.log(`Update role to (${role}) requested for user ids [${ids}]`);
+    return this.employeeService.updateRole(ids, role);
   }
 }

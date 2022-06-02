@@ -1,12 +1,14 @@
-import { Inject } from '@nestjs/common';
+import { Inject, Logger } from '@nestjs/common';
 import { getManager } from 'typeorm';
 import dayjs from 'dayjs';
 import { ReportUtilService } from './report.util.service';
+import { AppLogger } from 'src/common/logger.service';
 
 const PERIOD_START_DATE = '2021-04-01';
 
 export class ReportService {
   constructor(
+    @Inject(Logger) private readonly logger: AppLogger,
     @Inject(ReportUtilService)
     private readonly reportUtilService: ReportUtilService,
   ) {}
@@ -26,10 +28,12 @@ export class ReportService {
     if (!to) {
       to = dayjs().format('YYYY-MM-DD');
     }
+    this.logger.log(`Apply date filter from (${from}) and to (${to})`);
     const entityManager = getManager();
     const data = await entityManager.query(
       this.reportUtilService.counrtyWiseApplicantQuery(from, to),
     );
+    this.logger.log(`query completed a total of ${data.length - 1} record returns`);
     const defaultData = {
       us: 0,
       uk: 0,
@@ -51,6 +55,8 @@ export class ReportService {
       from,
       to,
     );
+    // We have an additional row that holds the total count, so substracting it to get the final number of periods.
+    this.logger.log(`After adding missing periods, a total of ${result.length - 1} record returns`);
     this.reportUtilService._updateLastPeriodToDate(result, to, 1);
     return result;
   }
@@ -70,8 +76,10 @@ export class ReportService {
     if (!to) {
       to = dayjs().format('YYYY-MM-DD');
     }
+    this.logger.log(`Apply date filter from (${from}) and to (${to})`);
     const entityManager = getManager();
     const data = await entityManager.query(this.reportUtilService.applicantCountQuery(from, to));
+    this.logger.log(`query completed a total of ${data.length} record returns`);
     const defaultData = {
       applicants: 0,
     };
@@ -81,6 +89,7 @@ export class ReportService {
       from,
       to,
     );
+    this.logger.log(`After adding missing periods, a total of ${result.length} record returns`);
     this.reportUtilService._updateLastPeriodToDate(result, to, 0);
     return result;
   }
