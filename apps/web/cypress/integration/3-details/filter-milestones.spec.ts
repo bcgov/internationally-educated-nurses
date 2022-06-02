@@ -15,6 +15,10 @@ describe('Details - filter milestones by tabs', () => {
     });
   });
 
+  afterEach(() => {
+    cy.logout();
+  });
+
   it('filters milestones by tabs', () => {
     cy.contains('button', 'Licensing/Registration').click();
     cy.get('[id^=headlessui-disclosure-button').should('not.exist');
