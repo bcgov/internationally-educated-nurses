@@ -2,9 +2,13 @@
 /// <reference path="../../support/index.ts"/>
 
 describe('User Management - change role', () => {
-  beforeEach(() => {
+  before(() => {
     cy.visit('/');
     cy.login();
+  });
+
+  after(() => {
+    cy.logout();
   });
 
   it('changes an employees role', () => {

@@ -4,9 +4,13 @@
 import dayjs from 'dayjs';
 
 describe('Details - edit job', () => {
-  beforeEach(() => {
+  before(() => {
     cy.visit('/');
     cy.login();
+  });
+
+  after(() => {
+    cy.logout();
   });
 
   it('edit a job competition', () => {

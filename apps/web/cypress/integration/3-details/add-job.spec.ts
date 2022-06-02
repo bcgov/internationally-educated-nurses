@@ -4,9 +4,13 @@
 import { IENApplicantJobCreateUpdateDTO } from '@ien/common';
 
 describe('Details - add jobs', () => {
-  beforeEach(() => {
+  before(() => {
     cy.visit('/');
     cy.login();
+  });
+
+  after(() => {
+    cy.logout();
   });
 
   it('adds job competitions', () => {

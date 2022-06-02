@@ -7,14 +7,22 @@ import dayjs from 'dayjs';
 describe('Details - edit milestones', () => {
   let applicant: ApplicantRO;
 
-  beforeEach(() => {
+  before(() => {
     cy.visit('/');
     cy.login();
+  });
+
+  beforeEach(() => {
+    cy.visit('/');
     cy.fixture('jobs.json').then(data => {
       applicant = data.applicant;
       cy.visitDetails(applicant.id);
       cy.tabRecruitment();
     });
+  });
+
+  after(() => {
+    cy.logout();
   });
 
   it('edits a milestone', () => {
