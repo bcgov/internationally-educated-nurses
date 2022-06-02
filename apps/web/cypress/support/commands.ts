@@ -30,7 +30,7 @@ Cypress.Commands.add('logout', () => {
   cy.contains('Login');
 });
 
-Cypress.Commands.add('search', (name: string) => {
+Cypress.Commands.add('searchApplicants', (name: string) => {
   cy.contains('Manage Applicants');
 
   cy.get('input').type(name);
@@ -42,6 +42,15 @@ Cypress.Commands.add('search', (name: string) => {
   cy.get('div > span[class=my-auto]').contains(name).click();
 
   cy.contains(name);
+});
+
+Cypress.Commands.add('searchUsers', (name: string) => {
+  cy.get('input').eq(0).type(name);
+  // need this short delay to allow table to populate with correct data
+  cy.wait(1000);
+  cy.get('tbody > tr').each(el => {
+    cy.wrap(el).eq(0).find('td').eq(0).contains(name);
+  });
 });
 
 Cypress.Commands.add('addJob', (job: IENApplicantJobCreateUpdateDTO) => {
@@ -102,6 +111,29 @@ Cypress.Commands.add('changeRole', (role: string) => {
   cy.get('div[class=Toastify__toast-body]').should('not.exist', { timeout: 4000 });
 });
 
+Cypress.Commands.add('pagination', () => {
+  // change limit to 5
+  cy.get('select').eq(0).select('5');
+  cy.contains('Showing 5');
+  cy.get('tbody > tr').should('have.length', '5');
+  cy.get('select').eq(1).select('3');
+  cy.get('tbody > tr').should('have.length', '5');
+
+  cy.contains('11 - 15');
+  cy.get('.p-3.border-l').eq(0).click();
+  cy.contains('6 - 10');
+  cy.get('.p-3.border-l').eq(0).click();
+  cy.contains('1 - 5');
+  cy.get('.p-3.border-l.border-r').eq(1).click();
+  cy.contains('6 - 10');
+
+  // change limit to 10
+  cy.get('select').eq(0).select('10');
+  cy.contains('Showing 10');
+  cy.get('tbody > tr').should('have.length', '10');
+  cy.contains('1 - 10');
+});
+
 Cypress.Commands.add('visitDetails', (applicantId: string) => {
   cy.visit(`/details?id=${applicantId}`);
 });
@@ -110,8 +142,10 @@ Cypress.Commands.add('tabRecruitment', () => {
   cy.get('#3').click();
 });
 
-Cypress.Commands.add('userManagement', () => {
+Cypress.Commands.add('visitUserManagement', () => {
+  cy.contains('User Management');
   cy.get('a:contains(User Management)').click();
+  cy.get('h4').should('have.text', 'Manage user access and user roles');
 });
 //
 // -- This is a child command --

@@ -12,8 +12,8 @@ describe('Applicants - search', () => {
   });
 
   it('searches applicants in search bar', () => {
-    cy.fixture('jobs.json').then(({ applicant }) => {
-      cy.searchApplicants(applicant.name);
-    });
+    cy.visitUserManagement();
+
+    cy.searchUsers('ien');
   });
 });
