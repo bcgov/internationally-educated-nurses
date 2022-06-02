@@ -91,9 +91,6 @@ export const ApplicantProfile = () => {
             }
           />
         </div>
-        <div className='col-span-12 sm:col-span-6 lg:col-span-3'>
-          <DetailsItem title='BCCNM License Number' text={applicant?.bccnm_license_number} />
-        </div>
       </div>
     </>
   );
