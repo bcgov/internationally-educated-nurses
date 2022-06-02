@@ -71,8 +71,9 @@ Cypress.Commands.add('editDuplicateJob', (job: IENApplicantJobCreateUpdateDTO) =
 });
 
 Cypress.Commands.add('addMilestone', (milestone: IENApplicantAddStatusDTO) => {
-  cy.get('form').find('#status').click({ force: true });
-  cy.get('#status').focus().type(`${milestone.status}{enter}`);
+  cy.get('#status').each(el => {
+    cy.wrap(el).type(`${milestone.status}{enter}`);
+  });
   cy.get('#start_date').focus().click().type(`${milestone.start_date}`);
   cy.get('#notes').click().clear().type(`${milestone.notes}`);
   if (milestone.reason) {
@@ -83,6 +84,7 @@ Cypress.Commands.add('addMilestone', (milestone: IENApplicantAddStatusDTO) => {
     cy.get('#effective_date').focus().click().type(`${milestone.effective_date}`);
   }
   cy.contains('button', 'Save Milestone').click();
+  cy.contains(milestone.status);
 });
 
 Cypress.Commands.add('changeRole', (role: string) => {
