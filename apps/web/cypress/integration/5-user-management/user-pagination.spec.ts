@@ -1,7 +1,7 @@
 /// <reference types="cypress" />
 /// <reference path="../../support/index.ts"/>
 
-describe('Applicants - search', () => {
+describe('Pagination', () => {
   beforeEach(() => {
     cy.visit('/');
     cy.login();
@@ -11,9 +11,9 @@ describe('Applicants - search', () => {
     cy.logout();
   });
 
-  it('searches applicants in search bar', () => {
+  it('user management pagination', () => {
     cy.visitUserManagement();
 
-    cy.searchUsers('ien');
+    cy.pagination();
   });
 });

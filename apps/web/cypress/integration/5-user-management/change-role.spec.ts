@@ -13,15 +13,12 @@ describe('User Management - change role', () => {
 
   it('changes an employees role', () => {
     cy.fixture('user-roles.json').then(({ roles }) => {
-      cy.contains('User Management');
-      cy.userManagement();
-      cy.get('h4').should('have.text', 'Manage user access and user roles');
+      cy.visitUserManagement();
 
-      cy.get('button:contains(Change Role)').each((el, index) => {
-        cy.wrap(roles[index]);
-        cy.wrap(el).click();
+      Cypress._.times(3, i => {
+        cy.get('button:contains(Change Role)').eq(i).click();
         cy.contains('h1', 'Approve Access Request');
-        cy.changeRole(roles[index].role);
+        cy.changeRole(roles[i].role);
       });
     });
   });

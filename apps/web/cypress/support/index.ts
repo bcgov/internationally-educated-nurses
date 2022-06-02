@@ -28,10 +28,11 @@ declare global {
       addDuplicateJob(job: IENApplicantJobCreateUpdateDTO): void;
       editDuplicateJob(job: IENApplicantJobCreateUpdateDTO): void;
       addMilestone(milestone: IENApplicantAddStatusDTO): void;
+      pagination(): void;
       visitDetails(applicantId: string): void;
       tabRecruitment(): void;
       changeRole(role: string): void;
-      userManagement(): void;
+      visitUserManagement(): void;
     }
   }
 }
