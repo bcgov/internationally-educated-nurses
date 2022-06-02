@@ -17,10 +17,6 @@ describe('Details - edit milestones', () => {
     });
   });
 
-  afterEach(() => {
-    cy.logout();
-  });
-
   it('edits a milestone', () => {
     cy.fixture('edit-milestone.json').then(milestone => {
       cy.get('#headlessui-disclosure-button-1').click();

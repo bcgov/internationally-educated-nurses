@@ -9,10 +9,6 @@ describe('Details - add jobs', () => {
     cy.login();
   });
 
-  afterEach(() => {
-    cy.logout();
-  });
-
   it('adds job competitions', () => {
     cy.fixture('jobs.json').then(({ applicant, jobs }) => {
       cy.visitDetails(applicant.id);

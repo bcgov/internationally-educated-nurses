@@ -7,10 +7,6 @@ describe('User Management - change role', () => {
     cy.login();
   });
 
-  afterEach(() => {
-    cy.logout();
-  });
-
   it('changes an employees role', () => {
     cy.fixture('user-roles.json').then(({ roles }) => {
       cy.contains('User Management');
