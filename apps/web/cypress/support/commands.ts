@@ -30,7 +30,7 @@ Cypress.Commands.add('logout', () => {
   cy.contains('Login');
 });
 
-Cypress.Commands.add('search', (name: string) => {
+Cypress.Commands.add('searchApplicants', (name: string) => {
   cy.contains('Manage Applicants');
 
   cy.get('input').type(name);
@@ -42,6 +42,15 @@ Cypress.Commands.add('search', (name: string) => {
   cy.get('div > span[class=my-auto]').contains(name).click();
 
   cy.contains(name);
+});
+
+Cypress.Commands.add('searchUsers', (name: string) => {
+  cy.get('input').eq(0).type(name);
+  // need this short delay to allow table to populate with correct data
+  cy.wait(1000);
+  cy.get('tbody > tr').each(el => {
+    cy.wrap(el).eq(0).find('td').eq(0).contains(name);
+  });
 });
 
 Cypress.Commands.add('addJob', (job: IENApplicantJobCreateUpdateDTO) => {

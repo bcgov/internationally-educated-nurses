@@ -12,8 +12,10 @@ describe('Applicants - search', () => {
   });
 
   it('searches applicants in search bar', () => {
-    cy.fixture('jobs.json').then(({ applicant }) => {
-      cy.searchApplicants(applicant.name);
-    });
+    cy.contains('User Management');
+    cy.userManagement();
+    cy.get('h4').should('have.text', 'Manage user access and user roles');
+
+    cy.searchUsers('test');
   });
 });

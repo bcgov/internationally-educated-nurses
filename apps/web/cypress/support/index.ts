@@ -22,7 +22,8 @@ declare global {
     interface Chainable {
       login(): Chainable<Element>;
       logout(): Chainable<Element>;
-      search(name: string): Chainable<Element>;
+      searchApplicants(name: string): Chainable<Element>;
+      searchUsers(name: string): Chainable<Element>;
       addJob(job: IENApplicantJobCreateUpdateDTO): void;
       addDuplicateJob(job: IENApplicantJobCreateUpdateDTO): void;
       editDuplicateJob(job: IENApplicantJobCreateUpdateDTO): void;
