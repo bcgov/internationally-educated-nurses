@@ -98,6 +98,7 @@ Cypress.Commands.add('addMilestone', (milestone: IENApplicantAddStatusDTO) => {
     cy.get('#effective_date').focus().click().type(`${milestone.effective_date}`);
   }
   cy.contains('button', 'Save Milestone').click();
+  cy.wait(500);
   cy.contains(milestone.status);
 });
 
