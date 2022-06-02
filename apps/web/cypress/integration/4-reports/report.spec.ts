@@ -11,6 +11,10 @@ describe('Report', () => {
     cy.contains('a', 'Reporting').click();
   });
 
+  after(() => {
+    cy.logout();
+  });
+
   it('lists report periods', () => {
     cy.contains('h1', 'Reporting');
     cy.get('tbody').find('tr').should('have.length', 10);
