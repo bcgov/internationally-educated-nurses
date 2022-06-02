@@ -7,6 +7,10 @@ describe('Applicants - search', () => {
     cy.login();
   });
 
+  afterEach(() => {
+    cy.logout();
+  });
+
   it('searches applicants in search bar', () => {
     cy.fixture('jobs.json').then(({ applicant }) => {
       cy.searchApplicants(applicant.name);

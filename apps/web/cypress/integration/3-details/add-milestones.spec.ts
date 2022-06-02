@@ -9,6 +9,10 @@ describe('Details - add milestones', () => {
     cy.login();
   });
 
+  afterEach(() => {
+    cy.logout();
+  });
+
   it('adds milestones', () => {
     cy.fixture('jobs.json').then(({ applicant, jobs }) => {
       cy.visitDetails(applicant.id);

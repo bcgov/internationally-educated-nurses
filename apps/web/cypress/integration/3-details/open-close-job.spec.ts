@@ -20,6 +20,10 @@ describe('Details - close/reopen a job', () => {
     });
   });
 
+  afterEach(() => {
+    cy.logout();
+  });
+
   it('closes a job competition by withdraw', () => {
     cy.fixture('open-close-job-milestone.json').then(({ withdraw }) => {
       cy.addMilestone(withdraw);
