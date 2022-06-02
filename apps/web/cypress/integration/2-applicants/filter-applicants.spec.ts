@@ -7,10 +7,6 @@ describe('Applicants - filter by tabs', () => {
     cy.login();
   });
 
-  afterEach(() => {
-    cy.logout();
-  });
-
   it('clicks each tab on main page table', () => {
     cy.visit('/');
     cy.contains('Manage Applicants');
