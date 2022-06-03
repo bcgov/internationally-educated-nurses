@@ -66,14 +66,15 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
   };
 
   const deleteMilestone = (id: string, jobId: string) => {
-    const job = applicant.jobs?.filter(j => jobId === j.id);
-    const toDelete = job && job[0].status_audit?.findIndex(m => m.id === id);
+    const job = applicant.jobs?.find(j => jobId === j.id);
+    if (job && job.status_audit) {
+      const toDelete = job.status_audit?.findIndex(m => m.id === id);
 
-    if (toDelete) {
-      job[0].status_audit?.splice(toDelete, 1);
+      if (toDelete !== undefined && toDelete >= 0) {
+        job.status_audit?.splice(toDelete, 1);
+      }
+      setApplicant({ ...applicant });
     }
-
-    setApplicant({ ...applicant });
   };
 
   const fetchApplicant = async (id: string) => {
