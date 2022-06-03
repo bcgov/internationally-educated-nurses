@@ -3,6 +3,7 @@ import {
   Body,
   ClassSerializerInterceptor,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -187,6 +188,28 @@ export class IENApplicantController {
         status_id,
         applicantStatus,
       );
+    } catch (e) {
+      throw this._handleStatusException(e);
+    }
+  }
+
+  @ApiOperation({
+    summary: 'Delete applicant milestone/status',
+  })
+  @UseInterceptors(ClassSerializerInterceptor)
+  @Delete('/:id/status/:status_id')
+  @RouteAcceptsRoles(ValidRoles.HEALTH_AUTHORITY, ValidRoles.HEALTH_MATCH)
+  async deleteApplicantStatus(
+    @Req() req: RequestObj,
+    @Param('id') _id: string,
+    @Param('status_id') status_id: string,
+  ): Promise<void> {
+    try {
+      this.logger.log(
+        `Delete milestone/status (${status_id}) on applicant (${_id}) requested by
+        userId (${req?.user.user_id})/ employeeId/loginId (${req?.user.id})`,
+      );
+      return this.ienapplicantService.deleteApplicantStatus(req?.user.user_id, status_id);
     } catch (e) {
       throw this._handleStatusException(e);
     }
