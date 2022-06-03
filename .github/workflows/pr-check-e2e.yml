@@ -1,4 +1,4 @@
-name: PR e2e Checks
+name: PR e2e & a11y Checks
 on:
   pull_request:
     paths:
@@ -55,3 +55,25 @@ jobs:
           TEST_POSTGRES_PASSWORD: 'password'
           TEST_POSTGRES_DATABASE: 'ien_test'
           TEST_POSTGRES_PORT: '5433'
+
+      - name: Accessibility Test web package
+        run: make accessibility-test
+
+      - name: generate markdown from test results
+        run: make generate-accessibility-results
+        if: ${{ failure() }}
+
+      - uses: actions/github-script@v3
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const fs = require('fs');
+            const comment = fs.readFileSync('./packages/accessibility/out/accessibility_results.md', 'utf8');
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            })
+        if: ${{ failure() }}
+

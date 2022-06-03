@@ -36,7 +36,7 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
         <tbody className='text-bcBlack'>
           {applicants &&
             !loading &&
-            applicants.map((app: ApplicantRO) => (
+            applicants.map((app: ApplicantRO, index) => (
               <tr
                 key={app.id}
                 className='text-left shadow-xs whitespace-nowrap even:bg-bcLightGray text-sm '
@@ -52,7 +52,10 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
                       query: { ...router?.query, id: app.id },
                     }}
                   >
-                    <a className={`px-4 ${buttonColor.outline} ${buttonBase} text-bcGray`}>
+                    <a
+                      className={`px-4 ${buttonColor.outline} ${buttonBase} text-bcGray`}
+                      id={`details-${index}`}
+                    >
                       Details
                     </a>
                   </Link>

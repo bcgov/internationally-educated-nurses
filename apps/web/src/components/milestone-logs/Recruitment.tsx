@@ -83,6 +83,7 @@ export const Recruitment: React.FC = () => {
           Record&rdquo; button to create a new job competition.
         </span>
         <button
+          id='add-record'
           className={`mr-2 ${buttonColor.secondary} ${buttonBase}`}
           onClick={() => setRecordModalVisible(true)}
         >

@@ -2,8 +2,9 @@
   "name": "@ien/accessibility",
   "packageManager": "yarn@3.1.0",
   "scripts": {
-    "accessibility-test": "echo 'Running accessiblity tests...' && pa11y-ci --config=./src/submission.pa11y-ci.js --json > out/submission_accessibility_results.json",
-    "generate-accessibility-results": "echo 'Generating markdown test output' && node src/generate-a11y-markdown out/submission_accessibility_results.json"
+    "start": "pa11y-ci --config ./src/pa11y-ci.js",
+    "accessibility-test": "echo 'Running accessiblity tests...' && pa11y-ci --config ./src/pa11y-ci.js --json > out/accessibility_results.json",
+    "generate-accessibility-results": "echo 'Generating markdown test output' && node src/generate-a11y-markdown out/accessibility_results.json"
   },
   "dependencies": {
     "npm-run-all": "4.1.5",

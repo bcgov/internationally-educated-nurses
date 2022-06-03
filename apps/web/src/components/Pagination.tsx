@@ -44,12 +44,13 @@ export const Pagination = (props: PaginationProps) => {
       <div className='px-3 border-r text-sm'>
         <select
           className='cursor-pointer p-3 outline-none'
-          role='select'
+          role='listbox'
+          aria-label='page size'
           value={pageSize}
           onChange={e => changePageSize(+e.target.value)}
         >
           {PAGE_SIZES.map(size => (
-            <option key={size} value={size}>
+            <option key={size} value={size} role='option'>
               {size}
             </option>
           ))}
@@ -63,7 +64,8 @@ export const Pagination = (props: PaginationProps) => {
       <div className='flex flex-row flex-grow justify-end align-middle'>
         <select
           className='border-l px-3 text-sm outline-none'
-          role='select'
+          role='listbox'
+          aria-label='page'
           value={pageIndex}
           onChange={e => goToPage(+e.target.value)}
           disabled={total <= pageSize}

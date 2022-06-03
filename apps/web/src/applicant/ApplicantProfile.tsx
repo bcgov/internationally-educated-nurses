@@ -25,7 +25,7 @@ export const ApplicantProfile = () => {
       <h1 className='font-bold text-3xl'>
         {applicant?.name} #{applicant?.applicant_id ? applicant.applicant_id : 'NA'}
       </h1>
-      <p className='text-gray-400 text-sm pt-1 pb-4'>
+      <p className='text-gray-600 text-sm pt-1 pb-4'>
         Last Updated: {formatDate(applicant?.updated_date)}
       </p>
       {/* Details container */}
