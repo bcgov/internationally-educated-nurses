@@ -2,17 +2,16 @@
 /// <reference path="../../support/index.ts"/>
 
 describe('Applicants - filter by tabs', () => {
-  beforeEach(() => {
+  before(() => {
     cy.visit('/');
     cy.login();
   });
 
-  afterEach(() => {
+  after(() => {
     cy.logout();
   });
 
   it('clicks each tab on main page table', () => {
-    cy.visit('/');
     cy.contains('Manage Applicants');
     cy.contains('button', 'Intake').click();
     cy.get('td').should('not.exist');

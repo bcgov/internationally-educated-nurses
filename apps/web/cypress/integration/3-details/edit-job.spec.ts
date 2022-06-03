@@ -4,12 +4,12 @@
 import dayjs from 'dayjs';
 
 describe('Details - edit job', () => {
-  beforeEach(() => {
+  before(() => {
     cy.visit('/');
     cy.login();
   });
 
-  afterEach(() => {
+  after(() => {
     cy.logout();
   });
 

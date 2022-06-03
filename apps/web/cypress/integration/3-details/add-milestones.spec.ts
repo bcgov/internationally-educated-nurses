@@ -4,12 +4,12 @@
 import { IENApplicantJobCreateUpdateDTO } from '@ien/common';
 
 describe('Details - add milestones', () => {
-  beforeEach(() => {
+  before(() => {
     cy.visit('/');
     cy.login();
   });
 
-  afterEach(() => {
+  after(() => {
     cy.logout();
   });
 

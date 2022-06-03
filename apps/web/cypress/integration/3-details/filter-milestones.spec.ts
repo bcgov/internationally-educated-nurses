@@ -6,16 +6,20 @@ import { ApplicantRO } from '@ien/common';
 describe('Details - filter milestones by tabs', () => {
   let applicant: ApplicantRO;
 
-  beforeEach(() => {
+  before(() => {
     cy.visit('/');
     cy.login();
+  });
+
+  beforeEach(() => {
+    cy.visit('/');
     cy.fixture('jobs.json').then(data => {
       applicant = data.applicant;
       cy.visitDetails(applicant.id);
     });
   });
 
-  afterEach(() => {
+  after(() => {
     cy.logout();
   });
 

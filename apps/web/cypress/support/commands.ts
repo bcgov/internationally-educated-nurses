@@ -1,19 +1,10 @@
-// ***********************************************
-// This example commands.js shows you how to
-// create various custom commands and overwrite
-// existing commands.
-//
-// For more comprehensive examples of custom
-// commands please read more here:
-// https://on.cypress.io/custom-commands
-// ***********************************************
-//
-//
-// -- This is a parent command --
 import { IENApplicantAddStatusDTO, IENApplicantJobCreateUpdateDTO } from '@ien/common';
+import { addCustomCommand } from 'cy-verify-downloads';
+
+addCustomCommand();
 
 Cypress.Commands.add('login', () => {
-  cy.contains('Login');
+  cy.contains('Login', { timeout: 60000 });
   cy.get('button').click();
   if (Cypress.env('realm') === 'moh_applications') {
     cy.get('li').contains('Login with Keycloak').click();
@@ -21,7 +12,7 @@ Cypress.Commands.add('login', () => {
   cy.get('#username').type(Cypress.env('username'));
   cy.get('#password').type(Cypress.env('password'));
   cy.get('#kc-login').click();
-  cy.get('button').contains(Cypress.env('username'), { timeout: 60000 });
+  cy.contains('button', Cypress.env('username'), { timeout: 60000 });
 });
 
 Cypress.Commands.add('logout', () => {
@@ -89,10 +80,12 @@ Cypress.Commands.add('editDuplicateJob', (job: IENApplicantJobCreateUpdateDTO) =
 });
 
 Cypress.Commands.add('addMilestone', (milestone: IENApplicantAddStatusDTO) => {
-  cy.get('form').find('#status').click({ force: true });
-  cy.get('#status').focus().type(`${milestone.status}{enter}`);
   cy.get('#start_date').focus().click().type(`${milestone.start_date}`);
   cy.get('#notes').click().clear().type(`${milestone.notes}`);
+  cy.get('form').find('#status').click({ force: true });
+  cy.get('#status').each(el => {
+    cy.wrap(el).focus().wait(100).type(`${milestone.status}{enter}`);
+  });
   if (milestone.reason) {
     cy.get('form').find('#reason').click({ force: true });
     cy.get('#reason').click().type(`${milestone.reason}{enter}`);
@@ -101,6 +94,8 @@ Cypress.Commands.add('addMilestone', (milestone: IENApplicantAddStatusDTO) => {
     cy.get('#effective_date').focus().click().type(`${milestone.effective_date}`);
   }
   cy.contains('button', 'Save Milestone').click();
+  cy.wait(500);
+  cy.contains(milestone.status);
 });
 
 Cypress.Commands.add('changeRole', (role: string) => {

@@ -8,9 +8,13 @@ describe('Details - close/reopen a job', () => {
   let applicant: ApplicantRO;
   let jobs: IENApplicantJobCreateUpdateDTO[];
 
-  beforeEach(() => {
+  before(() => {
     cy.visit('/');
     cy.login();
+  });
+
+  beforeEach(() => {
+    cy.visit('/');
     cy.fixture('jobs.json').then(data => {
       applicant = data.applicant;
       jobs = data.jobs;
@@ -20,7 +24,7 @@ describe('Details - close/reopen a job', () => {
     });
   });
 
-  afterEach(() => {
+  after(() => {
     cy.logout();
   });
 
