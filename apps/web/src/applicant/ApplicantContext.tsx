@@ -18,9 +18,11 @@ export const ApplicantContext = createContext<{
   currentTab: number;
   setCurrentTab: (index: number) => void;
   updateJob: (job: ApplicantJobRO) => void;
+  deleteMilestone: (milestoneId: string, jobId: string) => void;
 }>({
   setCurrentTab: () => void 0,
   updateJob: () => void 0,
+  deleteMilestone: () => void 0,
   applicant: {} as ApplicantRO,
   milestones: [],
   currentTab: 0,
@@ -63,6 +65,17 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
     setApplicant({ ...applicant });
   };
 
+  const deleteMilestone = (id: string, jobId: string) => {
+    const job = applicant.jobs?.filter(j => jobId === j.id);
+    const toDelete = job && job[0].status_audit?.findIndex(m => m.id === id);
+
+    if (toDelete) {
+      job[0].status_audit?.splice(toDelete, 1);
+    }
+
+    setApplicant({ ...applicant });
+  };
+
   const fetchApplicant = async (id: string) => {
     setLoading(true);
     const applicantData = await getApplicant(id);
@@ -84,6 +97,7 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
     currentTab,
     setCurrentTab,
     updateJob,
+    deleteMilestone,
   };
   return (
     <ApplicantContext.Provider value={value}>

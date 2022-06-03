@@ -37,6 +37,17 @@ export const getApplicant = async (id: string): Promise<ApplicantRO | undefined>
     notifyError(e as AxiosError);
   }
 };
+//async deleteApplicantStatus(user_id: number | null, status_id: string): Promise<void>
+export const deleteApplicantStatus = async (
+  user_id?: number,
+  status_id?: string,
+): Promise<void> => {
+  try {
+    await axios.delete(`/ien/${user_id}/status/${status_id}`);
+  } catch (e) {
+    notifyError(e as AxiosError);
+  }
+};
 
 // currently unused
 export const updateApplicant = async (id: string, applicant: IENApplicantCreateUpdateDTO) => {

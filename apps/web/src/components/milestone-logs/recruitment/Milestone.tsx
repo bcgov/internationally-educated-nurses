@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import createValidator from 'class-validator-formik';
 import dayjs from 'dayjs';
 import { Formik, Form as FormikForm, FormikHelpers, FieldProps } from 'formik';
@@ -24,7 +24,11 @@ import addIcon from '@assets/img/add.svg';
 import editIcon from '@assets/img/edit.svg';
 import calendarIcon from '@assets/img/calendar.svg';
 import userIcon from '@assets/img/user.svg';
+import deleteIcon from '@assets/img/trash_can.svg';
+import disabledDeleteIcon from '@assets/img/disabled-trash_can.svg';
 import { useApplicantContext } from '../../../applicant/ApplicantContext';
+import { useAuthContext } from 'src/components/AuthContexts';
+import { DeleteMilestoneModal } from 'src/components/display/DeleteMilestoneModal';
 
 type MilestoneFormValues = IENApplicantAddStatusDTO | IENApplicantUpdateStatusDTO;
 
@@ -75,10 +79,27 @@ interface EditMilestoneProps {
   onEditing: (editing: ApplicantStatusAuditRO | null) => void;
 }
 
-// Edit milestone comp *** currently unsure if this will be included moving forward
 export const EditMilestone: React.FC<EditMilestoneProps> = props => {
-  const { job, milestone, handleSubmit, editing, onEditing } = props;
+  const { deleteMilestone } = useApplicantContext();
 
+  const { job, milestone, handleSubmit, editing, onEditing } = props;
+  const { authUser } = useAuthContext();
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+
+  const canDelete = (loggedInId: number | undefined, addedById: number | undefined) => {
+    if (loggedInId !== addedById) {
+      return false;
+    }
+    return true;
+  };
+
+  const handleDeleteMilestone = (milestoneId?: string) => {
+    setDeleteModalVisible(false);
+
+    if (milestoneId) {
+      deleteMilestone(milestoneId, job.id);
+    }
+  };
   return (
     <>
       {editing !== milestone ? (
@@ -107,17 +128,32 @@ export const EditMilestone: React.FC<EditMilestoneProps> = props => {
                 </>
               )}
               <button
-                className='ml-auto mr-1'
+                className='ml-auto mr-2'
                 onClick={() => onEditing(milestone)}
                 disabled={!!editing && milestone === editing}
               >
                 <img src={editIcon.src} alt='edit milestone' />
               </button>
+              {canDelete(authUser && authUser?.user_id, milestone.added_by?.id) ? (
+                <button onClick={() => setDeleteModalVisible(true)}>
+                  <img src={deleteIcon.src} alt='delete milestone' />
+                </button>
+              ) : (
+                <button className='pointer-events-none'>
+                  <img src={disabledDeleteIcon.src} alt='delete milestone' />
+                </button>
+              )}
             </div>
             <span className='text-sm text-black break-words'>
               {milestone.notes ? milestone.notes : 'No Notes Added'}
             </span>
           </div>
+          <DeleteMilestoneModal
+            onClose={handleDeleteMilestone}
+            visible={deleteModalVisible}
+            userId={authUser?.user_id}
+            milestoneId={milestone.id}
+          />
         </div>
       ) : (
         <>
