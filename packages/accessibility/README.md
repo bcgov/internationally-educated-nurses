@@ -4,7 +4,7 @@ This package handles automated accessibility using the [axe test runner](https:/
 
 Run tests with `yarn accessibility-test` from this directory or with `yarn workspace @ien/accessibility accessibility-test` from the root directory.
 
-Screenshots will be output into `/screenCaptures` for each tested page.
+Screenshots will be output into `/captures` for each tested page.
 
 ## Chrome extension
 

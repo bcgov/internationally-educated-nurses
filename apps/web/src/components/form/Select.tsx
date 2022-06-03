@@ -16,7 +16,7 @@ export const Select: React.FC<FieldProps> = props => {
       description={description}
       disabled={disabled}
       as='select'
-      role='select'
+      role='listbox'
     >
       <option value={''} key={''} className='hidden' role='option'></option>
       {children}

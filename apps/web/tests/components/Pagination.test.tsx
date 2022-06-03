@@ -11,7 +11,7 @@ describe('Pagination', () => {
 
     render(<Pagination pageOptions={{ pageIndex, pageSize, total }} onChange={mock} />);
 
-    const elements = screen.getAllByRole('select');
+    const elements = screen.getAllByRole('listbox');
     expect(elements.length).toBe(2);
 
     const pageSizeOption = screen.getByRole('option', { name: `${pageSize}` });

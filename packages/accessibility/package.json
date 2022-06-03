@@ -3,7 +3,7 @@
   "packageManager": "yarn@3.1.0",
   "scripts": {
     "start": "pa11y-ci --config ./src/pa11y-ci.js",
-    "accessibility-test": "echo 'Running accessiblity tests...' && pa11y-ci --config ./src/pa11y-ci.js --json > out/accessibility_results.json",
+    "accessibility-test": "echo 'Running accessiblity tests...' && pa11y-ci --config ./src/pa11y-ci.js",
     "generate-accessibility-results": "echo 'Generating markdown test output' && node src/generate-a11y-markdown out/accessibility_results.json"
   },
   "dependencies": {

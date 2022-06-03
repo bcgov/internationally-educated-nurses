@@ -2,6 +2,9 @@
   "name": "ien",
   "private": true,
   "description": "IEN app packages",
+  "engines": {
+    "node": "16.15.1"
+  },
   "scripts": {
     "format:staged": "yarn pretty-quick --staged",
     "format:check": "yarn prettier --check .",
@@ -18,10 +21,13 @@
     "start:api:local": "yarn workspace @ien/api start:local",
     "start:web:local": "yarn workspace @ien/web start",
     "start:local": "run-p 'start:api:local' 'start:web:local'",
-    "test": "echo 'Running tests' && wsrun --parallel --exclude-missing test",
-    "test:e2e": "start-test 'start:local' http://localhost:3000 'start:cypress'",
     "start:cypress": "yarn workspace @ien/web cypress",
-    "open:cypress": "yarn workspace @ien/web open:cypress"
+    "open:cypress": "yarn workspace @ien/web open:cypress",
+    "test": "echo 'Running tests' && wsrun --parallel --exclude-missing test",
+    "test:web": "yarn start:cypress && yarn test:pa11y",
+    "test:e2e": "start-test 'start:local' http://localhost:3000 'start:cypress'",
+    "test:pa11y": "yarn workspace @ien/accessibility start",
+    "test:web:all": "start-test 'start:local' http://localhost:3000 'test:web'"
   },
   "workspaces": [
     "packages/*",
