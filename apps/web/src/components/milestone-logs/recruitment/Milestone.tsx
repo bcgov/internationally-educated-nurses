@@ -97,6 +97,18 @@ export const EditMilestone: React.FC<EditMilestoneProps> = props => {
       deleteMilestone(milestoneId, job.id);
     }
   };
+
+  const deleteButton = () => {
+    return canDelete(authUser && authUser?.user_id, milestone.added_by?.id) ? (
+      <button onClick={() => setDeleteModalVisible(true)}>
+        <img src={deleteIcon.src} alt='delete milestone' />
+      </button>
+    ) : (
+      <button className='pointer-events-none'>
+        <img src={disabledDeleteIcon.src} alt='delete milestone' />
+      </button>
+    );
+  };
   return (
     <>
       {editing !== milestone ? (
@@ -131,15 +143,7 @@ export const EditMilestone: React.FC<EditMilestoneProps> = props => {
               >
                 <img src={editIcon.src} alt='edit milestone' />
               </button>
-              {canDelete(authUser && authUser?.user_id, milestone.added_by?.id) ? (
-                <button onClick={() => setDeleteModalVisible(true)}>
-                  <img src={deleteIcon.src} alt='delete milestone' />
-                </button>
-              ) : (
-                <button className='pointer-events-none'>
-                  <img src={disabledDeleteIcon.src} alt='delete milestone' />
-                </button>
-              )}
+              {deleteButton()}
             </div>
             <span className='text-sm text-black break-words'>
               {milestone.notes ? milestone.notes : 'No Notes Added'}

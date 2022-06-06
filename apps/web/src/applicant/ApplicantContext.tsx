@@ -65,10 +65,10 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
     setApplicant({ ...applicant });
   };
 
-  const deleteMilestone = (id: string, jobId: string) => {
+  const deleteMilestone = (milestoneId: string, jobId: string) => {
     const job = applicant.jobs?.find(j => jobId === j.id);
     if (job && job.status_audit) {
-      const toDelete = job.status_audit?.findIndex(m => m.id === id);
+      const toDelete = job.status_audit?.findIndex(m => m.id === milestoneId);
 
       if (toDelete !== undefined && toDelete >= 0) {
         job.status_audit?.splice(toDelete, 1);
