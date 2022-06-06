@@ -108,6 +108,8 @@ export const Record: React.FC<RecordProps> = ({ job, expandRecord }) => {
             <div className='flex justify-between'>
               <span className='text-sm text-black '>
                 {job_title?.title ? job_title?.title : 'N/A'}
+                &nbsp;|&nbsp;Recruiter Name:&nbsp;
+                {job.recruiter_name}
               </span>
               <span className='text-xs text-black mr-3 capitalize'>
                 {milestones && milestones.length > 0 && getMilestoneDuration()}
