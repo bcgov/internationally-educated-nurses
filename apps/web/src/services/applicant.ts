@@ -37,7 +37,7 @@ export const getApplicant = async (id: string): Promise<ApplicantRO | undefined>
     notifyError(e as AxiosError);
   }
 };
-//async deleteApplicantStatus(user_id: number | null, status_id: string): Promise<void>
+
 export const deleteApplicantStatus = async (
   user_id?: number,
   status_id?: string,

@@ -87,10 +87,7 @@ export const EditMilestone: React.FC<EditMilestoneProps> = props => {
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
   const canDelete = (loggedInId: number | undefined, addedById: number | undefined) => {
-    if (loggedInId !== addedById) {
-      return false;
-    }
-    return true;
+    return loggedInId && loggedInId === addedById;
   };
 
   const handleDeleteMilestone = (milestoneId?: string) => {
