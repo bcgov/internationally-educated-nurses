@@ -40,6 +40,10 @@ export class ExternalRequest {
     return this.getData(`/Reason`);
   }
 
+  async getDepartment() {
+    return this.getData(`/department`);
+  }
+
   async getMilestone() {
     return this.getData(`/Milestone`);
   }

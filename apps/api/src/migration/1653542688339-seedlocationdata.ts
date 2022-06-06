@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class Seedlocationdata1653542688334 implements MigrationInterface {
-  name = 'seedlocationdata1653542688334';
+export class Seedlocationdata1653542688339 implements MigrationInterface {
+  name = 'seedlocationdata1653542688339';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
