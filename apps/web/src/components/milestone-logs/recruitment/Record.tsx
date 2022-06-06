@@ -109,7 +109,7 @@ export const Record: React.FC<RecordProps> = ({ job, expandRecord }) => {
               <span className='text-sm text-black '>
                 {job_title?.title ? job_title?.title : 'N/A'}
                 &nbsp;|&nbsp;Recruiter Name:&nbsp;
-                {job.recruiter_name ? job.recruiter_name : 'N/A'}
+                {job.recruiter_name}
               </span>
               <span className='text-xs text-black mr-3 capitalize'>
                 {milestones && milestones.length > 0 && getMilestoneDuration()}
