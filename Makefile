@@ -186,7 +186,7 @@ run-test-apps:
 	NODE_ENV=test yarn start:local
 	@echo "++\n*****"
 
-web-integration-test:
+test-e2e:
 	@make start-test-db
 	@echo "++\n***** Running Web integration tests\n++"
 	@yarn build
@@ -194,9 +194,17 @@ web-integration-test:
 	@make stop-test-db
 	@echo "++\n*****"
 
-accessibility-test:
+test-web:
+	@make start-test-db
+	@yarn build
+	@echo "++\n***** Running Web integration tests\n++"
+	@NODE_ENV=test yarn test:web:all
+	@make stop-test-db
+	@echo "++\n*****"
+
+test-pa11y:
 	@echo "++\n***** Running front end accessibility tests\n++"
-	@yarn workspace @ien/accessibility accessibility-test
+	@yarn test:pa11y
 	@echo "++\n*****"
 
 generate-accessibility-results:

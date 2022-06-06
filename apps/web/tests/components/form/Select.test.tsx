@@ -15,7 +15,7 @@ describe('Select', () => {
       </Formik>,
     );
 
-    const selectElement = screen.getByRole('combobox');
+    const selectElement = screen.getByRole('listbox');
 
     expect(selectElement).toBeInTheDocument();
   });
@@ -33,7 +33,7 @@ describe('Select', () => {
     );
 
     const labelElement = screen.getByText('select label');
-    const selectElement = screen.getByRole('combobox');
+    const selectElement = screen.getByRole('listbox');
 
     expect(labelElement).toBeInTheDocument();
     expect(selectElement).toHaveAccessibleName(selectLabel);
@@ -56,7 +56,7 @@ describe('Select', () => {
         />
       </Formik>,
     );
-    const selectElement = screen.getByRole('combobox');
+    const selectElement = screen.getByRole('listbox');
     const descriptionElement = screen.getByText('field format description');
 
     expect(descriptionElement).toBeInTheDocument();

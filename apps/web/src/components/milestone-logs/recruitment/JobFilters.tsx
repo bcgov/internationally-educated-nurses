@@ -32,6 +32,7 @@ export const JobFilters = ({ options, update }: JobFilterProps) => {
       <ReactSelect
         inputId='ha'
         placeholder='Health Region'
+        aria-label='select ha'
         value={haPcn?.data?.filter(ha => regions?.includes(ha.id))}
         onChange={value => applyRegions(value?.map(ha => ha.id) || [])}
         options={haPcn?.data?.map(ha => ({ ...ha, isDisabled: regions?.includes(ha.id) }))}
@@ -45,6 +46,7 @@ export const JobFilters = ({ options, update }: JobFilterProps) => {
       <ReactSelect
         inputId='specialty'
         placeholder='Specialty'
+        aria-label='select specialty'
         value={jobTitle?.data?.filter(title => specialties?.includes(title.id))}
         onChange={value => applySpecialties(value?.map(title => title.id) || [])}
         options={jobTitle?.data?.map(title => ({

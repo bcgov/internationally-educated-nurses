@@ -1,17 +1,17 @@
 /// <reference types="cypress" />
 /// <reference path="../../support/index.ts"/>
 
-describe('Applicants - search', () => {
-  beforeEach(() => {
+describe('Users - search', () => {
+  before(() => {
     cy.visit('/');
     cy.login();
   });
 
-  afterEach(() => {
+  after(() => {
     cy.logout();
   });
 
-  it('searches applicants in search bar', () => {
+  it('searches users in search bar', () => {
     cy.visitUserManagement();
 
     cy.searchUsers('ien');
