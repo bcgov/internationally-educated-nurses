@@ -1,6 +1,7 @@
 import { PageOptions, Pagination } from '../Pagination';
 import { useEffect, useState } from 'react';
 import { ApplicantStatusAuditRO, formatDate } from '@ien/common';
+import { getHumanizedDuration } from '@services';
 
 interface MilestoneTableProps {
   milestones: ApplicantStatusAuditRO[];
@@ -27,11 +28,11 @@ export const MilestoneTable = ({ milestones }: MilestoneTableProps) => {
     setPageIndex(options.pageIndex);
   };
 
-  const getMilestone = (audit: ApplicantStatusAuditRO) => {
-    const { status } = audit.status;
+  const getStatus = (milestone: ApplicantStatusAuditRO) => {
+    const { status } = milestone.status;
     if (!status) return '';
 
-    const label = audit.status.party || '-';
+    const label = milestone.status.party || '-';
 
     return (
       <div className='flex flex-row'>
@@ -39,6 +40,18 @@ export const MilestoneTable = ({ milestones }: MilestoneTableProps) => {
         <div className='text-ellipsis overflow-hidden ...'>{status}</div>
       </div>
     );
+  };
+
+  const getDuration = (milestone: ApplicantStatusAuditRO): string => {
+    const start = milestone.start_date;
+    let end = milestone.end_date;
+    if (!end) {
+      const nextMilestone = milestones.filter(m => m.status.id > milestone.status.id)[0];
+      if (nextMilestone) {
+        end = nextMilestone.start_date;
+      }
+    }
+    return getHumanizedDuration(start, end);
   };
 
   return (
@@ -60,10 +73,10 @@ export const MilestoneTable = ({ milestones }: MilestoneTableProps) => {
                 key={audit.id}
                 className='text-left text-sm even:bg-bcLightGray shadow-xs whitespace-nowrap'
               >
-                <td className='pl-8 py-5 max-w-xs'>{getMilestone(audit)}</td>
+                <td className='pl-8 py-5 max-w-xs'>{getStatus(audit)}</td>
                 <td className='px-4'>{formatDate(audit.start_date || '')}</td>
                 <td className='px-4'>{formatDate(audit.end_date || '')}</td>
-                <td className='px-4'></td>
+                <td className='px-4'>{getDuration(audit)}</td>
               </tr>
             ))}
           </tbody>
