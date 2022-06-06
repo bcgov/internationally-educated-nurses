@@ -12,6 +12,7 @@ import { IENApplicantStatus } from './entity/ienapplicant-status.entity';
 import { getMilestoneCategory } from 'src/common/util';
 import { IENApplicantStatusAudit } from './entity/ienapplicant-status-audit.entity';
 import { IENApplicantUtilService } from './ienapplicant.util.service';
+import { IENJobTitle } from './entity/ienjobtitles.entity';
 
 @Injectable()
 export class ExternalAPIService {
@@ -33,6 +34,8 @@ export class ExternalAPIService {
     private readonly ienApplicantStatusRepository: Repository<IENApplicantStatus>,
     @InjectRepository(IENApplicantStatusAudit)
     private readonly ienapplicantStatusAuditRepository: Repository<IENApplicantStatusAudit>,
+    @InjectRepository(IENJobTitle)
+    private readonly ienJobTitleRepository: Repository<IENJobTitle>,
   ) {}
 
   /**
@@ -42,9 +45,10 @@ export class ExternalAPIService {
     const ha = this.saveHa();
     const users = this.saveUsers();
     const reasons = this.saveReasons();
+    const departments = this.saveDepartments();
     const milestones = this.saveMilestones();
 
-    await Promise.all([ha, users, reasons, milestones]).then(res => {
+    await Promise.all([ha, users, reasons, departments, milestones]).then(res => {
       this.logger.log(`Response: ${res}`);
       this.logger.log(`Master tables imported at ${new Date()}`);
     });
@@ -106,6 +110,27 @@ export class ExternalAPIService {
       }
     } catch (e) {
       this.logger.log(`Error in saveReasons(): ${e}`);
+    }
+  }
+
+  /**
+   * Collect Job-competition department data from <domain>/department Url.
+   * and Save in ien_job_titles table in database for department reference.
+   */
+  async saveDepartments(): Promise<void> {
+    try {
+      const data = await this.external_request.getDepartment();
+      if (Array.isArray(data)) {
+        const listDepartments = data.map(item => {
+          return {
+            id: item.id,
+            title: item.name,
+          };
+        });
+        await this.ienJobTitleRepository.upsert(listDepartments, ['id']);
+      }
+    } catch (e) {
+      this.logger.log(`Error in saveDepartments(): ${e}`);
     }
   }
 
