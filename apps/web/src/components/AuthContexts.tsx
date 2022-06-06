@@ -11,6 +11,7 @@ export interface UserType {
   keycloakId: string;
   createdDate: Date;
   role: ValidRoles;
+  user_id: number;
 }
 
 const AuthContext = React.createContext<{

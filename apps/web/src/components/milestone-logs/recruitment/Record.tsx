@@ -49,7 +49,7 @@ export const Record: React.FC<RecordProps> = ({ job, expandRecord }) => {
   useEffect(() => {
     setMilestones(getSortedMilestones());
     // eslint-disable-next-line
-  }, [job]);
+  }, [applicant, job]);
 
   // set status for Record, returns in ASC, need to grab last item in array
   const getRecordStatus = () => {
