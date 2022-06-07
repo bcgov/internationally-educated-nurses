@@ -82,7 +82,11 @@ export class IENMasterService {
   }
 
   async getStatusReasons(): Promise<IENStatusReason[]> {
+    /** MVP scope: We are only handling recruitment-related withdrawal reasons. */
     return this.ienStatusReasonRepository.find({
+      where: {
+        recruitment: true,
+      },
       order: {
         name: 'ASC',
       },
