@@ -27,11 +27,9 @@ describe('Details - delete milestone', () => {
       cy.get('#headlessui-disclosure-button-1').click();
       cy.get('[alt="delete milestone"]').eq(0).should('exist').click();
       cy.contains('button', 'Yes').click();
-      cy.wait(4000);
       cy.contains(`${milestoneToDelete.status}`).should('not.exist');
       cy.contains(/^first milestone$/).should('not.exist');
       cy.contains(dayjs(milestoneToDelete.start_date).format('MMM DD, YYYY')).should('not.exist');
     });
-    cy.wait(5000);
   });
 });
