@@ -3,7 +3,7 @@ import { addCustomCommand } from 'cy-verify-downloads';
 
 addCustomCommand();
 
-Cypress.Commands.add('login', () => {
+Cypress.Commands.add('login', (username?: string) => {
   cy.session(Cypress.env('username'), () => {
     cy.visit('/');
     cy.contains('Login', { timeout: 60000 });
@@ -11,7 +11,7 @@ Cypress.Commands.add('login', () => {
     if (Cypress.env('realm') === 'moh_applications') {
       cy.get('li').contains('Login with Keycloak').click();
     }
-    cy.get('#username').type(Cypress.env('username'));
+    cy.get('#username').type(username ? username : Cypress.env('username'));
     cy.get('#password').type(Cypress.env('password'));
     cy.get('#kc-login').click();
     cy.contains('button', Cypress.env('username'), { timeout: 60000 });

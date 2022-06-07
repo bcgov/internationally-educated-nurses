@@ -105,7 +105,7 @@ export const EditMilestone: React.FC<EditMilestoneProps> = props => {
       </button>
     ) : (
       <button className='pointer-events-none'>
-        <img src={disabledDeleteIcon.src} alt='delete milestone' />
+        <img src={disabledDeleteIcon.src} alt='disabled delete milestone' />
       </button>
     );
   };

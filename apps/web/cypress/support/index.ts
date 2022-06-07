@@ -20,7 +20,7 @@ import { IENApplicantAddStatusDTO, IENApplicantJobCreateUpdateDTO } from '@ien/c
 declare global {
   namespace Cypress {
     interface Chainable {
-      login(): Chainable<Element>;
+      login(username?: string): Chainable<Element>;
       logout(): Chainable<Element>;
       searchApplicants(name: string): Chainable<Element>;
       searchUsers(name: string): Chainable<Element>;
