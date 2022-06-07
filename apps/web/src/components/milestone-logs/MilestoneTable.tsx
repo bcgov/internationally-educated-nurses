@@ -2,26 +2,44 @@ import { PageOptions, Pagination } from '../Pagination';
 import { useEffect, useState } from 'react';
 import { ApplicantStatusAuditRO, formatDate } from '@ien/common';
 import { getHumanizedDuration } from '@services';
+import { useApplicantContext } from '../../applicant/ApplicantContext';
 
 interface MilestoneTableProps {
-  milestones: ApplicantStatusAuditRO[];
+  parentStatus: number;
 }
 
 const DEFAULT_TAB_PAGE_SIZE = 5;
 
-export const MilestoneTable = ({ milestones }: MilestoneTableProps) => {
-  const [audits, setAudits] = useState<ApplicantStatusAuditRO[]>([]);
+export const MilestoneTable = ({ parentStatus }: MilestoneTableProps) => {
+  const { milestones } = useApplicantContext();
+
+  const [filteredMilestones, setFilteredMilestones] = useState<ApplicantStatusAuditRO[]>([]);
+  const [milestonesInPage, setMilestonesInPage] = useState<ApplicantStatusAuditRO[]>([]);
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_TAB_PAGE_SIZE);
 
-  useEffect(() => {
-    if (!milestones || (pageIndex - 1) * pageSize > milestones.length) {
-      setPageIndex(1);
-    }
-    const start = (pageIndex - 1) * pageSize;
-    const end = pageIndex * pageSize;
-    setAudits(milestones?.slice(start, end) || []);
-  }, [milestones, pageIndex, pageSize]);
+  useEffect(
+    function filterMilestones() {
+      const audits =
+        milestones?.filter(audit => {
+          return audit.status.parent?.id === parentStatus;
+        }) || [];
+      setFilteredMilestones(audits);
+    },
+    [milestones, parentStatus],
+  );
+
+  useEffect(
+    function updateMilestonesInPage() {
+      if (!filteredMilestones || (pageIndex - 1) * pageSize > filteredMilestones.length) {
+        setPageIndex(1);
+      }
+      const start = (pageIndex - 1) * pageSize;
+      const end = pageIndex * pageSize;
+      setMilestonesInPage(filteredMilestones?.slice(start, end) || []);
+    },
+    [filteredMilestones, pageIndex, pageSize],
+  );
 
   const handlePageOptions = (options: PageOptions) => {
     setPageSize(options.pageSize);
@@ -68,7 +86,7 @@ export const MilestoneTable = ({ milestones }: MilestoneTableProps) => {
             </tr>
           </thead>
           <tbody className='text-bcBlack'>
-            {audits.map(audit => (
+            {milestonesInPage.map(audit => (
               <tr
                 key={audit.id}
                 className='text-left text-sm even:bg-bcLightGray shadow-xs whitespace-nowrap'

@@ -15,17 +15,13 @@ import { ApplicantJobRO } from '@ien/common/src/ro/applicant.ro';
 export const ApplicantContext = createContext<{
   applicant: ApplicantRO;
   milestones: ApplicantStatusAuditRO[];
-  currentTab: number;
-  setCurrentTab: (index: number) => void;
   updateJob: (job: ApplicantJobRO) => void;
   deleteMilestone: (milestoneId: string, jobId: string) => void;
 }>({
-  setCurrentTab: () => void 0,
   updateJob: () => void 0,
   deleteMilestone: () => void 0,
   applicant: {} as ApplicantRO,
   milestones: [],
-  currentTab: 0,
 });
 
 export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) => {
@@ -33,24 +29,13 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
   const id = router.query.id as string;
 
   const [loading, setLoading] = useState(true);
-  const [currentTab, setCurrentTab] = useState(0);
   const [applicant, setApplicant] = useState<ApplicantRO>({} as ApplicantRO);
   const [milestones, setMilestones] = useState<ApplicantStatusAuditRO[]>([]);
 
-  useEffect(() => {
-    const audits =
-      applicant?.applicant_status_audit?.filter(audit => {
-        return audit.status.parent?.id === 10000 + currentTab;
-      }) || [];
-    setMilestones(audits);
-  }, [applicant, currentTab]);
-
-  const selectDefaultLandingTab = (status_id?: number) => {
-    if (currentTab) return;
-    const index = status_id ? +`${status_id}`.charAt(0) : 1;
-    if (index !== currentTab) {
-      setCurrentTab(index);
-    }
+  const sortMilestones = (audits: ApplicantStatusAuditRO[]): ApplicantStatusAuditRO[] => {
+    return audits.sort((a, b) => {
+      return (a.start_date || 0) > (b.start_date || 0) ? 1 : -1;
+    });
   };
 
   const updateJob = (job: ApplicantJobRO) => {
@@ -82,8 +67,8 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
     const applicantData = await getApplicant(id);
     if (applicantData) {
       setApplicant(applicantData);
+      setMilestones(sortMilestones(applicant.applicant_status_audit || []));
     }
-    selectDefaultLandingTab(applicantData?.status?.id);
 
     setLoading(false);
   };
@@ -95,8 +80,6 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
   const value = {
     applicant,
     milestones,
-    currentTab,
-    setCurrentTab,
     updateJob,
     deleteMilestone,
   };
