@@ -83,7 +83,7 @@ const Reporting = () => {
         All the reports are generated based on period. Available reports begin from April 1, 2021
       </p>
       <div className='bg-white p-5'>
-        <div className='opacity-50 mb-7'>{`Showing ${periods.length} reports`}</div>
+        <div className='opacity-60 mb-7'>{`Showing ${periods.length} reports`}</div>
 
         <Pagination
           pageOptions={{ pageIndex, pageSize: limit, total }}

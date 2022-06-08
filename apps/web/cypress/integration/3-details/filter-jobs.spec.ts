@@ -11,17 +11,17 @@ describe('Details - filter jobs', () => {
   before(() => {
     cy.visit('/');
     cy.login();
-  });
-
-  beforeEach(() => {
-    cy.visit('/');
     cy.fixture('jobs.json').then(data => {
       applicant = data.applicant;
       jobs = data.jobs;
       job = jobs[3];
-      cy.visitDetails(applicant.id);
-      cy.tabRecruitment();
     });
+  });
+
+  beforeEach(() => {
+    cy.visit('/');
+    cy.visitDetails(applicant.id);
+    cy.tabRecruitment();
   });
 
   after(() => {

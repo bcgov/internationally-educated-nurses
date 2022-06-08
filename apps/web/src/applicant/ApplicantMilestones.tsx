@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 export const ApplicantMilestones = () => {
   const { applicant } = useApplicantContext();
 
-  const [tabIndex, setTabIndex] = useState(1);
+  const [tabIndex, setTabIndex] = useState(0);
 
   const selectDefaultLandingTab = (status_id?: number) => {
     if (tabIndex) return;

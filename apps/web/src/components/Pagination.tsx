@@ -75,6 +75,8 @@ export const Pagination = (props: PaginationProps) => {
               {index}{' '}
             </option>
           ))}
+          {/* listbox ARIA role must contain children */}
+          <option value='' role='option' hidden></option>
         </select>
         <div className='text-sm p-3'>of {numOfPages} pages</div>
         <button

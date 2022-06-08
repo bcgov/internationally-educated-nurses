@@ -74,15 +74,23 @@ export const MilestoneTable = ({ parentStatus }: MilestoneTableProps) => {
 
   return (
     <div>
-      <div className='opacity-50 pb-2'>Showing {milestones.length} logs</div>
+      <div className='opacity-60 pb-2'>Showing {milestones.length} logs</div>
       <div>
         <table className='w-full'>
           <thead className=''>
             <tr className='bg-bcLightGray text-bcDeepBlack text-sm text-left border-b-2 border-yellow-300'>
-              <th className='py-4 pl-8'>Milestones</th>
-              <th className='px-4'>Start Date</th>
-              <th className='px-4'>End Date</th>
-              <th className='px-4'>Duration</th>
+              <th className='py-4 pl-8' scope='col'>
+                Milestones
+              </th>
+              <th className='px-4' scope='col'>
+                Start Date
+              </th>
+              <th className='px-4' scope='col'>
+                End Date
+              </th>
+              <th className='px-4' scope='col'>
+                Duration
+              </th>
             </tr>
           </thead>
           <tbody className='text-bcBlack'>
@@ -97,6 +105,11 @@ export const MilestoneTable = ({ parentStatus }: MilestoneTableProps) => {
                 <td className='px-4'>{getDuration(audit)}</td>
               </tr>
             ))}
+            {!milestonesInPage.length && (
+              <tr>
+                <td></td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

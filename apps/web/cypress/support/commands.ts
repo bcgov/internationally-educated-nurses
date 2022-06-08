@@ -134,7 +134,7 @@ Cypress.Commands.add('visitDetails', (applicantId: string) => {
 });
 
 Cypress.Commands.add('tabRecruitment', () => {
-  cy.get('#3').click();
+  cy.get('#tab-3').click();
 });
 
 Cypress.Commands.add('visitUserManagement', () => {

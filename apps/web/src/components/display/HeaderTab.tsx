@@ -28,7 +28,7 @@ export const HeaderTab = ({ tabs, tabIndex, onTabClick }: TabFields) => {
         {tabs.map(({ title, value }) => (
           <button
             key={title}
-            id={`${value}`}
+            id={`tab-${value}`}
             className={getButtonClasses(value)}
             onClick={() => onTabClick(value)}
           >

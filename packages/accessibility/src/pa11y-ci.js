@@ -8,12 +8,6 @@ const defaults = {
   },
 };
 
-const log = {
-  debug: console.log,
-  error: console.error,
-  info: console.log,
-};
-
 const loginActions = [
   'wait for path to be /login',
   'screen capture captures/login.png',
@@ -35,7 +29,6 @@ const urls = [
     url: 'http://localhost:3000',
     actions: [...loginActions],
     hideElements: 'div[class*="opacity-50"]',
-    log,
   },
   {
     url: 'http://localhost:3000',
@@ -44,10 +37,10 @@ const urls = [
       'click element #details-0',
       'wait for path to be /details',
       'wait for element .animate-spin to be removed',
+      'wait for element #tab-3 to be visible',
       'screen capture captures/details.png',
     ],
     hideElements: 'div[class*="opacity-50"], div[class*="placeholder"]',
-    log,
   },
   {
     url: 'http://localhost:3000',
@@ -56,9 +49,8 @@ const urls = [
       'click element #details-0',
       'wait for path to be /details',
       'wait for element .animate-spin to be removed',
-      'screen capture captures/job0.png',
-      'wait for element button[id="3"] to be visible',
-      'click element button[id="3"]',
+      'wait for element #tab-3 to be visible',
+      'click element #tab-3',
       'wait for element button[class*="bg-bcBlueBar"] to be visible',
       'click element button[class*="bg-bcBlueBar"]',
       'screen capture captures/job0.png',
@@ -67,7 +59,6 @@ const urls = [
     ],
     hideElements: 'div[class*="opacity-50"], div[class*="placeholder"]',
     wait: 1000,
-    log,
   },
   {
     url: 'http://localhost:3000',
@@ -78,7 +69,6 @@ const urls = [
       'screen capture captures/reporting.png',
     ],
     hideElements: 'div[class*="opacity-50"]',
-    log,
   },
   {
     url: 'http://localhost:3000',
@@ -89,7 +79,6 @@ const urls = [
       'screen capture captures/user-management.png',
     ],
     hideElements: 'div[class*="opacity-50"], div[class*="placeholder"]',
-    log,
   },
 ];
 

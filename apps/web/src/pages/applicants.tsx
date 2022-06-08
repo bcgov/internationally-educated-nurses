@@ -132,7 +132,7 @@ const Applicants = () => {
           tabIndex={status ? status - 10000 : 0}
           onTabClick={handleTabChange}
         />
-        <div className='opacity-50 pb-3 px-4'>{`Showing ${applicants.length} results`}</div>
+        <div className='opacity-60 pb-3 px-4'>{`Showing ${applicants.length} results`}</div>
       </div>
       <div className='flex justify-content-center flex-col bg-white px-4 pb-4'>
         <Pagination
