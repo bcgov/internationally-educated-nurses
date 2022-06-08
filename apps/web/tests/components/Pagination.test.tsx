@@ -22,7 +22,7 @@ describe('Pagination', () => {
 
     const start = pageSize * (pageIndex - 1) + 1;
     const end = pageSize * pageIndex < total ? pageSize * pageIndex : total;
-    expect(screen.getByText(`${start} - ${end} of ${total} items`));
-    expect(screen.getByText(`of ${Math.ceil(total / pageSize)} pages`));
+    expect(screen.getByText(`${start} - ${end} of ${total} items`)).toBeInTheDocument();
+    expect(screen.getByText(`of ${Math.ceil(total / pageSize)} pages`)).toBeInTheDocument();
   });
 });
