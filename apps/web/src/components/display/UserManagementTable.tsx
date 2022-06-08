@@ -42,17 +42,17 @@ export const UserManagementTable = (props: UserManagementProps) => {
       <table className='text-left w-full'>
         <thead className='whitespace-nowrap bg-bcLightGray text-bcDeepBlack'>
           <tr className='border-b-2 border-yellow-300 text-sm'>
-            <th className='px-6 py-4'>
+            <th className='px-6 py-4' scope='col'>
               <SortButton label='Name' sortKey='name' onChange={onSortChange} />
             </th>
             <th className='px-6'>Email Address</th>
-            <th className='px-6'>
+            <th className='px-6' scope='col'>
               <SortButton label='Created On' sortKey='createdDate' onChange={onSortChange} />
             </th>
-            <th className='px-6'>
+            <th className='px-6' scope='col'>
               <SortButton label='Role' sortKey='role' onChange={onSortChange} />
             </th>
-            <th className=''></th>
+            <th className='' scope='col'></th>
           </tr>
         </thead>
         <tbody className='text-bcBlack'>

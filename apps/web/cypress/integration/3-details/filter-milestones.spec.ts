@@ -7,20 +7,14 @@ describe('Details - filter milestones by tabs', () => {
   let applicant: ApplicantRO;
 
   before(() => {
-    cy.visit('/');
-    cy.login();
-  });
-
-  beforeEach(() => {
-    cy.visit('/');
     cy.fixture('jobs.json').then(data => {
       applicant = data.applicant;
-      cy.visitDetails(applicant.id);
     });
   });
 
-  after(() => {
-    cy.logout();
+  beforeEach(() => {
+    cy.login();
+    cy.visitDetails(applicant.id);
   });
 
   it('filters milestones by tabs', () => {

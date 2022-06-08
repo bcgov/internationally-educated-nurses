@@ -4,38 +4,31 @@
 import { ApplicantRO, IENApplicantJobCreateUpdateDTO } from '@ien/common';
 
 describe('Details - add jobs', () => {
+  let applicant: ApplicantRO;
   let jobs: IENApplicantJobCreateUpdateDTO[];
 
   before(() => {
-    cy.visit('/');
-    cy.login();
     cy.fixture('jobs.json').then(data => {
-      cy.visitDetails(data.applicant.id);
+      applicant = data.applicant;
       jobs = data.jobs;
     });
   });
 
-  after(() => {
-    cy.logout();
+  beforeEach(() => {
+    cy.login();
+    cy.visitDetails(applicant.id);
+    cy.tabRecruitment();
   });
 
   it('adds job competitions', () => {
-    cy.contains('Milestones Logs');
-
-    cy.tabRecruitment();
-
     jobs.forEach((job: IENApplicantJobCreateUpdateDTO, index: number) => {
       cy.addJob(job);
       cy.contains(`${index + 1} items`);
     });
-
-    cy.contains(`${jobs.length} items`);
   });
 
   it('add - rejects duplicate job record', () => {
     const duplicateJob = jobs[0];
-
-    cy.tabRecruitment();
 
     cy.addDuplicateJob(duplicateJob);
   });

@@ -20,17 +20,17 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
       <table className='text-left w-full'>
         <thead className='whitespace-nowrap bg-bcLightGray text-bcDeepBlack'>
           <tr className='border-b-2 border-yellow-300 text-sm'>
-            <th className='pl-6 py-4'>
+            <th className='pl-6 py-4' scope='col'>
               <SortButton label='ID' sortKey='applicant_id' onChange={onSortChange} />
             </th>
-            <th className='px-6'>
+            <th className='px-6' scope='col'>
               <SortButton label='Name' sortKey='name' onChange={onSortChange} />
             </th>
             <th className='px-6 w-1/4'>Latest Milestone</th>
-            <th className='px-6'>
+            <th className='px-6' scope='col'>
               <SortButton label='Last Updated' sortKey='updated_date' onChange={onSortChange} />
             </th>
-            <th className=''></th>
+            <th className='' scope='col'></th>
           </tr>
         </thead>
         <tbody className='text-bcBlack'>

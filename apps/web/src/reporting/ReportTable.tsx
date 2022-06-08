@@ -19,14 +19,14 @@ export const ReportTable = (props: ReportTableProps) => {
       <table className='text-left w-full'>
         <thead className='whitespace-nowrap bg-bcLightGray text-bcDeepBlack'>
           <tr className='border-b-2 border-yellow-300 text-sm'>
-            <th className='pl-6 py-4'>
+            <th className='pl-6 py-4' scope='col'>
               <SortButton label='Period #' sortKey='period' onChange={onSortChange} />
             </th>
-            <th className='px-6'>
+            <th className='px-6' scope='col'>
               {/*<SortButton label='Time Range' sortKey='from' onChange={onSortChange} />*/}
               Time Range
             </th>
-            <th className=''></th>
+            <th className='' scope='col'></th>
           </tr>
         </thead>
         <tbody className='text-bcBlack'>
