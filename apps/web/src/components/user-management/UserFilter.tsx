@@ -14,7 +14,6 @@ export const UserFilter = ({ roles, updateRoles }: UserFilterProps) => {
     updateRoles([]);
   };
 
-  // @todo remove fake values for options and figure out search functionality
   return (
     <div className='flex flex-col md:flex-row items-center mt-1 mb-5'>
       <div className='font-bold mr-2'>Filter by</div>

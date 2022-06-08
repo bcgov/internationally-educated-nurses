@@ -62,9 +62,9 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
     }
   };
 
-  const fetchApplicant = async (id: string) => {
+  const fetchApplicant = async (applicantId: string) => {
     setLoading(true);
-    const applicantData = await getApplicant(id);
+    const applicantData = await getApplicant(applicantId);
     if (applicantData) {
       setApplicant(applicantData);
       setMilestones(sortMilestones(applicant.applicant_status_audit || []));

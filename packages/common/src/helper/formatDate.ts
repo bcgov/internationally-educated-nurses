@@ -5,7 +5,5 @@ export const formatDate = (value: ConfigType) => {
     return;
   }
 
-  const formattedDate = dayjs(value).format('MMM DD, YYYY');
-
-  return formattedDate;
+  return dayjs(value).format('MMM DD, YYYY');
 };

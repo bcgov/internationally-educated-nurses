@@ -88,12 +88,12 @@ const Applicants = () => {
     }
   };
 
-  const handlePageOptions = ({ pageIndex, pageSize }: PageOptions) => {
-    if (pageSize !== limit) {
-      setLimit(pageSize);
+  const handlePageOptions = ({ pageIndex: pgIndex, pageSize: pgSize }: PageOptions) => {
+    if (pgSize !== limit) {
+      setLimit(pgSize);
       setPageIndex(1);
     } else {
-      setPageIndex(pageIndex);
+      setPageIndex(pgIndex);
     }
   };
 

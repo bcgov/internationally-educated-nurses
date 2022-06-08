@@ -33,8 +33,8 @@ const Reporting = () => {
     setOrder(order === 'ASC' ? 'DESC' : 'ASC');
   };
 
-  const sortPeriods = (periods: Period[]) => {
-    const sorted = [...periods];
+  const sortPeriods = (periodsToSort: Period[]) => {
+    const sorted = [...periodsToSort];
     sorted.sort((a, b) => {
       return (a.period > b.period ? 1 : -1) * (order === 'ASC' ? 1 : -1);
     });
