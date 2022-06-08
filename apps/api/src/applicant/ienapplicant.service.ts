@@ -289,7 +289,7 @@ export class IENApplicantService {
     applicantUpdate: IENApplicantUpdateStatusAPIDTO,
   ): Promise<IENApplicantStatusAudit | any> {
     const status_audit = await this.ienapplicantStatusAuditRepository.findOne(status_id, {
-      relations: ['applicant'],
+      relations: ['applicant', 'added_by'],
     });
     if (!status_audit) {
       throw new NotFoundException('Provided status/milestone record not found');
