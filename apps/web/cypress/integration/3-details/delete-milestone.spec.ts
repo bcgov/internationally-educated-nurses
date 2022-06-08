@@ -9,12 +9,8 @@ describe('Details - delete milestone', () => {
     cy.login('ien_e2e_hmbc');
   });
 
-  after(() => {
-    cy.logout();
-  });
-
   it('deletes a milestone', () => {
-    let milestoneToDelete = null;
+    let milestoneToDelete: any = null;
 
     cy.fixture('milestones.json').then(({ milestones }) => {
       milestoneToDelete = milestones[0];
