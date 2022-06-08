@@ -64,8 +64,8 @@ const UserManagement = () => {
     }
   };
 
-  const handleFilters = (roles: ValidRoles[]) => {
-    setRoles(roles);
+  const handleFilters = (rolesFilter: ValidRoles[]) => {
+    setRoles(rolesFilter);
     setPage(1);
   };
 

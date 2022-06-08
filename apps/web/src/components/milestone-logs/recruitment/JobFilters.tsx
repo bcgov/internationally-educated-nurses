@@ -18,12 +18,12 @@ export const JobFilters = ({ options, update }: JobFilterProps) => {
     update({ ha_pcn: [], job_title: [] });
   };
 
-  const applyRegions = (regions: number[]) => {
-    update({ ha_pcn: regions, job_title: specialties });
+  const applyRegions = (regionsFilter: number[]) => {
+    update({ ha_pcn: regionsFilter, job_title: specialties });
   };
 
-  const applySpecialties = (specialties: number[]) => {
-    update({ ha_pcn: regions, job_title: specialties });
+  const applySpecialties = (specialtiesFilter: number[]) => {
+    update({ ha_pcn: regions, job_title: specialtiesFilter });
   };
 
   return (

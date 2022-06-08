@@ -10,6 +10,12 @@ interface TextareaProps extends FieldProps {
 export const Textarea: React.FC<TextareaProps> = ({ name, label, description, maxLength }) => {
   const { values } = useFormikContext<Record<string, string>>();
 
+  const showMaxLength = () => {
+    return values[name]?.length === maxLength
+      ? `Text area character limit reached. You can only use ${maxLength} characters in this field.`
+      : '';
+  };
+
   return (
     <div>
       <Field
@@ -26,9 +32,7 @@ export const Textarea: React.FC<TextareaProps> = ({ name, label, description, ma
             {values[name]?.length}/{maxLength} <span className='sr-only'>characters remaining</span>
           </p>
           <p className='sr-only' role='alert'>
-            {values[name]?.length === maxLength
-              ? `Text area character limit reached. You can only use ${maxLength} characters in this field.`
-              : ''}
+            {showMaxLength()}
           </p>
         </>
       ) : null}

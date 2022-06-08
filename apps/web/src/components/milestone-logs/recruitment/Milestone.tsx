@@ -146,7 +146,7 @@ export const EditMilestone: React.FC<EditMilestoneProps> = props => {
               {deleteButton()}
             </div>
             <span className='text-sm text-black break-words'>
-              {milestone.notes ? milestone.notes : 'No Notes Added'}
+              {milestone.notes || 'No Notes Added'}
             </span>
           </div>
           <DeleteMilestoneModal
@@ -161,7 +161,7 @@ export const EditMilestone: React.FC<EditMilestoneProps> = props => {
           <MilestoneForm<IENApplicantUpdateStatusDTO>
             job={job}
             milestone={milestone}
-            handleSubmit={values => handleSubmit(values as IENApplicantUpdateStatusDTO)}
+            handleSubmit={values => handleSubmit(values)}
             onClose={() => onEditing(null)}
           />
         </>
