@@ -5,6 +5,7 @@ export * from './file-upload';
 export * from './master-lists';
 export * from './date-utils';
 export * from './event-emitter';
+export * from './auth-checks';
 
 // constants
 export * from './constants/dropzone-constants';
