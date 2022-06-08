@@ -9,7 +9,6 @@ describe('Details - add milestones', () => {
     cy.visit('/');
   });
 
-
   it('adds milestones', () => {
     cy.fixture('jobs.json').then(({ applicant, jobs }) => {
       cy.visitDetails(applicant.id);
