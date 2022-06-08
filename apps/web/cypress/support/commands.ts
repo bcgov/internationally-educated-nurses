@@ -4,15 +4,18 @@ import { addCustomCommand } from 'cy-verify-downloads';
 addCustomCommand();
 
 Cypress.Commands.add('login', () => {
-  cy.contains('Login', { timeout: 60000 });
-  cy.get('button').click();
-  if (Cypress.env('realm') === 'moh_applications') {
-    cy.get('li').contains('Login with Keycloak').click();
-  }
-  cy.get('#username').type(Cypress.env('username'));
-  cy.get('#password').type(Cypress.env('password'));
-  cy.get('#kc-login').click();
-  cy.contains('button', Cypress.env('username'), { timeout: 60000 });
+  cy.session(Cypress.env('username'), () => {
+    cy.visit('/');
+    cy.contains('Login', { timeout: 60000 });
+    cy.get('button').click();
+    if (Cypress.env('realm') === 'moh_applications') {
+      cy.get('li').contains('Login with Keycloak').click();
+    }
+    cy.get('#username').type(Cypress.env('username'));
+    cy.get('#password').type(Cypress.env('password'));
+    cy.get('#kc-login').click();
+    cy.contains('button', Cypress.env('username'), { timeout: 60000 });
+  });
 });
 
 Cypress.Commands.add('logout', () => {
@@ -131,10 +134,11 @@ Cypress.Commands.add('pagination', () => {
 
 Cypress.Commands.add('visitDetails', (applicantId: string) => {
   cy.visit(`/details?id=${applicantId}`);
+  cy.contains('Milestones Logs', { timeout: 60000 });
 });
 
 Cypress.Commands.add('tabRecruitment', () => {
-  cy.get('#tab-3').click();
+  cy.contains('button', 'Recruitment').click();
 });
 
 Cypress.Commands.add('visitUserManagement', () => {

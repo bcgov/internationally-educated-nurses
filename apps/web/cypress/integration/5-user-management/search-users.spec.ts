@@ -2,13 +2,9 @@
 /// <reference path="../../support/index.ts"/>
 
 describe('Users - search', () => {
-  before(() => {
-    cy.visit('/');
+  beforeEach(() => {
     cy.login();
-  });
-
-  after(() => {
-    cy.logout();
+    cy.visit('/');
   });
 
   it('searches users in search bar', () => {

@@ -8,21 +8,15 @@ describe('Details - edit milestones', () => {
   let applicant: ApplicantRO;
 
   before(() => {
-    cy.visit('/');
-    cy.login();
-  });
-
-  beforeEach(() => {
-    cy.visit('/');
     cy.fixture('jobs.json').then(data => {
       applicant = data.applicant;
-      cy.visitDetails(applicant.id);
-      cy.tabRecruitment();
     });
   });
 
-  after(() => {
-    cy.logout();
+  beforeEach(() => {
+    cy.login();
+    cy.visitDetails(applicant.id);
+    cy.tabRecruitment();
   });
 
   it('edits a milestone', () => {

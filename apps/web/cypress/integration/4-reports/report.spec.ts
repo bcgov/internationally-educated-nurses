@@ -2,17 +2,10 @@
 /// <reference path="../../support/index.ts"/>
 
 describe('Report', () => {
-  before(() => {
-    cy.visit('/');
-    cy.login();
-  });
-
   beforeEach(() => {
+    cy.login();
+    cy.visit('/');
     cy.contains('a', 'Reporting').click();
-  });
-
-  after(() => {
-    cy.logout();
   });
 
   it('lists report periods', () => {

@@ -3,12 +3,8 @@
 
 describe('Applicants - filter by tabs', () => {
   before(() => {
-    cy.visit('/');
     cy.login();
-  });
-
-  after(() => {
-    cy.logout();
+    cy.visit('/');
   });
 
   it('clicks each tab on main page table', () => {

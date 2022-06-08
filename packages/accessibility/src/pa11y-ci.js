@@ -28,7 +28,6 @@ const urls = [
   {
     url: 'http://localhost:3000',
     actions: [...loginActions],
-    hideElements: 'div[class*="opacity-50"]',
   },
   {
     url: 'http://localhost:3000',
@@ -36,28 +35,24 @@ const urls = [
       ...loginActions,
       'click element #details-0',
       'wait for path to be /details',
-      'wait for element .animate-spin to be removed',
       'wait for element #tab-3 to be visible',
       'screen capture captures/details.png',
     ],
-    hideElements: 'div[class*="opacity-50"], div[class*="placeholder"]',
+    hideElements: 'div[class*="placeholder"]',
   },
   {
     url: 'http://localhost:3000',
     actions: [
       ...loginActions,
       'click element #details-0',
-      'wait for path to be /details',
-      'wait for element .animate-spin to be removed',
       'wait for element #tab-3 to be visible',
       'click element #tab-3',
       'wait for element button[class*="bg-bcBlueBar"] to be visible',
       'click element button[class*="bg-bcBlueBar"]',
-      'screen capture captures/job0.png',
       'wait for element form to be visible',
       'screen capture captures/job.png',
     ],
-    hideElements: 'div[class*="opacity-50"], div[class*="placeholder"]',
+    hideElements: 'div[class*="placeholder"]',
     wait: 1000,
   },
   {
@@ -68,7 +63,6 @@ const urls = [
       'wait for element .animate-spin to be removed',
       'screen capture captures/reporting.png',
     ],
-    hideElements: 'div[class*="opacity-50"]',
   },
   {
     url: 'http://localhost:3000',
@@ -78,7 +72,7 @@ const urls = [
       'wait for element .animate-spin to be removed',
       'screen capture captures/user-management.png',
     ],
-    hideElements: 'div[class*="opacity-50"], div[class*="placeholder"]',
+    hideElements: 'div[class*="placeholder"]',
   },
 ];
 

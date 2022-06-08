@@ -9,8 +9,6 @@ describe('Details - filter jobs', () => {
   let job: IENApplicantJobCreateUpdateDTO;
 
   before(() => {
-    cy.visit('/');
-    cy.login();
     cy.fixture('jobs.json').then(data => {
       applicant = data.applicant;
       jobs = data.jobs;
@@ -19,13 +17,9 @@ describe('Details - filter jobs', () => {
   });
 
   beforeEach(() => {
-    cy.visit('/');
+    cy.login();
     cy.visitDetails(applicant.id);
     cy.tabRecruitment();
-  });
-
-  after(() => {
-    cy.logout();
   });
 
   const filterJobsByHa = () => {

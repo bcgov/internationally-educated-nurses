@@ -3,12 +3,8 @@
 
 describe('Pagination', () => {
   beforeEach(() => {
-    cy.visit('/');
     cy.login();
-  });
-
-  afterEach(() => {
-    cy.logout();
+    cy.visit('/');
   });
 
   it('user management pagination', () => {
