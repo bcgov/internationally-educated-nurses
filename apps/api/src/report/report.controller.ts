@@ -64,7 +64,7 @@ export class ReportController {
     return this.reportService.getHiredWithdrawnActiveCount(from, to);
   }
 
-  @ApiOperation({ summary: 'Report 4: hired-withdrawn-active applicants' })
+  @ApiOperation({ summary: 'Report 4: licensing stage applicants' })
   @Get('/applicant/licensing-stage')
   @RouteAcceptsRoles(
     ValidRoles.HEALTH_AUTHORITY,
