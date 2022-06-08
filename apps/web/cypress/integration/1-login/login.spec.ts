@@ -2,14 +2,12 @@
 /// <reference path="../../support/index.ts"/>
 
 describe('Login page', () => {
-  before(() => {
+  it('login with admin user account', () => {
     cy.login();
   });
 
-  it('login with user account', () => {
-    cy.visit('/');
-    cy.contains('You have logged into IEN');
+  it('login with hmbc user account', () => {
+    cy.login('ien_e2e_hmbc');
     cy.task('db:seed');
-    cy.logout();
   });
 });

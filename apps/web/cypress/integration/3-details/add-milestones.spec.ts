@@ -5,7 +5,8 @@ import { IENApplicantJobCreateUpdateDTO } from '@ien/common';
 
 describe('Details - add milestones', () => {
   beforeEach(() => {
-    cy.login();
+    cy.login('ien_e2e_hmbc');
+    cy.visit('/');
   });
 
   it('adds milestones', () => {
