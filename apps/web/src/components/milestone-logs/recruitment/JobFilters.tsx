@@ -41,7 +41,7 @@ export const JobFilters = ({ options, update }: JobFilterProps) => {
         styles={getSelectStyleOverride<RecordTypeOptions>()}
         isMulti
         isClearable
-        className='w-80 min-w-full md:min-w-0 mx-1'
+        className='w-80 min-w-full md:min-w-0 mx-1 placeholder-bcGray'
       />
       <ReactSelect
         inputId='specialty'
@@ -58,7 +58,7 @@ export const JobFilters = ({ options, update }: JobFilterProps) => {
         styles={getSelectStyleOverride<RecordTypeOptions>()}
         isMulti
         isClearable
-        className='w-80 min-w-full md:min-w-0 mx-1'
+        className='w-80 min-w-full md:min-w-0 mx-1 placeholder-bcGray'
       />
       <Button className='ml-2 px-6 text-sm' onClick={clearFilters} variant='primary'>
         Clear

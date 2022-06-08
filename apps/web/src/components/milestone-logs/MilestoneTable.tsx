@@ -74,7 +74,7 @@ export const MilestoneTable = ({ parentStatus }: MilestoneTableProps) => {
 
   return (
     <div>
-      <div className='opacity-60 pb-2'>Showing {milestones.length} logs</div>
+      <div className='text-bcGray pb-2'>Showing {milestones.length} logs</div>
       <div>
         <table className='w-full'>
           <thead className=''>

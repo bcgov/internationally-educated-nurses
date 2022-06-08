@@ -40,13 +40,14 @@ export const ChangeRoleModal = ({ open, user, submit, closeModal }: ChangeRoleMo
           <div className='text-sm'>* User Role</div>
           <ReactSelect<RoleOption>
             inputId='role-change'
-            placeholder='Please select'
+            placeholder='Role'
             value={roleSelectOptions.find(option => option.value === role)}
             onChange={value => value && setRole(value.value)}
             getOptionLabel={({ value }) => value}
             isOptionDisabled={({ value }) => value === user?.role}
             styles={getSelectStyleOverride<RoleOption>()}
             options={roleSelectOptions}
+            className='placeholder-bcGray'
           />
         </div>
         <div className='flex flex-row justify-end mt-5 mb-2'>

@@ -68,10 +68,8 @@ export function getSelectStyleOverride<T>(bgColour?: string): StylesConfig<T, bo
       color: 'black',
     }),
     menuList: styles => ({ ...styles, maxHeight: '380px' }),
-    menu: styles => ({
-      ...styles,
-      padding: '5px 10px',
-    }),
+    menu: styles => ({ ...styles, padding: '5px 10px' }),
+    placeholder: styles => ({ ...styles, color: '#606060' }),
   };
   return selectStyleOverride;
 }

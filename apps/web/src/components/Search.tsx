@@ -62,7 +62,7 @@ export const Search = (props: SearchProps) => {
           onFocus={() => handleFocus(true)}
           onKeyDown={handleEnter}
           placeholder='Search by first name or last name'
-          className='flex-grow focus:outline-none'
+          className='flex-grow focus:outline-none placeholder-bcGray'
         />
         {searchName && (
           <>
