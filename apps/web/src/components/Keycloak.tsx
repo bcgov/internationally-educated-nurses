@@ -1,11 +1,14 @@
-import { useAuthContext } from './AuthContexts';
 import React, { useEffect } from 'react';
+import { NextPage } from 'next';
 import { useKeycloak } from '@react-keycloak/ssr';
 import { useRouter } from 'next/router';
+
 import { ValidRoles } from '@ien/common';
 import { Pending } from './Pending';
 import { Spinner } from './Spinner';
-import { NextPage } from 'next';
+import { useAuthContext } from './AuthContexts';
+
+import { getPath, invalidRoleCheck, isPending } from '@services';
 
 const withAuth = (Component: React.FunctionComponent, roles: ValidRoles[]) => {
   const Auth = (props: JSX.IntrinsicAttributes) => {
@@ -17,24 +20,30 @@ const withAuth = (Component: React.FunctionComponent, roles: ValidRoles[]) => {
 
     // eslint-disable-next-line
     useEffect(() => {
-      if (kc?.initialized && authUser && !roles.includes(authUser?.role)) {
-        authUser?.role === ValidRoles.MINISTRY_OF_HEALTH
-          ? router.replace('/reporting')
-          : router.replace('/applicants');
-      }
       if (!authUser && !authUserLoading && kc.initialized && !kc?.keycloak?.authenticated) {
         router.replace('/login');
       }
+
+      if (authUser && invalidRoleCheck(roles, authUser)) {
+        router.replace(getPath(authUser));
+      }
+
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [kc?.initialized, kc?.keycloak?.authenticated, authUser, authUserLoading]);
 
     // Handle intermediate states
-    if (authUserLoading || !kc.initialized || !authUser || !authUser.role) {
+    if (
+      authUserLoading ||
+      !kc.initialized ||
+      !authUser ||
+      !authUser.role ||
+      invalidRoleCheck(roles, authUser)
+    ) {
       return <Spinner className='h-10 w-10' />;
     }
 
     // Show pending if the user hasn't been assigned a role
-    if (authUser.role && !roles.includes(authUser.role)) {
+    if (isPending(authUser)) {
       return (
         <main className='flex w-full justify-center'>
           {/* <Navigation logoutOnly={true} /> */}
@@ -42,6 +51,7 @@ const withAuth = (Component: React.FunctionComponent, roles: ValidRoles[]) => {
         </main>
       );
     }
+
     // Finally, if all goes well, show the page the user is requesting
     return <Component {...props} />;
   };
