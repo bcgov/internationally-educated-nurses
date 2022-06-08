@@ -4,7 +4,7 @@ import { addCustomCommand } from 'cy-verify-downloads';
 addCustomCommand();
 
 Cypress.Commands.add('login', (username?: string) => {
-  cy.session(Cypress.env('username'), () => {
+  cy.session(username || Cypress.env('username'), () => {
     cy.visit('/');
     cy.contains('Login', { timeout: 60000 });
     cy.get('button').click();
