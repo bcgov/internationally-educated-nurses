@@ -67,10 +67,11 @@ module.exports = (on: any, config: any) => {
         if (!name.endsWith('.xlsx')) return;
 
         const wb = readFile(path.join(config.downloadsFolder, name));
-        const sheetNames = ['Report 1', 'Report 2'];
-        sheetNames.forEach(sheet => {
-          if (!wb.Sheets[sheet]) {
-            throw Error(`${name} doesn't have ${sheet} sheet`);
+        const indices = [1, 2, 3, 4, 5, 6, 7];
+        indices.forEach(index => {
+          const sheetName = `Report ${index}`;
+          if (!wb.Sheets[sheetName]) {
+            throw Error(`${name} doesn't have ${sheetName} sheet`);
           }
         });
       });
