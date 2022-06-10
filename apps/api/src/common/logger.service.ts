@@ -3,6 +3,7 @@ import { WinstonModule, utilities as nestWinstonModuleUtilities } from 'nest-win
 import winston from 'winston';
 import postToSlack from './slack';
 import axios from 'axios';
+import sendToSQS from './sendToSQS';
 
 export class AppLogger implements LoggerService {
   private logger;
@@ -51,6 +52,7 @@ export class AppLogger implements LoggerService {
     }
 
     postToSlack({ message, stack: error.stack, context });
+    sendToSQS({ message, stack: error.stack, context });
     this.logger.error(message, error.stack, context);
   }
 
