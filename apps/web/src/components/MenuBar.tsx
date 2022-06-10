@@ -10,7 +10,8 @@ export const MenuBar: React.FC = () => {
 
   const active = `font-bold`;
 
-  // disabled Reporting tab for now
+  if (!authUser) return <></>;
+
   return (
     <div className='w-full bg-bcBlueAccent flex flex-row justify-center'>
       <div className='container flex w-full mx-6 xl:w-xl my-2'>
