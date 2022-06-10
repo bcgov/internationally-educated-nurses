@@ -13,9 +13,13 @@ export default async function sendToSQS(data: unknown): Promise<void> {
         QueueUrl: sqsQueueUrl,
       };
       Logger.log('Sending message', 'sendToSQS');
-      const message = await SQS.sendMessage(params).promise();
+      await SQS.sendMessage(params)
+        .promise()
+        // eslint-disable-next-line no-console
+        .then(data => console.log("Successfully added message to queue", data.MessageId))
+        // eslint-disable-next-line no-console
+        .catch(err => console.log("Error: ", err));
       Logger.log('message sent', 'sendToSQS');
-      Logger.log({ message });
     } catch (e) {
       Logger.log('Error while sending Message');
       Logger.log(e);
