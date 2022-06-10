@@ -62,7 +62,7 @@ test-web:
 ## Processing test results and notification
 
 `test:pa11y` command redirects outputs to accessibility_results.json.
-If there is a error, [pr-check-e2e](../../.github/workflows/pr-check-e2e.yml) runs [generate-a11y-markdown.js](./src/generate-a11y-markdown.js) to process the output and create a comment on the pull request. 
+If there is an error, [pr-check-e2e](../../.github/workflows/pr-check-e2e.yml) runs [generate-a11y-markdown.js](./src/generate-a11y-markdown.js) to process the output and create a comment on the pull request. 
 
 ## Debugging
 

@@ -188,7 +188,7 @@ Run API integration tests with `make api-integration-test`
 
 ### Cypress e2e Tests
 
-Run Cypress integration tests with `make test-e2e`.
+Run Cypress integration tests with `make test-e2e` or `make test-web`. `test-web` runs pa11y if cypress tests succeed. 
 
 If you want to open Cypress UI while developing new test cases, run `make run-test-apps` to prepare applications and then run `make open:cypress` 
 
@@ -206,7 +206,7 @@ If you want to open Cypress UI while developing new test cases, run `make run-te
 
 ### Accessibility Tests
 
-`make test-web`  
+See accessibility [README](./packages/accessibility/README.md)
 
 ## Deployments:
 
