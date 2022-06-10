@@ -15,8 +15,8 @@ export default async function sendToSQS(data: unknown): Promise<void> {
       Logger.log('Sending message', 'sendToSQS');
       await SQS.sendMessage(params)
         .promise()
-        .then(data =>
-          Logger.log(`Successfully added message to queue ${data.MessageId}`, 'sendToSQS'),
+        .then(res =>
+          Logger.log(`Successfully added message to queue ${res.MessageId}`, 'sendToSQS'),
         )
         .catch(err => Logger.warn(err, 'sendToSQS:Error'));
       Logger.log('message sent', 'sendToSQS');

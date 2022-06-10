@@ -11,10 +11,10 @@ export const handler: Handler = async (event, _context: Context) => {
     Logger.log({ event });
     if (event?.Records !== undefined) {
       Logger.log(`Received Records`);
-      for (let i = 0; i < event.Records.length; i++) {
+      for (const item of event.Records) {
         Logger.log(`Let's play with object and send Message to slack`);
-        Logger.log(event.Records[i]);
-        await postToSlack(JSON.parse(event.Records[i].body));
+        Logger.log(item);
+        await postToSlack(JSON.parse(item.body));
         Logger.log(`Seems, Message sent over slack successfully`);
       }
     }
