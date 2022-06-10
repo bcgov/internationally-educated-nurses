@@ -1,7 +1,6 @@
 import { LoggerService } from '@nestjs/common';
 import { WinstonModule, utilities as nestWinstonModuleUtilities } from 'nest-winston';
 import winston from 'winston';
-import postToSlack from './postToSlack';
 import axios from 'axios';
 import sendToSQS from './sendToSQS';
 

@@ -11,6 +11,7 @@ export default function postToSlack(data: unknown): void {
       rejectUnauthorized: false,
       timeout: 20000,
     });
+    Logger.log(`Dat that send over slack: ${JSON.stringify(data)}`, 'postToSlack');
     axios
       .post(
         webhookUrl,
@@ -22,6 +23,9 @@ export default function postToSlack(data: unknown): void {
           timeout: 20000,
         },
       )
+      .then(res => {
+        Logger.log(`Sent successfully, ${JSON.stringify(res)}`, 'postToSlack');
+      })
       .catch(() => {
         Logger.warn(`Failed to send message to slack`, 'postToSlack');
       });
