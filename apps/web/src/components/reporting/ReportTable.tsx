@@ -3,16 +3,25 @@ import { SortButton } from '../SortButton';
 import { Spinner } from '../Spinner';
 import { getTimeRange } from '@services';
 import { buttonBase, buttonColor } from '@components';
+import { useState } from 'react';
 
 export interface ReportTableProps {
   periods: Period[];
   loading?: boolean;
   onSortChange: (field: string) => void;
-  download: (period: Period) => void;
+  download: (period: Period) => Promise<void>;
 }
 
 export const ReportTable = (props: ReportTableProps) => {
   const { periods, loading, onSortChange, download } = props;
+
+  const [downloadIndex, setDownloadIndex] = useState(-1);
+
+  const downloadReport = async (index: number) => {
+    setDownloadIndex(index);
+    await download(periods[index]);
+    setDownloadIndex(-1);
+  };
 
   return (
     <div className='overflow-x-auto'>
@@ -32,7 +41,7 @@ export const ReportTable = (props: ReportTableProps) => {
         <tbody className='text-bcBlack'>
           {periods &&
             !loading &&
-            periods.map(period => (
+            periods.map((period, index) => (
               <tr
                 key={period.period}
                 className='text-left shadow-xs whitespace-nowrap even:bg-bcLightGray text-sm '
@@ -40,12 +49,18 @@ export const ReportTable = (props: ReportTableProps) => {
                 <td className='pl-6 py-5'>{`Period ${period.period}`}</td>
                 <td className='px-6'>{getTimeRange(period)}</td>
                 <td className='px-6 text-right'>
-                  <button
-                    className={`px-4 ${buttonColor.outline} ${buttonBase} border-bcGray text-bcGray`}
-                    onClick={() => download(period)}
-                  >
-                    Download
-                  </button>
+                  {downloadIndex === index ? (
+                    <div className='float-right mr-9'>
+                      <Spinner className='h-8' relative />
+                    </div>
+                  ) : (
+                    <button
+                      className={`px-4 ${buttonColor.outline} ${buttonBase} border-bcGray text-bcGray`}
+                      onClick={() => downloadReport(index)}
+                    >
+                      Download
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}
