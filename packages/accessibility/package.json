@@ -2,7 +2,7 @@
   "name": "@ien/accessibility",
   "packageManager": "yarn@3.1.0",
   "scripts": {
-    "debug": "pa11y-ci --config ./src/pa11y-ci.js",
+    "debug": "DEBUG=true pa11y-ci --config ./src/pa11y-ci.js",
     "start": "echo 'Run accessibility tests...' && pa11y-ci --config ./src/pa11y-ci.js --json > out/accessibility_results.json",
     "generate-accessibility-results": "echo 'Generating markdown test output' && node src/generate-a11y-markdown out/accessibility_results.json"
   },

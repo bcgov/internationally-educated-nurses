@@ -28,7 +28,7 @@ export const UserFilter = ({ roles, updateRoles }: UserFilterProps) => {
         styles={getSelectStyleOverride<RoleOption>()}
         isMulti
         isClearable
-        className='w-60 min-w-full md:min-w-0 mx-1'
+        className='w-60 min-w-full md:min-w-0 mx-1 placeholder-bcGray'
       />
       <Button className='ml-2 px-6 text-sm' onClick={clearFilters} variant='primary'>
         Clear

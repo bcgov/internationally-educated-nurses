@@ -8,6 +8,12 @@ const defaults = {
   },
 };
 
+const log = {
+  debug: console.log,
+  error: console.error,
+  info: console.log,
+};
+
 const loginActions = [
   'wait for path to be /login',
   'screen capture captures/login.png',
@@ -26,21 +32,25 @@ const loginActions = [
 
 const urls = [
   {
+    // applicants
     url: 'http://localhost:3000',
     actions: [...loginActions],
   },
   {
+    // details - recruitment
     url: 'http://localhost:3000',
     actions: [
       ...loginActions,
       'click element #details-0',
       'wait for path to be /details',
       'wait for element #tab-3 to be visible',
+      'click element #tab-3',
       'screen capture captures/details.png',
     ],
     hideElements: 'div[class*="placeholder"]',
   },
   {
+    // details - recruitment - job milestones
     url: 'http://localhost:3000',
     actions: [
       ...loginActions,
@@ -53,10 +63,11 @@ const urls = [
       'wait for element form to be visible',
       'screen capture captures/job.png',
     ],
-    hideElements: 'div[class*="placeholder"]',
     wait: 1000,
+    hideElements: 'div[class*="placeholder"]',
   },
   {
+    // reporting
     url: 'http://localhost:3000',
     actions: [
       ...loginActions,
@@ -66,6 +77,7 @@ const urls = [
     ],
   },
   {
+    // user management
     url: 'http://localhost:3000',
     actions: [
       ...loginActions,
@@ -76,6 +88,10 @@ const urls = [
     hideElements: 'div[class*="placeholder"]',
   },
 ];
+
+if (process.env.DEBUG) {
+  urls.forEach(url => (url.log = log));
+}
 
 module.exports = {
   defaults,
