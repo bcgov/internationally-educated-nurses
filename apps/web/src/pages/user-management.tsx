@@ -87,7 +87,7 @@ const UserManagement = () => {
           <SearchEmployee keyword={name} onChange={setName} />
         </div>
         <UserFilter roles={roles} updateRoles={handleFilters} />
-        <div className='opacity-60'>{`Showing ${employees && employees.length} users`}</div>
+        <div className='text-bcGray'>{`Showing ${employees && employees.length} users`}</div>
       </div>
       <div className='flex justify-content-center flex-col bg-white px-4 pb-4'>
         <Pagination

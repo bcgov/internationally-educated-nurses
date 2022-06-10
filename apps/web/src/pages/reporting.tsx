@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import { writeFileXLSX } from 'xlsx';
 import { Period, ValidRoles } from '@ien/common';
-import { getEducationCountryReport, getPeriods, getReportWorkbook } from '@services';
+import { createReportWorkbook, getReportByEOI } from '@services';
 import { PageOptions, Pagination } from '../components/Pagination';
 import { ReportTable } from '../reporting/ReportTable';
 import withAuth from '../components/Keycloak';
@@ -42,18 +42,15 @@ const Reporting = () => {
   };
 
   const download = async (period: Period) => {
+    const from = order === 'ASC' ? periods[0].from : periods[periods.length - 1].from;
     const to = dayjs(period.to).format('YYYY-MM-DD');
-    const applicants = await getPeriods({ to });
-    const educationCountry = await getEducationCountryReport({ to });
-    if (applicants || educationCountry) {
-      const workbook = getReportWorkbook(applicants, educationCountry);
-      writeFileXLSX(workbook, `${REPORT_PREFIX}-${period.period}.xlsx`);
-    }
+    const workbook = await createReportWorkbook({ from, to });
+    writeFileXLSX(workbook, `${REPORT_PREFIX}-${period.period}.xlsx`);
   };
 
   useEffect(() => {
     setLoading(true);
-    getPeriods().then(data => {
+    getReportByEOI().then(data => {
       if (data) {
         sortPeriods(data);
         setTotal(data.length);
@@ -83,7 +80,7 @@ const Reporting = () => {
         All the reports are generated based on period. Available reports begin from April 1, 2021
       </p>
       <div className='bg-white p-5'>
-        <div className='opacity-60 mb-7'>{`Showing ${periods.length} reports`}</div>
+        <div className='text-bcGray mb-7'>{`Showing ${periods.length} reports`}</div>
 
         <Pagination
           pageOptions={{ pageIndex, pageSize: limit, total }}

@@ -31,6 +31,16 @@ const withAuth = (Component: React.FunctionComponent, roles: ValidRoles[]) => {
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [kc?.initialized, kc?.keycloak?.authenticated, authUser, authUserLoading]);
 
+    // Show pending if the user hasn't been assigned a role
+    if (authUser && isPending(authUser)) {
+      return (
+        <main className='flex w-full justify-center'>
+          {/* <Navigation logoutOnly={true} /> */}
+          <Pending />
+        </main>
+      );
+    }
+
     // Handle intermediate states
     if (
       authUserLoading ||
@@ -40,16 +50,6 @@ const withAuth = (Component: React.FunctionComponent, roles: ValidRoles[]) => {
       invalidRoleCheck(roles, authUser)
     ) {
       return <Spinner className='h-10 w-10' />;
-    }
-
-    // Show pending if the user hasn't been assigned a role
-    if (isPending(authUser)) {
-      return (
-        <main className='flex w-full justify-center'>
-          {/* <Navigation logoutOnly={true} /> */}
-          <Pending />
-        </main>
-      );
     }
 
     // Finally, if all goes well, show the page the user is requesting

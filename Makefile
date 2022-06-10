@@ -207,6 +207,11 @@ test-pa11y:
 	@yarn test:pa11y
 	@echo "++\n*****"
 
+debug-pa11y:
+	@echo "++\n***** Running front end accessibility tests\n++"
+	@yarn workspace @ien/accessibility debug
+	@echo "++\n*****"
+
 generate-accessibility-results:
 	@echo "++\n***** Generating Github Comment from Test Results\n++"
 	@yarn workspace @ien/accessibility generate-accessibility-results
