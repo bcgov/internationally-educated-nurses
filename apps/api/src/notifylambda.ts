@@ -11,12 +11,12 @@ export const handler: Handler = async (event, _context: Context) => {
     Logger.log({ event });
     if (event?.Records !== undefined) {
       Logger.log(`Received Records`);
-      event?.Records.forEach((item: { body: string }) => {
+      for (let i = 0; i < event.Records.length; i++) {
         Logger.log(`Let's play with object and send Message to slack`);
-        Logger.log(item);
-        postToSlack(JSON.parse(item.body));
+        Logger.log(event.Records[i]);
+        await postToSlack(JSON.parse(event.Records[i].body));
         Logger.log(`Seems, Message sent over slack successfully`);
-      });
+      }
     }
   } catch (e) {
     Logger.log(e, 'NotifyLambda:Error');
