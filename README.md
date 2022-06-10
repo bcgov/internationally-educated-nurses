@@ -38,12 +38,11 @@ The codebase is being roughed out, but finer details are likely to change.
 
 When you create a pull request, be aware that GitHub actions for each project will be executed to check its validity.
 
-- [pr-check-api](.github/workflows/pr-check-api.yml)
-- [pr-check-web](.github/workflows/pr-check-web.yml)
-- [pr-check-common](.github/workflows/pr-check-common.yml)
-- [pr-check-e2e](.github/workflows/pr-check-e2e.yml)
-- [pr-check-web-a11y](.github/workflows/pr-check-web-a11y.yml)
-- [pr-check-terraform](.github/workflows/pr-check-tf.yml)
+- [pr-check-api](.github/workflows/pr-check-api.yml) - format, lint, unit and integration tests
+- [pr-check-web](.github/workflows/pr-check-web.yml) - format, lint, and test
+- [pr-check-common](.github/workflows/pr-check-common.yml) - format, lint, unit tests, and build
+- [pr-check-e2e](.github/workflows/pr-check-e2e.yml) - run cypress e2e and accessibility tests
+- [pr-check-terraform](.github/workflows/pr-check-tf.yml) - show terraform plan
 
 ## How to run the apps
 
@@ -139,6 +138,12 @@ It is recommended to run database as a container in any case. On the other hand,
 $ make start-local
 ```
 
+or run in `watch` mode
+
+```bash
+$ make watch
+```
+
 ### Make apps connect to each other.
 
 > **Database Hostname Resolution**
@@ -165,7 +170,7 @@ Run API unit tests with `make api-unit-test`
 
 > **Ephemeral test data**
 > 
-> `api` and  `web` integration tests start test database with `clean` data before running tests and terminate it after.
+> `api` and  `web` integration tests start test database with `clean` data before running tests and destroy it after.
 > 
 > ```
 >	@make start-test-db
@@ -181,15 +186,27 @@ Run API unit tests with `make api-unit-test`
 
 Run API integration tests with `make api-integration-test`
 
-### Web e2e Tests
+### Cypress e2e Tests
 
-Run Cypress integration tests with `make web-integration-test`
+Run Cypress integration tests with `make test-e2e`.
 
 If you want to open Cypress UI while developing new test cases, run `make run-test-apps` to prepare applications and then run `make open:cypress` 
 
 > Seed data
 > 
-> Login test case should be run to seed a test account and applicants before running any other cases requiring logging in. 
+> Login test case should be run to seed a test account and applicants before running any other cases requiring logging in.
+
+> Cypress session
+> 
+> Authentication with Keycloak is a little expensive and time-consuming. To reduce interaction with it, call `cy.login()` before each test case, then it creates a new session by destroying the existing one. Therefore, you don't need to call logout explicitly after each test case. When logging in with a user of different role, pass its id as a parameter.
+> 
+> `cy.login('ien_e2e_hmbc')`
+> 
+> All test users should have the same password.
+
+### Accessibility Tests
+
+`make test-web`  
 
 ## Deployments:
 
@@ -203,9 +220,9 @@ All Deployments to AWS environments are managed through github actions.
 
 The following actions trigger deployments as follows:
 
-`make tag-dev` / Merge to main - Deploy to dev
-`make tag-test` - Deploy to test
-`make tag-prod` - Deploy to prod after approval.
+- `make tag-dev` or Merge to main - Deploy to dev
+- `make tag-test` - Deploy to test
+- `make tag-prod` - Deploy to prod after approval.
 
 
 #### Infrastructure and Deployments:
@@ -222,7 +239,7 @@ Service accounts are created with IAM permissions to deploy cloud resources such
 
 Use `make tag-dev` to deploy your changes directly in dev environment without a pr if required.
 
-Raise a PR to `main` . Once merged, the dev environment will be updated.
+Raise a PR to `main`. Once merged, the dev environment will be updated.
 
 For QA testing, run `make tag-test` only in the main branch once the code is merged into main branch.
 
