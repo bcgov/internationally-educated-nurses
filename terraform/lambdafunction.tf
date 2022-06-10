@@ -1,13 +1,13 @@
 resource "aws_lambda_function" "SyncApplicants" {
-  description         = "Trigger Sync applicant and master data service"
-  function_name       = local.syncdata_lambda_name
-  role                = aws_iam_role.lambda.arn
-  runtime             = "nodejs14.x"
-  filename            = "./build/empty_lambda.zip"
-  source_code_hash    = filebase64sha256("./build/empty_lambda.zip")
-  handler             = "api/syncdata.handler"
-  memory_size         = var.function_memory_mb
-  timeout             = 300
+  description      = "Trigger Sync applicant and master data service"
+  function_name    = local.syncdata_lambda_name
+  role             = aws_iam_role.lambda.arn
+  runtime          = "nodejs14.x"
+  filename         = "./build/empty_lambda.zip"
+  source_code_hash = filebase64sha256("./build/empty_lambda.zip")
+  handler          = "api/syncdata.handler"
+  memory_size      = var.function_memory_mb
+  timeout          = 300
 
   vpc_config {
     security_group_ids = [data.aws_security_group.app.id]
@@ -30,7 +30,7 @@ resource "aws_lambda_function" "SyncApplicants" {
       NODE_ENV          = "production"
       RUNTIME_ENV       = "hosted"
       AUTH_URL          = data.aws_ssm_parameter.keycloak_url.value
-      AUTH_REALM         = data.aws_ssm_parameter.keycloak_realm.value
+      AUTH_REALM        = data.aws_ssm_parameter.keycloak_realm.value
       TARGET_ENV        = var.target_env
       AWS_S3_REGION     = var.region
       BUILD_ID          = var.build_id

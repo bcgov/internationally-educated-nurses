@@ -35,6 +35,7 @@ locals {
   syncdata_lambda_name  = "${local.namespace}-syncdata"
   sync_master_data_scheduler  = "${local.namespace}-hmbc-to-ien-masters"
   sync_applicant_data_scheduler  = "${local.namespace}-hmbc-to-ien-applicants"
+  notify_lambda_name  = "${local.namespace}-notifylambda"
 
   db_name = "${local.namespace}-db"
 

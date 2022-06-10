@@ -5,13 +5,14 @@ import https from 'https';
 
 const webhookUrl = process.env.SLACK_ALERTS_WEBHOOK_URL;
 
-export default function postToSlack(data: unknown): void {
+export default async function postToSlack(data: unknown): Promise<void> {
   if (webhookUrl) {
     const httpsAgent = new https.Agent({
       rejectUnauthorized: false,
       timeout: 20000,
     });
-    axios
+    Logger.log(`Data that send over slack: ${JSON.stringify(data)}`, 'postToSlack');
+    await axios
       .post(
         webhookUrl,
         {
@@ -22,6 +23,9 @@ export default function postToSlack(data: unknown): void {
           timeout: 20000,
         },
       )
+      .then(res => {
+        Logger.log(`Sent successfully, ${JSON.stringify(res)}`, 'postToSlack');
+      })
       .catch(() => {
         Logger.warn(`Failed to send message to slack`, 'postToSlack');
       });
