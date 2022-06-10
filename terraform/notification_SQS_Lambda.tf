@@ -20,7 +20,7 @@ resource "aws_lambda_function" "SQSLambda" {
   source_code_hash = filebase64sha256("./build/empty_lambda.zip")
   handler          = "api/notifylambda.handler"
   memory_size      = var.function_memory_mb
-  timeout          = 300
+  timeout          = 30
 
   vpc_config {
     security_group_ids = [data.aws_security_group.app.id]
