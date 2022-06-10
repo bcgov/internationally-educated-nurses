@@ -6,15 +6,20 @@ const sqsQueueUrl = process.env.SQS_QUEUE_URL;
 
 export default async function sendToSQS(data: unknown): Promise<void> {
   if (sqsQueueUrl) {
-    Logger.log('SQS function triggered, Lets send message');
-    const params = {
-      MessageBody: JSON.stringify(data),
-      QueueUrl: sqsQueueUrl,
-    };
-    Logger.log('Sending message', 'sendToSQS');
-    const message = await SQS.sendMessage(params).promise();
-    Logger.log('message sent', 'sendToSQS');
-    Logger.log({ message });
+    try {
+      Logger.log('SQS function triggered, Lets send message');
+      const params = {
+        MessageBody: JSON.stringify(data),
+        QueueUrl: sqsQueueUrl,
+      };
+      Logger.log('Sending message', 'sendToSQS');
+      const message = await SQS.sendMessage(params).promise();
+      Logger.log('message sent', 'sendToSQS');
+      Logger.log({ message });
+    } catch (e) {
+      Logger.log('Error while sending Message');
+      Logger.log(e);
+    }
   } else {
     Logger.warn('SQS_QUEUE_URL not available, Message not sent', 'sendToSlack');
   }
