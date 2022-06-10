@@ -61,6 +61,20 @@ data "aws_iam_policy_document" "service_account" {
       "arn:aws:lambda:${var.region}:${var.target_aws_account_id}:cluster:ien*",
     ]
   }
+
+  statement {
+    sid    = "AllowSQS"
+    effect = "Allow"
+    actions = [
+      "SQS:SendMessage",
+      "SQS:DeleteMessage",
+      "SQS:ReceiveMessage",
+      "SQS:GetQueueAttributes"
+    ]
+    resources = [
+      "arn:aws:sqs:${var.region}:${var.target_aws_account_id}:*",
+    ]
+  }
 }
 
 # Uncomment when output iam is required - Less noisy this way
