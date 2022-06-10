@@ -26,7 +26,7 @@ import calendarIcon from '@assets/img/calendar.svg';
 import userIcon from '@assets/img/user.svg';
 import deleteIcon from '@assets/img/trash_can.svg';
 import disabledDeleteIcon from '@assets/img/disabled-trash_can.svg';
-import { useApplicantContext } from '../../../applicant/ApplicantContext';
+import { useApplicantContext } from '../../applicant/ApplicantContext';
 import { useAuthContext } from 'src/components/AuthContexts';
 import { DeleteMilestoneModal } from 'src/components/display/DeleteMilestoneModal';
 

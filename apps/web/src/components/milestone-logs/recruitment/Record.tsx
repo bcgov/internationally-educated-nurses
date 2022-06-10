@@ -14,7 +14,7 @@ import editIcon from '@assets/img/edit.svg';
 import dotIcon from '@assets/img/dot.svg';
 import { AddRecordModal } from '../../display/AddRecordModal';
 import { updateMilestone, getHumanizedDuration } from '@services';
-import { useApplicantContext } from '../../../applicant/ApplicantContext';
+import { useApplicantContext } from '../../applicant/ApplicantContext';
 
 interface RecordProps {
   job: ApplicantJobRO;

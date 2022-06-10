@@ -7,7 +7,7 @@ import { ApplicantJobRO, JobFilterOptions } from '@ien/common';
 import addIcon from '@assets/img/add.svg';
 import { JobFilters } from './recruitment/JobFilters';
 import { PageOptions, Pagination } from '../Pagination';
-import { useApplicantContext } from '../../applicant/ApplicantContext';
+import { useApplicantContext } from '../applicant/ApplicantContext';
 import dayjs from 'dayjs';
 
 const DEFAULT_JOB_PAGE_SIZE = 5;

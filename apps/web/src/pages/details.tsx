@@ -1,8 +1,8 @@
 import { ValidRoles } from '@ien/common';
 import withAuth from 'src/components/Keycloak';
-import { ApplicantProvider } from '../applicant/ApplicantContext';
-import { ApplicantProfile } from '../applicant/ApplicantProfile';
-import { ApplicantMilestones } from '../applicant/ApplicantMilestones';
+import { ApplicantProvider } from '../components/applicant/ApplicantContext';
+import { ApplicantProfile } from '../components/applicant/ApplicantProfile';
+import { ApplicantMilestones } from '../components/applicant/ApplicantMilestones';
 
 const Details = () => {
   return (

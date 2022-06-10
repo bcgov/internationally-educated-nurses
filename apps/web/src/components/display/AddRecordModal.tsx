@@ -16,7 +16,7 @@ import {
 import { Field } from '../form';
 import { Modal } from '../Modal';
 import { ApplicantStatusAuditRO } from '@ien/common/src/ro/applicant.ro';
-import { useApplicantContext } from '../../applicant/ApplicantContext';
+import { useApplicantContext } from '../applicant/ApplicantContext';
 import { toast } from 'react-toastify';
 
 interface AddRecordProps {

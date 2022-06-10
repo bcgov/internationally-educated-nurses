@@ -2,7 +2,7 @@ import { PageOptions, Pagination } from '../Pagination';
 import { useEffect, useState } from 'react';
 import { ApplicantStatusAuditRO, formatDate } from '@ien/common';
 import { getHumanizedDuration } from '@services';
-import { useApplicantContext } from '../../applicant/ApplicantContext';
+import { useApplicantContext } from '../applicant/ApplicantContext';
 
 interface MilestoneTableProps {
   parentStatus: number;

@@ -4,7 +4,7 @@ import { writeFileXLSX } from 'xlsx';
 import { Period, ValidRoles } from '@ien/common';
 import { createReportWorkbook, getReportByEOI } from '@services';
 import { PageOptions, Pagination } from '../components/Pagination';
-import { ReportTable } from '../reporting/ReportTable';
+import { ReportTable } from '../components/reporting/ReportTable';
 import withAuth from '../components/Keycloak';
 
 const DEFAULT_PAGE_SIZE = 10;

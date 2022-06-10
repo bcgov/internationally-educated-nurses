@@ -1,9 +1,9 @@
 import historyIcon from '@assets/img/history.svg';
-import { HeaderTab } from '../components/display/HeaderTab';
+import { HeaderTab } from '../display/HeaderTab';
 import { milestoneTabs } from '@services';
 import { useApplicantContext } from './ApplicantContext';
-import { MilestoneTable } from '../components/milestone-logs/MilestoneTable';
-import { Recruitment } from '../components/milestone-logs/Recruitment';
+import { MilestoneTable } from '../milestone-logs/MilestoneTable';
+import { Recruitment } from '../milestone-logs/Recruitment';
 import { useEffect, useState } from 'react';
 
 export const ApplicantMilestones = () => {
@@ -11,17 +11,18 @@ export const ApplicantMilestones = () => {
 
   const [tabIndex, setTabIndex] = useState(0);
 
-  const selectDefaultLandingTab = (status_id?: number) => {
-    if (tabIndex) return;
-    const index = status_id ? +`${status_id}`.charAt(0) : 1;
-    if (index !== tabIndex) {
-      setTabIndex(index);
-    }
-  };
-
-  useEffect(() => {
-    selectDefaultLandingTab(applicant.status?.id);
-  }, [applicant]);
+  useEffect(
+    function selectDefaultLandingTab() {
+      if (tabIndex) return;
+      const status = applicant.status?.id;
+      const index = status ? +`${status}`.charAt(0) : 1;
+      if (index !== tabIndex) {
+        setTabIndex(index);
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [applicant],
+  );
 
   return (
     <div className='border-2 rounded px-5 my-5 pb-6 bg-white'>

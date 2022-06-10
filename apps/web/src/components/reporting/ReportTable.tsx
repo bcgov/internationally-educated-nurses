@@ -1,6 +1,6 @@
 import { Period } from '@ien/common';
-import { SortButton } from '../components/SortButton';
-import { Spinner } from '../components/Spinner';
+import { SortButton } from '../SortButton';
+import { Spinner } from '../Spinner';
 import { getTimeRange } from '@services';
 import { buttonBase, buttonColor } from '@components';
 
