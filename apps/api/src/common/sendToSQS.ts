@@ -19,7 +19,6 @@ export default async function sendToSQS(data: unknown): Promise<void> {
           Logger.log(`Successfully added message to queue ${res.MessageId}`, 'sendToSQS'),
         )
         .catch(err => Logger.warn(err, 'sendToSQS:Error'));
-      Logger.log('message sent', 'sendToSQS');
     } catch (e) {
       Logger.warn(e, 'sendToSlack:Error');
     }

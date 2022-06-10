@@ -11,7 +11,7 @@ export default async function postToSlack(data: unknown): Promise<void> {
       rejectUnauthorized: false,
       timeout: 20000,
     });
-    Logger.log(`Dat that send over slack: ${JSON.stringify(data)}`, 'postToSlack');
+    Logger.log(`Data that send over slack: ${JSON.stringify(data)}`, 'postToSlack');
     await axios
       .post(
         webhookUrl,
