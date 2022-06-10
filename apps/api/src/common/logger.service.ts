@@ -29,7 +29,7 @@ export class AppLogger implements LoggerService {
     this.logger.log(message, context);
   }
 
-  error(e: unknown, context?: string) {
+  async error(e: unknown, context?: string) {
     const error = e as Error & { response?: Error };
     let message: string | object = error.message;
 
@@ -52,7 +52,7 @@ export class AppLogger implements LoggerService {
     }
 
     postToSlack({ message, stack: error.stack, context });
-    sendToSQS({ message, stack: error.stack, context });
+    await sendToSQS({ message, stack: error.stack, context });
     this.logger.error(message, error.stack, context);
   }
 
