@@ -50,7 +50,6 @@ export class AppLogger implements LoggerService {
       message = error.response?.message;
     }
 
-    // postToSlack({ message, stack: error.stack, context });
     await sendToSQS({ message, stack: error.stack, context });
     this.logger.error(message, error.stack, context);
   }
