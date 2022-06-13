@@ -2,6 +2,8 @@
 
 This package handles automated accessibility(a11y) using the [axe test runner](https://github.com/pa11y/pa11y-runner-axe) testing for `@ien/web`.
 
+Tests run with standard of **WCAG2AA**.
+
 ## Preparation
 
 The a11y tests should be executed on every page. It means that the application should be running with enough data, which enables every page to render their components correctly.
@@ -57,10 +59,25 @@ test-web:
 
 `test:web` executes `yarn start:cypress && yarn test:pa11y` so that `test:pa11y` could run only when `start:cypress` succeeds.
 
+## Processing test results and notification
+
+`test:pa11y` command redirects outputs to accessibility_results.json.
+If there is an error, [pr-check-e2e](../../.github/workflows/pr-check-e2e.yml) runs [generate-a11y-markdown.js](./src/generate-a11y-markdown.js) to process the output and create a comment on the pull request. 
+
+## Debugging
+
+To debug with verbose outputs instead of redirecting them to a file, run `make debug-pa11y`.
+
 ## Screenshots
 
 `screen capture` saves screenshots into `/captures` folder. Each test case takes a screenshot before assessing a11y.
 
+## Exceptions
+
+`hideElements: 'div[class*="placeholder"]'`
+
+pa11y reports low contrast for default placeholder's text. Changing color or opacity doesn't resolve it.
+
 ## Chrome extension
 
-`Pull request checks` run this accessibility test. If you want to debug or verify on your browser while developing, use [axe DevTools](https://chrome.google.com/webstore/detail/axe-devtools-web-accessib/lhdoppojpmngadmnindnejefpokejbdd).
+If you want to debug or verify on your browser while developing, use [axe DevTools](https://chrome.google.com/webstore/detail/axe-devtools-web-accessib/lhdoppojpmngadmnindnejefpokejbdd).
