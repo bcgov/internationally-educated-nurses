@@ -8,7 +8,7 @@ import {
 } from 'react';
 import { ApplicantRO, ApplicantStatusAuditRO } from '@ien/common';
 import { getApplicant } from '@services';
-import { Spinner } from '../components/Spinner';
+import { Spinner } from '../Spinner';
 import { useRouter } from 'next/router';
 import { ApplicantJobRO } from '@ien/common/src/ro/applicant.ro';
 
@@ -75,6 +75,7 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
 
   useEffect(() => {
     fetchApplicant(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const value = {

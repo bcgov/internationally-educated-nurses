@@ -3,7 +3,7 @@ import detailIcon from '@assets/img/details.svg';
 import { DetailsItem } from '@components';
 import { useRouter } from 'next/router';
 import { useApplicantContext } from './ApplicantContext';
-import { convertCountryCode } from '../services/convert-country-code';
+import { convertCountryCode } from '../../services/convert-country-code';
 
 export const ApplicantProfile = () => {
   const router = useRouter();
