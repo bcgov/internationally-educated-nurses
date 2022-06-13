@@ -24,6 +24,6 @@ export const handler: Handler = async (
   context: Context,
   callback: Callback,
 ): Promise<APIGatewayProxyResult> => {
-  const cachedServer = await bootstrap();
-  return cachedServer(event, context, callback);
+  const cachedServerHandler = await bootstrap();
+  return cachedServerHandler(event, context, callback);
 };
