@@ -3,6 +3,7 @@ import createValidator from 'class-validator-formik';
 import dayjs from 'dayjs';
 import { Formik, Form as FormikForm, FormikHelpers, FieldProps } from 'formik';
 import ReactSelect from 'react-select';
+import { toast } from 'react-toastify';
 
 import { Button, buttonBase, Field, getSelectStyleOverride, Textarea } from '@components';
 import {
@@ -29,7 +30,6 @@ import disabledDeleteIcon from '@assets/img/disabled-trash_can.svg';
 import { useApplicantContext } from '../../../applicant/ApplicantContext';
 import { useAuthContext } from 'src/components/AuthContexts';
 import { DeleteMilestoneModal } from 'src/components/display/DeleteMilestoneModal';
-import { toast } from 'react-toastify';
 
 type MilestoneFormValues = IENApplicantAddStatusDTO | IENApplicantUpdateStatusDTO;
 
@@ -52,16 +52,15 @@ export const AddMilestone = ({ job }: AddMilestoneProps) => {
   const { applicant, updateJob } = useApplicantContext();
 
   const isDuplicate = ({ status, start_date }: any) => {
-    const result = job.status_audit?.find(m => m.status.id == status && m.start_date == start_date);
-
-    return result;
+    return job.status_audit?.find(m => m.status.id == status && m.start_date == start_date);
   };
+
   const handleSubmit = async (
     values: IENApplicantAddStatusDTO,
     helpers?: FormikHelpers<IENApplicantAddStatusDTO>,
   ) => {
     if (isDuplicate(values)) {
-      toast.error('Duplicate milestone with same date found.');
+      toast.error('Duplicate milestone with same date found');
       return;
     }
 
