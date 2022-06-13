@@ -29,6 +29,7 @@ import disabledDeleteIcon from '@assets/img/disabled-trash_can.svg';
 import { useApplicantContext } from '../../../applicant/ApplicantContext';
 import { useAuthContext } from 'src/components/AuthContexts';
 import { DeleteMilestoneModal } from 'src/components/display/DeleteMilestoneModal';
+import { toast } from 'react-toastify';
 
 type MilestoneFormValues = IENApplicantAddStatusDTO | IENApplicantUpdateStatusDTO;
 
@@ -50,10 +51,20 @@ interface AddMilestoneProps {
 export const AddMilestone = ({ job }: AddMilestoneProps) => {
   const { applicant, updateJob } = useApplicantContext();
 
+  const isDuplicate = ({ status, start_date }: any) => {
+    const result = job.status_audit?.find(m => m.status.id == status && m.start_date == start_date);
+
+    return result;
+  };
   const handleSubmit = async (
     values: IENApplicantAddStatusDTO,
     helpers?: FormikHelpers<IENApplicantAddStatusDTO>,
   ) => {
+    if (isDuplicate(values)) {
+      toast.error('Duplicate milestone with same date found.');
+      return;
+    }
+
     values.job_id = `${job.id}`;
 
     const milestone = await addMilestone(applicant.id, values);
