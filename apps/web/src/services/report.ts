@@ -173,10 +173,28 @@ const reportCreators: ReportCreator[] = [
     rowSum: true,
     colSum: true,
   },
+  {
+    name: 'Report 8',
+    description: 'Number of Internationally Educated Nurse Registrants Working in BC',
+    apiPath: '/reports/applicant/ha-current-period-fiscal',
+    header: ['', 'Current Period', 'Current Fiscal', 'Total to Date'],
+    colWidths: [30, 15, 15, 15],
+  },
 ];
+
+const getSummarySheet = (filter: PeriodFilter): WorkSheet => {
+  const rows = [['', 'IEN Standard Reports'], ['', getTimeRange(filter)], []];
+  rows.push(...reportCreators.map(c => [c.name, c.description]));
+
+  const sheet = utils.aoa_to_sheet(rows);
+  sheet['!cols'] = [{ wch: 10 }, { wch: 70 }];
+  return sheet;
+};
 
 export const createReportWorkbook = async (filter: PeriodFilter): Promise<WorkBook> => {
   const workbook = utils.book_new();
+
+  utils.book_append_sheet(workbook, getSummarySheet(filter), 'Summary');
 
   const sheets: { name: string; sheet: WorkSheet }[] = await Promise.all(
     reportCreators.map(async creator => {
