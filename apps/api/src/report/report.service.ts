@@ -1,8 +1,11 @@
 import { Inject, Logger } from '@nestjs/common';
-import { getManager } from 'typeorm';
+import { getManager, LessThanOrEqual, Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import dayjs from 'dayjs';
 import { ReportUtilService } from './report.util.service';
 import { AppLogger } from 'src/common/logger.service';
+import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.entity';
+import { startDateOfFiscal } from 'src/common/util';
 
 const PERIOD_START_DATE = '2021-04-01';
 
@@ -11,6 +14,8 @@ export class ReportService {
     @Inject(Logger) private readonly logger: AppLogger,
     @Inject(ReportUtilService)
     private readonly reportUtilService: ReportUtilService,
+    @InjectRepository(IENApplicantStatus)
+    private readonly ienapplicantStatusRepository: Repository<IENApplicantStatus>,
   ) {}
 
   captureFromTo(from: string, to: string) {
@@ -189,6 +194,49 @@ export class ReportService {
     const data = await entityManager.query(this.reportUtilService.applicantsInImmigrationQuery(to));
     this.logger.log(
       `getImmigrationApplicants: query completed a total of ${data.length} record returns`,
+    );
+    return data;
+  }
+
+  /**
+   */
+  async getApplicantHAForCurrentPeriodFiscal(t: string) {
+    const { to } = this.captureFromTo('', t);
+    // Let's find current fiscal
+    const from = startDateOfFiscal(to);
+    this.logger.log(
+      `getApplicantHAForCurrentPeriodFiscal: current period and Fiscal(start from ${from} till ${to} date)`,
+    );
+
+    const entityManager = getManager();
+    const data = await entityManager.query(
+      this.reportUtilService.applicantHAForCurrentPeriodFiscalQuery(from, to),
+    );
+    this.logger.log(
+      `getApplicantHAForCurrentPeriodFiscal: query completed a total of ${data.length} record returns`,
+    );
+    return data;
+  }
+
+  /**
+   *
+   * @param f Duration start date YYYY-MM-DD
+   * @param t Duration end date YYYY-MM-DD
+   * @returns
+   */
+  async extractApplicantsData(f: string, t: string) {
+    const { from, to } = this.captureFromTo(f, t);
+    this.logger.log(`extractApplicantsData: Apply date filter from (${from}) and to (${to})`);
+    /** Data correction not done yet from ATS, that's why added lessThanOrEqual condition */
+    const milestones: IENApplicantStatus[] = await this.ienapplicantStatusRepository.find({
+      where: { parent: 10002, id: LessThanOrEqual(99) },
+    });
+    const entityManager = getManager();
+    const data = await entityManager.query(
+      this.reportUtilService.extractApplicantsDataQuery(from, to, milestones),
+    );
+    this.logger.log(
+      `extractApplicantsData: query completed a total of ${data.length} record returns`,
     );
     return data;
   }

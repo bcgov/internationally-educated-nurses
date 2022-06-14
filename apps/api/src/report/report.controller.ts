@@ -123,4 +123,34 @@ export class ReportController {
     this.logger.log(`Report: Applicants in Immigration stage (from ${from} to ${to})`);
     return this.reportService.getImmigrationApplicants(from, to);
   }
+
+  @ApiOperation({
+    summary: 'Report 8: Number of Internationally Educated Nurse Registrants Working in BC',
+  })
+  @Get('/applicant/ha-current-period-fiscal')
+  @RouteAcceptsRoles(
+    ValidRoles.HEALTH_AUTHORITY,
+    ValidRoles.HEALTH_MATCH,
+    ValidRoles.MINISTRY_OF_HEALTH,
+  )
+  async getApplicantHAForCurrentPeriodFiscal(@Query('to') to: string): Promise<object[]> {
+    this.logger.log(`Report: Number of Internationally Educated Nurse Registrants Working in BC`);
+    return this.reportService.getApplicantHAForCurrentPeriodFiscal(to);
+  }
+
+  /** Additional report other than standard 9 reports */
+  @ApiOperation({ summary: 'Extract applicant details' })
+  @Get('/applicant/extract-data')
+  @RouteAcceptsRoles(
+    ValidRoles.HEALTH_AUTHORITY,
+    ValidRoles.HEALTH_MATCH,
+    ValidRoles.MINISTRY_OF_HEALTH,
+  )
+  async extractApplicantsData(
+    @Query('from') from: string,
+    @Query('to') to: string,
+  ): Promise<object[]> {
+    this.logger.log(`Extract applicant details (from ${from} to ${to})`);
+    return this.reportService.extractApplicantsData(from, to);
+  }
 }

@@ -62,3 +62,12 @@ function getDateOfWeek(w: number, y: number) {
   else ISOweekStart.setDate(simple.getDate() + 8 - simple.getDay());
   return ISOweekStart;
 }
+
+export function startDateOfFiscal(date: string) {
+  const today = new Date(date);
+  let fiscalYearStartDate = today.getFullYear();
+  if (today.getMonth() + 1 <= 3) {
+    fiscalYearStartDate = today.getFullYear() - 1;
+  }
+  return `${fiscalYearStartDate}-04-01`;
+}
