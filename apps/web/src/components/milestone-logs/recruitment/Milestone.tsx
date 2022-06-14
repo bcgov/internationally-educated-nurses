@@ -51,8 +51,8 @@ interface AddMilestoneProps {
 export const AddMilestone = ({ job }: AddMilestoneProps) => {
   const { applicant, updateJob } = useApplicantContext();
 
-  const isDuplicate = ({ status, start_date }: any) => {
-    return job.status_audit?.find(m => m.status.id == status && m.start_date == start_date);
+  const isDuplicate = ({ status, start_date }: IENApplicantAddStatusDTO) => {
+    return job.status_audit?.find(m => m.status.id == +status && m.start_date == start_date);
   };
 
   const handleSubmit = async (
