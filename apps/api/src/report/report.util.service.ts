@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { isValidDateFormat } from 'src/common/util';
 import dayjs from 'dayjs';
+import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.entity';
 
 @Injectable()
 export class ReportUtilService {
@@ -407,6 +408,107 @@ export class ReportUtilService {
         FROM final_data
         GROUP BY status_id
       ) as t1 LEFT JOIN public.ien_applicant_status ON t1.status_id=ien_applicant_status.id;
+    `;
+  }
+
+  applicantHAForCurrentPeriodFiscalQuery(from: string, to: string) {
+    return `
+      -- milestoneId 37 - Received Work Permit (Arrival in Canada)
+      -- 
+      WITH periods AS (
+        SELECT
+          to_char('${from}'::date + ((('${to}'::date - '${from}'::date)/28)*28), 'YYYY-MM-DD') as period_start
+      ), applicantReceivedWP AS (
+        SELECT 
+          applicant_id, max(start_date) as start_date
+        FROM public.ien_applicant_status_audit
+        WHERE status_id=37 AND start_date::date <= '${to}'
+        GROUP BY applicant_id
+      ), applicantHA AS (
+        SELECT
+          arwp.*,
+          (
+            SELECT aj.ha_pcn_id 
+            FROM public.ien_applicant_status_audit asa JOIN public.ien_applicant_jobs aj on aj.id=asa.job_id
+            WHERE arwp.applicant_id = asa.applicant_id
+            ORDER BY asa.start_date DESC
+            limit 1
+          ) as ha 
+        FROM applicantReceivedWP arwp
+      ), currentPeriod as (
+      
+        SELECT ha, count(*) as current_period
+        FROM applicantHA
+        WHERE 
+          start_date >= (SELECT period_start::date FROM periods) AND
+          start_date <= '${to}'
+        GROUP BY ha
+      ), currentFiscal as (
+        SELECT ha, count(*) as current_fiscal
+        FROM applicantHA
+        WHERE 
+          start_date >= '${from}' AND
+          start_date <= '${to}'
+        GROUP BY ha
+      ), totalToDate as (
+        SELECT ha, count(*) as total_to_date
+        FROM applicantHA
+        WHERE start_date <= '${to}'
+        GROUP BY ha
+      ), report AS (
+        SELECT 
+          title,
+          COALESCE(currentPeriod.current_period, 0) as current_period,
+          COALESCE(currentFiscal.current_fiscal, 0) as current_fiscal,
+          COALESCE(totalToDate.total_to_date, 0) as total_to_date
+        FROM public.ien_ha_pcn
+        LEFT JOIN currentPeriod ON currentPeriod.ha=id
+        LEFT JOIN currentFiscal ON currentFiscal.ha=id
+        LEFT JOIN totalToDate ON totalToDate.ha=id
+        WHERE title NOT IN ('Other', 'Education')
+        ORDER BY title DESC
+      )
+      
+      SELECT * FROM report
+      UNION ALL
+      SELECT 'Total (up to ' || to_char('${to}'::date, 'Mon DD,YYYY') || ')', sum(current_period), sum(current_fiscal), sum(total_to_date) from report;
+    `;
+  }
+
+  extractApplicantsDataQuery(from: string, to: string, milestones: IENApplicantStatus[]) {
+    const milestone_ids: string[] = [];
+    const milestoneList: string[] = [];
+    milestones.forEach((item: { id: number; status: string }) => {
+      milestone_ids.push(`"${item.id}" date`); // It will help to create dynamic column from json object
+      milestoneList.push(`to_char(x."${item.id}", 'YYYY-MM-DD') as "${item.status}"`); // Display status name instead of id
+    });
+    const applicantColumns: string[] = [
+      'a.id',
+      'a.applicant_id',
+      `a.additional_data->'first_name' as first_name`,
+      `a.additional_data->'last_name' as last_name`,
+      'a.registration_date',
+      'a.email_address',
+      'a.phone_number',
+      `(select string_agg(t->>'name', ',') from jsonb_array_elements(a.assigned_to::jsonb) as x(t)) as assigned_to`,
+      'a.country_of_residence',
+      'a.pr_status',
+      `(select string_agg(t->>'title', ',') from jsonb_array_elements(a.health_authorities::jsonb) as x(t)) as health_authorities`,
+      'CAST(a.nursing_educations AS TEXT)',
+      `a.country_of_citizenship::TEXT as country_of_citizenship`,
+    ];
+    return `
+    SELECT ${applicantColumns.join(',')}, ${milestoneList.join(',')}
+    FROM public.ien_applicants as a
+    LEFT JOIN
+      jsonb_to_record(
+      (SELECT jsonb_build_object('applicant_id',t.applicant_id) || jsonb_object_agg(t.status_id::text, t.start_date) AS data
+      FROM public.ien_applicant_status_audit t
+      WHERE t.applicant_id=a.id
+      GROUP by t.applicant_id)
+      ) as x("applicant_id" uuid, ${milestone_ids.join(',')}) ON x.applicant_id=a.id
+    WHERE a.registration_date::date >= '${from}' AND a.registration_date::date < '${to}'
+    ORDER BY a.registration_date DESC
     `;
   }
 

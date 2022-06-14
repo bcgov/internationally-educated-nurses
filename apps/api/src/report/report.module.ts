@@ -1,5 +1,6 @@
 import { forwardRef, Logger, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.entity';
 import { AuthModule } from 'src/auth/auth.module';
 import { EmployeeModule } from 'src/employee/employee.module';
 import { ReportController } from './report.controller';
@@ -9,7 +10,7 @@ import { ReportUtilService } from './report.util.service';
 @Module({
   controllers: [ReportController],
   imports: [
-    TypeOrmModule.forFeature([]),
+    TypeOrmModule.forFeature([IENApplicantStatus]),
     forwardRef(() => AuthModule),
     forwardRef(() => EmployeeModule),
   ],
