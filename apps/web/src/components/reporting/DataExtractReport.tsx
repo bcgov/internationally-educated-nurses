@@ -33,11 +33,11 @@ export const DataExtractReport = () => {
     <>
       <div className='text-bcBluePrimary text-lg font-bold mb-4'>Data Extract</div>
       <Formik initialValues={initialValues} onSubmit={download}>
-        {({ isSubmitting, handleReset, dirty, touched }) => (
+        {({ isSubmitting, handleReset, dirty, touched, values }) => (
           <FormikForm>
             <div className='flex flex-row pb-4'>
               <span className='pr-3 w-full'>
-                <Field name='from' label='Start Date' type='date' max={getMaxDate()} />
+                <Field name='from' label='Start Date' type='date' max={values.to || getMaxDate()} />
               </span>
               <span className='pr-3 w-full'>
                 <Field name='to' label='End Date' type='date' max={getMaxDate()} />
