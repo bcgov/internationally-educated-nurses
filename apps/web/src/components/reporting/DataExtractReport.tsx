@@ -25,6 +25,7 @@ export const DataExtractReport = () => {
   };
 
   const getMaxDate = () => {
+    // make max date one day less than current date
     return dayjs().subtract(1, 'day').format('YYYY-MM-DD');
   };
 

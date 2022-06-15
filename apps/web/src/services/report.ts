@@ -215,17 +215,22 @@ const getSummarySheet = (filter: PeriodFilter): WorkSheet => {
   return sheet;
 };
 
-export const getApplicantDataExtractSheet = (applicants: any[]) => {
+export const getApplicantDataExtractSheet = (applicants: any[]): WorkSheet => {
   const sheet = utils.json_to_sheet(applicants);
+
   return sheet;
 };
 
 export const createApplicantDataExtractWorkbook = async (
   filter: PeriodFilter,
 ): Promise<WorkBook> => {
+  // create a new workbook
   const workbook = utils.book_new();
+
+  // get applicant data to populate sheet
   const applicants = await getApplicantDataExtract(filter);
 
+  // create work sheet and append to workbook
   utils.book_append_sheet(
     workbook,
     getApplicantDataExtractSheet(applicants),
