@@ -47,6 +47,7 @@ export BOOTSTRAP_ENV=terraform/bootstrap
 
 ifeq ($(ENV_NAME), prod)
 DOMAIN=ien.gov.bc.ca
+NEXT_PUBLIC_AUTH_URL=https://common-logon.hlth.gov.bc.ca/auth
 BASTION_INSTANCE_ID = $(BASTION_INSTANCE_ID_PROD)
 DB_HOST = $(DB_HOST_PROD)
 BASTION_INSTANCE_ID = $(BASTION_INSTANCE_ID_PROD)
@@ -62,6 +63,7 @@ endif
 
 ifeq ($(ENV_NAME), test) 
 DOMAIN=test.ien.freshworks.club
+NEXT_PUBLIC_AUTH_URL = https://common-logon-test.hlth.gov.bc.ca/auth
 BASTION_INSTANCE_ID = $(BASTION_INSTANCE_ID_TEST)
 DB_HOST = $(DB_HOST_PROD_TEST)
 endif
