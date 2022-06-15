@@ -17,6 +17,16 @@ interface ReportCreator {
   colSum?: boolean;
 }
 
+export const getApplicantDataExtract = async (filter?: PeriodFilter) => {
+  try {
+    const url = `/reports/applicant/extract-data?${convertToParams(filter)}`;
+    const { data } = await axios.get(url);
+    return data?.data;
+  } catch (e) {
+    notifyError(e as AxiosError);
+  }
+};
+
 export const getReportByEOI = async (filter?: PeriodFilter) => {
   try {
     const url = `/reports/applicant/registered?${convertToParams(filter)}`;

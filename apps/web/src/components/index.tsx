@@ -16,3 +16,4 @@ export * from './MenuBar';
 export * from './form';
 
 // Folders
+export * from './reporting';
