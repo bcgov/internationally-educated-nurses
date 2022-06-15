@@ -14,7 +14,7 @@ describe('Report', () => {
   });
 
   it('downloads a report', () => {
-    cy.get('button:contains(Download)').eq(1).click();
+    cy.contains('button.bg-white', 'Download').eq(0).click();
     cy.verifyDownload('.xlsx', { contains: true });
     cy.task('checkReport');
   });
