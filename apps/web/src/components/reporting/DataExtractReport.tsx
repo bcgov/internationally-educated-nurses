@@ -1,20 +1,27 @@
-import { Button, Field } from '@components';
-import { getApplicantDataExtract } from '@services';
 import dayjs from 'dayjs';
 import { Formik, Form as FormikForm } from 'formik';
+import { writeFileXLSX } from 'xlsx';
 
-const initialValues = {
-  job_post_date: '',
+import { Button, Field } from '@components';
+import { PeriodFilter } from '@ien/common';
+import { createApplicantDataExtractWorkbook } from '@services';
+
+const REPORT_PREFIX = 'ien-applicant-data-extract';
+
+const initialValues: PeriodFilter = {
+  from: '',
+  to: '',
 };
 
-// interface DataExtractReportProps {
-//   periods: PeriodFilter;
-// }
-
 export const DataExtractReport = () => {
-  const submit = async () => {
-    const test = await getApplicantDataExtract({ from: '2022-04-28', to: '2022-05-25' });
-    return test;
+  const download = async (values: PeriodFilter) => {
+    const { from, to } = values;
+    const workbook = await createApplicantDataExtractWorkbook({
+      from,
+      to,
+    });
+
+    writeFileXLSX(workbook, `${REPORT_PREFIX}-${values.from}-${values.to}.xlsx`);
   };
 
   const getMaxDate = () => {
@@ -24,21 +31,21 @@ export const DataExtractReport = () => {
   return (
     <>
       <div className='text-bcBluePrimary text-lg font-bold mb-4'>Data Extract</div>
-      <Formik initialValues={initialValues} onSubmit={submit}>
-        {({ isSubmitting }) => (
+      <Formik initialValues={initialValues} onSubmit={download}>
+        {({ isSubmitting, handleReset, dirty, touched }) => (
           <FormikForm>
             <div className='flex flex-row pb-4'>
               <span className='pr-3 w-full'>
-                <Field name='start_date' label='Start Date' type='date' max={getMaxDate()} />
+                <Field name='from' label='Start Date' type='date' max={getMaxDate()} />
               </span>
               <span className='pr-3 w-full'>
-                <Field name='end_date' label='End Date' type='date' />
+                <Field name='to' label='End Date' type='date' max={getMaxDate()} />
               </span>
               <span className='pr-3 mt-auto'>
                 <Button
                   className='w-full px-8'
                   variant='primary'
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !dirty || !touched}
                   type='submit'
                   loading={isSubmitting}
                 >
@@ -46,7 +53,7 @@ export const DataExtractReport = () => {
                 </Button>
               </span>
               <span className='mt-auto'>
-                <Button className='w-full px-10' variant='secondary'>
+                <Button className='w-full px-10' variant='secondary' onClick={handleReset}>
                   Clear
                 </Button>
               </span>

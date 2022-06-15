@@ -215,6 +215,26 @@ const getSummarySheet = (filter: PeriodFilter): WorkSheet => {
   return sheet;
 };
 
+export const getApplicantDataExtractSheet = (applicants: any[]) => {
+  const sheet = utils.json_to_sheet(applicants);
+  return sheet;
+};
+
+export const createApplicantDataExtractWorkbook = async (
+  filter: PeriodFilter,
+): Promise<WorkBook> => {
+  const workbook = utils.book_new();
+  const applicants = await getApplicantDataExtract(filter);
+
+  utils.book_append_sheet(
+    workbook,
+    getApplicantDataExtractSheet(applicants),
+    'IEN Applicant Data Extract',
+  );
+
+  return workbook;
+};
+
 export const createReportWorkbook = async (filter: PeriodFilter): Promise<WorkBook> => {
   const workbook = utils.book_new();
 
