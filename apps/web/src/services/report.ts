@@ -216,6 +216,7 @@ const getSummarySheet = (filter: PeriodFilter): WorkSheet => {
 };
 
 export const getApplicantDataExtractSheet = (applicants: any[]): WorkSheet => {
+  // create sheet from applicant data
   return utils.json_to_sheet(applicants);
 };
 
