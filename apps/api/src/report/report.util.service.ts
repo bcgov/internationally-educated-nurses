@@ -466,12 +466,134 @@ export class ReportUtilService {
         LEFT JOIN currentFiscal ON currentFiscal.ha=id
         LEFT JOIN totalToDate ON totalToDate.ha=id
         WHERE title NOT IN ('Other', 'Education')
-        ORDER BY title DESC
+        ORDER BY title
       )
       
       SELECT * FROM report
       UNION ALL
       SELECT 'Total (up to ' || to_char('${to}'::date, 'Mon DD,YYYY') || ')', sum(current_period), sum(current_fiscal), sum(total_to_date) from report;
+    `;
+  }
+
+  averageTimeWithEachStackholderGroupQuery(to: string) {
+    return `
+      -- ONLY HIRED Applicants are selected in "Average Amount of Time" calculation with Each Stakeholder Group
+      -- For developer reference
+      -- ROUND(avg(average_time_to_hire), 2)::double precision as mean_value; --mean
+      -- SELECT PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY some_value) FROM tbl; -- median
+      -- SELECT mode() WITHIN GROUP (ORDER BY some_value) AS mode_value FROM tbl; -- mode
+      WITH hired_applicants AS (
+        SELECT 
+          applicants.id,
+          ien_hired.start_date as hired_date,
+          jobs.ha_pcn_id as ha,
+          ien_hired.job_id
+        FROM public.ien_applicants as applicants
+        LEFT JOIN public.ien_applicant_status_audit ien_hired 
+        ON ien_hired.applicant_id=applicants.id AND ien_hired.status_id=28 AND ien_hired.start_date::date <= '${to}'
+        LEFT JOIN public.ien_applicant_jobs jobs ON jobs.id=ien_hired.job_id
+        WHERE ien_hired.status_id is not null
+      ), start_date_of_each_stage AS (
+        SELECT
+          *,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id) as milestone_start_date,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id AND asa.status_id IN (4,5,6)) as nnas,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id AND asa.status_id IN (7,8,9,10,11,12)) as bccnm_ncas,
+          (SELECT max(start_date) - min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id AND asa.job_id = hired.job_id) as employer_duration,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id AND asa.status_id IN (30,31,32,33,34,35) AND asa.start_date::date <= '${to}') as immigration,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id AND asa.status_id IN (36,37,38) AND asa.start_date::date <= '${to}') as immigration_completed
+        FROM hired_applicants hired
+      ), stackholder_duration AS (
+        SELECT
+          sdoes.id,
+          sdoes.ha,
+          sdoes.employer_duration,
+          (
+            CASE
+                WHEN sdoes.nnas IS NOT null THEN (
+                (
+                  SELECT min(start_date) FROM public.ien_applicant_status_audit asa LEFT JOIN public.ien_applicant_status ien_status ON ien_status.id=asa.status_id
+                  WHERE asa.applicant_id=sdoes.id AND asa.start_date >= sdoes.nnas AND (asa.status_id IN (6,7,8,9,10,11,12,13,14,15,16,17,18,19) OR ien_status.parent_id IN (10003, 10004, 10005))
+                ) - sdoes.nnas)
+            END
+          ) AS nnas_duration,
+          (
+            CASE
+              WHEN sdoes.bccnm_ncas IS NOT null THEN (
+                (
+                  SELECT min(start_date) FROM public.ien_applicant_status_audit asa LEFT JOIN public.ien_applicant_status ien_status ON ien_status.id=asa.status_id
+                  WHERE asa.applicant_id=sdoes.id AND asa.start_date >= sdoes.nnas AND (asa.status_id IN (12,13,14,15,16,17,18,19) OR ien_status.parent_id IN (10003, 10004, 10005))
+                ) - sdoes.bccnm_ncas)
+          END
+          ) AS bccnm_ncas_duration,
+          (
+            CASE
+              WHEN sdoes.immigration IS NOT null AND sdoes.immigration_completed IS NOT null THEN (sdoes.immigration_completed - sdoes.immigration)
+              WHEN sdoes.immigration IS NOT null AND sdoes.immigration_completed IS null THEN ('${to}'::date - sdoes.immigration)
+            END
+          ) AS immigration_duration,
+          (
+            CASE
+              WHEN sdoes.immigration_completed IS null THEN ('${to}'::date - sdoes.milestone_start_date)
+              ELSE (sdoes.immigration_completed - sdoes.milestone_start_date)
+            END
+          ) AS overall,
+          (CASE WHEN sdoes.nnas IS NOT NULL THEN (sdoes.hired_date - sdoes.nnas) END) average_time_to_hire
+        FROM start_date_of_each_stage sdoes
+      ), report AS (
+        SELECT
+          'NNAS' as "title",
+          ' ' as "HA",
+          ROUND(avg(nnas_duration), 2) as mean_value,
+          PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY nnas_duration) AS median_value,
+          mode() WITHIN GROUP (ORDER BY nnas_duration) AS mode_value
+        FROM stackholder_duration
+        UNION ALL
+        SELECT
+          'BCCNM & NCAS',
+          ' ',
+          ROUND(avg(bccnm_ncas_duration), 2) as mean_value,
+          PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY bccnm_ncas_duration) AS median_value,
+          mode() WITHIN GROUP (ORDER BY bccnm_ncas_duration) AS mode_value
+        FROM stackholder_duration
+        UNION ALL
+        SELECT * FROM (SELECT ' ', title, t1.mean_value, t1.median_value, t1.mode_value
+        FROM public.ien_ha_pcn LEFT JOIN (
+          SELECT 
+            ha,
+            avg(employer_duration)::double precision as mean_value,
+            PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY employer_duration) AS median_value,
+            mode() WITHIN GROUP (ORDER BY employer_duration) AS mode_value
+          FROM stackholder_duration
+          GROUP BY ha
+        ) as t1 ON t1.ha=id
+        WHERE title NOT IN ('Other', 'Education') ORDER BY title) as a1
+        UNION ALL
+        SELECT
+          'Immigration',
+          ' ',
+          avg(immigration_duration)::double precision as mean_value,
+          PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY immigration_duration) AS median_value,
+          mode() WITHIN GROUP (ORDER BY immigration_duration) AS mode_value
+        FROM stackholder_duration
+        UNION ALL
+        SELECT
+          'Overall',
+          ' ',
+          ROUND(avg(overall), 2) as mean_value,
+          PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY overall) AS median_value,
+          mode() WITHIN GROUP (ORDER BY overall) AS mode_value
+        FROM stackholder_duration
+        UNION ALL
+        SELECT
+          'Average time to hire',
+          ' ',
+          ROUND(avg(average_time_to_hire), 2) as mean_value,
+          PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY average_time_to_hire) AS median_value,
+          mode() WITHIN GROUP (ORDER BY average_time_to_hire) AS mode_value
+        FROM stackholder_duration
+      )
+      SELECT title, "HA", COALESCE(mean_value, 0) as "Mean", COALESCE(median_value, 0) as "Median", COALESCE(mode_value, 0) as "Mode" FROM report;
     `;
   }
 
