@@ -53,7 +53,7 @@ const createSheet = (
   creator: ReportCreator,
   filter: PeriodFilter,
 ): WorkSheet => {
-  const { description, header, rowProcessor, colWidths, rowSum, colSum } = creator;
+  const { description, header, rowProcessor, colWidths, rowSum, colSum, name } = creator;
 
   if (colSum) {
     data.forEach(row => {
@@ -86,8 +86,9 @@ const createSheet = (
 
   const sheet = utils.aoa_to_sheet(rows);
   if (colWidths) sheet['!cols'] = colWidths.map(wch => ({ wch }));
-
-  applyNumberFormat(sheet, { r: 4, c: 1 }, { r: rows.length - 1, c: dataRows[0].length });
+  if (name !== 'Report 9') {
+    applyNumberFormat(sheet, { r: 4, c: 1 }, { r: rows.length - 1, c: dataRows[0].length });
+  }
 
   return sheet;
 };
@@ -179,6 +180,19 @@ const reportCreators: ReportCreator[] = [
     apiPath: '/reports/applicant/ha-current-period-fiscal',
     header: ['', 'Current Period', 'Current Fiscal', 'Total to Date'],
     colWidths: [30, 15, 15, 15],
+  },
+  {
+    name: 'Report 9',
+    description: 'Average Amount of Time with Each Stakeholder Group',
+    apiPath: '/reports/applicant/average-time-with-stackholder-group',
+    header: ['', '', 'Mean', 'Median', 'Mode'],
+    rowProcessor: (data: Record<string, string | number>[]) => {
+      const rows = data.map(Object.values);
+      rows.splice(2, 0, ['Employer']);
+      rows.splice(rows.length - 1, 0, []);
+      return rows;
+    },
+    colWidths: [25, 35, 10, 10, 10],
   },
 ];
 
