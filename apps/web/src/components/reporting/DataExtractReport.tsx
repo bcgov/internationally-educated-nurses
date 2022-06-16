@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { Formik, Form as FormikForm } from 'formik';
+import { Formik, Form as FormikForm, FormikHelpers } from 'formik';
 import { writeFileXLSX } from 'xlsx';
 
 import { Button, Field } from '@components';
@@ -14,7 +14,7 @@ const initialValues: PeriodFilter = {
 };
 
 export const DataExtractReport = () => {
-  const download = async (values: PeriodFilter) => {
+  const download = async (values: PeriodFilter, helpers?: FormikHelpers<PeriodFilter>) => {
     const { from, to } = values;
     const workbook = await createApplicantDataExtractWorkbook({
       from,
@@ -22,6 +22,8 @@ export const DataExtractReport = () => {
     });
 
     writeFileXLSX(workbook, `${REPORT_PREFIX}-${values.from}-${values.to}.xlsx`);
+
+    helpers && helpers.resetForm();
   };
 
   const getMaxDate = () => {
@@ -40,7 +42,13 @@ export const DataExtractReport = () => {
                 <Field name='from' label='Start Date' type='date' max={values.to || getMaxDate()} />
               </span>
               <span className='pr-3 w-full'>
-                <Field name='to' label='End Date' type='date' max={getMaxDate()} />
+                <Field
+                  name='to'
+                  label='End Date'
+                  type='date'
+                  min={dayjs(values.from).format('YYYY-MM-DD')}
+                  max={getMaxDate()}
+                />
               </span>
               <span className='pr-3 mt-auto'>
                 <Button
