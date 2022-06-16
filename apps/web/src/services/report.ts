@@ -17,6 +17,16 @@ interface ReportCreator {
   colSum?: boolean;
 }
 
+export const getApplicantDataExtract = async (filter?: PeriodFilter) => {
+  try {
+    const url = `/reports/applicant/extract-data?${convertToParams(filter)}`;
+    const { data } = await axios.get(url);
+    return data?.data;
+  } catch (e) {
+    notifyError(e as AxiosError);
+  }
+};
+
 export const getReportByEOI = async (filter?: PeriodFilter) => {
   try {
     const url = `/reports/applicant/registered?${convertToParams(filter)}`;
@@ -203,6 +213,30 @@ const getSummarySheet = (filter: PeriodFilter): WorkSheet => {
   const sheet = utils.aoa_to_sheet(rows);
   sheet['!cols'] = [{ wch: 10 }, { wch: 70 }];
   return sheet;
+};
+
+export const getApplicantDataExtractSheet = (applicants: any[]): WorkSheet => {
+  // create sheet from applicant data
+  return utils.json_to_sheet(applicants);
+};
+
+export const createApplicantDataExtractWorkbook = async (
+  filter: PeriodFilter,
+): Promise<WorkBook> => {
+  // create a new workbook
+  const workbook = utils.book_new();
+
+  // get applicant data to populate sheet
+  const applicants = await getApplicantDataExtract(filter);
+
+  // create work sheet and append to workbook
+  utils.book_append_sheet(
+    workbook,
+    getApplicantDataExtractSheet(applicants),
+    'IEN Applicant Data Extract',
+  );
+
+  return workbook;
 };
 
 export const createReportWorkbook = async (filter: PeriodFilter): Promise<WorkBook> => {

@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import { writeFileXLSX } from 'xlsx';
+
 import { Period, ValidRoles } from '@ien/common';
 import { createReportWorkbook, getReportByEOI } from '@services';
 import { PageOptions, Pagination } from '../components/Pagination';
 import { ReportTable } from '../components/reporting/ReportTable';
 import withAuth from '../components/Keycloak';
+import { DataExtractReport } from '@components';
 
 const DEFAULT_PAGE_SIZE = 10;
 const REPORT_PREFIX = 'ien-report-period';
@@ -79,8 +81,11 @@ const Reporting = () => {
       <p className='mt-2 mb-5'>
         All the reports are generated based on period. Available reports begin from April 1, 2021
       </p>
-      <div className='bg-white p-5'>
-        <div className='text-bcGray mb-7'>{`Showing ${periods.length} reports`}</div>
+      <div className='bg-white p-5 rounded mb-5'>
+        <DataExtractReport />
+      </div>
+      <div className='bg-white p-5 rounded'>
+        <div className='text-bcBluePrimary text-lg font-bold mb-4'>Standard Period Report</div>
 
         <Pagination
           pageOptions={{ pageIndex, pageSize: limit, total }}

@@ -11,5 +11,6 @@
   "viewportWidth": 1280,
   "viewportHeight": 960,
   "videoUploadOnPasses": false,
-  "experimentalSessionAndOrigin": true
+  "experimentalSessionAndOrigin": true,
+  "waitForAnimations": true
 }
