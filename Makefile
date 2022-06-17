@@ -321,7 +321,7 @@ backup-db:
 # ===================================
 
 pre-tag:
-	@./bin/check_rebase.sh
+	@./scripts/check_rebase.sh
 	
 tag-dev:
 	@git tag -fa dev -m "Deploy dev: $(git rev-parse --abbrev-ref HEAD)"

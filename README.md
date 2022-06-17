@@ -164,7 +164,7 @@ Unit and integration tests run against the API in the CI pipeline on pull reques
 
 ### Manual API Tests
 
-Requests to all endpoints are defined in FreshWorks's Postman IEN workspace. Except `version` endpoint, all require authentication. IEN collection's pre-request script authenticates and saves `token` as an environment variable before each call.
+Requests to all endpoints are defined in FreshWorks's Postman IEN workspace. Except `version` endpoint, all require authentication. IEN collection's [pre-request](./docs/postman.md) script authenticates and saves `token` as an environment variable before each call.
 
 > Note that it only works for the `local` and `dev` environments because they use different Keycloak servers. See [deployments](#deployments) section. To query for the `test` and `prod`, unset `username` and `password` environment variables and set `token` with the one retrieved from the response of login request in the browser.
 > 
@@ -236,10 +236,10 @@ To trigger deployment, run `make tag-{env}`. ex) `make tag-dev`
 > **Authentication**
 > 
 > `local` and `dev` use FreshWorks's Keycloak server at https://keycloak.freshworks.club.
-> 
+> ``
 > `test` and `prod` use Ministry of Health's Keycloak server at https://common-logon-test.hlth.gov.bc.ca and https://common-logon.hlth.gov.bc.ca 
 > 
-> The notable difference is that MoH Keycloak doesn't allow `direct access grants`. Therefore, you can't use [pre-request](./apps/api/scripts/pre-request.js) to authenticate on Postman.
+> The notable difference is that MoH Keycloak doesn't allow `direct access grants`. Therefore, you can't use [pre-request](docs/postman.md) to authenticate on Postman.
 
 #### Infrastructure and Deployments:
 
