@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { IsNull, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantStatus } from './entity/ienapplicant-status.entity';
 import { IENHaPcn } from './entity/ienhapcn.entity';
 import { IENUsers } from './entity/ienusers.entity';
@@ -15,25 +14,24 @@ import { IENStatusReason } from './entity/ienstatus-reason.entity';
 export class IENMasterService {
   applicantRelations: any;
   constructor(
-    @Inject(Logger) private readonly logger: AppLogger,
     @InjectRepository(IENApplicantStatus)
-    private readonly ienapplicantStatusRepository: Repository<IENApplicantStatus>,
+    readonly ienApplicantStatusRepository: Repository<IENApplicantStatus>,
     @InjectRepository(IENHaPcn)
-    private readonly ienHaPcnRepository: Repository<IENHaPcn>,
+    readonly ienHaPcnRepository: Repository<IENHaPcn>,
     @InjectRepository(IENUsers)
-    private readonly ienUsersRepository: Repository<IENUsers>,
+    readonly ienUsersRepository: Repository<IENUsers>,
     @InjectRepository(IENEducation)
-    private readonly ienEducationListRepository: Repository<IENEducation>,
+    readonly ienEducationListRepository: Repository<IENEducation>,
     @InjectRepository(IENJobTitle)
-    private readonly ienJobTitleRepository: Repository<IENJobTitle>,
+    readonly ienJobTitleRepository: Repository<IENJobTitle>,
     @InjectRepository(IENJobLocation)
-    private readonly ienJobLoactionRepository: Repository<IENJobLocation>,
+    readonly ienJobLocationRepository: Repository<IENJobLocation>,
     @InjectRepository(IENStatusReason)
-    private readonly ienStatusReasonRepository: Repository<IENStatusReason>,
+    readonly ienStatusReasonRepository: Repository<IENStatusReason>,
   ) {}
 
   async getStatus(): Promise<IENApplicantStatus[]> {
-    return this.ienapplicantStatusRepository.find({
+    return this.ienApplicantStatusRepository.find({
       where: {
         parent: IsNull(),
       },
@@ -74,7 +72,7 @@ export class IENMasterService {
   }
 
   async getJobLocations(): Promise<IENJobLocation[]> {
-    return this.ienJobLoactionRepository.find({
+    return this.ienJobLocationRepository.find({
       order: {
         title: 'ASC',
       },
