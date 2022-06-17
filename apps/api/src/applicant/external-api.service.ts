@@ -505,16 +505,16 @@ export class ExternalAPIService {
 
   /** create applicant-milestone object */
   mapMilestoneData(
-    allowedMilestones: string | any[],
+    allowedMilestones: number[],
     m: {
-      id: any;
-      start_date: any;
-      created_date: any;
+      id: number;
+      start_date: string;
+      created_date: string;
       note: any;
       added_by: number;
-      reason_id: any;
-      reason_other: any;
-      effective_date: any;
+      reason_id: number | string;
+      reason_other: string;
+      effective_date: string;
     },
     milestones: any[],
     tableId: any,
