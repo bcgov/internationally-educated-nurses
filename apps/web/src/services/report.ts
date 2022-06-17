@@ -2,8 +2,11 @@ import axios, { AxiosError } from 'axios';
 import _ from 'lodash';
 import { convertToParams, Period, PeriodFilter } from '@ien/common';
 import dayjs from 'dayjs';
-import { CellAddress, utils, WorkBook, WorkSheet } from 'xlsx';
+import { CellAddress, utils, WorkBook, WorkSheet } from 'xlsx-js-style';
 import { notifyError } from '../utils/notify-error';
+
+const bold = { bold: true };
+const fgColor = { rgb: 'e6f2ff' };
 
 interface ReportCreator {
   name: string;
@@ -81,23 +84,59 @@ const createSheet = (
     row.forEach((v, index) => (row[index] = v || 0));
   });
 
+  const headerStyle = {
+    fill: { fgColor },
+    font: bold,
+    alignment: { wrapText: true, horizontal: 'right', vertical: 'top' },
+  };
+
   const headerRow = Array.isArray(header) ? header : header(data, creator);
 
-  const rows = [[description], [], [getTimeRange(filter)], headerRow, ...dataRows];
+  const rows = [
+    [{ v: description, t: 's', s: { font: bold, alignment: { horizontal: 'left' } } }],
+    [],
+    [{ v: getTimeRange(filter) }],
+    [],
+    headerRow.map(_.upperCase).map(v => ({ v, t: 's', s: headerStyle })),
+    ...dataRows.map((row, rowIndex) => {
+      if (rowIndex === dataRows.length - 1 && row[0]?.toUpperCase() === 'TOTAL') {
+        return row.map((v, colIndex) => {
+          if (colIndex === 0)
+            return {
+              v: v.toUpperCase(),
+              t: 's',
+              s: { fill: { fgColor }, font: bold, alignment: { horizontal: 'left' } },
+            };
+          return { v, t: 'n', s: headerStyle };
+        });
+      }
+      return row.map((v, colIndex) => {
+        if (
+          (colSum && colIndex + 1 === row.length) ||
+          headerRow[colIndex]?.toUpperCase() === 'TOTAL'
+        ) {
+          return { v, t: 'n', s: headerStyle };
+        }
+        return v;
+      });
+    }),
+  ];
 
   if (rowSum) {
     rows.push([
-      'Total',
-      ...dataRows.reduce((total, row) => {
-        return total.map((value, index) => +row[index + 1] + +value);
-      }, Array(dataRows[0].length - 1).fill(0)),
+      { v: 'TOTAL', t: 's', s: { fill: { fgColor }, font: bold } },
+      ...dataRows
+        .reduce((total, row) => {
+          return total.map((value, index) => +row[index + 1] + +value);
+        }, Array(dataRows[0].length - 1).fill(0))
+        .map(v => ({ v, t: 'n', s: headerStyle })),
     ]);
   }
 
   const sheet = utils.aoa_to_sheet(rows);
   if (colWidths) sheet['!cols'] = colWidths.map(wch => ({ wch }));
   if (name !== 'Report 9') {
-    applyNumberFormat(sheet, { r: 4, c: 1 }, { r: rows.length - 1, c: dataRows[0].length });
+    applyNumberFormat(sheet, { r: 5, c: 1 }, { r: rows.length - 1, c: dataRows[0].length });
   }
 
   return sheet;
@@ -112,7 +151,7 @@ const reportCreators: ReportCreator[] = [
     rowProcessor: (data: Period[]) => {
       return data.map(p => [`Period ${p.period}: ${getTimeRange(p)}`, `${p.applicants}`]);
     },
-    colWidths: [40, 15],
+    colWidths: [40, 20],
     rowSum: true,
   },
   {
@@ -141,7 +180,7 @@ const reportCreators: ReportCreator[] = [
     header: (data: Record<string, string | number>[]) => {
       return ['', ...Object.keys(_.omit(data[0], 'title'))];
     },
-    colWidths: [40],
+    colWidths: [40, 15, 15, 15, 15],
   },
   {
     name: 'Report 4',
@@ -153,14 +192,14 @@ const reportCreators: ReportCreator[] = [
       rows.splice(rows.length - 2, 0, []);
       return rows;
     },
-    colWidths: [40, 15],
+    colWidths: [40, 20],
   },
   {
     name: 'Report 5',
     description: 'Number of Internationally Educated Nurse Registrants Eligible for Job Search',
     apiPath: '/reports/applicant/license',
     header: ['', 'applicants'],
-    colWidths: [40, 15],
+    colWidths: [40, 20],
   },
   {
     name: 'Report 6',
@@ -169,7 +208,7 @@ const reportCreators: ReportCreator[] = [
     header: (data: Record<string, string | number>[]) => {
       return ['', ...Object.keys(_.omit(data[0], 'status'))];
     },
-    colWidths: [30, 20, 15, 15, 20, 15, 15, 25, 25],
+    colWidths: [30, 20, 20, 20, 20, 20, 20, 20, 15],
     rowSum: true,
     colSum: true,
   },
@@ -180,7 +219,7 @@ const reportCreators: ReportCreator[] = [
     header: (data: Record<string, string | number>[]) => {
       return ['', ...Object.keys(_.omit(data[0], 'status'))];
     },
-    colWidths: [40],
+    colWidths: [30, 20, 20, 20, 20, 20, 20, 20, 15],
     rowSum: true,
     colSum: true,
   },
@@ -189,7 +228,7 @@ const reportCreators: ReportCreator[] = [
     description: 'Number of Internationally Educated Nurse Registrants Working in BC',
     apiPath: '/reports/applicant/ha-current-period-fiscal',
     header: ['', 'Current Period', 'Current Fiscal', 'Total to Date'],
-    colWidths: [30, 15, 15, 15],
+    colWidths: [35, 20, 20, 20],
   },
   {
     name: 'Report 9',
@@ -202,20 +241,26 @@ const reportCreators: ReportCreator[] = [
       rows.splice(rows.length - 1, 0, []);
       return rows;
     },
-    colWidths: [25, 35, 10, 10, 10],
+    colWidths: [25, 35, 15, 15, 15],
   },
 ];
 
 const getSummarySheet = (filter: PeriodFilter): WorkSheet => {
-  const rows = [['', 'IEN Standard Reports'], ['', getTimeRange(filter)], []];
-  rows.push(...reportCreators.map(c => [c.name, c.description]));
+  const rows = [
+    [],
+    ['', { v: 'IEN Standard Reports', t: 's', s: { font: bold, fill: { fgColor } } }],
+    [],
+    ['', { v: getTimeRange(filter), t: 's', s: { font: bold } }],
+    [],
+  ];
+  rows.push(...reportCreators.map(c => [c.name.toUpperCase(), c.description]));
 
   const sheet = utils.aoa_to_sheet(rows);
   sheet['!cols'] = [{ wch: 10 }, { wch: 70 }];
   return sheet;
 };
 
-export const getApplicantDataExtractSheet = (applicants: any[]): WorkSheet => {
+export const getApplicantDataExtractSheet = (applicants: object[]): WorkSheet => {
   // create sheet from applicant data
   return utils.json_to_sheet(applicants);
 };

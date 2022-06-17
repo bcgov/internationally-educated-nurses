@@ -17,7 +17,7 @@ import * as path from 'path';
 import { spawn } from 'child_process';
 import { isFileExist, findFiles } from 'cy-verify-downloads';
 import * as fs from 'fs';
-import { readFile } from 'xlsx';
+import { readFile } from 'xlsx-js-style';
 
 dotenv.config({ path: path.join(__dirname, '../../.env.local') });
 

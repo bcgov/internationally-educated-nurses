@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import { Formik, Form as FormikForm, FormikHelpers } from 'formik';
-import { writeFileXLSX } from 'xlsx';
+import { writeFileXLSX } from 'xlsx-js-style';
 
 import { Button, Field } from '@components';
 import { PeriodFilter } from '@ien/common';
