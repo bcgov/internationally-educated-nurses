@@ -63,18 +63,41 @@ module.exports = (on: any, config: any) => {
       if (!files?.length) {
         throw Error('no files downloaded.');
       }
-      files.forEach(name => {
-        if (!name.endsWith('.xlsx')) return;
 
-        const wb = readFile(path.join(config.downloadsFolder, name));
-        const indices = [1, 2, 3, 4, 5, 6, 7];
-        indices.forEach(index => {
-          const sheetName = `Report ${index}`;
+      files
+        .filter(f => f.includes('ien-report-period'))
+        .forEach(name => {
+          if (!name.endsWith('.xlsx')) return;
+
+          const wb = readFile(path.join(config.downloadsFolder, name));
+          const indices = [1, 2, 3, 4, 5, 6, 7];
+          indices.forEach(index => {
+            const sheetName = `Report ${index}`;
+            if (!wb.Sheets[sheetName]) {
+              throw Error(`${name} doesn't have ${sheetName} sheet`);
+            }
+          });
+        });
+      return true;
+    },
+    checkDataExtract: (): boolean => {
+      const files = fs.readdirSync(config.downloadsFolder);
+      if (!files?.length) {
+        throw Error('no files downloaded.');
+      }
+
+      files
+        .filter(f => f.includes('ien-applicant-data-extract'))
+        .forEach(name => {
+          if (!name.endsWith('.xlsx')) return;
+
+          const wb = readFile(path.join(config.downloadsFolder, name));
+
+          const sheetName = 'IEN Applicant Data Extract';
           if (!wb.Sheets[sheetName]) {
             throw Error(`${name} doesn't have ${sheetName} sheet`);
           }
         });
-      });
       return true;
     },
     isFileExist,
