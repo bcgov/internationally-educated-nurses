@@ -2,17 +2,14 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ExternalRequest } from 'src/common/external-request';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IENHaPcn } from './entity/ienhapcn.entity';
 import { In, Repository } from 'typeorm';
-import { IENUsers } from './entity/ienusers.entity';
-import { IENStatusReason } from './entity/ienstatus-reason.entity';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicant } from './entity/ienapplicant.entity';
-import { IENApplicantStatus } from './entity/ienapplicant-status.entity';
 import { getMilestoneCategory } from 'src/common/util';
 import { IENApplicantStatusAudit } from './entity/ienapplicant-status-audit.entity';
 import { IENApplicantUtilService } from './ienapplicant.util.service';
-import { IENJobTitle } from './entity/ienjobtitles.entity';
+import { SyncApplicantsAudit } from './entity/sync-applicants-audit.entity';
+import { IENMasterService } from './ien-master.service';
 
 @Injectable()
 export class ExternalAPIService {
@@ -22,20 +19,14 @@ export class ExternalAPIService {
     @Inject(ExternalRequest) private readonly external_request: ExternalRequest,
     @Inject(IENApplicantUtilService)
     private readonly ienapplicantUtilService: IENApplicantUtilService,
-    @InjectRepository(IENHaPcn)
-    private readonly ienHaPcnRepository: Repository<IENHaPcn>,
-    @InjectRepository(IENUsers)
-    private readonly ienUsersRepository: Repository<IENUsers>,
-    @InjectRepository(IENStatusReason)
-    private readonly ienStatusReasonRepository: Repository<IENStatusReason>,
+    @Inject(IENMasterService)
+    private readonly ienMasterService: IENMasterService,
     @InjectRepository(IENApplicant)
     private readonly ienapplicantRepository: Repository<IENApplicant>,
-    @InjectRepository(IENApplicantStatus)
-    private readonly ienApplicantStatusRepository: Repository<IENApplicantStatus>,
     @InjectRepository(IENApplicantStatusAudit)
     private readonly ienapplicantStatusAuditRepository: Repository<IENApplicantStatusAudit>,
-    @InjectRepository(IENJobTitle)
-    private readonly ienJobTitleRepository: Repository<IENJobTitle>,
+    @InjectRepository(SyncApplicantsAudit)
+    private readonly syncApplicantsAuditRepository: Repository<SyncApplicantsAudit>,
   ) {}
 
   /**
@@ -69,7 +60,7 @@ export class ExternalAPIService {
             abbreviation: item?.abbreviation,
           };
         });
-        await this.ienHaPcnRepository.upsert(listHa, ['id']);
+        await this.ienMasterService.ienHaPcnRepository.upsert(listHa, ['id']);
       }
     } catch (e) {
       this.logger.log(`Error in saveHa(): ${e}`);
@@ -91,7 +82,7 @@ export class ExternalAPIService {
             email: item?.email,
           };
         });
-        await this.ienUsersRepository.upsert(listUsers, ['id']);
+        await this.ienMasterService.ienUsersRepository.upsert(listUsers, ['id']);
       }
     } catch (e) {
       this.logger.log(`Error in saveUsers(): ${e}`);
@@ -106,7 +97,7 @@ export class ExternalAPIService {
     try {
       const data = await this.external_request.getReason();
       if (Array.isArray(data)) {
-        await this.ienStatusReasonRepository.upsert(data, ['id']);
+        await this.ienMasterService.ienStatusReasonRepository.upsert(data, ['id']);
       }
     } catch (e) {
       this.logger.log(`Error in saveReasons(): ${e}`);
@@ -127,7 +118,7 @@ export class ExternalAPIService {
             title: item.name,
           };
         });
-        await this.ienJobTitleRepository.upsert(listDepartments, ['id']);
+        await this.ienMasterService.ienJobTitleRepository.upsert(listDepartments, ['id']);
       }
     } catch (e) {
       this.logger.log(`Error in saveDepartments(): ${e}`);
@@ -142,7 +133,10 @@ export class ExternalAPIService {
     try {
       const data = await this.external_request.getMilestone();
       if (Array.isArray(data)) {
-        await this.ienApplicantStatusRepository.upsert(this.cleanAndFilterMilestone(data), ['id']);
+        await this.ienMasterService.ienApplicantStatusRepository.upsert(
+          this.cleanAndFilterMilestone(data),
+          ['id'],
+        );
       }
     } catch (e) {
       this.logger.log(`Error in saveReasons(): ${e}`);
@@ -212,6 +206,7 @@ export class ExternalAPIService {
    * fetch and upsert applicant details
    */
   async saveApplicant(from?: string, to?: string): Promise<void> {
+    const audit = await this.saveSyncApplicantsAudit();
     try {
       /**
        * We want to sync yesterday's data on everyday basis
@@ -221,8 +216,13 @@ export class ExternalAPIService {
        */
       const yesterday = new Date();
       yesterday.setDate(new Date().getDate() - 1);
-      const from_date = from ? from : yesterday.toISOString().slice(0, 10);
-      const to_date = to ? to : new Date().toISOString().slice(0, 10);
+      // Fetch last succesfull run, to make sure we are not missing any data to sync due to external server failure
+      const lastSync = await this.getLatestSuccessfulSync();
+      const fromLastSync = lastSync.length
+        ? lastSync[0].updated_date.toISOString().slice(0, 10)
+        : undefined;
+      const from_date = from || fromLastSync || yesterday.toISOString().slice(0, 10);
+      const to_date = to || new Date().toISOString().slice(0, 10);
       const parallel_requests = 5;
       const per_page = 50;
       let offset = 0;
@@ -267,10 +267,43 @@ export class ExternalAPIService {
 
       this.logger.log(`prosessing ${newData.length} applicants record now`);
       await this.createBulkApplicants(newData);
+      await this.saveSyncApplicantsAudit(audit.id, true);
       this.logger.log('Done!');
-    } catch (e) {
+    } catch (e: any) {
+      await this.saveSyncApplicantsAudit(audit.id, false, { message: e.message, stack: e.stack });
       this.logger.error(e);
     }
+  }
+
+  async saveSyncApplicantsAudit(
+    id: number | undefined = undefined,
+    is_success = false,
+    additional_data: object | undefined | unknown = undefined,
+  ): Promise<SyncApplicantsAudit> {
+    if (id) {
+      const audit = await this.syncApplicantsAuditRepository.findOne(id);
+      if (audit) {
+        audit.is_success = is_success;
+        audit.additional_data = additional_data;
+        await this.syncApplicantsAuditRepository.save(audit);
+        return audit;
+      }
+    }
+    const addAuditData: object = {
+      is_success,
+      additional_data,
+    };
+    const newAudit = this.syncApplicantsAuditRepository.create(addAuditData);
+    await this.syncApplicantsAuditRepository.save(newAudit);
+    return newAudit;
+  }
+
+  async getLatestSuccessfulSync(): Promise<SyncApplicantsAudit[]> {
+    return this.syncApplicantsAuditRepository.find({
+      where: { is_success: true },
+      order: { updated_date: 'DESC' },
+      take: 1,
+    });
   }
 
   /**
@@ -279,13 +312,13 @@ export class ExternalAPIService {
    */
   async getApplicantMasterData() {
     // fetch user/staff details
-    const usersArray = await this.ienUsersRepository.find();
+    const usersArray = await this.ienMasterService.ienUsersRepository.find();
     const users: any = {};
     usersArray.forEach(user => {
       users[user.id] = user;
     });
     // Fetch Health Authorities
-    const haArray = await this.ienHaPcnRepository.find();
+    const haArray = await this.ienMasterService.ienHaPcnRepository.find();
     const ha: any = {};
     haArray.forEach(ha_obj => {
       ha[ha_obj.id] = ha_obj;
@@ -424,7 +457,7 @@ export class ExternalAPIService {
    */
   async allowedMilestones(): Promise<number[] | []> {
     const allowedIds: number[] = [];
-    const milestones = await this.ienApplicantStatusRepository.find({
+    const milestones = await this.ienMasterService.ienApplicantStatusRepository.find({
       select: ['id'],
       where: {
         parent: In([10001, 10002, 10004, 10005]),
@@ -462,36 +495,56 @@ export class ExternalAPIService {
         if (item.hasOwnProperty('milestones') && Array.isArray(item.milestones)) {
           const existingMilestones = item.milestones;
           existingMilestones.forEach(m => {
-            if (allowedMilestones.includes(m.id)) {
-              const temp: any = {
-                status: m.id,
-                start_date: m.start_date,
-                created_date: m.created_date,
-                updated_date: m.created_date,
-                applicant: tableId,
-                notes: m?.note,
-                added_by: null,
-              };
-              if ('added_by' in m && m.added_by > 0 && users[m.added_by]) {
-                temp['added_by'] = m.added_by;
-              }
-              if ('reason_id' in m) {
-                temp['reason'] = m.reason_id;
-              }
-              if ('reason_other' in m) {
-                temp['reason_other'] = m.reason_other;
-              }
-              if ('effective_date' in m) {
-                temp['effective_date'] = m.effective_date;
-              }
-              milestones.push(temp);
-            } else {
-              this.logger.log(`rejected Id ${m.id}`);
-            }
+            this.mapMilestoneData(allowedMilestones, m, milestones, tableId, users);
           });
         }
       },
     );
     return milestones;
+  }
+
+  /** create applicant-milestone object */
+  mapMilestoneData(
+    allowedMilestones: string | any[],
+    m: {
+      id: any;
+      start_date: any;
+      created_date: any;
+      note: any;
+      added_by: number;
+      reason_id: any;
+      reason_other: any;
+      effective_date: any;
+    },
+    milestones: any[],
+    tableId: any,
+    users: any[],
+  ) {
+    if (allowedMilestones.includes(m.id)) {
+      const temp: any = {
+        status: m.id,
+        start_date: m.start_date,
+        created_date: m.created_date,
+        updated_date: m.created_date,
+        applicant: tableId,
+        notes: m?.note,
+        added_by: null,
+      };
+      if ('added_by' in m && m.added_by > 0 && users[m.added_by]) {
+        temp['added_by'] = m.added_by;
+      }
+      if ('reason_id' in m) {
+        temp['reason'] = m.reason_id;
+      }
+      if ('reason_other' in m) {
+        temp['reason_other'] = m.reason_other;
+      }
+      if ('effective_date' in m) {
+        temp['effective_date'] = m.effective_date;
+      }
+      milestones.push(temp);
+    } else {
+      this.logger.log(`rejected Id ${m.id}`);
+    }
   }
 }

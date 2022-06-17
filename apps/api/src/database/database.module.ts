@@ -12,6 +12,7 @@ import { IENJobLocation } from 'src/applicant/entity/ienjoblocation.entity';
 import { IENJobTitle } from 'src/applicant/entity/ienjobtitles.entity';
 import { IENStatusReason } from 'src/applicant/entity/ienstatus-reason.entity';
 import { IENUsers } from 'src/applicant/entity/ienusers.entity';
+import { SyncApplicantsAudit } from 'src/applicant/entity/sync-applicants-audit.entity';
 import { EmployeeEntity } from 'src/employee/employee.entity';
 import { FormEntity } from 'src/form/entities/form.entity';
 import { LoggerOptions } from 'typeorm';
@@ -48,6 +49,7 @@ const getEnvironmentSpecificConfig = (env?: string) => {
           IENJobLocation,
           IENApplicantJob,
           IENStatusReason,
+          SyncApplicantsAudit,
         ],
         migrations: ['dist/migration/*.js'],
         logging: ['error', 'warn', 'migration'] as LoggerOptions,

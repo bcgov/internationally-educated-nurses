@@ -15,6 +15,7 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { EmptyResponse } from 'src/common/ro/empty-response.ro';
 import { AppLogger } from 'src/common/logger.service';
 import { ExternalAPIService } from './external-api.service';
+import { SyncApplicantsAudit } from './entity/sync-applicants-audit.entity';
 
 @Controller('external-api')
 @ApiTags('External API data process')
@@ -72,5 +73,15 @@ export class ExternalAPIController {
         );
       }
     }
+  }
+
+  @ApiOperation({
+    summary: `Fetch when was last successful Applicants sync ran`,
+  })
+  @UseInterceptors(ClassSerializerInterceptor)
+  @HttpCode(HttpStatus.OK)
+  @Get('/sync-applicants-audit')
+  async getLatestSuccessfulSync(): Promise<SyncApplicantsAudit[]> {
+    return this.externalAPIService.getLatestSuccessfulSync();
   }
 }
