@@ -160,43 +160,47 @@ $ make watch
 
 ## Tests
 
-Unit and integration tests are run against the API in the CI pipeline on pull request as well as deploy.
+Unit and integration tests run against the API in the CI pipeline on pull request.
 
-### API Unit Tests
+### Manual API Tests
 
-Run API unit tests with `make api-unit-test`
+Requests to all endpoints are defined in FreshWorks's Postman IEN workspace. Except `version` endpoint, all require authentication. IEN collection's [pre-request](./docs/postman.md) script authenticates and saves `token` as an environment variable before each call.
+
+> Note that it only works for the `local` and `dev` environments because they use different Keycloak servers. See [deployments](#deployments) section. To query for the `test` and `prod`, unset `username` and `password` environment variables and set `token` with the one retrieved from the response of login request in the browser.
+> 
+### Unit Tests
+
+Run API and web unit tests with `make api-unit-test` and `make web-unit-test`.
 
 ### Integration test
 
-> **Ephemeral test data**
-> 
-> `api` and  `web` integration tests start test database with `clean` data before running tests and destroy it after.
-> 
+#### Ephemeral test data
+
+`api` and  `web` integration tests start test database with `clean` data before running tests and destroy it after.
+
 > ```
 >	@make start-test-db
 >	@yarn build
 >	@NODE_ENV=test yarn test:e2e
 >	@make stop-test-db
-> ```
-> 
-> The test database container has no mapped volume. Therefore, all data would be deleted when the container is removed by `make stop-test-db` command.
-> 
 
-### API Integration Tests
+The test database container has no mapped volume. Therefore, all data will be deleted when the container is removed by `make stop-test-db` command.
+
+#### API Integration Tests
 
 Run API integration tests with `make api-integration-test`
 
-### Cypress e2e Tests
+#### Cypress e2e Tests
 
 Run Cypress integration tests with `make test-e2e` or `make test-web`. `test-web` runs pa11y if cypress tests succeed. 
 
 If you want to open Cypress UI while developing new test cases, run `make run-test-apps` to prepare applications and then run `make open:cypress` 
 
-> Seed data
+> **Seed data**
 > 
 > Login test case should be run to seed a test account and applicants before running any other cases requiring logging in.
 
-> Cypress session
+> **Cypress session**
 > 
 > Authentication with Keycloak is a little expensive and time-consuming. To reduce interaction with it, call `cy.login()` before each test case, then it creates a new session by destroying the existing one. Therefore, you don't need to call logout explicitly after each test case. When logging in with a user of different role, pass its id as a parameter.
 > 
@@ -204,26 +208,38 @@ If you want to open Cypress UI while developing new test cases, run `make run-te
 > 
 > All test users should have the same password.
 
-### Accessibility Tests
+#### Accessibility Tests
 
 See accessibility [README](./packages/accessibility/README.md)
 
-## Deployments:
+## Deployments
 
-The application is hosted in the OCIO Cloud platform - AWS LZ2.
+### Workflow and environments
 
-[comment]: # "@TODO update project code"
+We have four environments where we run the application: local, development, test, and production.
 
-In order to access the AWS Accounts for each environment, your IDIRs would have to be onboarded on to LZ2 for the project code ~~`bcbwlp`~~ -  IEN
+- `local` is normally each developer's laptop or workstation. [How to run the app](#how-to-run-the-apps) section is meant for it.
+- `dev`, `test`, and `prod` are on OCIO Cloud Platform - AWS LZ2 with project code of `uux0vy`. They are provisioned by the same IaC but with a little different variables.
 
-All Deployments to AWS environments are managed through github actions.
+The standard process of deployment goes through the following steps.
 
-The following actions trigger deployments as follows:
+1. Run and test the app on local environment while implementing a new feature. Once the task is done,
+2. Create, review, and merge a pull request,
+3. Deploy to `dev`. Developers verify the app,
+4. Deploy to `test`. QA team verify the app; Clients might use `test` to confirm that the app is ready to be released.
+5. Deploy to `prod` with approval.
 
-- `make tag-dev` or Merge to main - Deploy to dev
-- `make tag-test` - Deploy to test
-- `make tag-prod` - Deploy to prod after approval.
+To trigger deployment, run `make tag-{env}`. ex) `make tag-dev`
 
+`test` and `prod` deployments to AWS are managed through Terraform configurations and GitHub actions. They do not require access to LZ2. However, in order to access LZ2 for updating parameters, troubleshooting, or diagnosing the app, your IDIRs would have to be onboarded on to LZ2 for the project code `uux0vy` -  IEN.
+
+> **Authentication**
+> 
+> `local` and `dev` use FreshWorks's Keycloak server at https://keycloak.freshworks.club.
+> ``
+> `test` and `prod` use Ministry of Health's Keycloak server at https://common-logon-test.hlth.gov.bc.ca and https://common-logon.hlth.gov.bc.ca 
+> 
+> The notable difference is that MoH Keycloak doesn't allow `direct access grants`. Therefore, you can't use [pre-request](docs/postman.md) to authenticate on Postman.
 
 #### Infrastructure and Deployments:
 
@@ -231,28 +247,19 @@ The AWS infrastructure is created and updated using Terraform and Terraform Clou
 
 The TFC keys required to run terraform can be found in SSM store in AWS.
 
-Make commands are listed under `terraform commands` in make file for initialization, plan and deployment of resources.
+Make commands are listed under `terraform commands` in Makefile for initialization, plan and deployment of resources.
 
 Service accounts are created with IAM permissions to deploy cloud resources such as - S3 static file uploads, update lambda function, cloudfront invalidation etc.
 
-### Promotion process:
-
-Use `make tag-dev` to deploy your changes directly in dev environment without a pr if required.
-
-Raise a PR to `main`. Once merged, the dev environment will be updated.
-
-For QA testing, run `make tag-test` only in the main branch once the code is merged into main branch.
-
 #### Production Release:
 
-All changes in main are released to production by tagging `make tag-prod` along with the version number of the release.
+All changes in `main` branch are released to production by tagging `make tag-prod` along with the version number of the release.
 
 This creates a release tag and also a production tag, deploying to production, once approved by the Leads / DevOps team members.
 
-
 As a part of the production release approval:
 
-1. Validate the latest ZAP scan results to ensure no new vulnerabilites are introduced.
+1. Validate the latest ZAP scan results to ensure no new vulnerabilities are introduced.
 1. Review the latest code quality analysis results in Sonar Cloud to ensure no new vulnerabilities are introduced.
 
 ### Database Backup restore

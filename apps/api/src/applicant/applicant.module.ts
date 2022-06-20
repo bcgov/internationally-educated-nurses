@@ -22,6 +22,7 @@ import { ExternalRequest } from 'src/common/external-request';
 import { IENStatusReason } from './entity/ienstatus-reason.entity';
 import { AuthModule } from 'src/auth/auth.module';
 import { EmployeeModule } from 'src/employee/employee.module';
+import { SyncApplicantsAudit } from './entity/sync-applicants-audit.entity';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { EmployeeModule } from 'src/employee/employee.module';
       IENJobLocation,
       IENApplicantJob,
       IENStatusReason,
+      SyncApplicantsAudit,
     ]),
     AuthModule,
     EmployeeModule,

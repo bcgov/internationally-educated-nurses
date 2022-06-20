@@ -7,9 +7,8 @@ import Papa from 'papaparse';
 
 import { Modal } from '../Modal';
 import { Button } from '../Button';
-import { uploadForm } from '@services';
+import { uploadForm, onDropType } from '@services';
 import { FormDTO } from '@ien/common';
-import { onDropType } from '@services';
 
 export const UploadFileModal: React.FC = () => {
   const router = useRouter();
@@ -20,7 +19,7 @@ export const UploadFileModal: React.FC = () => {
     router.push(router.route, undefined, { shallow: true });
   };
 
-  // @todo add confirmation, warning, errors modal
+  // @task add confirmation, warning, errors modal
   return (
     <Modal open={isOpen} handleClose={handleClose}>
       <UploadPage closeModal={handleClose} />
@@ -46,29 +45,29 @@ const UploadPage: React.FC<UploadPageProps> = ({ closeModal }) => {
       complete: function (results) {
         const form = new FormDTO();
         form.file_name = file.name;
-        // @todo add check for empty strings
+        // @task add check for empty strings
         form.form_data = JSON.stringify(results.data);
 
         uploadForm(form);
       },
     });
 
-    // @todo - will remove this portion once warning, error modals are implemented
+    // @task - will remove this portion once warning, error modals are implemented
     delete router.query.bulk_upload;
     router.push(router.route, undefined, { shallow: true });
   };
 
   // handles user dragging and dropping file in dropzone area
   const handleOnDrop: onDropType = async (acceptedFiles: File[]) => {
-    // @todo - implement error handling here
+    // @task - implement error handling here
     if (acceptedFiles[0] === null) {
       return;
     }
 
-    const file = acceptedFiles[0];
-    if (file.name.toLowerCase().endsWith('.csv')) {
-      // @todo - implement error handling here
-      if (file.size == 0 || file.name === '') {
+    const fs = acceptedFiles[0];
+    if (fs.name.toLowerCase().endsWith('.csv')) {
+      // @task - implement error handling here
+      if (fs.size == 0 || fs.name === '') {
         return;
       }
 

@@ -138,6 +138,19 @@ export class ReportController {
     return this.reportService.getApplicantHAForCurrentPeriodFiscal(to);
   }
 
+  @ApiOperation({
+    summary: 'Report 9: Average Amount of Time with Each Stakeholder Group',
+  })
+  @Get('/applicant/average-time-with-stackholder-group')
+  @RouteAcceptsRoles(
+    ValidRoles.HEALTH_AUTHORITY,
+    ValidRoles.HEALTH_MATCH,
+    ValidRoles.MINISTRY_OF_HEALTH,
+  )
+  async getAverageTimeWithEachStackholderGroup(@Query('to') to: string): Promise<object[]> {
+    return this.reportService.getAverageTimeWithEachStackholderGroup(to);
+  }
+
   /** Additional report other than standard 9 reports */
   @ApiOperation({ summary: 'Extract applicant details' })
   @Get('/applicant/extract-data')

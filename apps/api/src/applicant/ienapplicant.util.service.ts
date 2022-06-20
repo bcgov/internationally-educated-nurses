@@ -24,30 +24,21 @@ import { IENUsers } from './entity/ienusers.entity';
 import { IENJobTitle } from './entity/ienjobtitles.entity';
 import { IENJobLocation } from './entity/ienjoblocation.entity';
 import { IENStatusReason } from './entity/ienstatus-reason.entity';
+import { IENMasterService } from './ien-master.service';
 
 @Injectable()
 export class IENApplicantUtilService {
   applicantRelations;
   constructor(
     @Inject(Logger) private readonly logger: AppLogger,
-    @InjectRepository(IENApplicantStatus)
-    private readonly ienapplicantStatusRepository: Repository<IENApplicantStatus>,
+    @Inject(IENMasterService)
+    private readonly ienMasterService: IENMasterService,
     @InjectRepository(IENApplicant)
     private readonly ienapplicantRepository: Repository<IENApplicant>,
     @InjectRepository(IENApplicantAudit)
     private readonly ienapplicantAuditRepository: Repository<IENApplicantAudit>,
     @InjectRepository(IENApplicantStatusAudit)
     private readonly ienapplicantStatusAuditRepository: Repository<IENApplicantStatusAudit>,
-    @InjectRepository(IENHaPcn)
-    private readonly ienHaPcnRepository: Repository<IENHaPcn>,
-    @InjectRepository(IENStatusReason)
-    private readonly ienStatusReasonRepository: Repository<IENStatusReason>,
-    @InjectRepository(IENUsers)
-    private readonly ienUsersRepository: Repository<IENUsers>,
-    @InjectRepository(IENJobTitle)
-    private readonly ienapplicantJobTitleRepository: Repository<IENJobTitle>,
-    @InjectRepository(IENJobLocation)
-    private readonly ienapplicantJobLocationRepository: Repository<IENJobLocation>,
     @InjectRepository(IENApplicantJob)
     private readonly ienapplicantJobRepository: Repository<IENApplicantJob>,
   ) {
@@ -145,7 +136,7 @@ export class IENApplicantUtilService {
   /** fetch all status if parent status passed */
   async fetchChildStatusList(status: string): Promise<string[]> {
     const status_list = status.split(',');
-    const parent_status = await this.ienapplicantStatusRepository.find({
+    const parent_status = await this.ienMasterService.ienApplicantStatusRepository.find({
       where: {
         id: In(status_list),
         parent: IsNull(),
@@ -169,9 +160,12 @@ export class IENApplicantUtilService {
    * @returns Status Object or NotFoundException
    */
   async getStatusById(status: string): Promise<IENApplicantStatus> {
-    const statusObj = await this.ienapplicantStatusRepository.findOne(parseInt(status), {
-      relations: ['parent'],
-    });
+    const statusObj = await this.ienMasterService.ienApplicantStatusRepository.findOne(
+      parseInt(status),
+      {
+        relations: ['parent'],
+      },
+    );
     if (!statusObj) {
       throw new NotFoundException(`Status with given value "${status}" not found`);
     }
@@ -275,7 +269,7 @@ export class IENApplicantUtilService {
     health_authorities.forEach((item: { id: string | number }) => {
       key_object[item.id] = item;
     });
-    const ha_pcn_data = await this.ienHaPcnRepository.find({
+    const ha_pcn_data = await this.ienMasterService.ienHaPcnRepository.find({
       where: {
         id: In(ha_pcn),
       },
@@ -292,7 +286,7 @@ export class IENApplicantUtilService {
   }
 
   async getHaPcn(id: number): Promise<IENHaPcn> {
-    const health_authority = await this.ienHaPcnRepository.findOne(id);
+    const health_authority = await this.ienMasterService.ienHaPcnRepository.findOne(id);
     if (!health_authority) {
       throw new NotFoundException('Provided all or some of HA not found');
     }
@@ -306,7 +300,7 @@ export class IENApplicantUtilService {
    */
   async getUserArray(users: any): Promise<IENUsers | any> {
     users = users.map((item: { id: number | string }) => item.id);
-    const users_data = await this.ienUsersRepository.find({
+    const users_data = await this.ienMasterService.ienUsersRepository.find({
       where: {
         id: In(users),
       },
@@ -338,7 +332,7 @@ export class IENApplicantUtilService {
    * @param id
    */
   async getJobTitle(id: string | number): Promise<IENJobTitle> {
-    const job_title = await this.ienapplicantJobTitleRepository.findOne(id);
+    const job_title = await this.ienMasterService.ienJobTitleRepository.findOne(id);
     if (!job_title) {
       throw new NotFoundException('Provided job title not found');
     }
@@ -350,7 +344,7 @@ export class IENApplicantUtilService {
    * @param id
    */
   async getJobLocation(id: string | number): Promise<IENJobLocation> {
-    const job_location = await this.ienapplicantJobLocationRepository.findOne(id);
+    const job_location = await this.ienMasterService.ienJobLocationRepository.findOne(id);
     if (!job_location) {
       throw new NotFoundException('Provided job location not found');
     }
@@ -358,7 +352,7 @@ export class IENApplicantUtilService {
   }
 
   async getJobLocations(ids: string[] | number[]): Promise<IENJobLocation[] | []> {
-    return this.ienapplicantJobLocationRepository.findByIds(ids);
+    return this.ienMasterService.ienJobLocationRepository.findByIds(ids);
   }
 
   async updateLatestStatusOnApplicant(mappedApplicantList: string[]): Promise<void> {
@@ -375,7 +369,7 @@ export class IENApplicantUtilService {
   }
 
   async getStatusReason(id: number): Promise<IENStatusReason> {
-    const statusReason = await this.ienStatusReasonRepository.findOne(id);
+    const statusReason = await this.ienMasterService.ienStatusReasonRepository.findOne(id);
     if (!statusReason) {
       throw new NotFoundException('Provided Milestone/Status reason not found');
     }
