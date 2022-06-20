@@ -118,7 +118,7 @@ const Applicants = () => {
 
   return (
     <div className='container w-full mx-6 xl:w-xl mb-4'>
-      <h1 className='font-bold text-3xl py-5'>Manage Applicants</h1>
+      <h1 className='font-bold text-3xl pb-5'>Manage Applicants</h1>
       <Search
         onChange={handleKeywordChange}
         keyword={name}
