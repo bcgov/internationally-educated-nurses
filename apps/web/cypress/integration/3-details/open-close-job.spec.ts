@@ -19,7 +19,7 @@ describe('Details - close/reopen a job', () => {
     cy.login();
     cy.visitDetails(applicant.id);
     cy.tabRecruitment();
-    cy.get('#headlessui-disclosure-button-1').click();
+    cy.get('[data-cy=record-0]').click();
   });
 
   it('closes a job competition by withdraw', () => {

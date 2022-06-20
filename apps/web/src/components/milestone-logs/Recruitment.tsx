@@ -73,7 +73,7 @@ export const Recruitment: React.FC = () => {
     <>
       <JobFilters options={filters} update={handleFilters} />
       {jobRecords.map((job, index) => (
-        <Record key={job.id} job={job} expandRecord={expandRecord} data-cy={`record-${index}`} />
+        <Record key={job.id} job={job} expandRecord={expandRecord} index={index} />
       ))}
       <div className='border rounded bg-bcBlueBar flex justify-between items-center mb-4 h-12'>
         <span className='py-2 pl-5 font-bold text-xs sm:text-sm'>

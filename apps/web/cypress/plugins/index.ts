@@ -70,7 +70,7 @@ module.exports = (on: any, config: any) => {
           if (!name.endsWith('.xlsx')) return;
 
           const wb = readFile(path.join(config.downloadsFolder, name));
-          const indices = [1, 2, 3, 4, 5, 6, 7];
+          const indices = [1, 2, 3, 4, 5, 6, 7, 8, 9];
           indices.forEach(index => {
             const sheetName = `Report ${index}`;
             if (!wb.Sheets[sheetName]) {

@@ -22,7 +22,7 @@ describe('Details - edit job', () => {
   });
 
   it('edit a job competition', () => {
-    cy.get('#headlessui-disclosure-button-1').click();
+    cy.get('[data-cy=record-0]').click();
     cy.contains('button', 'Edit Details').click();
 
     cy.fixture('edit-job.json').then(job => {
@@ -38,7 +38,7 @@ describe('Details - edit job', () => {
 
       cy.contains('button', 'Update').click();
 
-      cy.get('#headlessui-disclosure-button-1').contains(job.ha_pcn);
+      cy.get('[data-cy=record-0]').contains(job.ha_pcn);
       cy.contains(job.job_id);
       cy.contains(job.job_title);
       cy.contains(job.job_location);
@@ -49,7 +49,7 @@ describe('Details - edit job', () => {
   it('edit - rejects a duplicate job record', () => {
     const duplicateJob = jobs[2];
 
-    cy.get('#headlessui-disclosure-button-1').click();
+    cy.get('[data-cy=record-0]').click();
     cy.contains('button', 'Edit Details').click();
 
     cy.editDuplicateJob(duplicateJob);
