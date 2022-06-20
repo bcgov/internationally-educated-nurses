@@ -9,7 +9,7 @@ import { CachePolicies, Provider } from 'use-http';
 import { AuthClientTokens } from '@react-keycloak/core/lib/types';
 import { PropsWithChildren, ReactNode } from 'react';
 
-import { Footer, Header, MenuBar } from '@components';
+import { Footer, Header, LastSyncBar, MenuBar } from '@components';
 import { AuthProvider } from 'src/components/AuthContexts';
 import { Maintenance } from '../components/Maintenance';
 
@@ -57,6 +57,7 @@ function App({ Component, pageProps }: AppProps) {
             <div className='h-full flex flex-col'>
               <Header />
               <MenuBar />
+              <LastSyncBar />
               <main className='flex w-full justify-center pb-12'>
                 <Component {...pageProps} />
               </main>
