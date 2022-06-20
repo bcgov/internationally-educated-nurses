@@ -68,7 +68,7 @@ const applyNumberFormat = (sheet: WorkSheet, s: CellAddress, e: CellAddress): vo
 
 const formatDataRows = (dataRows: any[][], header: string[]) => {
   return dataRows.map((row, rowIndex) => {
-    if (rowIndex === dataRows.length - 1 && row[0]?.toUpperCase() === 'TOTAL') {
+    if (rowIndex === dataRows.length - 1 && row[0]?.match(/^total/i)) {
       return row.map((v, colIndex) => {
         if (colIndex === 0)
           return {
@@ -80,7 +80,7 @@ const formatDataRows = (dataRows: any[][], header: string[]) => {
       });
     }
     return row.map((v, colIndex) => {
-      if (header[colIndex]?.toUpperCase() === 'TOTAL') {
+      if (header[colIndex]?.match(/^total/i)) {
         return { v, t: 'n', s: headerStyle };
       }
       return v;
@@ -141,6 +141,12 @@ const createSheet = (
   return sheet;
 };
 
+const getHeaderFiltered = (excludes: string | string[]) => {
+  return (data: Record<string, string | number>[]) => {
+    return ['', ...Object.keys(_.omit(data[0], excludes))];
+  };
+};
+
 const reportCreators: ReportCreator[] = [
   {
     name: 'Report 1',
@@ -176,9 +182,7 @@ const reportCreators: ReportCreator[] = [
     name: 'Report 3',
     description: 'Status of Internationally Educated Nurse Registrant Applicants',
     apiPath: '/reports/applicant/hired-withdrawn-active',
-    header: (data: Record<string, string | number>[]) => {
-      return ['', ...Object.keys(_.omit(data[0], 'title'))];
-    },
+    header: getHeaderFiltered('title'),
     colWidths: [40, 15, 15, 15, 15],
   },
   {
@@ -204,9 +208,7 @@ const reportCreators: ReportCreator[] = [
     name: 'Report 6',
     description: 'Number of Internationally Educated Nurse Registrants in the Recruitment Stage',
     apiPath: '/reports/applicant/recruitment',
-    header: (data: Record<string, string | number>[]) => {
-      return ['', ...Object.keys(_.omit(data[0], 'status'))];
-    },
+    header: getHeaderFiltered('status'),
     colWidths: [30, 20, 20, 20, 20, 20, 20, 20, 15],
     rowSum: true,
     colSum: true,
@@ -215,9 +217,7 @@ const reportCreators: ReportCreator[] = [
     name: 'Report 7',
     description: 'Number of Internationally Educated Nurse Registrants in the Immigration Stage',
     apiPath: '/reports/applicant/immigration',
-    header: (data: Record<string, string | number>[]) => {
-      return ['', ...Object.keys(_.omit(data[0], 'status'))];
-    },
+    header: getHeaderFiltered('status'),
     colWidths: [30, 20, 20, 20, 20, 20, 20, 20, 15],
     rowSum: true,
     colSum: true,
