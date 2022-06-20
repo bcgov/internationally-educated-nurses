@@ -14,7 +14,7 @@ describe('Details - add milestones', () => {
       cy.visitDetails(applicant.id);
       cy.tabRecruitment();
 
-      cy.get('#headlessui-disclosure-button-1').click();
+      cy.get('[data-cy=record-1]').click();
 
       cy.fixture('milestones.json').then(({ milestones }) => {
         milestones.forEach(cy.addMilestone);
