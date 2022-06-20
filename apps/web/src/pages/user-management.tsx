@@ -79,7 +79,7 @@ const UserManagement = () => {
 
   return (
     <div className='container w-full mx-6 xl:w-xl mb-4'>
-      <h1 className='font-bold text-3xl pt-5 pb-1'>User Management</h1>
+      <h1 className='font-bold text-3xl pb-1'>User Management</h1>
       <h4 className='pb-5'>Manage user access and user roles</h4>
       <div className='bg-white p-4'>
         <h3 className='font-bold text-lg text-bcBluePrimary'>All Users</h3>
