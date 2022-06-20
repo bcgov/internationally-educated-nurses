@@ -1,7 +1,7 @@
 import useSWRImmutable from 'swr/immutable';
 
 import { IENStatusReasonRO } from '@ien/common';
-import { fetcher } from 'src/utils/swr-fetcher';
+import { fetcher } from '../utils/swr-fetcher';
 
 export interface RecordTypeOptions {
   id: number;
