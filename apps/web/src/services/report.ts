@@ -7,6 +7,11 @@ import { notifyError } from '../utils/notify-error';
 
 const bold = { bold: true };
 const fgColor = { rgb: 'e6f2ff' };
+const headerStyle = {
+  fill: { fgColor },
+  font: bold,
+  alignment: { wrapText: true, horizontal: 'right', vertical: 'top' },
+};
 
 interface ReportCreator {
   name: string;
@@ -61,6 +66,28 @@ const applyNumberFormat = (sheet: WorkSheet, s: CellAddress, e: CellAddress): vo
   }
 };
 
+const formatDataRows = (dataRows: any[][], header: string[]) => {
+  return dataRows.map((row, rowIndex) => {
+    if (rowIndex === dataRows.length - 1 && row[0]?.toUpperCase() === 'TOTAL') {
+      return row.map((v, colIndex) => {
+        if (colIndex === 0)
+          return {
+            v: v.toUpperCase(),
+            t: 's',
+            s: { fill: { fgColor }, font: bold, alignment: { horizontal: 'left' } },
+          };
+        return { v, t: 'n', s: headerStyle };
+      });
+    }
+    return row.map((v, colIndex) => {
+      if (header[colIndex]?.toUpperCase() === 'TOTAL') {
+        return { v, t: 'n', s: headerStyle };
+      }
+      return v;
+    });
+  });
+};
+
 const createSheet = (
   data: Record<string, string | number>[],
   creator: ReportCreator,
@@ -83,13 +110,6 @@ const createSheet = (
   dataRows.forEach(row => {
     row.forEach((v, index) => (row[index] = v || 0));
   });
-
-  const headerStyle = {
-    fill: { fgColor },
-    font: bold,
-    alignment: { wrapText: true, horizontal: 'right', vertical: 'top' },
-  };
-
   const headerRow = Array.isArray(header) ? header : header(data, creator);
 
   const rows = [
@@ -98,28 +118,7 @@ const createSheet = (
     [{ v: getTimeRange(filter) }],
     [],
     headerRow.map(_.upperCase).map(v => ({ v, t: 's', s: headerStyle })),
-    ...dataRows.map((row, rowIndex) => {
-      if (rowIndex === dataRows.length - 1 && row[0]?.toUpperCase() === 'TOTAL') {
-        return row.map((v, colIndex) => {
-          if (colIndex === 0)
-            return {
-              v: v.toUpperCase(),
-              t: 's',
-              s: { fill: { fgColor }, font: bold, alignment: { horizontal: 'left' } },
-            };
-          return { v, t: 'n', s: headerStyle };
-        });
-      }
-      return row.map((v, colIndex) => {
-        if (
-          (colSum && colIndex + 1 === row.length) ||
-          headerRow[colIndex]?.toUpperCase() === 'TOTAL'
-        ) {
-          return { v, t: 'n', s: headerStyle };
-        }
-        return v;
-      });
-    }),
+    ...formatDataRows(dataRows, headerRow),
   ];
 
   if (rowSum) {
