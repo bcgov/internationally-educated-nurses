@@ -72,11 +72,9 @@ export const Recruitment: React.FC = () => {
   return (
     <>
       <JobFilters options={filters} update={handleFilters} />
-
-      {jobRecords.map(job => (
-        <Record key={job.id} job={job} expandRecord={expandRecord} />
+      {jobRecords.map((job, index) => (
+        <Record key={job.id} job={job} expandRecord={expandRecord} data-cy={`record-${index}`} />
       ))}
-
       <div className='border rounded bg-bcBlueBar flex justify-between items-center mb-4 h-12'>
         <span className='py-2 pl-5 font-bold text-xs sm:text-sm'>
           {jobRecords.length == 0 ? 'There is no record yet.' : ''} Please click on the &ldquo;Add
@@ -91,13 +89,11 @@ export const Recruitment: React.FC = () => {
           <span>Add Record</span>
         </button>
       </div>
-
       <AddRecordModal
         onClose={handleNewRecord}
         visible={recordModalVisible}
         setExpandRecord={setExpandRecord}
       />
-
       <Pagination pageOptions={{ pageIndex, pageSize, total }} onChange={handlePageOptions} />
     </>
   );
