@@ -14,7 +14,7 @@ import {
   convertToParams,
 } from '@ien/common';
 import { notifyError } from '../utils/notify-error';
-import { fetcher } from 'src/utils/swr-fetcher';
+import { fetcher } from '../utils/swr-fetcher';
 
 // get all applicants
 export const getApplicants = async (filter: IENApplicantFilterDTO = {}) => {
