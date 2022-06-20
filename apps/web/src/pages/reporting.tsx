@@ -1,13 +1,11 @@
 import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
-import { writeFileXLSX } from 'xlsx';
+import { writeFile } from 'xlsx-js-style';
 
 import { Period, ValidRoles } from '@ien/common';
 import { createReportWorkbook, getReportByEOI } from '@services';
-import { PageOptions, Pagination } from '../components/Pagination';
-import { ReportTable } from '../components/reporting/ReportTable';
+import { DataExtractReport, PageOptions, Pagination, ReportTable } from '@components';
 import withAuth from '../components/Keycloak';
-import { DataExtractReport } from '@components';
 
 const DEFAULT_PAGE_SIZE = 10;
 const REPORT_PREFIX = 'ien-report-period';
@@ -47,7 +45,7 @@ const Reporting = () => {
     const from = order === 'ASC' ? periods[0].from : periods[periods.length - 1].from;
     const to = dayjs(period.to).format('YYYY-MM-DD');
     const workbook = await createReportWorkbook({ from, to });
-    writeFileXLSX(workbook, `${REPORT_PREFIX}-${period.period}.xlsx`);
+    writeFile(workbook, `${REPORT_PREFIX}-${period.period}.xlsx`);
   };
 
   useEffect(() => {

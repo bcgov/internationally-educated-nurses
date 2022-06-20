@@ -231,12 +231,12 @@ The standard process of deployment goes through the following steps.
 
 To trigger deployment, run `make tag-{env}`. ex) `make tag-dev`
 
-`test` and `prod` deployments to AWS are managed through Terraform configurations and GitHub actions. They do not require access to LZ2. However, in order to access LZ2 for updating parameters, troubleshooting, or diagnosing the app, your IDIRs would have to be onboarded on to LZ2 for the project code `uux0vy` -  IEN.
+`dev`, `test` and `prod` deployments to AWS are managed through Terraform configurations and GitHub actions. They do not require access to LZ2. However, in order to access LZ2 for updating parameters, troubleshooting, or diagnosing the app, your IDIRs would have to be onboarded on to LZ2 for the project code `uux0vy` -  IEN.
 
 > **Authentication**
 > 
 > `local` and `dev` use FreshWorks's Keycloak server at https://keycloak.freshworks.club.
-> ``
+> 
 > `test` and `prod` use Ministry of Health's Keycloak server at https://common-logon-test.hlth.gov.bc.ca and https://common-logon.hlth.gov.bc.ca 
 > 
 > The notable difference is that MoH Keycloak doesn't allow `direct access grants`. Therefore, you can't use [pre-request](docs/postman.md) to authenticate on Postman.

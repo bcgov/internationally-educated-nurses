@@ -11,6 +11,7 @@ export * from './Disclosure';
 export * from './Alert';
 export * from './DetailsItem';
 export * from './MenuBar';
+export * from './Pagination';
 
 // Form Controls
 export * from './form';
