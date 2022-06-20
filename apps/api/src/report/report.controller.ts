@@ -26,9 +26,6 @@ export class ReportController {
     @Query('from') from: string,
     @Query('to') to: string,
   ): Promise<object[]> {
-    this.logger.log(
-      `Report: nursing education country wise applicants requested from (${from}) and to (${to})`,
-    );
     return this.reportService.getCountryWiseApplicantList(from, to);
   }
 
@@ -43,7 +40,6 @@ export class ReportController {
     @Query('from') from: string,
     @Query('to') to: string,
   ): Promise<object[]> {
-    this.logger.log(`Report: registered applicants requested from (${from}) and to (${to})`);
     return this.reportService.getRegisteredApplicantList(from, to);
   }
 
@@ -58,9 +54,6 @@ export class ReportController {
     @Query('from') from: string,
     @Query('to') to: string,
   ): Promise<object[]> {
-    this.logger.log(
-      `Report: Applicants count of Active, Withdrawn and Hired (from ${from} to ${to})`,
-    );
     return this.reportService.getHiredWithdrawnActiveCount(from, to);
   }
 
@@ -75,7 +68,6 @@ export class ReportController {
     @Query('from') from: string,
     @Query('to') to: string,
   ): Promise<object[]> {
-    this.logger.log(`Report: Licensing Stage Applicants (from ${from} to ${to})`);
     return this.reportService.getLicensingStageApplicants(from, to);
   }
 
@@ -90,7 +82,6 @@ export class ReportController {
     @Query('from') from: string,
     @Query('to') to: string,
   ): Promise<object[]> {
-    this.logger.log(`Report: Applicants eligible for job search (from ${from} to ${to})`);
     return this.reportService.getLicenseApplicants(from, to);
   }
 
@@ -105,7 +96,6 @@ export class ReportController {
     @Query('from') from: string,
     @Query('to') to: string,
   ): Promise<object[]> {
-    this.logger.log(`Report: Applicants in Recruitment stage (from ${from} to ${to})`);
     return this.reportService.getRecruitmentApplicants(from, to);
   }
 
@@ -120,7 +110,6 @@ export class ReportController {
     @Query('from') from: string,
     @Query('to') to: string,
   ): Promise<object[]> {
-    this.logger.log(`Report: Applicants in Immigration stage (from ${from} to ${to})`);
     return this.reportService.getImmigrationApplicants(from, to);
   }
 
@@ -134,7 +123,6 @@ export class ReportController {
     ValidRoles.MINISTRY_OF_HEALTH,
   )
   async getApplicantHAForCurrentPeriodFiscal(@Query('to') to: string): Promise<object[]> {
-    this.logger.log(`Report: Number of Internationally Educated Nurse Registrants Working in BC`);
     return this.reportService.getApplicantHAForCurrentPeriodFiscal(to);
   }
 
@@ -163,7 +151,6 @@ export class ReportController {
     @Query('from') from: string,
     @Query('to') to: string,
   ): Promise<object[]> {
-    this.logger.log(`Extract applicant details (from ${from} to ${to})`);
     return this.reportService.extractApplicantsData(from, to);
   }
 }

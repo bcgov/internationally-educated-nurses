@@ -56,7 +56,6 @@ export class IENApplicantController {
   @Get('/')
   async getApplicants(@Query() filter: IENApplicantFilterAPIDTO): Promise<[ApplicantRO[], number]> {
     try {
-      this.logger.log(`list applicants`);
       return await this.ienapplicantService.getApplicants(filter);
     } catch (e) {
       this.logger.error(e);
@@ -77,7 +76,6 @@ export class IENApplicantController {
     @Query() relation: IENApplicantFilterByIdAPIDTO,
   ): Promise<ApplicantRO> {
     try {
-      this.logger.log(`Fetch applicant with id: ${id}`);
       return await this.ienapplicantService.getApplicantById(id, relation);
     } catch (e) {
       if (e instanceof NotFoundException) {
