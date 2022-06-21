@@ -28,9 +28,9 @@ export const LastSyncBar = () => {
   return (
     <HeadlessDisclosure>
       {({ open }) => (
-        <div>
+        <div className='absolute right-0 -bottom-2 w-96'>
           <div className='w-full absolute flex flex-row-reverse justify-center'>
-            <div className='container flex w-full mx-6 xl:w-xl'>
+            <div className='container flex w-full xl:w-xl'>
               <div className='flex flex-grow w-full'>
                 <div className='ml-auto filter drop-shadow-md'>
                   <HeadlessDisclosure.Button
