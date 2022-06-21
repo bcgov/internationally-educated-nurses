@@ -3,7 +3,7 @@
 
 import { ApplicantRO, IENApplicantJobCreateUpdateDTO } from '@ien/common';
 
-describe('Details - add jobs', () => {
+describe('Details - add a job', () => {
   let applicant: ApplicantRO;
   let jobs: IENApplicantJobCreateUpdateDTO[];
   let newJob: IENApplicantJobCreateUpdateDTO;
@@ -22,7 +22,7 @@ describe('Details - add jobs', () => {
     cy.tabRecruitment();
   });
 
-  it('adds job competitions', () => {
+  it('adds a job record', () => {
     cy.addJob(newJob);
     cy.contains(`${7} items`);
   });
