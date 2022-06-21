@@ -190,8 +190,7 @@ api-integration-test:
 
 run-test-apps:
 	@make start-test-db
-	@yarn build
-	NODE_ENV=test yarn start:local
+	NODE_ENV=test yarn watch
 	@echo "++\n*****"
 
 test-e2e:

@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 
 import { menuBarTabs } from '@services';
 import { useAuthContext } from './AuthContexts';
+import { LastSyncBar } from '@components';
 
 export const MenuBar: React.FC = () => {
   const router = useRouter();
@@ -15,7 +16,7 @@ export const MenuBar: React.FC = () => {
   return (
     <div className='w-full bg-bcBlueAccent flex flex-row justify-center'>
       <div className='container flex w-full mx-6 xl:w-xl my-2'>
-        <div className='flex flex-grow w-full justify-between items-center'>
+        <div className='relative flex flex-grow w-full justify-between items-center'>
           <div className='layout-grid gap-0 h-full flex flex-row items-center align-center'>
             {menuBarTabs
               .filter(menu => authUser && menu.roles.includes(authUser.role))
@@ -31,6 +32,7 @@ export const MenuBar: React.FC = () => {
                 </Link>
               ))}
           </div>
+          <LastSyncBar />
         </div>
       </div>
     </div>

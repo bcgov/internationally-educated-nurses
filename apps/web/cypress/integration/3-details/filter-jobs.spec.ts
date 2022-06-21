@@ -29,7 +29,7 @@ describe('Details - filter jobs', () => {
     });
     filteredJobs.forEach(job => cy.contains('span', job.ha_pcn));
     const matchedJobs = jobs.filter(j1 => filteredJobs.some(j2 => j2.ha_pcn === j1.ha_pcn));
-    cy.get('[id^=headlessui-]').should('have.length', matchedJobs.length);
+    cy.get('[data-cy^=record-]').should('have.length', matchedJobs.length);
     return filteredJobs;
   };
 
@@ -41,7 +41,7 @@ describe('Details - filter jobs', () => {
     // set 'health authority' filter
     cy.get('#specialty').click().type(`${job.job_title}{enter}`);
     const matchedJobs = jobs.filter(j => job.job_title === j.job_title);
-    cy.get('[id^=headlessui-]').should('have.length', matchedJobs.length);
+    cy.get('[data-cy^=record-]').should('have.length', matchedJobs.length);
   });
 
   it('filters jobs by health authority and specialty', () => {
@@ -51,10 +51,10 @@ describe('Details - filter jobs', () => {
     // set specialty filter
     cy.get('#specialty').click().type(`${job.job_title}{enter}`);
     matchedJobs = matchedJobs.filter(j => job.job_title === j.job_title);
-    cy.get('[id^=headlessui-]').should('have.length', matchedJobs.length);
+    cy.get('[data-cy^=record-]').should('have.length', matchedJobs.length);
 
     // clear filters
     cy.contains('button', 'Clear').click();
-    cy.get('[id^=headlessui-]').should('have.length', jobs.length > 5 ? 5 : jobs.length);
+    cy.get('[data-cy^=record-]').should('have.length', jobs.length > 5 ? 5 : jobs.length);
   });
 });

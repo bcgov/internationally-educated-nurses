@@ -13,7 +13,7 @@ export const ApplicantProfile = () => {
 
   return (
     <>
-      <div className='text-xs mt-4 mb-5 font-bold'>
+      <div className='relative w-1/2 text-xs mt-4 mb-5 font-bold'>
         <button onClick={() => router.back()}>
           <a className='text-bcGray hover:text-bcBlueLink hover:underline'>
             {searchedByName ? 'Search Results' : 'Manage Applicants'}

@@ -5,7 +5,7 @@ import { IENApplicantJobCreateUpdateDTO } from '@ien/common';
 
 describe('Details - add milestones', () => {
   beforeEach(() => {
-    cy.login('ien_e2e_hmbc');
+    cy.login();
     cy.visit('/');
   });
 
@@ -14,7 +14,7 @@ describe('Details - add milestones', () => {
       cy.visitDetails(applicant.id);
       cy.tabRecruitment();
 
-      cy.get('#headlessui-disclosure-button-1').click();
+      cy.get('[data-cy=record-0]').click();
 
       cy.fixture('milestones.json').then(({ milestones }) => {
         milestones.forEach(cy.addMilestone);

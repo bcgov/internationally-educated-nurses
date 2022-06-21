@@ -2,12 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  overflow-y: scroll;
+}
+
 html,
 body,
 #__next {
   height: 100%;
   background-color: rgb(243 244 246);
-  overflow-y: overlay;
 }
 
 @layer base {

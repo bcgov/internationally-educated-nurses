@@ -1,4 +1,5 @@
 import axios, { AxiosError } from 'axios';
+import useSWR from 'swr';
 
 import {
   IENApplicantCreateUpdateDTO,
@@ -13,6 +14,7 @@ import {
   convertToParams,
 } from '@ien/common';
 import { notifyError } from '../utils/notify-error';
+import { fetcher } from '../utils/swr-fetcher';
 
 // get all applicants
 export const getApplicants = async (filter: IENApplicantFilterDTO = {}) => {
@@ -155,4 +157,11 @@ export const updateMilestone = async (
   } catch (e) {
     notifyError(e as AxiosError);
   }
+};
+
+// get last applicant sync time from ATS
+export const useGetLastSyncTime = () => {
+  const { data: sync } = useSWR('external-api/sync-applicants-audit', fetcher);
+
+  return sync?.data;
 };

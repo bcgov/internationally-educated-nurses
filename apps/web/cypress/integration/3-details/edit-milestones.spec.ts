@@ -21,7 +21,7 @@ describe('Details - edit milestones', () => {
 
   it('edits a milestone', () => {
     cy.fixture('edit-milestone.json').then(milestone => {
-      cy.get('#headlessui-disclosure-button-1').click();
+      cy.get('[data-cy=record-0]').click();
       cy.get('[alt="edit milestone"]').eq(0).click();
       cy.get('#status').focus().type(`${milestone.status}{enter}`);
       cy.get('#start_date').focus().click().type(`${milestone.start_date}`);

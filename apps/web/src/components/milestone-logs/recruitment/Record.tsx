@@ -19,9 +19,10 @@ import { useApplicantContext } from '../../applicant/ApplicantContext';
 interface RecordProps {
   job: ApplicantJobRO;
   expandRecord: boolean;
+  jobIndex: number;
 }
 
-export const Record: React.FC<RecordProps> = ({ job, expandRecord }) => {
+export const Record: React.FC<RecordProps> = ({ job, expandRecord, jobIndex }) => {
   const { applicant, updateJob } = useApplicantContext();
   const [modalVisible, setModalVisible] = useState(false);
   const [editing, setEditing] = useState<ApplicantStatusAuditRO | null>(null); // milestone being edited
@@ -93,7 +94,7 @@ export const Record: React.FC<RecordProps> = ({ job, expandRecord }) => {
   };
 
   return (
-    <div className='mb-3'>
+    <div className='mb-3' data-cy={`record-${jobIndex}`}>
       <Disclosure
         shouldExpand={expandRecord}
         buttonText={

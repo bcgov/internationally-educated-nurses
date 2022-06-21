@@ -1,15 +1,7 @@
-import { IENStatusReasonRO } from '@ien/common';
-import axios from 'axios';
-import { toast } from 'react-toastify';
 import useSWRImmutable from 'swr/immutable';
 
-const fetcher = (url: string) =>
-  axios
-    .get(url)
-    .then(res => res.data)
-    .catch(error =>
-      toast.error(`${error.response.data.errorType}: ${error.response.data.errorMessage}`),
-    );
+import { IENStatusReasonRO } from '@ien/common';
+import { fetcher } from '../utils/swr-fetcher';
 
 export interface RecordTypeOptions {
   id: number;
