@@ -9,9 +9,14 @@ on:
 jobs:
   pr-checks:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
     environment:
       name: dev
+    strategy:
+      fail-fast: false
+      matrix:
+        # run copies of the current job in parallel
+        containers: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@v2
         name: checkout
@@ -28,8 +33,16 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
-      - name: Run application and cypress/accessibility tests
-        run: make test-web
+      - name: Run Cypress
+        uses: cypress-io/github-action@v4
+        with:
+          browser: chrome
+          start: make run-test-apps
+          working-directory: ./
+          project: ./apps/web
+          record: true
+          parallel: true
+          wait-on: 'http://localhost:3000'
         env:
           CYPRESS_RECORD_KEY: '${{ secrets.CYPRESS_RECORD_KEY }}'
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
@@ -43,21 +56,8 @@ jobs:
           NEXT_PUBLIC_AUTH_REALM: 'ien'
           NEXT_PUBLIC_AUTH_CLIENTID: 'IEN'
           NEXT_PUBLIC_AUTH_URL: 'https://keycloak.freshworks.club/auth'
-
-      - name: Generate markdown from test results
-        run: make generate-accessibility-results
-        if: ${{ failure() }}
-
-      - uses: actions/github-script@v3
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            const fs = require('fs');
-            const comment = fs.readFileSync('./packages/accessibility/out/accessibility_results.md', 'utf8');
-            github.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: comment
-            })
-        if: ${{ failure() }}
+          TEST_POSTGRES_HOST: 'localhost'
+          TEST_POSTGRES_USERNAME: 'freshworks'
+          TEST_POSTGRES_PASSWORD: 'password'
+          TEST_POSTGRES_DATABASE: 'ien_test'
+          TEST_POSTGRES_PORT: '5433'
