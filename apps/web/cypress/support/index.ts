@@ -26,6 +26,7 @@ declare global {
       searchUsers(name: string): Chainable<Element>;
       addJob(job: IENApplicantJobCreateUpdateDTO): void;
       addDuplicateJob(job: IENApplicantJobCreateUpdateDTO): void;
+      editJob(job: IENApplicantJobCreateUpdateDTO): void;
       editDuplicateJob(job: IENApplicantJobCreateUpdateDTO): void;
       addMilestone(milestone: IENApplicantAddStatusDTO): void;
       pagination(): void;
