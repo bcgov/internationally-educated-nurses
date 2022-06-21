@@ -6,11 +6,13 @@ import { ApplicantRO, IENApplicantJobCreateUpdateDTO } from '@ien/common';
 describe('Details - add jobs', () => {
   let applicant: ApplicantRO;
   let jobs: IENApplicantJobCreateUpdateDTO[];
+  let newJob: IENApplicantJobCreateUpdateDTO;
 
   before(() => {
     cy.fixture('jobs.json').then(data => {
       applicant = data.applicant;
       jobs = data.jobs;
+      newJob = data.new;
     });
   });
 
@@ -21,10 +23,8 @@ describe('Details - add jobs', () => {
   });
 
   it('adds job competitions', () => {
-    jobs.forEach((job: IENApplicantJobCreateUpdateDTO, index: number) => {
-      cy.addJob(job);
-      cy.contains(`${index + 1} items`);
-    });
+    cy.addJob(newJob);
+    cy.contains(`${7} items`);
   });
 
   it('add - rejects duplicate job record', () => {

@@ -175,10 +175,10 @@ web-unit-test:
 	@echo "++\n*****"
 
 start-test-db:
-	docker-compose -f docker-compose.test.yaml up --build -d
+	@docker-compose -f docker-compose.test.yaml up --build -d
 
 stop-test-db:
-	docker-compose -f docker-compose.test.yaml down
+	@docker-compose -f docker-compose.test.yaml down
 
 api-integration-test:
 	@make start-test-db
@@ -190,6 +190,7 @@ api-integration-test:
 
 run-test-apps:
 	@make start-test-db
+	@scripts/seed-test-data.sh &
 	NODE_ENV=test yarn watch
 	@echo "++\n*****"
 
@@ -201,17 +202,11 @@ test-e2e:
 	@make stop-test-db
 	@echo "++\n*****"
 
-test-web:
+test-pa11y:
 	@make start-test-db
 	@yarn build
-	@echo "++\n***** Running Web integration tests\n++"
-	@NODE_ENV=test yarn test:web:all
-	@make stop-test-db
-	@echo "++\n*****"
-
-test-pa11y:
 	@echo "++\n***** Running front end accessibility tests\n++"
-	@yarn test:pa11y
+	@NODE_ENV=test yarn test:pa11y
 	@echo "++\n*****"
 
 debug-pa11y:
