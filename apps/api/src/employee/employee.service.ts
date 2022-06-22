@@ -9,7 +9,7 @@ import {
   ObjectLiteral,
   SelectQueryBuilder,
 } from 'typeorm';
-import { ValidRoles } from '@ien/common';
+import { Organizations, EmailDomains, ValidRoles } from '@ien/common';
 import { EmployeeEntity } from './entity/employee.entity';
 import { IENUsers } from 'src/applicant/entity/ienusers.entity';
 import { EmployeeUser } from 'src/common/interface/EmployeeUser';
@@ -25,8 +25,15 @@ export class EmployeeService {
   async resolveUser(keycloakId: string, userData: Partial<EmployeeEntity>): Promise<EmployeeUser> {
     const existingEmployee = await this.getUserByKeycloakId(keycloakId);
     if (existingEmployee) {
+      const org = this._setOrganization(existingEmployee.email);
+
+      if (org) {
+        await this.employeeRepository.update(existingEmployee.id, { organization: org });
+      }
       return existingEmployee;
     }
+
+    userData.organization = this._setOrganization(userData.email);
     const newUser = this.employeeRepository.create(userData);
     const employee = await this.employeeRepository.save(newUser);
     const user = await this.getUserId(userData.email);
@@ -35,6 +42,58 @@ export class EmployeeService {
       user_id: user ? user.id : null,
     };
     return empUser;
+  }
+
+  _checkDomain(domain: string, email: string) {
+    return email.includes(domain);
+  }
+
+  _setOrganization(email?: string): string | undefined {
+    if (!email) {
+      return undefined;
+    }
+    // ministry of health
+    if (EmailDomains.MINISTRY_OF_HEALTH.some(e => this._checkDomain(e, email))) {
+      return Organizations.MINISTRY_OF_HEALTH;
+    }
+    //health match bc
+    if (EmailDomains.HEALTH_MATCH.some(e => this._checkDomain(e, email))) {
+      return Organizations.HEALTH_MATCH;
+    }
+    //first nations health authority
+    if (EmailDomains.FIRST_NATIONS_HEALTH_AUTHORITY.some(e => this._checkDomain(e, email))) {
+      return Organizations.FIRST_NATIONS_HEALTH_AUTHORITY;
+    }
+    //providence health care
+    if (EmailDomains.PROVIDENCE_HEALTH_CARE.some(e => this._checkDomain(e, email))) {
+      return Organizations.PROVIDENCE_HEALTH_CARE;
+    }
+    //providence health services authority
+    if (EmailDomains.PROVINCIAL_HEALTH_SERVICES_AUTHORITY.some(e => this._checkDomain(e, email))) {
+      return Organizations.PROVINCIAL_HEALTH_SERVICES_AUTHORITY;
+    }
+    // fraser health
+    if (EmailDomains.FRASER_HEALTH.some(e => this._checkDomain(e, email))) {
+      return Organizations.FRASER_HEALTH;
+    }
+    //interior health
+    if (EmailDomains.INTERIOR_HEALTH.some(e => this._checkDomain(e, email))) {
+      return Organizations.INTERIOR_HEALTH;
+    }
+    //island health
+    if (EmailDomains.ISLAND_HEALTH.some(e => this._checkDomain(e, email))) {
+      return Organizations.ISLAND_HEALTH;
+    }
+    //northern health
+    if (EmailDomains.NORTHERN_HEALTH.some(e => this._checkDomain(e, email))) {
+      return Organizations.NORTHERN_HEALTH;
+    }
+    //vancouver coastal health
+    if (EmailDomains.VANCOUVER_COASTAL_HEALTH.some(e => this._checkDomain(e, email))) {
+      return Organizations.VANCOUVER_COASTAL_HEALTH;
+    }
+
+    return undefined;
   }
 
   async getUserByKeycloakId(keycloakId: string): Promise<EmployeeUser | undefined> {

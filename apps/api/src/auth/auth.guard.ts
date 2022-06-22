@@ -28,6 +28,7 @@ export class AuthGuard implements CanActivate {
       role: 'pending',
       name: tokenUser.preferred_username,
       email: tokenUser.email,
+      organization: tokenUser.organization,
     });
     request.user = employee;
     if (acceptedRoles.length === 0 || employee.role === ValidRoles.ROLEADMIN) return true;
