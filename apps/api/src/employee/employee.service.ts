@@ -49,10 +49,13 @@ export class EmployeeService {
       return undefined;
     }
 
+    // get domain from email string
     const domain = email.substring(email.lastIndexOf('@') + 1);
 
+    // search valid email domains for a match
     const org = Object.keys(EmailDomains).find(d => d === domain);
 
+    //return organization or undefined
     return org ? EmailDomains[org as keyof typeof EmailDomains] : undefined;
   }
 
