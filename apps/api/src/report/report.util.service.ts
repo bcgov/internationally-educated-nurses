@@ -124,37 +124,57 @@ export class ReportUtilService {
     return `
       -- 28 hired
       -- 20 Withdrew
-      WITH old_applicants AS (
-        SELECT 
-          applicants.id,
-          applicants.registration_date,
-          CASE WHEN COALESCE(ien_staus_hired.status_id, 0) > 0 THEN 1 ELSE 0 END as hired,
-          CASE WHEN COALESCE(ien_staus_withdrew.status_id, 0) > 0 THEN 1 ELSE 0 END as withdrawn
+      WITH withdrawn_applicants AS (
+        SELECT applicant_id, max(start_date) as start_date
+        FROM public.ien_applicant_status_audit 
+        WHERE status_id=20 
+          AND start_date::date <= '${to}'
+        GROUP BY applicant_id
+      ), reactive_applicants AS (
+        SELECT wa.applicant_id, min(ien.start_date) as start_date
+        FROM withdrawn_applicants wa INNER JOIN public.ien_applicant_status_audit ien ON wa.applicant_id=ien.applicant_id
+        WHERE ien.start_date::date >= wa.start_date
+          AND ien.start_date::date <= '${to}'
+          AND ien.status_id != 20
+        GROUP BY wa.applicant_id
+      ), hired_applicants AS (
+        SELECT ien.applicant_id, max(ien.start_date) as start_date
+        FROM public.ien_applicant_status_audit ien
+        LEFT JOIN withdrawn_applicants wa ON ien.applicant_id=wa.applicant_id
+        WHERE ien.status_id=28 
+          AND ien.start_date::date <= '${to}' 
+          AND (wa.start_date IS null OR ien.start_date >= wa.start_date)
+        GROUP BY ien.applicant_id
+      ), old_applicants AS (
+        SELECT
+            applicants.id,
+            applicants.registration_date,
+            CASE WHEN ha.start_date IS null THEN 0 ELSE 1 END AS is_hired,
+		  	    CASE WHEN wa.start_date IS null THEN 0 ELSE 1 END AS is_withdrawn,
+          	CASE WHEN ra.start_date IS null THEN 0 ELSE 1 END AS is_reactive
         FROM public.ien_applicants as applicants
-        LEFT JOIN public.ien_applicant_status_audit ien_staus_hired 
-          ON ien_staus_hired.applicant_id=applicants.id AND ien_staus_hired.status_id=28 AND ien_staus_hired.start_date::date <= '${to}'
-        LEFT JOIN public.ien_applicant_status_audit ien_staus_withdrew 
-          ON ien_staus_withdrew.applicant_id=applicants.id AND ien_staus_withdrew.status_id=20 AND ien_staus_withdrew.start_date::date <= '${to}'
+        LEFT JOIN hired_applicants ha ON ha.applicant_id=applicants.id
+        LEFT JOIN withdrawn_applicants wa ON wa.applicant_id=applicants.id
+        LEFT JOIN reactive_applicants ra ON ra.applicant_id=applicants.id
         WHERE applicants.registration_date::date < '${to}'
-      ),
-      report AS (
+      ), report AS (
         SELECT 
           id,
           registration_date,
-          CASE WHEN hired = 0 AND withdrawn = 0 THEN 1 ELSE 0 END AS active,
-          CASE WHEN hired = 1 AND withdrawn = 0 THEN 1 ELSE 0 END AS hired,
-          CASE WHEN withdrawn = 1 THEN 1 ELSE 0 END AS withdrawn
+          CASE WHEN is_hired = 0 AND (is_withdrawn = 0 OR is_reactive = 1) THEN 1 ELSE 0 END AS active,
+          CASE WHEN is_hired = 1 THEN 1 ELSE 0 END AS hired,
+          CASE WHEN is_withdrawn = 1 AND is_reactive = 0 AND is_hired = 0 THEN 1 ELSE 0 END AS withdrawn
         FROM old_applicants
       )
       SELECT 
-        'Applied before ' || to_char('${from}'::date, 'Mon DD, YYYY') || ' (OLD)' AS title,
-        sum(active) AS active, sum(withdrawn) AS withdrawn, sum(hired) AS hired, count(*) AS total
-        FROM report WHERE registration_date::date < '${from}'
+      'Applied before ' || to_char('${from}'::date, 'Mon DD, YYYY') || ' (OLD)' AS title,
+      sum(active) AS active, sum(withdrawn) AS withdrawn, sum(hired) AS hired, count(*) AS total
+      FROM report WHERE registration_date::date < '${from}'
       UNION ALL
       SELECT 
-        'Applied after ' || to_char('${from}'::date, 'Mon DD, YYYY') || ' (NEW)' AS title,
-        sum(active) AS active, sum(withdrawn) AS withdrawn, sum(hired) AS hired, count(*) AS total
-        FROM report WHERE registration_date::date >= '${from}';
+      'Applied after ' || to_char('${from}'::date, 'Mon DD, YYYY') || ' (NEW)' AS title,
+      sum(active) AS active, sum(withdrawn) AS withdrawn, sum(hired) AS hired, count(*) AS total
+      FROM report WHERE registration_date::date >= '${from}';
     `;
   }
 
@@ -173,21 +193,28 @@ export class ReportUtilService {
       --col11 - 'Granted provisional licensure' status: 16
       WITH active_applicants AS (
         SELECT
-          t1.id,
+          t1.*,
           COALESCE((SELECT max(sa.status_id) FROM public.ien_applicant_status_audit sa 
-            WHERE sa.applicant_id=t1.id AND sa.status_id IN (19, 16)), 0) AS has_license
+          WHERE sa.applicant_id=t1.id AND sa.status_id IN (19, 16)), 0) AS has_license
         FROM (
           SELECT 
-            applicants.id,
-            CASE WHEN COALESCE(ien_staus_hired.status_id, 0) > 0 THEN 1 ELSE 0 END as hired,
-            CASE WHEN COALESCE(ien_staus_withdrew.status_id, 0) > 0 THEN 1 ELSE 0 END as withdrawn
+          applicants.id,
+          CASE 
+            WHEN 
+              COALESCE(
+              (
+                SELECT ien_status.status_id 
+                FROM public.ien_applicant_status_audit ien_status
+                LEFT JOIN public.ien_applicant_status status ON status.id=ien_status.status_id
+                WHERE ien_status.applicant_id=applicants.id AND ien_status.start_date::date <= '${to}' AND status.parent_id IN (10001, 10002, 10003)
+                ORDER BY ien_status.start_date DESC limit 1
+              ),0) IN (20, 28) 
+            THEN 1
+            ELSE 0 
+          END as hired_or_withdrawn
           FROM public.ien_applicants as applicants
-          LEFT JOIN public.ien_applicant_status_audit ien_staus_hired 
-            ON ien_staus_hired.applicant_id=applicants.id AND ien_staus_hired.status_id=28 AND ien_staus_hired.start_date::date <= '${to}'
-          LEFT JOIN public.ien_applicant_status_audit ien_staus_withdrew 
-            ON ien_staus_withdrew.applicant_id=applicants.id AND ien_staus_withdrew.status_id=20 AND ien_staus_withdrew.start_date::date <= '${to}'
         ) as t1
-        WHERE t1.hired = 0  and t1.withdrawn = 0
+        WHERE t1.hired_or_withdrawn = 0
       ),
       period_data AS (
         SELECT
@@ -284,14 +311,11 @@ export class ReportUtilService {
       FROM ha_status
       ORDER BY status_id
       ),
-      temp_status AS (
-        SELECT id, 0 AS FNHA, 0 AS FHA, 0 AS IHA, 0 AS VIHA, 0 AS NHA, 0 AS PVHA, 0 AS PHSA, 0 AS VCHA
-        FROM public.ien_applicant_status WHERE parent_id=10003 AND id IN (21,22,23,24,25,26,27,28) 
-      ),
       final_data as (
         SELECT * FROM applicant_ha_status
         UNION ALL
-        SELECT * FROM temp_status
+        SELECT id, 0 AS FNHA, 0 AS FHA, 0 AS IHA, 0 AS VIHA, 0 AS NHA, 0 AS PVHA, 0 AS PHSA, 0 AS VCHA
+        FROM public.ien_applicant_status WHERE parent_id=10003 AND id IN (21,22,23,24,25,26,27,28)
       )
       SELECT status,
         FNHA as "First Nations Health",
