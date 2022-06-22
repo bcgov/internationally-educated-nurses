@@ -29,7 +29,7 @@ declare global {
       editJob(job: IENApplicantJobCreateUpdateDTO): void;
       editDuplicateJob(job: IENApplicantJobCreateUpdateDTO): void;
       addMilestone(milestone: IENApplicantAddStatusDTO): void;
-      deleteLastMilestone(): void;
+      deleteMilestone(index: number): void;
       pagination(): void;
       visitDetails(applicantId: string): void;
       tabRecruitment(): void;

@@ -29,7 +29,7 @@ describe('Details - Milestones', () => {
   it('deletes a milestone', () => {
     cy.fixture('milestones.json').then(data => {
       cy.get('[data-cy=record-0]').click();
-      cy.deleteLastMilestone();
+      cy.deleteMilestone(4);
       cy.contains(`${data.new.status}`).should('not.exist');
       cy.contains(`${data.new.notes}`).should('not.exist');
       cy.contains(dayjs(data.new.start_date).format('MMM DD, YYYY')).should('not.exist');
