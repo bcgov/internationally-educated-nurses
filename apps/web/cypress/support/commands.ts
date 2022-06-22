@@ -122,6 +122,11 @@ Cypress.Commands.add('addMilestone', (milestone: IENApplicantAddStatusDTO) => {
   cy.contains(milestone.status);
 });
 
+Cypress.Commands.add('deleteLastMilestone', () => {
+  cy.get('[alt="delete milestone"]').last().should('exist').click({ force: true });
+  cy.contains('button', 'Yes').click();
+});
+
 Cypress.Commands.add('changeRole', (role: string) => {
   cy.get('[id=role-change]').focus().type(`${role}{enter}`);
   cy.get('button:contains(Submit)').should('not.be.disabled').click();

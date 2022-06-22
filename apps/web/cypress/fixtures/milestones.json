@@ -1,12 +1,12 @@
 {
   "new": {
     "status": "Candidate was unresponsive",
-    "start_date": "2020-05-01",
+    "start_date": "2020-08-01",
     "notes": "new milestone"
   },
   "update": {
     "status": "References completed",
-    "start_date": "2020-05-01",
+    "start_date": "2020-09-01",
     "notes": "edit milestone"
   }
 }
