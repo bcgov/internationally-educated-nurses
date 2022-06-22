@@ -207,6 +207,7 @@ test-pa11y:
 	@yarn build
 	@echo "++\n***** Running front end accessibility tests\n++"
 	@NODE_ENV=test yarn test:pa11y
+	@make stop-test-db
 	@echo "++\n*****"
 
 debug-pa11y:

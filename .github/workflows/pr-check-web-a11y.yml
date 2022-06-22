@@ -23,6 +23,8 @@ jobs:
 
       - name: Start Accessibility Test
         run: make test-pa11y
+        env:
+          DEBUG: true
 
       - name: generate markdown from test results
         run: make generate-accessibility-results
