@@ -2,7 +2,7 @@
 /// <reference path="../../support/index.ts"/>
 
 describe('Data Extract', () => {
-  before(() => {
+  beforeEach(() => {
     cy.login();
     cy.visit('/');
     cy.contains('a', 'Reporting').click();

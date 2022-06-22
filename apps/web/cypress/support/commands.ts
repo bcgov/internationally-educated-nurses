@@ -73,7 +73,7 @@ Cypress.Commands.add('editJob', (job: IENApplicantJobCreateUpdateDTO) => {
 
   cy.contains('button', 'Update').click();
 
-  cy.get('[data-cy=record-0]').contains(job.ha_pcn);
+  cy.contains(job.ha_pcn);
   cy.contains(`${job.job_id}`);
   cy.contains(`${job.job_title}`);
   cy.contains(`${job.job_location}`);
