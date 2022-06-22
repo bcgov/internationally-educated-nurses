@@ -25,8 +25,10 @@
     "open:cypress": "yarn workspace @ien/web open:cypress",
     "test": "echo 'Running tests' && wsrun --parallel --exclude-missing test",
     "test:seed": "scripts/seed-test-data.sh",
+    "test:web": "yarn start:cypress && yarn workspace @ien/accessibility start",
     "test:e2e": "start-test 'start:local' http://localhost:3000 'yarn test:seed && yarn start:cypress'",
-    "test:pa11y": "start-test 'start:local' http://localhost:3000 'yarn test:seed && yarn workspace @ien/accessibility start'"
+    "test:pa11y": "start-test 'start:local' http://localhost:3000 'yarn test:seed && yarn workspace @ien/accessibility start'",
+    "test:web:all": "start-test 'start:local' http://localhost:3000 'yarn test:seed && yarn test:web'"
   },
   "workspaces": [
     "packages/*",

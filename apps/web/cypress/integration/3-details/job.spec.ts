@@ -3,16 +3,18 @@
 
 import { ApplicantRO, IENApplicantJobCreateUpdateDTO } from '@ien/common';
 
-describe('Details - filter jobs', () => {
+describe('Details - Job', () => {
   let applicant: ApplicantRO;
   let jobs: IENApplicantJobCreateUpdateDTO[];
-  let job: IENApplicantJobCreateUpdateDTO;
+  let newJob: IENApplicantJobCreateUpdateDTO;
+  let updateJob: IENApplicantJobCreateUpdateDTO;
 
   before(() => {
     cy.fixture('jobs.json').then(data => {
       applicant = data.applicant;
       jobs = data.jobs;
-      job = jobs[3];
+      newJob = data.new;
+      updateJob = data.update;
     });
   });
 
@@ -20,6 +22,60 @@ describe('Details - filter jobs', () => {
     cy.login();
     cy.visitDetails(applicant.id);
     cy.tabRecruitment();
+  });
+
+  it('adds a job record', () => {
+    cy.contains(applicant.name);
+    cy.addJob(newJob);
+    cy.contains(`${7} items`);
+  });
+
+  it('rejects duplicate job record', () => {
+    const duplicateJob = jobs[0];
+
+    cy.addDuplicateJob(duplicateJob);
+  });
+
+  it('edits a job competition', () => {
+    cy.get('[data-cy=record-1]').click(); // to place the record at the top
+    cy.contains('button', 'Edit Details').click();
+    cy.editJob(updateJob);
+  });
+
+  it('rejects a duplicate job record by editing', () => {
+    const duplicateJob = jobs[2];
+
+    cy.get('[data-cy=record-0]').click();
+    cy.contains('button', 'Edit Details').click();
+
+    cy.editDuplicateJob(duplicateJob);
+  });
+
+  it('closes a job competition by withdraw', () => {
+    cy.get('[data-cy=record-0]').click();
+    cy.fixture('open-close-job-milestone.json').then(({ withdraw }) => {
+      cy.addMilestone(withdraw);
+      cy.contains(`Complete - ${withdraw.status}`);
+    });
+  });
+
+  it('reopen a job competition', () => {
+    cy.get('[data-cy=record-0]').click();
+    cy.fixture('open-close-job-milestone.json').then(({ reopen }) => {
+      cy.addMilestone(reopen);
+      cy.contains(`On Going - ${reopen.status}`);
+      cy.deleteLastMilestone();
+      cy.deleteLastMilestone();
+    });
+  });
+
+  it('closes a job competition by accepting an offer', () => {
+    cy.get('[data-cy=record-0]').click();
+    cy.fixture('open-close-job-milestone.json').then(({ acceptOffer }) => {
+      cy.addMilestone(acceptOffer);
+      cy.contains(`Complete - ${acceptOffer.status}`);
+      cy.deleteLastMilestone();
+    });
   });
 
   const filterJobsByHa = () => {
@@ -39,6 +95,7 @@ describe('Details - filter jobs', () => {
 
   it('filters jobs by specialty', () => {
     // set 'health authority' filter
+    const job = jobs[3];
     cy.get('#specialty').click().type(`${job.job_title}{enter}`);
     const matchedJobs = jobs.filter(j => job.job_title === j.job_title);
     cy.get('[data-cy^=record-]').should('have.length', matchedJobs.length);
@@ -46,6 +103,7 @@ describe('Details - filter jobs', () => {
 
   it('filters jobs by health authority and specialty', () => {
     // set 'health authority' filter
+    const job = jobs[3];
     let matchedJobs = filterJobsByHa();
 
     // set specialty filter

@@ -9,6 +9,7 @@ describe('Data Extract', () => {
   });
 
   it('downloads applicant data extract', () => {
+    cy.get('input').should('have.class', 'bg-bcGrayInput');
     cy.get('input').eq(0).type('2022-04-28');
     cy.get('input').eq(1).type('2022-05-25');
 
