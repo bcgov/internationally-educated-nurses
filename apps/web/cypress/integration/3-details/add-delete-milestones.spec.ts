@@ -4,7 +4,7 @@
 import { ApplicantRO, IENApplicantJobCreateUpdateDTO } from '@ien/common';
 import dayjs from 'dayjs';
 
-describe('Details - add milestones', () => {
+describe('Details - add/delete milestones', () => {
   let applicant: ApplicantRO;
 
   before(() => {
@@ -32,7 +32,7 @@ describe('Details - add milestones', () => {
       cy.get('[alt="delete milestone"]').last().should('exist').click();
       cy.contains('button', 'Yes').click();
       cy.contains(`${data.new.status}`).should('not.exist');
-      cy.contains(/^first milestone$/).should('not.exist');
+      cy.contains(`${data.new.notes}`).should('not.exist');
       cy.contains(dayjs(data.new.start_date).format('MMM DD, YYYY')).should('not.exist');
     });
   });
