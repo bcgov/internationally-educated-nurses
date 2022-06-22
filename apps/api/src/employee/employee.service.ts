@@ -10,7 +10,7 @@ import {
   SelectQueryBuilder,
 } from 'typeorm';
 import { ValidRoles } from '@ien/common';
-import { EmployeeEntity } from './employee.entity';
+import { EmployeeEntity } from './entity/employee.entity';
 import { IENUsers } from 'src/applicant/entity/ienusers.entity';
 import { EmployeeUser } from 'src/common/interface/EmployeeUser';
 

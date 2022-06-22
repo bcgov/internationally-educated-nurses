@@ -13,7 +13,7 @@ import { IENJobTitle } from 'src/applicant/entity/ienjobtitles.entity';
 import { IENStatusReason } from 'src/applicant/entity/ienstatus-reason.entity';
 import { IENUsers } from 'src/applicant/entity/ienusers.entity';
 import { SyncApplicantsAudit } from 'src/applicant/entity/sync-applicants-audit.entity';
-import { EmployeeEntity } from 'src/employee/employee.entity';
+import { EmployeeEntity } from 'src/employee/entity/employee.entity';
 import { FormEntity } from 'src/form/entities/form.entity';
 import { LoggerOptions } from 'typeorm';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';

@@ -14,7 +14,7 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { RequestObj } from 'src/common/interface/RequestObj';
-import { EmployeeEntity } from './employee.entity';
+import { EmployeeEntity } from './entity/employee.entity';
 import { EmployeeService } from './employee.service';
 import { AppLogger } from 'src/common/logger.service';
 
