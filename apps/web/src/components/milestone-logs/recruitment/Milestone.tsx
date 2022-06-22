@@ -110,7 +110,7 @@ export const EditMilestone: React.FC<EditMilestoneProps> = props => {
 
   const deleteButton = () => {
     return canDelete(authUser?.user_id, milestone.added_by?.id) ? (
-      <button onClick={() => setDeleteModalVisible(true)}>
+      <button onClick={() => setDeleteModalVisible(true)} data-cy='delete milestone'>
         <img src={deleteIcon.src} alt='delete milestone' />
       </button>
     ) : (

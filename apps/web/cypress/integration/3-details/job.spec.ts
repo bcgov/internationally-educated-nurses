@@ -64,8 +64,8 @@ describe('Details - Job', () => {
     cy.fixture('open-close-job-milestone.json').then(({ reopen }) => {
       cy.addMilestone(reopen);
       cy.contains(`On Going - ${reopen.status}`);
-      cy.deleteLastMilestone();
-      cy.deleteLastMilestone();
+      cy.deleteMilestone(5);
+      cy.deleteMilestone(4);
     });
   });
 
@@ -74,7 +74,7 @@ describe('Details - Job', () => {
     cy.fixture('open-close-job-milestone.json').then(({ acceptOffer }) => {
       cy.addMilestone(acceptOffer);
       cy.contains(`Complete - ${acceptOffer.status}`);
-      cy.deleteLastMilestone();
+      cy.deleteMilestone(4);
     });
   });
 
