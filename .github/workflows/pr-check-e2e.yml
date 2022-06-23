@@ -1,4 +1,4 @@
-name: PR e2e & a11y Checks
+name: PR Cypress e2e Checks
 on:
   pull_request:
     paths:

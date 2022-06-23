@@ -1,24 +1,12 @@
 {
-  "milestones": [
-    {
-      "status": "Prescreen completed",
-      "start_date": "2020-01-01",
-      "notes": "first milestone"
-    },
-    {
-      "status": "Interview completed",
-      "start_date": "2020-02-01",
-      "notes": "second milestone"
-    },
-    {
-      "status": "References completed",
-      "start_date": "2020-03-01",
-      "notes": "third milestone"
-    },
-    {
-      "status": "Offered position",
-      "start_date": "2020-04-01",
-      "notes": "third milestone"
-    }
-  ]
+  "new": {
+    "status": "Candidate was unresponsive",
+    "start_date": "2020-08-01",
+    "notes": "new milestone"
+  },
+  "update": {
+    "status": "References completed",
+    "start_date": "2020-09-01",
+    "notes": "edit milestone"
+  }
 }

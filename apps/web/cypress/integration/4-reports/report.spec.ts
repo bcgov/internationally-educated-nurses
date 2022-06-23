@@ -5,7 +5,7 @@ describe('Report', () => {
   beforeEach(() => {
     cy.login();
     cy.visit('/');
-    cy.contains('a', 'Reporting').click();
+    cy.contains('a', 'Reporting', { timeout: 60000 }).click();
   });
 
   it('lists report periods', () => {

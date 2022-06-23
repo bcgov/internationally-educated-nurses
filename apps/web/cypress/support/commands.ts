@@ -1,5 +1,6 @@
 import { IENApplicantAddStatusDTO, IENApplicantJobCreateUpdateDTO } from '@ien/common';
 import { addCustomCommand } from 'cy-verify-downloads';
+import dayjs from 'dayjs';
 
 addCustomCommand();
 
@@ -59,6 +60,26 @@ Cypress.Commands.add('addJob', (job: IENApplicantJobCreateUpdateDTO) => {
   cy.contains('button', 'Create').click();
 });
 
+Cypress.Commands.add('editJob', (job: IENApplicantJobCreateUpdateDTO) => {
+  cy.get('#ha_pcn').clear().type(`${job.ha_pcn}{enter}`);
+  cy.get('#job_id').click().clear().type(`${job.job_id}`);
+  cy.get('#job_title').click(); // it gets 'dom element not found error' without this repeated clicks
+  cy.get('#job_title').click();
+  cy.get('#job_title').click().clear().type(`${job.job_title}{enter}`);
+  cy.get('#job_location').click().type('{backspace}');
+  cy.get('#job_location').click().type(`${job.job_location}{enter}`);
+  cy.get('#job_post_date').click().clear().type(`${job.job_post_date}`);
+  cy.get('#recruiter_name').clear().type(`${job.recruiter_name}`);
+
+  cy.contains('button', 'Update').click();
+
+  cy.contains(job.ha_pcn);
+  cy.contains(`${job.job_id}`);
+  cy.contains(`${job.job_title}`);
+  cy.contains(`${job.job_location}`);
+  cy.contains(dayjs(job.job_post_date).format('MMM DD, YYYY'));
+});
+
 Cypress.Commands.add('addDuplicateJob', (job: IENApplicantJobCreateUpdateDTO) => {
   cy.contains('button', 'Add Record').click();
   cy.get('#ha_pcn').click().type(`${job.ha_pcn}{enter}`);
@@ -99,6 +120,11 @@ Cypress.Commands.add('addMilestone', (milestone: IENApplicantAddStatusDTO) => {
   cy.contains('button', 'Save Milestone').click();
   cy.wait(500);
   cy.contains(milestone.status);
+});
+
+Cypress.Commands.add('deleteMilestone', (index: number) => {
+  cy.get('[data-cy="delete milestone"]').eq(index).click();
+  cy.contains('button', 'Yes').click();
 });
 
 Cypress.Commands.add('changeRole', (role: string) => {
