@@ -29,4 +29,7 @@ export class EmployeeEntity {
 
   @Column('varchar', { length: 128, nullable: false, unique: true })
   keycloakId!: string;
+
+  @Column('varchar', { length: 128, nullable: true })
+  organization?: string;
 }

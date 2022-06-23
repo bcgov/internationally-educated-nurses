@@ -9,8 +9,8 @@ import {
   ObjectLiteral,
   SelectQueryBuilder,
 } from 'typeorm';
-import { ValidRoles } from '@ien/common';
-import { EmployeeEntity } from './employee.entity';
+import { EmailDomains, ValidRoles } from '@ien/common';
+import { EmployeeEntity } from './entity/employee.entity';
 import { IENUsers } from 'src/applicant/entity/ienusers.entity';
 import { EmployeeUser } from 'src/common/interface/EmployeeUser';
 
@@ -25,8 +25,15 @@ export class EmployeeService {
   async resolveUser(keycloakId: string, userData: Partial<EmployeeEntity>): Promise<EmployeeUser> {
     const existingEmployee = await this.getUserByKeycloakId(keycloakId);
     if (existingEmployee) {
+      const org = this._setOrganization(existingEmployee.email);
+
+      if (org) {
+        await this.employeeRepository.update(existingEmployee.id, { organization: org });
+      }
       return existingEmployee;
     }
+
+    userData.organization = this._setOrganization(userData.email);
     const newUser = this.employeeRepository.create(userData);
     const employee = await this.employeeRepository.save(newUser);
     const user = await this.getUserId(userData.email);
@@ -35,6 +42,17 @@ export class EmployeeService {
       user_id: user ? user.id : null,
     };
     return empUser;
+  }
+
+  _setOrganization(email?: string): string | undefined {
+    if (!email) {
+      return undefined;
+    }
+    // get domain from email string
+    const domain = email.substring(email.lastIndexOf('@') + 1);
+
+    //return organization or undefined
+    return EmailDomains[domain as keyof typeof EmailDomains];
   }
 
   async getUserByKeycloakId(keycloakId: string): Promise<EmployeeUser | undefined> {
