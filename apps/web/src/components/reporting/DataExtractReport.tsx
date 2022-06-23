@@ -7,7 +7,7 @@ import { PeriodFilter } from '@ien/common';
 import { createApplicantDataExtractWorkbook } from '@services';
 
 const REPORT_PREFIX = 'ien-applicant-data-extract';
-const MIN_DATE = 'April 1, 2021';
+const MIN_DATE = 'January 1, 2001';
 
 const initialValues: PeriodFilter = {
   from: '',
