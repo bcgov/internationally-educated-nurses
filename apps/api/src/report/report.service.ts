@@ -6,6 +6,7 @@ import { ReportUtilService } from './report.util.service';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.entity';
 import { startDateOfFiscal } from 'src/common/util';
+import { ReportPeriodDTO } from '@ien/common';
 
 const PERIOD_START_DATE = '2021-04-01';
 
@@ -237,12 +238,12 @@ export class ReportService {
 
   /**
    *
-   * @param f Duration start date YYYY-MM-DD
-   * @param t Duration end date YYYY-MM-DD
+   * @param dates start and end date for data extract YYYY-MM-DD
    * @returns
    */
-  async extractApplicantsData(f: string, t: string) {
-    const { from, to } = this.captureFromTo(f, t);
+
+  async extractApplicantsData(dates: ReportPeriodDTO) {
+    const { from, to } = dates;
     this.logger.log(`extractApplicantsData: Apply date filter from (${from}) and to (${to})`);
     /** Data correction not done yet from ATS, that's why added lessThanOrEqual condition */
     const milestones: IENApplicantStatus[] = await this.ienapplicantStatusRepository.find({

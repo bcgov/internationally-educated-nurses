@@ -1,9 +1,10 @@
 import dayjs from 'dayjs';
 import { Formik, Form as FormikForm, FormikHelpers } from 'formik';
 import { writeFileXLSX } from 'xlsx-js-style';
+import createValidator from 'class-validator-formik';
 
 import { Button, Field } from '@components';
-import { PeriodFilter } from '@ien/common';
+import { PeriodFilter, ReportPeriodDTO } from '@ien/common';
 import { createApplicantDataExtractWorkbook } from '@services';
 
 const REPORT_PREFIX = 'ien-applicant-data-extract';
@@ -15,6 +16,8 @@ const initialValues: PeriodFilter = {
 };
 
 export const DataExtractReport = () => {
+  const dataExtractSchema = createValidator(ReportPeriodDTO);
+
   const download = async (values: PeriodFilter, helpers?: FormikHelpers<PeriodFilter>) => {
     const { from, to } = values;
     const workbook = await createApplicantDataExtractWorkbook({
@@ -56,7 +59,7 @@ export const DataExtractReport = () => {
   return (
     <div className='h-32'>
       <div className='text-bcBluePrimary text-lg font-bold mb-4'>Data Extract</div>
-      <Formik initialValues={initialValues} onSubmit={download}>
+      <Formik initialValues={initialValues} onSubmit={download} validate={dataExtractSchema}>
         {({ isSubmitting, handleReset, isValid, dirty, touched, values }) => (
           <FormikForm>
             <div className='flex flex-row pb-6'>
