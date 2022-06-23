@@ -1,8 +1,10 @@
 import axios, { AxiosError } from 'axios';
 import _ from 'lodash';
-import { convertToParams, Period, PeriodFilter } from '@ien/common';
 import dayjs from 'dayjs';
 import { CellAddress, utils, WorkBook, WorkSheet } from 'xlsx-js-style';
+import { toast } from 'react-toastify';
+
+import { convertToParams, Period, PeriodFilter } from '@ien/common';
 import { notifyError } from '../utils/notify-error';
 
 const bold = { bold: true };
@@ -266,13 +268,17 @@ export const getApplicantDataExtractSheet = (applicants: object[]): WorkSheet =>
 
 export const createApplicantDataExtractWorkbook = async (
   filter: PeriodFilter,
-): Promise<WorkBook> => {
+): Promise<WorkBook | undefined> => {
   // create a new workbook
   const workbook = utils.book_new();
 
   // get applicant data to populate sheet
   const applicants = await getApplicantDataExtract(filter);
 
+  if (!applicants || applicants.length === 0) {
+    toast.error('There is no Applicant data to extract during this time period');
+    return;
+  }
   // create work sheet and append to workbook
   utils.book_append_sheet(
     workbook,
