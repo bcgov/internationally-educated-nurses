@@ -120,6 +120,28 @@ export class ReportUtilService {
     `;
   }
 
+  /*
+  Report 3
+  SQL query explains:
+  Here we are counting active, hired, and withdrawn application TO date.
+
+  withdrawn_applicants:
+    First, we will list down all the applicants who withdraw from the process(till TO date).
+  reactive_applicants:
+    Based on the withdrawal list, Let's try to get the latest milestone other than withdrawal to mark as re-active.
+  hired_applicants:
+    Let's find hired applicants based on the milestone 28.
+    If a candidate withdraws any time during the process, in this case, the hire date must be greater than the withdrawal date.
+  applicants:
+    Let's add hired, withdrawn, or reactive to each applicant row.
+  report:
+    Few conditions that need to check to identify such value(hired, withdrawal, and re-active).
+    Like hired applicants are one who may get withdrawn but later re-active, or not withdrawn from the process at all.
+
+  UNION ALL
+    We have to identify two kinds of records stat,
+    One before {from} date and One after {from} date. that's why UNION ALL.
+  */
   hiredActiveWithdrawnApplicantCountQuery(from: string, to: string) {
     return `
       -- 28 hired
@@ -145,7 +167,7 @@ export class ReportUtilService {
           AND ien.start_date::date <= '${to}' 
           AND (wa.start_date IS null OR ien.start_date >= wa.start_date)
         GROUP BY ien.applicant_id
-      ), old_applicants AS (
+      ), applicants AS (
         SELECT
             applicants.id,
             applicants.registration_date,
@@ -164,7 +186,7 @@ export class ReportUtilService {
           CASE WHEN is_hired = 0 AND (is_withdrawn = 0 OR is_reactive = 1) THEN 1 ELSE 0 END AS active,
           CASE WHEN is_hired = 1 THEN 1 ELSE 0 END AS hired,
           CASE WHEN is_withdrawn = 1 AND is_reactive = 0 AND is_hired = 0 THEN 1 ELSE 0 END AS withdrawn
-        FROM old_applicants
+        FROM applicants
       )
       SELECT 
       'Applied before ' || to_char('${from}'::date, 'Mon DD, YYYY') || ' (OLD)' AS title,
@@ -178,6 +200,33 @@ export class ReportUtilService {
     `;
   }
 
+  /*
+  Report 4
+  List applicants who are in licensing stage between FROM and TO date.
+  Here Granted full/provisional licensure count contain applicants who get a license during or before the given period.
+  If issued license before given period and applicant still active during the period, we will count in full/provisional licensure row.
+
+  SQL query explains:
+  active_applicants:
+    Let's find active applicants first.
+    Let's find the applicant's latest status from the (10001, 10002, and 10003) category(Ignoring immigration category).
+      If the applicant withdrawal then-latest status must be withdrawn,
+      If the applicant is hired then-latest status must be hired only(from 10001, 10002, and 10003 categories)
+      has_license: during this process, we are capturing provisional/full license detail too
+    From the final result lets filter only active applicants (t1.hired_or_withdrawn = 0)
+  period_data:
+    Let's find the latest status of the "licensing" category
+    We know all the active applicants, Let's find the latest status for the given duration(FROM and TO date).
+    "active_applicants LEFT JOIN licensing_latest_status during FROM and TO date"
+    We have a total count as active applicants, LEFT JOIN helps to distribute that to each licensing milestone.
+  report:
+    has_license <> 0 OR status_id <> 0
+    It means each applicant should have a license or any of the licensing milestones to count in this report.
+  
+  UNION ALL
+    At the start of the query, we have identified stages in licensing stage(which contains a single or group of milestones).
+    Let's find each of the rows separatly from the "report" result and UNION them ALL to generate report format.
+  */
   licensingStageApplicantsQuery(from: string, to: string) {
     return `
       --col01 - 'Applied to NNAS' status: 4, 5, 6
@@ -499,123 +548,187 @@ export class ReportUtilService {
     `;
   }
 
+  /*
+  Report 9
+  SQL query explain:
+  latest_hired_withdrawal_status:
+    This query will find the highest status hire/withdrew, From which we will only filter hired applicants.
+    Why?: In some cases, applicant gets hired but later withdraw applications from the process. Here we have to filter out such applicants.
+  hired_applicants:
+    We may receive multiple Hired milestones for an applicant. This query will keep only the latest hired data.
+  applicant_with_withdrawal:
+    There are possibilities that hired applicant's application may be put on hold or withdrawn and then reactive again.
+    This query will identify such milestone(withdrawal/Hold) for Hired(selected in the above query result) applicants.
+  applicant_withdrawal_duration:
+    To get duration of the withdrawal/hold milestones, we need to find a reactive date, Let's perform "reactive - withdrawal" to get the duration.
+    We have only select Hired applicants, So if we have withdrawal/hold milestone then there must be a reactivate too.
+  withdrawal_duration:
+    In case an applicant has more than one withdrawal/hold duration during the process. This query will make a summation of it.
+  start_date_of_each_stage:
+    For each stack holder group there is a specific range of milestones, that helps to identify the minimum date from those groups.
+    This group does not point directly to the stack holder group that we saw in the report,
+    But these groups help to identify each stack holder's duration.
+  stackholder_duration:
+    We have a start date(minimum date) available, Now we can find duration by substracting start and end dates of any group.
+  
+  Now, We have collected all the data applicant-wise.
+  Let's create a report format from it and find MEAN, Median, and MODE values.
+  Report:
+    This query will only put value in a report format so that it is easily readable.
+  */
   averageTimeWithEachStackholderGroupQuery(to: string) {
     return `
       -- ONLY HIRED Applicants are selected in "Average Amount of Time" calculation with Each Stakeholder Group
-      -- For developer reference
-      -- ROUND(avg(average_time_to_hire), 2)::double precision as mean_value; --mean
-      -- SELECT PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY some_value) FROM tbl; -- median
-      -- SELECT mode() WITHIN GROUP (ORDER BY some_value) AS mode_value FROM tbl; -- mode
-      WITH hired_applicants AS (
+      -- If we receive 2 hired state for different HA, Then we will pick only latest one
+      -- One assumption that withdrwal/hold period does not overlap each other for same applicant.
+        -- For developer reference
+        -- ROUND(avg(average_time_to_hire), 2)::double precision as mean_value; --mean
+        -- SELECT PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY some_value) FROM tbl; -- median
+        -- SELECT mode() WITHIN GROUP (ORDER BY some_value) AS mode_value FROM tbl; -- mode
+      
+      WITH latest_hired_withdrawal_status AS (
+        SELECT
+          iasa.id,
+          iasa.applicant_id, 
+              iasa.start_date,
+            iasa.status_id,
+          iasa.job_id,
+          iaj.ha_pcn_id as ha,
+              ROW_NUMBER() OVER(PARTITION BY iasa.applicant_id ORDER BY iasa.start_date DESC) AS rank
+        FROM public.ien_applicant_status_audit iasa
+        LEFT JOIN public.ien_applicant_jobs iaj ON iasa.job_id=iaj.id
+        WHERE iasa.status_id IN (20, 28) AND iasa.start_date::date <= '${to}'
+      ), hired_applicants AS (
+        SELECT applicant_id as "id", start_date as hired_date, ha, job_id
+        FROM latest_hired_withdrawal_status
+        WHERE rank = 1 AND status_id=28
+      ), applicant_with_withdrawal AS (
         SELECT 
-          applicants.id,
-          ien_hired.start_date as hired_date,
-          jobs.ha_pcn_id as ha,
-          ien_hired.job_id
-        FROM public.ien_applicants as applicants
-        LEFT JOIN public.ien_applicant_status_audit ien_hired 
-        ON ien_hired.applicant_id=applicants.id AND ien_hired.status_id=28 AND ien_hired.start_date::date <= '${to}'
-        LEFT JOIN public.ien_applicant_jobs jobs ON jobs.id=ien_hired.job_id
-        WHERE ien_hired.status_id is not null
+          DISTINCT(applicant_id) as applicant_id 
+        FROM public.ien_applicant_status_audit 
+        WHERE status_id=20
+        AND applicant_id IN (SELECT id FROM hired_applicants)
+      ), applicant_withdrawal_duration AS (
+        SELECT applicant_id, next_start_at - start_date as duration
+        FROM (
+          SELECT *, 
+            ROW_NUMBER() OVER (PARTITION BY applicant_id ORDER BY start_date) AS rn, 
+            LEAD(start_date) OVER (PARTITION BY applicant_id ORDER BY start_date, created_date) AS next_start_at
+          FROM public.ien_applicant_status_audit
+          WHERE start_date::date <= '${to}'
+          AND applicant_id IN (SELECT applicant_id FROM applicant_with_withdrawal)
+        ) q
+        WHERE status_id=20 AND next_start_at IS NOT null
+      ), withdrawal_duration AS (
+        SELECT applicant_id, sum(duration)::integer as duration
+        FROM applicant_withdrawal_duration
+        GROUP BY applicant_id
       ), start_date_of_each_stage AS (
         SELECT
-          *,
+          hired.*,
           (SELECT min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id) as milestone_start_date,
           (SELECT min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id AND asa.status_id IN (4,5,6)) as nnas,
           (SELECT min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id AND asa.status_id IN (7,8,9,10,11,12)) as bccnm_ncas,
           (SELECT max(start_date) - min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id AND asa.job_id = hired.job_id) as employer_duration,
           (SELECT min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id AND asa.status_id IN (30,31,32,33,34,35) AND asa.start_date::date <= '${to}') as immigration,
-          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id AND asa.status_id IN (36,37,38) AND asa.start_date::date <= '${to}') as immigration_completed
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id AND asa.status_id IN (36,37,38) AND asa.start_date::date <= '${to}') as immigration_completed,
+          wd.duration as withdrawal_duration
         FROM hired_applicants hired
+        LEFT JOIN withdrawal_duration wd ON wd.applicant_id=hired.id
       ), stackholder_duration AS (
         SELECT
           sdoes.id,
           sdoes.ha,
           sdoes.employer_duration,
           (
-            CASE
-                WHEN sdoes.nnas IS NOT null THEN (
-                (
-                  SELECT min(start_date) FROM public.ien_applicant_status_audit asa LEFT JOIN public.ien_applicant_status ien_status ON ien_status.id=asa.status_id
-                  WHERE asa.applicant_id=sdoes.id AND asa.start_date >= sdoes.nnas AND (asa.status_id IN (6,7,8,9,10,11,12,13,14,15,16,17,18,19) OR ien_status.parent_id IN (10003, 10004, 10005))
-                ) - sdoes.nnas)
-            END
+          CASE
+            WHEN sdoes.nnas IS NOT null THEN (
+            (
+              SELECT min(start_date) FROM public.ien_applicant_status_audit asa LEFT JOIN public.ien_applicant_status ien_status ON ien_status.id=asa.status_id
+              WHERE asa.applicant_id=sdoes.id AND asa.start_date >= sdoes.nnas AND (asa.status_id IN (6,7,8,9,10,11,12,13,14,15,16,17,18,19) OR ien_status.parent_id IN (10003, 10004, 10005))
+            ) - sdoes.nnas)
+          END
           ) AS nnas_duration,
           (
-            CASE
-              WHEN sdoes.bccnm_ncas IS NOT null THEN (
-                (
-                  SELECT min(start_date) FROM public.ien_applicant_status_audit asa LEFT JOIN public.ien_applicant_status ien_status ON ien_status.id=asa.status_id
-                  WHERE asa.applicant_id=sdoes.id AND asa.start_date >= sdoes.nnas AND (asa.status_id IN (12,13,14,15,16,17,18,19) OR ien_status.parent_id IN (10003, 10004, 10005))
-                ) - sdoes.bccnm_ncas)
+          CASE
+            WHEN sdoes.bccnm_ncas IS NOT null THEN (
+            (
+              SELECT min(start_date) FROM public.ien_applicant_status_audit asa LEFT JOIN public.ien_applicant_status ien_status ON ien_status.id=asa.status_id
+              WHERE asa.applicant_id=sdoes.id AND asa.start_date >= sdoes.nnas AND (asa.status_id IN (12,13,14,15,16,17,18,19) OR ien_status.parent_id IN (10003, 10004, 10005))
+            ) - sdoes.bccnm_ncas)
           END
           ) AS bccnm_ncas_duration,
           (
-            CASE
-              WHEN sdoes.immigration IS NOT null AND sdoes.immigration_completed IS NOT null THEN (sdoes.immigration_completed - sdoes.immigration)
-              WHEN sdoes.immigration IS NOT null AND sdoes.immigration_completed IS null THEN ('${to}'::date - sdoes.immigration)
-            END
+          CASE
+            WHEN sdoes.immigration IS NOT null AND sdoes.immigration_completed IS NOT null THEN (sdoes.immigration_completed - sdoes.immigration)
+            WHEN sdoes.immigration IS NOT null AND sdoes.immigration_completed IS null THEN ('${to}'::date - sdoes.immigration)
+          END
           ) AS immigration_duration,
           (
+          CASE
+            WHEN sdoes.immigration_completed IS null THEN ('${to}'::date - sdoes.milestone_start_date)
+            ELSE (sdoes.immigration_completed - sdoes.milestone_start_date)
+          END
+          ) - COALESCE(sdoes.withdrawal_duration, 0) AS overall,
+          (
             CASE
-              WHEN sdoes.immigration_completed IS null THEN ('${to}'::date - sdoes.milestone_start_date)
-              ELSE (sdoes.immigration_completed - sdoes.milestone_start_date)
-            END
-          ) AS overall,
-          (CASE WHEN sdoes.nnas IS NOT NULL THEN (sdoes.hired_date - sdoes.nnas) END) average_time_to_hire
+              WHEN sdoes.nnas IS NOT NULL THEN (sdoes.hired_date - sdoes.nnas)
+              ELSE (sdoes.hired_date - sdoes.milestone_start_date) END
+          ) - COALESCE(sdoes.withdrawal_duration, 0) AS average_time_to_hire,
+          sdoes.withdrawal_duration
         FROM start_date_of_each_stage sdoes
       ), report AS (
-        SELECT
-          'NNAS' as "title",
-          ' ' as "HA",
-          ROUND(avg(nnas_duration), 2) as mean_value,
-          PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY nnas_duration) AS median_value,
-          mode() WITHIN GROUP (ORDER BY nnas_duration) AS mode_value
+      SELECT
+        'NNAS' as "title",
+        ' ' as "HA",
+        ROUND(avg(nnas_duration), 2) as mean_value,
+        PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY nnas_duration) AS median_value,
+        mode() WITHIN GROUP (ORDER BY nnas_duration) AS mode_value
+      FROM stackholder_duration
+      UNION ALL
+      SELECT
+        'BCCNM & NCAS',
+        ' ',
+        ROUND(avg(bccnm_ncas_duration), 2) as mean_value,
+        PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY bccnm_ncas_duration) AS median_value,
+        mode() WITHIN GROUP (ORDER BY bccnm_ncas_duration) AS mode_value
+      FROM stackholder_duration
+      UNION ALL
+      SELECT * FROM (SELECT ' ', title, t1.mean_value, t1.median_value, t1.mode_value
+      FROM public.ien_ha_pcn LEFT JOIN (
+        SELECT 
+        ha,
+        avg(employer_duration)::double precision as mean_value,
+        PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY employer_duration) AS median_value,
+        mode() WITHIN GROUP (ORDER BY employer_duration) AS mode_value
         FROM stackholder_duration
-        UNION ALL
-        SELECT
-          'BCCNM & NCAS',
-          ' ',
-          ROUND(avg(bccnm_ncas_duration), 2) as mean_value,
-          PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY bccnm_ncas_duration) AS median_value,
-          mode() WITHIN GROUP (ORDER BY bccnm_ncas_duration) AS mode_value
-        FROM stackholder_duration
-        UNION ALL
-        SELECT * FROM (SELECT ' ', title, t1.mean_value, t1.median_value, t1.mode_value
-        FROM public.ien_ha_pcn LEFT JOIN (
-          SELECT 
-            ha,
-            avg(employer_duration)::double precision as mean_value,
-            PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY employer_duration) AS median_value,
-            mode() WITHIN GROUP (ORDER BY employer_duration) AS mode_value
-          FROM stackholder_duration
-          GROUP BY ha
-        ) as t1 ON t1.ha=id
-        WHERE title NOT IN ('Other', 'Education') ORDER BY title) as a1
-        UNION ALL
-        SELECT
-          'Immigration',
-          ' ',
-          avg(immigration_duration)::double precision as mean_value,
-          PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY immigration_duration) AS median_value,
-          mode() WITHIN GROUP (ORDER BY immigration_duration) AS mode_value
-        FROM stackholder_duration
-        UNION ALL
-        SELECT
-          'Overall',
-          ' ',
-          ROUND(avg(overall), 2) as mean_value,
-          PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY overall) AS median_value,
-          mode() WITHIN GROUP (ORDER BY overall) AS mode_value
-        FROM stackholder_duration
-        UNION ALL
-        SELECT
-          'Average time to hire',
-          ' ',
-          ROUND(avg(average_time_to_hire), 2) as mean_value,
-          PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY average_time_to_hire) AS median_value,
-          mode() WITHIN GROUP (ORDER BY average_time_to_hire) AS mode_value
-        FROM stackholder_duration
+        GROUP BY ha
+      ) as t1 ON t1.ha=id
+      WHERE title NOT IN ('Other', 'Education') ORDER BY title) as a1
+      UNION ALL
+      SELECT
+        'Immigration',
+        ' ',
+        avg(immigration_duration)::double precision as mean_value,
+        PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY immigration_duration) AS median_value,
+        mode() WITHIN GROUP (ORDER BY immigration_duration) AS mode_value
+      FROM stackholder_duration
+      UNION ALL
+      SELECT
+        'Overall',
+        ' ',
+        ROUND(avg(overall), 2) as mean_value,
+        PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY overall) AS median_value,
+        mode() WITHIN GROUP (ORDER BY overall) AS mode_value
+      FROM stackholder_duration
+      UNION ALL
+      SELECT
+        'Average time to hire',
+        ' ',
+        ROUND(avg(average_time_to_hire), 2) as mean_value,
+        PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY average_time_to_hire) AS median_value,
+        mode() WITHIN GROUP (ORDER BY average_time_to_hire) AS mode_value
+      FROM stackholder_duration
       )
       SELECT title, "HA", COALESCE(mean_value, 0) as "Mean", COALESCE(median_value, 0) as "Median", COALESCE(mode_value, 0) as "Mode" FROM report;
     `;
