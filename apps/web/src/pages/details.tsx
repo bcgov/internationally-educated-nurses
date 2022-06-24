@@ -7,7 +7,7 @@ import { ApplicantMilestones } from '../components/applicant/ApplicantMilestones
 const Details = () => {
   return (
     <ApplicantProvider>
-      <div className='container w-full mx-6 xl:w-xl mb-4 px-4'>
+      <div className='container w-full  xl:w-xl mb-4'>
         <ApplicantProfile />
         <ApplicantMilestones />
       </div>
