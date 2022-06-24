@@ -17,11 +17,9 @@ export class AddNewColumnOrganizationToEmployeeTable1655907719963 implements Mig
     );
     await queryRunner.query(`ALTER TABLE "employee" ALTER COLUMN "created_date" SET DEFAULT now()`);
     await queryRunner.query(`ALTER TABLE "employee" ALTER COLUMN "updated_date" SET DEFAULT now()`);
-    await queryRunner.query(`ALTER TABLE "employee" ALTER COLUMN "email" SET NOT NULL`);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`ALTER TABLE "employee" ALTER COLUMN "email" DROP NOT NULL`);
     await queryRunner.query(
       `ALTER TABLE "employee" ALTER COLUMN "updated_date" SET DEFAULT CURRENT_TIMESTAMP`,
     );
