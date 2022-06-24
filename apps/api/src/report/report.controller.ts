@@ -1,6 +1,6 @@
 import { Controller, Get, Inject, Logger, Query, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ValidRoles } from '@ien/common';
+import { ReportPeriodDTO, ValidRoles } from '@ien/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { RouteAcceptsRoles } from 'src/common/decorators';
 import { ReportService } from './report.service';
@@ -147,10 +147,7 @@ export class ReportController {
     ValidRoles.HEALTH_MATCH,
     ValidRoles.MINISTRY_OF_HEALTH,
   )
-  async extractApplicantsData(
-    @Query('from') from: string,
-    @Query('to') to: string,
-  ): Promise<object[]> {
-    return this.reportService.extractApplicantsData(from, to);
+  async extractApplicantsData(@Query() dates: ReportPeriodDTO): Promise<object[]> {
+    return this.reportService.extractApplicantsData(dates);
   }
 }

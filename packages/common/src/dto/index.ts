@@ -6,5 +6,6 @@ export * from './ienapplicant-add-status.dto';
 export * from './ienapplicant-job-create.dto';
 export * from './employee-filter.dto';
 export * from './sort-filter.dto';
+export * from './report-period.dto';
 
 export * from './form.dto';
