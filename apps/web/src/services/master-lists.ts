@@ -2,8 +2,9 @@ import useSWRImmutable from 'swr/immutable';
 
 import { IENStatusReasonRO } from '@ien/common';
 import { fetcher } from '../utils/swr-fetcher';
+import { StyleOption } from './constants/roles.constants';
 
-export interface RecordTypeOptions {
+export interface RecordTypeOptions extends StyleOption {
   id: number;
   title: number;
 }
@@ -23,7 +24,7 @@ export const useGetAddRecordOptions = (): RecordType => {
   return { haPcn, jobLocation, jobTitle };
 };
 
-export interface MilestoneType {
+export interface MilestoneType extends StyleOption {
   id: string;
   status: string;
 }
