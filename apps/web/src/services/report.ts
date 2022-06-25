@@ -289,27 +289,31 @@ export const createApplicantDataExtractWorkbook = async (
   return workbook;
 };
 
-export const createReportWorkbook = async (filter: PeriodFilter): Promise<WorkBook> => {
+export const createReportWorkbook = async (filter: PeriodFilter): Promise<WorkBook | null> => {
   const workbook = utils.book_new();
 
   utils.book_append_sheet(workbook, getSummarySheet(filter), 'Summary');
 
-  const sheets: { name: string; sheet: WorkSheet }[] = await Promise.all(
-    reportCreators.map(async creator => {
-      const { name, apiPath, generator } = creator;
+  try {
+    const sheets: { name: string; sheet: WorkSheet }[] = await Promise.all(
+      reportCreators.map(async creator => {
+        const { name, apiPath, generator } = creator;
 
-      const { data } = await axios.get(`${apiPath}?${convertToParams(filter)}`);
-      const sheet = generator
-        ? generator(data.data, creator)
-        : createSheet(data.data, creator, filter);
+        const { data } = await axios.get(`${apiPath}?${convertToParams(filter)}`);
+        const sheet = generator
+          ? generator(data.data, creator)
+          : createSheet(data.data, creator, filter);
 
-      return { name, sheet };
-    }),
-  );
+        return { name, sheet };
+      }),
+    );
 
-  sheets.forEach(({ name, sheet }) => {
-    utils.book_append_sheet(workbook, sheet, name);
-  });
+    sheets.forEach(({ name, sheet }) => {
+      utils.book_append_sheet(workbook, sheet, name);
+    });
 
-  return workbook;
+    return workbook;
+  } catch (e) {
+    return null;
+  }
 };

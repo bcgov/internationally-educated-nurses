@@ -1,17 +1,22 @@
 import ReactSelect from 'react-select';
 
-import { Button, getSelectStyleOverride } from '@components';
+import { getSelectStyleOverride } from '@components';
 import { ValidRoles } from '@ien/common';
 import { RoleOption, roleSelectOptions } from '@services';
+import { ChangeEvent } from 'react';
 
 interface UserFilterProps {
   roles: ValidRoles[];
   updateRoles: (roles: ValidRoles[]) => void;
+  revokedOnly: boolean;
+  setRevokedOnly: (revokedOnly: boolean) => void;
 }
 
-export const UserFilter = ({ roles, updateRoles }: UserFilterProps) => {
-  const clearFilters = () => {
-    updateRoles([]);
+export const UserFilter = (props: UserFilterProps) => {
+  const { roles, updateRoles, revokedOnly, setRevokedOnly } = props;
+
+  const handleCheckChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setRevokedOnly(Boolean(e.target.checked));
   };
 
   return (
@@ -30,9 +35,16 @@ export const UserFilter = ({ roles, updateRoles }: UserFilterProps) => {
         isClearable
         className='w-60 min-w-full md:min-w-0 mx-1 placeholder-bcGray'
       />
-      <Button className='ml-2 px-6 text-sm' onClick={clearFilters} variant='primary'>
-        Clear
-      </Button>
+      <input
+        value={`${revokedOnly}`}
+        id='revoked-only'
+        type='checkbox'
+        className='h-4 w-4 rounded-full ml-6 mr-2'
+        onChange={handleCheckChange}
+      />
+      <label htmlFor='revoked-only' className='cursor-pointer'>
+        Show revoked access only
+      </label>
     </div>
   );
 };

@@ -2,6 +2,7 @@ import React from 'react';
 import { FieldProps as FormikFieldProps } from 'formik';
 import ReactSelect, { StylesConfig } from 'react-select';
 import { Field, FieldProps, OptionType } from '@components';
+import { StyleOption } from '@services';
 
 interface MultiSelectProps extends FieldProps {
   options: OptionType[];
@@ -39,7 +40,9 @@ export const MultiSelect: React.FC<MultiSelectProps> = props => {
   );
 };
 
-export function getSelectStyleOverride<T>(bgColour?: string): StylesConfig<T, boolean> {
+export function getSelectStyleOverride<T extends StyleOption>(
+  bgColour?: string,
+): StylesConfig<T, boolean> {
   const getBgColour = bgColour || '#F5F5F5';
 
   const selectStyleOverride: StylesConfig<T, boolean> = {
@@ -61,11 +64,12 @@ export function getSelectStyleOverride<T>(bgColour?: string): StylesConfig<T, bo
       background: isDisabled ? 'rgb(215, 215, 215)' : getBgColour,
       borderRadius: '0',
     }),
-    option: (styles, { isDisabled }) => ({
+    option: (styles, { data, isDisabled }) => ({
       ...styles,
       padding: '10px 20px',
       background: isDisabled ? 'rgb(215, 215, 215)' : 'white',
       color: 'black',
+      ...data?.style,
     }),
     menuList: styles => ({ ...styles, maxHeight: '380px' }),
     menu: styles => ({ ...styles, padding: '5px 10px' }),

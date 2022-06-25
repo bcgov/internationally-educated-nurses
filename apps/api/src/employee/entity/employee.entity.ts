@@ -31,5 +31,8 @@ export class EmployeeEntity {
   keycloakId!: string;
 
   @Column('varchar', { length: 128, nullable: true })
-  organization?: string;
+  organization!: string;
+
+  @Column('date', { nullable: true })
+  revoked_access_date!: Date | null;
 }

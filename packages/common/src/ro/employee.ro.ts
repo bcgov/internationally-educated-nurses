@@ -4,4 +4,5 @@ export interface EmployeeRO {
   email?: string;
   createdDate: Date;
   role: string;
+  revoked_access_date: Date | null;
 }

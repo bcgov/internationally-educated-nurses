@@ -11,6 +11,7 @@ import { SearchEmployee } from 'src/components/SearchEmployee';
 interface SearchOptions {
   name?: string;
   role?: string[];
+  revokedOnly?: boolean;
   sortKey?: string;
   order?: 'ASC' | 'DESC';
   limit?: number;
@@ -25,6 +26,7 @@ const UserManagement = () => {
 
   const [name, setName] = useState<string>('');
   const [roles, setRoles] = useState<ValidRoles[]>([]);
+  const [revokedOnly, setRevokedOnly] = useState(false);
   const [sortKey, setSortKey] = useState('');
   const [order, setOrder] = useState<'ASC' | 'DESC'>('DESC');
   const [limit, setLimit] = useState(DEFAULT_PAGE_SIZE);
@@ -33,18 +35,22 @@ const UserManagement = () => {
 
   useEffect(() => {
     setLoading(true);
-    const skip = (page - 1) * limit;
-    const options: SearchOptions = { name, role: roles, sortKey, order, limit, skip };
 
-    getEmployees(options).then(({ data, count }) => {
-      setTotal(count);
-      if (count < limit) {
-        setPage(1);
+    const skip = (page - 1) * limit;
+    const options: SearchOptions = { name, role: roles, sortKey, order, limit, skip, revokedOnly };
+
+    getEmployees(options).then(res => {
+      if (res) {
+        const [data, count] = res;
+        setTotal(count);
+        if (count < limit) {
+          setPage(1);
+        }
+        setEmployees(data);
       }
-      setEmployees(data);
       setLoading(false);
     });
-  }, [name, sortKey, order, page, limit, roles]);
+  }, [name, sortKey, order, page, limit, roles, revokedOnly]);
 
   const handleSort = (key: string) => {
     if (key === sortKey) {
@@ -69,10 +75,10 @@ const UserManagement = () => {
     setPage(1);
   };
 
-  const updateUser = (id: string, role: ValidRoles) => {
-    const employee = employees.find(e => e.id === id);
-    if (employee) {
-      employee.role = role;
+  const updateUser = (user: EmployeeRO) => {
+    const index = employees.findIndex(e => e.id === user.id);
+    if (index >= 0) {
+      employees.splice(index, 1, user);
       setEmployees([...employees]);
     }
   };
@@ -86,7 +92,12 @@ const UserManagement = () => {
         <div className='py-2'>
           <SearchEmployee keyword={name} onChange={setName} />
         </div>
-        <UserFilter roles={roles} updateRoles={handleFilters} />
+        <UserFilter
+          roles={roles}
+          updateRoles={handleFilters}
+          revokedOnly={revokedOnly}
+          setRevokedOnly={setRevokedOnly}
+        />
         <div className='text-bcGray'>{`Showing ${employees && employees.length} users`}</div>
       </div>
       <div className='flex justify-content-center flex-col bg-white px-4 pb-4'>
