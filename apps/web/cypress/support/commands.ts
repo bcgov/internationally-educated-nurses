@@ -133,26 +133,23 @@ Cypress.Commands.add('changeRole', (role: string) => {
 });
 
 Cypress.Commands.add('pagination', () => {
+  cy.contains('Showing 10');
+  cy.get('tbody > tr').should('have.length', '10');
+  cy.contains('1 - 10');
+
   // change limit to 5
   cy.get('select').eq(0).select('5');
   cy.contains('Showing 5');
   cy.get('tbody > tr').should('have.length', '5');
+
+  // move to page 3
   cy.get('select').eq(1).select('3');
   cy.get('tbody > tr').should('have.length', '5');
-
   cy.contains('11 - 15');
-  cy.get('.p-3.border-l').eq(0).click();
-  cy.contains('6 - 10');
-  cy.get('.p-3.border-l').eq(0).click();
-  cy.contains('1 - 5');
-  cy.get('.p-3.border-l.border-r').eq(1).click();
-  cy.contains('6 - 10');
 
-  // change limit to 10
-  cy.get('select').eq(0).select('10');
-  cy.contains('Showing 10');
-  cy.get('tbody > tr').should('have.length', '10');
-  cy.contains('1 - 10');
+  // move to page 2
+  cy.get('.p-3.border-l').eq(0).click();
+  cy.contains('6 - 10');
 });
 
 Cypress.Commands.add('visitDetails', (applicant: ApplicantRO) => {
@@ -167,7 +164,7 @@ Cypress.Commands.add('tabRecruitment', () => {
 Cypress.Commands.add('visitUserManagement', () => {
   cy.contains('User Management');
   cy.get('a:contains(User Management)').click();
-  cy.get('h4').should('have.text', 'Manage user access and user roles');
+  cy.contains('button', 'Change Role');
 });
 //
 // -- This is a child command --
