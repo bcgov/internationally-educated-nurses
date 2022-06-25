@@ -1,4 +1,4 @@
-import { IENApplicantAddStatusDTO, IENApplicantJobCreateUpdateDTO } from '@ien/common';
+import { ApplicantRO, IENApplicantAddStatusDTO, IENApplicantJobCreateUpdateDTO } from '@ien/common';
 import { addCustomCommand } from 'cy-verify-downloads';
 import dayjs from 'dayjs';
 
@@ -88,7 +88,6 @@ Cypress.Commands.add('addDuplicateJob', (job: IENApplicantJobCreateUpdateDTO) =>
   cy.contains('button', 'Create').click();
 
   cy.contains(/^There is a job record with the same health authority and job id.$/);
-  cy.get('div[class=Toastify__toast-body]').should('not.exist', { timeout: 4000 });
   cy.contains('button', 'Cancel').click();
 });
 
@@ -99,7 +98,6 @@ Cypress.Commands.add('editDuplicateJob', (job: IENApplicantJobCreateUpdateDTO) =
   cy.contains('button', 'Update').click();
 
   cy.contains(/^There is a job record with the same health authority and job id.$/);
-  cy.get('div[class=Toastify__toast-body]').should('not.exist', { timeout: 4000 });
   cy.contains('button', 'Cancel').click();
 });
 
@@ -129,10 +127,9 @@ Cypress.Commands.add('deleteMilestone', (index: number) => {
 
 Cypress.Commands.add('changeRole', (role: string) => {
   cy.get('[id=role-change]').focus().type(`${role}{enter}`);
-  cy.get('button:contains(Submit)').should('not.be.disabled').click();
+  cy.get('button:contains(Approve)').should('not.be.disabled').click();
 
   cy.contains('successfully updated');
-  cy.get('div[class=Toastify__toast-body]').should('not.exist', { timeout: 4000 });
 });
 
 Cypress.Commands.add('pagination', () => {
@@ -158,9 +155,9 @@ Cypress.Commands.add('pagination', () => {
   cy.contains('1 - 10');
 });
 
-Cypress.Commands.add('visitDetails', (applicantId: string) => {
-  cy.visit(`/details?id=${applicantId}`);
-  cy.contains('Milestones Logs', { timeout: 60000 });
+Cypress.Commands.add('visitDetails', (applicant: ApplicantRO) => {
+  cy.visit(`/details?id=${applicant.id}`);
+  cy.contains(applicant.name, { timeout: 60000 });
 });
 
 Cypress.Commands.add('tabRecruitment', () => {

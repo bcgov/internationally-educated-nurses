@@ -20,7 +20,7 @@ describe('Details - Job', () => {
 
   beforeEach(() => {
     cy.login();
-    cy.visitDetails(applicant.id);
+    cy.visitDetails(applicant);
     cy.tabRecruitment();
   });
 
