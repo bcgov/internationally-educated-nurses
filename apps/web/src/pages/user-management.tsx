@@ -86,9 +86,9 @@ const UserManagement = () => {
   return (
     <div className='container w-full mx-6 xl:w-xl mb-4'>
       <h1 className='font-bold text-3xl pt-6 pb-1'>User Management</h1>
-      <h4 className='pb-5'>Manage user access and user roles</h4>
+      <div className='pb-5'>Manage user access and user roles</div>
       <div className='bg-white p-4'>
-        <h3 className='font-bold text-lg text-bcBluePrimary'>All Users</h3>
+        <h2 className='font-bold text-lg text-bcBluePrimary'>All Users</h2>
         <div className='py-2'>
           <SearchEmployee keyword={name} onChange={setName} />
         </div>
