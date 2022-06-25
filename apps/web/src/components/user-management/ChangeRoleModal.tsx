@@ -14,18 +14,16 @@ interface ChangeRoleModalProps {
   closeModal: () => void;
 }
 
-const roleOptions = [
-  ...roleSelectOptions.filter(o => o.value !== ValidRoles.PENDING),
-  {
-    value: 'revoke',
-    label: 'Revoke Access',
-    style: {
-      color: '#D8292F',
-      borderTop: '1px solid gray',
-      paddingBottom: '6px',
-    },
+const roleOptions = roleSelectOptions.filter(o => o.value !== ValidRoles.PENDING);
+const revokeOption = {
+  value: 'revoke',
+  label: 'Revoke Access',
+  style: {
+    color: '#D8292F',
+    borderTop: '1px solid gray',
+    paddingBottom: '6px',
   },
-];
+};
 
 export const ChangeRoleModal = ({
   open,
@@ -91,7 +89,9 @@ export const ChangeRoleModal = ({
             onChange={value => value && setRole(value.value)}
             isOptionDisabled={({ value }) => value === user?.role}
             styles={getSelectStyleOverride<ChangeRoleOption>()}
-            options={roleOptions}
+            options={
+              user?.role === ValidRoles.PENDING ? roleOptions : [...roleOptions, revokeOption]
+            }
             className='placeholder-bcGray'
           />
         </div>
