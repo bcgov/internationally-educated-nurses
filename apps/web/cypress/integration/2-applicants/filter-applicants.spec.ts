@@ -14,7 +14,7 @@ describe('Applicants - filter by tabs', () => {
     cy.contains('button', 'Licensing/Registration').click();
     cy.get('td').should('not.exist');
     cy.contains('button', 'Recruitment').click();
-    cy.get('td').should('not.exist');
+    cy.get('td').should('have.length', 1);
     cy.contains('button', 'BC PNP').click();
     cy.get('td').should('not.exist');
     cy.contains('button', 'Final').click();

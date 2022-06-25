@@ -15,7 +15,7 @@
 
 /// <reference types="cypress" />
 
-import { IENApplicantAddStatusDTO, IENApplicantJobCreateUpdateDTO } from '@ien/common';
+import { ApplicantRO, IENApplicantAddStatusDTO, IENApplicantJobCreateUpdateDTO } from '@ien/common';
 
 declare global {
   namespace Cypress {
@@ -31,7 +31,7 @@ declare global {
       addMilestone(milestone: IENApplicantAddStatusDTO): void;
       deleteMilestone(index: number): void;
       pagination(): void;
-      visitDetails(applicantId: string): void;
+      visitDetails(applicant: ApplicantRO): void;
       tabRecruitment(): void;
       changeRole(role: string): void;
       visitUserManagement(): void;
