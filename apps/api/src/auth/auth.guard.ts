@@ -31,10 +31,9 @@ export class AuthGuard implements CanActivate {
       organization: tokenUser.organization,
     });
     request.user = employee;
+
     if (acceptedRoles.length === 0 || employee.role === ValidRoles.ROLEADMIN) return true;
-    if (acceptedRoles.includes(employee.role as ValidRoles)) {
-      return true;
-    }
-    return false;
+
+    return acceptedRoles.includes(employee.role as ValidRoles) && !employee.revoked_access_date;
   }
 }
