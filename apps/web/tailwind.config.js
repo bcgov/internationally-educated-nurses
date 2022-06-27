@@ -20,7 +20,7 @@ module.exports = {
         bcBlueLink: '#1A5A96',
         bcBlueIndicator: '#0053A4',
         bcRedError: '#D8292F',
-        bcGreenSuccess: '#2E8540',
+        bcGreenSuccess: '#256c35',
         bcYellowWarning: '#F5A623',
         bcLightBackground: '#E5E5E5',
         bcLightBlueBackground: '#D9EAF7',

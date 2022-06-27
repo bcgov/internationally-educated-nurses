@@ -32,7 +32,7 @@ const withAuth = (Component: React.FunctionComponent, roles: ValidRoles[]) => {
     }, [kc?.initialized, kc?.keycloak?.authenticated, authUser, authUserLoading]);
 
     // Show pending if the user hasn't been assigned a role
-    if (authUser && isPending(authUser)) {
+    if (authUser && (isPending(authUser) || authUser.revoked_access_date)) {
       return (
         <main className='flex w-full justify-center'>
           {/* <Navigation logoutOnly={true} /> */}

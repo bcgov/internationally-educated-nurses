@@ -11,9 +11,9 @@ describe('User Management - change role', () => {
     cy.fixture('user-roles.json').then(({ roles }) => {
       cy.visitUserManagement();
 
-      Cypress._.times(3, i => {
+      Cypress._.times(2, i => {
         cy.get('button:contains(Change Role)').eq(i).click();
-        cy.contains('h1', 'Approve Access Request');
+        cy.contains('h1', 'Change Role');
         cy.changeRole(roles[i].role);
       });
     });

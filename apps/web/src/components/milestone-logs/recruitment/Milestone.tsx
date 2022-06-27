@@ -20,6 +20,7 @@ import {
   useGetMilestoneOptions,
   useGetWithdrawReasonOptions,
   MilestoneType,
+  StyleOption,
 } from '@services';
 import addIcon from '@assets/img/add.svg';
 import editIcon from '@assets/img/edit.svg';
@@ -180,6 +181,8 @@ export const EditMilestone: React.FC<EditMilestoneProps> = props => {
   );
 };
 
+type ReasonOption = StyleOption & IENStatusReasonRO;
+
 interface MilestoneFormProps<T extends MilestoneFormValues> {
   job: ApplicantJobRO;
   milestone?: ApplicantStatusAuditRO;
@@ -271,7 +274,7 @@ const MilestoneForm = <T extends MilestoneFormValues>({
                         name='reason'
                         label='Withdraw Reason'
                         component={({ field, form }: FieldProps) => (
-                          <ReactSelect<IENStatusReasonRO>
+                          <ReactSelect<ReasonOption>
                             inputId={field.name}
                             value={reasons?.find(opt => opt.id == field.value)}
                             onBlur={field.onBlur}
@@ -282,7 +285,7 @@ const MilestoneForm = <T extends MilestoneFormValues>({
                             }))}
                             getOptionLabel={opt => `${opt.name}`}
                             getOptionValue={opt => `${opt.id}`}
-                            styles={getSelectStyleOverride<IENStatusReasonRO>('bg-white')}
+                            styles={getSelectStyleOverride<ReasonOption>('bg-white')}
                           />
                         )}
                       />

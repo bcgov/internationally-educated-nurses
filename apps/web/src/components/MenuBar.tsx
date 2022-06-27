@@ -14,7 +14,7 @@ export const MenuBar: React.FC = () => {
   if (!authUser) return <></>;
 
   return (
-    <div className='w-full bg-bcBlueAccent flex flex-row justify-center'>
+    <nav className='w-full bg-bcBlueAccent flex flex-row justify-center'>
       <div className='container flex w-full mx-6 xl:w-xl my-2'>
         <div className='relative flex flex-grow w-full justify-between items-center'>
           <div className='layout-grid gap-0 h-full flex flex-row items-center align-center'>
@@ -35,6 +35,6 @@ export const MenuBar: React.FC = () => {
           <LastSyncBar />
         </div>
       </div>
-    </div>
+    </nav>
   );
 };

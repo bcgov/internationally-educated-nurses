@@ -17,7 +17,7 @@ export const buttonColor: Record<string, string> = {
   outline: `bg-white hover:bg-gray-100 focus:ring-blue-500`,
 };
 
-export const buttonBase = `w-auto inline-flex justify-center items-center rounded border-2 border-bcBluePrimary
+export const buttonBase = `inline-flex justify-center items-center rounded border-2 border-bcBluePrimary
                               shadow-sm px-4 py-2 text-xs sm:text-sm font-bold focus:outline-none
                               disabled:opacity-50
                               focus:ring-2 focus:ring-offset-2 sm:mt-0 sm:text-sm`;

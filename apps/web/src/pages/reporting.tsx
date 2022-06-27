@@ -45,7 +45,9 @@ const Reporting = () => {
     const from = order === 'ASC' ? periods[0].from : periods[periods.length - 1].from;
     const to = dayjs(period.to).format('YYYY-MM-DD');
     const workbook = await createReportWorkbook({ from, to });
-    writeFile(workbook, `${REPORT_PREFIX}-${period.period}.xlsx`);
+    if (workbook) {
+      writeFile(workbook, `${REPORT_PREFIX}-${period.period}.xlsx`);
+    }
   };
 
   useEffect(() => {
@@ -54,8 +56,8 @@ const Reporting = () => {
       if (data) {
         sortPeriods(data);
         setTotal(data.length);
-        setLoading(false);
       }
+      setLoading(false);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

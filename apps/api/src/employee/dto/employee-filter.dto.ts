@@ -20,6 +20,13 @@ export class EmployeeFilterAPIDTO extends EmployeeFilterDTO {
   name?: string;
 
   @ApiPropertyOptional({
+    description: 'Query revoked users',
+  })
+  @Transform(({ value }) => !!value)
+  @IsOptional()
+  revokedOnly?: boolean;
+
+  @ApiPropertyOptional({
     description: 'Field name to sort results',
   })
   @IsOptional()

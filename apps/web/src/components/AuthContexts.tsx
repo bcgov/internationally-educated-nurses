@@ -12,6 +12,7 @@ export interface UserType {
   createdDate: Date;
   role: ValidRoles;
   user_id: number;
+  revoked_access_date: Date;
 }
 
 const AuthContext = React.createContext<{
@@ -30,7 +31,9 @@ const AuthProvider = ({ children }: PropsWithChildren<ReactNode>) => {
   const fetchData = async (id: string) => {
     setAuthUserLoading(true);
     const user = await getUser(id);
-    setAuthUser(user);
+    if (user) {
+      setAuthUser(user);
+    }
     setAuthUserLoading(false);
   };
 
@@ -48,9 +51,13 @@ const AuthProvider = ({ children }: PropsWithChildren<ReactNode>) => {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-export const getUser = async (keycloakId: string): Promise<UserType> => {
-  const { data } = await axios.get(`/employee/${keycloakId}`);
-  return data?.data;
+export const getUser = async (keycloakId: string): Promise<UserType | null> => {
+  try {
+    const { data } = await axios.get(`/employee/${keycloakId}`);
+    return data?.data;
+  } catch (e) {
+    return null;
+  }
 };
 
 function useAuthContext() {

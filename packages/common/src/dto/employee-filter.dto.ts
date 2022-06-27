@@ -1,4 +1,4 @@
-import { IsNumberString, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsNumberString, IsOptional, IsString } from 'class-validator';
 
 export class EmployeeFilterDTO {
   @IsOptional()
@@ -8,6 +8,10 @@ export class EmployeeFilterDTO {
   @IsOptional()
   @IsString()
   name?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  revokedOnly?: boolean;
 
   @IsOptional()
   @IsString()

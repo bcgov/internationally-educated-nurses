@@ -49,4 +49,16 @@ export class EmployeeController {
   async updateRole(@Body('ids') ids: string[], @Body('role') role: string): Promise<void> {
     return this.employeeService.updateRole(ids, role);
   }
+
+  @UseGuards(AuthGuard)
+  @Patch('/revoke')
+  async revokeAccess(@Body('id') id: string): Promise<EmployeeEntity> {
+    return this.employeeService.revokeAccess(id);
+  }
+
+  @UseGuards(AuthGuard)
+  @Patch('/activate')
+  async activate(@Body('id') id: string): Promise<EmployeeEntity> {
+    return this.employeeService.activate(id);
+  }
 }

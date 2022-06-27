@@ -4,6 +4,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import {
   FindManyOptions,
   In,
+  Not,
+  IsNull,
   Repository,
   getManager,
   ObjectLiteral,
@@ -90,7 +92,7 @@ export class EmployeeService {
    * @returns Employee/User's list
    */
   async getEmployeeList(filter: EmployeeFilterAPIDTO) {
-    const { role, name, sortKey, order, limit, skip } = filter;
+    const { role, name, revokedOnly, sortKey, order, limit, skip } = filter;
     const query: FindManyOptions<EmployeeEntity> = {
       order: {
         [sortKey || 'createdDate']: sortKey ? order : 'DESC',
@@ -100,7 +102,7 @@ export class EmployeeService {
     if (limit) query.take = limit;
     if (skip) query.skip = skip;
 
-    if (!role && !name) {
+    if (!role && !name && !revokedOnly) {
       return this.employeeRepository.findAndCount(query);
     }
 
@@ -112,6 +114,10 @@ export class EmployeeService {
 
     if (name) {
       conditions.push(this._nameSearchQuery(name));
+    }
+
+    if (revokedOnly) {
+      conditions.push({ revoked_access_date: Not(IsNull()) });
     }
 
     if (conditions.length > 0) {
@@ -145,7 +151,7 @@ export class EmployeeService {
     if (ids && ids.length > 0) {
       query.where = { id: In(ids) };
     } else {
-      throw new BadRequestException(`Please provide atleast one Id`);
+      throw new BadRequestException(`Please provide at least one Id`);
     }
     const employees = await this.employeeRepository.count(query);
     if (employees !== ids.length) {
@@ -156,5 +162,44 @@ export class EmployeeService {
 
     // It's time! let's update role for the provided Ids
     await this.employeeRepository.update(ids, { role: role });
+  }
+
+  /**
+   * Revoke user access by setting revoked_access_date
+   * @param id
+   */
+  async revokeAccess(id: string): Promise<EmployeeEntity> {
+    const employee = await this.employeeRepository.findOne(id);
+
+    if (!employee) {
+      throw new BadRequestException(`No entry found.`);
+    }
+
+    if (employee.revoked_access_date) {
+      throw new BadRequestException(`User access has already been revoked.`);
+    }
+
+    employee.revoked_access_date = new Date();
+
+    return this.employeeRepository.save(employee);
+  }
+
+  /**
+   * Re-activate user by removing revoked_access_date
+   * @param id
+   */
+  async activate(id: string): Promise<EmployeeEntity> {
+    const employee = await this.employeeRepository.findOne(id);
+
+    if (!employee) {
+      throw new BadRequestException(`No entry found.`);
+    }
+
+    if (!employee.revoked_access_date) {
+      throw new BadRequestException(`User access has not been revoked.`);
+    }
+
+    employee.revoked_access_date = null;
+    return this.employeeRepository.save(employee);
   }
 }
