@@ -173,7 +173,7 @@ const reportCreators: ReportCreator[] = [
     rowProcessor: (data: Record<string, string | number>[]) => {
       return data.map(row => {
         return [
-          row.period ? getTimeRange(row) : 'Total',
+          row.period ? `Period ${row.period}: ${getTimeRange(row)}` : 'Total',
           ...Object.values(_.omit(row, ['from', 'to', 'period'])),
         ];
       });
