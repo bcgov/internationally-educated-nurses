@@ -20,21 +20,25 @@ import { ApplicantRO, IENApplicantAddStatusDTO, IENApplicantJobCreateUpdateDTO }
 declare global {
   namespace Cypress {
     interface Chainable {
+      activate(): void;
+      addDuplicateJob(job: IENApplicantJobCreateUpdateDTO): void;
+      addJob(job: IENApplicantJobCreateUpdateDTO): void;
+      addMilestone(milestone: IENApplicantAddStatusDTO): void;
+      changeRole(role: string): void;
+      deleteMilestone(index: number): void;
+      editDuplicateJob(job: IENApplicantJobCreateUpdateDTO): void;
+      editJob(job: IENApplicantJobCreateUpdateDTO): void;
+      filterUsers(roles: string[], revokedOnly: boolean): void;
       login(username?: string): Chainable<Element>;
       logout(): Chainable<Element>;
+      pagination(): void;
+      revokeAccess(index: number): void;
       searchApplicants(name: string): Chainable<Element>;
       searchUsers(name: string): Chainable<Element>;
-      addJob(job: IENApplicantJobCreateUpdateDTO): void;
-      addDuplicateJob(job: IENApplicantJobCreateUpdateDTO): void;
-      editJob(job: IENApplicantJobCreateUpdateDTO): void;
-      editDuplicateJob(job: IENApplicantJobCreateUpdateDTO): void;
-      addMilestone(milestone: IENApplicantAddStatusDTO): void;
-      deleteMilestone(index: number): void;
-      pagination(): void;
-      visitDetails(applicant: ApplicantRO): void;
       tabRecruitment(): void;
-      changeRole(role: string): void;
+      visitDetails(applicant: ApplicantRO): void;
       visitUserManagement(): void;
+      waitForLoading(): void;
     }
   }
 }
