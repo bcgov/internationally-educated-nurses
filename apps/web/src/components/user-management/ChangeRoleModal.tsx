@@ -33,11 +33,11 @@ export const ChangeRoleModal = ({
   closeModal,
 }: ChangeRoleModalProps) => {
   const [role, setRole] = useState<ValidRoles | string>('');
-  const [checked, setChecked] = useState(false);
+  const [confirmText, setConfirmText] = useState('');
 
   const reset = () => {
     setRole('');
-    setChecked(false);
+    setConfirmText('');
   };
 
   const handleCancel = () => {
@@ -46,7 +46,7 @@ export const ChangeRoleModal = ({
   };
 
   const handleCheckChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setChecked(e.target.checked);
+    setConfirmText(e.target.value);
   };
 
   const handleSubmit = () => {
@@ -60,11 +60,11 @@ export const ChangeRoleModal = ({
   };
 
   return (
-    <Modal open={open} handleClose={() => setChecked(false)}>
+    <Modal open={open} handleClose={() => setConfirmText('')}>
       <div className='pt-5 px-5 '>
         <Modal.Title as='h1' className='text-xl leading-6 text-bcBlueLink'>
           <div className='flex flex-row justify-between pb-4'>
-            <div>Change Role</div>
+            <div>Change Role/Access</div>
             <button onClick={handleCancel} data-cy='close'>
               <img src={closeIcon.src} alt='close' width={16} height={16} />
             </button>
@@ -97,19 +97,19 @@ export const ChangeRoleModal = ({
         </div>
         {role === 'revoke' && (
           <>
-            <div className='text-bcGray my-4'>
-              Revoked access is what and why you should concern.
-            </div>
-            <div className='bg-bcLightGray py-3 flex flex-row align-middle'>
+            <p className='text-bcGray my-4'>
+              A revoked user will not be able to access the application.
+            </p>
+            <div className='bg-bcLightGray p-3'>
+              <p className='text-bcGray mb-2'>
+                Please type <strong>revoke-access</strong> to confirm.
+              </p>
               <input
-                type='checkbox'
+                type='text'
                 id='confirm'
-                className='mx-3 w-4 h-4 rounded-sm my-auto cursor-pointer'
+                className='w-full border rounded border-bcGray p-1.5'
                 onChange={handleCheckChange}
               />
-              <label htmlFor='confirm' className='text-sm cursor-pointer'>
-                Display acknowledge here
-              </label>
             </div>
             <hr className='h-0.5 bg-bcGray mt-5' />
           </>
@@ -121,7 +121,7 @@ export const ChangeRoleModal = ({
 
           <Button
             className='ml-2 px-6 text-sm w-40'
-            disabled={!role || (role === 'revoke' && !checked)}
+            disabled={!role || (role === 'revoke' && confirmText !== 'revoke-access')}
             onClick={handleSubmit}
             variant='primary'
           >
