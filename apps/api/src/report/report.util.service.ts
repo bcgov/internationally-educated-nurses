@@ -766,7 +766,7 @@ export class ReportUtilService {
       WHERE t.applicant_id=a.id
       GROUP by t.applicant_id)
       ) as x("applicant_id" uuid, ${milestone_ids.join(',')}) ON x.applicant_id=a.id
-    WHERE a.registration_date::date >= '${from}' AND a.registration_date::date < '${to}'
+    WHERE a.registration_date::date >= '${from}' AND a.registration_date::date <= '${to}'
     ORDER BY a.registration_date DESC
     `;
   }
