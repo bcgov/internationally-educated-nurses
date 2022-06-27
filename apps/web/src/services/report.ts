@@ -248,8 +248,10 @@ const reportCreators: ReportCreator[] = [
 
 const getSummarySheet = (filter: PeriodFilter): WorkSheet => {
   const rows = [
-    [],
-    ['', { v: 'IEN Standard Reports', t: 's', s: { font: bold, fill: { fgColor } } }],
+    [
+      { v: 'IEN Standard Reports', t: 's', s: { font: bold, fill: { fgColor } } },
+      { v: '', t: 's', s: { font: bold, fill: { fgColor } } },
+    ],
     [],
     ['', { v: getTimeRange(filter), t: 's', s: { font: bold } }],
     [],
@@ -257,7 +259,7 @@ const getSummarySheet = (filter: PeriodFilter): WorkSheet => {
   rows.push(...reportCreators.map(c => [c.name.toUpperCase(), c.description]));
 
   const sheet = utils.aoa_to_sheet(rows);
-  sheet['!cols'] = [{ wch: 10 }, { wch: 70 }];
+  sheet['!cols'] = [{ wch: 20 }, { wch: 70 }];
   return sheet;
 };
 
