@@ -250,16 +250,17 @@ const getSummarySheet = (filter: PeriodFilter): WorkSheet => {
   const rows = [
     [
       { v: 'IEN Standard Reports', t: 's', s: { font: bold, fill: { fgColor } } },
-      { v: '', t: 's', s: { font: bold, fill: { fgColor } } },
+      { v: '', t: 's', s: { fill: { fgColor } } },
     ],
     [],
-    ['', { v: getTimeRange(filter), t: 's', s: { font: bold } }],
+    [{ v: getTimeRange(filter), t: 's' }, ''],
     [],
   ];
   rows.push(...reportCreators.map(c => [c.name.toUpperCase(), c.description]));
 
   const sheet = utils.aoa_to_sheet(rows);
-  sheet['!cols'] = [{ wch: 20 }, { wch: 70 }];
+
+  sheet['!cols'] = [{ wch: 25 }, { wch: 70 }];
   return sheet;
 };
 
