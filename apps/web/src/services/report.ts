@@ -259,6 +259,7 @@ const getSummarySheet = (filter: PeriodFilter): WorkSheet => {
   rows.push(...reportCreators.map(c => [c.name.toUpperCase(), c.description]));
 
   const sheet = utils.aoa_to_sheet(rows);
+
   sheet['!cols'] = [{ wch: 25 }, { wch: 70 }];
   return sheet;
 };
