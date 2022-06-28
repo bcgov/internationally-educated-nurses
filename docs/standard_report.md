@@ -28,7 +28,7 @@ Here we have temp result with period as integer, Let's find start and end date o
 
 Same as the above report in terms of period calculation. Here we further segregate it as country-wise.\
 An applicant may have completed their education in different countries. Here the highest education based on the passing year will be considered to track the country to generate this report.\
-We have identified eight countries(US, UK, IRELAND, AUSTRALIA, PHILIPPINES, INDIA, NIGERIA, JAMAICA   KENYA) to segregate it and all others in the "OTHER" column. In this report, we have added the "N/A" column to show applicants with no education history attached.
+There are 9 countries that HMBC has identified(US, UK, IRELAND, AUSTRALIA, PHILIPPINES, INDIA, NIGERIA, JAMAICA, KENYA) to segregate it and all others in the "OTHER" column. In this report, we have added the "N/A" column to show applicants with no education history attached.
 
 
 **Developer Side :**\
@@ -61,6 +61,7 @@ If we want to add a new (an additional) row to show the sum for each country, pl
 ### Report 3: Status of Internationally Educated Nurse Registrant Applicants
 
 This report shows the applicant's current status/milestone who registered during the period (from April 1st, 2022 to the selected period end date) or before the period (before April 1st, 2021).\
+*It is likely to change and new period will be 1) Before April 18th, 2022, and 2) April 18th, 2022 to current. We are waiting to final confirmation from MOH side on this.*\
 Here we have identified 3 main statuses `Active`, `Withdrawn`, and `Hired`.\
 ***Note: We will use "to" date only and not "from" date. Because we also have to fetch and count applicants who registered before "from" and "to" duration.***
 
@@ -162,6 +163,7 @@ IHA - Interview Completed
 IHA - Offered Position
 
 Here this candidate will appear 1 time in FHA "Prescreen completed" and  2 times in IHA, in "Offered Position" and "interview Completed".
+***Note: When an applicant gets hired for a job competition (HA). That applicant will be dropped off from all the other pending job competitions.***
 
 
 **Developer Side:** \
@@ -240,3 +242,51 @@ Step 6:
 Apply left join on 3,4,5 to get the final report data.
 
 UNION ALL with aggerage function sum to add a new row for the total count.
+
+
+***
+### Report 9: Average Amount of Time with Each Stakeholder Group
+
+In this report, There are a few groups NNAS, BCCNM & NCAS, Employer(all HA or recruitment wise), Immigration, and Overall. The cherry on top added one more duration which shows the time to hire, Here we are counting duration from the NNAS start date till Hired date from any of the HA.
+
+Before we process further please check the below points, which show which data we are considering in this report.
+- Only hired applicants' duration will be calculated, We are ignoring all the active and withdrawn applicants here.
+- If the applicant is hired by more than one HA, then we will pick the lastest Hired date & that HA and ignore the previous one.
+
+Now, Let's understand how we are calculating the duration of each stack holder group.
+1. NNAS:
+    - We have multiple milestones related to NNAS, like "Applied to NNAS", "Referred to NNAS", "NNAS Application in Review", "Received NNAS Report", etc.
+    - To calculate duration we need a start and end date. Here we can find the minimum date out of the above-listed milestones group and mark it as the start date. (If no status is found then we won't get any duration. If data is not consistent then we will see such a case)
+    - Let's find the end date. In most cases, the end date is found based on the "Received NNAS Report" milestone date. But there is a possibility that applicant data don't have this milestone and start with another milestone like BCCNM or NCAS. In such cases, we will consider the minimum date from the BCCNM, NCAS, and recruitment-related milestones and use it to calculate the duration of NNAS.
+    - Using the start and end date we will find the duration for NNAS.
+2. BCCNM & NCAS:
+    - Same like NNAS we do have multiple milestones to identify this stage duration.
+    - To find the start date, we will look into BCCNM, NCAS, and License-related milestones and find the minimum date.
+    - To find the end date, we will look into the recruitment-related milestone start date. Here we will have at least one recruitment-related milestone because we are only processed with hired applicants.
+    - Using the start and end date we will find the duration for BCCNM & NCAS.
+
+3. Employer:
+    - To find the employer duration we have HA's job competition and Hired date. Because we have only selected hired applicants.
+    - From the selected job competition we can find minimum and maximum dates to calculate duration.
+    - Also we can separate HA under Employer using the same job-competition record(Each job competition is attached with one HA).
+4. Immigration:
+    - Now, here we have to consider 2 main possibilities.
+      1. applicant completed their process of immigration and we can use, the last milestone of it to calculate the duration.
+      2. If the applicant is still in an immigration state, then we have to consider the `to` date as the end date to calculate duration.
+    - We have a start date as a "hired" date and the end date can be found using the above 2 possible cases to calculate duration here.
+5. Overall:
+    - Start date must be the lowest date of any of the milestones.
+    - End date, will be immigration completed or the `to` date if immigration is still in progress.
+
+Note:
+- Applicant may put their application on hold for a certain duration. We can audit this by logging it as withdrawn and attaching a withdrawal reason related to holding.
+- Here we have to subtract this HOLD/WITHDRAWAL duration from the "Overall" and "Average time to hire". (If the applicant withdraws from the immigration stage then we won't consider it for this report, as we only pick hired applicants)
+
+6. Average time to Hire:
+    - We are going to calculate the duration from NNAS to Hired in particular HA here.
+    - We will find the NNAS minimum date and Hired date to calculate duration minus any withdrawal time.
+
+We understand how to calculate the duration for each stack holder group. Let's find MEAN, MEDIAN, and MODE values from the list of available durations. It helps to generate the requested report.
+MEAN: It is an average value.
+MEDIAN: It is the middle value from the sorted list if the list has an odd number of elements. If values are even in number it will pick 2 values from the middle of the list and show their average.
+MODE: It picks the highest occurrence of any value in the given list.
