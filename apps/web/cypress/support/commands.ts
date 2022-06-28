@@ -40,12 +40,32 @@ Cypress.Commands.add('searchApplicants', (name: string) => {
 });
 
 Cypress.Commands.add('searchUsers', (name: string) => {
-  cy.get('input').eq(0).type(name);
-  // need this short delay to allow table to populate with correct data
-  cy.wait(1000);
+  cy.get('input[data-cy=search-user-input]').eq(0).type(name);
+  cy.waitForLoading();
   cy.get('tbody > tr').each(el => {
     cy.wrap(el).eq(0).find('td').eq(0).contains(name);
   });
+});
+
+Cypress.Commands.add('filterUsers', (roles: string[], revokedOnly: boolean) => {
+  roles.forEach(role => cy.get('#role-filter').type(`${role}{enter}`));
+  if (revokedOnly) {
+    cy.get('#revoked-only').click();
+  }
+  cy.waitForLoading();
+  cy.get('tbody > tr').each(el => {
+    cy.wrap(el)
+      .find('td')
+      .eq(3)
+      .each(el => {
+        if (roles.includes(el.text())) throw Error(`${el.text()} shouldn't be visible.`);
+      });
+  });
+  if (revokedOnly) {
+    cy.contains('td', 'Active').should('not.exist');
+    cy.contains('td', 'None').should('not.exist');
+    cy.get('#revoked-only').click();
+  }
 });
 
 Cypress.Commands.add('addJob', (job: IENApplicantJobCreateUpdateDTO) => {
@@ -132,6 +152,22 @@ Cypress.Commands.add('changeRole', (role: string) => {
   cy.contains('successfully updated');
 });
 
+Cypress.Commands.add('revokeAccess', (index: number) => {
+  cy.contains('button', 'Change Role').eq(index).click();
+  cy.get('[id=role-change]').focus().type('revoke{enter}');
+  cy.contains('revoke-access');
+  cy.contains('button', 'Confirm').should('be.disabled');
+  cy.get('#confirm-text').focus().type('revoke-access');
+  cy.contains('button', 'Confirm').should('not.be.disabled').click();
+  cy.get('tbody > tr').eq(index).contains('td', 'Revoked');
+});
+
+Cypress.Commands.add('activate', () => {
+  cy.contains('td', 'Revoked', { timeout: 1000 });
+  cy.contains('button', 'Activate').click();
+  cy.contains('td', 'Revoked').should('not.exist');
+});
+
 Cypress.Commands.add('pagination', () => {
   cy.contains('Showing 10');
   cy.get('tbody > tr').should('have.length', '10');
@@ -165,6 +201,11 @@ Cypress.Commands.add('visitUserManagement', () => {
   cy.contains('User Management');
   cy.get('a:contains(User Management)').click();
   cy.contains('button', 'Change Role');
+});
+
+Cypress.Commands.add('waitForLoading', () => {
+  cy.wait(500);
+  cy.get('.animate-spin').should('not.exist');
 });
 //
 // -- This is a child command --

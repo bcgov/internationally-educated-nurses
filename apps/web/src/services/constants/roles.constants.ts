@@ -21,3 +21,7 @@ export const roleSelectOptions: RoleOption[] = Object.values(ValidRoles)
     role => ![ValidRoles.PENDING, ValidRoles.ROLEADMIN, ValidRoles.HEALTH_AUTHORITY].includes(role),
   )
   .map(role => ({ value: role, label: role.toUpperCase() }));
+
+export const roleFilterOptions: RoleOption[] = Object.values(ValidRoles)
+  .filter(role => ![ValidRoles.ROLEADMIN, ValidRoles.HEALTH_AUTHORITY].includes(role))
+  .map(role => ({ value: role, label: role.toUpperCase() }));

@@ -45,6 +45,7 @@ export const SearchEmployee = (props: SearchProps) => {
           type='text'
           placeholder='Search by first name or last name'
           className='flex-grow focus:outline-none placeholder-bcGray'
+          data-cy='search-user-input'
         />
         {searchName && (
           <>

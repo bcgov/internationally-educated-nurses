@@ -106,7 +106,7 @@ export const ChangeRoleModal = ({
               </p>
               <input
                 type='text'
-                id='confirm'
+                id='confirm-text'
                 className='w-full border rounded border-bcGray p-1.5'
                 onChange={handleCheckChange}
               />
