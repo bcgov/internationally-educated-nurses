@@ -4,31 +4,31 @@ export class ConvertUserIdIntegerToUUID1656487114336 implements MigrationInterfa
   name = 'ConvertUserIdIntegerToUUID1656487114336';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-
-     /*temp index removed */
-     await queryRunner.query(`ALTER TABLE "ien_applicant_status_audit" DROP CONSTRAINT "FK_d38dff64ad3a6ab12b67dc706a2"`);
-     await queryRunner.query(`ALTER TABLE "ien_applicants" DROP CONSTRAINT "FK_becd1676646cc26709b94857480"`);
-     await queryRunner.query(`ALTER TABLE "ien_applicants_assigned_to_ien_users" DROP CONSTRAINT "FK_23d13e2efee75e1052a6035c053"`);
-     /* temp index removed */
-
+    await queryRunner.query(
+      `ALTER TABLE "ien_applicant_status_audit" DROP CONSTRAINT IF EXISTS "FK_d38dff64ad3a6ab12b67dc706a2"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "ien_applicants" DROP CONSTRAINT IF EXISTS "FK_becd1676646cc26709b94857480"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "ien_applicants_assigned_to_ien_users" DROP CONSTRAINT IF EXISTS "FK_23d13e2efee75e1052a6035c053"`,
+    );
     await queryRunner.query(
       `ALTER TABLE "ien_applicant_audit" DROP CONSTRAINT "FK_9cbc7668841069140beafa286a7"`,
     );
     await queryRunner.query(
-      `ALTER TABLE "ien_applicant_status_audit" DROP CONSTRAINT "FK_95f8434de7036d2dbd1e71ff901"`,
+      `ALTER TABLE "ien_applicant_status_audit" DROP CONSTRAINT IF EXISTS "FK_95f8434de7036d2dbd1e71ff901"`,
     );
     await queryRunner.query(
       `ALTER TABLE "ien_applicant_jobs" DROP CONSTRAINT "FK_30c12dea0e069e5162a3fdbbad4"`,
     );
 
     await queryRunner.query(
-      `ALTER TABLE "ien_applicants" DROP CONSTRAINT "FK_b606447f3cbb4b8c5356011d58a"`,
+      `ALTER TABLE "ien_applicants" DROP CONSTRAINT IF EXISTS "FK_b606447f3cbb4b8c5356011d58a"`,
     );
     await queryRunner.query(
       `ALTER TABLE "ien_users" DROP CONSTRAINT "PK_9b4c452677299d3199762f8a4d8"`,
     );
-
-   
 
     /*temp query to re-map existing user relation*/
     await queryRunner.query(`UPDATE "ien_users" SET user_id = id`);

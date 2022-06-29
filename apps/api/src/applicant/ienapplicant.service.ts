@@ -43,7 +43,7 @@ export class IENApplicantService {
    */
   async getApplicants(
     filter: IENApplicantFilterAPIDTO,
-    organization: string | undefined
+    organization: string | undefined,
   ): Promise<[data: IENApplicant[], count: number]> {
     return this.ienapplicantUtilService.applicantFilterQueryBuilder(filter, organization);
   }

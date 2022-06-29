@@ -54,7 +54,10 @@ export class IENApplicantController {
   @RouteAcceptsRoles(ValidRoles.HEALTH_AUTHORITY, ValidRoles.HEALTH_MATCH)
   @HttpCode(HttpStatus.OK)
   @Get('/')
-  async getApplicants(@Req() req: RequestObj, @Query() filter: IENApplicantFilterAPIDTO): Promise<[ApplicantRO[], number]> {
+  async getApplicants(
+    @Req() req: RequestObj,
+    @Query() filter: IENApplicantFilterAPIDTO,
+  ): Promise<[ApplicantRO[], number]> {
     try {
       return await this.ienapplicantService.getApplicants(filter, req.user?.organization);
     } catch (e) {
