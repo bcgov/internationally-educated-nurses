@@ -54,9 +54,9 @@ export class IENApplicantController {
   @RouteAcceptsRoles(ValidRoles.HEALTH_AUTHORITY, ValidRoles.HEALTH_MATCH)
   @HttpCode(HttpStatus.OK)
   @Get('/')
-  async getApplicants(@Query() filter: IENApplicantFilterAPIDTO): Promise<[ApplicantRO[], number]> {
+  async getApplicants(@Req() req: RequestObj, @Query() filter: IENApplicantFilterAPIDTO): Promise<[ApplicantRO[], number]> {
     try {
-      return await this.ienapplicantService.getApplicants(filter);
+      return await this.ienapplicantService.getApplicants(filter, req.user?.organization);
     } catch (e) {
       this.logger.error(e);
       throw new InternalServerErrorException('An unknown error occured retriving applicants');

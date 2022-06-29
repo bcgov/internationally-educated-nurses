@@ -32,13 +32,20 @@ export class EmployeeService {
       if (org) {
         await this.employeeRepository.update(existingEmployee.id, { organization: org });
       }
+      if (existingEmployee.email && !existingEmployee.user_id) {
+        // It will add missing entry in user's table
+        const tempUser = await this.getUserId(existingEmployee);
+        if (tempUser) {
+          existingEmployee.user_id = tempUser.id;
+        }
+      }
       return existingEmployee;
     }
 
     userData.organization = this._setOrganization(userData.email);
-    const newUser = this.employeeRepository.create(userData);
-    const employee = await this.employeeRepository.save(newUser);
-    const user = await this.getUserId(userData.email);
+    const newEmployee = this.employeeRepository.create(userData);
+    const employee = await this.employeeRepository.save(newEmployee);
+    const user = await this.getUserId(userData); // It will add new user record if not exist.
     const empUser: EmployeeUser = {
       ...employee,
       user_id: user ? user.id : null,
@@ -67,8 +74,21 @@ export class EmployeeService {
       .getRawOne();
   }
 
-  async getUserId(email: string | undefined): Promise<IENUsers | undefined> {
-    return this.ienUsersRepository.findOne({ email });
+  async getUserId(userData: Partial<EmployeeEntity>): Promise<IENUsers | undefined> {
+    await this._upsertUser(userData);
+    return this.ienUsersRepository.findOne({ email: userData.email });
+  }
+
+  async _upsertUser(userData: Partial<EmployeeEntity>): Promise<void> {
+    if (userData.email) {
+      await this.ienUsersRepository.upsert(
+        {
+          email: userData.email,
+          name: userData.name,
+        },
+        ['email'],
+      );
+    }
   }
 
   _nameSearchQuery(keyword: string) {

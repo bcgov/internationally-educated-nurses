@@ -1,14 +1,15 @@
 import { Exclude } from 'class-transformer';
-import { Entity, Column, Index, CreateDateColumn, PrimaryColumn } from 'typeorm';
+import { Entity, Column, Index, CreateDateColumn, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('ien_users')
 export class IENUsers {
-  @PrimaryColumn()
-  id!: number;
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
 
   @Column('varchar')
   name!: string;
 
+  @Index({ unique: true })
   @Column('varchar', { nullable: true })
   email?: string;
 

@@ -7,7 +7,7 @@ export interface IENApplicantStatusRO {
 }
 
 export interface IENUserRO {
-  id: number;
+  id: string;
   name: string;
   email?: string;
 }

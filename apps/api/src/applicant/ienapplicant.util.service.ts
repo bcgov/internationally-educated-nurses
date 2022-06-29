@@ -82,8 +82,20 @@ export class IENApplicantUtilService {
    * @param filter
    * @returns retrun promise of find()
    */
-  async applicantFilterQueryBuilder(filter: IENApplicantFilterAPIDTO) {
+  async applicantFilterQueryBuilder(
+    filter: IENApplicantFilterAPIDTO,
+    organization: string | undefined,
+  ) {
+    if (organization) {
+      // let's fetch HA based on organization
+      const haList = await this.ienMasterService.ienHaPcnRepository.find({title: organization});
+      if (haList) {
+        filter.ha_pcn = `${haList[0].id}`
+      }
+    }
+
     const { status, ha_pcn, name, sortKey, order, limit, skip } = filter;
+
     const query: FindManyOptions<IENApplicant> = {
       order: {
         [sortKey || 'updated_date']: sortKey ? order : 'DESC',
