@@ -17,5 +17,5 @@ VALUES
     ('adb33797-e40c-2dc9-8d88-13007d10dab1', '2022-05-18 19:46:26.841586', '2022-05-18 19:46:26.841586', 'test13', 'test13@mailinator.ca', 'moh', '6663a33a-29e2-4f69-8913-05c12419a9b6'),
     ('adb33797-e40c-2dc9-8d88-19107d10dab1', '2022-05-17 19:46:26.841586', '2022-05-17 19:46:26.841586', 'test14', 'test14@mailinator.ca', 'pending', '8883a33a-29e2-4f69-8913-05c12419a9b6')
 ;
-UPDATE ien_users SET email = (SELECT email FROM employee WHERE name = 'ien_e2e') WHERE id = 1;
-UPDATE ien_users SET email = (SELECT email FROM employee WHERE name = 'ien_e2e_hmbc') WHERE id = 2;
+UPDATE ien_users SET email = (SELECT email FROM employee WHERE name = 'ien_e2e') WHERE user_id = '1';
+UPDATE ien_users SET email = (SELECT email FROM employee WHERE name = 'ien_e2e_hmbc') WHERE user_id = '2';
