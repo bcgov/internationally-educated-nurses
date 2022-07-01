@@ -3,11 +3,9 @@ import { BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   FindManyOptions,
-  In,
   Not,
   IsNull,
   Repository,
-  getManager,
   ObjectLiteral,
   SelectQueryBuilder,
 } from 'typeorm';
@@ -15,6 +13,7 @@ import { EmailDomains, ValidRoles } from '@ien/common';
 import { EmployeeEntity } from './entity/employee.entity';
 import { IENUsers } from 'src/applicant/entity/ienusers.entity';
 import { EmployeeUser } from 'src/common/interface/EmployeeUser';
+import { RoleEntity } from './entity/role.entity';
 
 export class EmployeeService {
   constructor(
@@ -22,6 +21,8 @@ export class EmployeeService {
     private employeeRepository: Repository<EmployeeEntity>,
     @InjectRepository(IENUsers)
     private ienUsersRepository: Repository<IENUsers>,
+    @InjectRepository(RoleEntity)
+    private roleRepository: Repository<RoleEntity>,
   ) {}
 
   async resolveUser(keycloakId: string, userData: Partial<EmployeeEntity>): Promise<EmployeeUser> {
@@ -38,7 +39,7 @@ export class EmployeeService {
     userData.organization = this._setOrganization(userData.email);
     const newUser = this.employeeRepository.create(userData);
     const employee = await this.employeeRepository.save(newUser);
-    const user = await this.getUserId(userData.email);
+    const user = await this.getUser(userData.email);
     const empUser: EmployeeUser = {
       ...employee,
       user_id: user ? user.id : null,
@@ -58,16 +59,15 @@ export class EmployeeService {
   }
 
   async getUserByKeycloakId(keycloakId: string): Promise<EmployeeUser | undefined> {
-    return getManager()
-      .createQueryBuilder(EmployeeEntity, 'employee')
-      .select('employee.*')
-      .addSelect('users.id', 'user_id')
-      .leftJoin('ien_users', 'users', 'employee.email = users.email')
-      .where('employee.keycloak_id = :keyclock', { keyclock: keycloakId }) // WHERE t3.event = 2019
-      .getRawOne();
+    const employee = await this.employeeRepository.findOne({ where: { keycloakId } });
+    if (!employee) {
+      throw new BadRequestException('employee not found');
+    }
+    const user = await this.getUser(employee.email);
+    return { ...employee, user_id: user?.id || null };
   }
 
-  async getUserId(email: string | undefined): Promise<IENUsers | undefined> {
+  async getUser(email: string | undefined): Promise<IENUsers | undefined> {
     return this.ienUsersRepository.findOne({ email });
   }
 
@@ -102,15 +102,7 @@ export class EmployeeService {
     if (limit) query.take = limit;
     if (skip) query.skip = skip;
 
-    if (!role && !name && !revokedOnly) {
-      return this.employeeRepository.findAndCount(query);
-    }
-
-    const conditions: (string | ObjectLiteral)[] = [];
-
-    if (role) {
-      conditions.push({ role: In(role) });
-    }
+    const conditions: (string | ObjectLiteral | ObjectLiteral[])[] = [];
 
     if (name) {
       conditions.push(this._nameSearchQuery(name));
@@ -120,18 +112,24 @@ export class EmployeeService {
       conditions.push({ revoked_access_date: Not(IsNull()) });
     }
 
+    if (role && role.length > 0) {
+      conditions.push(`EmployeeEntity__roles.id IN(${role.join(',')})`);
+    }
+
     if (conditions.length > 0) {
       return this.employeeRepository.findAndCount({
+        relations: ['roles'],
         where: (qb: SelectQueryBuilder<EmployeeEntity>) => {
           const condition = conditions.shift();
-          if (condition) qb.where(condition);
-          conditions.forEach(c => qb.andWhere(c));
+          if (condition) {
+            qb.where(condition);
+            conditions.forEach(c => qb.andWhere(c));
+          }
         },
         ...query,
       });
-    } else {
-      return this.employeeRepository.findAndCount(query);
     }
+    return this.employeeRepository.findAndCount(query);
   }
 
   /**
@@ -139,29 +137,25 @@ export class EmployeeService {
    * @param ids Employee Ids whose role we are updating
    * @param role role
    */
-  async updateRole(ids: string[], role: string): Promise<void> {
-    if (!Object.values<string>(ValidRoles).includes(role)) {
-      throw new BadRequestException(`Provided role does not exist`);
-    }
-    if (role == ValidRoles.ROLEADMIN) {
+  async updateRole(id: string, role_ids: number[]): Promise<EmployeeEntity> {
+    const roles = await this.roleRepository.findByIds(role_ids);
+    role_ids.forEach(role_id => {
+      if (!roles.find(role => role.id === role_id)) {
+        throw new BadRequestException(`Provided role does not exist`);
+      }
+    });
+    if (roles.find(role => role.name === ValidRoles.ROLEADMIN)) {
       throw new BadRequestException(`ROLE-ADMIN is only assigned in the database.`);
     }
 
-    const query: FindManyOptions<EmployeeEntity> = {};
-    if (ids && ids.length > 0) {
-      query.where = { id: In(ids) };
-    } else {
+    const employee = await this.employeeRepository.findOne(id);
+    if (!employee) {
       throw new BadRequestException(`Please provide at least one Id`);
     }
-    const employees = await this.employeeRepository.count(query);
-    if (employees !== ids.length) {
-      throw new BadRequestException(
-        `All provided Ids does not exist, Provided ids ${ids.length}, exist on system ${employees}`,
-      );
-    }
 
-    // It's time! let's update role for the provided Ids
-    await this.employeeRepository.update(ids, { role: role });
+    employee.roles = roles;
+    await this.employeeRepository.save(employee);
+    return employee;
   }
 
   /**
@@ -201,5 +195,9 @@ export class EmployeeService {
 
     employee.revoked_access_date = null;
     return this.employeeRepository.save(employee);
+  }
+
+  async getRoles(): Promise<RoleEntity[]> {
+    return this.roleRepository.find();
   }
 }

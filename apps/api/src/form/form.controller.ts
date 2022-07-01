@@ -18,7 +18,7 @@ import { RouteAcceptsRoles } from 'src/common/decorators';
 import { AppLogger } from 'src/common/logger.service';
 import { EmptyResponse } from 'src/common/ro/empty-response.ro';
 import { FormService } from 'src/form/form.service';
-import { FormEntity } from './entities/form.entity';
+import { FormEntity } from './entity/form.entity';
 @Controller('form')
 @ApiTags('Form')
 @UseGuards(AuthGuard)

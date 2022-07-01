@@ -27,10 +27,10 @@ export const UserManagementTable = (props: UserManagementProps) => {
     setModalOpen(true);
   };
 
-  const changeRole = async (user: EmployeeRO, role: ValidRoles | string) => {
-    const res = await updateRole(user.id, role as ValidRoles);
-    if (res) {
-      updateUser({ ...user, role });
+  const changeRole = async (user: EmployeeRO, role: string) => {
+    const employee = await updateRole(user.id, [+role]);
+    if (employee) {
+      updateUser(employee);
       toast.success('User role was successfully updated');
     }
     setModalOpen(false);
@@ -56,19 +56,19 @@ export const UserManagementTable = (props: UserManagementProps) => {
   };
 
   const getStatus = (user: EmployeeRO) => {
-    if (user.role === ValidRoles.PENDING) return 'None';
+    if (user.roles.length === 0) return 'None';
     if (user.revoked_access_date) return 'Revoked';
     return 'Active';
   };
 
   const getStatusClass = (user: EmployeeRO): string => {
-    if (user.role === ValidRoles.PENDING) return '';
+    if (user.roles.length === 0) return 'None';
     if (user.revoked_access_date) return 'text-bcRedError';
     return 'text-bcGreenSuccess';
   };
 
   const getButton = (employee: EmployeeRO, index: number) => {
-    if (employee.role === ValidRoles.ROLEADMIN) return '';
+    if (employee.roles.some(role => role.name === ValidRoles.ROLEADMIN)) return '';
     const revoked = employee.revoked_access_date;
     if (loadingIndex === index) {
       return <Spinner className='h-8 ml-12' relative />;
@@ -121,7 +121,9 @@ export const UserManagementTable = (props: UserManagementProps) => {
                 <td className='pl-6 py-5'>{employee.name}</td>
                 <td className='px-6'>{employee.email}</td>
                 <td className='px-6'>{employee.createdDate && formatDate(employee.createdDate)}</td>
-                <td className='px-6'>{employee.role.toUpperCase()}</td>
+                <td className='px-6'>
+                  {employee.roles.map(({ name }) => name.toUpperCase()).join(',')}
+                </td>
                 <td className={`px-6 text-center ${getStatusClass(employee)}`}>
                   {getStatus(employee)}
                 </td>

@@ -2,7 +2,7 @@ import React, { ChangeEvent, useState } from 'react';
 import { Modal } from '../Modal';
 import { EmployeeRO, ValidRoles } from '@ien/common';
 import ReactSelect from 'react-select';
-import { ChangeRoleOption, roleSelectOptions } from '@services';
+import { ChangeRoleOption, useRoles } from '@services';
 import { Button, getSelectStyleOverride } from '@components';
 import closeIcon from '@assets/img/close.svg';
 
@@ -14,7 +14,6 @@ interface ChangeRoleModalProps {
   closeModal: () => void;
 }
 
-const roleOptions = roleSelectOptions.filter(o => o.value !== ValidRoles.PENDING);
 const revokeOption = {
   value: 'revoke',
   label: 'Revoke Access',
@@ -32,6 +31,11 @@ export const ChangeRoleModal = ({
   revoke,
   closeModal,
 }: ChangeRoleModalProps) => {
+  const roles = useRoles();
+  const roleOptions =
+    roles
+      ?.filter(role => role.name !== ValidRoles.ROLEADMIN)
+      .map(({ id, name }) => ({ value: `${id}`, label: name.toUpperCase() })) || [];
   const [role, setRole] = useState<ValidRoles | string>('');
   const [confirmText, setConfirmText] = useState('');
 
@@ -87,11 +91,9 @@ export const ChangeRoleModal = ({
             inputId='role-change'
             placeholder='Role'
             onChange={value => value && setRole(value.value)}
-            isOptionDisabled={({ value }) => value === user?.role}
+            isOptionDisabled={({ value }) => +value === user?.roles[0]?.id}
             styles={getSelectStyleOverride<ChangeRoleOption>()}
-            options={
-              user?.role === ValidRoles.PENDING ? roleOptions : [...roleOptions, revokeOption]
-            }
+            options={user?.roles.length === 0 ? roleOptions : [...roleOptions, revokeOption]}
             className='placeholder-bcGray'
           />
         </div>
