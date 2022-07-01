@@ -25,7 +25,7 @@ const UserManagement = () => {
   const [loading, setLoading] = useState(false);
 
   const [name, setName] = useState<string>('');
-  const [roles, setRoles] = useState<string[]>([]);
+  const [roles, setRoles] = useState<ValidRoles[]>([]);
   const [revokedOnly, setRevokedOnly] = useState(false);
   const [sortKey, setSortKey] = useState('');
   const [order, setOrder] = useState<'ASC' | 'DESC'>('DESC');
@@ -70,8 +70,8 @@ const UserManagement = () => {
     }
   };
 
-  const handleFilters = (role_ids: string[]) => {
-    setRoles(role_ids);
+  const handleFilters = (rolesFilter: ValidRoles[]) => {
+    setRoles(rolesFilter);
     setPage(1);
   };
 

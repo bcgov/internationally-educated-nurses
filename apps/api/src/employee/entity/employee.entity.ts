@@ -3,12 +3,9 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinTable,
-  ManyToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { RoleEntity } from './role.entity';
 
 @Entity('employee')
 export class EmployeeEntity {
@@ -24,13 +21,11 @@ export class EmployeeEntity {
 
   @Column('varchar', { length: 128, nullable: false })
   name!: string;
-
   @Column('varchar', { length: 128, nullable: true })
   email!: string;
 
-  @ManyToMany(() => RoleEntity, { eager: true })
-  @JoinTable()
-  roles!: RoleEntity[];
+  @Column('varchar', { length: 128, nullable: false })
+  role!: string;
 
   @Column('varchar', { length: 128, nullable: false, unique: true })
   keycloakId!: string;

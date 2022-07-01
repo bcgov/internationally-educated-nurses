@@ -48,7 +48,7 @@ export class IENApplicantService {
   }
 
   /**
-   * Retrieve applicant details, with audit and detail relational data
+   * Retrive applicant details, with audit and detail relational data
    * @param id
    * @param data Pass additinal relation, like audit,applicantaudit
    * @returns
@@ -69,7 +69,9 @@ export class IENApplicantService {
           }
         });
       }
-      applicant = await this.ienapplicantRepository.findOne(id, { relations });
+      applicant = await this.ienapplicantRepository.findOne(id, {
+        relations: relations,
+      });
     } catch (e) {
       this.logger.error(e);
       throw new BadRequestException(e);

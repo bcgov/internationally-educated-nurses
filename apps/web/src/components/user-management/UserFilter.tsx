@@ -1,19 +1,18 @@
 import ReactSelect from 'react-select';
 
 import { getSelectStyleOverride } from '@components';
-import { getRoleSelectOptions, RoleOption, useRoles } from '@services';
+import { ValidRoles } from '@ien/common';
+import { roleFilterOptions, RoleOption } from '@services';
 import { ChangeEvent } from 'react';
 
 interface UserFilterProps {
-  roles: string[];
-  updateRoles: (roles: string[]) => void;
+  roles: ValidRoles[];
+  updateRoles: (roles: ValidRoles[]) => void;
   revokedOnly: boolean;
   setRevokedOnly: (revokedOnly: boolean) => void;
 }
 
 export const UserFilter = (props: UserFilterProps) => {
-  const roleOptions = useRoles();
-  const roleFilterOptions = roleOptions ? getRoleSelectOptions(roleOptions) : [];
   const { roles, updateRoles, revokedOnly, setRevokedOnly } = props;
 
   const handleCheckChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -30,6 +29,7 @@ export const UserFilter = (props: UserFilterProps) => {
         value={roleFilterOptions.filter(option => roles.includes(option.value))}
         onChange={value => updateRoles(value.map(v => v.value))}
         options={[...roleFilterOptions]}
+        getOptionLabel={option => option.value.toUpperCase()}
         styles={getSelectStyleOverride<RoleOption>()}
         isMulti
         isClearable

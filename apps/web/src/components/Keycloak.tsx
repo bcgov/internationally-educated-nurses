@@ -46,7 +46,7 @@ const withAuth = (Component: React.FunctionComponent, roles: ValidRoles[]) => {
       authUserLoading ||
       !kc.initialized ||
       !authUser ||
-      !authUser.roles ||
+      !authUser.role ||
       invalidRoleCheck(roles, authUser)
     ) {
       return <Spinner className='h-10 w-10' />;
