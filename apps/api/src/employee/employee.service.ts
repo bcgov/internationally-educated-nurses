@@ -45,6 +45,10 @@ export class EmployeeService {
 
     userData.organization = this._setOrganization(userData.email);
     const newUser = this.employeeRepository.create(userData);
+    const pending = await this.roleRepository.findOne({ name: ValidRoles.PENDING });
+    if (pending) {
+      newUser.roles = [pending];
+    }
     const employee = await this.employeeRepository.save(newUser);
     const user = await this.getUser(userData); // It will add new user record if not exist.
     const empUser: EmployeeUser = {
@@ -75,6 +79,11 @@ export class EmployeeService {
       .leftJoin('ien_ha_pcn', 'ha_pcn', 'employee.organization = ha_pcn.title')
       .where('employee.keycloak_id = :keyclock', { keyclock: keycloakId }) // WHERE t3.event = 2019
       .getRawOne();
+    // const employee = await this.employeeRepository.findOne({ where: { keycloakId } });
+    // if (employee) {
+    //   const user = await this.getUser(employee.email);
+    //   return { ...employee, user_id: user?.id || null };
+    // }
   }
 
   async getUser(userData: Partial<EmployeeEntity>): Promise<IENUsers | undefined> {

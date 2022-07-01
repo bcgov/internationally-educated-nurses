@@ -1,7 +1,7 @@
 import ReactSelect from 'react-select';
 
 import { getSelectStyleOverride } from '@components';
-import { getRoleSelectOptions, RoleOption, useRoles } from '@services';
+import { getRoleFilterOptions, RoleOption, useRoles } from '@services';
 import { ChangeEvent } from 'react';
 
 interface UserFilterProps {
@@ -13,7 +13,7 @@ interface UserFilterProps {
 
 export const UserFilter = (props: UserFilterProps) => {
   const roleOptions = useRoles();
-  const roleFilterOptions = roleOptions ? getRoleSelectOptions(roleOptions) : [];
+  const roleFilterOptions = roleOptions ? getRoleFilterOptions(roleOptions) : [];
   const { roles, updateRoles, revokedOnly, setRevokedOnly } = props;
 
   const handleCheckChange = (e: ChangeEvent<HTMLInputElement>) => {
