@@ -5,10 +5,14 @@ import { EmployeeController } from './employee.controller';
 import { EmployeeEntity } from './entity/employee.entity';
 import { IENUsers } from 'src/applicant/entity/ienusers.entity';
 import { EmployeeService } from './employee.service';
+import { RoleEntity } from './entity/role.entity';
 
 @Module({
   controllers: [EmployeeController],
-  imports: [TypeOrmModule.forFeature([EmployeeEntity, IENUsers]), forwardRef(() => AuthModule)],
+  imports: [
+    TypeOrmModule.forFeature([EmployeeEntity, IENUsers, RoleEntity]),
+    forwardRef(() => AuthModule),
+  ],
   providers: [EmployeeService, Logger],
   exports: [EmployeeService],
 })

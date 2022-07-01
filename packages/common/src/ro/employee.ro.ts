@@ -1,8 +1,10 @@
+import { Role } from './role.ro';
+
 export interface EmployeeRO {
   id: string;
   name: string;
   email?: string;
   createdDate: Date;
-  role: string;
+  roles: Role[];
   revoked_access_date: Date | null;
 }
