@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import { menuBarTabs } from '@services';
 import { useAuthContext } from './AuthContexts';
 import { LastSyncBar } from '@components';
+import { ValidRoles } from '@ien/common';
 
 export const MenuBar: React.FC = () => {
   const router = useRouter();
@@ -11,7 +12,12 @@ export const MenuBar: React.FC = () => {
 
   const active = `font-bold`;
 
-  if (!authUser) return <></>;
+  const isAuthorized = () => {
+    if (!authUser?.roles?.length) return false;
+    return authUser.roles.every(({ name }) => name !== ValidRoles.PENDING);
+  };
+
+  if (!isAuthorized()) return <></>;
 
   return (
     <nav className='w-full bg-bcBlueAccent flex flex-row justify-center'>
@@ -21,7 +27,7 @@ export const MenuBar: React.FC = () => {
             {menuBarTabs
               .filter(
                 menu =>
-                  authUser && authUser.roles.some(role => menu.roles.some(v => v === role.name)),
+                  authUser && authUser.roles?.some(role => menu.roles.some(v => v === role.name)),
               )
               .map(({ title, paths, defaultPath }) => (
                 <Link key={title} href={defaultPath}>

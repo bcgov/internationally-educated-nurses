@@ -2,7 +2,7 @@ import React, { ChangeEvent, useState } from 'react';
 import { Modal } from '../Modal';
 import { EmployeeRO, ValidRoles } from '@ien/common';
 import ReactSelect from 'react-select';
-import { ChangeRoleOption, useRoles } from '@services';
+import { ChangeRoleOption, getRoleSelectOptions, useRoles } from '@services';
 import { Button, getSelectStyleOverride } from '@components';
 import closeIcon from '@assets/img/close.svg';
 
@@ -32,10 +32,7 @@ export const ChangeRoleModal = ({
   closeModal,
 }: ChangeRoleModalProps) => {
   const roles = useRoles();
-  const roleOptions =
-    roles
-      ?.filter(role => role.name !== ValidRoles.ROLEADMIN)
-      .map(({ id, name }) => ({ value: `${id}`, label: name.toUpperCase() })) || [];
+  const roleOptions = getRoleSelectOptions(roles || []);
   const [role, setRole] = useState<ValidRoles | string>('');
   const [confirmText, setConfirmText] = useState('');
 

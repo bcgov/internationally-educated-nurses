@@ -38,6 +38,10 @@ export class EmployeeService {
 
     userData.organization = this._setOrganization(userData.email);
     const newUser = this.employeeRepository.create(userData);
+    const pending = await this.roleRepository.findOne({ name: ValidRoles.PENDING });
+    if (pending) {
+      newUser.roles = [pending];
+    }
     const employee = await this.employeeRepository.save(newUser);
     const user = await this.getUser(userData.email);
     const empUser: EmployeeUser = {
@@ -60,11 +64,10 @@ export class EmployeeService {
 
   async getUserByKeycloakId(keycloakId: string): Promise<EmployeeUser | undefined> {
     const employee = await this.employeeRepository.findOne({ where: { keycloakId } });
-    if (!employee) {
-      throw new BadRequestException('employee not found');
+    if (employee) {
+      const user = await this.getUser(employee.email);
+      return { ...employee, user_id: user?.id || null };
     }
-    const user = await this.getUser(employee.email);
-    return { ...employee, user_id: user?.id || null };
   }
 
   async getUser(email: string | undefined): Promise<IENUsers | undefined> {
