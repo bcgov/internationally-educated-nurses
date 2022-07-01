@@ -1,5 +1,7 @@
-import { EmployeeFilterDTO, EmployeeRO, ValidRoles } from '@ien/common';
+import { EmployeeFilterDTO, EmployeeRO, Role } from '@ien/common';
 import axios from 'axios';
+import { fetcher } from '../utils/swr-fetcher';
+import useSWRImmutable from 'swr/immutable';
 
 // get all employees
 export const getEmployees = async (
@@ -24,12 +26,15 @@ export const getEmployees = async (
   }
 };
 
-export const updateRole = async (id: string, role: ValidRoles): Promise<boolean> => {
+export const updateRole = async (
+  id: string,
+  role_ids: number[],
+): Promise<EmployeeRO | undefined> => {
   try {
-    await axios.patch('/employee/update/role', { ids: [id], role });
-    return true;
+    const { data } = await axios.patch('/employee/update/role', { id, role_ids });
+    return data?.data;
   } catch (e) {
-    return false;
+    return undefined;
   }
 };
 
@@ -49,4 +54,9 @@ export const activateUser = async (id: string): Promise<EmployeeRO | null> => {
   } catch (e) {
     return null;
   }
+};
+
+export const useRoles = (): Role[] | undefined => {
+  const { data } = useSWRImmutable('employee/list/roles', fetcher);
+  return data?.data;
 };

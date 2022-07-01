@@ -2,15 +2,15 @@ import { useKeycloak } from '@react-keycloak/ssr';
 import axios from 'axios';
 import { KeycloakInstance } from 'keycloak-js';
 import React, { PropsWithChildren, ReactNode, useEffect, useState } from 'react';
-import { ValidRoles } from '@ien/common';
 import { useRouter } from 'next/router';
+import { Role } from '@ien/common';
 
 export interface UserType {
   id: string;
   name: string;
   keycloakId: string;
   createdDate: Date;
-  role: ValidRoles;
+  roles: Role[];
   user_id: number;
   revoked_access_date: Date;
 }

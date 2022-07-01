@@ -25,15 +25,21 @@ export class AuthGuard implements CanActivate {
       this.reflector.get<ValidRoles[]>('acceptedRoles', context.getHandler()) || [];
     const employee = await this.employeeService.resolveUser(tokenUser.sub, {
       keycloakId: tokenUser.sub,
-      role: 'pending',
       name: tokenUser.preferred_username,
       email: tokenUser.email,
       organization: tokenUser.organization,
     });
     request.user = employee;
 
-    if (acceptedRoles.length === 0 || employee.role === ValidRoles.ROLEADMIN) return true;
+    if (
+      acceptedRoles.length === 0 ||
+      employee.roles.some(role => role.name === ValidRoles.ROLEADMIN)
+    )
+      return true;
 
-    return acceptedRoles.includes(employee.role as ValidRoles) && !employee.revoked_access_date;
+    return (
+      acceptedRoles.some(name => employee.roles.some(role => role.name === name)) &&
+      !employee.revoked_access_date
+    );
   }
 }

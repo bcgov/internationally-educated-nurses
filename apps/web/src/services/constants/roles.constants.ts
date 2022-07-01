@@ -1,4 +1,4 @@
-import { ValidRoles } from '@ien/common';
+import { Role, ValidRoles } from '@ien/common';
 import { CSSProperties } from 'react';
 
 export interface StyleOption {
@@ -6,7 +6,7 @@ export interface StyleOption {
 }
 
 export interface RoleOption extends StyleOption {
-  value: ValidRoles;
+  value: ValidRoles | string;
   label: string;
 }
 
@@ -16,12 +16,10 @@ export interface ChangeRoleOption {
   style?: CSSProperties;
 }
 
-export const roleSelectOptions: RoleOption[] = Object.values(ValidRoles)
-  .filter(
-    role => ![ValidRoles.PENDING, ValidRoles.ROLEADMIN, ValidRoles.HEALTH_AUTHORITY].includes(role),
-  )
-  .map(role => ({ value: role, label: role.toUpperCase() }));
-
-export const roleFilterOptions: RoleOption[] = Object.values(ValidRoles)
-  .filter(role => ![ValidRoles.ROLEADMIN, ValidRoles.HEALTH_AUTHORITY].includes(role))
-  .map(role => ({ value: role, label: role.toUpperCase() }));
+export const getRoleSelectOptions = (roles: Role[]): RoleOption[] => {
+  return (
+    roles
+      .filter(role => role.name !== ValidRoles.ROLEADMIN)
+      .map(({ id, name }) => ({ value: `${id}`, label: name.toUpperCase() })) || []
+  );
+};
