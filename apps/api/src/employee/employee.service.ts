@@ -73,11 +73,11 @@ export class EmployeeService {
     if (keywords.length > 0) {
       const tempConditions: string[] = [];
       keywords.forEach(ele => {
-        tempConditions.push(`EmployeeEntity.name ilike '%${ele}%'`);
+        tempConditions.push(`employee.name ilike '%${ele}%'`);
       });
       return tempConditions.join(' AND ');
     }
-    return `EmployeeEntity.name ilike '%${keyword}%'`;
+    return `employee.name ilike '%${keyword}%'`;
   }
 
   /**
@@ -87,7 +87,7 @@ export class EmployeeService {
    * @param name optional name wise filter
    * @returns Employee/User's list
    */
-  async getEmployeeList(filter: EmployeeFilterAPIDTO) {
+  async getEmployeeList(filter: EmployeeFilterAPIDTO): Promise<[EmployeeEntity[], number]> {
     const { role, name, revokedOnly, sortKey, order, limit, skip } = filter;
     const qb = this.employeeRepository
       .createQueryBuilder('employee')
@@ -104,13 +104,23 @@ export class EmployeeService {
       qb.andWhere({ revoked_access_date: Not(IsNull()) });
     }
 
+    if (!role?.length) {
+      qb.leftJoinAndSelect('employee.roles', 'role');
+      return qb.getManyAndCount();
+    }
+
+    qb.select('employee.id');
     qb.innerJoinAndSelect(
       'employee.roles',
       'role',
       role ? `role.id IN(${role.join(',')})` : undefined,
     );
+    const [employee_ids, count] = await qb.getManyAndCount();
 
-    return qb.getManyAndCount();
+    const employees = await this.employeeRepository.findByIds(employee_ids, {
+      relations: ['roles'],
+    });
+    return [employees, count];
   }
 
   /**
