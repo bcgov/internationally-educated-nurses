@@ -43,7 +43,7 @@ export class EmployeeController {
     @Query() filter: EmployeeFilterAPIDTO,
   ): Promise<[EmployeeEntity[], number]> {
     try {
-      return this.employeeService.getEmployeeList(filter);
+      return await this.employeeService.getEmployeeList(filter);
     } catch (e) {
       this.logger.error(e);
       throw new InternalServerErrorException('An unknown error occured retrieving employees');
