@@ -206,8 +206,6 @@ export class ExternalAPIService {
    * fetch and upsert applicant details
    */
   async saveApplicant(from?: string, to?: string): Promise<void> {
-    from='2001-07-05';
-    to='2001-07-12';
     const audit = await this.saveSyncApplicantsAudit();
     try {
       /**
