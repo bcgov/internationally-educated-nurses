@@ -59,7 +59,7 @@ export class IENApplicantController {
     @Query() filter: IENApplicantFilterAPIDTO,
   ): Promise<[ApplicantRO[], number]> {
     try {
-      return await this.ienapplicantService.getApplicants(filter, req.user?.organization);
+      return await this.ienapplicantService.getApplicants(filter, req);
     } catch (e) {
       this.logger.error(e);
       throw new InternalServerErrorException('An unknown error occured retriving applicants');

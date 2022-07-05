@@ -69,7 +69,9 @@ export class EmployeeService {
       .createQueryBuilder(EmployeeEntity, 'employee')
       .select('employee.*')
       .addSelect('users.id', 'user_id')
+      .addSelect('ha_pcn.id', 'ha_pcn_id')
       .leftJoin('ien_users', 'users', 'employee.email = users.email')
+      .leftJoin('ien_ha_pcn', 'ha_pcn', 'employee.organization = ha_pcn.title')
       .where('employee.keycloak_id = :keyclock', { keyclock: keycloakId }) // WHERE t3.event = 2019
       .getRawOne();
   }

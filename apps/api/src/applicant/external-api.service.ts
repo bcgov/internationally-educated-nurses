@@ -2,7 +2,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ExternalRequest } from 'src/common/external-request';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { In, IsNull, Not, Repository } from 'typeorm';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicant } from './entity/ienapplicant.entity';
 import { getMilestoneCategory } from 'src/common/util';
@@ -77,7 +77,7 @@ export class ExternalAPIService {
       if (Array.isArray(data)) {
         const listUsers = data.map(item => {
           return {
-            id: item.id,
+            user_id: item.id,
             name: item.name,
             email: item?.email,
           };
@@ -206,6 +206,8 @@ export class ExternalAPIService {
    * fetch and upsert applicant details
    */
   async saveApplicant(from?: string, to?: string): Promise<void> {
+    from='2001-07-05';
+    to='2001-07-12';
     const audit = await this.saveSyncApplicantsAudit();
     try {
       /**
@@ -312,10 +314,14 @@ export class ExternalAPIService {
    */
   async getApplicantMasterData() {
     // fetch user/staff details
-    const usersArray = await this.ienMasterService.ienUsersRepository.find();
+    const usersArray = await this.ienMasterService.ienUsersRepository.find({
+      user_id: Not(IsNull()),
+    });
     const users: any = {};
     usersArray.forEach(user => {
-      users[user.id] = user;
+      if (user.user_id) {
+        users[user.user_id] = user;
+      }
     });
     // Fetch Health Authorities
     const haArray = await this.ienMasterService.ienHaPcnRepository.find();
@@ -531,7 +537,7 @@ export class ExternalAPIService {
         added_by: null,
       };
       if ('added_by' in m && m.added_by > 0 && users[m.added_by]) {
-        temp['added_by'] = m.added_by;
+        temp['added_by'] = users[m.added_by].id;
       }
       if ('reason_id' in m) {
         temp['reason'] = m.reason_id;

@@ -16,6 +16,7 @@ import { IENApplicantStatusAudit } from './entity/ienapplicant-status-audit.enti
 import { IENApplicantJobCreateUpdateAPIDTO } from './dto/ienapplicant-job-create.dto';
 import { IENApplicantJobQueryDTO } from './dto/ienapplicant-job-filter.dto';
 import { IENJobLocation } from './entity/ienjoblocation.entity';
+import { RequestObj } from 'src/common/interface/RequestObj';
 
 @Injectable()
 export class IENApplicantService {
@@ -43,9 +44,9 @@ export class IENApplicantService {
    */
   async getApplicants(
     filter: IENApplicantFilterAPIDTO,
-    organization: string | undefined,
+    req: RequestObj,
   ): Promise<[data: IENApplicant[], count: number]> {
-    return this.ienapplicantUtilService.applicantFilterQueryBuilder(filter, organization);
+    return this.ienapplicantUtilService.applicantFilterQueryBuilder(filter, req.user?.ha_pcn_id);
   }
 
   /**

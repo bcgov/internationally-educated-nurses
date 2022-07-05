@@ -77,19 +77,6 @@ export class IENApplicantUtilService {
     return `IENApplicant.name ilike '%${keyword}%'`;
   }
 
-  async _fetchHABasedOnOrganization(
-    filter: IENApplicantFilterAPIDTO,
-    organization: string | undefined,
-  ) {
-    if (organization) {
-      // let's fetch HA based on organization
-      const haList = await this.ienMasterService.ienHaPcnRepository.find({ title: organization });
-      if (haList) {
-        filter.ha_pcn = `${haList[0].id}`;
-      }
-    }
-  }
-
   /**
    * Build a query using given filters
    * @param filter
@@ -97,9 +84,11 @@ export class IENApplicantUtilService {
    */
   async applicantFilterQueryBuilder(
     filter: IENApplicantFilterAPIDTO,
-    organization: string | undefined,
+    ha_pcn_id: number | undefined | null,
   ) {
-    await this._fetchHABasedOnOrganization(filter, organization);
+    if (ha_pcn_id) {
+      filter.ha_pcn = `${ha_pcn_id}`;
+    }
     const { status, ha_pcn, name, sortKey, order, limit, skip } = filter;
 
     const query: FindManyOptions<IENApplicant> = {
