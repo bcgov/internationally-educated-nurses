@@ -1,14 +1,7 @@
 import { EmployeeFilterAPIDTO } from './dto/employee-filter.dto';
 import { BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  FindManyOptions,
-  Not,
-  IsNull,
-  Repository,
-  ObjectLiteral,
-  SelectQueryBuilder, getManager,
-} from 'typeorm';
+import { Not, IsNull, Repository, getManager } from 'typeorm';
 import { EmailDomains, ValidRoles } from '@ien/common';
 import { EmployeeEntity } from './entity/employee.entity';
 import { IENUsers } from 'src/applicant/entity/ienusers.entity';
@@ -70,7 +63,7 @@ export class EmployeeService {
   }
 
   async getUserByKeycloakId(keycloakId: string): Promise<EmployeeUser | undefined> {
-    return getManager()
+    const employeeUser = await getManager()
       .createQueryBuilder(EmployeeEntity, 'employee')
       .select('employee.*')
       .addSelect('users.id', 'user_id')
@@ -79,11 +72,8 @@ export class EmployeeService {
       .leftJoin('ien_ha_pcn', 'ha_pcn', 'employee.organization = ha_pcn.title')
       .where('employee.keycloak_id = :keyclock', { keyclock: keycloakId }) // WHERE t3.event = 2019
       .getRawOne();
-    // const employee = await this.employeeRepository.findOne({ where: { keycloakId } });
-    // if (employee) {
-    //   const user = await this.getUser(employee.email);
-    //   return { ...employee, user_id: user?.id || null };
-    // }
+    const employee = await this.employeeRepository.findOne({ where: { keycloakId } });
+    return { ...employeeUser, ...employee };
   }
 
   async getUser(userData: Partial<EmployeeEntity>): Promise<IENUsers | undefined> {
