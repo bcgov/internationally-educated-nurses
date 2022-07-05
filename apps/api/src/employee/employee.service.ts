@@ -125,43 +125,28 @@ export class EmployeeService {
    */
   async getEmployeeList(filter: EmployeeFilterAPIDTO) {
     const { role, name, revokedOnly, sortKey, order, limit, skip } = filter;
-    const query: FindManyOptions<EmployeeEntity> = {
-      order: {
-        [sortKey || 'createdDate']: sortKey ? order : 'DESC',
-      },
-    };
+    const qb = this.employeeRepository
+      .createQueryBuilder('employee')
+      .orderBy({ [sortKey || 'created_date']: order || 'DESC' });
 
-    if (limit) query.take = limit;
-    if (skip) query.skip = skip;
-
-    const conditions: (string | ObjectLiteral | ObjectLiteral[])[] = [];
+    if (limit) qb.limit(limit);
+    if (skip) qb.skip(skip);
 
     if (name) {
-      conditions.push(this._nameSearchQuery(name));
+      qb.andWhere(this._nameSearchQuery(name));
     }
 
     if (revokedOnly) {
-      conditions.push({ revoked_access_date: Not(IsNull()) });
+      qb.andWhere({ revoked_access_date: Not(IsNull()) });
     }
 
-    if (role && role.length > 0) {
-      conditions.push(`EmployeeEntity__roles.id IN(${role.join(',')})`);
-    }
+    qb.innerJoinAndSelect(
+      'employee.roles',
+      'role',
+      role ? `role.id IN(${role.join(',')})` : undefined,
+    );
 
-    if (conditions.length > 0) {
-      return this.employeeRepository.findAndCount({
-        relations: ['roles'],
-        where: (qb: SelectQueryBuilder<EmployeeEntity>) => {
-          const condition = conditions.shift();
-          if (condition) {
-            qb.where(condition);
-            conditions.forEach(c => qb.andWhere(c));
-          }
-        },
-        ...query,
-      });
-    }
-    return this.employeeRepository.findAndCount(query);
+    return qb.getManyAndCount();
   }
 
   /**
