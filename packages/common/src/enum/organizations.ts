@@ -4,11 +4,11 @@ export enum Organizations {
   FIRST_NATIONS_HEALTH_AUTHORITY = 'First Nations Health Authority',
   PROVIDENCE_HEALTH_CARE = 'Providence Health Care',
   PROVINCIAL_HEALTH_SERVICES_AUTHORITY = 'Provincial Health Services Authority',
-  FRASER_HEALTH = 'Fraser Health',
-  INTERIOR_HEALTH = 'Interior Health',
-  ISLAND_HEALTH = 'Island Heath',
-  NORTHERN_HEALTH = 'Northern Health',
-  VANCOUVER_COASTAL_HEALTH = 'Vancouver Coastal Health',
+  FRASER_HEALTH = 'Fraser Health Authority',
+  INTERIOR_HEALTH = 'Interior Health Authority',
+  ISLAND_HEALTH = 'Vancouver Island Health Authority',
+  NORTHERN_HEALTH = 'Northern Health Authority',
+  VANCOUVER_COASTAL_HEALTH = 'Vancouver Coastal Health Authority',
 }
 
 export const EmailDomains = {

@@ -16,6 +16,7 @@ import { IENApplicantStatusAudit } from './entity/ienapplicant-status-audit.enti
 import { IENApplicantJobCreateUpdateAPIDTO } from './dto/ienapplicant-job-create.dto';
 import { IENApplicantJobQueryDTO } from './dto/ienapplicant-job-filter.dto';
 import { IENJobLocation } from './entity/ienjoblocation.entity';
+import { RequestObj } from 'src/common/interface/RequestObj';
 
 @Injectable()
 export class IENApplicantService {
@@ -43,8 +44,9 @@ export class IENApplicantService {
    */
   async getApplicants(
     filter: IENApplicantFilterAPIDTO,
+    req: RequestObj,
   ): Promise<[data: IENApplicant[], count: number]> {
-    return this.ienapplicantUtilService.applicantFilterQueryBuilder(filter);
+    return this.ienapplicantUtilService.applicantFilterQueryBuilder(filter, req.user?.ha_pcn_id);
   }
 
   /**
@@ -208,7 +210,7 @@ export class IENApplicantService {
    * @returns
    */
   async addApplicantStatus(
-    user_id: number | null,
+    user_id: string | null,
     id: string,
     applicantUpdate: IENApplicantAddStatusAPIDTO,
   ): Promise<IENApplicantStatusAudit | any> {
@@ -284,7 +286,7 @@ export class IENApplicantService {
    * @returns
    */
   async updateApplicantStatus(
-    user_id: number | null,
+    user_id: string | null,
     status_id: string,
     applicantUpdate: IENApplicantUpdateStatusAPIDTO,
   ): Promise<IENApplicantStatusAudit | any> {
@@ -344,7 +346,7 @@ export class IENApplicantService {
    * @param status_id Applicant Audit status
    * @returns
    */
-  async deleteApplicantStatus(user_id: number | null, status_id: string): Promise<void> {
+  async deleteApplicantStatus(user_id: string | null, status_id: string): Promise<void> {
     const status: IENApplicantStatusAudit | undefined =
       await this.ienapplicantStatusAuditRepository.findOne(status_id, { relations: ['added_by'] });
     if (!status) {

@@ -21,4 +21,4 @@ export const addMilestone = {
   notes: 'Test Note',
 };
 
-export const seedUser = { id: 1, name: 'Test User' };
+export const seedUser = { id: '0053d04d-db64-4789-b6f9-2e98feb334b2', name: 'Test User' };

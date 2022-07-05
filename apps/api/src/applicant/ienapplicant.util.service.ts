@@ -82,8 +82,15 @@ export class IENApplicantUtilService {
    * @param filter
    * @returns retrun promise of find()
    */
-  async applicantFilterQueryBuilder(filter: IENApplicantFilterAPIDTO) {
+  async applicantFilterQueryBuilder(
+    filter: IENApplicantFilterAPIDTO,
+    ha_pcn_id: number | undefined | null,
+  ) {
+    if (ha_pcn_id) {
+      filter.ha_pcn = `${ha_pcn_id}`;
+    }
     const { status, ha_pcn, name, sortKey, order, limit, skip } = filter;
+
     const query: FindManyOptions<IENApplicant> = {
       order: {
         [sortKey || 'updated_date']: sortKey ? order : 'DESC',

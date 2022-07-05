@@ -28,7 +28,7 @@ describe('ApplicantController (e2e)', () => {
       .useValue({
         canActivate: (context: ExecutionContext) => {
           const request = context.switchToHttp().getRequest();
-          request.user = { user_id: request.headers?.user || 1 };
+          request.user = { user_id: request.headers?.user || seedUser.id };
           return true;
         },
       })
@@ -144,21 +144,21 @@ describe('ApplicantController (e2e)', () => {
 
   it('Delete applicant fail, Applicant milestone not found /ien/:id/status/:id (DELETE)', done => {
     const dummyId = '8435ef30-7af3-4ec2-8aed-2662209301c5';
-    const addStatusUrl = `/ien/${applicant.id}/status/${dummyId}`;
+    const uri = `/ien/${applicant.id}/status/${dummyId}`;
     addMilestone.job_id = jobTempId;
-    request(app.getHttpServer()).delete(addStatusUrl).expect(404).end(done);
+    request(app.getHttpServer()).delete(uri).expect(404).end(done);
   });
 
   it('Delete applicant milestone initiated by different owner not permitted /ien/:id/status/:id (DELETE)', done => {
-    const addStatusUrl = `/ien/${applicant.id}/status/${applicantStatusId}`;
+    const uri = `/ien/${applicant.id}/status/${applicantStatusId}`;
     addMilestone.job_id = jobTempId;
-    request(app.getHttpServer()).delete(addStatusUrl).set({ user: 2 }).expect(400).end(done);
+    request(app.getHttpServer()).delete(uri).set({ user: 2 }).expect(400).end(done);
   });
 
   it('Delete applicant milestone /ien/:id/status/:id (DELETE)', done => {
-    const addStatusUrl = `/ien/${applicant.id}/status/${applicantStatusId}`;
+    const uri = `/ien/${applicant.id}/status/${applicantStatusId}`;
     addMilestone.job_id = jobTempId;
-    request(app.getHttpServer()).delete(addStatusUrl).expect(200).end(done);
+    request(app.getHttpServer()).delete(uri).expect(200).end(done);
   });
 
   it('Add new applicant milestone /ien/:id/status (POST)', done => {
@@ -190,10 +190,10 @@ describe('ApplicantController (e2e)', () => {
   });
 
   it('Patch applicant milestone detail /ien/:id/status/:id (PATCH)', done => {
-    const addStatusUrl = `/ien/${applicant.id}/status/${applicantStatusId}`;
+    const patchStatusUrl = `/ien/${applicant.id}/status/${applicantStatusId}`;
     addMilestone.notes = 'Update note';
     request(app.getHttpServer())
-      .patch(addStatusUrl)
+      .patch(patchStatusUrl)
       .send(addMilestone)
       .expect(res => {
         const { body } = res;

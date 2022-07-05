@@ -32,13 +32,20 @@ export class EmployeeService {
       if (org) {
         await this.employeeRepository.update(existingEmployee.id, { organization: org });
       }
+      if (existingEmployee.email && !existingEmployee.user_id) {
+        // It will add missing entry in user's table
+        const tempUser = await this.getUserId(existingEmployee);
+        if (tempUser) {
+          existingEmployee.user_id = tempUser.id;
+        }
+      }
       return existingEmployee;
     }
 
     userData.organization = this._setOrganization(userData.email);
-    const newUser = this.employeeRepository.create(userData);
-    const employee = await this.employeeRepository.save(newUser);
-    const user = await this.getUserId(userData.email);
+    const newEmployee = this.employeeRepository.create(userData);
+    const employee = await this.employeeRepository.save(newEmployee);
+    const user = await this.getUserId(userData); // It will add new user record if not exist.
     const empUser: EmployeeUser = {
       ...employee,
       user_id: user ? user.id : null,
@@ -62,13 +69,28 @@ export class EmployeeService {
       .createQueryBuilder(EmployeeEntity, 'employee')
       .select('employee.*')
       .addSelect('users.id', 'user_id')
+      .addSelect('ha_pcn.id', 'ha_pcn_id')
       .leftJoin('ien_users', 'users', 'employee.email = users.email')
+      .leftJoin('ien_ha_pcn', 'ha_pcn', 'employee.organization = ha_pcn.title')
       .where('employee.keycloak_id = :keyclock', { keyclock: keycloakId }) // WHERE t3.event = 2019
       .getRawOne();
   }
 
-  async getUserId(email: string | undefined): Promise<IENUsers | undefined> {
-    return this.ienUsersRepository.findOne({ email });
+  async getUserId(userData: Partial<EmployeeEntity>): Promise<IENUsers | undefined> {
+    await this._upsertUser(userData);
+    return this.ienUsersRepository.findOne({ email: userData.email });
+  }
+
+  async _upsertUser(userData: Partial<EmployeeEntity>): Promise<void> {
+    if (userData.email) {
+      await this.ienUsersRepository.upsert(
+        {
+          email: userData.email,
+          name: userData.name,
+        },
+        ['email'],
+      );
+    }
   }
 
   _nameSearchQuery(keyword: string) {
