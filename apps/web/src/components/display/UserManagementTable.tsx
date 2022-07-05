@@ -56,19 +56,19 @@ export const UserManagementTable = (props: UserManagementProps) => {
   };
 
   const getStatus = (user: EmployeeRO) => {
-    if (user.roles.length === 0) return 'None';
+    if (!user.roles?.length) return 'None';
     if (user.revoked_access_date) return 'Revoked';
     return 'Active';
   };
 
   const getStatusClass = (user: EmployeeRO): string => {
-    if (user.roles.length === 0) return 'None';
+    if (!user.roles?.length) return 'None';
     if (user.revoked_access_date) return 'text-bcRedError';
     return 'text-bcGreenSuccess';
   };
 
   const getButton = (employee: EmployeeRO, index: number) => {
-    if (employee.roles.some(role => role.name === ValidRoles.ROLEADMIN)) return '';
+    if (employee.roles?.some(role => role.name === ValidRoles.ROLEADMIN)) return '';
     const revoked = employee.revoked_access_date;
     if (loadingIndex === index) {
       return <Spinner className='h-8 ml-12' relative />;
@@ -122,7 +122,7 @@ export const UserManagementTable = (props: UserManagementProps) => {
                 <td className='px-6'>{employee.email}</td>
                 <td className='px-6'>{employee.createdDate && formatDate(employee.createdDate)}</td>
                 <td className='px-6'>
-                  {employee.roles.map(({ name }) => name.toUpperCase()).join(',')}
+                  {employee.roles?.map(({ name }) => name.toUpperCase()).join(',')}
                 </td>
                 <td className={`px-6 text-center ${getStatusClass(employee)}`}>
                   {getStatus(employee)}
