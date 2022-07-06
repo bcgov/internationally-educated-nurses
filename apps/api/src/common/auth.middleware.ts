@@ -36,7 +36,6 @@ export class AuthenticationMiddleware implements NestMiddleware {
 
       req.user = await this.employeeService.resolveUser(user.sub, {
         keycloakId: user.sub,
-        role: 'pending',
         name: user.preferred_username,
         email: user.email,
       });

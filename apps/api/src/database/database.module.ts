@@ -14,11 +14,12 @@ import { IENStatusReason } from 'src/applicant/entity/ienstatus-reason.entity';
 import { IENUsers } from 'src/applicant/entity/ienusers.entity';
 import { SyncApplicantsAudit } from 'src/applicant/entity/sync-applicants-audit.entity';
 import { EmployeeEntity } from 'src/employee/entity/employee.entity';
-import { FormEntity } from 'src/form/entities/form.entity';
+import { FormEntity } from 'src/form/entity/form.entity';
 import { LoggerOptions } from 'typeorm';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 
 import config from '../ormconfig';
+import { RoleEntity } from '../employee/entity/role.entity';
 
 const getEnvironmentSpecificConfig = (env?: string) => {
   switch (env) {
@@ -37,6 +38,7 @@ const getEnvironmentSpecificConfig = (env?: string) => {
         database: process.env.TEST_POSTGRES_DATABASE,
         entities: [
           EmployeeEntity,
+          RoleEntity,
           FormEntity,
           IENApplicant,
           IENApplicantAudit,
