@@ -52,9 +52,9 @@ export class IENApplicantCreateUpdateAPIDTO extends IENApplicantCreateUpdateDTO 
     format: 'date',
     pattern: 'YYYY-MM-DD',
   })
-  @IsDateString()
+  @IsDateString({}, { message: 'Must be a valid Date' })
   @IsOptional()
-  registration_date?: Date;
+  registration_date?: string;
 
   @ApiPropertyOptional({
     description: 'Assigned Applicant to',

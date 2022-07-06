@@ -30,9 +30,9 @@ export class IENApplicantCreateUpdateDTO {
   @Length(1, 256, { message: 'Please provide applicant phone' })
   phone_number?: string;
 
-  @IsDateString()
+  @IsDateString({}, { message: 'Must be a valid Date' })
   @IsOptional()
-  registration_date?: Date;
+  registration_date?: string;
 
   @IsArray()
   @IsOptional()

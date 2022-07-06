@@ -69,9 +69,12 @@ export function getSelectStyleOverride<T extends StyleOption>(
       padding: '10px 20px',
       background: isDisabled ? 'rgb(215, 215, 215)' : 'white',
       color: 'black',
+      '&:hover': {
+        background: '#F2F2F2',
+      },
       ...data?.style,
     }),
-    menuList: styles => ({ ...styles, maxHeight: '380px' }),
+    menuList: styles => ({ ...styles, maxHeight: '350px' }),
     menu: styles => ({ ...styles, padding: '5px 10px' }),
     placeholder: styles => ({ ...styles, color: '#606060' }),
   };
