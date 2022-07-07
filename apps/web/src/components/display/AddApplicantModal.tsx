@@ -36,50 +36,24 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
     setAddEducationFields(false);
   };
 
-  // const initialValues: any = {
-  //   first_name: '',
-  //   last_name: '',
-  //   email_address: '',
-  //   phone_number: '',
-  //   registration_date: '',
-  //   country_of_citizenship: [],
-  //   country_of_residence: '',
-  //   pr_status: '',
-  //   nursing_educations: [],
-  //   is_open: true,
-  // };
-
   const initialValues: any = {
-    first_name: 'Jacob',
-    last_name: 'Wacob',
-    email_address: 'asd@dsa.ca',
+    first_name: '',
+    last_name: '',
+    email_address: '',
     phone_number: '1233211234',
-    registration_date: '2022-01-01',
+    registration_date: '',
     country_of_citizenship: [],
-    country_of_residence: 'ca',
-    pr_status: 'PR',
+    country_of_residence: '',
+    pr_status: '',
     nursing_educations: [],
     is_open: true,
   };
 
-  // const initialValues2: IENApplicantCreateUpdateDTO = {
-  //   first_name: 'Jacob',
-  //   last_name: 'Wacob',
-  //   email_address: 'asd@dsa.ca',
-  //   phone_number: '1233211234',
-  //   registration_date: '',
-  //   country_of_citizenship: [],
-  //   country_of_residence: 'ca',
-  //   pr_status: 'PR',
-  //   nursing_educations: [],
-  //   is_open: true,
-  // };
-
   const getCountries = (): RecordTypeOptions[] => {
     return Object.keys(isoCountries).map((key: string, index: number) => ({
       id: index + 1,
+      countryCode: key.toLowerCase(),
       title: isoCountries[key as keyof typeof isoCountries].name,
-      // title: key,
     }));
   };
 
@@ -102,11 +76,6 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
 
   const showEducationFields = () => {
     setAddEducationFields(true);
-  };
-
-  // testing purposes
-  const getEducationTitle = (name: number) => {
-    return educationTitles.find(t => t.id == name)?.title;
   };
 
   return (
@@ -140,18 +109,18 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
                   component={({ field, form }: FieldProps) => (
                     <ReactSelect<RecordTypeOptions, true>
                       inputId={field.name}
-                      value={getCountries().filter(c => field.value.includes(c.id))}
+                      value={getCountries().filter(c => field.value.includes(c.countryCode))}
                       onBlur={field.onBlur}
                       onChange={value =>
                         form.setFieldValue(
                           field.name,
-                          value.map(v => v.id),
+                          value.map(v => v.countryCode),
                         )
                       }
                       options={getCountries()}
-                      isOptionDisabled={option => field.value.includes(option.id)}
+                      isOptionDisabled={option => field.value.includes(option.countryCode)}
                       getOptionLabel={option => `${option.title}`}
-                      getOptionValue={option => `${option.id}`}
+                      getOptionValue={option => `${option.countryCode}`}
                       styles={getSelectStyleOverride<RecordTypeOptions>()}
                       menuPlacement='auto'
                       isMulti
@@ -166,11 +135,11 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
                   component={({ field, form }: FieldProps) => (
                     <ReactSelect<RecordTypeOptions>
                       inputId={field.name}
-                      value={getCountries().find(s => s.id == field.value)}
+                      value={getCountries().find(s => s.countryCode == field.value)}
                       onBlur={field.onBlur}
-                      onChange={value => form.setFieldValue(field.name, `${value?.id}`)}
+                      onChange={value => form.setFieldValue(field.name, `${value?.countryCode}`)}
                       options={getCountries()}
-                      isOptionDisabled={o => o.id == field.value}
+                      isOptionDisabled={o => o.countryCode == field.value}
                       getOptionLabel={option => `${option.title}`}
                       styles={getSelectStyleOverride<RecordTypeOptions>()}
                       menuPlacement='auto'
@@ -185,11 +154,11 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
                   component={({ field, form }: FieldProps) => (
                     <ReactSelect<RecordTypeOptions>
                       inputId={field.name}
-                      value={prStatus.find(s => s.id == field.value)}
+                      value={prStatus.find(s => s.title == field.value)}
                       onBlur={field.onBlur}
-                      onChange={value => form.setFieldValue(field.name, `${value?.id}`)}
+                      onChange={value => form.setFieldValue(field.name, `${value?.title}`)}
                       options={prStatus}
-                      isOptionDisabled={o => o.id == field.value}
+                      isOptionDisabled={o => o.title == field.value}
                       getOptionLabel={option => `${option.title}`}
                       styles={getSelectStyleOverride<RecordTypeOptions>()}
                       menuPlacement='auto'
@@ -205,13 +174,12 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
                       <ul className='list-decimal my-2 pl-4'>
                         {values.nursing_educations.map(({ name, year, index }: any) => (
                           <li className='text-sm text-bcBlack' key={index}>
-                            {getEducationTitle(name)} &nbsp;-&nbsp; {year}
+                            {name} &nbsp;-&nbsp; {year}
                           </li>
                         ))}
                       </ul>
                     </div>
                   )}
-                  {/* <pre>{JSON.stringify(values.nursing_educations, null, 2)}</pre> */}
                   <FieldArray name='nursing_educations'>
                     {({ push }) => (
                       <div className='grid grid-cols-4 gap-4'>
@@ -222,12 +190,15 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
                             component={({ field, form }: FieldProps) => (
                               <ReactSelect<RecordTypeOptions>
                                 inputId={field.name}
-                                value={educationTitles.find(s => s.id == field.value)}
+                                value={educationTitles.find(s => s.title == field.value)}
                                 onBlur={field.onBlur}
-                                onChange={value => form.setFieldValue(field.name, `${value?.id}`)}
+                                onChange={value =>
+                                  form.setFieldValue(field.name, `${value?.title}`)
+                                }
                                 options={educationTitles}
                                 isOptionDisabled={o => o.id == field.value}
                                 getOptionLabel={option => `${option.title}`}
+                                getOptionValue={option => `${option.title}`}
                                 styles={getSelectStyleOverride<RecordTypeOptions>()}
                                 menuPlacement='auto'
                               />
@@ -244,11 +215,13 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
                             component={({ field, form }: FieldProps) => (
                               <ReactSelect<RecordTypeOptions>
                                 inputId={field.name}
-                                value={getCountries().find(s => s.id == field.value)}
+                                value={getCountries().find(s => s.countryCode == field.value)}
                                 onBlur={field.onBlur}
-                                onChange={value => form.setFieldValue(field.name, `${value?.id}`)}
+                                onChange={value =>
+                                  form.setFieldValue(field.name, `${value?.countryCode}`)
+                                }
                                 options={getCountries()}
-                                isOptionDisabled={o => o.id == field.value}
+                                isOptionDisabled={o => o.countryCode == field.value}
                                 getOptionLabel={option => `${option.title}`}
                                 styles={getSelectStyleOverride<RecordTypeOptions>()}
                                 menuPlacement='top'

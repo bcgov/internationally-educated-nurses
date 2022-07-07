@@ -6,6 +6,7 @@ import { StyleOption } from './constants/roles.constants';
 
 export interface RecordTypeOptions extends StyleOption {
   id: number;
+  countryCode?: string;
   title: string;
 }
 
