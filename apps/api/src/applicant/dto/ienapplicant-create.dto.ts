@@ -7,8 +7,13 @@ import {
   IsObject,
   IsBoolean,
   IsArray,
+  IsNotEmpty,
+  ArrayNotEmpty,
+  IsEmail,
+  IsPhoneNumber,
+  ValidateNested,
 } from 'class-validator';
-import { IENApplicantCreateUpdateDTO } from '@ien/common';
+import { IENApplicantCreateUpdateDTO, NursingEducationDTO } from '@ien/common';
 
 export class IENApplicantCreateUpdateAPIDTO extends IENApplicantCreateUpdateDTO {
   @ApiProperty({ description: 'Applicant First Name', default: 'Mark' })
@@ -32,17 +37,17 @@ export class IENApplicantCreateUpdateAPIDTO extends IENApplicantCreateUpdateDTO 
     description: 'Applicant email address',
     default: 'mark.bowill@mailinator.com',
   })
-  @IsOptional()
-  @IsString()
-  @Length(1, 256, { message: 'Please provide applicant email' })
-  email_address?: string;
+  @IsEmail({}, { message: 'Must be a valid Email' })
+  @Length(1, 256)
+  @IsNotEmpty({ message: 'Email is required' })
+  email_address!: string;
 
   @ApiPropertyOptional({
     description: 'Applicant phone number',
     default: '77-555-1234',
   })
   @IsOptional()
-  @IsString()
+  @IsPhoneNumber(undefined, { message: 'Must be a valid Phone Number' })
   @Length(1, 18, { message: 'Please provide applicant phone' })
   phone_number?: string;
 
@@ -53,8 +58,8 @@ export class IENApplicantCreateUpdateAPIDTO extends IENApplicantCreateUpdateDTO 
     pattern: 'YYYY-MM-DD',
   })
   @IsDateString({}, { message: 'Must be a valid Date' })
-  @IsOptional()
-  registration_date?: string;
+  @IsNotEmpty({ message: 'Registration Date is required' })
+  registration_date!: string;
 
   @ApiPropertyOptional({
     description: 'Assigned Applicant to',
@@ -65,16 +70,16 @@ export class IENApplicantCreateUpdateAPIDTO extends IENApplicantCreateUpdateDTO 
   assigned_to?: JSON;
 
   @ApiPropertyOptional({ description: 'Applicant citizenship', default: ['ca'] })
-  @IsOptional()
-  country_of_citizenship?: string[] | string;
+  @ArrayNotEmpty({ message: 'Country of Citizenship is required' })
+  country_of_citizenship!: string[] | string;
 
   @ApiPropertyOptional({ description: 'Applicant country of residence', default: 'us' })
-  @IsOptional()
-  country_of_residence?: string;
+  @IsNotEmpty({ message: 'Country of Residence is required' })
+  country_of_residence!: string;
 
   @ApiPropertyOptional({ description: 'Applicant have PR of Canada', default: 'PR' })
-  @IsOptional()
-  pr_status?: string;
+  @IsNotEmpty({ message: 'Permanent Residence Status is required' })
+  pr_status!: string;
 
   @ApiPropertyOptional({
     description: 'Nursing educations',
@@ -84,8 +89,9 @@ export class IENApplicantCreateUpdateAPIDTO extends IENApplicantCreateUpdateDTO 
     ],
   })
   @IsArray()
-  @IsOptional()
-  nursing_educations?: JSON;
+  @ValidateNested({ each: true })
+  @ArrayNotEmpty({ message: 'Education is required' })
+  nursing_educations!: NursingEducationDTO[];
 
   @ApiPropertyOptional({ description: 'Applicant bccnm license number', default: '545432A' })
   @IsOptional()
