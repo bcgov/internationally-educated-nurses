@@ -31,9 +31,9 @@ import { IENApplicantFilterAPIDTO } from './dto/ienapplicant-filter.dto';
 import { QueryFailedError } from 'typeorm';
 import { IENApplicantUpdateStatusAPIDTO } from './dto/ienapplicant-update-status.dto';
 import { IENApplicantJobCreateUpdateAPIDTO } from './dto/ienapplicant-job-create.dto';
-import { ApplicantJobRO, ApplicantRO, ApplicantStatusAuditRO, ValidRoles } from '@ien/common';
+import { Access, ApplicantJobRO, ApplicantRO, ApplicantStatusAuditRO } from '@ien/common';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { RouteAcceptsRoles } from 'src/common/decorators';
+import { AllowAccess } from 'src/common/decorators';
 import { IENApplicantJobQueryDTO } from './dto/ienapplicant-job-filter.dto';
 import { RequestObj } from 'src/common/interface/RequestObj';
 
@@ -51,8 +51,8 @@ export class IENApplicantController {
   })
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
-  @RouteAcceptsRoles(ValidRoles.HEALTH_AUTHORITY, ValidRoles.HEALTH_MATCH)
   @HttpCode(HttpStatus.OK)
+  @AllowAccess(Access.APPLICANT_READ)
   @Get('/')
   async getApplicants(
     @Req() req: RequestObj,
@@ -71,8 +71,8 @@ export class IENApplicantController {
   })
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
-  @RouteAcceptsRoles(ValidRoles.HEALTH_AUTHORITY, ValidRoles.HEALTH_MATCH)
   @HttpCode(HttpStatus.OK)
+  @AllowAccess(Access.APPLICANT_READ)
   @Get('/:id')
   async getApplicant(
     @Param('id') id: string,
@@ -97,7 +97,7 @@ export class IENApplicantController {
   })
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiResponse({ status: HttpStatus.CREATED, type: EmptyResponse })
-  @RouteAcceptsRoles(ValidRoles.HEALTH_AUTHORITY, ValidRoles.HEALTH_MATCH)
+  @AllowAccess(Access.APPLICANT_WRITE)
   @HttpCode(HttpStatus.CREATED)
   @Post('/')
   async addApplicant(@Body() addApplicant: IENApplicantCreateUpdateAPIDTO): Promise<ApplicantRO> {
@@ -120,7 +120,7 @@ export class IENApplicantController {
     summary: 'Update applicant information',
   })
   @UseInterceptors(ClassSerializerInterceptor)
-  @RouteAcceptsRoles(ValidRoles.HEALTH_AUTHORITY, ValidRoles.HEALTH_MATCH)
+  @AllowAccess(Access.APPLICANT_WRITE)
   @Patch('/:id')
   async updateApplicant(
     @Param('id') id: string,
@@ -145,7 +145,7 @@ export class IENApplicantController {
     summary: 'Add applicant milestone/status',
   })
   @UseInterceptors(ClassSerializerInterceptor)
-  @RouteAcceptsRoles(ValidRoles.HEALTH_AUTHORITY, ValidRoles.HEALTH_MATCH)
+  @AllowAccess(Access.APPLICANT_WRITE)
   @Post('/:id/status')
   async addApplicantStatus(
     @Req() req: RequestObj,
@@ -172,7 +172,7 @@ export class IENApplicantController {
   })
   @UseInterceptors(ClassSerializerInterceptor)
   @Patch('/:id/status/:status_id')
-  @RouteAcceptsRoles(ValidRoles.HEALTH_AUTHORITY, ValidRoles.HEALTH_MATCH)
+  @AllowAccess(Access.APPLICANT_WRITE)
   async updateApplicantStatus(
     @Req() req: RequestObj,
     @Param('id') _id: string,
@@ -199,7 +199,7 @@ export class IENApplicantController {
   })
   @UseInterceptors(ClassSerializerInterceptor)
   @Delete('/:id/status/:status_id')
-  @RouteAcceptsRoles(ValidRoles.HEALTH_AUTHORITY, ValidRoles.HEALTH_MATCH)
+  @AllowAccess(Access.APPLICANT_WRITE)
   async deleteApplicantStatus(
     @Req() req: RequestObj,
     @Param('id') _id: string,
@@ -220,7 +220,7 @@ export class IENApplicantController {
     summary: 'Add applicant job record',
   })
   @UseInterceptors(ClassSerializerInterceptor)
-  @RouteAcceptsRoles(ValidRoles.HEALTH_AUTHORITY, ValidRoles.HEALTH_MATCH)
+  @AllowAccess(Access.APPLICANT_WRITE)
   @Post('/:id/job')
   async addApplicantJob(
     @Param('id') id: string,
@@ -251,7 +251,7 @@ export class IENApplicantController {
   })
   @UseInterceptors(ClassSerializerInterceptor)
   @Get('/job/:job_id')
-  @RouteAcceptsRoles(ValidRoles.HEALTH_AUTHORITY, ValidRoles.HEALTH_MATCH)
+  @AllowAccess(Access.APPLICANT_READ)
   async getJob(@Param('job_id') job_id: string): Promise<ApplicantJobRO | undefined> {
     return this.ienapplicantService.getApplicantJob(job_id);
   }
@@ -261,7 +261,7 @@ export class IENApplicantController {
   })
   @UseInterceptors(ClassSerializerInterceptor)
   @Put('/:id/job/:job_id')
-  @RouteAcceptsRoles(ValidRoles.HEALTH_AUTHORITY, ValidRoles.HEALTH_MATCH)
+  @AllowAccess(Access.APPLICANT_WRITE)
   async updateApplicantJob(
     @Param('id') id: string,
     @Param('job_id') job_id: string,
@@ -293,7 +293,7 @@ export class IENApplicantController {
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
   @HttpCode(HttpStatus.OK)
-  @RouteAcceptsRoles(ValidRoles.HEALTH_AUTHORITY, ValidRoles.HEALTH_MATCH)
+  @AllowAccess(Access.APPLICANT_READ)
   @Get('/:id/jobs')
   async getApplicantJobs(
     @Param('id') id: string,

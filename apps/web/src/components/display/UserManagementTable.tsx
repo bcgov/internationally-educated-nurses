@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 
-import { EmployeeRO, formatDate, ValidRoles } from '@ien/common';
+import { Access, EmployeeRO, formatDate, hasAccess } from '@ien/common';
 import { activateUser, revokeAccess, updateRole } from '@services';
 import { Button } from '@components';
 import { Spinner } from '../Spinner';
@@ -68,7 +68,7 @@ export const UserManagementTable = (props: UserManagementProps) => {
   };
 
   const getButton = (employee: EmployeeRO, index: number) => {
-    if (employee.roles?.some(role => role.name === ValidRoles.ROLEADMIN)) return '';
+    if (hasAccess(employee.roles, [Access.USER_WRITE])) return '';
     const revoked = employee.revoked_access_date;
     if (loadingIndex === index) {
       return <Spinner className='h-8 ml-12' relative />;
@@ -121,9 +121,7 @@ export const UserManagementTable = (props: UserManagementProps) => {
                 <td className='pl-6 py-5'>{employee.name}</td>
                 <td className='px-6'>{employee.email}</td>
                 <td className='px-6'>{employee.createdDate && formatDate(employee.createdDate)}</td>
-                <td className='px-6'>
-                  {employee.roles?.map(({ name }) => name.toUpperCase()).join(',')}
-                </td>
+                <td className='px-6'>{employee.roles?.map(({ name }) => name).join(',')}</td>
                 <td className={`px-6 text-center ${getStatusClass(employee)}`}>
                   {getStatus(employee)}
                 </td>

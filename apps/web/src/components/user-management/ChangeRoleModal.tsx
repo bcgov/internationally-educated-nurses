@@ -1,6 +1,6 @@
 import React, { ChangeEvent, useState } from 'react';
 import { Modal } from '../Modal';
-import { EmployeeRO, ValidRoles } from '@ien/common';
+import { EmployeeRO } from '@ien/common';
 import ReactSelect from 'react-select';
 import { ChangeRoleOption, getRoleSelectOptions, useRoles } from '@services';
 import { Button, getSelectStyleOverride } from '@components';
@@ -9,7 +9,7 @@ import closeIcon from '@assets/img/close.svg';
 interface ChangeRoleModalProps {
   open: boolean;
   user: EmployeeRO | null;
-  submit: (user: EmployeeRO, role: ValidRoles | string) => void;
+  submit: (user: EmployeeRO, role: string) => void;
   revoke: (user: EmployeeRO) => void;
   closeModal: () => void;
 }
@@ -33,7 +33,7 @@ export const ChangeRoleModal = ({
 }: ChangeRoleModalProps) => {
   const roles = useRoles();
   const roleOptions = getRoleSelectOptions(roles || []);
-  const [role, setRole] = useState<ValidRoles | string>('');
+  const [role, setRole] = useState<string>('');
   const [confirmText, setConfirmText] = useState('');
 
   const reset = () => {

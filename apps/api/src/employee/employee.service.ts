@@ -2,7 +2,7 @@ import { EmployeeFilterAPIDTO } from './dto/employee-filter.dto';
 import { BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Not, IsNull, Repository, getManager } from 'typeorm';
-import { EmailDomains, ValidRoles } from '@ien/common';
+import { EmailDomains, RoleSlug } from '@ien/common';
 import { EmployeeEntity } from './entity/employee.entity';
 import { IENUsers } from 'src/applicant/entity/ienusers.entity';
 import { EmployeeUser } from 'src/common/interface/EmployeeUser';
@@ -38,7 +38,7 @@ export class EmployeeService {
 
     userData.organization = this._setOrganization(userData.email);
     const newUser = this.employeeRepository.create(userData);
-    const pending = await this.roleRepository.findOne({ name: ValidRoles.PENDING });
+    const pending = await this.roleRepository.findOne({ slug: RoleSlug.Pending });
     if (pending) {
       newUser.roles = [pending];
     }
@@ -161,7 +161,7 @@ export class EmployeeService {
         throw new BadRequestException(`Provided role does not exist`);
       }
     });
-    if (roles.find(role => role.name === ValidRoles.ROLEADMIN)) {
+    if (roles.find(role => role.slug === RoleSlug.Admin)) {
       throw new BadRequestException(`ROLE-ADMIN is only assigned in the database.`);
     }
 

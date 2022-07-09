@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { menuBarTabs } from '@services';
 import { useAuthContext } from './AuthContexts';
 import { LastSyncBar } from '@components';
-import { ValidRoles } from '@ien/common';
+import { hasAccess, RoleSlug } from '@ien/common';
 
 export const MenuBar: React.FC = () => {
   const router = useRouter();
@@ -14,7 +14,7 @@ export const MenuBar: React.FC = () => {
 
   const isAuthorized = () => {
     if (!authUser?.roles?.length) return false;
-    return authUser.roles.every(({ name }) => name !== ValidRoles.PENDING);
+    return authUser.roles.every(({ slug }) => slug !== RoleSlug.Pending);
   };
 
   if (!isAuthorized()) return <></>;
@@ -25,10 +25,7 @@ export const MenuBar: React.FC = () => {
         <div className='relative flex flex-grow w-full justify-between items-center'>
           <div className='layout-grid gap-0 h-full flex flex-row items-center align-center'>
             {menuBarTabs
-              .filter(
-                menu =>
-                  authUser && authUser.roles?.some(role => menu.roles.some(v => v === role.name)),
-              )
+              .filter(menu => hasAccess(authUser?.roles, menu.acl))
               .map(({ title, paths, defaultPath }) => (
                 <Link key={title} href={defaultPath}>
                   <a

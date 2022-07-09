@@ -20,6 +20,7 @@ import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConne
 
 import config from '../ormconfig';
 import { RoleEntity } from '../employee/entity/role.entity';
+import { AccessEntity } from '../employee/entity/acl.entity';
 
 const getEnvironmentSpecificConfig = (env?: string) => {
   switch (env) {
@@ -39,6 +40,7 @@ const getEnvironmentSpecificConfig = (env?: string) => {
         entities: [
           EmployeeEntity,
           RoleEntity,
+          AccessEntity,
           FormEntity,
           IENApplicant,
           IENApplicantAudit,

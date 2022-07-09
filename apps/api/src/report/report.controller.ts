@@ -1,10 +1,10 @@
 import { Controller, Get, Inject, Logger, Query, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ReportPeriodDTO, ValidRoles } from '@ien/common';
+import { Access, ReportPeriodDTO } from '@ien/common';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { RouteAcceptsRoles } from 'src/common/decorators';
 import { ReportService } from './report.service';
 import { AppLogger } from 'src/common/logger.service';
+import { AllowAccess } from 'src/common/decorators';
 
 @Controller('reports')
 @ApiTags('IEN Reports')
@@ -17,11 +17,7 @@ export class ReportController {
 
   @ApiOperation({ summary: 'Report 2: Applicants nursing education country' })
   @Get('/applicant/education-country')
-  @RouteAcceptsRoles(
-    ValidRoles.HEALTH_AUTHORITY,
-    ValidRoles.HEALTH_MATCH,
-    ValidRoles.MINISTRY_OF_HEALTH,
-  )
+  @AllowAccess(Access.REPORTING)
   async getCountryWiseApplicantList(
     @Query('from') from: string,
     @Query('to') to: string,
@@ -31,11 +27,7 @@ export class ReportController {
 
   @ApiOperation({ summary: 'Report 1: List report periods within the given time range' })
   @Get('/applicant/registered')
-  @RouteAcceptsRoles(
-    ValidRoles.HEALTH_AUTHORITY,
-    ValidRoles.HEALTH_MATCH,
-    ValidRoles.MINISTRY_OF_HEALTH,
-  )
+  @AllowAccess(Access.REPORTING)
   async getRegisteredApplicantList(
     @Query('from') from: string,
     @Query('to') to: string,
@@ -45,11 +37,7 @@ export class ReportController {
 
   @ApiOperation({ summary: 'Report 3: hired-withdrawn-active applicants' })
   @Get('/applicant/hired-withdrawn-active')
-  @RouteAcceptsRoles(
-    ValidRoles.HEALTH_AUTHORITY,
-    ValidRoles.HEALTH_MATCH,
-    ValidRoles.MINISTRY_OF_HEALTH,
-  )
+  @AllowAccess(Access.REPORTING)
   async getHiredWithdrawnActiveApplicants(
     @Query('from') from: string,
     @Query('to') to: string,
@@ -59,11 +47,7 @@ export class ReportController {
 
   @ApiOperation({ summary: 'Report 4: licensing stage applicants' })
   @Get('/applicant/licensing-stage')
-  @RouteAcceptsRoles(
-    ValidRoles.HEALTH_AUTHORITY,
-    ValidRoles.HEALTH_MATCH,
-    ValidRoles.MINISTRY_OF_HEALTH,
-  )
+  @AllowAccess(Access.REPORTING)
   async getLicensingStageApplicants(
     @Query('from') from: string,
     @Query('to') to: string,
@@ -73,11 +57,7 @@ export class ReportController {
 
   @ApiOperation({ summary: 'Report 5: Applicants eligible for job search' })
   @Get('/applicant/license')
-  @RouteAcceptsRoles(
-    ValidRoles.HEALTH_AUTHORITY,
-    ValidRoles.HEALTH_MATCH,
-    ValidRoles.MINISTRY_OF_HEALTH,
-  )
+  @AllowAccess(Access.REPORTING)
   async getLicenseApplicants(
     @Query('from') from: string,
     @Query('to') to: string,
@@ -87,11 +67,7 @@ export class ReportController {
 
   @ApiOperation({ summary: 'Report 6: Applicants in Recruitment stage' })
   @Get('/applicant/recruitment')
-  @RouteAcceptsRoles(
-    ValidRoles.HEALTH_AUTHORITY,
-    ValidRoles.HEALTH_MATCH,
-    ValidRoles.MINISTRY_OF_HEALTH,
-  )
+  @AllowAccess(Access.REPORTING)
   async getRecruitmentApplicants(
     @Query('from') from: string,
     @Query('to') to: string,
@@ -101,11 +77,7 @@ export class ReportController {
 
   @ApiOperation({ summary: 'Report 7: Applicants in Immigration stage' })
   @Get('/applicant/immigration')
-  @RouteAcceptsRoles(
-    ValidRoles.HEALTH_AUTHORITY,
-    ValidRoles.HEALTH_MATCH,
-    ValidRoles.MINISTRY_OF_HEALTH,
-  )
+  @AllowAccess(Access.REPORTING)
   async getImmigrationApplicants(
     @Query('from') from: string,
     @Query('to') to: string,
@@ -117,11 +89,7 @@ export class ReportController {
     summary: 'Report 8: Number of Internationally Educated Nurse Registrants Working in BC',
   })
   @Get('/applicant/ha-current-period-fiscal')
-  @RouteAcceptsRoles(
-    ValidRoles.HEALTH_AUTHORITY,
-    ValidRoles.HEALTH_MATCH,
-    ValidRoles.MINISTRY_OF_HEALTH,
-  )
+  @AllowAccess(Access.REPORTING)
   async getApplicantHAForCurrentPeriodFiscal(@Query('to') to: string): Promise<object[]> {
     return this.reportService.getApplicantHAForCurrentPeriodFiscal(to);
   }
@@ -130,23 +98,15 @@ export class ReportController {
     summary: 'Report 9: Average Amount of Time with Each Stakeholder Group',
   })
   @Get('/applicant/average-time-with-stackholder-group')
-  @RouteAcceptsRoles(
-    ValidRoles.HEALTH_AUTHORITY,
-    ValidRoles.HEALTH_MATCH,
-    ValidRoles.MINISTRY_OF_HEALTH,
-  )
-  async getAverageTimeWithEachStackholderGroup(@Query('to') to: string): Promise<object[]> {
-    return this.reportService.getAverageTimeWithEachStackholderGroup(to);
+  @AllowAccess(Access.REPORTING)
+  async getAverageTimeWithEachStakeholderGroup(@Query('to') to: string): Promise<object[]> {
+    return this.reportService.getAverageTimeWithEachStakeholderGroup(to);
   }
 
   /** Additional report other than standard 9 reports */
   @ApiOperation({ summary: 'Extract applicant details' })
   @Get('/applicant/extract-data')
-  @RouteAcceptsRoles(
-    ValidRoles.HEALTH_AUTHORITY,
-    ValidRoles.HEALTH_MATCH,
-    ValidRoles.MINISTRY_OF_HEALTH,
-  )
+  @AllowAccess(Access.REPORTING)
   async extractApplicantsData(@Query() dates: ReportPeriodDTO): Promise<object[]> {
     return this.reportService.extractApplicantsData(dates);
   }

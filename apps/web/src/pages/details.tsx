@@ -1,4 +1,4 @@
-import { ValidRoles } from '@ien/common';
+import { Access } from '@ien/common';
 import withAuth from 'src/components/Keycloak';
 import { ApplicantProvider } from '../components/applicant/ApplicantContext';
 import { ApplicantProfile } from '../components/applicant/ApplicantProfile';
@@ -15,8 +15,4 @@ const Details = () => {
   );
 };
 
-export default withAuth(Details, [
-  ValidRoles.HEALTH_MATCH,
-  ValidRoles.HEALTH_AUTHORITY,
-  ValidRoles.ROLEADMIN,
-]);
+export default withAuth(Details, [Access.APPLICANT_READ]);

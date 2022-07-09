@@ -4,7 +4,7 @@ import { UserManagementTable } from 'src/components/display/UserManagementTable'
 import withAuth from 'src/components/Keycloak';
 import { PageOptions, Pagination } from 'src/components/Pagination';
 import { getEmployees } from 'src/services/user-management';
-import { EmployeeRO, ValidRoles } from '@ien/common';
+import { Access, EmployeeRO } from '@ien/common';
 import { UserFilter } from 'src/components/user-management/UserFilter';
 import { SearchEmployee } from 'src/components/SearchEmployee';
 
@@ -122,4 +122,4 @@ const UserManagement = () => {
   );
 };
 
-export default withAuth(UserManagement, [ValidRoles.ROLEADMIN]);
+export default withAuth(UserManagement, [Access.USER_READ, Access.USER_WRITE]);
