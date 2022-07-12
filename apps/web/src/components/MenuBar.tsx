@@ -25,7 +25,7 @@ export const MenuBar: React.FC = () => {
         <div className='relative flex flex-grow w-full justify-between items-center'>
           <div className='layout-grid gap-0 h-full flex flex-row items-center align-center'>
             {menuBarTabs
-              .filter(menu => hasAccess(authUser?.roles, menu.acl))
+              .filter(menu => authUser && hasAccess(authUser.roles, menu.acl))
               .map(({ title, paths, defaultPath }) => (
                 <Link key={title} href={defaultPath}>
                   <a

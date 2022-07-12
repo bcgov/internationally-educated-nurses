@@ -43,11 +43,8 @@ export class EmployeeService {
     }
     await this.employeeRepository.save(employee);
     const user = await this.getUser(userData); // It will add new user record if not exist.
-    const empUser = {
-      ...employee,
-      user_id: user ? user.id : null,
-    };
-    return empUser;
+
+    return { ...employee, user_id: user ? user.id : null };
   }
 
   _getOrganization(email?: string): string | undefined {

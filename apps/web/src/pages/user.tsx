@@ -17,9 +17,7 @@ const User = () => {
   useEffect(
     function loadUser() {
       setUser(null);
-      getEmployee(id).then(user => {
-        setUser(user);
-      });
+      getEmployee(id).then(setUser);
     },
     [id],
   );

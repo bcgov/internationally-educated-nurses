@@ -6,7 +6,7 @@ export const isPending = (roles?: Role[]): boolean => {
   );
 };
 
-export const getPath = (roles?: Role[]): string => {
+export const getPath = (roles: Role[]): string => {
   if (hasAccess(roles, [Access.APPLICANT_READ])) {
     return '/applicants';
   }

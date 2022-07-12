@@ -2,7 +2,7 @@ import { PropsWithChildren, ReactNode } from 'react';
 
 type DetailsItemProps = PropsWithChildren<ReactNode> & {
   title: string;
-  text?: string | undefined | string[];
+  text?: string | string[];
 };
 
 export const DetailsItem: React.FC<DetailsItemProps> = ({ title, text, children }) => {
