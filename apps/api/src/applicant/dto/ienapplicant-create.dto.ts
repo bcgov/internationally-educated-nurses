@@ -10,10 +10,13 @@ import {
   IsNotEmpty,
   ArrayNotEmpty,
   IsEmail,
-  IsPhoneNumber,
+  ArrayMinSize,
   ValidateNested,
+  ValidateIf,
 } from 'class-validator';
 import { IENApplicantCreateUpdateDTO, NursingEducationDTO } from '@ien/common';
+import { Type } from 'class-transformer';
+import 'reflect-metadata';
 
 export class IENApplicantCreateUpdateAPIDTO extends IENApplicantCreateUpdateDTO {
   @ApiProperty({ description: 'Applicant First Name', default: 'Mark' })
@@ -47,7 +50,7 @@ export class IENApplicantCreateUpdateAPIDTO extends IENApplicantCreateUpdateDTO 
     default: '77-555-1234',
   })
   @IsOptional()
-  @IsPhoneNumber(undefined, { message: 'Must be a valid Phone Number' })
+  @IsString()
   @Length(1, 18, { message: 'Please provide applicant phone' })
   phone_number?: string;
 
@@ -89,8 +92,11 @@ export class IENApplicantCreateUpdateAPIDTO extends IENApplicantCreateUpdateDTO 
     ],
   })
   @IsArray()
-  @ValidateNested({ each: true })
+  @ArrayMinSize(1, { message: 'At least 1 Education is required' })
   @ArrayNotEmpty({ message: 'Education is required' })
+  @ValidateIf(e => e.nursing_educations.length > 0)
+  @ValidateNested()
+  @Type(() => NursingEducationDTO)
   nursing_educations!: NursingEducationDTO[];
 
   @ApiPropertyOptional({ description: 'Applicant bccnm license number', default: '545432A' })

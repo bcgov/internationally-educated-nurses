@@ -1,11 +1,11 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 
 export class NursingEducationDTO {
-  constructor(base: NursingEducationDTO) {
-    this.name = base.name;
-    this.year = base.year;
-    this.country = base.country;
-    this.num_years = base.num_years;
+  constructor(name: string, year: string, country: string, num_years: string) {
+    this.name = name;
+    this.year = year;
+    this.country = country;
+    this.num_years = num_years;
   }
 
   @IsString()

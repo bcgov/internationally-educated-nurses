@@ -1,15 +1,14 @@
-import { Formik, Form as FormikForm, FieldArray } from 'formik';
+import { Formik, Form as FormikForm } from 'formik';
 import { Dispatch, SetStateAction } from 'react';
 import ReactSelect from 'react-select';
 import { Disclosure as HeadlessDisclosure, Transition } from '@headlessui/react';
 import createValidator from 'class-validator-formik';
 
-import { Button, Field, FieldProps, getSelectStyleOverride } from '@components';
+import { Button, Field, FieldProps, getSelectStyleOverride, EducationForm } from '@components';
 import { addApplicant, isoCountries, RecordTypeOptions, useGetEducationOptions } from '@services';
 import { Modal } from '../Modal';
 import addIcon from '@assets/img/add.svg';
 import minusIcon from '@assets/img/minus.svg';
-import xDeleteIcon from '@assets/img/x_delete.svg';
 import { ApplicantRO, IENApplicantCreateUpdateDTO, NursingEducationDTO } from '@ien/common';
 
 interface AddApplicantProps {
@@ -19,14 +18,28 @@ interface AddApplicantProps {
   setApplicant: Dispatch<SetStateAction<ApplicantRO[]>>;
 }
 
+const getCountries = (): RecordTypeOptions[] => {
+  return Object.keys(isoCountries).map((key: string, index: number) => ({
+    id: index + 1,
+    countryCode: key.toLowerCase(),
+    title: isoCountries[key as keyof typeof isoCountries].name,
+  }));
+};
+
 export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplicantProps) => {
   const { onClose, visible, applicants, setApplicant } = props;
 
+  const newApplicantValidationSchema = createValidator(IENApplicantCreateUpdateDTO);
+
   const educationTitles = useGetEducationOptions();
 
-  const newApplicantSchema = createValidator(IENApplicantCreateUpdateDTO);
+  const defaultEducationValues: NursingEducationDTO = new NursingEducationDTO('', '', '', '');
 
-  const handleSubmit = async (values: any) => {
+  const handleSubmit = async (values: IENApplicantCreateUpdateDTO) => {
+    values.nursing_educations = values.nursing_educations.filter(v => {
+      return v.name && v.country && v.year && v.num_years;
+    });
+
     const applicant = await addApplicant(values);
 
     if (applicant) {
@@ -39,6 +52,7 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
   const handleClose = () => {
     onClose();
   };
+
   const initialValues: IENApplicantCreateUpdateDTO = {
     first_name: '',
     last_name: '',
@@ -48,23 +62,8 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
     country_of_citizenship: [],
     country_of_residence: '',
     pr_status: '',
-    nursing_educations: [
-      {
-        name: '',
-        year: '',
-        country: '',
-        num_years: '',
-      },
-    ],
+    nursing_educations: [defaultEducationValues],
     is_open: true,
-  };
-
-  const getCountries = (): RecordTypeOptions[] => {
-    return Object.keys(isoCountries).map((key: string, index: number) => ({
-      id: index + 1,
-      countryCode: key.toLowerCase(),
-      title: isoCountries[key as keyof typeof isoCountries].name,
-    }));
   };
 
   // test data - will remove
@@ -80,17 +79,18 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
     { id: 9, title: 'PR' },
   ];
 
-  const getArrayIndex = (arr?: NursingEducationDTO[]) => {
-    return arr ? arr.length - 1 : 0;
-  };
-
   return (
     <Modal open={visible} handleClose={() => void 0}>
       <Modal.Title as='h1' className='text-lg font-bold leading-6 text-bcBlueLink border-b p-4'>
         Add Applicant
       </Modal.Title>
-      <Formik initialValues={initialValues} onSubmit={handleSubmit} validate={newApplicantSchema}>
-        {({ isSubmitting, values }) => (
+      <Formik
+        initialValues={initialValues}
+        onSubmit={handleSubmit}
+        validate={newApplicantValidationSchema}
+        enableReinitialize={true}
+      >
+        {({ isSubmitting, values, errors, setFieldTouched }) => (
           <FormikForm className='overflow-y-auto'>
             <div className='grid grid-cols-4 gap-4 bg-white rounded px-8 pt-6 pb-7'>
               <div className='mb-1 col-span-2'>
@@ -178,7 +178,7 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
                   <HeadlessDisclosure defaultOpen={true}>
                     {({ open }) => (
                       <div className='border border-gray-200 rounded'>
-                        <HeadlessDisclosure.Button className={'w-full px-3'}>
+                        <HeadlessDisclosure.Button className={'w-full px-4'}>
                           <>
                             <div className='flex justify-between py-2'>
                               {values.nursing_educations && values.nursing_educations.length > 1 ? (
@@ -202,37 +202,6 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
                             </div>
                           </>
                         </HeadlessDisclosure.Button>
-                        <FieldArray name='nursing_educations'>
-                          {({ remove }) => (
-                            <div className='flex'>
-                              {values.nursing_educations && values.nursing_educations.length > 1 && (
-                                <ul className='list-none mb-1 pl-3'>
-                                  {values.nursing_educations.map(
-                                    ({ name, year }: NursingEducationDTO, index) => (
-                                      <>
-                                        {name && year && (
-                                          <li
-                                            className='w-max flex items-center text-sm font-bold text-bcGray bg-bcLightGray p-1 my-1 rounded border-bcGray border-2'
-                                            key={name + year}
-                                          >
-                                            {name} &nbsp;-&nbsp; {year}
-                                            <img
-                                              src={xDeleteIcon.src}
-                                              alt='add'
-                                              className='ml-auto pl-2'
-                                              onClick={() => remove(index)}
-                                            />
-                                          </li>
-                                        )}
-                                      </>
-                                    ),
-                                  )}
-                                </ul>
-                              )}
-                            </div>
-                          )}
-                        </FieldArray>
-
                         <Transition
                           enter='transition ease-in duration-500 transform'
                           enterFrom='opacity-0 '
@@ -243,101 +212,12 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
                         >
                           <HeadlessDisclosure.Panel>
                             <div className='p-4'>
-                              <FieldArray name='nursing_educations'>
-                                {({ push }) => (
-                                  <div className='grid grid-cols-4 gap-4'>
-                                    <div className='mb-1 col-span-4'>
-                                      <Field
-                                        name={`nursing_educations[${getArrayIndex(
-                                          values.nursing_educations,
-                                        )}].name`}
-                                        label='Education'
-                                        component={({ field, form }: FieldProps) => (
-                                          <ReactSelect<RecordTypeOptions>
-                                            inputId={field.name}
-                                            value={educationTitles.find(
-                                              s => s.title == field.value,
-                                            )}
-                                            onBlur={field.onBlur}
-                                            onChange={value =>
-                                              form.setFieldValue(field.name, `${value?.title}`)
-                                            }
-                                            options={educationTitles}
-                                            isOptionDisabled={o => o.id == field.value}
-                                            getOptionLabel={option => `${option.title}`}
-                                            getOptionValue={option => `${option.title}`}
-                                            styles={getSelectStyleOverride<RecordTypeOptions>()}
-                                            menuPlacement='auto'
-                                          />
-                                        )}
-                                      />
-                                    </div>
-                                    <div className='mb-1 col-span-2'>
-                                      <Field
-                                        name={`nursing_educations[${getArrayIndex(
-                                          values.nursing_educations,
-                                        )}].year`}
-                                        label='Year'
-                                        type='text'
-                                      />
-                                    </div>
-                                    <div className='mb-1 col-span-2'>
-                                      <Field
-                                        name={`nursing_educations[${getArrayIndex(
-                                          values.nursing_educations,
-                                        )}].country`}
-                                        label='Country'
-                                        component={({ field, form }: FieldProps) => (
-                                          <ReactSelect<RecordTypeOptions>
-                                            inputId={field.name}
-                                            value={getCountries().find(
-                                              s => s.countryCode == field.value,
-                                            )}
-                                            onBlur={field.onBlur}
-                                            onChange={value =>
-                                              form.setFieldValue(
-                                                field.name,
-                                                `${value?.countryCode}`,
-                                              )
-                                            }
-                                            options={getCountries()}
-                                            isOptionDisabled={o => o.countryCode == field.value}
-                                            getOptionLabel={option => `${option.title}`}
-                                            styles={getSelectStyleOverride<RecordTypeOptions>()}
-                                            menuPlacement='top'
-                                          />
-                                        )}
-                                      />
-                                    </div>
-                                    <div className='mb-1 col-span-2'>
-                                      <Field
-                                        name={`nursing_educations[${getArrayIndex(
-                                          values.nursing_educations,
-                                        )}].num_years`}
-                                        label='Number of Years'
-                                        type='text'
-                                      />
-                                    </div>
-                                    <div className='mb-1 col-span-4 flex items-center justify-between'>
-                                      <Button
-                                        className='ml-auto px-7'
-                                        variant='secondary'
-                                        type='button'
-                                        onClick={() => {
-                                          push({
-                                            name: '',
-                                            year: '',
-                                            country: '',
-                                            num_years: '',
-                                          });
-                                        }}
-                                      >
-                                        Add
-                                      </Button>
-                                    </div>
-                                  </div>
-                                )}
-                              </FieldArray>
+                              <EducationForm
+                                nursing_educations={values.nursing_educations}
+                                setFieldTouched={setFieldTouched}
+                                errors={errors.nursing_educations}
+                                educationTitles={educationTitles}
+                              />
                             </div>
                           </HeadlessDisclosure.Panel>
                         </Transition>

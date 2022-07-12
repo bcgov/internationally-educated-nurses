@@ -19,3 +19,4 @@ export * from './form';
 // Folders
 export * from './reporting';
 export * from './display';
+export * from './applicant';

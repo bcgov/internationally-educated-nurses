@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import {
   IsDateString,
   IsOptional,
@@ -8,11 +9,13 @@ import {
   IsArray,
   IsNotEmpty,
   IsEmail,
-  IsPhoneNumber,
   ArrayNotEmpty,
   ValidateNested,
+  ArrayMinSize,
+  ValidateIf,
 } from 'class-validator';
 import { NursingEducationDTO } from './nursing-education.dto';
+import 'reflect-metadata';
 
 export class IENApplicantCreateUpdateDTO {
   @IsString()
@@ -32,7 +35,7 @@ export class IENApplicantCreateUpdateDTO {
   email_address!: string;
 
   @IsOptional()
-  @IsPhoneNumber(undefined, { message: 'Must be a valid Phone Number' })
+  @IsString()
   @Length(1, 256, { message: 'Please provide applicant phone' })
   phone_number?: string;
 
@@ -54,8 +57,11 @@ export class IENApplicantCreateUpdateDTO {
   pr_status!: string;
 
   @IsArray()
-  @ValidateNested({ each: true })
+  @ArrayMinSize(1, { message: 'At least 1 Education is required' })
   @ArrayNotEmpty({ message: 'Education is required' })
+  @ValidateIf(e => e.nursing_educations.length > 0)
+  @ValidateNested()
+  @Type(() => NursingEducationDTO)
   nursing_educations!: NursingEducationDTO[];
 
   @IsOptional()
