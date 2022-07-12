@@ -1,4 +1,3 @@
-import { Exclude } from 'class-transformer';
 import {
   Column,
   CreateDateColumn,
@@ -8,19 +7,19 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Employee } from '@ien/common';
 import { RoleEntity } from './role.entity';
 
 @Entity('employee')
-export class EmployeeEntity {
+export class EmployeeEntity implements Employee {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
   @CreateDateColumn()
-  createdDate!: Date;
+  created_date!: Date;
 
   @UpdateDateColumn()
-  @Exclude()
-  updatedDate!: Date;
+  updated_date!: Date;
 
   @Column('varchar', { length: 128, nullable: false })
   name!: string;

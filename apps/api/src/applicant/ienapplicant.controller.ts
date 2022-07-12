@@ -87,7 +87,7 @@ export class IENApplicantController {
         throw new BadRequestException(e);
       } else {
         // statements to handle any unspecified exceptions
-        throw new InternalServerErrorException('An unknown error occured while adding applicant');
+        throw new InternalServerErrorException('An unknown error occurred while adding applicant');
       }
     }
   }

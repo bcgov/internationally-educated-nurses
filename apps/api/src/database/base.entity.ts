@@ -7,9 +7,9 @@ export class BaseEntity {
 
   @CreateDateColumn()
   @Exclude()
-  createdDate!: Date;
+  created_date!: Date;
 
   @UpdateDateColumn()
   @Exclude()
-  updatedDate!: Date;
+  updated_date!: Date;
 }

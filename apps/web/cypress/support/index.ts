@@ -20,7 +20,6 @@ import { ApplicantRO, IENApplicantAddStatusDTO, IENApplicantJobCreateUpdateDTO }
 declare global {
   namespace Cypress {
     interface Chainable {
-      activate(): void;
       addDuplicateJob(job: IENApplicantJobCreateUpdateDTO): void;
       addJob(job: IENApplicantJobCreateUpdateDTO): void;
       addMilestone(milestone: IENApplicantAddStatusDTO): void;
@@ -28,11 +27,10 @@ declare global {
       deleteMilestone(index: number): void;
       editDuplicateJob(job: IENApplicantJobCreateUpdateDTO): void;
       editJob(job: IENApplicantJobCreateUpdateDTO): void;
-      filterUsers(roles: string[], revokedOnly: boolean): void;
+      filterUsers(roles: string[], revokedOnly?: boolean): void;
       login(username?: string): Chainable<Element>;
       logout(): Chainable<Element>;
       pagination(): void;
-      revokeAccess(index: number): void;
       searchApplicants(name: string): Chainable<Element>;
       searchUsers(name: string): Chainable<Element>;
       tabRecruitment(): void;

@@ -41,9 +41,10 @@ export const getApplicant = async (id: string): Promise<ApplicantRO | undefined>
 };
 
 export const deleteApplicantStatus = async (
-  user_id?: number,
+  user_id?: string | null,
   status_id?: string,
 ): Promise<void> => {
+  if (!user_id) return;
   try {
     await axios.delete(`/ien/${user_id}/status/${status_id}`);
   } catch (e) {

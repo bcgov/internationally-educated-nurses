@@ -6,6 +6,7 @@ import {
   Inject,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
   Patch,
   Query,
   Req,
@@ -18,6 +19,7 @@ import { EmployeeEntity } from './entity/employee.entity';
 import { EmployeeService } from './employee.service';
 import { AppLogger } from 'src/common/logger.service';
 import { RoleEntity } from './entity/role.entity';
+import { EmployeeRO } from '@ien/common';
 
 @Controller('employee')
 @ApiTags('Employee')
@@ -28,9 +30,15 @@ export class EmployeeController {
   ) {}
 
   @UseGuards(AuthGuard)
-  @Get('/:userid')
-  async getEmployee(@Req() req: RequestObj): Promise<EmployeeEntity> {
-    return req.user;
+  @Get()
+  async getEmployee(@Req() req: RequestObj, @Query('id') id: string): Promise<EmployeeRO> {
+    if (!id) return req.user;
+
+    const employee = await this.employeeService.getEmployee(id);
+    if (!employee) {
+      throw new NotFoundException(`User with id '${id}' not found`);
+    }
+    return employee;
   }
 
   /**
@@ -82,11 +90,11 @@ export class EmployeeController {
   })
   @UseGuards(AuthGuard)
   @Patch('/update/role')
-  async updateRole(
+  async updateRoles(
     @Body('id') id: string,
     @Body('role_ids') role_ids: number[],
   ): Promise<EmployeeEntity> {
-    return this.employeeService.updateRole(id, role_ids);
+    return this.employeeService.updateRoles(id, role_ids);
   }
 
   /**

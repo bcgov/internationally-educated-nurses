@@ -1,12 +1,9 @@
-import { useState } from 'react';
-import { toast } from 'react-toastify';
-
-import { Access, EmployeeRO, formatDate, hasAccess } from '@ien/common';
-import { activateUser, revokeAccess, updateRole } from '@services';
-import { Button } from '@components';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { EmployeeRO, formatDate } from '@ien/common';
+import { buttonBase, buttonColor } from '@components';
 import { Spinner } from '../Spinner';
 import { SortButton } from '../SortButton';
-import { ChangeRoleModal } from '../user-management/ChangeRoleModal';
 
 export interface UserManagementProps {
   employees: EmployeeRO[];
@@ -16,44 +13,9 @@ export interface UserManagementProps {
 }
 
 export const UserManagementTable = (props: UserManagementProps) => {
-  const { employees, loading, onSortChange, updateUser } = props;
+  const { employees, loading, onSortChange } = props;
 
-  const [selectedUser, setSelectedUser] = useState<EmployeeRO | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [loadingIndex, setLoadingIndex] = useState(-1);
-
-  const openModal = (user: EmployeeRO) => {
-    setSelectedUser(user);
-    setModalOpen(true);
-  };
-
-  const changeRole = async (user: EmployeeRO, role: string) => {
-    const employee = await updateRole(user.id, [+role]);
-    if (employee) {
-      updateUser(employee);
-      toast.success('User role was successfully updated');
-    }
-    setModalOpen(false);
-  };
-
-  const revoke = async (user: EmployeeRO) => {
-    const res = await revokeAccess(user.id);
-    if (res) {
-      updateUser(res);
-    }
-    toast.success('User access has been revoked.');
-    setModalOpen(false);
-  };
-
-  const activate = async (user: EmployeeRO, index: number) => {
-    setLoadingIndex(index);
-    const res = await activateUser(user.id);
-    if (res) {
-      updateUser(res);
-      toast.success('User has been activated.');
-    }
-    setLoadingIndex(-1);
-  };
+  const router = useRouter();
 
   const getStatus = (user: EmployeeRO) => {
     if (!user.roles?.length) return 'None';
@@ -63,24 +25,25 @@ export const UserManagementTable = (props: UserManagementProps) => {
 
   const getStatusClass = (user: EmployeeRO): string => {
     if (!user.roles?.length) return 'None';
-    if (user.revoked_access_date) return 'text-bcRedError';
+    if (user.revoked_access_date) return 'text-bcDarkRed';
     return 'text-bcGreenSuccess';
   };
 
   const getButton = (employee: EmployeeRO, index: number) => {
-    if (hasAccess(employee.roles, [Access.USER_WRITE])) return '';
-    const revoked = employee.revoked_access_date;
-    if (loadingIndex === index) {
-      return <Spinner className='h-8 ml-12' relative />;
-    }
     return (
-      <Button
-        variant='outline'
-        className='border-bcGray text-bcGray w-32'
-        onClick={() => (revoked ? activate(employee, index) : openModal(employee))}
+      <Link
+        href={{
+          pathname: `/user`,
+          query: { ...router?.query, id: employee.id },
+        }}
       >
-        {revoked ? 'Activate' : 'Change Role'}
-      </Button>
+        <a
+          className={`px-4 ${buttonColor.outline} ${buttonBase} text-bcGray`}
+          id={`details-${index}`}
+        >
+          Details
+        </a>
+      </Link>
     );
   };
 
@@ -94,7 +57,7 @@ export const UserManagementTable = (props: UserManagementProps) => {
             </th>
             <th className='px-6'>Email Address</th>
             <th className='px-6' scope='col'>
-              <SortButton label='Created On' sortKey='createdDate' onChange={onSortChange} />
+              <SortButton label='Created On' sortKey='created_date' onChange={onSortChange} />
             </th>
             <th className='px-6' scope='col'>
               <SortButton label='Role' sortKey='role' onChange={onSortChange} />
@@ -120,7 +83,9 @@ export const UserManagementTable = (props: UserManagementProps) => {
               >
                 <td className='pl-6 py-5'>{employee.name}</td>
                 <td className='px-6'>{employee.email}</td>
-                <td className='px-6'>{employee.createdDate && formatDate(employee.createdDate)}</td>
+                <td className='px-6'>
+                  {employee.created_date && formatDate(employee.created_date)}
+                </td>
                 <td className='px-6'>{employee.roles?.map(({ name }) => name).join(',')}</td>
                 <td className={`px-6 text-center ${getStatusClass(employee)}`}>
                   {getStatus(employee)}
@@ -131,13 +96,6 @@ export const UserManagementTable = (props: UserManagementProps) => {
           )}
         </tbody>
       </table>
-      <ChangeRoleModal
-        open={modalOpen}
-        user={selectedUser}
-        submit={changeRole}
-        revoke={revoke}
-        closeModal={() => setModalOpen(false)}
-      />
     </div>
   );
 };

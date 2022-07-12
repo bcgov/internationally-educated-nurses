@@ -2,10 +2,9 @@ import { EmployeeFilterAPIDTO } from './dto/employee-filter.dto';
 import { BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Not, IsNull, Repository, getManager } from 'typeorm';
-import { EmailDomains, RoleSlug } from '@ien/common';
+import { EmailDomains, EmployeeRO, RoleSlug } from '@ien/common';
 import { EmployeeEntity } from './entity/employee.entity';
 import { IENUsers } from 'src/applicant/entity/ienusers.entity';
-import { EmployeeUser } from 'src/common/interface/EmployeeUser';
 import { RoleEntity } from './entity/role.entity';
 
 export class EmployeeService {
@@ -18,17 +17,17 @@ export class EmployeeService {
     private roleRepository: Repository<RoleEntity>,
   ) {}
 
-  async resolveUser(keycloakId: string, userData: Partial<EmployeeEntity>): Promise<EmployeeUser> {
+  async resolveUser(keycloakId: string, userData: Partial<EmployeeEntity>): Promise<EmployeeRO> {
     const existingEmployee = await this.getUserByKeycloakId(keycloakId);
     if (existingEmployee) {
-      const org = this._setOrganization(existingEmployee.email);
+      const org = this._getOrganization(existingEmployee.email);
 
       if (org) {
         await this.employeeRepository.update(existingEmployee.id, { organization: org });
       }
       if (existingEmployee.email && !existingEmployee.user_id) {
         // It will add missing entry in user's table
-        const tempUser = await this.getUser(existingEmployee);
+        const tempUser = await this.getUser(existingEmployee as EmployeeEntity);
         if (tempUser) {
           existingEmployee.user_id = tempUser.id;
         }
@@ -36,22 +35,22 @@ export class EmployeeService {
       return existingEmployee;
     }
 
-    userData.organization = this._setOrganization(userData.email);
-    const newUser = this.employeeRepository.create(userData);
+    userData.organization = this._getOrganization(userData.email);
+    const employee = this.employeeRepository.create(userData);
     const pending = await this.roleRepository.findOne({ slug: RoleSlug.Pending });
     if (pending) {
-      newUser.roles = [pending];
+      employee.roles = [pending];
     }
-    const employee = await this.employeeRepository.save(newUser);
+    await this.employeeRepository.save(employee);
     const user = await this.getUser(userData); // It will add new user record if not exist.
-    const empUser: EmployeeUser = {
+    const empUser = {
       ...employee,
       user_id: user ? user.id : null,
     };
     return empUser;
   }
 
-  _setOrganization(email?: string): string | undefined {
+  _getOrganization(email?: string): string | undefined {
     if (!email) {
       return undefined;
     }
@@ -62,7 +61,7 @@ export class EmployeeService {
     return EmailDomains[domain as keyof typeof EmailDomains];
   }
 
-  async getUserByKeycloakId(keycloakId: string): Promise<EmployeeUser | undefined> {
+  async getUserByKeycloakId(keycloakId: string): Promise<EmployeeRO | undefined> {
     const employeeUser = await getManager()
       .createQueryBuilder(EmployeeEntity, 'employee')
       .select('employee.*')
@@ -115,12 +114,14 @@ export class EmployeeService {
    */
   async getEmployeeList(filter: EmployeeFilterAPIDTO): Promise<[EmployeeEntity[], number]> {
     const { role, name, revokedOnly, sortKey, order, limit, skip } = filter;
+
+    const sortKeyword = sortKey ? `employee.${sortKey}` : 'employee.created_date';
+
     const qb = this.employeeRepository
       .createQueryBuilder('employee')
-      .orderBy({ [sortKey || 'created_date']: order || 'DESC' });
-
-    if (limit) qb.limit(limit);
-    if (skip) qb.skip(skip);
+      .select('employee.id')
+      .addSelect(`employee.${sortKey || 'created_date'}`)
+      .orderBy({ [sortKeyword]: order || 'DESC' });
 
     if (name) {
       qb.andWhere(this._nameSearchQuery(name));
@@ -132,20 +133,20 @@ export class EmployeeService {
 
     if (!role?.length) {
       qb.leftJoinAndSelect('employee.roles', 'role');
-      return qb.getManyAndCount();
+    } else {
+      qb.innerJoinAndSelect(
+        'employee.roles',
+        'role',
+        role ? `role.id IN(${role.join(',')})` : undefined,
+      );
     }
 
-    qb.select('employee.id');
-    qb.innerJoinAndSelect(
-      'employee.roles',
-      'role',
-      role ? `role.id IN(${role.join(',')})` : undefined,
-    );
     const [employee_ids, count] = await qb.getManyAndCount();
 
-    const employees = await this.employeeRepository.findByIds(employee_ids, {
-      relations: ['roles'],
-    });
+    const start = skip ? +skip : 0;
+    const end = start + (limit ? +limit : 0);
+
+    const employees = await this.employeeRepository.findByIds(employee_ids.slice(start, end));
     return [employees, count];
   }
 
@@ -154,7 +155,7 @@ export class EmployeeService {
    * @param ids Employee Ids whose role we are updating
    * @param role role
    */
-  async updateRole(id: string, role_ids: number[]): Promise<EmployeeEntity> {
+  async updateRoles(id: string, role_ids: number[]): Promise<EmployeeEntity> {
     const roles = await this.roleRepository.findByIds(role_ids);
     role_ids.forEach(role_id => {
       if (!roles.find(role => role.id === role_id)) {
@@ -216,5 +217,22 @@ export class EmployeeService {
 
   async getRoles(): Promise<RoleEntity[]> {
     return this.roleRepository.find();
+  }
+
+  async getEmployee(id: string): Promise<EmployeeRO | undefined> {
+    const employee = await this.employeeRepository.findOne(id);
+    if (!employee) return undefined;
+
+    const employeeUser = await getManager()
+      .createQueryBuilder(EmployeeEntity, 'employee')
+      .select('employee.*')
+      .addSelect('users.id', 'user_id')
+      .addSelect('ha_pcn.id', 'ha_pcn_id')
+      .leftJoin('ien_users', 'users', 'employee.email = users.email')
+      .leftJoin('ien_ha_pcn', 'ha_pcn', 'employee.organization = ha_pcn.title')
+      .where('employee.id = :id', { id })
+      .getRawOne();
+
+    return { ...employeeUser, ...employee };
   }
 }

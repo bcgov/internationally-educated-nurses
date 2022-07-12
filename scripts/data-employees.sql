@@ -23,7 +23,26 @@ UPDATE ien_users SET email = (SELECT email FROM employee WHERE name = 'ien_e2e_h
 INSERT INTO employee_roles_role
     (role_id, employee_id)
 VALUES
-    (1, (select id from employee where name = 'ien_e2e')),
-    (2, (select id from employee where name = 'test1')),
-    (3, (select id from employee where name = 'ien_e2e_hmbc')),
-    (4, (select id from employee where name = 'test2'));
+    (
+        (SELECT id FROM role WHERE slug = 'admin'),
+        (SELECT id FROM employee WHERE name = 'ien_e2e')
+    ),
+    (
+        (SELECT id FROM role WHERE slug = 'manage-applicant'),
+        (SELECT id FROM employee WHERE name = 'ien_e2e_hmbc')
+    ),
+    (
+        (SELECT id FROM role WHERE slug = 'provisioner'),
+        (SELECT id FROM employee WHERE name = 'test1')
+    ),
+    (
+        (SELECT id FROM role WHERE slug = 'reporting'),
+        (SELECT id FROM employee WHERE name = 'test2')
+    ),
+    (
+        (SELECT id FROM role WHERE slug = 'data-extract'),
+        (SELECT id FROM employee WHERE name = 'test3')
+    );
+
+UPDATE employee SET revoked_access_date = '2021-01-01' WHERE name = 'test1';
+UPDATE employee SET revoked_access_date = '2021-01-01' WHERE name = 'test2';

@@ -87,6 +87,18 @@ const urls = [
     ],
     hideElements: 'div[class*="placeholder"]',
   },
+  {
+    // user details
+    url: 'http://localhost:3000',
+    actions: [
+      ...loginActions,
+      'navigate to http://localhost:3000/user-management',
+      'wait for element .animate-spin to be removed',
+      'click element #details-0',
+      'wait for element .animate-spin to be removed',
+      'screen capture captures/user-details.png',
+    ],
+  },
 ];
 
 if (process.env.DEBUG) {

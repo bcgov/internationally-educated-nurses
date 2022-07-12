@@ -19,7 +19,7 @@ export class MapRoleAcl1657325456713 implements MigrationInterface {
         ('Reporting', 'Generate and download reports', 'reporting'),
         ('Read Applicant', 'View applicant details and milestones', 'applicant-read'),
         ('Write Applicant', 'Add or update applicant details and milestones', 'applicant-write'),
-        ('Extract Data', 'Extract applicants data', 'data-extract')
+        ('Extract Data', 'Extract and download applicants data', 'data-extract')
       ;
     `);
     await queryRunner.query(`

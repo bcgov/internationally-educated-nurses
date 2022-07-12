@@ -1,8 +1,8 @@
-import { EmployeeUser } from './EmployeeUser';
+import { EmployeeRO } from '@ien/common';
 
 export interface RequestObj {
   headers: Generickey;
-  user: EmployeeUser;
+  user: EmployeeRO;
 }
 
 interface Generickey {

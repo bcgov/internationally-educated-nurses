@@ -29,7 +29,7 @@ export class AuthGuard implements CanActivate {
     });
     request.user = employee;
 
-    if (employee.revoked_access_date) return false;
+    if (request.query?.id && employee.revoked_access_date) return false;
 
     const acl = this.reflector.get<Access[]>('acl', context.getHandler()) || [];
     return hasAccess(employee.roles, acl);

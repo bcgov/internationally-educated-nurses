@@ -1,36 +1,26 @@
 import { useKeycloak } from '@react-keycloak/ssr';
-import axios from 'axios';
 import { KeycloakInstance } from 'keycloak-js';
 import React, { PropsWithChildren, ReactNode, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { Role } from '@ien/common';
-
-export interface UserType {
-  id: string;
-  name: string;
-  keycloakId: string;
-  createdDate: Date;
-  roles: Role[];
-  user_id: number;
-  revoked_access_date: Date;
-}
+import { EmployeeRO } from '@ien/common';
+import { getEmployee } from '@services';
 
 const AuthContext = React.createContext<{
-  authUser?: UserType;
+  authUser?: EmployeeRO;
   authUserLoading: boolean;
 }>({ authUser: undefined, authUserLoading: false });
 
 const AuthProvider = ({ children }: PropsWithChildren<ReactNode>) => {
-  const [authUser, setAuthUser] = useState<UserType | undefined>();
+  const [authUser, setAuthUser] = useState<EmployeeRO | undefined>();
   const [authUserLoading, setAuthUserLoading] = useState(false);
   const { keycloak } = useKeycloak<KeycloakInstance>();
   const router = useRouter();
 
   const keycloakId = keycloak?.idTokenParsed?.sub;
 
-  const fetchData = async (id: string) => {
+  const getUser = async () => {
     setAuthUserLoading(true);
-    const user = await getUser(id);
+    const user = await getEmployee();
     if (user) {
       setAuthUser(user);
     }
@@ -39,7 +29,7 @@ const AuthProvider = ({ children }: PropsWithChildren<ReactNode>) => {
 
   useEffect(() => {
     if (keycloakId) {
-      fetchData(keycloakId);
+      getUser();
     } else if (authUser) {
       setAuthUser(undefined);
       router.push('/login');
@@ -49,15 +39,6 @@ const AuthProvider = ({ children }: PropsWithChildren<ReactNode>) => {
 
   const value = { authUser, authUserLoading };
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
-
-export const getUser = async (keycloakId: string): Promise<UserType | null> => {
-  try {
-    const { data } = await axios.get(`/employee/${keycloakId}`);
-    return data?.data;
-  } catch (e) {
-    return null;
-  }
 };
 
 function useAuthContext() {
