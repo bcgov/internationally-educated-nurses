@@ -47,15 +47,14 @@ APIs list receives from the HMBC side.
     - the main end point for the applicants. This endpoint is protected by ApiKey
     - Countries: We discussed using ISO for the country list but I found that some countries used in HA are not in the ISO (for example not recognized as a country by ISO). This may mean we will not use ISO codes and use text for the country but for now please continue using the ISO. I cleaned up as much as I can from my end.
     - Added the following parameters to the Applicant API. These are used as a url parameter. For example: https://ien.heabc.bc.ca/applicant?cfrom=2022-03-24&cto=2022-03-24
-​
-            from (optional): yyyy-mm-dd will return if CREATE or UPDATE date from (>=) the specified date
-            to (optional): yyyy-mm-dd will return if CREATE or UPDATE date to (<=) the specified date
-            cfrom (optional): yyyy-mm-dd will return if CREATE date from (>=) the specified date
-            cto (optional): yyyy-mm-dd will return if CREATE date to (<=) the specified date
-            ufrom (optional): yyyy-mm-dd will return if UPDATE date from (>=) the specified date
-            uto (optional): yyyy-mm-dd will return if UPDATE date to (<=) the specified date
-            offset (optional): for paging eqv to skip.
-            Next (optional): the number of records to be returned. Default to 40 records only at the time.
+        - from (optional): yyyy-mm-dd will return if CREATE or UPDATE date from (>=) the specified date
+        - to (optional): yyyy-mm-dd will return if CREATE or UPDATE date to (<=) the specified date
+        - cfrom (optional): yyyy-mm-dd will return if CREATE date from (>=) the specified date
+        - cto (optional): yyyy-mm-dd will return if CREATE date to (<=) the specified date
+        - ufrom (optional): yyyy-mm-dd will return if UPDATE date from (>=) the specified date
+        - uto (optional): yyyy-mm-dd will return if UPDATE date to (<=) the specified date
+        - offset (optional): for paging eqv to skip.
+        - Next (optional): the number of records to be returned. Default to 40 records only at the time.
     - Country of Citizenship is now a list.
 - **IEN applicantion**
     - fetched data stores in ien_applicants table.
