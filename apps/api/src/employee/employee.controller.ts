@@ -7,6 +7,7 @@ import {
   InternalServerErrorException,
   Logger,
   NotFoundException,
+  Param,
   Patch,
   Query,
   Req,
@@ -31,9 +32,13 @@ export class EmployeeController {
 
   @UseGuards(AuthGuard)
   @Get()
-  async getEmployee(@Req() req: RequestObj, @Query('id') id: string): Promise<EmployeeRO> {
-    if (!id) return req.user;
+  async getLoggedInUser(@Req() req: RequestObj): Promise<EmployeeRO> {
+    return req.user;
+  }
 
+  @UseGuards(AuthGuard)
+  @Get('/:id')
+  async getEmployee(@Param('id') id: string): Promise<EmployeeRO> {
     const employee = await this.employeeService.getEmployee(id);
     if (!employee) {
       throw new NotFoundException(`User with id '${id}' not found`);

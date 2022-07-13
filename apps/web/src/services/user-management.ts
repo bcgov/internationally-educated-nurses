@@ -27,7 +27,7 @@ export const getEmployees = async (
 };
 
 export const getEmployee = async (id?: string): Promise<EmployeeRO> => {
-  const { data } = await axios.get<{ data: EmployeeRO }>(id ? `/employee?id=${id}` : '/employee');
+  const { data } = await axios.get<{ data: EmployeeRO }>(id ? `/employee/${id}` : '/employee');
   return data?.data;
 };
 

@@ -27,12 +27,6 @@ export class AuthenticationMiddleware implements NestMiddleware {
       const user = await this.authService.getUserFromToken(token);
       res.locals.kcUser = user;
 
-      // Retrieve user roles
-      // const resourceAccess = user['resource_access'];
-      // if (resourceAccess && process.env.AUTH_CLIENTID) {
-      //   res.locals.roles = resourceAccess[process.env.AUTH_CLIENTID]?.roles;
-      // }
-
       req.user = await this.employeeService.resolveUser(user.sub, {
         keycloakId: user.sub,
         name: user.preferred_username,
