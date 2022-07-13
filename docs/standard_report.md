@@ -1,4 +1,4 @@
-# Standrand Report Sheet
+# Standard Report Sheet
 
 ### Report 1: Number of New Internationally Educated Nurse Registrant EOIs Processed
 
@@ -156,35 +156,51 @@ In this report, if an applicant has applied in more than one job competition the
 
 We will fetch all the job-competition data till the `to` date, We do not apply a filter on the `from` date because the applicant may be active but the milestone date is earlier than the `from` date.
 
+Now we will categories and select count based on below 2 cases for each cell in report.
+
+Case 1: active applicants (not hired in any HA/job competition and not withdrawn from the process)
 e.g.
 The applicant applied for 3 job competitions (1 in FHA and 2 in IHA). Please find the latest status of each job competition below.
 FHA - Prescreen completed
 IHA - Interview Completed
 IHA - Offered Position
+Here this applicant will appear 1 time in FHA "Prescreen completed" and  2 times in IHA, in "Offered Position" and "interview Completed".
 
-Here this candidate will appear 1 time in FHA "Prescreen completed" and  2 times in IHA, in "Offered Position" and "interview Completed".
+Case 2: Hired 
+e.g. Applicant got hired in FHA. Now we will count this applicant only one time in the cell ("FHA", "Hired"). and remove this applicant's count from all the other in-process job competitions.
+Note: If the applicant got hired in 2 HA/job competitions then we will pick the latest one and drop the others.
+
 ***Note: When an applicant gets hired for a job competition (HA). That applicant will be dropped off from all the other pending job competitions.***
 
 
 **Developer Side:** \
 It can be implemented in multiple ways. Here I have explained the SQL query to generate the same report.
 
-Step 1:
-From the job competition and milestone data, we have to find all the job-competition with their latest status for applicants before the `to` date.
+Before starting this process first, we need to find applicants with hired and withdrawal status.
+We will ignore withdrawn candidates and only select the final HA/job competition in case of Hired.
 
-Step 2:
-Now we have to find applicants count for each HA(connected with job competition) along with selected milestones. To achieve that we can run GROUP BY on HA and milestone.
+Step 1: Select the latest status (Hired or Withdraw)
 
-
-Looks like we have all the data that we can display in the report.
+Step 2: For the withdrawal status let's check if any new milestones logged after it or not.
 
 Step 3:
-Let's add new columns of HA and put applicants count for each milestone row. So we can create a matrix with milestone-HA.
+From the job competition and milestone data, we will find all the job-competition with their latest status for applicants till the `to` date. Ignore all the Hired and withdrawn applicants here.
++
+Let's find the latest hired HA and use it for the count(It means we are going to drop all the in-process job-competition data if the applicant selected in any one HA/job competition)
 
 Step 4:
+We will find applicant counts for each HA(connected with job competition) along their selected milestones. To achieve that, we can run GROUP BY on HA and milestone.
+
+
+Looks like we have all the data that can be display in the report.
+
+Step 5:
+Let's add new columns of HA and put applicants count for each milestone row. So we can create a matrix with milestone-HA.
+
+Step 6:
 Here we have to add 0 for all the blank cells. For that, we will add 0 value for each using UNION ALL.
 
-Let's combine steps 3 & 4 to get the final report in the requested format.
+Let's combine steps 5 & 6 to get the final report in the requested format.
 
 
 

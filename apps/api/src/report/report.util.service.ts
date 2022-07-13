@@ -324,75 +324,116 @@ export class ReportUtilService {
 
   applicantsInRecruitmentQuery(to: string) {
     return `
-      WITH applicant_jobs AS (
+      WITH withdew_hired_applicants AS (
+        -- let's find candidates who were withdrew/hired in the process
+        SELECT t1.* 
+        FROM (
+          SELECT
+            ien_status.*,
+            ROW_NUMBER() OVER(PARTITION BY ien_status.applicant_id ORDER BY ien_status.start_date DESC) AS rank
+          FROM public.ien_applicant_status_audit ien_status
+          LEFT JOIN public.ien_applicant_status status ON status.id=ien_status.status_id
+          WHERE
+            ien_status.start_date::date <= '${to}' 
+            AND status.parent_id IN (10001, 10002, 10003)
+            AND ien_status.status_id IN (20, 28)
+        ) as t1
+        WHERE t1.rank=1
+      ), find_reactive_applicants AS (
+        -- if applicant has any new milestone after withdrew, we will mark it as active and include in this report
+        SELECT *
+        FROM (
+          SELECT
+            wha.applicant_id,
+            wha.status_id,
+            wha.job_id,
+            wha.start_date,
+            CASE WHEN wha.status_id=20 THEN (
+              SELECT iasa.start_date FROM public.ien_applicant_status_audit iasa 
+              WHERE iasa.applicant_id=wha.applicant_id AND iasa.status_id != 20 AND iasa.start_date > wha.start_date
+              ORDER BY start_date limit 1
+            ) END as next_date
+          FROM withdew_hired_applicants wha
+          ) t1
+        WHERE (t1.status_id=20 and t1.next_date is null) OR t1.status_id=28
+      ),
+      applicant_jobs AS (
+        -- It contain all the jobs that possibly fits in this report till 'to' date filter
+        -- First query contain all the active applicants status
         SELECT
           id,
           ha_pcn_id,
-          (SELECT 
-            status_id
-          FROM public.ien_applicant_status_audit as status 
-          WHERE status.job_id=job.id AND start_date <= '${to}'
-          -- put new status restriction here (21 to 28 allowded)
-          ORDER BY start_date DESC limit 1) as status_id
+          (SELECT status_id FROM public.ien_applicant_status_audit as status 
+            WHERE status.job_id=job.id AND start_date <= '${to}'
+            -- put new status restriction here (from 21 to 28 are allowded)
+            ORDER BY start_date DESC limit 1) as status_id,
+          applicant_id
         FROM
           public.ien_applicant_jobs as job
-      ),
-      ha_status AS (
+        WHERE job.applicant_id NOT IN (SELECT applicant_id FROM find_reactive_applicants)
+        UNION ALL
+        -- second query contain all the hired applicants final status.
+        -- It select a job competetion in which applicant hired and drop all the other ones
+        SELECT
+          job.id,
+          job.ha_pcn_id,
+          fra.status_id,
+          job.applicant_id
+        FROM
+          public.ien_applicant_jobs as job
+        LEFT JOIN find_reactive_applicants fra ON fra.job_id = job.id
+        WHERE fra.job_id is not null
+        ),
+        ha_status AS (
         SELECT
           status_id, count(*) applicants, ha.abbreviation
         FROM applicant_jobs LEFT JOIN public.ien_ha_pcn as ha ON ha.id=ha_pcn_id
         WHERE status_id IS NOT null
         GROUP BY ha.abbreviation, status_id
-      ),
-      applicant_ha_status AS (
+        ),
+        applicant_ha_status AS (
         SELECT
-        status_id,
-        CASE WHEN abbreviation='FNHA' THEN applicants ELSE 0 END AS FNHA,
-        CASE WHEN abbreviation='FHA' THEN applicants ELSE 0 END AS FHA,
-        CASE WHEN abbreviation='IHA' THEN applicants ELSE 0 END AS IHA,
-        CASE WHEN abbreviation='VIHA' THEN applicants ELSE 0 END AS VIHA,
-        CASE WHEN abbreviation='NHA' THEN applicants ELSE 0 END AS NHA,
-        CASE WHEN abbreviation='PVHA' THEN applicants ELSE 0 END AS PVHA,
-        CASE WHEN abbreviation='PHSA' THEN applicants ELSE 0 END AS PHSA,
-        CASE WHEN abbreviation='VCHA' THEN applicants ELSE 0 END AS VCHA
-        --CASE WHEN abbreviation='EDU' THEN applicants ELSE 0 END AS EDU,
-        --CASE WHEN abbreviation='OTR' THEN applicants ELSE 0 END AS OTR
-      FROM ha_status
-      ORDER BY status_id
-      ),
-      final_data as (
+          status_id,
+          CASE WHEN abbreviation='FNHA' THEN applicants ELSE 0 END AS FNHA,
+          CASE WHEN abbreviation='FHA' THEN applicants ELSE 0 END AS FHA,
+          CASE WHEN abbreviation='IHA' THEN applicants ELSE 0 END AS IHA,
+          CASE WHEN abbreviation='VIHA' THEN applicants ELSE 0 END AS VIHA,
+          CASE WHEN abbreviation='NHA' THEN applicants ELSE 0 END AS NHA,
+          CASE WHEN abbreviation='PVHA' THEN applicants ELSE 0 END AS PVHA,
+          CASE WHEN abbreviation='PHSA' THEN applicants ELSE 0 END AS PHSA,
+          CASE WHEN abbreviation='VCHA' THEN applicants ELSE 0 END AS VCHA
+        FROM ha_status
+        ORDER BY status_id
+        ),
+        final_data as (
         SELECT * FROM applicant_ha_status
         UNION ALL
         SELECT id, 0 AS FNHA, 0 AS FHA, 0 AS IHA, 0 AS VIHA, 0 AS NHA, 0 AS PVHA, 0 AS PHSA, 0 AS VCHA
         FROM public.ien_applicant_status WHERE parent_id=10003 AND id IN (21,22,23,24,25,26,27,28)
-      )
-      SELECT status,
-        FNHA as "First Nations Health",
-        FHA as "Fraser Health",
-        IHA as "Interior Health",
-        VIHA as "Vancouver Island Health",
-        NHA as "Northern Health", 
-        PVHA as "Providence Health",
-        PHSA as "Provincial Health Services", 
-        VCHA as "Vancouver Coastal Health" 
-        --EDU as Education, 
-        --OTR as Other
-      FROM (
+        )
+        SELECT status,
+          FNHA as "First Nations Health",
+          FHA as "Fraser Health",
+          IHA as "Interior Health",
+          VIHA as "Vancouver Island Health",
+          NHA as "Northern Health", 
+          PVHA as "Providence Health",
+          PHSA as "Provincial Health Services", 
+          VCHA as "Vancouver Coastal Health"
+        FROM (
         SELECT 
-        status_id,
-        sum(FNHA) AS FNHA,
-        sum(FHA) AS FHA,
-        sum(IHA) AS IHA,
-        sum(VIHA) AS VIHA,
-        sum(NHA) AS NHA,
-        sum(PVHA) AS PVHA,
-        sum(PHSA) AS PHSA,
-        sum(VCHA) AS VCHA
-        --sum(EDU) AS EDU,
-        --sum(OTR) AS OTR
+          status_id,
+          sum(FNHA) AS FNHA,
+          sum(FHA) AS FHA,
+          sum(IHA) AS IHA,
+          sum(VIHA) AS VIHA,
+          sum(NHA) AS NHA,
+          sum(PVHA) AS PVHA,
+          sum(PHSA) AS PHSA,
+          sum(VCHA) AS VCHA
         FROM final_data
         GROUP BY status_id
-      ) as t1 LEFT JOIN public.ien_applicant_status ON t1.status_id=ien_applicant_status.id;
+        ) as t1 LEFT JOIN public.ien_applicant_status ON t1.status_id=ien_applicant_status.id;
     `;
   }
 
