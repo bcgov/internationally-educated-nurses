@@ -158,8 +158,6 @@ We will fetch all the job-competition data till the `to` date, We do not apply a
 
 Now we will categories and select count based on below 2 cases for each cell in report.
 
-Now we will categorize and select the count based on 2 cases for each cell in the report.
-
 Case 1: active applicants (not hired in any HA/job competition and not withdrawn from the process)
 e.g.
 The applicant applied for 3 job competitions (1 in FHA and 2 in IHA). Please find the latest status of each job competition below.
