@@ -6,27 +6,20 @@ import createValidator from 'class-validator-formik';
 import _ from 'lodash';
 
 import { Button, Field, FieldProps, getSelectStyleOverride, EducationForm } from '@components';
-import { addApplicant, isoCountries, RecordTypeOptions, useGetEducationOptions } from '@services';
+import { addApplicant, RecordTypeOptions, useGetEducationOptions } from '@services';
 import { Modal } from '../Modal';
 import addIcon from '@assets/img/add.svg';
 import minusIcon from '@assets/img/minus.svg';
 import { ApplicantRO, IENApplicantCreateUpdateDTO, NursingEducationDTO } from '@ien/common';
 import dayjs from 'dayjs';
+import { getCountries, getCountrySelector } from '../../utils/country-selector';
 
 interface AddApplicantProps {
-  onClose: (jobRecord?: any) => void;
+  onClose: () => void;
   visible: boolean;
   applicants: ApplicantRO[];
   setApplicant: Dispatch<SetStateAction<ApplicantRO[]>>;
 }
-
-const getCountries = (): RecordTypeOptions[] => {
-  return Object.keys(isoCountries).map((key: string, index: number) => ({
-    id: index + 1,
-    countryCode: key.toLowerCase(),
-    title: isoCountries[key as keyof typeof isoCountries].name,
-  }));
-};
 
 export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplicantProps) => {
   const { onClose, visible, applicants, setApplicant } = props;
@@ -143,19 +136,7 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
                 <Field
                   name='country_of_residence'
                   label='Country of Residence'
-                  component={({ field, form }: FieldProps) => (
-                    <ReactSelect<RecordTypeOptions>
-                      inputId={field.name}
-                      value={getCountries().find(s => s.countryCode == field.value)}
-                      onBlur={field.onBlur}
-                      onChange={value => form.setFieldValue(field.name, `${value?.countryCode}`)}
-                      options={getCountries()}
-                      isOptionDisabled={o => o.countryCode == field.value}
-                      getOptionLabel={option => `${option.title}`}
-                      styles={getSelectStyleOverride<RecordTypeOptions>()}
-                      menuPlacement='auto'
-                    />
-                  )}
+                  component={getCountrySelector}
                 />
               </div>
               <div className='mb-1 col-span-2'>

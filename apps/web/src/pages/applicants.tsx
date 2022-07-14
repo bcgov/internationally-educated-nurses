@@ -118,10 +118,6 @@ const Applicants = () => {
     changeRoute(name, index ? index + 10000 : 0);
   };
 
-  const handleAddApplicant = () => {
-    setAddIenModalVisible(false);
-  };
-
   return (
     <div className='container w-full mx-6 xl:w-xl mb-4'>
       <h1 className='font-bold text-3xl py-6'>Manage Applicants</h1>
@@ -157,7 +153,7 @@ const Applicants = () => {
         />
         <ApplicantTable applicants={applicants} onSortChange={handleSort} loading={loading} />
         <AddApplicantModal
-          onClose={handleAddApplicant}
+          onClose={() => setAddIenModalVisible(false)}
           visible={addIenModalVisible}
           applicants={applicants}
           setApplicant={setApplicants}

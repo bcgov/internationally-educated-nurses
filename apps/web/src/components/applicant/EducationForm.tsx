@@ -2,23 +2,16 @@ import { FieldArray, FormikErrors } from 'formik';
 import ReactSelect from 'react-select';
 
 import { Button, Field, FieldProps, getSelectStyleOverride } from '@components';
-import { isoCountries, RecordTypeOptions } from '@services';
+import { RecordTypeOptions } from '@services';
 import xDeleteIcon from '@assets/img/x_delete.svg';
 import { NursingEducationDTO } from '@ien/common';
+import { getCountrySelector } from '../../utils/country-selector';
 
 interface NursingEducationProps {
   nursing_educations: NursingEducationDTO[];
   errors: string | string[] | FormikErrors<NursingEducationDTO>[] | undefined;
   educationTitles: RecordTypeOptions[];
 }
-
-const getCountries = (): RecordTypeOptions[] => {
-  return Object.keys(isoCountries).map((key: string, index: number) => ({
-    id: index + 1,
-    countryCode: key.toLowerCase(),
-    title: isoCountries[key as keyof typeof isoCountries].name,
-  }));
-};
 
 export const EducationForm: React.FC<NursingEducationProps> = (props: NursingEducationProps) => {
   const { nursing_educations, errors, educationTitles } = props;
@@ -89,19 +82,7 @@ export const EducationForm: React.FC<NursingEducationProps> = (props: NursingEdu
             <Field
               name={`nursing_educations[${lastIndex}].country`}
               label='Country'
-              component={({ field, form }: FieldProps) => (
-                <ReactSelect<RecordTypeOptions>
-                  inputId={field.name}
-                  value={getCountries().find(s => s.countryCode == field.value)}
-                  onBlur={field.onBlur}
-                  onChange={value => form.setFieldValue(field.name, `${value?.countryCode}`)}
-                  options={getCountries()}
-                  isOptionDisabled={o => o.countryCode == field.value}
-                  getOptionLabel={option => `${option.title}`}
-                  styles={getSelectStyleOverride<RecordTypeOptions>()}
-                  menuPlacement='top'
-                />
-              )}
+              component={getCountrySelector}
             />
           </div>
           <div className='mb-1 col-span-2'>
