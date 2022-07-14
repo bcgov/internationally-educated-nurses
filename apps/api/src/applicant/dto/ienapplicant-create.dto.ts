@@ -35,7 +35,7 @@ export class IENApplicantCreateUpdateAPIDTO extends IENApplicantCreateUpdateDTO 
   @IsOptional()
   applicant_id?: number;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'Applicant email address',
     default: 'mark.bowill@mailinator.com',
   })
@@ -44,16 +44,15 @@ export class IENApplicantCreateUpdateAPIDTO extends IENApplicantCreateUpdateDTO 
   @IsNotEmpty({ message: 'Email is required' })
   email_address!: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'Applicant phone number',
     default: '77-555-1234',
   })
-  @IsOptional()
   @IsString()
   @Length(1, 18, { message: 'Please provide applicant phone' })
-  phone_number?: string;
+  phone_number!: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: "Applicant's registration date",
     type: 'string',
     format: 'date',
@@ -71,19 +70,19 @@ export class IENApplicantCreateUpdateAPIDTO extends IENApplicantCreateUpdateDTO 
   @IsOptional()
   assigned_to?: JSON;
 
-  @ApiPropertyOptional({ description: 'Applicant citizenship', default: ['ca'] })
+  @ApiProperty({ description: 'Applicant citizenship', default: ['ca'] })
   @ArrayNotEmpty({ message: 'Country of Citizenship is required' })
   country_of_citizenship!: string[] | string;
 
-  @ApiPropertyOptional({ description: 'Applicant country of residence', default: 'us' })
+  @ApiProperty({ description: 'Applicant country of residence', default: 'us' })
   @IsNotEmpty({ message: 'Country of Residence is required' })
   country_of_residence!: string;
 
-  @ApiPropertyOptional({ description: 'Applicant have PR of Canada', default: 'PR' })
+  @ApiProperty({ description: 'Applicant have PR of Canada', default: 'PR' })
   @IsNotEmpty({ message: 'Permanent Residence Status is required' })
   pr_status!: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'Nursing educations',
     default: [
       { name: 'PhD', country: 'ca' },
