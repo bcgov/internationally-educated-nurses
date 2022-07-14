@@ -1,9 +1,8 @@
 import { FieldArray, FormikErrors } from 'formik';
 import ReactSelect from 'react-select';
 
-import { Button, Field, FieldProps, getSelectStyleOverride } from '@components';
+import { Button, Field, FieldProps, getSelectStyleOverride, Error } from '@components';
 import { RecordTypeOptions } from '@services';
-import xDeleteIcon from '@assets/img/x_delete.svg';
 import { NursingEducationDTO } from '@ien/common';
 import { getCountrySelector } from '../../utils/country-selector';
 
@@ -20,35 +19,9 @@ export const EducationForm: React.FC<NursingEducationProps> = (props: NursingEdu
 
   return (
     <FieldArray name='nursing_educations'>
-      {({ push, remove }) => (
+      {({ push }) => (
         <div className='grid grid-cols-4 gap-4'>
           <div className='mb-1 col-span-4'>
-            <div className='flex'>
-              {nursing_educations.length > 1 && (
-                <ul className='list-none mb-2'>
-                  {nursing_educations.slice(0, lastIndex).map(
-                    ({ name, year, country, num_years }: NursingEducationDTO, index) =>
-                      name &&
-                      year &&
-                      country &&
-                      num_years && (
-                        <li
-                          className='w-max flex items-center text-sm font-bold text-bcGray bg-bcLightGray p-1 my-1 rounded border-bcGray border-2'
-                          key={name + year + country + num_years}
-                        >
-                          {name} &nbsp;-&nbsp; {year}
-                          <img
-                            src={xDeleteIcon.src}
-                            alt='add'
-                            className='ml-auto pl-2'
-                            onClick={() => remove(index)}
-                          />
-                        </li>
-                      ),
-                  )}
-                </ul>
-              )}
-            </div>
             <Field
               name={`nursing_educations[${lastIndex}].name`}
               label='Education'
@@ -67,7 +40,6 @@ export const EducationForm: React.FC<NursingEducationProps> = (props: NursingEdu
                 />
               )}
             />
-            {/* <Error name='nursing_educations' /> */}
           </div>
           <div className='mb-1 col-span-2'>
             <Field
@@ -82,7 +54,7 @@ export const EducationForm: React.FC<NursingEducationProps> = (props: NursingEdu
             <Field
               name={`nursing_educations[${lastIndex}].country`}
               label='Country'
-              component={getCountrySelector}
+              component={({ field, form }: FieldProps) => getCountrySelector(field, form)}
             />
           </div>
           <div className='mb-1 col-span-2'>
@@ -94,7 +66,7 @@ export const EducationForm: React.FC<NursingEducationProps> = (props: NursingEdu
             />
           </div>
           <div className='mb-1 col-span-4 flex items-center justify-between'>
-            {typeof errors === 'string' && <p className=' block text-red-600 text-sm'>{errors}</p>}
+            {typeof errors === 'string' && <Error name='nursing_educations' />}
             <Button
               className='ml-auto px-7'
               variant='secondary'

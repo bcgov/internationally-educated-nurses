@@ -1,4 +1,4 @@
-import { Formik, Form as FormikForm } from 'formik';
+import { Formik, Form as FormikForm, FieldArray } from 'formik';
 import { Dispatch, SetStateAction } from 'react';
 import ReactSelect from 'react-select';
 import { Disclosure as HeadlessDisclosure, Transition } from '@headlessui/react';
@@ -10,6 +10,7 @@ import { addApplicant, RecordTypeOptions, useGetEducationOptions } from '@servic
 import { Modal } from '../Modal';
 import addIcon from '@assets/img/add.svg';
 import minusIcon from '@assets/img/minus.svg';
+import xDeleteIcon from '@assets/img/x_delete.svg';
 import { ApplicantRO, IENApplicantCreateUpdateDTO, NursingEducationDTO } from '@ien/common';
 import dayjs from 'dayjs';
 import { getCountries, getCountrySelector } from '../../utils/country-selector';
@@ -136,7 +137,7 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
                 <Field
                   name='country_of_residence'
                   label='Country of Residence'
-                  component={getCountrySelector}
+                  component={({ field, form }: FieldProps) => getCountrySelector(field, form)}
                 />
               </div>
               <div className='mb-1 col-span-2'>
@@ -188,6 +189,41 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
                             </div>
                           </>
                         </HeadlessDisclosure.Button>
+                        <FieldArray name='nursing_educations'>
+                          {({ remove }) => (
+                            <div className='flex'>
+                              {values.nursing_educations.length > 1 && (
+                                <ul className='list-none mb-2 pl-3'>
+                                  {values.nursing_educations
+                                    .slice(0, values.nursing_educations.length)
+                                    .map(
+                                      (
+                                        { name, year, country, num_years }: NursingEducationDTO,
+                                        index,
+                                      ) =>
+                                        name &&
+                                        year &&
+                                        country &&
+                                        num_years && (
+                                          <li
+                                            className='w-max flex items-center text-sm font-bold text-bcGray bg-bcLightGray p-1 my-1 rounded border-bcGray border-2'
+                                            key={name + year + country + num_years}
+                                          >
+                                            {name} &nbsp;-&nbsp; {year}
+                                            <img
+                                              src={xDeleteIcon.src}
+                                              alt='add'
+                                              className='ml-auto pl-2'
+                                              onClick={() => remove(index)}
+                                            />
+                                          </li>
+                                        ),
+                                    )}
+                                </ul>
+                              )}
+                            </div>
+                          )}
+                        </FieldArray>
                         <Transition
                           enter='transition ease-in duration-500 transform'
                           enterFrom='opacity-0 '

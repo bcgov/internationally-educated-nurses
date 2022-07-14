@@ -10,7 +10,7 @@ export const getCountries = (): RecordTypeOptions[] => {
   }));
 };
 
-export const getCountrySelector = ({ field, form }: FieldProps) => (
+export const getCountrySelector = (field: FieldProps['field'], form: FieldProps['form']) => (
   <ReactSelect<RecordTypeOptions>
     inputId={field.name}
     value={getCountries().find(s => s.countryCode == field.value)}
