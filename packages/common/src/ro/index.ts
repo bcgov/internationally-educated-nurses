@@ -3,3 +3,4 @@ export * from './employee.ro';
 export * from './ien.ro';
 export * from './period';
 export * from './role.ro';
+export * from './acl-base';

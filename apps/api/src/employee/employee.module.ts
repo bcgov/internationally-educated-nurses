@@ -6,11 +6,12 @@ import { EmployeeEntity } from './entity/employee.entity';
 import { IENUsers } from 'src/applicant/entity/ienusers.entity';
 import { EmployeeService } from './employee.service';
 import { RoleEntity } from './entity/role.entity';
+import { AccessEntity } from './entity/acl.entity';
 
 @Module({
   controllers: [EmployeeController],
   imports: [
-    TypeOrmModule.forFeature([EmployeeEntity, IENUsers, RoleEntity]),
+    TypeOrmModule.forFeature([EmployeeEntity, IENUsers, RoleEntity, AccessEntity]),
     forwardRef(() => AuthModule),
   ],
   providers: [EmployeeService, Logger],

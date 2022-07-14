@@ -7,7 +7,7 @@ import { deleteApplicantStatus } from '@services';
 interface DeleteMilestoneProps {
   onClose: (milestoneId?: string) => void;
   visible: boolean;
-  userId: number | undefined;
+  userId: string | undefined | null;
   milestoneId: string;
 }
 

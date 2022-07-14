@@ -1,5 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Role } from '@ien/common';
+import { AccessEntity } from './acl.entity';
 
 @Entity('role')
 export class RoleEntity implements Role {
@@ -14,4 +15,8 @@ export class RoleEntity implements Role {
 
   @Column('varchar')
   description!: string;
+
+  @ManyToMany(() => AccessEntity, { eager: true })
+  @JoinTable()
+  acl!: AccessEntity[];
 }

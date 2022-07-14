@@ -1,5 +1,4 @@
 import { SetMetadata } from '@nestjs/common';
-import { ValidRoles } from '@ien/common';
+import { Access } from '@ien/common';
 
-export const RouteAcceptsRoles = (...acceptedRoles: ValidRoles[]) =>
-  SetMetadata('acceptedRoles', acceptedRoles);
+export const AllowAccess = (...acl: Access[]) => SetMetadata('acl', acl);

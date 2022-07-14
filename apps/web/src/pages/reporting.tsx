@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import { writeFile } from 'xlsx-js-style';
 
-import { Period, ValidRoles } from '@ien/common';
+import { Access, Period } from '@ien/common';
 import { createReportWorkbook, getReportByEOI } from '@services';
 import { DataExtractReport, PageOptions, Pagination, ReportTable } from '@components';
 import withAuth from '../components/Keycloak';
@@ -107,9 +107,4 @@ const Reporting = () => {
   );
 };
 
-export default withAuth(Reporting, [
-  ValidRoles.MINISTRY_OF_HEALTH,
-  ValidRoles.HEALTH_MATCH,
-  ValidRoles.HEALTH_AUTHORITY,
-  ValidRoles.ROLEADMIN,
-]);
+export default withAuth(Reporting, [Access.REPORTING]);

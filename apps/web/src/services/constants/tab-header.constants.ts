@@ -1,4 +1,4 @@
-import { ValidRoles } from '@ien/common';
+import { Access } from '@ien/common';
 
 export const landingPageTabs = [
   { title: 'All', value: '1' },
@@ -22,23 +22,18 @@ export const menuBarTabs = [
     title: 'Manage Applicants',
     defaultPath: '/',
     paths: ['/applicants', '/details'],
-    roles: [ValidRoles.HEALTH_AUTHORITY, ValidRoles.HEALTH_MATCH, ValidRoles.ROLEADMIN],
+    acl: [Access.APPLICANT_READ],
   },
   {
     title: 'Reporting',
     defaultPath: '/reporting',
     paths: ['/reporting'],
-    roles: [
-      ValidRoles.HEALTH_AUTHORITY,
-      ValidRoles.HEALTH_MATCH,
-      ValidRoles.MINISTRY_OF_HEALTH,
-      ValidRoles.ROLEADMIN,
-    ],
+    acl: [Access.REPORTING],
   },
   {
     title: 'User Management',
     defaultPath: '/user-management',
     paths: ['/user-management'],
-    roles: [ValidRoles.ROLEADMIN],
+    acl: [Access.USER_READ],
   },
 ];

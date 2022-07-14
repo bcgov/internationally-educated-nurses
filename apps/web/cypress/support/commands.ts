@@ -1,5 +1,6 @@
-import { ApplicantRO, IENApplicantAddStatusDTO, IENApplicantJobCreateUpdateDTO } from '@ien/common';
 import { addCustomCommand } from 'cy-verify-downloads';
+
+import { ApplicantRO, IENApplicantAddStatusDTO, IENApplicantJobCreateUpdateDTO } from '@ien/common';
 import dayjs from 'dayjs';
 
 addCustomCommand();
@@ -47,7 +48,7 @@ Cypress.Commands.add('searchUsers', (name: string) => {
   });
 });
 
-Cypress.Commands.add('filterUsers', (roles: string[], revokedOnly: boolean) => {
+Cypress.Commands.add('filterUsers', (roles: string[], revokedOnly = false) => {
   roles.forEach(role => cy.get('#role-filter').type(`${role}{enter}`));
   if (revokedOnly) {
     cy.get('#revoked-only').click();
@@ -58,7 +59,7 @@ Cypress.Commands.add('filterUsers', (roles: string[], revokedOnly: boolean) => {
       .find('td')
       .eq(3)
       .each(el => {
-        if (roles.includes(el.text())) throw Error(`${el.text()} shouldn't be visible.`);
+        if (!roles.includes(el.text())) throw Error(`${el.text()} should be visible.`);
       });
   });
   if (revokedOnly) {
@@ -152,22 +153,6 @@ Cypress.Commands.add('changeRole', (role: string) => {
   cy.contains('successfully updated');
 });
 
-Cypress.Commands.add('revokeAccess', (index: number) => {
-  cy.contains('button', 'Change Role').eq(index).click();
-  cy.get('[id=role-change]').focus().type('revoke{enter}');
-  cy.contains('revoke-access');
-  cy.contains('button', 'Confirm').should('be.disabled');
-  cy.get('#confirm-text').focus().type('revoke-access');
-  cy.contains('button', 'Confirm').should('not.be.disabled').click();
-  cy.get('tbody > tr').eq(index).contains('td', 'Revoked');
-});
-
-Cypress.Commands.add('activate', () => {
-  cy.contains('td', 'Revoked', { timeout: 1000 });
-  cy.contains('button', 'Activate').click();
-  cy.contains('td', 'Revoked').should('not.exist');
-});
-
 Cypress.Commands.add('pagination', () => {
   cy.contains('Showing 10');
   cy.get('tbody > tr').should('have.length', '10');
@@ -198,9 +183,8 @@ Cypress.Commands.add('tabRecruitment', () => {
 });
 
 Cypress.Commands.add('visitUserManagement', () => {
+  cy.visit('/user-management');
   cy.contains('User Management');
-  cy.get('a:contains(User Management)').click();
-  cy.contains('button', 'Change Role');
 });
 
 Cypress.Commands.add('waitForLoading', () => {

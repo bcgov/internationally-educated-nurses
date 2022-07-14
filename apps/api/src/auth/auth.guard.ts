@@ -1,7 +1,7 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { EmployeeService } from 'src/employee/employee.service';
-import { ValidRoles } from '@ien/common';
+import { Access, hasAccess } from '@ien/common';
 import { AuthService } from './auth.service';
 
 @Injectable()
@@ -21,8 +21,6 @@ export class AuthGuard implements CanActivate {
       return false;
     }
 
-    const acceptedRoles =
-      this.reflector.get<ValidRoles[]>('acceptedRoles', context.getHandler()) || [];
     const employee = await this.employeeService.resolveUser(tokenUser.sub, {
       keycloakId: tokenUser.sub,
       name: tokenUser.preferred_username,
@@ -31,15 +29,9 @@ export class AuthGuard implements CanActivate {
     });
     request.user = employee;
 
-    if (
-      acceptedRoles.length === 0 ||
-      employee.roles.some(role => role.name === ValidRoles.ROLEADMIN)
-    )
-      return true;
+    if (request.query?.id && employee.revoked_access_date) return false;
 
-    return (
-      acceptedRoles.some(name => employee.roles.some(role => role.name === name)) &&
-      !employee.revoked_access_date
-    );
+    const acl = this.reflector.get<Access[]>('acl', context.getHandler()) || [];
+    return hasAccess(employee.roles, acl);
   }
 }

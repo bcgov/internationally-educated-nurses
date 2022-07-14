@@ -222,16 +222,16 @@ export class ReportService {
   /**
    * @param t Duration end date YYYY-MM-DD
    */
-  async getAverageTimeWithEachStackholderGroup(t: string) {
+  async getAverageTimeWithEachStakeholderGroup(t: string) {
     const { to } = this.captureFromTo('', t);
-    this.logger.log(`getAverageTimeWithEachStackholderGroup: apply filter till ${to} date)`);
+    this.logger.log(`getAverageTimeWithEachStakeholderGroup: apply filter till ${to} date)`);
 
     const entityManager = getManager();
     const data = await entityManager.query(
       this.reportUtilService.averageTimeWithEachStackholderGroupQuery(to),
     );
     this.logger.log(
-      `getAverageTimeWithEachStackholderGroup: query completed a total of ${data.length} record returns`,
+      `getAverageTimeWithEachStakeholderGroup: query completed a total of ${data.length} record returns`,
     );
     return data;
   }

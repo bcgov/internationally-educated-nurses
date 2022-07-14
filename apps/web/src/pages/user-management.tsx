@@ -4,8 +4,8 @@ import { UserManagementTable } from 'src/components/display/UserManagementTable'
 import withAuth from 'src/components/Keycloak';
 import { PageOptions, Pagination } from 'src/components/Pagination';
 import { getEmployees } from 'src/services/user-management';
-import { EmployeeRO, ValidRoles } from '@ien/common';
-import { UserFilter } from 'src/components/user-management/UserFilter';
+import { Access, EmployeeRO } from '@ien/common';
+import { UserFilter } from 'src/components/user/UserFilter';
 import { SearchEmployee } from 'src/components/SearchEmployee';
 
 interface SearchOptions {
@@ -56,7 +56,7 @@ const UserManagement = () => {
     if (key === sortKey) {
       setOrder(order === 'ASC' ? 'DESC' : 'ASC');
     } else {
-      setOrder(key === 'createdDate' ? 'DESC' : 'ASC');
+      setOrder(key === 'created_date' ? 'DESC' : 'ASC');
       setSortKey(key);
     }
   };
@@ -122,4 +122,4 @@ const UserManagement = () => {
   );
 };
 
-export default withAuth(UserManagement, [ValidRoles.ROLEADMIN]);
+export default withAuth(UserManagement, [Access.USER_READ, Access.USER_WRITE]);

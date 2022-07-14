@@ -1,4 +1,4 @@
-import { EmployeeFilterDTO, EmployeeRO, Role } from '@ien/common';
+import { EmployeeFilterDTO, EmployeeRO, Organizations, Role } from '@ien/common';
 import axios from 'axios';
 import { fetcher } from '../utils/swr-fetcher';
 import useSWRImmutable from 'swr/immutable';
@@ -26,7 +26,12 @@ export const getEmployees = async (
   }
 };
 
-export const updateRole = async (
+export const getEmployee = async (id?: string): Promise<EmployeeRO> => {
+  const { data } = await axios.get<{ data: EmployeeRO }>(id ? `/employee/${id}` : '/employee');
+  return data?.data;
+};
+
+export const updateRoles = async (
   id: string,
   role_ids: number[],
 ): Promise<EmployeeRO | undefined> => {
@@ -58,5 +63,10 @@ export const activateUser = async (id: string): Promise<EmployeeRO | null> => {
 
 export const useRoles = (): Role[] | undefined => {
   const { data } = useSWRImmutable('employee/list/roles', fetcher);
+  return data?.data;
+};
+
+export const useOrganizations = (): Organizations[] | undefined => {
+  const { data } = useSWRImmutable('employee/list/organizations', fetcher);
   return data?.data;
 };

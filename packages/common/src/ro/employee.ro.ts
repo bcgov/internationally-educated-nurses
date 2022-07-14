@@ -1,10 +1,6 @@
-import { Role } from './role.ro';
+import { Employee } from '../interfaces';
 
-export interface EmployeeRO {
-  id: string;
-  name: string;
-  email?: string;
-  createdDate: Date;
-  roles: Role[];
-  revoked_access_date: Date | null;
+export interface EmployeeRO extends Employee {
+  user_id: string | null;
+  ha_pcn_id?: number | null;
 }

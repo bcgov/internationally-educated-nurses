@@ -1,22 +1,20 @@
-import { ValidRoles } from '@ien/common';
-import { UserType } from 'src/components/AuthContexts';
+import { Access, hasAccess, Role, RoleSlug } from '@ien/common';
 
-export const isMoh = (user: UserType): boolean => {
-  return user.roles.some(role => role.name === ValidRoles.MINISTRY_OF_HEALTH);
+export const isPending = (roles?: Role[]): boolean => {
+  return (
+    !roles || roles?.length === 0 || roles?.some((role: Role) => role.slug === RoleSlug.Pending)
+  );
 };
 
-export const isPending = (user: UserType): boolean => {
-  return user.roles?.length === 0 || user?.roles.some(role => role.name === ValidRoles.PENDING);
-};
-
-export const invalidRoleCheck = (roles: ValidRoles[], user: UserType) => {
-  return user.roles.every(role => !roles.some(v => v === role.name));
-};
-
-export const getPath = (user: UserType): string => {
-  if (isMoh(user)) {
+export const getPath = (roles: Role[]): string => {
+  if (hasAccess(roles, [Access.APPLICANT_READ])) {
+    return '/applicants';
+  }
+  if (hasAccess(roles, [Access.REPORTING])) {
     return '/reporting';
   }
-
-  return '/applicants';
+  if (hasAccess(roles, [Access.USER_READ])) {
+    return '/user-management';
+  }
+  return '';
 };

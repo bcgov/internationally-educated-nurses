@@ -7,7 +7,7 @@ import { HeaderTab } from '../components/display/HeaderTab';
 import { PageOptions, Pagination } from '../components/Pagination';
 import { ApplicantTable } from '../components/display/ApplicantTable';
 import withAuth from '../components/Keycloak';
-import { ApplicantRO, ValidRoles } from '@ien/common';
+import { Access, ApplicantRO } from '@ien/common';
 
 interface SearchOptions {
   name?: string;
@@ -151,8 +151,4 @@ const Applicants = () => {
 
 // withAuth ensures only authenticated users with a given role are permitted to use a route
 // I have included the pending role here not to lock out any user, but in future most routes should be restricted
-export default withAuth(Applicants, [
-  ValidRoles.HEALTH_MATCH,
-  ValidRoles.HEALTH_AUTHORITY,
-  ValidRoles.ROLEADMIN,
-]);
+export default withAuth(Applicants, [Access.APPLICANT_READ]);

@@ -4,7 +4,6 @@
 describe('Users - search / filter', () => {
   beforeEach(() => {
     cy.login();
-    cy.visit('/');
     cy.visitUserManagement();
   });
 
@@ -13,17 +12,15 @@ describe('Users - search / filter', () => {
   });
 
   it('filters users by role and revocation', () => {
-    cy.filterUsers(['moh'], false);
+    cy.filterUsers(['Provisioner']);
     cy.get('#role-filter').clear();
 
-    cy.filterUsers(['hmbc'], false);
+    cy.filterUsers(['Manage Applicants']);
     cy.get('#role-filter').clear();
 
-    cy.filterUsers(['pending'], false);
+    cy.filterUsers(['Reporting']);
     cy.get('#role-filter').clear();
 
-    cy.revokeAccess(0);
-    cy.filterUsers(['moh', 'hmbc'], true);
-    cy.activate();
+    cy.filterUsers(['Provisioner', 'Reporting'], true);
   });
 });

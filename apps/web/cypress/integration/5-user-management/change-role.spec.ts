@@ -1,43 +1,40 @@
 /// <reference types="cypress" />
 /// <reference path="../../support/index.ts"/>
 
-describe('User Management - change role', () => {
-  it('changes an employees role', () => {
-    cy.login();
-    cy.visit('/');
-    cy.fixture('user-roles.json').then(({ roles }) => {
-      cy.visitUserManagement();
+describe('User Management - Details', () => {
+  beforeEach(() => {});
 
-      Cypress._.times(2, i => {
-        cy.get('button:contains(Change Role)').eq(0).click();
-        cy.contains('h1', 'Change Role');
-        cy.changeRole(roles[i].role);
-      });
-    });
+  const visitUserDetails = () => {
+    cy.login();
+    cy.visitUserManagement();
+    cy.contains('tr', 'ien_e2e_hmbc').find('a').eq(0).click();
+  };
+
+  it('changes an employees role', () => {
+    visitUserDetails();
+    cy.get('[data-cy=reporting]').find('[aria-checked=false]');
+    cy.get('[data-cy=reporting]').find('button').click();
+    cy.get('[data-cy=reporting]').find('[aria-checked=true]');
+    cy.get('[data-cy=reporting]').find('button').click();
+    cy.get('[data-cy=reporting]').find('[aria-checked=false]');
   });
 
   it('revokes user access', () => {
-    cy.login();
-    cy.visit('/');
-    cy.visitUserManagement();
-
-    cy.revokeAccess(0);
+    visitUserDetails();
+    cy.contains('Remove access');
+    cy.get('[data-cy=revoke]').find('button').click();
   });
 
-  it('disallows a revoked user to log in', () => {
+  it('denies access of revoked user', () => {
     cy.login('ien_e2e_hmbc');
     cy.visit('/');
-
     cy.contains('You are not authorized to use');
   });
 
   it('activates a revoked user', () => {
-    cy.login();
-    cy.visit('/');
-    cy.visitUserManagement();
-
-    cy.contains('td', 'Revoked');
-    cy.contains('button', 'Activate').click();
-    cy.contains('td', 'Revoked').should('not.exist');
+    visitUserDetails();
+    cy.contains('Grant access');
+    cy.get('[data-cy=revoke]').find('button').click();
+    cy.contains('Remove access');
   });
 });
