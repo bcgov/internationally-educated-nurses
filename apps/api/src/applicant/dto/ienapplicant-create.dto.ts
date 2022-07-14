@@ -16,7 +16,6 @@ import {
 } from 'class-validator';
 import { IENApplicantCreateUpdateDTO, NursingEducationDTO } from '@ien/common';
 import { Type } from 'class-transformer';
-import 'reflect-metadata';
 
 export class IENApplicantCreateUpdateAPIDTO extends IENApplicantCreateUpdateDTO {
   @ApiProperty({ description: 'Applicant First Name', default: 'Mark' })

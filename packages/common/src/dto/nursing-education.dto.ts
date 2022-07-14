@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString, Max, Min, ValidateIf } from 'class-validator';
 
 export class NursingEducationDTO {
   constructor(name: string, year: string, country: string, num_years: string) {
@@ -10,17 +10,24 @@ export class NursingEducationDTO {
 
   @IsString()
   @IsNotEmpty({ message: 'Education Name is required' })
+  @ValidateIf(o => Object.values(o).some(v => v !== ''))
   name!: string;
 
-  @IsString()
+  @Max(new Date().getFullYear())
+  @Min(1900)
+  @IsNumber()
   @IsNotEmpty({ message: 'Year is required' })
+  @ValidateIf(o => Object.values(o).some(v => v !== ''))
   year!: string;
 
   @IsString()
   @IsNotEmpty({ message: 'Country is required' })
+  @ValidateIf(o => Object.values(o).some(v => v !== ''))
   country!: string;
 
-  @IsString()
+  @Min(1)
+  @IsNumber()
   @IsNotEmpty({ message: 'Number of Years is required' })
+  @ValidateIf(o => Object.values(o).some(v => v !== ''))
   num_years!: string;
 }

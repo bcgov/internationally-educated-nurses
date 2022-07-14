@@ -15,7 +15,6 @@ import {
   ValidateIf,
 } from 'class-validator';
 import { NursingEducationDTO } from './nursing-education.dto';
-import 'reflect-metadata';
 
 export class IENApplicantCreateUpdateDTO {
   @IsString()
@@ -57,7 +56,7 @@ export class IENApplicantCreateUpdateDTO {
   pr_status!: string;
 
   @IsArray()
-  @ArrayMinSize(1, { message: 'At least 1 Education is required' })
+  @ArrayMinSize(2, { message: 'At least 1 Education is required' })
   @ArrayNotEmpty({ message: 'Education is required' })
   @ValidateIf(e => e.nursing_educations.length > 0)
   @ValidateNested()

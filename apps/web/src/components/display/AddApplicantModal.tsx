@@ -3,6 +3,7 @@ import { Dispatch, SetStateAction } from 'react';
 import ReactSelect from 'react-select';
 import { Disclosure as HeadlessDisclosure, Transition } from '@headlessui/react';
 import createValidator from 'class-validator-formik';
+import _ from 'lodash';
 
 import { Button, Field, FieldProps, getSelectStyleOverride, EducationForm } from '@components';
 import { addApplicant, isoCountries, RecordTypeOptions, useGetEducationOptions } from '@services';
@@ -10,6 +11,7 @@ import { Modal } from '../Modal';
 import addIcon from '@assets/img/add.svg';
 import minusIcon from '@assets/img/minus.svg';
 import { ApplicantRO, IENApplicantCreateUpdateDTO, NursingEducationDTO } from '@ien/common';
+import dayjs from 'dayjs';
 
 interface AddApplicantProps {
   onClose: (jobRecord?: any) => void;
@@ -36,9 +38,7 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
   const defaultEducationValues: NursingEducationDTO = new NursingEducationDTO('', '', '', '');
 
   const handleSubmit = async (values: IENApplicantCreateUpdateDTO) => {
-    values.nursing_educations = values.nursing_educations.filter(v => {
-      return v.name && v.country && v.year && v.num_years;
-    });
+    _.remove(values.nursing_educations, (education: NursingEducationDTO) => !education.name);
 
     const applicant = await addApplicant(values);
 
@@ -90,7 +90,7 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
         validate={newApplicantValidationSchema}
         enableReinitialize={true}
       >
-        {({ isSubmitting, values, errors, setFieldTouched }) => (
+        {({ isSubmitting, values, errors }) => (
           <FormikForm className='overflow-y-auto'>
             <div className='grid grid-cols-4 gap-4 bg-white rounded px-8 pt-6 pb-7'>
               <div className='mb-1 col-span-2'>
@@ -106,7 +106,12 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
                 <Field name='phone_number' label='Phone Number' type='text' />
               </div>
               <div className='mb-1 col-span-4'>
-                <Field name='registration_date' label='Registration Date' type='date' />
+                <Field
+                  name='registration_date'
+                  label='Registration Date'
+                  type='date'
+                  max={dayjs().format('YYYY-MM-DD')}
+                />
               </div>
               <div className='mb-1 col-span-2'>
                 <Field
@@ -173,11 +178,11 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
                 />
               </div>
 
-              <div className='col-span-4 border rounded border-bcLightBackground'>
+              <div className='col-span-4 border-2 rounded border-bcLightBackground'>
                 <div className='col-span-4'>
                   <HeadlessDisclosure defaultOpen={true}>
                     {({ open }) => (
-                      <div className='border border-gray-200 rounded'>
+                      <div className=''>
                         <HeadlessDisclosure.Button className={'w-full px-4'}>
                           <>
                             <div className='flex justify-between py-2'>
@@ -214,7 +219,6 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
                             <div className='p-4'>
                               <EducationForm
                                 nursing_educations={values.nursing_educations}
-                                setFieldTouched={setFieldTouched}
                                 errors={errors.nursing_educations}
                                 educationTitles={educationTitles}
                               />
