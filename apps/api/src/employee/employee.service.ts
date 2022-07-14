@@ -128,9 +128,7 @@ export class EmployeeService {
       qb.andWhere({ revoked_access_date: Not(IsNull()) });
     }
 
-    if (!role?.length) {
-      qb.leftJoinAndSelect('employee.roles', 'role');
-    } else {
+    if (role?.length) {
       qb.innerJoinAndSelect(
         'employee.roles',
         'role',

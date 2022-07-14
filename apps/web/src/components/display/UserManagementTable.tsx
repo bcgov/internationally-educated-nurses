@@ -18,14 +18,14 @@ export const UserManagementTable = (props: UserManagementProps) => {
   const router = useRouter();
 
   const getStatus = (user: EmployeeRO) => {
-    if (!user.roles?.length) return 'None';
     if (user.revoked_access_date) return 'Revoked';
+    if (!user.roles?.length) return 'None';
     return 'Active';
   };
 
   const getStatusClass = (user: EmployeeRO): string => {
-    if (!user.roles?.length) return 'None';
     if (user.revoked_access_date) return 'text-bcDarkRed';
+    if (!user.roles?.length) return 'None';
     return 'text-bcGreenSuccess';
   };
 
