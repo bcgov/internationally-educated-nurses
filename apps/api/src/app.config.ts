@@ -1,5 +1,10 @@
 import { NestFactory } from '@nestjs/core';
-import { BadRequestException, ValidationPipe, ValidationPipeOptions } from '@nestjs/common';
+import {
+  BadRequestException,
+  ValidationError,
+  ValidationPipe,
+  ValidationPipeOptions,
+} from '@nestjs/common';
 import { ExpressAdapter, NestExpressApplication } from '@nestjs/platform-express';
 import express from 'express';
 
@@ -11,6 +16,11 @@ import { ErrorExceptionFilter } from './common/error-exception.filter';
 import { TrimPipe } from './common/trim.pipe';
 import { API_PREFIX } from './config';
 
+interface ValidationErrorMessage {
+  property: string;
+  errors: string[];
+}
+
 export const validationPipeConfig: ValidationPipeOptions = {
   transform: true,
   whitelist: true,
@@ -18,14 +28,20 @@ export const validationPipeConfig: ValidationPipeOptions = {
   enableDebugMessages: false,
   disableErrorMessages: true,
   exceptionFactory: errors => {
-    const errorMessages = errors.map(error => {
-      const nestedValidationError = error.constraints?.ValidateNestedObject;
-      if (nestedValidationError) {
-        return JSON.parse(nestedValidationError);
+    const getErrorMessages = (error: ValidationError): ValidationErrorMessage[] => {
+      const messages: ValidationErrorMessage[] = [];
+      if (error.constraints) {
+        messages.push({
+          property: error.property,
+          errors: Object.values(error.constraints),
+        });
       }
-
-      return error.constraints;
-    });
+      if (error.children && error.children?.length > 0) {
+        messages.push(...error.children.map(getErrorMessages).reduce((a, c) => a.concat(c), []));
+      }
+      return messages;
+    };
+    const errorMessages = errors.map(error => getErrorMessages(error));
     throw new BadRequestException(errorMessages);
   },
 };

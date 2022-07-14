@@ -71,7 +71,7 @@ export const EducationForm: React.FC<NursingEducationProps> = (props: NursingEdu
               className='ml-auto px-7'
               variant='secondary'
               type='button'
-              onClick={() => push(new NursingEducationDTO('', '', '', ''))}
+              onClick={() => push(new NursingEducationDTO('', null, '', null))}
               disabled={
                 typeof errors === 'object' ||
                 Object.values(nursing_educations[lastIndex]).every(v => !v)

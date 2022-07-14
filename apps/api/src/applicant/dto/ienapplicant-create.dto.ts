@@ -46,7 +46,7 @@ export class IENApplicantCreateUpdateAPIDTO extends IENApplicantCreateUpdateDTO 
 
   @ApiProperty({
     description: 'Applicant phone number',
-    default: '77-555-1234',
+    default: '777-555-1234',
   })
   @IsString()
   @Length(1, 18, { message: 'Please provide applicant phone' })
