@@ -23,7 +23,7 @@ export const buttonBase = `inline-flex justify-center items-center rounded borde
                               focus:ring-2 focus:ring-offset-2 sm:mt-0 sm:text-sm`;
 
 export const modalButtonBase = `inline-flex justify-center items-center rounded shadow-sm border-2 border-bcBluePrimary
-                              px-12 py-2 text-xs sm:text-sm font-bold focus:outline-none disabled:opacity-50
+                              px-16 py-2 text-xs sm:text-sm font-bold focus:outline-none disabled:opacity-50
                               focus:ring-2 focus:ring-offset-2 sm:mt-0 sm:text-sm`;
 
 export const Button: React.FC<ButtonProps> = props => {

@@ -23,7 +23,7 @@ export const HeaderTab = ({ tabs, tabIndex, onTabClick }: TabFields) => {
   };
 
   return (
-    <div className='mb-3 whitespace-nowrap my-1'>
+    <div className='mb-2 whitespace-nowrap my-1'>
       <div className='flex justify-start'>
         {tabs.map(({ title, value }) => (
           <button

@@ -1,3 +1,4 @@
+import { NursingEducationDTO } from './../dto/nursing-education.dto';
 import {
   IENApplicantStatusRO,
   IENHaPcnRO,
@@ -18,7 +19,7 @@ export interface ApplicantRO {
   country_of_citizenship?: string[];
   country_of_residence?: string;
   pr_status?: string;
-  nursing_educations?: JSON;
+  nursing_educations?: NursingEducationDTO[];
   bccnm_license_number?: string;
   health_authorities?: JSON;
   notes?: JSON;

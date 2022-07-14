@@ -6,7 +6,8 @@ import { StyleOption } from './constants/roles.constants';
 
 export interface RecordTypeOptions extends StyleOption {
   id: number;
-  title: number;
+  countryCode?: string;
+  title: string;
 }
 
 export interface RecordType {
@@ -40,4 +41,9 @@ export const useGetWithdrawReasonOptions = (): IENStatusReasonRO[] => {
   const { data: reasons } = useSWRImmutable('ienmaster/reasons', fetcher);
 
   return reasons?.data;
+};
+
+export const useGetEducationOptions = (): RecordTypeOptions[] => {
+  const { data: education } = useSWRImmutable('ienmaster/education', fetcher);
+  return education?.data;
 };

@@ -100,9 +100,12 @@ export class IENApplicantController {
   @AllowAccess(Access.APPLICANT_WRITE)
   @HttpCode(HttpStatus.CREATED)
   @Post('/')
-  async addApplicant(@Body() addApplicant: IENApplicantCreateUpdateAPIDTO): Promise<ApplicantRO> {
+  async addApplicant(
+    @Req() req: RequestObj,
+    @Body() addApplicant: IENApplicantCreateUpdateAPIDTO,
+  ): Promise<ApplicantRO> {
     try {
-      return await this.ienapplicantService.addApplicant(addApplicant);
+      return await this.ienapplicantService.addApplicant(addApplicant, req);
     } catch (e) {
       this.logger.error(e);
       if (e instanceof NotFoundException) {

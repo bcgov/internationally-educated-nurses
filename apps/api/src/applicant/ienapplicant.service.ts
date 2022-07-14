@@ -96,8 +96,11 @@ export class IENApplicantService {
    * @param addApplicant Add Applicant DTO
    * @returns Created Applicant details
    */
-  async addApplicant(addApplicant: IENApplicantCreateUpdateAPIDTO): Promise<IENApplicant | any> {
-    const applicant = await this.createApplicantObject(addApplicant);
+  async addApplicant(
+    addApplicant: IENApplicantCreateUpdateAPIDTO,
+    req: RequestObj,
+  ): Promise<IENApplicant | any> {
+    const applicant = await this.createApplicantObject(addApplicant, req.user?.ha_pcn_id);
     await this.ienapplicantRepository.save(applicant);
     // let's save audit
     await this.ienapplicantUtilService.saveApplicantAudit(applicant, applicant.added_by);
@@ -110,7 +113,10 @@ export class IENApplicantService {
    * @param addApplicant
    * @returns
    */
-  async createApplicantObject(addApplicant: IENApplicantCreateUpdateAPIDTO) {
+  async createApplicantObject(
+    addApplicant: IENApplicantCreateUpdateAPIDTO,
+    haPcnId: number | null | undefined,
+  ) {
     const {
       health_authorities,
       assigned_to,
@@ -138,11 +144,16 @@ export class IENApplicantService {
       applicant.health_authorities = await this.ienapplicantUtilService.getHaPcns(
         health_authorities,
       );
+    } else if (haPcnId) {
+      applicant.health_authorities = await this.ienapplicantUtilService.getHaPcns([
+        { id: `${haPcnId}` },
+      ]);
     }
     // collect assigned user details
     if (assigned_to && assigned_to instanceof Array && assigned_to.length) {
       applicant.assigned_to = await this.ienapplicantUtilService.getUserArray(assigned_to);
     }
+
     return applicant;
   }
 

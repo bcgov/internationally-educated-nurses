@@ -51,8 +51,9 @@ export const ApplicantProfile = () => {
             title='Nursing Education'
             text={
               applicant?.nursing_educations &&
-              Object.values(applicant?.nursing_educations)
-                .map((a: { name: string }) => a.name)
+              applicant?.nursing_educations
+                .filter(e => e.name !== '')
+                .map(n => n.name)
                 .join(', ')
             }
           />

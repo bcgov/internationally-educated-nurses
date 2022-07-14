@@ -5,9 +5,9 @@ import { getApplicants, milestoneTabs } from '@services';
 import { Search } from '../components/Search';
 import { HeaderTab } from '../components/display/HeaderTab';
 import { PageOptions, Pagination } from '../components/Pagination';
-import { ApplicantTable } from '../components/display/ApplicantTable';
 import withAuth from '../components/Keycloak';
 import { Access, ApplicantRO } from '@ien/common';
+import { AddApplicantModal, Button, ApplicantTable } from '@components';
 
 interface SearchOptions {
   name?: string;
@@ -35,6 +35,8 @@ const Applicants = () => {
   const [limit, setLimit] = useState(DEFAULT_PAGE_SIZE);
   const [pageIndex, setPageIndex] = useState(1);
   const [total, setTotal] = useState(0);
+
+  const [addIenModalVisible, setAddIenModalVisible] = useState(false);
 
   const timer = useRef<number>();
 
@@ -132,7 +134,17 @@ const Applicants = () => {
           tabIndex={status ? status - 10000 : 0}
           onTabClick={handleTabChange}
         />
-        <div className='text-bcGray pb-3 px-4'>{`Showing ${applicants.length} results`}</div>
+        <div className='flex justify-between items-center'>
+          <div className='text-bcGray px-4'>{`Showing ${applicants.length} results`}</div>
+          <Button
+            className='mr-4 mb-3'
+            variant='secondary'
+            type='button'
+            onClick={() => setAddIenModalVisible(true)}
+          >
+            Add Applicant
+          </Button>
+        </div>
       </div>
       <div className='flex justify-content-center flex-col bg-white px-4 pb-4'>
         <Pagination
@@ -140,6 +152,12 @@ const Applicants = () => {
           onChange={handlePageOptions}
         />
         <ApplicantTable applicants={applicants} onSortChange={handleSort} loading={loading} />
+        <AddApplicantModal
+          onClose={() => setAddIenModalVisible(false)}
+          visible={addIenModalVisible}
+          applicants={applicants}
+          setApplicant={setApplicants}
+        />
         <Pagination
           pageOptions={{ pageIndex, pageSize: limit, total }}
           onChange={handlePageOptions}

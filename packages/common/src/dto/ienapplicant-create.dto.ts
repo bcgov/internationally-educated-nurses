@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import {
   IsDateString,
   IsOptional,
@@ -6,7 +7,14 @@ import {
   IsObject,
   IsBoolean,
   IsArray,
+  IsNotEmpty,
+  IsEmail,
+  ArrayNotEmpty,
+  ValidateNested,
+  ArrayMinSize,
+  ValidateIf,
 } from 'class-validator';
+import { NursingEducationDTO } from './nursing-education.dto';
 
 export class IENApplicantCreateUpdateDTO {
   @IsString()
@@ -20,36 +28,40 @@ export class IENApplicantCreateUpdateDTO {
   @IsOptional()
   applicant_id?: number;
 
-  @IsOptional()
-  @IsString()
-  @Length(1, 256, { message: 'Please provide applicant email' })
-  email_address?: string;
+  @IsEmail({}, { message: 'Must be a valid Email' })
+  @Length(1, 256)
+  @IsNotEmpty({ message: 'Email is required' })
+  email_address!: string;
 
   @IsOptional()
   @IsString()
   @Length(1, 256, { message: 'Please provide applicant phone' })
   phone_number?: string;
 
-  @IsDateString()
-  @IsOptional()
-  registration_date?: Date;
+  @IsDateString({}, { message: 'Must be a valid Date' })
+  @IsNotEmpty({ message: 'Registration Date is required' })
+  registration_date!: string;
 
   @IsArray()
   @IsOptional()
   assigned_to?: JSON;
 
-  @IsOptional()
-  country_of_citizenship?: string[] | string;
+  @ArrayNotEmpty({ message: 'Country of Citizenship is required' })
+  country_of_citizenship!: string[] | string;
 
-  @IsOptional()
-  country_of_residence?: string;
+  @IsNotEmpty({ message: 'Country of Residence is required' })
+  country_of_residence!: string;
 
-  @IsOptional()
-  pr_status?: string;
+  @IsNotEmpty({ message: 'Permanent Residence Status is required' })
+  pr_status!: string;
 
   @IsArray()
-  @IsOptional()
-  nursing_educations?: JSON;
+  @ArrayMinSize(2, { message: 'At least 1 Education is required' })
+  @ArrayNotEmpty({ message: 'Education is required' })
+  @ValidateIf(e => e.nursing_educations.length > 0)
+  @ValidateNested()
+  @Type(() => NursingEducationDTO)
+  nursing_educations!: NursingEducationDTO[];
 
   @IsOptional()
   @IsString()
