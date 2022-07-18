@@ -112,13 +112,7 @@ export class EmployeeService {
   async getEmployeeList(filter: EmployeeFilterAPIDTO): Promise<[EmployeeEntity[], number]> {
     const { role, name, revokedOnly, sortKey, order, limit, skip } = filter;
 
-    const sortKeyword = sortKey ? `employee.${sortKey}` : 'employee.created_date';
-
-    const qb = this.employeeRepository
-      .createQueryBuilder('employee')
-      .select('employee.id')
-      .addSelect(`employee.${sortKey || 'created_date'}`)
-      .orderBy({ [sortKeyword]: order || 'DESC' });
+    const qb = this.employeeRepository.createQueryBuilder('employee');
 
     if (name) {
       qb.andWhere(this._nameSearchQuery(name));
@@ -134,15 +128,18 @@ export class EmployeeService {
         'role',
         role ? `role.id IN(${role.join(',')})` : undefined,
       );
+    } else {
+      qb.leftJoinAndSelect('employee.roles', 'role');
     }
 
-    const [employee_ids, count] = await qb.getManyAndCount();
+    const sortKeyword = sortKey ? `employee.${sortKey}` : 'employee.created_date';
+    qb.orderBy({ [sortKeyword]: order || 'DESC' });
+
+    const [employees, count] = await qb.getManyAndCount();
 
     const start = skip ? +skip : 0;
-    const end = start + (limit ? +limit : 0);
-
-    const employees = await this.employeeRepository.findByIds(employee_ids.slice(start, end));
-    return [employees, count];
+    const end = limit ? +limit + start : employees.length;
+    return [employees.slice(start, end), count];
   }
 
   /**
