@@ -41,7 +41,7 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
                 key={app.id}
                 className='text-left shadow-xs whitespace-nowrap even:bg-bcLightGray text-sm '
               >
-                <td className='pl-6'>{app.applicant_id}</td>
+                <td className='pl-6'>{app.applicant_id || 'N/A'}</td>
                 <td className='px-6 py-5'>{app.name}</td>
                 <td className='px-6'>{app.status?.status}</td>
                 <td className='px-6'>{app.updated_date && formatDate(app.updated_date)}</td>
