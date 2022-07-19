@@ -59,7 +59,7 @@ export class IENApplicantController {
     @Query() filter: IENApplicantFilterAPIDTO,
   ): Promise<[ApplicantRO[], number]> {
     try {
-      return await this.ienapplicantService.getApplicants(filter, req);
+      return await this.ienapplicantService.getApplicants(filter, req.user);
     } catch (e) {
       this.logger.error(e);
       throw new InternalServerErrorException('An unknown error occured retriving applicants');
@@ -105,7 +105,7 @@ export class IENApplicantController {
     @Body() addApplicant: IENApplicantCreateUpdateAPIDTO,
   ): Promise<ApplicantRO> {
     try {
-      return await this.ienapplicantService.addApplicant(addApplicant, req);
+      return await this.ienapplicantService.addApplicant(addApplicant, req.user);
     } catch (e) {
       this.logger.error(e);
       if (e instanceof NotFoundException) {

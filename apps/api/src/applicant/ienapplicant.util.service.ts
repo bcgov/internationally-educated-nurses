@@ -167,7 +167,7 @@ export class IENApplicantUtilService {
    * @param status
    * @returns Status Object or NotFoundException
    */
-  async getStatusById(status: string, req: EmployeeRO): Promise<IENApplicantStatus> {
+  async getStatusById(status: string, user: EmployeeRO): Promise<IENApplicantStatus> {
     const statusObj = await this.ienMasterService.ienApplicantStatusRepository.findOne(
       parseInt(status),
       {
@@ -178,11 +178,11 @@ export class IENApplicantUtilService {
       throw new NotFoundException(`Status with given value "${status}" not found`);
     }
 
-    if (req.roles.some(r => r.slug === RoleSlug.Admin)) {
+    if (user.roles.some(r => r.slug === RoleSlug.Admin)) {
       return statusObj;
     }
 
-    if (statusObj && !req.ha_pcn_id && statusObj.parent?.id != 10003) {
+    if (statusObj && !user.ha_pcn_id && statusObj.parent?.id != 10003) {
       throw new BadRequestException(
         `Only recruitment-related milestones/statuses are allowed here`,
       );

@@ -10,6 +10,7 @@ import { AppModule } from '../src/app.module';
 import { IENHaPcn } from 'src/applicant/entity/ienhapcn.entity';
 import { validApplicant, applicant, addJob, seedHa, addMilestone, seedUser } from './fixture/ien';
 import { IENUsers } from 'src/applicant/entity/ienusers.entity';
+import { RoleSlug } from '@ien/common';
 let jobTempId = 10;
 let applicantStatusId = 'NA';
 
@@ -28,7 +29,10 @@ describe('ApplicantController (e2e)', () => {
       .useValue({
         canActivate: (context: ExecutionContext) => {
           const request = context.switchToHttp().getRequest();
-          request.user = { user_id: request.headers?.user || seedUser.id };
+          request.user = {
+            user_id: request.headers?.user || seedUser.id,
+            roles: [{ id: 1, slug: RoleSlug.Admin }],
+          };
           return true;
         },
       })

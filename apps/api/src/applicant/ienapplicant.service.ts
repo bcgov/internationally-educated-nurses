@@ -16,7 +16,6 @@ import { IENApplicantStatusAudit } from './entity/ienapplicant-status-audit.enti
 import { IENApplicantJobCreateUpdateAPIDTO } from './dto/ienapplicant-job-create.dto';
 import { IENApplicantJobQueryDTO } from './dto/ienapplicant-job-filter.dto';
 import { IENJobLocation } from './entity/ienjoblocation.entity';
-import { RequestObj } from 'src/common/interface/RequestObj';
 import { EmployeeRO } from '@ien/common';
 
 @Injectable()
@@ -45,9 +44,9 @@ export class IENApplicantService {
    */
   async getApplicants(
     filter: IENApplicantFilterAPIDTO,
-    req: RequestObj,
+    user: EmployeeRO,
   ): Promise<[data: IENApplicant[], count: number]> {
-    return this.ienapplicantUtilService.applicantFilterQueryBuilder(filter, req.user?.ha_pcn_id);
+    return this.ienapplicantUtilService.applicantFilterQueryBuilder(filter, user?.ha_pcn_id);
   }
 
   /**
@@ -99,9 +98,9 @@ export class IENApplicantService {
    */
   async addApplicant(
     addApplicant: IENApplicantCreateUpdateAPIDTO,
-    req: RequestObj,
+    user: EmployeeRO,
   ): Promise<IENApplicant | any> {
-    const applicant = await this.createApplicantObject(addApplicant, req.user);
+    const applicant = await this.createApplicantObject(addApplicant, user);
     await this.ienapplicantRepository.save(applicant);
     // let's save audit
     await this.ienapplicantUtilService.saveApplicantAudit(applicant, applicant.added_by);
@@ -114,7 +113,7 @@ export class IENApplicantService {
    * @param addApplicant
    * @returns
    */
-  async createApplicantObject(addApplicant: IENApplicantCreateUpdateAPIDTO, req: EmployeeRO) {
+  async createApplicantObject(addApplicant: IENApplicantCreateUpdateAPIDTO, user: EmployeeRO) {
     const {
       health_authorities,
       assigned_to,
@@ -142,9 +141,9 @@ export class IENApplicantService {
       applicant.health_authorities = await this.ienapplicantUtilService.getHaPcns(
         health_authorities,
       );
-    } else if (req.ha_pcn_id) {
+    } else if (user.ha_pcn_id) {
       applicant.health_authorities = await this.ienapplicantUtilService.getHaPcns([
-        { id: `${req.ha_pcn_id}` },
+        { id: `${user.ha_pcn_id}` },
       ]);
     }
     // collect assigned user details
@@ -152,8 +151,8 @@ export class IENApplicantService {
       applicant.assigned_to = await this.ienapplicantUtilService.getUserArray(assigned_to);
     }
 
-    if (req.user_id) {
-      const added_by_data = await this.ienUsersRepository.findOne(req.user_id);
+    if (user.user_id) {
+      const added_by_data = await this.ienUsersRepository.findOne(user.user_id);
       if (added_by_data) {
         applicant.added_by = added_by_data;
       }
@@ -224,7 +223,7 @@ export class IENApplicantService {
    * @returns
    */
   async addApplicantStatus(
-    req: EmployeeRO,
+    user: EmployeeRO,
     id: string,
     applicantUpdate: IENApplicantAddStatusAPIDTO,
   ): Promise<IENApplicantStatusAudit | any> {
@@ -234,7 +233,7 @@ export class IENApplicantService {
     const data: any = {};
 
     /** Only allowing recruiment related milestones here */
-    const status_obj = await this.ienapplicantUtilService.getStatusById(status, req);
+    const status_obj = await this.ienapplicantUtilService.getStatusById(status, user);
 
     data.status = status_obj;
 
@@ -249,8 +248,8 @@ export class IENApplicantService {
       throw new BadRequestException(`Competition/job are required to add a milestone`);
     }
 
-    if (req.user_id) {
-      const added_by_data = await this.ienUsersRepository.findOne(req.user_id);
+    if (user.user_id) {
+      const added_by_data = await this.ienUsersRepository.findOne(user.user_id);
       if (added_by_data) {
         data.added_by = added_by_data;
       }
@@ -302,7 +301,7 @@ export class IENApplicantService {
    * @returns
    */
   async updateApplicantStatus(
-    req: EmployeeRO,
+    user: EmployeeRO,
     status_id: string,
     applicantUpdate: IENApplicantUpdateStatusAPIDTO,
   ): Promise<IENApplicantStatusAudit | any> {
@@ -313,8 +312,8 @@ export class IENApplicantService {
       throw new NotFoundException('Provided status/milestone record not found');
     }
     const { status, start_date, effective_date, end_date, notes, reason } = applicantUpdate;
-    if (req.user_id) {
-      const updated_by_data = await this.ienUsersRepository.findOne(req.user_id);
+    if (user.user_id) {
+      const updated_by_data = await this.ienUsersRepository.findOne(user.user_id);
       if (updated_by_data) {
         status_audit.updated_by = updated_by_data;
       }
@@ -326,7 +325,7 @@ export class IENApplicantService {
     }
 
     if (status) {
-      const status_obj = await this.ienapplicantUtilService.getStatusById(status, req);
+      const status_obj = await this.ienapplicantUtilService.getStatusById(status, user);
       status_audit.status = status_obj;
     }
 
