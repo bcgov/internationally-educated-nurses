@@ -87,7 +87,7 @@ export const AddMilestone = ({ job, milestoneTabId }: AddMilestoneProps) => {
 
     // get updated milestones
     if (milestone && milestone.id && job) {
-      const jobMilestones = [...(job?.status_audit || []), milestone];
+      const jobMilestones = [...(job.status_audit || []), milestone];
       updateJob({ ...job, status_audit: jobMilestones });
     }
   };

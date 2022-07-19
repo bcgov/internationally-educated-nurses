@@ -3,7 +3,7 @@
   "private": true,
   "description": "IEN app packages",
   "engines": {
-    "node": "^16.15.1"
+    "node": "16.15.1"
   },
   "scripts": {
     "format:staged": "yarn pretty-quick --staged",
