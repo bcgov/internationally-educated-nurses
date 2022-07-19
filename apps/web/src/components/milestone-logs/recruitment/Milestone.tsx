@@ -54,10 +54,9 @@ export const AddMilestone = ({ job, milestoneTabId }: AddMilestoneProps) => {
   const { applicant, updateJob, milestones, updateMilestone } = useApplicantContext();
 
   const isDuplicate = ({ status, start_date }: IENApplicantAddStatusDTO) => {
-    if (job) {
-      return job.status_audit?.find(m => m.status.id == +status && m.start_date == start_date);
-    }
-    return milestones.find(m => m.status.id == +status && m.start_date == start_date);
+    return job
+      ? job.status_audit?.find(m => m.status.id == +status && m.start_date == start_date)
+      : milestones.find(m => m.status.id == +status && m.start_date == start_date);
   };
 
   const handleSubmit = async (
@@ -70,7 +69,11 @@ export const AddMilestone = ({ job, milestoneTabId }: AddMilestoneProps) => {
     }
 
     // check whether a job is present to determine which fn to add milestone
-    job ? recruitmentRelated(values) : notRecruitmentRelated(values);
+    if (job) {
+      recruitmentRelated(values);
+    } else {
+      notRecruitmentRelated(values);
+    }
 
     // reset form after submitting
     helpers && helpers.resetForm(getInitialValues());
@@ -78,14 +81,14 @@ export const AddMilestone = ({ job, milestoneTabId }: AddMilestoneProps) => {
 
   // handle recruitment related adding of milestones
   const recruitmentRelated = async (values: IENApplicantAddStatusDTO) => {
-    values.job_id = `${job!.id}`;
+    values.job_id = `${job?.id}`;
 
     const milestone = await addMilestone(applicant.id, values);
 
     // get updated milestones
-    if (milestone && milestone.id) {
-      const milestones = [...(job!.status_audit || []), milestone];
-      updateJob({ ...job!, status_audit: milestones });
+    if (milestone && milestone.id && job) {
+      const jobMilestones = [...(job?.status_audit || []), milestone];
+      updateJob({ ...job, status_audit: jobMilestones });
     }
   };
 
@@ -98,14 +101,9 @@ export const AddMilestone = ({ job, milestoneTabId }: AddMilestoneProps) => {
     }
   };
 
-  return job ? (
+  return (
     <MilestoneForm<IENApplicantAddStatusDTO>
       job={job}
-      handleSubmit={handleSubmit}
-      milestoneTabId={milestoneTabId}
-    />
-  ) : (
-    <MilestoneForm<IENApplicantAddStatusDTO>
       handleSubmit={handleSubmit}
       milestoneTabId={milestoneTabId}
     />
