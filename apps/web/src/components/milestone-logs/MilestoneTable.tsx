@@ -81,6 +81,14 @@ export const MilestoneTable = ({ parentStatus }: MilestoneTableProps) => {
     return getHumanizedDuration(start, end);
   };
 
+  const canAddNonRecruitmentMilestone = () => {
+    return (
+      !applicant.applicant_id &&
+      wasAddedByLoggedInUser(authUser?.user_id, applicant.added_by?.id) &&
+      authUser?.ha_pcn_id
+    );
+  };
+
   return (
     <div>
       <div className='text-bcGray pb-2'>Showing {milestonesInPage.length} logs</div>
@@ -120,10 +128,7 @@ export const MilestoneTable = ({ parentStatus }: MilestoneTableProps) => {
           <div className='w-full flex flex-row justify-center py-5 font-bold'>No Milestones</div>
         )}
         {/* only show form if applicant was not added by ATS and if current logged in user added applicant */}
-        {!applicant.applicant_id &&
-          wasAddedByLoggedInUser(authUser?.user_id, applicant.added_by?.id) && (
-            <AddMilestone milestoneTabId={parentStatus} />
-          )}
+        {canAddNonRecruitmentMilestone() && <AddMilestone milestoneTabId={parentStatus} />}
       </div>
       <Pagination
         pageOptions={{ pageIndex, pageSize, total: milestones.length }}
