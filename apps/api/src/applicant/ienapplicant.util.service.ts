@@ -25,6 +25,7 @@ import { IENJobTitle } from './entity/ienjobtitles.entity';
 import { IENJobLocation } from './entity/ienjoblocation.entity';
 import { IENStatusReason } from './entity/ienstatus-reason.entity';
 import { IENMasterService } from './ien-master.service';
+import { RoleSlug, EmployeeRO } from '@ien/common';
 
 @Injectable()
 export class IENApplicantUtilService {
@@ -166,7 +167,7 @@ export class IENApplicantUtilService {
    * @param status
    * @returns Status Object or NotFoundException
    */
-  async getStatusById(status: string): Promise<IENApplicantStatus> {
+  async getStatusById(status: string, req: EmployeeRO): Promise<IENApplicantStatus> {
     const statusObj = await this.ienMasterService.ienApplicantStatusRepository.findOne(
       parseInt(status),
       {
@@ -176,12 +177,15 @@ export class IENApplicantUtilService {
     if (!statusObj) {
       throw new NotFoundException(`Status with given value "${status}" not found`);
     }
-    if (statusObj) {
-      if (statusObj.parent?.id != 10003) {
-        throw new BadRequestException(
-          `Only recruitment-related milestones/statuses are allowed here`,
-        );
-      }
+
+    if (req.roles.some(r => r.slug === RoleSlug.Admin)) {
+      return statusObj;
+    }
+
+    if (statusObj && !req.ha_pcn_id && statusObj.parent?.id != 10003) {
+      throw new BadRequestException(
+        `Only recruitment-related milestones/statuses are allowed here`,
+      );
     }
     return statusObj;
   }

@@ -1,8 +1,12 @@
-import { PageOptions, Pagination } from '../Pagination';
 import { useEffect, useState } from 'react';
+
+import { PageOptions, Pagination } from '../Pagination';
+
 import { ApplicantStatusAuditRO, formatDate } from '@ien/common';
 import { getHumanizedDuration } from '@services';
 import { useApplicantContext } from '../applicant/ApplicantContext';
+import { AddMilestone } from './recruitment/Milestone';
+import { useAuthContext } from '../AuthContexts';
 
 interface MilestoneTableProps {
   parentStatus: number;
@@ -10,9 +14,28 @@ interface MilestoneTableProps {
 
 const DEFAULT_TAB_PAGE_SIZE = 5;
 
-export const MilestoneTable = ({ parentStatus }: MilestoneTableProps) => {
-  const { milestones } = useApplicantContext();
+const wasAddedByLoggedInUser = (loggedInId?: string | null, addedById?: string) => {
+  return loggedInId && loggedInId.toString() === addedById;
+};
 
+const getStatus = (milestone: ApplicantStatusAuditRO) => {
+  const { status } = milestone.status;
+  if (!status) return '';
+
+  const label = milestone.status.party || '-';
+
+  return (
+    <div className='flex flex-row'>
+      <div className='bg-bcGrayLabel px-2 py-0.5 mr-2 text-xs text-white rounded'>{label}</div>
+      <div className='text-ellipsis overflow-hidden ...'>{status}</div>
+    </div>
+  );
+};
+
+export const MilestoneTable = ({ parentStatus }: MilestoneTableProps) => {
+  const { authUser } = useAuthContext();
+
+  const { applicant, milestones } = useApplicantContext();
   const [filteredMilestones, setFilteredMilestones] = useState<ApplicantStatusAuditRO[]>([]);
   const [milestonesInPage, setMilestonesInPage] = useState<ApplicantStatusAuditRO[]>([]);
   const [pageIndex, setPageIndex] = useState(1);
@@ -26,7 +49,7 @@ export const MilestoneTable = ({ parentStatus }: MilestoneTableProps) => {
         }) || [];
       setFilteredMilestones(audits);
     },
-    [milestones, parentStatus],
+    [milestones, parentStatus, applicant],
   );
 
   useEffect(
@@ -46,20 +69,6 @@ export const MilestoneTable = ({ parentStatus }: MilestoneTableProps) => {
     setPageIndex(options.pageIndex);
   };
 
-  const getStatus = (milestone: ApplicantStatusAuditRO) => {
-    const { status } = milestone.status;
-    if (!status) return '';
-
-    const label = milestone.status.party || '-';
-
-    return (
-      <div className='flex flex-row'>
-        <div className='bg-bcGrayLabel px-2 py-0.5 mr-2 text-xs text-white rounded'>{label}</div>
-        <div className='text-ellipsis overflow-hidden ...'>{status}</div>
-      </div>
-    );
-  };
-
   const getDuration = (milestone: ApplicantStatusAuditRO): string => {
     const start = milestone.start_date;
     let end = milestone.end_date;
@@ -74,7 +83,7 @@ export const MilestoneTable = ({ parentStatus }: MilestoneTableProps) => {
 
   return (
     <div>
-      <div className='text-bcGray pb-2'>Showing {milestones.length} logs</div>
+      <div className='text-bcGray pb-2'>Showing {milestonesInPage.length} logs</div>
       <div>
         <table className='w-full'>
           <thead className=''>
@@ -105,13 +114,16 @@ export const MilestoneTable = ({ parentStatus }: MilestoneTableProps) => {
                 <td className='px-4'>{getDuration(audit)}</td>
               </tr>
             ))}
-            {!milestonesInPage.length && (
-              <tr>
-                <td></td>
-              </tr>
-            )}
           </tbody>
         </table>
+        {!milestonesInPage.length && (
+          <div className='w-full flex flex-row justify-center py-5 font-bold'>No Milestones</div>
+        )}
+        {/* only show form if applicant was not added by ATS and if current logged in user added applicant */}
+        {!applicant.applicant_id &&
+          wasAddedByLoggedInUser(authUser?.user_id, applicant.added_by?.id) && (
+            <AddMilestone milestoneTabId={parentStatus} />
+          )}
       </div>
       <Pagination
         pageOptions={{ pageIndex, pageSize, total: milestones.length }}

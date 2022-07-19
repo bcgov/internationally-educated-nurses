@@ -46,14 +46,18 @@ const getInitialValues = <T extends MilestoneFormValues>(status?: ApplicantStatu
 const milestoneValidator = createValidator(IENApplicantAddStatusDTO);
 
 interface AddMilestoneProps {
-  job: ApplicantJobRO;
+  job?: ApplicantJobRO;
+  milestoneTabId: number;
 }
 
-export const AddMilestone = ({ job }: AddMilestoneProps) => {
-  const { applicant, updateJob } = useApplicantContext();
+export const AddMilestone = ({ job, milestoneTabId }: AddMilestoneProps) => {
+  const { applicant, updateJob, milestones, updateMilestone } = useApplicantContext();
 
   const isDuplicate = ({ status, start_date }: IENApplicantAddStatusDTO) => {
-    return job.status_audit?.find(m => m.status.id == +status && m.start_date == start_date);
+    if (job) {
+      return job.status_audit?.find(m => m.status.id == +status && m.start_date == start_date);
+    }
+    return milestones.find(m => m.status.id == +status && m.start_date == start_date);
   };
 
   const handleSubmit = async (
@@ -65,21 +69,47 @@ export const AddMilestone = ({ job }: AddMilestoneProps) => {
       return;
     }
 
-    values.job_id = `${job.id}`;
-
-    const milestone = await addMilestone(applicant.id, values);
-
-    // get updated milestones
-    if (milestone && milestone.id) {
-      const milestones = [...(job.status_audit || []), milestone];
-      updateJob({ ...job, status_audit: milestones });
-    }
+    // check whether a job is present to determine which fn to add milestone
+    job ? recruitmentRelated(values) : notRecruitmentRelated(values);
 
     // reset form after submitting
     helpers && helpers.resetForm(getInitialValues());
   };
 
-  return <MilestoneForm<IENApplicantAddStatusDTO> job={job} handleSubmit={handleSubmit} />;
+  // handle recruitment related adding of milestones
+  const recruitmentRelated = async (values: IENApplicantAddStatusDTO) => {
+    values.job_id = `${job!.id}`;
+
+    const milestone = await addMilestone(applicant.id, values);
+
+    // get updated milestones
+    if (milestone && milestone.id) {
+      const milestones = [...(job!.status_audit || []), milestone];
+      updateJob({ ...job!, status_audit: milestones });
+    }
+  };
+
+  // handle non recruitment related adding of milestones
+  const notRecruitmentRelated = async (values: IENApplicantAddStatusDTO) => {
+    const milestone = await addMilestone(applicant.id, values);
+
+    if (milestone) {
+      updateMilestone(milestone);
+    }
+  };
+
+  return job ? (
+    <MilestoneForm<IENApplicantAddStatusDTO>
+      job={job}
+      handleSubmit={handleSubmit}
+      milestoneTabId={milestoneTabId}
+    />
+  ) : (
+    <MilestoneForm<IENApplicantAddStatusDTO>
+      handleSubmit={handleSubmit}
+      milestoneTabId={milestoneTabId}
+    />
+  );
 };
 
 interface EditMilestoneProps {
@@ -88,12 +118,13 @@ interface EditMilestoneProps {
   handleSubmit: (milestone: IENApplicantUpdateStatusDTO) => Promise<void>;
   editing: ApplicantStatusAuditRO | null;
   onEditing: (editing: ApplicantStatusAuditRO | null) => void;
+  milestoneTabId: number;
 }
 
 export const EditMilestone: React.FC<EditMilestoneProps> = props => {
   const { deleteMilestone } = useApplicantContext();
 
-  const { job, milestone, handleSubmit, editing, onEditing } = props;
+  const { job, milestone, handleSubmit, editing, onEditing, milestoneTabId } = props;
   const { authUser } = useAuthContext();
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
@@ -174,6 +205,7 @@ export const EditMilestone: React.FC<EditMilestoneProps> = props => {
             milestone={milestone}
             handleSubmit={values => handleSubmit(values)}
             onClose={() => onEditing(null)}
+            milestoneTabId={milestoneTabId}
           />
         </>
       )}
@@ -184,10 +216,11 @@ export const EditMilestone: React.FC<EditMilestoneProps> = props => {
 type ReasonOption = StyleOption & IENStatusReasonRO;
 
 interface MilestoneFormProps<T extends MilestoneFormValues> {
-  job: ApplicantJobRO;
+  job?: ApplicantJobRO;
   milestone?: ApplicantStatusAuditRO;
   handleSubmit: (values: T, { resetForm }?: FormikHelpers<T>) => Promise<void>;
   onClose?: () => void;
+  milestoneTabId: number;
 }
 
 const MilestoneForm = <T extends MilestoneFormValues>({
@@ -195,8 +228,9 @@ const MilestoneForm = <T extends MilestoneFormValues>({
   milestone,
   handleSubmit,
   onClose,
+  milestoneTabId,
 }: MilestoneFormProps<T>) => {
-  const milestones = useGetMilestoneOptions();
+  const milestones = useGetMilestoneOptions(milestoneTabId);
   const reasons = useGetWithdrawReasonOptions();
 
   const submit = async (values: T, helpers: FormikHelpers<T>) => {
@@ -209,6 +243,9 @@ const MilestoneForm = <T extends MilestoneFormValues>({
   };
 
   const validateStartDate = (value: string) => {
+    if (!job) {
+      return;
+    }
     if (dayjs(value).diff(job.job_post_date) < 0) {
       return 'Date must be later than the date job was first posted';
     }
@@ -256,7 +293,7 @@ const MilestoneForm = <T extends MilestoneFormValues>({
                       label='Date'
                       type='date'
                       bgColour='bg-white'
-                      min={job.job_post_date}
+                      min={job ? job.job_post_date : 1900}
                       max={dayjs().format('YYYY-MM-DD')}
                       validate={(val: string) => validateStartDate(val)}
                     />

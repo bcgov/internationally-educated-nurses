@@ -160,11 +160,7 @@ export class IENApplicantController {
         `Add milestone/status for applicant (${id}) requested by
         userId (${req?.user.user_id})/ employeeId/loginId (${req?.user.id})`,
       );
-      return await this.ienapplicantService.addApplicantStatus(
-        req?.user.user_id,
-        id,
-        applicantStatus,
-      );
+      return await this.ienapplicantService.addApplicantStatus(req?.user, id, applicantStatus);
     } catch (e) {
       throw this._handleStatusException(e);
     }
@@ -188,7 +184,7 @@ export class IENApplicantController {
         userId (${req?.user.user_id})/ employeeId/loginId (${req?.user.id})`,
       );
       return await this.ienapplicantService.updateApplicantStatus(
-        req?.user.user_id,
+        req?.user,
         status_id,
         applicantStatus,
       );

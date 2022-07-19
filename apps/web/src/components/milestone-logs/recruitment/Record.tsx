@@ -13,7 +13,7 @@ import {
 import editIcon from '@assets/img/edit.svg';
 import dotIcon from '@assets/img/dot.svg';
 import { AddRecordModal } from '../../display/AddRecordModal';
-import { updateMilestone, getHumanizedDuration } from '@services';
+import { updateMilestone, getHumanizedDuration, MilestoneLogTabs } from '@services';
 import { useApplicantContext } from '../../applicant/ApplicantContext';
 
 interface RecordProps {
@@ -27,9 +27,6 @@ export const Record: React.FC<RecordProps> = ({ job, expandRecord, jobIndex }) =
   const [modalVisible, setModalVisible] = useState(false);
   const [editing, setEditing] = useState<ApplicantStatusAuditRO | null>(null); // milestone being edited
 
-  // set status_audit to empty array on record create
-  // is not included in response when a new record gets created and only gets initialized on refresh
-  // which prevents creation of milestones for new record
   const { ha_pcn, job_id, job_location, job_post_date, job_title, recruiter_name } = job;
 
   // sort milestones by start_date and status id
@@ -155,9 +152,10 @@ export const Record: React.FC<RecordProps> = ({ job, expandRecord, jobIndex }) =
                 editing={editing}
                 onEditing={setEditing}
                 handleSubmit={values => handleUpdateMilestone(mil.id, values)}
+                milestoneTabId={MilestoneLogTabs.RECRUITMENT}
               />
             ))}
-            {!editing && <AddMilestone job={job} />}
+            {!editing && <AddMilestone job={job} milestoneTabId={MilestoneLogTabs.RECRUITMENT} />}
             <AddRecordModal
               job={job}
               milestones={milestones}

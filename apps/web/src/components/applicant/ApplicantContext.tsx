@@ -17,9 +17,11 @@ export const ApplicantContext = createContext<{
   milestones: ApplicantStatusAuditRO[];
   updateJob: (job: ApplicantJobRO) => void;
   deleteMilestone: (milestoneId: string, jobId: string) => void;
+  updateMilestone: (milestone: ApplicantStatusAuditRO) => void;
 }>({
   updateJob: () => void 0,
   deleteMilestone: () => void 0,
+  updateMilestone: () => void 0,
   applicant: {} as ApplicantRO,
   milestones: [],
 });
@@ -62,12 +64,19 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
     }
   };
 
+  const updateMilestone = (milestone: ApplicantStatusAuditRO) => {
+    applicant.applicant_status_audit?.push(milestone);
+
+    setApplicant({ ...applicant });
+  };
+
   const fetchApplicant = async (applicantId: string) => {
     setLoading(true);
     const applicantData = await getApplicant(applicantId);
+
     if (applicantData) {
       setApplicant(applicantData);
-      setMilestones(sortMilestones(applicant.applicant_status_audit || []));
+      setMilestones(sortMilestones(applicantData.applicant_status_audit || []));
     }
 
     setLoading(false);
@@ -83,6 +92,7 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
     milestones,
     updateJob,
     deleteMilestone,
+    updateMilestone,
   };
   return (
     <ApplicantContext.Provider value={value}>
