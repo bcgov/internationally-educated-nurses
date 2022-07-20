@@ -126,7 +126,7 @@ export class EmployeeService {
       qb.andWhere({ revoked_access_date: Not(IsNull()) });
     }
 
-    if (!user.roles.some(role => role.slug === RoleSlug.Admin)) {
+    if (!user.roles.some(({ slug }) => slug === RoleSlug.Admin)) {
       qb.andWhere({ organization: user.organization });
     }
 
