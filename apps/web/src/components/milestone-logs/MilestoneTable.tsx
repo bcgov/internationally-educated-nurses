@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
+import dayjs from 'dayjs';
 
 import { PageOptions, Pagination } from '../Pagination';
-
-import { ApplicantStatusAuditRO, formatDate } from '@ien/common';
-import { getHumanizedDuration } from '@services';
+import { ApplicantStatusAuditRO, formatDate, IENApplicantUpdateStatusDTO } from '@ien/common';
+import { getHumanizedDuration, updateMilestone } from '@services';
 import { useApplicantContext } from '../applicant/ApplicantContext';
-import { AddMilestone } from './recruitment/Milestone';
+import { AddMilestone, EditMilestone } from './recruitment/Milestone';
 import { useAuthContext } from '../AuthContexts';
+import editIcon from '@assets/img/edit.svg';
 
 interface MilestoneTableProps {
   parentStatus: number;
@@ -32,12 +33,17 @@ const getStatus = (milestone: ApplicantStatusAuditRO) => {
   );
 };
 
+const currentlyEditing = 'bg-blue-100';
+
 export const MilestoneTable = ({ parentStatus }: MilestoneTableProps) => {
   const { authUser } = useAuthContext();
+  const { applicant, milestones, updateMilestoneContext } = useApplicantContext();
 
-  const { applicant, milestones } = useApplicantContext();
   const [filteredMilestones, setFilteredMilestones] = useState<ApplicantStatusAuditRO[]>([]);
   const [milestonesInPage, setMilestonesInPage] = useState<ApplicantStatusAuditRO[]>([]);
+  const [editing, setEditing] = useState<ApplicantStatusAuditRO | null>(null);
+  const [activeEdit, setActiveEdit] = useState(0);
+
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_TAB_PAGE_SIZE);
 
@@ -64,6 +70,16 @@ export const MilestoneTable = ({ parentStatus }: MilestoneTableProps) => {
     [filteredMilestones, pageIndex, pageSize],
   );
 
+  const handleUpdateMilestone = async (id: string, values: IENApplicantUpdateStatusDTO) => {
+    setEditing(null);
+
+    const milestone = await updateMilestone(applicant.id, id, values);
+
+    if (milestone) {
+      updateMilestoneContext(milestone);
+    }
+  };
+
   const handlePageOptions = (options: PageOptions) => {
     setPageSize(options.pageSize);
     setPageIndex(options.pageIndex);
@@ -85,7 +101,8 @@ export const MilestoneTable = ({ parentStatus }: MilestoneTableProps) => {
     return (
       !applicant.applicant_id &&
       wasAddedByLoggedInUser(authUser?.user_id, applicant.added_by?.id) &&
-      authUser?.ha_pcn_id
+      authUser?.ha_pcn_id &&
+      !editing
     );
   };
 
@@ -108,19 +125,53 @@ export const MilestoneTable = ({ parentStatus }: MilestoneTableProps) => {
               <th className='px-4' scope='col'>
                 Duration
               </th>
+              <th className='px-4' scope='col'></th>
             </tr>
           </thead>
           <tbody className='text-bcBlack'>
-            {milestonesInPage.map(audit => (
-              <tr
-                key={audit.id}
-                className='text-left text-sm even:bg-bcLightGray shadow-xs whitespace-nowrap'
-              >
-                <td className='pl-8 py-5 max-w-xs'>{getStatus(audit)}</td>
-                <td className='px-4'>{formatDate(audit.start_date || '')}</td>
-                <td className='px-4'>{formatDate(audit.end_date || '')}</td>
-                <td className='px-4'>{getDuration(audit)}</td>
-              </tr>
+            {milestonesInPage.map((audit, index) => (
+              <>
+                <tr
+                  key={audit.id}
+                  className={`text-left text-sm shadow-xs whitespace-nowrap ${
+                    editing && activeEdit === index ? currentlyEditing : 'even:bg-bcLightGray'
+                  }`}
+                >
+                  <td className='pl-8 py-5 w-96'>{getStatus(audit)}</td>
+                  <td className='px-4'>{formatDate(audit.start_date || '')}</td>
+                  {/* temporary placeholder for end date */}
+                  <td className='px-4'>
+                    {dayjs(formatDate(audit.start_date || ''))
+                      .add(1, 'day')
+                      .format('MMM DD, YYYY')}
+                  </td>
+                  <td className='px-4'>{getDuration(audit)}</td>
+                  <td className='items-center px-4'>
+                    <button
+                      className=' '
+                      onClick={() => {
+                        setEditing(audit);
+                        setActiveEdit(index);
+                      }}
+                      disabled={!!editing && audit === editing}
+                    >
+                      <img src={editIcon.src} alt='edit milestone' />
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td colSpan={5}>
+                    <EditMilestone
+                      key={audit.id}
+                      milestone={audit}
+                      editing={editing}
+                      onEditing={setEditing}
+                      handleSubmit={values => handleUpdateMilestone(audit.id, values)}
+                      milestoneTabId={parentStatus}
+                    />
+                  </td>
+                </tr>
+              </>
             ))}
           </tbody>
         </table>

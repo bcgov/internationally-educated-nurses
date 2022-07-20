@@ -51,7 +51,7 @@ interface AddMilestoneProps {
 }
 
 export const AddMilestone = ({ job, milestoneTabId }: AddMilestoneProps) => {
-  const { applicant, updateJob, milestones, updateMilestone } = useApplicantContext();
+  const { applicant, updateJob, milestones, updateMilestoneContext } = useApplicantContext();
 
   const isDuplicate = ({ status, start_date }: IENApplicantAddStatusDTO) => {
     return job
@@ -97,7 +97,7 @@ export const AddMilestone = ({ job, milestoneTabId }: AddMilestoneProps) => {
     const milestone = await addMilestone(applicant.id, values);
 
     if (milestone) {
-      updateMilestone(milestone);
+      updateMilestoneContext(milestone);
     }
   };
 
@@ -111,7 +111,7 @@ export const AddMilestone = ({ job, milestoneTabId }: AddMilestoneProps) => {
 };
 
 interface EditMilestoneProps {
-  job: ApplicantJobRO;
+  job?: ApplicantJobRO;
   milestone: ApplicantStatusAuditRO;
   handleSubmit: (milestone: IENApplicantUpdateStatusDTO) => Promise<void>;
   editing: ApplicantStatusAuditRO | null;
@@ -133,7 +133,8 @@ export const EditMilestone: React.FC<EditMilestoneProps> = props => {
   const handleDeleteMilestone = (milestoneId?: string) => {
     setDeleteModalVisible(false);
 
-    if (milestoneId) {
+    // temp until delete gets implemented
+    if (milestoneId && job) {
       deleteMilestone(milestoneId, job.id);
     }
   };
@@ -149,53 +150,60 @@ export const EditMilestone: React.FC<EditMilestoneProps> = props => {
       </button>
     );
   };
+
+  const isRecruitmentRelated = () => {
+    return job ? (
+      <div className='border border-gray-200 rounded bg-bcLightGray my-2 p-5'>
+        <div className='w-full'>
+          <div className='flex items-center font-bold text-black '>
+            <span className='capitalize'>{milestone.status.status}</span>
+            <span className='mx-2'>|</span>
+            <span className='mr-2'>
+              <img src={calendarIcon.src} alt='calendar' width={16} height={16} />
+            </span>
+            <span>{formatDate(milestone.start_date)}</span>
+            {(milestone.updated_by?.email || milestone.added_by?.email) && (
+              <>
+                <span className='mx-2'>|</span>
+                <span className='mr-2'>
+                  <img src={userIcon.src} alt='user' />
+                </span>
+                <span>Last updated by</span>
+                <a
+                  className='ml-2'
+                  href={`mailto: ${milestone.updated_by?.email || milestone.added_by?.email}`}
+                >
+                  {milestone.updated_by?.email || milestone.added_by?.email}
+                </a>
+              </>
+            )}
+            <button
+              className='ml-auto mr-2'
+              onClick={() => onEditing(milestone)}
+              disabled={!!editing && milestone === editing}
+            >
+              <img src={editIcon.src} alt='edit milestone' />
+            </button>
+            {deleteButton()}
+          </div>
+          <span className='text-sm text-black break-words'>
+            {milestone.notes || 'No Notes Added'}
+          </span>
+        </div>
+        <DeleteMilestoneModal
+          onClose={handleDeleteMilestone}
+          visible={deleteModalVisible}
+          userId={authUser?.user_id}
+          milestoneId={milestone.id}
+        />
+      </div>
+    ) : null;
+  };
+
   return (
     <>
       {editing !== milestone ? (
-        <div className='border border-gray-200 rounded bg-bcLightGray my-2 p-5'>
-          <div className='w-full'>
-            <div className='flex items-center font-bold text-black '>
-              <span className='capitalize'>{milestone.status.status}</span>
-              <span className='mx-2'>|</span>
-              <span className='mr-2'>
-                <img src={calendarIcon.src} alt='calendar' width={16} height={16} />
-              </span>
-              <span>{formatDate(milestone.start_date)}</span>
-              {(milestone.updated_by?.email || milestone.added_by?.email) && (
-                <>
-                  <span className='mx-2'>|</span>
-                  <span className='mr-2'>
-                    <img src={userIcon.src} alt='user' />
-                  </span>
-                  <span>Last updated by</span>
-                  <a
-                    className='ml-2'
-                    href={`mailto: ${milestone.updated_by?.email || milestone.added_by?.email}`}
-                  >
-                    {milestone.updated_by?.email || milestone.added_by?.email}
-                  </a>
-                </>
-              )}
-              <button
-                className='ml-auto mr-2'
-                onClick={() => onEditing(milestone)}
-                disabled={!!editing && milestone === editing}
-              >
-                <img src={editIcon.src} alt='edit milestone' />
-              </button>
-              {deleteButton()}
-            </div>
-            <span className='text-sm text-black break-words'>
-              {milestone.notes || 'No Notes Added'}
-            </span>
-          </div>
-          <DeleteMilestoneModal
-            onClose={handleDeleteMilestone}
-            visible={deleteModalVisible}
-            userId={authUser?.user_id}
-            milestoneId={milestone.id}
-          />
-        </div>
+        isRecruitmentRelated()
       ) : (
         <>
           <MilestoneForm<IENApplicantUpdateStatusDTO>
