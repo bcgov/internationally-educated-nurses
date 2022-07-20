@@ -12,7 +12,7 @@ export class AuthenticationMiddleware implements NestMiddleware {
     private readonly authService: AuthService,
     private readonly employeeService: EmployeeService,
   ) {}
-  async use(req: RequestObj, res: Response, next: NextFunction) {
+  async use(req: RequestObj, _: Response, next: NextFunction) {
     const token: string = this.authService.extractToken(req.headers) || '';
 
     if (!token) {
