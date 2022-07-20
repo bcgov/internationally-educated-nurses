@@ -16,8 +16,7 @@ fs.readFile(`${args[0]}`, 'utf8', (err, input) => {
   output.push('Runs | Passes ✔ | Errors ❌ |');
   output.push('| --: | --: | --: |');
   output.push(`| ${total} | ${passes} | ${errors} |`);
-  results.forEach(result => {
-    const [url, errors] = [result[0], result[1]];
+  results.forEach(([url, errors]) => {
     if (errors.length > 0) {
       output.push(`1. ❌ ${url}\n`);
       errors.forEach(error => {
