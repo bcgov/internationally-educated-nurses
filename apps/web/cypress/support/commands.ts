@@ -34,16 +34,20 @@ Cypress.Commands.add('logout', () => {
 Cypress.Commands.add('searchApplicants', (name: string, show = true) => {
   cy.contains('Manage Applicants');
 
-  cy.get('input').type(`${name}{enter}`);
-
+  cy.get('input[data-cy="search-input"]').type(name);
   if (show) {
-    cy.get('div > span[class=my-auto]').each(() => {
-      cy.contains(name);
+    cy.get('div[data-cy="search-result-item"]').each(el => {
+      cy.wrap(el).contains(name);
     });
-
-    cy.get('div > span[class=my-auto]').contains(name).click();
-
+    cy.get('div[data-cy="search-result-item"]').eq(0).click();
     cy.contains(name);
+    cy.visit('/applicants');
+  } else {
+    cy.get('div[data-cy="search-result-item"]').should('have.length', 0);
+  }
+  cy.get('input[data-cy="search-input"]').clear().type(`${name}{enter}`);
+  if (show) {
+    cy.get('tbody > tr').should('have.length.greaterThan', 0);
   } else {
     cy.get('tbody > tr').should('have.length', 0);
   }

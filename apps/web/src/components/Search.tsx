@@ -63,6 +63,7 @@ export const Search = (props: SearchProps) => {
           onKeyDown={handleEnter}
           placeholder='Search by first name or last name'
           className='flex-grow focus:outline-none placeholder-bcGray'
+          data-cy='search-input'
         />
         {searchName && (
           <>
@@ -91,6 +92,7 @@ export const Search = (props: SearchProps) => {
                 key={id}
                 className='flex border-b h-10 w-full px-4 hover:bg-bcLightBlueBackground'
                 onClick={() => onSelect(id)}
+                data-cy='search-result-item'
               >
                 <span className='my-auto'>
                   <b>{name}</b> found in <b>{status?.status}</b>
