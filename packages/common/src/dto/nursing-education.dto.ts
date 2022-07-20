@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsNumber, IsString, Max, Min, ValidateIf } from 'class-validator';
 
 export class NursingEducationDTO {
-  constructor(name: string, year: number | null, country: string, num_years: number | null) {
+  constructor(name: string, year: string, country: string, num_years: string) {
     this.name = name;
     this.year = year;
     this.country = country;
@@ -18,7 +18,7 @@ export class NursingEducationDTO {
   @IsNumber()
   @IsNotEmpty({ message: 'Year is required' })
   @ValidateIf(o => Object.values(o).some(v => v !== ''))
-  year!: number | null;
+  year!: string;
 
   @IsString()
   @IsNotEmpty({ message: 'Country is required' })
@@ -29,5 +29,5 @@ export class NursingEducationDTO {
   @IsNumber()
   @IsNotEmpty({ message: 'Number of Years is required' })
   @ValidateIf(o => Object.values(o).some(v => v !== ''))
-  num_years!: number | null;
+  num_years!: string;
 }

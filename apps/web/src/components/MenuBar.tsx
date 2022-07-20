@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
-import { menuBarTabs } from '@services';
+import { isPending, menuBarTabs } from '@services';
 import { useAuthContext } from './AuthContexts';
 import { LastSyncBar } from '@components';
-import { hasAccess, RoleSlug } from '@ien/common';
+import { hasAccess } from '@ien/common';
 
 export const MenuBar: React.FC = () => {
   const router = useRouter();
@@ -12,12 +12,7 @@ export const MenuBar: React.FC = () => {
 
   const active = `font-bold`;
 
-  const isAuthorized = () => {
-    if (!authUser?.roles?.length) return false;
-    return authUser.roles.every(({ slug }) => slug !== RoleSlug.Pending);
-  };
-
-  if (!isAuthorized()) return <></>;
+  if (isPending(authUser?.roles)) return <></>;
 
   return (
     <nav className='w-full bg-bcBlueAccent flex flex-row justify-center'>

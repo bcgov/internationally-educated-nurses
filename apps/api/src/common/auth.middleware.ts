@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Inject, Injectable, NestMiddleware } from '@nestjs/common';
-import { NextFunction } from 'express';
+import { NextFunction, Response } from 'express';
 import { EmployeeService } from 'src/employee/employee.service';
 import { AuthService } from '../auth/auth.service';
 import { AppLogger } from './logger.service';
@@ -12,12 +12,7 @@ export class AuthenticationMiddleware implements NestMiddleware {
     private readonly authService: AuthService,
     private readonly employeeService: EmployeeService,
   ) {}
-  async use(
-    req: RequestObj,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    res: { locals: { kcUser: any } },
-    next: NextFunction,
-  ) {
+  async use(req: RequestObj, res: Response, next: NextFunction) {
     const token: string = this.authService.extractToken(req.headers) || '';
 
     if (!token) {
@@ -25,7 +20,6 @@ export class AuthenticationMiddleware implements NestMiddleware {
     }
     try {
       const user = await this.authService.getUserFromToken(token);
-      res.locals.kcUser = user;
 
       req.user = await this.employeeService.resolveUser(user.sub, {
         keycloakId: user.sub,

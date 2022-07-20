@@ -1,7 +1,8 @@
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { HTMLProps } from 'react';
 
-export interface ButtonProps {
+export interface ButtonProps extends HTMLProps<HTMLButtonElement> {
   onClick?: () => void;
   variant: keyof typeof buttonColor;
   loading?: boolean;
@@ -27,7 +28,8 @@ export const modalButtonBase = `inline-flex justify-center items-center rounded 
                               focus:ring-2 focus:ring-offset-2 sm:mt-0 sm:text-sm`;
 
 export const Button: React.FC<ButtonProps> = props => {
-  const { variant, type, children, disabled, loading, forModal, className, onClick } = props;
+  const { variant, type, children, disabled, loading, forModal, className, onClick, ...moreProps } =
+    props;
 
   return (
     <button
@@ -39,6 +41,7 @@ export const Button: React.FC<ButtonProps> = props => {
         ${forModal ? modalButtonBase : buttonBase}
       `}
       disabled={disabled}
+      {...moreProps}
     >
       {loading ? (
         <FontAwesomeIcon icon={faSpinner} className='h-5 w-5 animate-spin anim' />
