@@ -54,7 +54,7 @@ const urls = [
     url: 'http://localhost:3000',
     actions: [
       ...loginActions,
-      'click element #details-0',
+      'click element #details-1',
       'wait for path to be /details',
       'wait for element #tab-3 to be visible',
       'click element #tab-3',
