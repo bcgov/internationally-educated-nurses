@@ -1,0 +1,26 @@
+{
+  "applicant": {
+    "first_name": "John",
+    "last_name": "Smith",
+    "email_address": "john@mailinator.com",
+    "phone_number": "123-456-7890",
+    "registration_date": "2022-01-01",
+    "country_of_citizenship": "Algeria",
+    "country_of_residence": "Algeria",
+    "pr_status": "PR",
+    "nursing_educations": [
+      {
+        "name": "Associate Degree of Nursing",
+        "year": "2016",
+        "country": "Algeria",
+        "num_years": 2
+      },
+      {
+        "name": "Master of Nursing",
+        "year": "2020",
+        "country": "Algeria",
+        "num_years": 4
+      }
+    ]
+  }
+}

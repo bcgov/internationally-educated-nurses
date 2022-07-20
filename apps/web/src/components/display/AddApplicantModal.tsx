@@ -29,7 +29,7 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
 
   const educationTitles = useGetEducationOptions();
 
-  const defaultEducationValues: NursingEducationDTO = new NursingEducationDTO('', null, '', null);
+  const defaultEducationValues: NursingEducationDTO = new NursingEducationDTO('', '', '', '');
 
   const handleSubmit = async (values: IENApplicantCreateUpdateDTO) => {
     _.remove(values.nursing_educations, (education: NursingEducationDTO) => !education.name);
@@ -259,6 +259,7 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
                   type='submit'
                   disabled={isSubmitting}
                   loading={isSubmitting}
+                  data-cy='add-applicant'
                 >
                   Add
                 </Button>

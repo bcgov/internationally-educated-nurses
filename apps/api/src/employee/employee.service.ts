@@ -2,7 +2,7 @@ import { EmployeeFilterAPIDTO } from './dto/employee-filter.dto';
 import { BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Not, IsNull, Repository, getManager } from 'typeorm';
-import { EmailDomains, EmployeeRO, RoleSlug } from '@ien/common';
+import { EmailDomains, Employee, EmployeeRO, RoleSlug } from '@ien/common';
 import { EmployeeEntity } from './entity/employee.entity';
 import { IENUsers } from 'src/applicant/entity/ienusers.entity';
 import { RoleEntity } from './entity/role.entity';
@@ -20,10 +20,12 @@ export class EmployeeService {
   async resolveUser(keycloakId: string, userData: Partial<EmployeeEntity>): Promise<EmployeeRO> {
     const existingEmployee = await this.getUserByKeycloakId(keycloakId);
     if (existingEmployee) {
-      const org = this._getOrganization(existingEmployee.email);
+      if (!existingEmployee.organization) {
+        const org = this._getOrganization(existingEmployee.email);
 
-      if (org) {
-        await this.employeeRepository.update(existingEmployee.id, { organization: org });
+        if (org) {
+          await this.employeeRepository.update(existingEmployee.id, { organization: org });
+        }
       }
       if (existingEmployee.email && !existingEmployee.user_id) {
         // It will add missing entry in user's table
@@ -37,10 +39,6 @@ export class EmployeeService {
 
     userData.organization = this._getOrganization(userData.email);
     const employee = this.employeeRepository.create(userData);
-    const pending = await this.roleRepository.findOne({ slug: RoleSlug.Pending });
-    if (pending) {
-      employee.roles = [pending];
-    }
     await this.employeeRepository.save(employee);
     const user = await this.getUser(userData); // It will add new user record if not exist.
 
@@ -68,8 +66,11 @@ export class EmployeeService {
       .leftJoin('ien_ha_pcn', 'ha_pcn', 'employee.organization = ha_pcn.title')
       .where('employee.keycloak_id = :keyclock', { keyclock: keycloakId }) // WHERE t3.event = 2019
       .getRawOne();
-    const employee = await this.employeeRepository.findOne({ where: { keycloakId } });
-    return { ...employeeUser, ...employee };
+
+    if (employeeUser) {
+      const employee = await this.employeeRepository.findOne({ where: { keycloakId } });
+      return { ...employeeUser, ...employee };
+    }
   }
 
   async getUser(userData: Partial<EmployeeEntity>): Promise<IENUsers | undefined> {
@@ -109,7 +110,10 @@ export class EmployeeService {
    * @param name optional name wise filter
    * @returns Employee/User's list
    */
-  async getEmployeeList(filter: EmployeeFilterAPIDTO): Promise<[EmployeeEntity[], number]> {
+  async getEmployeeList(
+    filter: EmployeeFilterAPIDTO,
+    user: Employee,
+  ): Promise<[EmployeeEntity[], number]> {
     const { role, name, revokedOnly, sortKey, order, limit, skip } = filter;
 
     const qb = this.employeeRepository.createQueryBuilder('employee');
@@ -120,6 +124,10 @@ export class EmployeeService {
 
     if (revokedOnly) {
       qb.andWhere({ revoked_access_date: Not(IsNull()) });
+    }
+
+    if (!user.roles.some(role => role.slug === RoleSlug.Admin)) {
+      qb.andWhere({ organization: user.organization });
     }
 
     if (role?.length) {
@@ -135,11 +143,12 @@ export class EmployeeService {
     const sortKeyword = sortKey ? `employee.${sortKey}` : 'employee.created_date';
     qb.orderBy({ [sortKeyword]: order || 'DESC' });
 
-    const [employees, count] = await qb.getManyAndCount();
+    const employees = await qb.getMany();
 
     const start = skip ? +skip : 0;
     const end = limit ? +limit + start : employees.length;
-    return [employees.slice(start, end), count];
+
+    return [employees.slice(start, end), employees.length];
   }
 
   /**

@@ -1,6 +1,11 @@
 import { addCustomCommand } from 'cy-verify-downloads';
 
-import { ApplicantRO, IENApplicantAddStatusDTO, IENApplicantJobCreateUpdateDTO } from '@ien/common';
+import {
+  ApplicantRO,
+  IENApplicantAddStatusDTO,
+  IENApplicantCreateUpdateDTO,
+  IENApplicantJobCreateUpdateDTO,
+} from '@ien/common';
 import dayjs from 'dayjs';
 
 addCustomCommand();
@@ -16,7 +21,7 @@ Cypress.Commands.add('login', (username?: string) => {
     cy.get('#username').type(username ? username : Cypress.env('username'));
     cy.get('#password').type(Cypress.env('password'));
     cy.get('#kc-login').click();
-    cy.contains('button', Cypress.env('username'), { timeout: 60000 });
+    cy.contains('button', username || Cypress.env('username'), { timeout: 60000 });
   });
 });
 
@@ -26,18 +31,22 @@ Cypress.Commands.add('logout', () => {
   cy.contains('Login');
 });
 
-Cypress.Commands.add('searchApplicants', (name: string) => {
+Cypress.Commands.add('searchApplicants', (name: string, show = true) => {
   cy.contains('Manage Applicants');
 
-  cy.get('input').type(name);
+  cy.get('input').type(`${name}{enter}`);
 
-  cy.get('div > span[class=my-auto]').each(() => {
+  if (show) {
+    cy.get('div > span[class=my-auto]').each(() => {
+      cy.contains(name);
+    });
+
+    cy.get('div > span[class=my-auto]').contains(name).click();
+
     cy.contains(name);
-  });
-
-  cy.get('div > span[class=my-auto]').contains(name).click();
-
-  cy.contains(name);
+  } else {
+    cy.get('tbody > tr').should('have.length', 0);
+  }
 });
 
 Cypress.Commands.add('searchUsers', (name: string) => {
@@ -190,6 +199,32 @@ Cypress.Commands.add('visitUserManagement', () => {
 Cypress.Commands.add('waitForLoading', () => {
   cy.wait(500);
   cy.get('.animate-spin').should('not.exist');
+});
+
+Cypress.Commands.add('addApplicant', (applicant: IENApplicantCreateUpdateDTO) => {
+  cy.get('#first_name').type(applicant.first_name);
+  cy.get('#last_name').type(applicant.last_name);
+  cy.get('#email_address').type(applicant.email_address);
+  cy.get('#phone_number').type(applicant.phone_number || '');
+  cy.get('#registration_date').type(applicant.registration_date);
+  cy.get('#country_of_citizenship').click();
+  cy.get('#country_of_citizenship').type(`${applicant.country_of_citizenship}{enter}`);
+  cy.get('#country_of_residence').click().type(`${applicant.country_of_residence}{enter}`);
+  cy.get('#pr_status').click().type(`${applicant.pr_status}{enter}`);
+  applicant.nursing_educations.forEach((education, index) => {
+    cy.get(`#nursing_educations\\[${index}\\]\\.name`).click().type(`${education.name}{enter}`);
+    cy.get(`#nursing_educations\\[${index}\\]\\.year`).type(education.year);
+    cy.get(`#nursing_educations\\[${index}\\]\\.country`).click();
+    cy.get(`#nursing_educations\\[${index}\\]\\.country`)
+      .click()
+      .type(`${education.country}{enter}`);
+    cy.get(`#nursing_educations\\[${index}\\]\\.num_years`).type(education.num_years);
+    cy.get('button[data-cy="add-education"]').click();
+    cy.contains(`${education.name} - ${education.year}`);
+  });
+
+  cy.get('button[data-cy="add-applicant"]').click();
+  cy.contains(`${applicant.first_name} ${applicant.last_name}`);
 });
 //
 // -- This is a child command --
