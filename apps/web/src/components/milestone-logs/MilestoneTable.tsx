@@ -182,7 +182,7 @@ export const MilestoneTable = ({ parentStatus }: MilestoneTableProps) => {
         {canAddNonRecruitmentMilestone() && <AddMilestone milestoneTabId={parentStatus} />}
       </div>
       <Pagination
-        pageOptions={{ pageIndex, pageSize, total: milestones.length }}
+        pageOptions={{ pageIndex, pageSize, total: filteredMilestones.length }}
         onChange={handlePageOptions}
       />
     </div>
