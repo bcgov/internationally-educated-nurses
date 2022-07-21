@@ -256,9 +256,7 @@ export class IENApplicantService {
 
     if (user.user_id) {
       const added_by_data = await this.ienUsersRepository.findOne(user.user_id);
-      if (added_by_data) {
-        data.added_by = added_by_data;
-      }
+      data.added_by = added_by_data || null;
     }
 
     if (reason) {
