@@ -256,7 +256,7 @@ export class IENApplicantService {
 
     if (user.user_id) {
       const added_by_data = await this.ienUsersRepository.findOne(user.user_id);
-      data.added_by = added_by_data || null;
+      data.added_by = added_by_data;
     }
 
     if (reason) {
@@ -264,15 +264,15 @@ export class IENApplicantService {
       data.reason = statusReason;
     }
 
-    data.reason_other = reason_other || null;
+    data.reason_other = reason_other;
 
     data.start_date = start_date || new Date();
 
-    data.end_date = end_date || null;
+    data.end_date = end_date;
 
-    data.effective_date = effective_date || null;
+    data.effective_date = effective_date;
 
-    data.notes = notes || null;
+    data.notes = notes;
 
     const status_audit = await this.ienapplicantUtilService.addApplicantStatusAudit(
       applicant,
