@@ -4,7 +4,7 @@ import { UserManagementTable } from 'src/components/display/UserManagementTable'
 import withAuth from 'src/components/Keycloak';
 import { PageOptions, Pagination } from 'src/components/Pagination';
 import { getEmployees } from 'src/services/user-management';
-import { Access, EmployeeRO } from '@ien/common';
+import { Access, EmployeeRO, RoleSlug } from '@ien/common';
 import { UserFilter } from 'src/components/user/UserFilter';
 import { SearchEmployee } from 'src/components/SearchEmployee';
 
@@ -107,7 +107,9 @@ const UserManagement = () => {
         />
 
         <UserManagementTable
-          employees={employees}
+          employees={employees.filter(employee =>
+            employee.roles.every(({ slug }) => slug !== RoleSlug.Admin),
+          )}
           loading={loading}
           onSortChange={handleSort}
           updateUser={updateUser}

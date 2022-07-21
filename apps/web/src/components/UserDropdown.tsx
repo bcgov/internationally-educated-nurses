@@ -3,6 +3,7 @@ import downArrowIcon from '@assets/img/down_arrow.svg';
 import { useState } from 'react';
 import { useKeycloak } from '@react-keycloak/ssr';
 import { KeycloakInstance } from 'keycloak-js';
+import { Button } from './Button';
 
 const HIDE_MENU_DELAY = 200;
 
@@ -25,12 +26,9 @@ export const UserDropdown = () => {
         <img src={downArrowIcon.src} alt='down arrow' />
       </button>
       {showMenu && (
-        <button
-          className='absolute bg-white border w-24 p-2 rounded mt-1 text-sm right-0'
-          onClick={() => keycloak?.logout()}
-        >
+        <Button variant='outline' className='absolute right-0' onClick={() => keycloak?.logout()}>
           Logout
-        </button>
+        </Button>
       )}
     </div>
   );
