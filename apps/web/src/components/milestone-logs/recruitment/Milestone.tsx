@@ -151,7 +151,10 @@ export const EditMilestone: React.FC<EditMilestoneProps> = props => {
     );
   };
 
-  const isRecruitmentRelated = () => {
+  // recruitment milestones have a different container than non-recruitment related
+  // return container if recruitment related
+  // return null if non-recruitment related
+  const renderMilestoneContainer = () => {
     return job ? (
       <div className='border border-gray-200 rounded bg-bcLightGray my-2 p-5'>
         <div className='w-full'>
@@ -203,7 +206,7 @@ export const EditMilestone: React.FC<EditMilestoneProps> = props => {
   return (
     <>
       {editing !== milestone ? (
-        isRecruitmentRelated()
+        renderMilestoneContainer()
       ) : (
         <>
           <MilestoneForm<IENApplicantUpdateStatusDTO>

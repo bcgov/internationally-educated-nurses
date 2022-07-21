@@ -233,7 +233,13 @@ export class IENApplicantService {
     const data: any = {};
 
     /** Only allowing recruiment related milestones here */
-    const status_obj = await this.ienapplicantUtilService.getStatusById(status, user);
+    const status_obj = await this.ienapplicantUtilService.getStatusById(status);
+
+    if (status_obj && !user.ha_pcn_id && status_obj.parent?.id != 10003) {
+      throw new BadRequestException(
+        `Only recruitment-related milestones/statuses are allowed here`,
+      );
+    }
 
     data.status = status_obj;
 
@@ -325,7 +331,7 @@ export class IENApplicantService {
     }
 
     if (status) {
-      const status_obj = await this.ienapplicantUtilService.getStatusById(status, user);
+      const status_obj = await this.ienapplicantUtilService.getStatusById(status);
       status_audit.status = status_obj;
     }
 

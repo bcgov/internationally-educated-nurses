@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import {
   In,
   IsNull,
@@ -25,7 +25,6 @@ import { IENJobTitle } from './entity/ienjobtitles.entity';
 import { IENJobLocation } from './entity/ienjoblocation.entity';
 import { IENStatusReason } from './entity/ienstatus-reason.entity';
 import { IENMasterService } from './ien-master.service';
-import { RoleSlug, EmployeeRO } from '@ien/common';
 
 @Injectable()
 export class IENApplicantUtilService {
@@ -167,7 +166,7 @@ export class IENApplicantUtilService {
    * @param status
    * @returns Status Object or NotFoundException
    */
-  async getStatusById(status: string, user: EmployeeRO): Promise<IENApplicantStatus> {
+  async getStatusById(status: string): Promise<IENApplicantStatus> {
     const statusObj = await this.ienMasterService.ienApplicantStatusRepository.findOne(
       parseInt(status),
       {
@@ -178,15 +177,6 @@ export class IENApplicantUtilService {
       throw new NotFoundException(`Status with given value "${status}" not found`);
     }
 
-    if (user.roles.some(r => r.slug === RoleSlug.Admin)) {
-      return statusObj;
-    }
-
-    if (statusObj && !user.ha_pcn_id && statusObj.parent?.id != 10003) {
-      throw new BadRequestException(
-        `Only recruitment-related milestones/statuses are allowed here`,
-      );
-    }
     return statusObj;
   }
 

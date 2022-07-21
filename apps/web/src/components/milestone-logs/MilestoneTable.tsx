@@ -16,7 +16,7 @@ interface MilestoneTableProps {
 const DEFAULT_TAB_PAGE_SIZE = 5;
 
 const wasAddedByLoggedInUser = (loggedInId?: string | null, addedById?: string) => {
-  return loggedInId && loggedInId.toString() === addedById;
+  return loggedInId && loggedInId === addedById;
 };
 
 const getStatus = (milestone: ApplicantStatusAuditRO) => {
