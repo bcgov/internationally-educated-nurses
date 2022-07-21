@@ -1,9 +1,7 @@
-import { Access, hasAccess, Role, RoleSlug } from '@ien/common';
+import { Access, hasAccess, Role } from '@ien/common';
 
 export const isPending = (roles?: Role[]): boolean => {
-  return (
-    !roles || roles?.length === 0 || roles?.some((role: Role) => role.slug === RoleSlug.Pending)
-  );
+  return !roles || roles?.length === 0;
 };
 
 export const getPath = (roles: Role[]): string => {

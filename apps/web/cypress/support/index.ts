@@ -15,11 +15,17 @@
 
 /// <reference types="cypress" />
 
-import { ApplicantRO, IENApplicantAddStatusDTO, IENApplicantJobCreateUpdateDTO } from '@ien/common';
+import {
+  ApplicantRO,
+  IENApplicantAddStatusDTO,
+  IENApplicantCreateUpdateDTO,
+  IENApplicantJobCreateUpdateDTO,
+} from '@ien/common';
 
 declare global {
   namespace Cypress {
     interface Chainable {
+      addApplicant(applicant: IENApplicantCreateUpdateDTO): void;
       addDuplicateJob(job: IENApplicantJobCreateUpdateDTO): void;
       addJob(job: IENApplicantJobCreateUpdateDTO): void;
       addMilestone(milestone: IENApplicantAddStatusDTO): void;
@@ -31,7 +37,7 @@ declare global {
       login(username?: string): Chainable<Element>;
       logout(): Chainable<Element>;
       pagination(): void;
-      searchApplicants(name: string): Chainable<Element>;
+      searchApplicants(name: string, show?: boolean): Chainable<Element>;
       searchUsers(name: string): Chainable<Element>;
       tabRecruitment(): void;
       visitDetails(applicant: ApplicantRO): void;

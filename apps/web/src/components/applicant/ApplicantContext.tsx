@@ -30,6 +30,10 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
   const router = useRouter();
   const id = router.query.id as string;
 
+  if (!id) {
+    router.replace('/applicants');
+  }
+
   const [loading, setLoading] = useState(true);
   const [applicant, setApplicant] = useState<ApplicantRO>({} as ApplicantRO);
   const [milestones, setMilestones] = useState<ApplicantStatusAuditRO[]>([]);
@@ -89,7 +93,9 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
   };
 
   useEffect(() => {
-    fetchApplicant(id);
+    if (id) {
+      fetchApplicant(id);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

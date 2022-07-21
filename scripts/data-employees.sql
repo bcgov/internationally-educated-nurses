@@ -2,7 +2,8 @@ INSERT INTO employee
     (id, created_date, updated_date, name, email, keycloak_id)
 VALUES
     ('9047e1c2-ea17-474e-84a2-745b62bb8ed4', '2022-05-26 21:06:07.859325', '2022-05-26 21:06:07.859325', 'ien_e2e', 'ien@freshworks.io', '61b95719-b3ab-4bb4-949f-14de050b9587'),
-    ('c3986bc5-81d7-4736-b298-9df2bb0779ae', '2022-06-20 23:18:48.463797', '2022-06-20 23:19:11.205061', 'ien_e2e_hmbc', 'ien-hmbc@freshworks.io',  '1f033ec7-6f82-4ea3-a680-83b74ca8576d'),
+    ('c3986bc5-81d7-4736-b298-9df2bb0779ae', '2022-06-20 23:18:48.463797', '2022-06-20 23:19:11.205061', 'ien_e2e_hmbc', 'ien-hmbc@healthmatchbc.org',  '1f033ec7-6f82-4ea3-a680-83b74ca8576d'),
+    ('c3986bc5-81d7-4736-b298-9df2bb0779b1', '2022-06-20 23:18:48.463797', '2022-06-20 23:19:11.205061', 'ien_ha', 'ien-ha@islandhealth.ca',  '76e22994-7db0-4722-b612-ee63b8c6f051'),
     ('efb33797-e40c-1dc9-8d99-13007d40dba1', '2022-05-30 19:46:26.841586', '2022-05-30 19:46:26.841586', 'test1', 'test1@mailinator.ca', '1873a32a-29e2-4f69-8913-05c65819a9b6'),
     ('adb33797-e40c-2dc9-8d88-13007d40dab1', '2022-05-29 19:46:26.841586', '2022-05-29 19:46:26.841586', 'test2', 'test2@mailinator.ca', '6663a33a-29e2-4f69-8913-05c65419a9b6'),
     ('aab33797-e40c-3dc9-8d90-13007d40bda1', '2022-05-28 19:46:26.841586', '2022-05-28 19:46:26.841586', 'test3', 'test3@mailinator.ca',  '9993a34a-29e2-4f69-8913-05c65419a9b6'),
@@ -19,6 +20,7 @@ VALUES
 ;
 UPDATE ien_users SET email = (SELECT email FROM employee WHERE name = 'ien_e2e') WHERE user_id = '1';
 UPDATE ien_users SET email = (SELECT email FROM employee WHERE name = 'ien_e2e_hmbc') WHERE user_id = '2';
+UPDATE ien_users SET email = (SELECT email FROM employee WHERE name = 'ien_ha') WHERE user_id = '3';
 
 INSERT INTO employee_roles_role
     (role_id, employee_id)
@@ -30,6 +32,14 @@ VALUES
     (
         (SELECT id FROM role WHERE slug = 'manage-applicant'),
         (SELECT id FROM employee WHERE name = 'ien_e2e_hmbc')
+    ),
+    (
+        (SELECT id FROM role WHERE slug = 'manage-applicant'),
+        (SELECT id FROM employee WHERE name = 'ien_ha')
+    ),
+    (
+        (SELECT id FROM role WHERE slug = 'provisioner'),
+        (SELECT id FROM employee WHERE name = 'ien_ha')
     ),
     (
         (SELECT id FROM role WHERE slug = 'provisioner'),

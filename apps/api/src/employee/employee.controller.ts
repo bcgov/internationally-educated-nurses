@@ -53,10 +53,11 @@ export class EmployeeController {
   @UseGuards(AuthGuard)
   @Get('/list/all')
   async getEmployeeList(
+    @Req() req: RequestObj,
     @Query() filter: EmployeeFilterAPIDTO,
   ): Promise<[EmployeeEntity[], number]> {
     try {
-      return await this.employeeService.getEmployeeList(filter);
+      return await this.employeeService.getEmployeeList(filter, req.user);
     } catch (e) {
       this.logger.error(e);
       throw new InternalServerErrorException('An unknown error occured retrieving employees');

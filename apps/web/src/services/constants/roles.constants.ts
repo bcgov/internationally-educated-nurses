@@ -25,7 +25,7 @@ const getRoleOptions = (roles: Role[], excludes: string[]): RoleOption[] => {
 };
 
 export const getRoleSelectOptions = (roles: Role[]): RoleOption[] => {
-  return getRoleOptions(roles, [RoleSlug.Admin, RoleSlug.Pending]);
+  return getRoleOptions(roles, [RoleSlug.Admin]);
 };
 
 export const getRoleFilterOptions = (roles: Role[]): RoleOption[] => {
