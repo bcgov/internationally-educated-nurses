@@ -31,10 +31,16 @@ export interface MilestoneType extends StyleOption {
 }
 
 // milestone status' for adding milestones
-export const useGetMilestoneOptions = (): MilestoneType[] => {
+export const useGetMilestoneOptions = (statusId: number): MilestoneType[] => {
   const { data: milestones } = useSWRImmutable('ienmaster/status', fetcher);
 
-  return milestones?.data.filter((item: { id: number }) => item.id == 10003)[0].children;
+  // when a new applicant is created, details page has no status index to default too
+  // All tabs index value is 10000, this prevents erroring out when going to details page with no status
+  if (statusId !== 10000) {
+    return milestones?.data.filter((item: { id: number }) => item.id == statusId)[0].children;
+  }
+
+  return [];
 };
 
 export const useGetWithdrawReasonOptions = (): IENStatusReasonRO[] => {

@@ -12,6 +12,8 @@ export const addJob = { ha_pcn: 1, recruiter_name: 'HA Name', job_id: 'JOB11' };
 
 export const testMilestone = { id: 301 };
 
+export const invalidMilestoneToUpdate = { id: '08ff7e3f-3148-43d3-9740-5a255aa0d5ff' };
+
 export const seedHa = { id: 1, title: 'Health Authority', abbreviation: 'ha' };
 
 export const addMilestone = {
@@ -21,4 +23,4 @@ export const addMilestone = {
   notes: 'Test Note',
 };
 
-export const seedUser = { id: '0053d04d-db64-4789-b6f9-2e98feb334b2', name: 'Test User' };
+export const seedUser = { id: 'a053d04d-db64-4789-b6f9-2e98feb334b2', name: 'Test User' };

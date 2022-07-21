@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import {
   In,
   IsNull,
@@ -176,13 +176,7 @@ export class IENApplicantUtilService {
     if (!statusObj) {
       throw new NotFoundException(`Status with given value "${status}" not found`);
     }
-    if (statusObj) {
-      if (statusObj.parent?.id != 10003) {
-        throw new BadRequestException(
-          `Only recruitment-related milestones/statuses are allowed here`,
-        );
-      }
-    }
+
     return statusObj;
   }
 

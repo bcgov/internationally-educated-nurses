@@ -46,14 +46,17 @@ const getInitialValues = <T extends MilestoneFormValues>(status?: ApplicantStatu
 const milestoneValidator = createValidator(IENApplicantAddStatusDTO);
 
 interface AddMilestoneProps {
-  job: ApplicantJobRO;
+  job?: ApplicantJobRO;
+  milestoneTabId: number;
 }
 
-export const AddMilestone = ({ job }: AddMilestoneProps) => {
-  const { applicant, updateJob } = useApplicantContext();
+export const AddMilestone = ({ job, milestoneTabId }: AddMilestoneProps) => {
+  const { applicant, updateJob, milestones, updateMilestoneContext } = useApplicantContext();
 
   const isDuplicate = ({ status, start_date }: IENApplicantAddStatusDTO) => {
-    return job.status_audit?.find(m => m.status.id == +status && m.start_date == start_date);
+    return job
+      ? job.status_audit?.find(m => m.status.id == +status && m.start_date == start_date)
+      : milestones.find(m => m.status.id == +status && m.start_date == start_date);
   };
 
   const handleSubmit = async (
@@ -65,35 +68,61 @@ export const AddMilestone = ({ job }: AddMilestoneProps) => {
       return;
     }
 
-    values.job_id = `${job.id}`;
-
-    const milestone = await addMilestone(applicant.id, values);
-
-    // get updated milestones
-    if (milestone && milestone.id) {
-      const milestones = [...(job.status_audit || []), milestone];
-      updateJob({ ...job, status_audit: milestones });
+    // check whether a job is present to determine which fn to add milestone
+    if (job) {
+      recruitmentRelated(values);
+    } else {
+      notRecruitmentRelated(values);
     }
 
     // reset form after submitting
     helpers && helpers.resetForm(getInitialValues());
   };
 
-  return <MilestoneForm<IENApplicantAddStatusDTO> job={job} handleSubmit={handleSubmit} />;
+  // handle recruitment related adding of milestones
+  const recruitmentRelated = async (values: IENApplicantAddStatusDTO) => {
+    values.job_id = `${job?.id}`;
+
+    const milestone = await addMilestone(applicant.id, values);
+
+    // get updated milestones
+    if (milestone && milestone.id && job) {
+      const jobMilestones = [...(job.status_audit || []), milestone];
+      updateJob({ ...job, status_audit: jobMilestones });
+    }
+  };
+
+  // handle non recruitment related adding of milestones
+  const notRecruitmentRelated = async (values: IENApplicantAddStatusDTO) => {
+    const milestone = await addMilestone(applicant.id, values);
+
+    if (milestone) {
+      updateMilestoneContext(milestone);
+    }
+  };
+
+  return (
+    <MilestoneForm<IENApplicantAddStatusDTO>
+      job={job}
+      handleSubmit={handleSubmit}
+      milestoneTabId={milestoneTabId}
+    />
+  );
 };
 
 interface EditMilestoneProps {
-  job: ApplicantJobRO;
+  job?: ApplicantJobRO;
   milestone: ApplicantStatusAuditRO;
   handleSubmit: (milestone: IENApplicantUpdateStatusDTO) => Promise<void>;
   editing: ApplicantStatusAuditRO | null;
   onEditing: (editing: ApplicantStatusAuditRO | null) => void;
+  milestoneTabId: number;
 }
 
 export const EditMilestone: React.FC<EditMilestoneProps> = props => {
   const { deleteMilestone } = useApplicantContext();
 
-  const { job, milestone, handleSubmit, editing, onEditing } = props;
+  const { job, milestone, handleSubmit, editing, onEditing, milestoneTabId } = props;
   const { authUser } = useAuthContext();
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
@@ -104,7 +133,8 @@ export const EditMilestone: React.FC<EditMilestoneProps> = props => {
   const handleDeleteMilestone = (milestoneId?: string) => {
     setDeleteModalVisible(false);
 
-    if (milestoneId) {
+    // temp until delete gets implemented
+    if (milestoneId && job) {
       deleteMilestone(milestoneId, job.id);
     }
   };
@@ -120,53 +150,63 @@ export const EditMilestone: React.FC<EditMilestoneProps> = props => {
       </button>
     );
   };
+
+  // recruitment milestones have a different container than non-recruitment related
+  // return container if recruitment related
+  // return null if non-recruitment related
+  const renderMilestoneContainer = () => {
+    return job ? (
+      <div className='border border-gray-200 rounded bg-bcLightGray my-2 p-5'>
+        <div className='w-full'>
+          <div className='flex items-center font-bold text-black '>
+            <span className='capitalize'>{milestone.status.status}</span>
+            <span className='mx-2'>|</span>
+            <span className='mr-2'>
+              <img src={calendarIcon.src} alt='calendar' width={16} height={16} />
+            </span>
+            <span>{formatDate(milestone.start_date)}</span>
+            {(milestone.updated_by?.email || milestone.added_by?.email) && (
+              <>
+                <span className='mx-2'>|</span>
+                <span className='mr-2'>
+                  <img src={userIcon.src} alt='user' />
+                </span>
+                <span>Last updated by</span>
+                <a
+                  className='ml-2'
+                  href={`mailto: ${milestone.updated_by?.email || milestone.added_by?.email}`}
+                >
+                  {milestone.updated_by?.email || milestone.added_by?.email}
+                </a>
+              </>
+            )}
+            <button
+              className='ml-auto mr-2'
+              onClick={() => onEditing(milestone)}
+              disabled={!!editing && milestone === editing}
+            >
+              <img src={editIcon.src} alt='edit milestone' />
+            </button>
+            {deleteButton()}
+          </div>
+          <span className='text-sm text-black break-words'>
+            {milestone.notes || 'No Notes Added'}
+          </span>
+        </div>
+        <DeleteMilestoneModal
+          onClose={handleDeleteMilestone}
+          visible={deleteModalVisible}
+          userId={authUser?.user_id}
+          milestoneId={milestone.id}
+        />
+      </div>
+    ) : null;
+  };
+
   return (
     <>
       {editing !== milestone ? (
-        <div className='border border-gray-200 rounded bg-bcLightGray my-2 p-5'>
-          <div className='w-full'>
-            <div className='flex items-center font-bold text-black '>
-              <span className='capitalize'>{milestone.status.status}</span>
-              <span className='mx-2'>|</span>
-              <span className='mr-2'>
-                <img src={calendarIcon.src} alt='calendar' width={16} height={16} />
-              </span>
-              <span>{formatDate(milestone.start_date)}</span>
-              {(milestone.updated_by?.email || milestone.added_by?.email) && (
-                <>
-                  <span className='mx-2'>|</span>
-                  <span className='mr-2'>
-                    <img src={userIcon.src} alt='user' />
-                  </span>
-                  <span>Last updated by</span>
-                  <a
-                    className='ml-2'
-                    href={`mailto: ${milestone.updated_by?.email || milestone.added_by?.email}`}
-                  >
-                    {milestone.updated_by?.email || milestone.added_by?.email}
-                  </a>
-                </>
-              )}
-              <button
-                className='ml-auto mr-2'
-                onClick={() => onEditing(milestone)}
-                disabled={!!editing && milestone === editing}
-              >
-                <img src={editIcon.src} alt='edit milestone' />
-              </button>
-              {deleteButton()}
-            </div>
-            <span className='text-sm text-black break-words'>
-              {milestone.notes || 'No Notes Added'}
-            </span>
-          </div>
-          <DeleteMilestoneModal
-            onClose={handleDeleteMilestone}
-            visible={deleteModalVisible}
-            userId={authUser?.user_id}
-            milestoneId={milestone.id}
-          />
-        </div>
+        renderMilestoneContainer()
       ) : (
         <>
           <MilestoneForm<IENApplicantUpdateStatusDTO>
@@ -174,6 +214,7 @@ export const EditMilestone: React.FC<EditMilestoneProps> = props => {
             milestone={milestone}
             handleSubmit={values => handleSubmit(values)}
             onClose={() => onEditing(null)}
+            milestoneTabId={milestoneTabId}
           />
         </>
       )}
@@ -184,10 +225,11 @@ export const EditMilestone: React.FC<EditMilestoneProps> = props => {
 type ReasonOption = StyleOption & IENStatusReasonRO;
 
 interface MilestoneFormProps<T extends MilestoneFormValues> {
-  job: ApplicantJobRO;
+  job?: ApplicantJobRO;
   milestone?: ApplicantStatusAuditRO;
   handleSubmit: (values: T, { resetForm }?: FormikHelpers<T>) => Promise<void>;
   onClose?: () => void;
+  milestoneTabId: number;
 }
 
 const MilestoneForm = <T extends MilestoneFormValues>({
@@ -195,8 +237,9 @@ const MilestoneForm = <T extends MilestoneFormValues>({
   milestone,
   handleSubmit,
   onClose,
+  milestoneTabId,
 }: MilestoneFormProps<T>) => {
-  const milestones = useGetMilestoneOptions();
+  const milestones = useGetMilestoneOptions(milestoneTabId);
   const reasons = useGetWithdrawReasonOptions();
 
   const submit = async (values: T, helpers: FormikHelpers<T>) => {
@@ -209,6 +252,9 @@ const MilestoneForm = <T extends MilestoneFormValues>({
   };
 
   const validateStartDate = (value: string) => {
+    if (!job) {
+      return;
+    }
     if (dayjs(value).diff(job.job_post_date) < 0) {
       return 'Date must be later than the date job was first posted';
     }
@@ -256,7 +302,7 @@ const MilestoneForm = <T extends MilestoneFormValues>({
                       label='Date'
                       type='date'
                       bgColour='bg-white'
-                      min={job.job_post_date}
+                      min={job ? job.job_post_date : 1900}
                       max={dayjs().format('YYYY-MM-DD')}
                       validate={(val: string) => validateStartDate(val)}
                     />

@@ -8,8 +8,17 @@ import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { AppModule } from '../src/app.module';
 import { IENHaPcn } from 'src/applicant/entity/ienhapcn.entity';
-import { validApplicant, applicant, addJob, seedHa, addMilestone, seedUser } from './fixture/ien';
+import {
+  validApplicant,
+  applicant,
+  addJob,
+  seedHa,
+  addMilestone,
+  seedUser,
+  invalidMilestoneToUpdate,
+} from './fixture/ien';
 import { IENUsers } from 'src/applicant/entity/ienusers.entity';
+import { RoleSlug } from '@ien/common';
 let jobTempId = 10;
 let applicantStatusId = 'NA';
 
@@ -28,7 +37,10 @@ describe('ApplicantController (e2e)', () => {
       .useValue({
         canActivate: (context: ExecutionContext) => {
           const request = context.switchToHttp().getRequest();
-          request.user = { user_id: request.headers?.user || seedUser.id };
+          request.user = {
+            user_id: request.headers?.user || seedUser.id,
+            roles: [{ id: 1, slug: RoleSlug.Admin }],
+          };
           return true;
         },
       })
@@ -200,6 +212,20 @@ describe('ApplicantController (e2e)', () => {
         expect(body.notes).toBe(addMilestone.notes);
       })
       .expect(200)
+      .end(done);
+  });
+
+  it('Patch applicant milestone detail fail, status/milestone not found /ien/:id/status/:id (PATCH)', done => {
+    const patchStatusUrl = `/ien/${applicant.id}/status/${invalidMilestoneToUpdate.id}`;
+    addMilestone.notes = 'Update note fail';
+    request(app.getHttpServer())
+      .patch(patchStatusUrl)
+      .send(addMilestone)
+      .expect(res => {
+        const { body } = res;
+        expect(body.message).toBe('Provided status/milestone record not found');
+      })
+      .expect(404)
       .end(done);
   });
 

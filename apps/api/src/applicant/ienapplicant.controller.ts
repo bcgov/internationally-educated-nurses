@@ -59,7 +59,7 @@ export class IENApplicantController {
     @Query() filter: IENApplicantFilterAPIDTO,
   ): Promise<[ApplicantRO[], number]> {
     try {
-      return await this.ienapplicantService.getApplicants(filter, req);
+      return await this.ienapplicantService.getApplicants(filter, req.user);
     } catch (e) {
       this.logger.error(e);
       throw new InternalServerErrorException('An unknown error occured retriving applicants');
@@ -105,7 +105,7 @@ export class IENApplicantController {
     @Body() addApplicant: IENApplicantCreateUpdateAPIDTO,
   ): Promise<ApplicantRO> {
     try {
-      return await this.ienapplicantService.addApplicant(addApplicant, req);
+      return await this.ienapplicantService.addApplicant(addApplicant, req.user);
     } catch (e) {
       this.logger.error(e);
       if (e instanceof NotFoundException) {
@@ -160,11 +160,7 @@ export class IENApplicantController {
         `Add milestone/status for applicant (${id}) requested by
         userId (${req?.user.user_id})/ employeeId/loginId (${req?.user.id})`,
       );
-      return await this.ienapplicantService.addApplicantStatus(
-        req?.user.user_id,
-        id,
-        applicantStatus,
-      );
+      return await this.ienapplicantService.addApplicantStatus(req?.user, id, applicantStatus);
     } catch (e) {
       throw this._handleStatusException(e);
     }
@@ -188,7 +184,7 @@ export class IENApplicantController {
         userId (${req?.user.user_id})/ employeeId/loginId (${req?.user.id})`,
       );
       return await this.ienapplicantService.updateApplicantStatus(
-        req?.user.user_id,
+        req?.user,
         status_id,
         applicantStatus,
       );

@@ -16,7 +16,7 @@ import { IENApplicantStatusAudit } from './entity/ienapplicant-status-audit.enti
 import { IENApplicantJobCreateUpdateAPIDTO } from './dto/ienapplicant-job-create.dto';
 import { IENApplicantJobQueryDTO } from './dto/ienapplicant-job-filter.dto';
 import { IENJobLocation } from './entity/ienjoblocation.entity';
-import { RequestObj } from 'src/common/interface/RequestObj';
+import { EmployeeRO } from '@ien/common';
 
 @Injectable()
 export class IENApplicantService {
@@ -44,9 +44,9 @@ export class IENApplicantService {
    */
   async getApplicants(
     filter: IENApplicantFilterAPIDTO,
-    req: RequestObj,
+    user: EmployeeRO,
   ): Promise<[data: IENApplicant[], count: number]> {
-    return this.ienapplicantUtilService.applicantFilterQueryBuilder(filter, req.user?.ha_pcn_id);
+    return this.ienapplicantUtilService.applicantFilterQueryBuilder(filter, user?.ha_pcn_id);
   }
 
   /**
@@ -98,9 +98,9 @@ export class IENApplicantService {
    */
   async addApplicant(
     addApplicant: IENApplicantCreateUpdateAPIDTO,
-    req: RequestObj,
+    user: EmployeeRO,
   ): Promise<IENApplicant | any> {
-    const applicant = await this.createApplicantObject(addApplicant, req.user?.ha_pcn_id);
+    const applicant = await this.createApplicantObject(addApplicant, user);
     await this.ienapplicantRepository.save(applicant);
     // let's save audit
     await this.ienapplicantUtilService.saveApplicantAudit(applicant, applicant.added_by);
@@ -113,10 +113,7 @@ export class IENApplicantService {
    * @param addApplicant
    * @returns
    */
-  async createApplicantObject(
-    addApplicant: IENApplicantCreateUpdateAPIDTO,
-    haPcnId: number | null | undefined,
-  ) {
+  async createApplicantObject(addApplicant: IENApplicantCreateUpdateAPIDTO, user: EmployeeRO) {
     const {
       health_authorities,
       assigned_to,
@@ -144,14 +141,21 @@ export class IENApplicantService {
       applicant.health_authorities = await this.ienapplicantUtilService.getHaPcns(
         health_authorities,
       );
-    } else if (haPcnId) {
+    } else if (user.ha_pcn_id) {
       applicant.health_authorities = await this.ienapplicantUtilService.getHaPcns([
-        { id: `${haPcnId}` },
+        { id: `${user.ha_pcn_id}` },
       ]);
     }
     // collect assigned user details
     if (assigned_to && assigned_to instanceof Array && assigned_to.length) {
       applicant.assigned_to = await this.ienapplicantUtilService.getUserArray(assigned_to);
+    }
+
+    if (user.user_id) {
+      const added_by_data = await this.ienUsersRepository.findOne(user.user_id);
+      if (added_by_data) {
+        applicant.added_by = added_by_data;
+      }
     }
 
     return applicant;
@@ -219,7 +223,7 @@ export class IENApplicantService {
    * @returns
    */
   async addApplicantStatus(
-    user_id: string | null,
+    user: EmployeeRO,
     id: string,
     applicantUpdate: IENApplicantAddStatusAPIDTO,
   ): Promise<IENApplicantStatusAudit | any> {
@@ -230,6 +234,13 @@ export class IENApplicantService {
 
     /** Only allowing recruiment related milestones here */
     const status_obj = await this.ienapplicantUtilService.getStatusById(status);
+
+    if (status_obj && !user.ha_pcn_id && status_obj.parent?.id != 10003) {
+      throw new BadRequestException(
+        `Only recruitment-related milestones/statuses are allowed here`,
+      );
+    }
+
     data.status = status_obj;
 
     let job = null;
@@ -239,15 +250,13 @@ export class IENApplicantService {
         throw new BadRequestException('Provided applicant and competition/job does not match');
       }
     }
-    if (!job) {
+    if (data.status.parent?.id === 10003 && !job) {
       throw new BadRequestException(`Competition/job are required to add a milestone`);
     }
 
-    if (user_id) {
-      const added_by_data = await this.ienUsersRepository.findOne(user_id);
-      if (added_by_data) {
-        data.added_by = added_by_data;
-      }
+    if (user.user_id) {
+      const added_by_data = await this.ienUsersRepository.findOne(user.user_id);
+      data.added_by = added_by_data;
     }
 
     if (reason) {
@@ -255,21 +264,22 @@ export class IENApplicantService {
       data.reason = statusReason;
     }
 
-    data.reason_other = reason_other || null;
+    data.reason_other = reason_other;
 
     data.start_date = start_date || new Date();
 
-    data.end_date = end_date || null;
+    data.end_date = end_date;
 
-    data.effective_date = effective_date || null;
+    data.effective_date = effective_date;
 
-    data.notes = notes || null;
+    data.notes = notes;
 
     const status_audit = await this.ienapplicantUtilService.addApplicantStatusAudit(
       applicant,
       data,
       job,
     );
+
     /**
      * Note:
      * Based on scope we are only managing recruitment status.
@@ -295,7 +305,7 @@ export class IENApplicantService {
    * @returns
    */
   async updateApplicantStatus(
-    user_id: string | null,
+    user: EmployeeRO,
     status_id: string,
     applicantUpdate: IENApplicantUpdateStatusAPIDTO,
   ): Promise<IENApplicantStatusAudit | any> {
@@ -306,8 +316,8 @@ export class IENApplicantService {
       throw new NotFoundException('Provided status/milestone record not found');
     }
     const { status, start_date, effective_date, end_date, notes, reason } = applicantUpdate;
-    if (user_id) {
-      const updated_by_data = await this.ienUsersRepository.findOne(user_id);
+    if (user.user_id) {
+      const updated_by_data = await this.ienUsersRepository.findOne(user.user_id);
       if (updated_by_data) {
         status_audit.updated_by = updated_by_data;
       }

@@ -1,0 +1,7 @@
+export enum MilestoneLogTabs {
+  INTAKE = 10001,
+  LICENSING_REGISTRATION = 10002,
+  RECRUITMENT = 10003,
+  BC_PNP = 10004,
+  FINAL = 10005,
+}
