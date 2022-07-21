@@ -17,4 +17,4 @@ const Details = () => {
   );
 };
 
-export default withAuth(Details, [Access.APPLICANT_READ, Access.APPLICANT_WRITE]);
+export default withAuth(Details, [Access.APPLICANT_READ]);

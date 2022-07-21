@@ -1,26 +1,27 @@
 import React, { useState } from 'react';
 import createValidator from 'class-validator-formik';
 import dayjs from 'dayjs';
-import { Formik, Form as FormikForm, FormikHelpers, FieldProps } from 'formik';
+import { FieldProps, Form as FormikForm, Formik, FormikHelpers } from 'formik';
 import ReactSelect from 'react-select';
 import { toast } from 'react-toastify';
 
 import { Button, buttonBase, Field, getSelectStyleOverride, Textarea } from '@components';
 import {
-  IENApplicantAddStatusDTO,
-  formatDate,
-  IENStatusReasonRO,
-  ApplicantStatusAuditRO,
-  IENApplicantUpdateStatusDTO,
+  Access,
   ApplicantJobRO,
+  ApplicantStatusAuditRO,
+  formatDate,
+  IENApplicantAddStatusDTO,
+  IENApplicantUpdateStatusDTO,
+  IENStatusReasonRO,
   STATUS,
 } from '@ien/common';
 import {
   addMilestone,
-  useGetMilestoneOptions,
-  useGetWithdrawReasonOptions,
   MilestoneType,
   StyleOption,
+  useGetMilestoneOptions,
+  useGetWithdrawReasonOptions,
 } from '@services';
 import addIcon from '@assets/img/add.svg';
 import editIcon from '@assets/img/edit.svg';
@@ -31,6 +32,7 @@ import disabledDeleteIcon from '@assets/img/disabled-trash_can.svg';
 import { useApplicantContext } from '../../applicant/ApplicantContext';
 import { useAuthContext } from 'src/components/AuthContexts';
 import { DeleteMilestoneModal } from 'src/components/display/DeleteMilestoneModal';
+import { AclMask } from '../../user/AclMask';
 
 type MilestoneFormValues = IENApplicantAddStatusDTO | IENApplicantUpdateStatusDTO;
 
@@ -180,25 +182,27 @@ export const EditMilestone: React.FC<EditMilestoneProps> = props => {
                 </a>
               </>
             )}
-            <button
-              className='ml-auto mr-2'
-              onClick={() => onEditing(milestone)}
-              disabled={!!editing && milestone === editing}
-            >
-              <img src={editIcon.src} alt='edit milestone' />
-            </button>
-            {deleteButton()}
+            <AclMask acl={[Access.APPLICANT_WRITE]}>
+              <button
+                className='ml-auto mr-2'
+                onClick={() => onEditing(milestone)}
+                disabled={!!editing && milestone === editing}
+              >
+                <img src={editIcon.src} alt='edit milestone' />
+              </button>
+              {deleteButton()}
+              <DeleteMilestoneModal
+                onClose={handleDeleteMilestone}
+                visible={deleteModalVisible}
+                userId={authUser?.user_id}
+                milestoneId={milestone.id}
+              />
+            </AclMask>
           </div>
           <span className='text-sm text-black break-words'>
             {milestone.notes || 'No Notes Added'}
           </span>
         </div>
-        <DeleteMilestoneModal
-          onClose={handleDeleteMilestone}
-          visible={deleteModalVisible}
-          userId={authUser?.user_id}
-          milestoneId={milestone.id}
-        />
       </div>
     ) : null;
   };

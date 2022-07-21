@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import { buttonBase, buttonColor, DetailsItem, Disclosure } from '@components';
 import { AddMilestone, EditMilestone } from './Milestone';
 import {
+  Access,
   ApplicantJobRO,
   ApplicantStatusAuditRO,
   COMPLETED_STATUSES,
@@ -15,6 +16,7 @@ import dotIcon from '@assets/img/dot.svg';
 import { AddRecordModal } from '../../display/AddRecordModal';
 import { updateMilestone, getHumanizedDuration, MilestoneLogTabs } from '@services';
 import { useApplicantContext } from '../../applicant/ApplicantContext';
+import { AclMask } from '../../user/AclMask';
 
 interface RecordProps {
   job: ApplicantJobRO;
@@ -137,13 +139,15 @@ export const Record: React.FC<RecordProps> = ({ job, expandRecord, jobIndex }) =
                 text={job_post_date ? formatDate(job_post_date) : 'N/A'}
               />
             </div>
-            <button
-              className={`px-6 mb-2 ${buttonColor.secondary} ${buttonBase}`}
-              onClick={() => setModalVisible(true)}
-            >
-              <img src={editIcon.src} alt='edit job' className='mr-2' />
-              Edit Details
-            </button>
+            <AclMask acl={[Access.APPLICANT_WRITE]}>
+              <button
+                className={`px-6 mb-2 ${buttonColor.secondary} ${buttonBase}`}
+                onClick={() => setModalVisible(true)}
+              >
+                <img src={editIcon.src} alt='edit job' className='mr-2' />
+                Edit Details
+              </button>
+            </AclMask>
             {milestones.map(mil => (
               <EditMilestone
                 job={job}
@@ -155,13 +159,15 @@ export const Record: React.FC<RecordProps> = ({ job, expandRecord, jobIndex }) =
                 milestoneTabId={MilestoneLogTabs.RECRUITMENT}
               />
             ))}
-            {!editing && <AddMilestone job={job} milestoneTabId={MilestoneLogTabs.RECRUITMENT} />}
-            <AddRecordModal
-              job={job}
-              milestones={milestones}
-              onClose={handleModalClose}
-              visible={modalVisible}
-            />
+            <AclMask acl={[Access.APPLICANT_WRITE]}>
+              {!editing && <AddMilestone job={job} milestoneTabId={MilestoneLogTabs.RECRUITMENT} />}
+              <AddRecordModal
+                job={job}
+                milestones={milestones}
+                onClose={handleModalClose}
+                visible={modalVisible}
+              />
+            </AclMask>
           </div>
         }
       />
