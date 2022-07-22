@@ -17,7 +17,7 @@ export const ApplicantMilestones = () => {
         setStatusCategory(applicant.status?.parent?.id || StatusCategory.INTAKE);
       }
     },
-    [applicant],
+    [applicant, statusCategory],
   );
 
   return (
