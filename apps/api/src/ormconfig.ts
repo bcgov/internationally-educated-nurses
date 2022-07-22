@@ -16,6 +16,7 @@ const config: PostgresConnectionOptions = {
     migrationsDir: 'src/migration',
     entitiesDir: 'src/**/entity/*.entity.ts',
   },
+  migrations: ['dist/migration/*.js'],
   subscribers: ['dist/**/*.subscribers.js'],
   synchronize: false,
   migrationsRun: true,

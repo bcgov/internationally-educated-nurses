@@ -8,6 +8,7 @@ import { PageOptions, Pagination } from '../components/Pagination';
 import withAuth from '../components/Keycloak';
 import { Access, ApplicantRO } from '@ien/common';
 import { AddApplicantModal, Button, ApplicantTable } from '@components';
+import { AclMask } from '../components/user/AclMask';
 
 interface SearchOptions {
   name?: string;
@@ -136,14 +137,22 @@ const Applicants = () => {
         />
         <div className='flex justify-between items-center'>
           <div className='text-bcGray px-4'>{`Showing ${applicants.length} results`}</div>
-          <Button
-            className='mr-4 mb-3'
-            variant='secondary'
-            type='button'
-            onClick={() => setAddIenModalVisible(true)}
-          >
-            Add Applicant
-          </Button>
+          <AclMask acl={[Access.APPLICANT_WRITE]}>
+            <Button
+              className='mr-4 mb-3'
+              variant='secondary'
+              type='button'
+              onClick={() => setAddIenModalVisible(true)}
+            >
+              Add Applicant
+            </Button>
+            <AddApplicantModal
+              onClose={() => setAddIenModalVisible(false)}
+              visible={addIenModalVisible}
+              applicants={applicants}
+              setApplicant={setApplicants}
+            />
+          </AclMask>
         </div>
       </div>
       <div className='flex justify-content-center flex-col bg-white px-4 pb-4'>
@@ -152,12 +161,6 @@ const Applicants = () => {
           onChange={handlePageOptions}
         />
         <ApplicantTable applicants={applicants} onSortChange={handleSort} loading={loading} />
-        <AddApplicantModal
-          onClose={() => setAddIenModalVisible(false)}
-          visible={addIenModalVisible}
-          applicants={applicants}
-          setApplicant={setApplicants}
-        />
         <Pagination
           pageOptions={{ pageIndex, pageSize: limit, total }}
           onChange={handlePageOptions}

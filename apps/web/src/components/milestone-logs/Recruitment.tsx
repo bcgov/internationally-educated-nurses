@@ -3,12 +3,13 @@ import { useEffect, useState } from 'react';
 import { AddRecordModal } from '../display/AddRecordModal';
 import { Record } from './recruitment/Record';
 import { buttonBase, buttonColor } from '@components';
-import { ApplicantJobRO, JobFilterOptions } from '@ien/common';
+import { Access, ApplicantJobRO, JobFilterOptions } from '@ien/common';
 import addIcon from '@assets/img/add.svg';
 import { JobFilters } from './recruitment/JobFilters';
 import { PageOptions, Pagination } from '../Pagination';
 import { useApplicantContext } from '../applicant/ApplicantContext';
 import dayjs from 'dayjs';
+import { AclMask } from '../user/AclMask';
 
 const DEFAULT_JOB_PAGE_SIZE = 5;
 
@@ -75,20 +76,22 @@ export const Recruitment: React.FC = () => {
       {jobRecords.map((job, index) => (
         <Record key={job.id} job={job} expandRecord={expandRecord} jobIndex={index} />
       ))}
-      <div className='border rounded bg-bcBlueBar flex justify-between items-center mb-4 h-12'>
-        <span className='py-2 pl-5 font-bold text-xs sm:text-sm'>
-          {jobRecords.length == 0 ? 'There is no record yet.' : ''} Please click on the &ldquo;Add
-          Record&rdquo; button to create a new job competition.
-        </span>
-        <button
-          id='add-record'
-          className={`mr-2 ${buttonColor.secondary} ${buttonBase}`}
-          onClick={() => setRecordModalVisible(true)}
-        >
-          <img src={addIcon.src} alt='add' className='mr-2' />
-          <span>Add Record</span>
-        </button>
-      </div>
+      <AclMask acl={[Access.APPLICANT_WRITE]}>
+        <div className='border rounded bg-bcBlueBar flex justify-between items-center mb-4 h-12'>
+          <span className='py-2 pl-5 font-bold text-xs sm:text-sm'>
+            {jobRecords.length == 0 ? 'There is no record yet.' : ''} Please click on the &ldquo;Add
+            Record&rdquo; button to create a new job competition.
+          </span>
+          <button
+            id='add-record'
+            className={`mr-2 ${buttonColor.secondary} ${buttonBase}`}
+            onClick={() => setRecordModalVisible(true)}
+          >
+            <img src={addIcon.src} alt='add' className='mr-2' />
+            <span>Add Record</span>
+          </button>
+        </div>
+      </AclMask>
       <AddRecordModal
         onClose={handleNewRecord}
         visible={recordModalVisible}
