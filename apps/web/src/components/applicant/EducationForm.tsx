@@ -1,7 +1,7 @@
-import { FieldArray, FormikErrors } from 'formik';
+import { FieldArray, FieldProps, FormikErrors } from 'formik';
 import ReactSelect from 'react-select';
 
-import { Button, Field, FieldProps, getSelectStyleOverride, Error } from '@components';
+import { Button, Field, getSelectStyleOverride, Error } from '@components';
 import { RecordTypeOptions } from '@services';
 import { NursingEducationDTO } from '@ien/common';
 import { getCountrySelector } from '../../utils/country-selector';
@@ -30,13 +30,16 @@ export const EducationForm: React.FC<NursingEducationProps> = (props: NursingEdu
                   inputId={field.name}
                   value={educationTitles.find(s => s.title == field.value)}
                   onBlur={field.onBlur}
-                  onChange={value => form.setFieldValue(field.name, `${value?.title}`)}
+                  onChange={value => {
+                    form.setFieldValue(field.name, `${value?.title}`);
+                  }}
                   options={educationTitles}
                   isOptionDisabled={o => o.id == field.value}
                   getOptionLabel={option => `${option.title}`}
                   getOptionValue={option => `${option.title}`}
                   styles={getSelectStyleOverride<RecordTypeOptions>()}
                   menuPlacement='auto'
+                  isClearable
                 />
               )}
             />
