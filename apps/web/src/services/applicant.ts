@@ -42,15 +42,11 @@ export const getApplicant = async (id: string): Promise<ApplicantRO | undefined>
 
 // add new applicant
 export const addApplicant = async (applicant: IENApplicantCreateUpdateDTO) => {
-  try {
-    const {
-      data: { data },
-    } = await axios.post<{ data: ApplicantRO }>(`/ien`, applicant);
+  const {
+    data: { data },
+  } = await axios.post<{ data: ApplicantRO }>(`/ien`, applicant);
 
-    return data;
-  } catch (e) {
-    notifyError(e as AxiosError);
-  }
+  return data;
 };
 
 export const deleteApplicantStatus = async (
