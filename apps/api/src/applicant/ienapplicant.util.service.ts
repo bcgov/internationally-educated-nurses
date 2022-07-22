@@ -358,9 +358,18 @@ export class IENApplicantUtilService {
 
   async updateLatestStatusOnApplicant(mappedApplicantList: string[]): Promise<void> {
     try {
-      // update applicant with latest status
+      // update applicant with the latest status
       const idsToUpdate = `'${mappedApplicantList.join("','")}'`;
-      const queryToUpdate = `UPDATE ien_applicants SET status_id = (SELECT status_id FROM ien_applicant_status_audit asa WHERE asa.applicant_id=ien_applicants.id ORDER BY asa.start_date DESC limit 1) WHERE ien_applicants.id IN (${idsToUpdate})`;
+      const queryToUpdate = `
+        UPDATE ien_applicants
+        SET status_id = (
+          SELECT status_id
+          FROM ien_applicant_status_audit asa
+          WHERE asa.applicant_id=ien_applicants.id
+          ORDER BY asa.start_date
+          DESC limit 1
+        )
+        WHERE ien_applicants.id IN (${idsToUpdate})`;
       const updatedApplicants = await getManager().query(queryToUpdate);
       this.logger.log({ updatedApplicants });
     } catch (e) {

@@ -2,7 +2,7 @@ import classNames from 'classnames';
 
 interface TabFields {
   tabs: TabItems[];
-  tabIndex: number;
+  categoryIndex: number;
   onTabClick: (index: number) => void;
 }
 
@@ -11,10 +11,10 @@ interface TabItems {
   value: number;
 }
 
-export const HeaderTab = ({ tabs, tabIndex, onTabClick }: TabFields) => {
+export const StatusCategoryTab = ({ tabs, categoryIndex, onTabClick }: TabFields) => {
   const getButtonClasses = (index: number): string => {
     const classes = ['text-center w-full font-bold text-sm px-6 pt-1 pb-2 my-1'];
-    if (tabIndex === index) {
+    if (categoryIndex === index) {
       classes.push('border-b-2 border-bcBluePrimary text-bcBluePrimary');
     } else {
       classes.push('border-b text-bcGray');

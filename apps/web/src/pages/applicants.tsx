@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { getApplicants, milestoneTabs } from '@services';
 import { Search } from '../components/Search';
-import { HeaderTab } from '../components/display/HeaderTab';
+import { StatusCategoryTab } from '../components/display/StatusCategoryTab';
 import { PageOptions, Pagination } from '../components/Pagination';
 import withAuth from '../components/Keycloak';
 import { Access, ApplicantRO } from '@ien/common';
@@ -130,9 +130,9 @@ const Applicants = () => {
       />
 
       <div className='bg-white'>
-        <HeaderTab
+        <StatusCategoryTab
           tabs={[{ title: 'All', value: 0 }, ...milestoneTabs]}
-          tabIndex={status ? status - 10000 : 0}
+          categoryIndex={status ? status - 10000 : 0}
           onTabClick={handleTabChange}
         />
         <div className='flex justify-between items-center'>

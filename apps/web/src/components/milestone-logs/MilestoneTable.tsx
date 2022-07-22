@@ -3,14 +3,14 @@ import dayjs from 'dayjs';
 
 import { PageOptions, Pagination } from '../Pagination';
 import { ApplicantStatusAuditRO, formatDate, IENApplicantUpdateStatusDTO } from '@ien/common';
-import { getHumanizedDuration, updateMilestone } from '@services';
+import { getHumanizedDuration, StatusCategory, updateMilestone } from '@services';
 import { useApplicantContext } from '../applicant/ApplicantContext';
 import { AddMilestone, EditMilestone } from './recruitment/Milestone';
 import { useAuthContext } from '../AuthContexts';
 import editIcon from '@assets/img/edit.svg';
 
 interface MilestoneTableProps {
-  parentStatus: number;
+  category: StatusCategory;
 }
 
 const DEFAULT_TAB_PAGE_SIZE = 5;
@@ -31,7 +31,7 @@ const getStatus = (milestone: ApplicantStatusAuditRO) => {
 
 const currentlyEditing = 'bg-blue-100';
 
-export const MilestoneTable = ({ parentStatus }: MilestoneTableProps) => {
+export const MilestoneTable = ({ category }: MilestoneTableProps) => {
   const { authUser } = useAuthContext();
   const { applicant, milestones, updateMilestoneContext } = useApplicantContext();
 
@@ -47,11 +47,11 @@ export const MilestoneTable = ({ parentStatus }: MilestoneTableProps) => {
     function filterMilestones() {
       const audits =
         milestones?.filter(audit => {
-          return audit.status.parent?.id === parentStatus;
+          return audit.status.parent?.id === category;
         }) || [];
       setFilteredMilestones(audits);
     },
-    [milestones, parentStatus, applicant],
+    [milestones, category, applicant],
   );
 
   useEffect(
@@ -156,7 +156,7 @@ export const MilestoneTable = ({ parentStatus }: MilestoneTableProps) => {
                       editing={editing}
                       onEditing={setEditing}
                       handleSubmit={values => handleUpdateMilestone(audit.id, values)}
-                      milestoneTabId={parentStatus}
+                      milestoneTabId={category}
                     />
                   </td>
                 </tr>
@@ -167,8 +167,8 @@ export const MilestoneTable = ({ parentStatus }: MilestoneTableProps) => {
         {!milestonesInPage.length && (
           <div className='w-full flex flex-row justify-center py-5 font-bold'>No Milestones</div>
         )}
-        {/* only show form if applicant was not added by ATS */}
-        {canAddNonRecruitmentMilestone() && <AddMilestone milestoneTabId={parentStatus} />}
+        {/* only show form if applicant was not added by ATS and if current logged-in user added applicant */}
+        {canAddNonRecruitmentMilestone() && <AddMilestone milestoneTabId={category} />}
       </div>
       <Pagination
         pageOptions={{ pageIndex, pageSize, total: filteredMilestones.length }}

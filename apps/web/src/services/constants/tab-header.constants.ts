@@ -1,4 +1,5 @@
 import { Access } from '@ien/common';
+import { StatusCategory } from './milestone-logs.constants';
 
 export const landingPageTabs = [
   { title: 'All', value: '1' },
@@ -10,11 +11,11 @@ export const landingPageTabs = [
 ];
 
 export const milestoneTabs = [
-  { title: 'Intake', value: 1 },
-  { title: 'Licensing/Registration', value: 2 },
-  { title: 'Recruitment', value: 3 },
-  { title: 'BC PNP', value: 4 },
-  { title: 'Final', value: 5 },
+  { title: 'Intake', value: StatusCategory.INTAKE },
+  { title: 'Licensing/Registration', value: StatusCategory.LICENSING_REGISTRATION },
+  { title: 'Recruitment', value: StatusCategory.RECRUITMENT },
+  { title: 'BC PNP', value: StatusCategory.BC_PNP },
+  { title: 'Final', value: StatusCategory.FINAL },
 ];
 
 export const menuBarTabs = [

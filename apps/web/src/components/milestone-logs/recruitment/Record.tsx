@@ -15,7 +15,7 @@ import editIcon from '@assets/img/edit.svg';
 import dotIcon from '@assets/img/dot.svg';
 import dotIconHired from '@assets/img/dot_green.svg';
 import { AddRecordModal } from '../../display/AddRecordModal';
-import { updateMilestone, getHumanizedDuration, MilestoneLogTabs } from '@services';
+import { updateMilestone, getHumanizedDuration, StatusCategory } from '@services';
 import { useApplicantContext } from '../../applicant/ApplicantContext';
 import { AclMask } from '../../user/AclMask';
 
@@ -172,11 +172,11 @@ export const Record: React.FC<RecordProps> = ({
                 editing={editing}
                 onEditing={setEditing}
                 handleSubmit={values => handleUpdateMilestone(mil.id, values)}
-                milestoneTabId={MilestoneLogTabs.RECRUITMENT}
+                milestoneTabId={StatusCategory.RECRUITMENT}
               />
             ))}
             <AclMask acl={[Access.APPLICANT_WRITE]}>
-              {!editing && <AddMilestone job={job} milestoneTabId={MilestoneLogTabs.RECRUITMENT} />}
+              {!editing && <AddMilestone job={job} milestoneTabId={StatusCategory.RECRUITMENT} />}
               <AddRecordModal
                 job={job}
                 milestones={milestones}
