@@ -4,10 +4,9 @@ import { useEffect, useRef, useState } from 'react';
 import { getApplicants, milestoneTabs } from '@services';
 import { Search } from '../components/Search';
 import { StatusCategoryTab } from '../components/display/StatusCategoryTab';
-import { PageOptions, Pagination } from '../components/Pagination';
 import withAuth from '../components/Keycloak';
 import { Access, ApplicantRO } from '@ien/common';
-import { AddApplicantModal, Button, ApplicantTable } from '@components';
+import { AddApplicantModal, Button, ApplicantTable, PageOptions, Pagination } from '@components';
 import { AclMask } from '../components/user/AclMask';
 
 interface SearchOptions {
