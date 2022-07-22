@@ -13,7 +13,6 @@ export class IENApplicantJobCreateUpdateDTO {
   ha_pcn!: string;
 
   @IsString({ message: 'Job ID must be a string' })
-  @IsNotEmpty({ message: 'Job ID is required' })
   job_id?: string;
 
   @IsString()
