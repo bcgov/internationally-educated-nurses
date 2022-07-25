@@ -13,6 +13,7 @@ import {
 } from '@ien/common';
 import editIcon from '@assets/img/edit.svg';
 import dotIcon from '@assets/img/dot.svg';
+import dotIconHired from '@assets/img/dot_green.svg';
 import { AddRecordModal } from '../../display/AddRecordModal';
 import { updateMilestone, getHumanizedDuration, MilestoneLogTabs } from '@services';
 import { useApplicantContext } from '../../applicant/ApplicantContext';
@@ -22,9 +23,15 @@ interface RecordProps {
   job: ApplicantJobRO;
   expandRecord: boolean;
   jobIndex: number;
+  wasOfferAccepted?: boolean;
 }
 
-export const Record: React.FC<RecordProps> = ({ job, expandRecord, jobIndex }) => {
+export const Record: React.FC<RecordProps> = ({
+  job,
+  expandRecord,
+  jobIndex,
+  wasOfferAccepted,
+}) => {
   const { applicant, updateJob } = useApplicantContext();
   const [modalVisible, setModalVisible] = useState(false);
   const [editing, setEditing] = useState<ApplicantStatusAuditRO | null>(null); // milestone being edited
@@ -96,12 +103,21 @@ export const Record: React.FC<RecordProps> = ({ job, expandRecord, jobIndex }) =
     <div className='mb-3' data-cy={`record-${jobIndex}`}>
       <Disclosure
         shouldExpand={expandRecord}
+        wasOfferAccepted={wasOfferAccepted}
         buttonText={
           <div className='rounded py-2 pl-5 w-full'>
             <div className='flex items-center'>
               <span className='font-bold text-black'>{ha_pcn.title}</span>
-              <span className='text-sm text-bcBlueLink font-bold mr-3 ml-auto capitalize'>
-                <img src={dotIcon.src} alt='dot heading' className='inline-block mr-2' />
+              <span
+                className={`text-sm ${
+                  wasOfferAccepted ? 'text-bcGreenHiredText' : 'text-bcBlueLink'
+                } font-bold mr-3 ml-auto capitalize`}
+              >
+                <img
+                  src={wasOfferAccepted ? dotIconHired.src : dotIcon.src}
+                  alt='dot heading'
+                  className='inline-block mr-2'
+                />
                 {getRecordStatus()}
               </span>
             </div>
