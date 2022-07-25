@@ -125,7 +125,7 @@ export class IENApplicantService {
     } = addApplicant;
     const duplicate = await this.ienapplicantRepository.findOne({ email_address });
     if (duplicate) {
-      throw new BadRequestException('There is an entry with the email.');
+      throw new BadRequestException('There is already an applicant with this email.');
     }
 
     const applicant = this.ienapplicantRepository.create(data);
