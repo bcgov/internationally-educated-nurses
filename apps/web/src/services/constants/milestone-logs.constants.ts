@@ -1,4 +1,4 @@
-export enum MilestoneLogTabs {
+export enum StatusCategory {
   INTAKE = 10001,
   LICENSING_REGISTRATION = 10002,
   RECRUITMENT = 10003,

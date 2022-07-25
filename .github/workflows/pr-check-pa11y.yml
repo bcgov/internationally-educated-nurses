@@ -1,4 +1,4 @@
-name: PR Cypress e2e Checks
+name: PR Accessibility Checks
 on:
   pull_request:
     paths:
@@ -28,11 +28,9 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
-      - name: Run application and Cypress e2e tests
-        run: make test-e2e
+      - name: Run application and cypress/accessibility tests
+        run: make test-pa11y
         env:
-          CYPRESS_RECORD_KEY: '${{ secrets.CYPRESS_RECORD_KEY }}'
-          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
           ENV_NAME: 'local'
           E2E_TEST_USERNAME: '${{ secrets.E2E_TEST_USERNAME}}'
           E2E_TEST_PASSWORD: '${{ secrets.E2E_TEST_PASSWORD}}'
@@ -43,3 +41,21 @@ jobs:
           NEXT_PUBLIC_AUTH_REALM: 'ien'
           NEXT_PUBLIC_AUTH_CLIENTID: 'IEN'
           NEXT_PUBLIC_AUTH_URL: 'https://keycloak.freshworks.club/auth'
+
+      - name: Generate markdown from test results
+        run: make generate-accessibility-results
+        if: ${{ failure() }}
+
+      - uses: actions/github-script@v3
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const fs = require('fs');
+            const comment = fs.readFileSync('./packages/accessibility/out/accessibility_results.md', 'utf8');
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            })
+        if: ${{ failure() }}
