@@ -108,7 +108,7 @@ export class IENApplicantController {
       return await this.ienapplicantService.addApplicant(addApplicant, req.user);
     } catch (e) {
       this.logger.error(e);
-      if (e instanceof NotFoundException) {
+      if (e instanceof NotFoundException || e instanceof BadRequestException) {
         throw e;
       } else if (e instanceof QueryFailedError) {
         throw new BadRequestException(e);

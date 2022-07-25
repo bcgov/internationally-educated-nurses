@@ -202,14 +202,6 @@ test-e2e:
 	@make stop-test-db
 	@echo "++\n*****"
 
-test-web:
-	@make start-test-db
-	@yarn build
-	@echo "++\n***** Running Web integration tests\n++"
-	@NODE_ENV=test yarn test:web:all
-	@make stop-test-db
-	@echo "++\n*****"
-
 test-pa11y:
 	@make start-test-db
 	@yarn build

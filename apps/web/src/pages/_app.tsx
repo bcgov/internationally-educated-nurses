@@ -19,7 +19,13 @@ import 'react-toastify/dist/ReactToastify.min.css';
 axios.defaults.baseURL = process.env.NEXT_PUBLIC_API_URL;
 axios.interceptors.response.use(
   res => res,
-  e => toast.error(e.message),
+  e => {
+    if (e?.response?.data?.errorType) {
+      toast.error(`${e.response.data.errorType}: ${e.response.data.errorMessage}`);
+    } else {
+      toast.error(e.message);
+    }
+  },
 );
 
 const keycloakConfig = {

@@ -3,7 +3,6 @@ import { Dispatch, SetStateAction } from 'react';
 import ReactSelect from 'react-select';
 import { Disclosure as HeadlessDisclosure, Transition } from '@headlessui/react';
 import createValidator from 'class-validator-formik';
-import _ from 'lodash';
 
 import { Button, Field, FieldProps, getSelectStyleOverride, EducationForm } from '@components';
 import { addApplicant, RecordTypeOptions, useGetEducationOptions } from '@services';
@@ -32,15 +31,17 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
   const defaultEducationValues: NursingEducationDTO = new NursingEducationDTO('', '', '', '');
 
   const handleSubmit = async (values: IENApplicantCreateUpdateDTO) => {
-    _.remove(values.nursing_educations, (education: NursingEducationDTO) => !education.name);
+    const empty = values.nursing_educations.pop();
 
-    const applicant = await addApplicant(values);
-
-    if (applicant) {
-      setApplicant([applicant, ...applicants]);
+    try {
+      const applicant = await addApplicant(values);
+      if (applicant) {
+        setApplicant([applicant, ...applicants]);
+      }
+      onClose();
+    } catch {
+      empty && values.nursing_educations.push(empty);
     }
-
-    onClose();
   };
 
   const handleClose = () => {

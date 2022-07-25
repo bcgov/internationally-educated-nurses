@@ -119,9 +119,15 @@ export class IENApplicantService {
       assigned_to,
       first_name,
       last_name,
+      email_address,
       country_of_citizenship,
       ...data
     } = addApplicant;
+    const duplicate = await this.ienapplicantRepository.findOne({ email_address });
+    if (duplicate) {
+      throw new BadRequestException('There is already an applicant with this email.');
+    }
+
     const applicant = this.ienapplicantRepository.create(data);
     const name: any = {
       ...applicant.additional_data,
