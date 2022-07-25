@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 
 import { PageOptions, Pagination } from '../Pagination';
@@ -121,9 +121,8 @@ export const MilestoneTable = ({ parentStatus }: MilestoneTableProps) => {
           </thead>
           <tbody className='text-bcBlack'>
             {milestonesInPage.map((audit, index) => (
-              <>
+              <Fragment key={audit.id}>
                 <tr
-                  key={audit.id}
                   className={`text-left text-sm shadow-xs whitespace-nowrap ${
                     editing && activeEdit === index ? currentlyEditing : 'even:bg-bcLightGray'
                   }`}
@@ -153,7 +152,6 @@ export const MilestoneTable = ({ parentStatus }: MilestoneTableProps) => {
                 <tr>
                   <td colSpan={5}>
                     <EditMilestone
-                      key={audit.id}
                       milestone={audit}
                       editing={editing}
                       onEditing={setEditing}
@@ -162,7 +160,7 @@ export const MilestoneTable = ({ parentStatus }: MilestoneTableProps) => {
                     />
                   </td>
                 </tr>
-              </>
+              </Fragment>
             ))}
           </tbody>
         </table>

@@ -118,6 +118,8 @@ export class EmployeeService {
 
     const qb = this.employeeRepository.createQueryBuilder('employee');
 
+    qb.where({ id: Not(user.id) });
+
     if (name) {
       qb.andWhere(this._nameSearchQuery(name));
     }
