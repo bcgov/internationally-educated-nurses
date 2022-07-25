@@ -15,10 +15,6 @@ interface MilestoneTableProps {
 
 const DEFAULT_TAB_PAGE_SIZE = 5;
 
-const wasAddedByLoggedInUser = (loggedInId?: string | null, addedById?: string) => {
-  return loggedInId && loggedInId === addedById;
-};
-
 const getStatus = (milestone: ApplicantStatusAuditRO) => {
   const { status } = milestone.status;
   if (!status) return '';
@@ -98,12 +94,7 @@ export const MilestoneTable = ({ parentStatus }: MilestoneTableProps) => {
   };
 
   const canAddNonRecruitmentMilestone = () => {
-    return (
-      !applicant.applicant_id &&
-      wasAddedByLoggedInUser(authUser?.user_id, applicant.added_by?.id) &&
-      authUser?.ha_pcn_id &&
-      !editing
-    );
+    return !applicant.applicant_id && authUser?.ha_pcn_id && !editing;
   };
 
   return (
@@ -178,7 +169,7 @@ export const MilestoneTable = ({ parentStatus }: MilestoneTableProps) => {
         {!milestonesInPage.length && (
           <div className='w-full flex flex-row justify-center py-5 font-bold'>No Milestones</div>
         )}
-        {/* only show form if applicant was not added by ATS and if current logged in user added applicant */}
+        {/* only show form if applicant was not added by ATS */}
         {canAddNonRecruitmentMilestone() && <AddMilestone milestoneTabId={parentStatus} />}
       </div>
       <Pagination

@@ -6,11 +6,10 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { ApplicantRO, ApplicantStatusAuditRO } from '@ien/common';
+import { ApplicantRO, ApplicantStatusAuditRO, ApplicantJobRO } from '@ien/common';
 import { getApplicant } from '@services';
 import { Spinner } from '../Spinner';
 import { useRouter } from 'next/router';
-import { ApplicantJobRO } from '@ien/common/src/ro/applicant.ro';
 
 export const ApplicantContext = createContext<{
   applicant: ApplicantRO;
