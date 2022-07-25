@@ -102,6 +102,11 @@ export const Recruitment: React.FC = () => {
           >
             Click here to view the job competition.
           </button>
+          <JobCompetitionModal
+            job={getAcceptedJobOfferInfo()}
+            onClose={closeJobCompetitionModal}
+            visible={jobInfoModalVisible}
+          />
         </div>
       )}
       {jobRecords.map((job, index) => (
@@ -133,11 +138,6 @@ export const Recruitment: React.FC = () => {
         onClose={handleNewRecord}
         visible={recordModalVisible}
         setExpandRecord={setExpandRecord}
-      />
-      <JobCompetitionModal
-        job={getAcceptedJobOfferInfo()}
-        onClose={closeJobCompetitionModal}
-        visible={jobInfoModalVisible}
       />
       <Pagination pageOptions={{ pageIndex, pageSize, total }} onChange={handlePageOptions} />
     </>
