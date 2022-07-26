@@ -204,7 +204,7 @@ If you want to open Cypress UI while developing new test cases, run `make run-te
 > 
 > Authentication with Keycloak is a little expensive and time-consuming. To reduce interaction with it, call `cy.login()` before each test case. It creates and stores a session. Subsequent calls restore the session so that it could save time to log in again. When logging in with a user of different role, pass its id as a parameter, then it creates its isolated new session.
 > 
-> `cy.login('ien_e2e_hmbc')`
+> `cy.login('ien_hmbc')`
 > 
 > All test users should have the same password.
 

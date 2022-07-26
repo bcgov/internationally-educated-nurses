@@ -19,6 +19,7 @@ module.exports = {
       { vars: 'all', args: 'after-used', ignoreRestSiblings: false },
     ],
     'no-console': 'error',
+    '@typescript-eslint/no-var-requires': 'off',
   },
   ignorePatterns: ['.eslintrc.js', '**/*spec.ts', 'dist', 'node_modules'],
 };
