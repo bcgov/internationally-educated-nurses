@@ -57,7 +57,7 @@ export const EducationForm: React.FC<NursingEducationProps> = (props: NursingEdu
             <Field
               name={`nursing_educations[${lastIndex}].country`}
               label='Country'
-              component={({ field, form }: FieldProps) => getCountrySelector(field, form)}
+              component={({ field, form }: FieldProps) => getCountrySelector(field, form, 'top')}
             />
           </div>
           <div className='mb-1 col-span-2'>
