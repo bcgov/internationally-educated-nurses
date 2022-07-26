@@ -134,6 +134,7 @@ export class IENApplicantService {
       first_name: first_name,
       last_name: last_name,
     };
+
     if (country_of_citizenship && country_of_citizenship instanceof Array) {
       applicant.country_of_citizenship = country_of_citizenship;
     } else {
@@ -141,6 +142,7 @@ export class IENApplicantService {
     }
     applicant.additional_data = name;
     applicant.name = `${first_name} ${last_name}`;
+    applicant.email_address = email_address;
 
     // collect HA/PCN
     if (health_authorities && health_authorities instanceof Array && health_authorities.length) {

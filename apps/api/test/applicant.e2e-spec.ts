@@ -79,7 +79,7 @@ describe('ApplicantController (e2e)', () => {
       .send(validApplicant)
       .expect(res => {
         const { body } = res;
-        expect(body.detail).toContain('already exists');
+        expect(body.message).toContain('already');
       })
       .expect(400)
       .end(done);
@@ -88,6 +88,7 @@ describe('ApplicantController (e2e)', () => {
   it('Add second Applicant /ien (POST) ', done => {
     validApplicant.applicant_id += 1;
     validApplicant.last_name = 'notexample';
+    validApplicant.email_address = 'test.example2@mailinator.com';
     request(app.getHttpServer()).post('/ien').send(validApplicant).expect(201).end(done);
   });
 
