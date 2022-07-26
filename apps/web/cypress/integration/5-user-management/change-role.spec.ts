@@ -7,7 +7,7 @@ describe('User Management - Details', () => {
   const visitUserDetails = () => {
     cy.login();
     cy.visitUserManagement();
-    cy.contains('tr', 'ien_e2e_hmbc').find('a').eq(0).click();
+    cy.contains('tr', 'ien_hmbc').find('a').eq(0).click();
   };
 
   it('changes an employees role', () => {
@@ -26,7 +26,7 @@ describe('User Management - Details', () => {
   });
 
   it('denies access of revoked user', () => {
-    cy.login('ien_e2e_hmbc');
+    cy.login('ien_hmbc');
     cy.visit('/');
     cy.contains('You are not authorized to use');
   });
