@@ -8,5 +8,6 @@ export * from './employee-filter.dto';
 export * from './sort-filter.dto';
 export * from './report-period.dto';
 export * from './nursing-education.dto';
+export * from './ha-pcn.dto';
 
 export * from './form.dto';

@@ -1,3 +1,4 @@
+import { HaPcnDTO } from './../dto/ha-pcn.dto';
 import { NursingEducationDTO } from './../dto/nursing-education.dto';
 import {
   IENApplicantStatusRO,
@@ -21,7 +22,7 @@ export interface ApplicantRO {
   pr_status?: string;
   nursing_educations?: NursingEducationDTO[];
   bccnm_license_number?: string;
-  health_authorities?: JSON;
+  health_authorities?: HaPcnDTO[];
   notes?: JSON;
   status?: IENApplicantStatusRO;
   additional_data?: JSON;

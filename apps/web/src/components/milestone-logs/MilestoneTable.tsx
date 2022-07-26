@@ -94,7 +94,19 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
   };
 
   const canAddNonRecruitmentMilestone = () => {
-    return !applicant.applicant_id && authUser?.ha_pcn_id && !editing;
+    return !applicant.applicant_id && isSameHa() && !editing;
+  };
+
+  // check whether logged in employee and applicant are from the same HA
+  const isSameHa = (): boolean => {
+    if (
+      !authUser?.ha_pcn_id ||
+      !applicant.health_authorities?.some(h => h.id === authUser?.ha_pcn_id)
+    ) {
+      return false;
+    }
+
+    return true;
   };
 
   return (
@@ -143,7 +155,7 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
                         setEditing(audit);
                         setActiveEdit(index);
                       }}
-                      disabled={!!editing && audit === editing}
+                      disabled={!isSameHa() || (!!editing && audit === editing)}
                     >
                       <img src={editIcon.src} alt='edit milestone' />
                     </button>
