@@ -6,7 +6,7 @@ import { Search } from '../components/Search';
 import { StatusCategoryTab } from '../components/display/StatusCategoryTab';
 import withAuth from '../components/Keycloak';
 import { Access, ApplicantRO } from '@ien/common';
-import { AddApplicantModal, Button, ApplicantTable, PageOptions, Pagination } from '@components';
+import { AddApplicantModal, ApplicantTable, Button, PageOptions, Pagination } from '@components';
 import { AclMask } from '../components/user/AclMask';
 
 interface SearchOptions {
@@ -171,4 +171,4 @@ const Applicants = () => {
 
 // withAuth ensures only authenticated users with a given role are permitted to use a route
 // I have included the pending role here not to lock out any user, but in future most routes should be restricted
-export default withAuth(Applicants, [Access.APPLICANT_READ]);
+export default withAuth(Applicants, [Access.APPLICANT_READ, Access.APPLICANT_WRITE], false);

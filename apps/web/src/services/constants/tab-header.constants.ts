@@ -29,7 +29,7 @@ export const menuBarTabs = [
     title: 'Reporting',
     defaultPath: '/reporting',
     paths: ['/reporting'],
-    acl: [Access.REPORTING],
+    acl: [Access.REPORTING, Access.DATA_EXTRACT],
   },
   {
     title: 'User Management',
