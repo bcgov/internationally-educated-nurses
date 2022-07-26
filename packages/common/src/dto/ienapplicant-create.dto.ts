@@ -14,6 +14,7 @@ import {
   ArrayMinSize,
   ValidateIf,
 } from 'class-validator';
+import { HaPcnDTO } from './ha-pcn.dto';
 import { NursingEducationDTO } from './nursing-education.dto';
 
 export class IENApplicantCreateUpdateDTO {
@@ -70,7 +71,7 @@ export class IENApplicantCreateUpdateDTO {
 
   @IsArray()
   @IsOptional()
-  health_authorities?: JSON;
+  health_authorities?: HaPcnDTO[];
 
   @IsArray()
   @IsOptional()

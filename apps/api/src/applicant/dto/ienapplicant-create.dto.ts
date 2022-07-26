@@ -14,7 +14,7 @@ import {
   ValidateNested,
   ValidateIf,
 } from 'class-validator';
-import { IENApplicantCreateUpdateDTO, NursingEducationDTO } from '@ien/common';
+import { HaPcnDTO, IENApplicantCreateUpdateDTO, NursingEducationDTO } from '@ien/common';
 import { Type } from 'class-transformer';
 
 export class IENApplicantCreateUpdateAPIDTO extends IENApplicantCreateUpdateDTO {
@@ -109,7 +109,7 @@ export class IENApplicantCreateUpdateAPIDTO extends IENApplicantCreateUpdateDTO 
   })
   @IsArray()
   @IsOptional()
-  health_authorities?: JSON;
+  health_authorities?: HaPcnDTO[];
 
   @ApiPropertyOptional({
     description: 'Notes: that keep an audit of non-milestone activity',

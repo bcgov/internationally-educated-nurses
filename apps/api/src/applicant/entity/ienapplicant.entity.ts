@@ -17,7 +17,7 @@ import { IENApplicantStatusAudit } from './ienapplicant-status-audit.entity';
 import { IENApplicantStatus } from './ienapplicant-status.entity';
 import { IENApplicantJob } from './ienjob.entity';
 import { IENUsers } from './ienusers.entity';
-import { NursingEducationDTO } from '@ien/common';
+import { HaPcnDTO, NursingEducationDTO } from '@ien/common';
 
 @Entity('ien_applicants')
 export class IENApplicant {
@@ -60,7 +60,7 @@ export class IENApplicant {
   bccnm_license_number?: string;
 
   @Column('jsonb', { nullable: true })
-  health_authorities?: JSON;
+  health_authorities?: HaPcnDTO[];
 
   @Column('jsonb', { nullable: true })
   notes?: JSON;
