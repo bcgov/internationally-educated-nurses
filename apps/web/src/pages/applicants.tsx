@@ -115,7 +115,7 @@ const Applicants = () => {
 
   const handleTabChange = (index: number) => {
     setPageIndex(1);
-    changeRoute(name, index ? index + 10000 : 0);
+    changeRoute(name, index ? index : 0);
   };
 
   return (
@@ -131,7 +131,7 @@ const Applicants = () => {
       <div className='bg-white'>
         <StatusCategoryTab
           tabs={[{ title: 'All', value: 0 }, ...milestoneTabs]}
-          categoryIndex={status ? status - 10000 : 0}
+          categoryIndex={status ? status : 0}
           onTabClick={handleTabChange}
         />
         <div className='flex justify-between items-center'>
