@@ -8,6 +8,7 @@ import { useApplicantContext } from '../applicant/ApplicantContext';
 import { AddMilestone, EditMilestone } from './recruitment/Milestone';
 import { useAuthContext } from '../AuthContexts';
 import editIcon from '@assets/img/edit.svg';
+import disabledEditIcon from '@assets/img/disabled_edit.svg';
 
 interface MilestoneTableProps {
   category: StatusCategory;
@@ -93,20 +94,18 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
     return getHumanizedDuration(start, end);
   };
 
-  const canAddNonRecruitmentMilestone = () => {
-    return !applicant.applicant_id && isSameHa() && !editing;
-  };
-
-  // check whether logged in employee and applicant are from the same HA
-  const isSameHa = (): boolean => {
+  const canAddEditNonRecruitmentMilestone = () => {
+    // success: no applicant id, ha id exists, applicant is part of same ha as logged in user
     if (
-      !authUser?.ha_pcn_id ||
-      !applicant.health_authorities?.some(h => h.id === authUser?.ha_pcn_id)
+      !applicant.applicant_id &&
+      authUser?.ha_pcn_id &&
+      applicant.health_authorities?.some(h => h.id === authUser?.ha_pcn_id) &&
+      !editing
     ) {
-      return false;
+      return true;
     }
 
-    return true;
+    return false;
   };
 
   return (
@@ -155,9 +154,16 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
                         setEditing(audit);
                         setActiveEdit(index);
                       }}
-                      disabled={!isSameHa() || (!!editing && audit === editing)}
+                      disabled={
+                        !canAddEditNonRecruitmentMilestone() || (!!editing && audit === editing)
+                      }
                     >
-                      <img src={editIcon.src} alt='edit milestone' />
+                      <img
+                        src={
+                          canAddEditNonRecruitmentMilestone() ? editIcon.src : disabledEditIcon.src
+                        }
+                        alt='edit milestone'
+                      />
                     </button>
                   </td>
                 </tr>
@@ -180,7 +186,7 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
           <div className='w-full flex flex-row justify-center py-5 font-bold'>No Milestones</div>
         )}
         {/* only show form if applicant was not added by ATS and if current logged-in user added applicant */}
-        {canAddNonRecruitmentMilestone() && <AddMilestone milestoneTabId={category} />}
+        {canAddEditNonRecruitmentMilestone() && <AddMilestone milestoneTabId={category} />}
       </div>
       <Pagination
         pageOptions={{ pageIndex, pageSize, total: filteredMilestones.length }}
