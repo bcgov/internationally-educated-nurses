@@ -79,7 +79,7 @@ describe('ApplicantController (e2e)', () => {
       .send(validApplicant)
       .expect(res => {
         const { body } = res;
-        expect(body.detail).toContain('already exists');
+        expect(body.message).toContain('already');
       })
       .expect(400)
       .end(done);
