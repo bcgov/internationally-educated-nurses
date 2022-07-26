@@ -785,11 +785,7 @@ export class ReportUtilService {
     const applicantColumns: string[] = [
       'a.id',
       'a.applicant_id',
-      `a.additional_data->'first_name' as first_name`,
-      `a.additional_data->'last_name' as last_name`,
       'a.registration_date',
-      'a.email_address',
-      'a.phone_number',
       `(select string_agg(t->>'name', ',') from jsonb_array_elements(a.assigned_to::jsonb) as x(t)) as assigned_to`,
       'a.country_of_residence',
       'a.pr_status',
