@@ -2,7 +2,7 @@
 /// <reference path="../../support/index.ts"/>
 
 describe('Health Authority', () => {
-  it.skip('adds a new applicant', () => {
+  it('adds a new applicant', () => {
     cy.login('ien_fha');
     cy.visit('/');
 

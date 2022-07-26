@@ -154,7 +154,7 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
                       isOptionDisabled={o => o.title == field.value}
                       getOptionLabel={option => `${option.title}`}
                       styles={getSelectStyleOverride<RecordTypeOptions>()}
-                      menuPlacement='auto'
+                      menuPlacement='bottom'
                     />
                   )}
                 />
