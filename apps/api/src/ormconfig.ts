@@ -8,7 +8,7 @@ const config: PostgresConnectionOptions = {
   host: process.env.POSTGRES_HOST,
   type: 'postgres',
   port: +(process.env.PORTGRES_PORT || 5432),
-  connectTimeoutMS: 5000,
+  connectTimeoutMS: process.env.NODE_ENV === 'test' ? 30000 : 5000,
   username: process.env.POSTGRES_USERNAME || 'freshworks',
   password: process.env.POSTGRES_PASSWORD,
   database: process.env.POSTGRES_DATABASE || 'ien',
