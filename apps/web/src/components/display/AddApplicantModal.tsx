@@ -71,7 +71,6 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
     { id: 6, title: 'Applied for Permanent Residency' },
     { id: 7, title: 'No status' },
     { id: 8, title: 'Temporary Work Permit' },
-    { id: 9, title: 'PR' },
   ];
 
   return (
