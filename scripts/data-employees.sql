@@ -34,58 +34,25 @@ VALUES
     ('ien_phsa', '2022-07-25 20:56:33.356', 'ien_phsa@phsa.ca', '07509836-ef86-4590-b5ef-056dc18e0a9e'),
     ('ien_phc', '2022-07-25 20:56:45.032', 'ien_phc@providencehealth.bc.ca', '51a1975f-5200-42bb-8929-1db3193c84bd');
 
-
 INSERT INTO employee_roles_role
     (role_id, employee_id)
 VALUES
-    (
-        (SELECT id FROM role WHERE slug = 'admin'),
-        (SELECT id FROM employee WHERE name = 'ien_e2e')
-    ),
-    (
-        (SELECT id FROM role WHERE slug = 'applicant-read'),
-        (SELECT id FROM employee WHERE name = 'ien_e2e_view')
-    ),
-    (
-        (SELECT id FROM role WHERE slug = 'applicant-write'),
-        (SELECT id FROM employee WHERE name = 'ien_hmbc')
-    ),
-    (
-        (SELECT id FROM role WHERE slug = 'applicant-write'),
-        (SELECT id FROM employee WHERE name = 'ien_ha')
-    ),
-    (
-        (SELECT id FROM role WHERE slug = 'provisioner'),
-        (SELECT id FROM employee WHERE name = 'ien_ha')
-    ),
-    (
-        (SELECT id FROM role WHERE slug = 'provisioner'),
-        (SELECT id FROM employee WHERE name = 'test1')
-    ),
-    (
-        (SELECT id FROM role WHERE slug = 'reporting'),
-        (SELECT id FROM employee WHERE name = 'test2')
-    ),
-    (
-        (SELECT id FROM role WHERE slug = 'data-extract'),
-        (SELECT id FROM employee WHERE name = 'test3')
-    ),
-    (
-        (SELECT id FROM role WHERE slug = 'applicant-write'),
-        (SELECT id FROM employee WHERE name = 'ien_fha')
-    ),
-    (
-        (SELECT id FROM role WHERE slug = 'applicant-read'),
-        (SELECT id FROM employee WHERE name = 'ien_fha')
-    ),
-    (
-        (SELECT id FROM role WHERE slug = 'applicant-write'),
-        (SELECT id FROM employee WHERE name = 'ien_fha2')
-    ),
-    (
-        (SELECT id FROM role WHERE slug = 'applicant-read'),
-        (SELECT id FROM employee WHERE name = 'ien_fha2')
-    );
+    ((SELECT id FROM role WHERE slug = 'admin'), (SELECT id FROM employee WHERE name = 'ien_e2e')),
+    ((SELECT id FROM role WHERE slug = 'applicant-read'), (SELECT id FROM employee WHERE name = 'ien_e2e_view')),
+    ((SELECT id FROM role WHERE slug = 'applicant-write'), (SELECT id FROM employee WHERE name = 'ien_hmbc')),
+    ((SELECT id FROM role WHERE slug = 'applicant-write'), (SELECT id FROM employee WHERE name = 'ien_ha')),
+    ((SELECT id FROM role WHERE slug = 'provisioner'), (SELECT id FROM employee WHERE name = 'ien_ha')),
+    ((SELECT id FROM role WHERE slug = 'provisioner'), (SELECT id FROM employee WHERE name = 'test1')),
+    ((SELECT id FROM role WHERE slug = 'reporting'), (SELECT id FROM employee WHERE name = 'test2')),
+    ((SELECT id FROM role WHERE slug = 'data-extract'), (SELECT id FROM employee WHERE name = 'test3')),
+    ((SELECT id FROM role WHERE slug = 'applicant-write'), (SELECT id FROM employee WHERE name = 'ien_fha')),
+    ((SELECT id FROM role WHERE slug = 'applicant-read'), (SELECT id FROM employee WHERE name = 'ien_fha')),
+    ((SELECT id FROM role WHERE slug = 'applicant-write'), (SELECT id FROM employee WHERE name = 'ien_fha2')),
+    ((SELECT id FROM role WHERE slug = 'applicant-read'), (SELECT id FROM employee WHERE name = 'ien_fha2')),
+    ((SELECT id FROM role WHERE slug = 'applicant-write'), (SELECT id FROM employee WHERE name = 'ien_viha')),
+    ((SELECT id FROM role WHERE slug = 'applicant-read'), (SELECT id FROM employee WHERE name = 'ien_viha')),
+    ((SELECT id FROM role WHERE slug = 'provisioner'), (SELECT id FROM employee WHERE name = 'ien_viha'))
+;
 
 UPDATE employee SET revoked_access_date = '2021-01-01' WHERE name = 'test1';
 UPDATE employee SET revoked_access_date = '2021-01-01' WHERE name = 'test2';
