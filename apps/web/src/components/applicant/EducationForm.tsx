@@ -77,7 +77,7 @@ export const EducationForm: React.FC<NursingEducationProps> = (props: NursingEdu
               onClick={() => push(new NursingEducationDTO('', '', '', ''))}
               disabled={
                 typeof errors === 'object' ||
-                Object.values(nursing_educations[lastIndex]).every(v => !v)
+                Object.values(nursing_educations[lastIndex]).some(v => !v)
               }
               data-cy='add-education'
             >

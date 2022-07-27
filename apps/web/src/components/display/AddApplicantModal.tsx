@@ -195,7 +195,7 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
                               {values.nursing_educations.length > 1 && (
                                 <ul className='list-none mb-2 pl-3'>
                                   {values.nursing_educations
-                                    .slice(0, values.nursing_educations.length)
+                                    .slice(0, values.nursing_educations.length - 1)
                                     .map(
                                       (
                                         { name, year, country, num_years }: NursingEducationDTO,
