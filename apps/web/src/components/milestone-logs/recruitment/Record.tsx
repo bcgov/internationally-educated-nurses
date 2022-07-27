@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 
-import { buttonBase, buttonColor, DetailsItem, Disclosure } from '@components';
+import { buttonBase, buttonColor, DetailsItem, Disclosure, AclMask } from '@components';
 import { AddMilestone, EditMilestone } from './Milestone';
 import {
   Access,
@@ -17,7 +17,6 @@ import dotIconHired from '@assets/img/dot_green.svg';
 import { AddRecordModal } from '../../display/AddRecordModal';
 import { updateMilestone, getHumanizedDuration, StatusCategory } from '@services';
 import { useApplicantContext } from '../../applicant/ApplicantContext';
-import { AclMask } from '../../user/AclMask';
 
 interface RecordProps {
   job: ApplicantJobRO;

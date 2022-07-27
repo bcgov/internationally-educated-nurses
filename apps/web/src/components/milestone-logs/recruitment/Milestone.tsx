@@ -5,7 +5,7 @@ import { FieldProps, Form as FormikForm, Formik, FormikHelpers } from 'formik';
 import ReactSelect from 'react-select';
 import { toast } from 'react-toastify';
 
-import { Button, buttonBase, Field, getSelectStyleOverride, Textarea } from '@components';
+import { Button, buttonBase, Field, getSelectStyleOverride, Textarea, AclMask } from '@components';
 import {
   Access,
   ApplicantJobRO,
@@ -32,7 +32,6 @@ import disabledDeleteIcon from '@assets/img/disabled-trash_can.svg';
 import { useApplicantContext } from '../../applicant/ApplicantContext';
 import { useAuthContext } from 'src/components/AuthContexts';
 import { DeleteMilestoneModal } from 'src/components/display/DeleteMilestoneModal';
-import { AclMask } from '../../user/AclMask';
 
 type MilestoneFormValues = IENApplicantAddStatusDTO | IENApplicantUpdateStatusDTO;
 

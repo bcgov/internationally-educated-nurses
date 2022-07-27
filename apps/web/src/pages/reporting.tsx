@@ -1,7 +1,6 @@
 import { Access } from '@ien/common';
-import { DataExtractReport, ReportTable } from '@components';
+import { DataExtractReport, ReportTable, AclMask } from '@components';
 import withAuth from '../components/Keycloak';
-import { AclMask } from '../components/user/AclMask';
 
 const Reporting = () => {
   return (

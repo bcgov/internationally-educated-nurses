@@ -20,3 +20,4 @@ export * from './form';
 export * from './reporting';
 export * from './display';
 export * from './applicant';
+export * from './user';

@@ -3,14 +3,20 @@ import { useEffect, useState } from 'react';
 import { AddRecordModal } from '../display/AddRecordModal';
 import { Record } from './recruitment/Record';
 import { Access, ApplicantJobRO, JobFilterOptions } from '@ien/common';
-import { buttonBase, buttonColor, isHired, JobCompetitionModal } from '@components';
+import {
+  AclMask,
+  buttonBase,
+  buttonColor,
+  isHired,
+  JobCompetitionModal,
+  PageOptions,
+  Pagination,
+} from '@components';
 import addIcon from '@assets/img/add.svg';
 import hiredIndIcon from '@assets/img/hired_indicator.svg';
 import { JobFilters } from './recruitment/JobFilters';
-import { PageOptions, Pagination } from '../Pagination';
 import { useApplicantContext } from '../applicant/ApplicantContext';
 import dayjs from 'dayjs';
-import { AclMask } from '../user/AclMask';
 
 const DEFAULT_JOB_PAGE_SIZE = 5;
 

@@ -6,8 +6,14 @@ import { Search } from '../components/Search';
 import { StatusCategoryTab } from '../components/display/StatusCategoryTab';
 import withAuth from '../components/Keycloak';
 import { Access, ApplicantRO } from '@ien/common';
-import { AddApplicantModal, ApplicantTable, Button, PageOptions, Pagination } from '@components';
-import { AclMask } from '../components/user/AclMask';
+import {
+  AddApplicantModal,
+  ApplicantTable,
+  Button,
+  PageOptions,
+  Pagination,
+  AclMask,
+} from '@components';
 
 interface SearchOptions {
   name?: string;
