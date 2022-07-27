@@ -10,7 +10,7 @@ import { useAuthContext } from './AuthContexts';
 import { getPath, isPending } from '@services';
 import { Access, hasAccess } from '@ien/common';
 
-const withAuth = (Component: React.FunctionComponent, acl: Access[]) => {
+const withAuth = (Component: React.FunctionComponent, acl: Access[], and = true) => {
   const Auth = (props: JSX.IntrinsicAttributes) => {
     // Login data added to props via redux-store (or use react context for example)
     const { authUser, authUserLoading } = useAuthContext();
@@ -24,7 +24,7 @@ const withAuth = (Component: React.FunctionComponent, acl: Access[]) => {
         router.replace('/login');
       }
 
-      if (authUser && !hasAccess(authUser.roles, acl)) {
+      if (authUser && !hasAccess(authUser.roles, acl, and)) {
         router.replace(getPath(authUser.roles));
       }
 
@@ -47,7 +47,7 @@ const withAuth = (Component: React.FunctionComponent, acl: Access[]) => {
       !kc.initialized ||
       !authUser ||
       !authUser.roles ||
-      !hasAccess(authUser.roles, acl)
+      !hasAccess(authUser.roles, acl, and)
     ) {
       return <Spinner className='h-10 w-10' />;
     }

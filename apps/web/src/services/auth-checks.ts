@@ -8,7 +8,7 @@ export const getPath = (roles: Role[]): string => {
   if (hasAccess(roles, [Access.APPLICANT_READ])) {
     return '/applicants';
   }
-  if (hasAccess(roles, [Access.REPORTING])) {
+  if (hasAccess(roles, [Access.REPORTING, Access.DATA_EXTRACT], false)) {
     return '/reporting';
   }
   if (hasAccess(roles, [Access.USER_READ])) {

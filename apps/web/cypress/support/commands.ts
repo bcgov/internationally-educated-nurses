@@ -1,14 +1,12 @@
-import { addCustomCommand } from 'cy-verify-downloads';
-
+import dayjs from 'dayjs';
 import {
   ApplicantRO,
   IENApplicantAddStatusDTO,
   IENApplicantCreateUpdateDTO,
   IENApplicantJobCreateUpdateDTO,
 } from '@ien/common';
-import dayjs from 'dayjs';
 
-addCustomCommand();
+require('cy-verify-downloads').addCustomCommand();
 
 Cypress.Commands.add('login', (username?: string) => {
   cy.session(username || Cypress.env('username'), () => {
@@ -153,8 +151,8 @@ Cypress.Commands.add('addMilestone', (milestone: IENApplicantAddStatusDTO) => {
     cy.get('#effective_date').focus().click().type(`${milestone.effective_date}`);
   }
   cy.contains('button', 'Save Milestone').click();
-  cy.wait(500);
   cy.contains(milestone.status);
+  cy.contains(`${milestone.notes}`);
 });
 
 Cypress.Commands.add('deleteMilestone', (index: number) => {
@@ -171,18 +169,17 @@ Cypress.Commands.add('changeRole', (role: string) => {
 
 Cypress.Commands.add('pagination', () => {
   cy.contains('Showing 10');
-  cy.get('tbody > tr').should('have.length', '10');
+  cy.get('tbody > tr').should('have.length', 10);
   cy.contains('1 - 10');
 
   // change limit to 5
   cy.get('select').eq(0).select('5');
   cy.contains('Showing 5');
-  cy.get('tbody > tr').should('have.length', '5');
+  cy.get('tbody > tr').should('have.length', 5);
 
   // move to page 3
   cy.get('select').eq(1).select('3');
-  cy.get('tbody > tr').should('have.length', '5');
-  cy.contains('11 - 15');
+  cy.get('tbody > tr').should('have.length.greaterThan', 1);
 
   // move to page 2
   cy.get('.p-3.border-l').eq(0).click();
@@ -190,8 +187,12 @@ Cypress.Commands.add('pagination', () => {
 });
 
 Cypress.Commands.add('visitDetails', (applicant: ApplicantRO) => {
+  cy.intercept(`/api/v1//ien/${applicant.id}?relation=audit`).as('getApplicant');
   cy.visit(`/details?id=${applicant.id}`);
-  cy.contains(applicant.name, { timeout: 60000 });
+  cy.wait('@getApplicant').then(() => {
+    cy.waitForLoading();
+    cy.contains(applicant.name, { timeout: 60000 });
+  });
 });
 
 Cypress.Commands.add('tabRecruitment', () => {

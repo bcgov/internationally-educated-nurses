@@ -1,5 +1,5 @@
 import { FieldProps, getSelectStyleOverride } from '@components';
-import ReactSelect from 'react-select';
+import ReactSelect, { MenuPlacement } from 'react-select';
 import { isoCountries, RecordTypeOptions } from '@services';
 
 export const getCountries = (): RecordTypeOptions[] => {
@@ -10,7 +10,11 @@ export const getCountries = (): RecordTypeOptions[] => {
   }));
 };
 
-export const getCountrySelector = (field: FieldProps['field'], form: FieldProps['form']) => (
+export const getCountrySelector = (
+  field: FieldProps['field'],
+  form: FieldProps['form'],
+  placement: MenuPlacement = 'auto',
+) => (
   <ReactSelect<RecordTypeOptions>
     inputId={field.name}
     value={getCountries().find(s => s.countryCode == field.value)}
@@ -20,6 +24,6 @@ export const getCountrySelector = (field: FieldProps['field'], form: FieldProps[
     isOptionDisabled={o => o.countryCode == field.value}
     getOptionLabel={option => `${option.title}`}
     styles={getSelectStyleOverride<RecordTypeOptions>()}
-    menuPlacement='top'
+    menuPlacement={placement}
   />
 );

@@ -7,6 +7,6 @@ describe('Login page', () => {
   });
 
   it('login with hmbc user account', () => {
-    cy.login('ien_e2e_hmbc');
+    cy.login('ien_hmbc');
   });
 });

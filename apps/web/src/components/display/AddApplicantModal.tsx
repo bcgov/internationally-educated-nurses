@@ -127,7 +127,7 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
                       getOptionLabel={option => `${option.title}`}
                       getOptionValue={option => `${option.countryCode}`}
                       styles={getSelectStyleOverride<RecordTypeOptions>()}
-                      menuPlacement='auto'
+                      menuPlacement='bottom'
                       isMulti
                     />
                   )}
@@ -137,7 +137,9 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
                 <Field
                   name='country_of_residence'
                   label='Country of Residence'
-                  component={({ field, form }: FieldProps) => getCountrySelector(field, form)}
+                  component={({ field, form }: FieldProps) =>
+                    getCountrySelector(field, form, 'bottom')
+                  }
                 />
               </div>
               <div className='mb-1 col-span-2'>
@@ -154,7 +156,7 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
                       isOptionDisabled={o => o.title == field.value}
                       getOptionLabel={option => `${option.title}`}
                       styles={getSelectStyleOverride<RecordTypeOptions>()}
-                      menuPlacement='auto'
+                      menuPlacement='bottom'
                     />
                   )}
                 />
