@@ -783,15 +783,15 @@ export class ReportUtilService {
       milestoneList.push(`to_char(x."${item.id}", 'YYYY-MM-DD') as "${item.status}"`); // Display status name instead of id
     });
     const applicantColumns: string[] = [
-      'a.id',
-      'a.applicant_id',
-      'a.registration_date',
-      `(select string_agg(t->>'name', ',') from jsonb_array_elements(a.assigned_to::jsonb) as x(t)) as assigned_to`,
-      'a.country_of_residence',
-      'a.pr_status',
-      `(select string_agg(t->>'title', ',') from jsonb_array_elements(a.health_authorities::jsonb) as x(t)) as health_authorities`,
-      'CAST(a.nursing_educations AS TEXT)',
-      `a.country_of_citizenship::TEXT as country_of_citizenship`,
+      'a.id as "ID"',
+      'a.applicant_id as "Applicant ID"',
+      'a.registration_date as "Registration Date"',
+      `(select string_agg(t->>'name', ',') from jsonb_array_elements(a.assigned_to::jsonb) as x(t)) as "Assigned to"`,
+      'a.country_of_residence as "Country of Residence"',
+      'a.pr_status as "PR Status"',
+      `(select string_agg(t->>'title', ',') from jsonb_array_elements(a.health_authorities::jsonb) as x(t)) as "Referred Health Authority"`,
+      'CAST(a.nursing_educations AS TEXT) as "Nursing Education"',
+      `a.country_of_citizenship::TEXT as "Country of Citizenship"`,
     ];
     return `
     SELECT ${applicantColumns.join(',')}, ${milestoneList.join(',')}
