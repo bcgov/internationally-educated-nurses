@@ -42,7 +42,10 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
   const { haPcn, jobLocation, jobTitle } = useGetAddRecordOptions();
 
   const isDuplicate = ({ job_id, ha_pcn }: IENApplicantJobCreateUpdateDTO) => {
-    const result = applicant?.jobs?.find(j => j.job_id === job_id && j.ha_pcn.id === +ha_pcn);
+    const result = applicant?.jobs?.find(j => {
+      if (!j.job_id) return false;
+      return j.job_id === job_id && j.ha_pcn.id === +ha_pcn;
+    });
     return result && (!job || result !== job);
   };
 

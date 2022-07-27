@@ -1,5 +1,4 @@
 import { Exclude } from 'class-transformer';
-import { randomUUID } from 'crypto';
 import sortStatus from 'src/common/util';
 import {
   Entity,
@@ -12,7 +11,6 @@ import {
   AfterLoad,
   ManyToMany,
   JoinTable,
-  BeforeInsert,
 } from 'typeorm';
 import { IENApplicantStatusAudit } from './ienapplicant-status-audit.entity';
 import { IENApplicant } from './ienapplicant.entity';
@@ -66,12 +64,6 @@ export class IENApplicantJob {
   sortStatus() {
     if (this?.status_audit?.length) {
       this.status_audit = sortStatus(this.status_audit);
-    }
-  }
-  @BeforeInsert()
-  beforeInsert() {
-    if (!this.job_id) {
-      this.job_id = randomUUID();
     }
   }
 }
