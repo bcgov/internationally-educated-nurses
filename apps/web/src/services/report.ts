@@ -28,13 +28,9 @@ interface ReportCreator {
 }
 
 export const getApplicantDataExtract = async (filter?: PeriodFilter) => {
-  try {
-    const url = `/reports/applicant/extract-data?${convertToParams(filter)}`;
-    const { data } = await axios.get(url);
-    return data?.data;
-  } catch (e) {
-    notifyError(e as AxiosError);
-  }
+  const url = `/reports/applicant/extract-data?${convertToParams(filter)}`;
+  const { data } = await axios.get(url);
+  return data?.data;
 };
 
 export const getReportByEOI = async (filter?: PeriodFilter) => {
@@ -271,25 +267,24 @@ export const getApplicantDataExtractSheet = (applicants: object[]): WorkSheet =>
 
 export const createApplicantDataExtractWorkbook = async (
   filter: PeriodFilter,
-): Promise<WorkBook | undefined> => {
-  // create a new workbook
-  const workbook = utils.book_new();
+): Promise<WorkBook | null> => {
+  try {
+    const applicants = await getApplicantDataExtract(filter);
 
-  // get applicant data to populate sheet
-  const applicants = await getApplicantDataExtract(filter);
-
-  if (!applicants || applicants.length === 0) {
-    toast.error('There is no Applicant data to extract during this time period');
-    return;
+    if (!applicants || applicants.length === 0) {
+      toast.error('There is no Applicant data to extract during this time period');
+      return null;
+    }
+    const workbook = utils.book_new();
+    utils.book_append_sheet(
+      workbook,
+      getApplicantDataExtractSheet(applicants),
+      'IEN Applicant Data Extract',
+    );
+    return workbook;
+  } catch {
+    return null;
   }
-  // create work sheet and append to workbook
-  utils.book_append_sheet(
-    workbook,
-    getApplicantDataExtractSheet(applicants),
-    'IEN Applicant Data Extract',
-  );
-
-  return workbook;
 };
 
 export const createReportWorkbook = async (filter: PeriodFilter): Promise<WorkBook | null> => {
