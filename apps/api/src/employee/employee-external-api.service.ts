@@ -14,15 +14,13 @@ export class EmployeeExternalAPIService {
 
   async getEmployeeData() {
     try {
-      const employees = await getManager()
+      return getManager()
         .createQueryBuilder(EmployeeEntity, 'employee')
         .select('employee')
         .leftJoinAndSelect('employee.roles', 'role')
         .where('role IS NOT NULL')
         .leftJoinAndSelect('role.acl', 'acl')
         .getMany();
-
-      return employees;
     } catch (e) {
       this.logger.log(`Error retrieving Employee Data (getEmployeeData()): ${e}`);
     }
