@@ -4,7 +4,7 @@ import ReactSelect from 'react-select';
 import { Button, Field, getSelectStyleOverride, Error } from '@components';
 import { RecordTypeOptions } from '@services';
 import { NursingEducationDTO } from '@ien/common';
-import { getCountrySelector } from '../../utils/country-selector';
+import { getCountrySelector } from '../../utils';
 
 interface NursingEducationProps {
   nursing_educations: NursingEducationDTO[];

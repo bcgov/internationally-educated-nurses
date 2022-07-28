@@ -11,10 +11,8 @@ import {
   ApplicantStatusAuditRO,
   JobQueryOptions,
   IENApplicantUpdateStatusDTO,
-  convertToParams,
 } from '@ien/common';
-import { notifyError } from '../utils/notify-error';
-import { fetcher } from '../utils/swr-fetcher';
+import { convertToParams, fetcher, notifyError } from '../utils';
 
 // get all applicants
 export const getApplicants = async (filter: IENApplicantFilterDTO = {}) => {

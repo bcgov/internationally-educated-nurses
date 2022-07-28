@@ -16,7 +16,7 @@ export interface ApplicantRO {
   email_address?: string;
   phone_number?: string;
   registration_date?: Date;
-  assigned_to?: JSON;
+  assigned_to?: IENUserRO[];
   country_of_citizenship?: string[];
   country_of_residence?: string;
   pr_status?: string;
