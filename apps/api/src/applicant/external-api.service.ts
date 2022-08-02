@@ -442,9 +442,9 @@ export class ExternalAPIService {
           bccnm_license_number: a?.bccnm_license_number,
           pr_status: a?.pr_status,
           nursing_educations: a?.nursing_educations,
-          health_authorities: health_authorities,
+          health_authorities,
           notes: a?.notes,
-          assigned_to: assigned_to,
+          assigned_to,
           additional_data: {
             first_name: a.first_name,
             last_name: a.last_name,

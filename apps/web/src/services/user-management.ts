@@ -1,6 +1,6 @@
 import { EmployeeFilterDTO, EmployeeRO, Organizations, Role } from '@ien/common';
 import axios from 'axios';
-import { fetcher } from '../utils/swr-fetcher';
+import { fetcher } from '../utils';
 import useSWRImmutable from 'swr/immutable';
 
 // get all employees

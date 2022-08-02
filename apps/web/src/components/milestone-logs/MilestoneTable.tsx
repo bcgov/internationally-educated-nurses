@@ -101,17 +101,13 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
   };
 
   const canAddEditNonRecruitmentMilestone = () => {
-    // success: no applicant id, ha id exists, applicant is part of same ha as logged in user
-    if (
+    // success: no applicant_id(not from ATS), ha id exists, applicant is part of same ha as logged-in user
+    return (
       !applicant.applicant_id &&
       authUser?.ha_pcn_id &&
       applicant.health_authorities?.some(h => h.id === authUser?.ha_pcn_id) &&
       !editing
-    ) {
-      return true;
-    }
-
-    return false;
+    );
   };
 
   return (

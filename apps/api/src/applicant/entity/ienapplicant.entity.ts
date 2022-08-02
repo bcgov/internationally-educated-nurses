@@ -17,7 +17,7 @@ import { IENApplicantStatusAudit } from './ienapplicant-status-audit.entity';
 import { IENApplicantStatus } from './ienapplicant-status.entity';
 import { IENApplicantJob } from './ienjob.entity';
 import { IENUsers } from './ienusers.entity';
-import { HaPcnDTO, NursingEducationDTO } from '@ien/common';
+import { HaPcnDTO, IENUserRO, NursingEducationDTO } from '@ien/common';
 
 @Entity('ien_applicants')
 export class IENApplicant {
@@ -42,7 +42,7 @@ export class IENApplicant {
   registration_date?: Date;
 
   @Column('jsonb', { nullable: true })
-  assigned_to?: JSON;
+  assigned_to?: IENUserRO[];
 
   @Column('jsonb', { nullable: true })
   country_of_citizenship?: string[];

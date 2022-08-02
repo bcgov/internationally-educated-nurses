@@ -1,7 +1,7 @@
 import useSWRImmutable from 'swr/immutable';
 
 import { IENStatusReasonRO } from '@ien/common';
-import { fetcher } from '../utils/swr-fetcher';
+import { fetcher } from '../utils';
 import { StyleOption } from './constants/roles.constants';
 
 export interface RecordTypeOptions extends StyleOption {

@@ -51,6 +51,7 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
             <th className='px-6' scope='col'>
               <SortButton label='Last Updated' sortKey='updated_date' onChange={onSortChange} />
             </th>
+            <th scope='col'>Assigned to</th>
             <th scope='col'></th>
           </tr>
         </thead>
@@ -68,6 +69,7 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
                 <td className='px-6 py-5'>{app.name}</td>
                 {milestoneText(app.status?.id, app.status?.status)}
                 <td className='px-6'>{app.updated_date && formatDate(app.updated_date)}</td>
+                <td className='px-6'>{app.assigned_to?.map(({ name }) => name).join(', ')}</td>
                 <td className='px-6 text-right'>
                   <Link
                     href={{

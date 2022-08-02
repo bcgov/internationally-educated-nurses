@@ -12,7 +12,7 @@ import minusIcon from '@assets/img/minus.svg';
 import xDeleteIcon from '@assets/img/x_delete.svg';
 import { ApplicantRO, IENApplicantCreateUpdateDTO, NursingEducationDTO } from '@ien/common';
 import dayjs from 'dayjs';
-import { getCountries, getCountrySelector } from '../../utils/country-selector';
+import { getCountries, getCountrySelector } from '../../utils';
 
 interface AddApplicantProps {
   onClose: () => void;
