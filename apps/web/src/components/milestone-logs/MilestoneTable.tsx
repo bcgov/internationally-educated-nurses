@@ -2,13 +2,19 @@ import { Fragment, useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 
 import { PageOptions, Pagination } from '../Pagination';
-import { ApplicantStatusAuditRO, formatDate, IENApplicantUpdateStatusDTO } from '@ien/common';
+import {
+  Access,
+  ApplicantStatusAuditRO,
+  formatDate,
+  IENApplicantUpdateStatusDTO,
+} from '@ien/common';
 import { getHumanizedDuration, StatusCategory, updateMilestone } from '@services';
 import { useApplicantContext } from '../applicant/ApplicantContext';
 import { AddMilestone, EditMilestone } from './recruitment/Milestone';
 import { useAuthContext } from '../AuthContexts';
 import editIcon from '@assets/img/edit.svg';
 import disabledEditIcon from '@assets/img/disabled_edit.svg';
+import { AclMask } from '@components';
 
 interface MilestoneTableProps {
   category: StatusCategory;
@@ -148,23 +154,26 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
                   </td>
                   <td className='px-4'>{getDuration(audit)}</td>
                   <td className='items-center px-4'>
-                    <button
-                      className=' '
-                      onClick={() => {
-                        setEditing(audit);
-                        setActiveEdit(index);
-                      }}
-                      disabled={
-                        !canAddEditNonRecruitmentMilestone() || (!!editing && audit === editing)
-                      }
-                    >
-                      <img
-                        src={
-                          canAddEditNonRecruitmentMilestone() ? editIcon.src : disabledEditIcon.src
+                    <AclMask acl={[Access.APPLICANT_WRITE]}>
+                      <button
+                        onClick={() => {
+                          setEditing(audit);
+                          setActiveEdit(index);
+                        }}
+                        disabled={
+                          !canAddEditNonRecruitmentMilestone() || (!!editing && audit === editing)
                         }
-                        alt='edit milestone'
-                      />
-                    </button>
+                      >
+                        <img
+                          src={
+                            canAddEditNonRecruitmentMilestone()
+                              ? editIcon.src
+                              : disabledEditIcon.src
+                          }
+                          alt='edit milestone'
+                        />
+                      </button>
+                    </AclMask>
                   </td>
                 </tr>
                 <tr>
@@ -185,8 +194,11 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
         {!milestonesInPage.length && (
           <div className='w-full flex flex-row justify-center py-5 font-bold'>No Milestones</div>
         )}
-        {/* only show form if applicant was not added by ATS and if current logged-in user added applicant */}
-        {canAddEditNonRecruitmentMilestone() && <AddMilestone milestoneTabId={category} />}
+        {/* first check if applicant has write access,
+        then only show form if applicant was not added by ATS and if current logged-in user added applicant */}
+        <AclMask acl={[Access.APPLICANT_WRITE]}>
+          {canAddEditNonRecruitmentMilestone() && <AddMilestone milestoneTabId={category} />}
+        </AclMask>
       </div>
       <Pagination
         pageOptions={{ pageIndex, pageSize, total: filteredMilestones.length }}
