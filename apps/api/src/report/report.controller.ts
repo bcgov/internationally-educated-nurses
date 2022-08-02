@@ -106,7 +106,7 @@ export class ReportController {
   /** Additional report other than standard 9 reports */
   @ApiOperation({ summary: 'Extract applicant details' })
   @Get('/applicant/extract-data')
-  @AllowAccess(Access.REPORTING)
+  @AllowAccess(Access.DATA_EXTRACT)
   async extractApplicantsData(@Query() dates: ReportPeriodDTO): Promise<object[]> {
     return this.reportService.extractApplicantsData(dates);
   }
