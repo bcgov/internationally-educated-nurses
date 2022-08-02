@@ -71,9 +71,9 @@ export const AddMilestone = ({ job, milestoneTabId }: AddMilestoneProps) => {
 
     // check whether a job is present to determine which fn to add milestone
     if (job) {
-      recruitmentRelated(values);
+      await updateRecruitmentMilestone(values);
     } else {
-      notRecruitmentRelated(values);
+      await updateNonRecruitmentMilestone(values);
     }
 
     // reset form after submitting
@@ -81,7 +81,7 @@ export const AddMilestone = ({ job, milestoneTabId }: AddMilestoneProps) => {
   };
 
   // handle recruitment related adding of milestones
-  const recruitmentRelated = async (values: IENApplicantAddStatusDTO) => {
+  const updateRecruitmentMilestone = async (values: IENApplicantAddStatusDTO) => {
     values.job_id = `${job?.id}`;
 
     const milestone = await addMilestone(applicant.id, values);
@@ -94,7 +94,7 @@ export const AddMilestone = ({ job, milestoneTabId }: AddMilestoneProps) => {
   };
 
   // handle non recruitment related adding of milestones
-  const notRecruitmentRelated = async (values: IENApplicantAddStatusDTO) => {
+  const updateNonRecruitmentMilestone = async (values: IENApplicantAddStatusDTO) => {
     const milestone = await addMilestone(applicant.id, values);
 
     if (milestone) {

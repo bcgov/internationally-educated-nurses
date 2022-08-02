@@ -1,7 +1,6 @@
 import { Fragment, useEffect, useState } from 'react';
-import dayjs from 'dayjs';
 
-import { PageOptions, Pagination } from '../Pagination';
+import { AclMask, PageOptions, Pagination } from '@components';
 import {
   Access,
   ApplicantStatusAuditRO,
@@ -14,7 +13,6 @@ import { AddMilestone, EditMilestone } from './recruitment/Milestone';
 import { useAuthContext } from '../AuthContexts';
 import editIcon from '@assets/img/edit.svg';
 import disabledEditIcon from '@assets/img/disabled_edit.svg';
-import { AclMask } from '@components';
 
 interface MilestoneTableProps {
   category: StatusCategory;
@@ -53,9 +51,11 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
   useEffect(
     function filterMilestones() {
       const audits =
-        milestones?.filter(audit => {
-          return audit.status.parent?.id === category;
-        }) || [];
+        milestones
+          ?.filter(audit => {
+            return audit.status.parent?.id === category;
+          })
+          .sort((a, b) => (a.id > b.id ? 1 : -1)) || [];
       setFilteredMilestones(audits);
     },
     [milestones, category, applicant],
@@ -97,6 +97,9 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
         end = nextMilestone.start_date;
       }
     }
+
+    if (start === end) return '-';
+
     return getHumanizedDuration(start, end);
   };
 
@@ -121,10 +124,7 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
                 Milestones
               </th>
               <th className='px-4' scope='col'>
-                Start Date
-              </th>
-              <th className='px-4' scope='col'>
-                End Date
+                Date
               </th>
               <th className='px-4' scope='col'>
                 Duration
@@ -142,12 +142,6 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
                 >
                   <td className='pl-8 py-5 w-96'>{getStatus(audit)}</td>
                   <td className='px-4'>{formatDate(audit.start_date || '')}</td>
-                  {/* temporary placeholder for end date */}
-                  <td className='px-4'>
-                    {dayjs(formatDate(audit.start_date || ''))
-                      .add(1, 'day')
-                      .format('MMM DD, YYYY')}
-                  </td>
                   <td className='px-4'>{getDuration(audit)}</td>
                   <td className='items-center px-4'>
                     <AclMask acl={[Access.APPLICANT_WRITE]}>
