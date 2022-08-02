@@ -4,7 +4,14 @@ import ReactSelect from 'react-select';
 import { Disclosure as HeadlessDisclosure, Transition } from '@headlessui/react';
 import createValidator from 'class-validator-formik';
 
-import { Button, Field, FieldProps, getSelectStyleOverride, EducationForm } from '@components';
+import {
+  Button,
+  Field,
+  FieldProps,
+  getSelectStyleOverride,
+  EducationForm,
+  Error,
+} from '@components';
 import { addApplicant, RecordTypeOptions, useGetEducationOptions } from '@services';
 import { Modal } from '../Modal';
 import addIcon from '@assets/img/add.svg';
@@ -162,6 +169,11 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
                 />
               </div>
 
+              <div className='col-span-4'>
+                {typeof errors.nursing_educations === 'string' && (
+                  <Error name='nursing_educations' />
+                )}
+              </div>
               <div className='col-span-4 border-2 rounded border-bcLightBackground'>
                 <div className='col-span-4'>
                   <HeadlessDisclosure defaultOpen={true}>

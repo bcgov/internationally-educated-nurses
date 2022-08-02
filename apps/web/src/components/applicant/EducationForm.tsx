@@ -1,7 +1,7 @@
 import { FieldArray, FieldProps, FormikErrors } from 'formik';
 import ReactSelect from 'react-select';
 
-import { Button, Field, getSelectStyleOverride, Error } from '@components';
+import { Button, Field, getSelectStyleOverride } from '@components';
 import { RecordTypeOptions } from '@services';
 import { NursingEducationDTO } from '@ien/common';
 import { getCountrySelector } from '../../utils';
@@ -69,7 +69,6 @@ export const EducationForm: React.FC<NursingEducationProps> = (props: NursingEdu
             />
           </div>
           <div className='mb-1 col-span-4 flex items-center justify-between'>
-            {typeof errors === 'string' && <Error name='nursing_educations' />}
             <Button
               className='ml-auto px-7'
               variant='secondary'
