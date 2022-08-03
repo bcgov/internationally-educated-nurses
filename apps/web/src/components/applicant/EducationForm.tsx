@@ -31,7 +31,7 @@ export const EducationForm: React.FC<NursingEducationProps> = (props: NursingEdu
                   value={educationTitles.find(s => s.title == field.value)}
                   onBlur={field.onBlur}
                   onChange={value => {
-                    form.setFieldValue(field.name, `${value?.title}`);
+                    form.setFieldValue(field.name, value ? `${value?.title}` : null);
                   }}
                   options={educationTitles}
                   isOptionDisabled={o => o.id == field.value}
