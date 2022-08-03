@@ -567,7 +567,7 @@ export class ExternalAPIService {
    * get users for sync to ATS
    * @returns
    */
-  async syncUsers(filter: IENUserFilterAPIDTO): Promise<[data: IENUsers[], count: number]> {
+  async getUsers(filter: IENUserFilterAPIDTO): Promise<[data: IENUsers[], count: number]> {
     const { from, organization, limit, skip } = filter;
 
     const query: FindManyOptions<IENUsers> = {};

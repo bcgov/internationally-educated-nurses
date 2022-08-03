@@ -93,10 +93,8 @@ export class ExternalAPIController {
   })
   @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.OK)
-  @Get('/sync-users')
-  async syncUsersWithATS(
-    @Query() filter: IENUserFilterAPIDTO,
-  ): Promise<[data: IENUsers[], count: number]> {
-    return this.externalAPIService.syncUsers(filter);
+  @Get('/users')
+  async getUsers(@Query() filter: IENUserFilterAPIDTO): Promise<[data: IENUsers[], count: number]> {
+    return this.externalAPIService.getUsers(filter);
   }
 }
