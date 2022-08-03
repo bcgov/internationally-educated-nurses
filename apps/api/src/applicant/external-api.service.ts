@@ -1,9 +1,16 @@
-import { FindManyOptions, ObjectLiteral, SelectQueryBuilder } from 'typeorm';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ExternalRequest } from 'src/common/external-request';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, IsNull, Not, Repository } from 'typeorm';
+import {
+  In,
+  IsNull,
+  Not,
+  Repository,
+  FindManyOptions,
+  ObjectLiteral,
+  SelectQueryBuilder,
+} from 'typeorm';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicant } from './entity/ienapplicant.entity';
 import { getMilestoneCategory } from 'src/common/util';
@@ -31,8 +38,6 @@ export class ExternalAPIService {
     private readonly ienapplicantStatusAuditRepository: Repository<IENApplicantStatusAudit>,
     @InjectRepository(SyncApplicantsAudit)
     private readonly syncApplicantsAuditRepository: Repository<SyncApplicantsAudit>,
-    @InjectRepository(IENUsers)
-    private readonly ienUserRepository: Repository<IENUsers>,
   ) {}
 
   /**
@@ -571,7 +576,7 @@ export class ExternalAPIService {
     if (skip) query.skip = skip;
 
     if (!from && !organization) {
-      return this.ienUserRepository.findAndCount(query);
+      return this.ienMasterService.ienUsersRepository.findAndCount(query);
     }
 
     const conditions: (string | ObjectLiteral)[] = [];
@@ -602,7 +607,7 @@ export class ExternalAPIService {
     }
 
     if (conditions.length > 0) {
-      return this.ienUserRepository.findAndCount({
+      return this.ienMasterService.ienUsersRepository.findAndCount({
         where: (qb: SelectQueryBuilder<IENUsers>) => {
           const condition = conditions.shift();
           if (condition) qb.where(condition);
@@ -611,7 +616,7 @@ export class ExternalAPIService {
         ...query,
       });
     } else {
-      return this.ienUserRepository.findAndCount(query);
+      return this.ienMasterService.ienUsersRepository.findAndCount(query);
     }
   }
 }
