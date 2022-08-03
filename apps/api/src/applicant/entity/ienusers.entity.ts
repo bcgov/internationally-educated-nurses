@@ -16,7 +16,6 @@ export class IENUsers {
   // description: User's unique id from authentication system
   @Index({ unique: true })
   @Column('varchar', { nullable: true })
-  @Exclude()
   user_id?: string;
 
   @CreateDateColumn()

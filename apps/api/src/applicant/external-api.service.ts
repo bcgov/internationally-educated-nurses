@@ -1,3 +1,4 @@
+import { FindManyOptions, ObjectLiteral, SelectQueryBuilder } from 'typeorm';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ExternalRequest } from 'src/common/external-request';
@@ -10,6 +11,9 @@ import { IENApplicantStatusAudit } from './entity/ienapplicant-status-audit.enti
 import { IENApplicantUtilService } from './ienapplicant.util.service';
 import { SyncApplicantsAudit } from './entity/sync-applicants-audit.entity';
 import { IENMasterService } from './ien-master.service';
+import { IENUsers } from './entity/ienusers.entity';
+import { IENUserFilterAPIDTO } from './dto/ienuser-filter.dto';
+import { EmailDomainByAcronym } from '@ien/common';
 
 @Injectable()
 export class ExternalAPIService {
@@ -27,6 +31,8 @@ export class ExternalAPIService {
     private readonly ienapplicantStatusAuditRepository: Repository<IENApplicantStatusAudit>,
     @InjectRepository(SyncApplicantsAudit)
     private readonly syncApplicantsAuditRepository: Repository<SyncApplicantsAudit>,
+    @InjectRepository(IENUsers)
+    private readonly ienUserRepository: Repository<IENUsers>,
   ) {}
 
   /**
@@ -549,6 +555,63 @@ export class ExternalAPIService {
       milestones.push(temp);
     } else {
       this.logger.log(`rejected Id ${m.id}`);
+    }
+  }
+
+  /**
+   * get users for sync to ATS
+   * @returns
+   */
+  async syncUsers(filter: IENUserFilterAPIDTO): Promise<[data: IENUsers[], count: number]> {
+    const { from, organization, limit, skip } = filter;
+
+    const query: FindManyOptions<IENUsers> = {};
+
+    if (limit) query.take = limit;
+    if (skip) query.skip = skip;
+
+    if (!from && !organization) {
+      return this.ienUserRepository.findAndCount(query);
+    }
+
+    const conditions: (string | ObjectLiteral)[] = [];
+
+    if (from) {
+      const users_in_range = `created_date >= '${from}'`;
+      conditions.push(users_in_range);
+    }
+
+    if (organization) {
+      // get email domain to check for based on acronym search param
+      const domain = EmailDomainByAcronym[organization as keyof typeof EmailDomainByAcronym];
+
+      // hmbc has two possible domains, check both
+      if (organization === 'hmbc') {
+        const org_array = domain.split(',');
+
+        const condition = org_array
+          .map(n => {
+            return `email LIKE '%${n}'`;
+          })
+          .join(' OR ');
+        conditions.push(`(${condition})`);
+      } else {
+        const users_in_org = `email LIKE '%${domain}'`;
+        conditions.push(users_in_org);
+      }
+    }
+
+    if (conditions.length > 0) {
+      return this.ienUserRepository.findAndCount({
+        where: (qb: SelectQueryBuilder<IENUsers>) => {
+          const condition = conditions.shift();
+          if (condition) qb.where(condition);
+          conditions.forEach(c => qb.andWhere(c));
+        },
+        ...query,
+      });
+    } else {
+      return this.ienUserRepository.findAndCount(query);
     }
   }
 }
