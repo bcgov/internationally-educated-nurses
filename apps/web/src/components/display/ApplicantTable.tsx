@@ -51,7 +51,9 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
             <th className='px-6' scope='col'>
               <SortButton label='Last Updated' sortKey='updated_date' onChange={onSortChange} />
             </th>
-            <th scope='col'>Assigned to</th>
+            <th className='px-6' scope='col'>
+              Assigned to
+            </th>
             <th scope='col'></th>
           </tr>
         </thead>
