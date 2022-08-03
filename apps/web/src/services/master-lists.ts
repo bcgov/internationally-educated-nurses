@@ -31,9 +31,15 @@ export interface MilestoneType extends StyleOption {
 }
 
 // milestone status' for adding milestones
-export const useGetMilestoneOptions = (statusId: number): MilestoneType[] => {
-  const { data: milestones } = useSWRImmutable('ienmaster/status', fetcher);
-  return milestones?.data.filter((item: { id: number }) => item.id == statusId)[0]?.children;
+export const useGetMilestoneOptions = (categoryId: number): MilestoneType[] => {
+  const { data } = useSWRImmutable('ienmaster/status', fetcher);
+  const milestones: MilestoneType[] = data?.data?.find(
+    (item: { id: number }) => item.id == categoryId,
+  )?.children;
+  if (milestones) {
+    return milestones.sort((a, b) => (a.id > b.id ? 1 : -1));
+  }
+  return [];
 };
 
 export const useGetWithdrawReasonOptions = (): IENStatusReasonRO[] => {
