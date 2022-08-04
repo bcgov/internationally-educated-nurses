@@ -142,22 +142,24 @@ const Applicants = () => {
         />
         <div className='flex justify-between items-center'>
           <div className='text-bcGray px-4'>{`Showing ${applicants.length} results`}</div>
-          <AclMask acl={[Access.APPLICANT_WRITE]}>
-            <Button
-              className='mr-4 mb-3'
-              variant='secondary'
-              type='button'
-              onClick={() => setAddIenModalVisible(true)}
-            >
-              Add Applicant
-            </Button>
-            <AddApplicantModal
-              onClose={() => setAddIenModalVisible(false)}
-              visible={addIenModalVisible}
-              applicants={applicants}
-              setApplicant={setApplicants}
-            />
-          </AclMask>
+          {false && (
+            <AclMask acl={[Access.APPLICANT_WRITE]}>
+              <Button
+                className='mr-4 mb-3'
+                variant='secondary'
+                type='button'
+                onClick={() => setAddIenModalVisible(true)}
+              >
+                Add Applicant
+              </Button>
+              <AddApplicantModal
+                onClose={() => setAddIenModalVisible(false)}
+                visible={addIenModalVisible}
+                applicants={applicants}
+                setApplicant={setApplicants}
+              />
+            </AclMask>
+          )}
         </div>
       </div>
       <div className='flex justify-content-center flex-col bg-white px-4 pb-4'>
