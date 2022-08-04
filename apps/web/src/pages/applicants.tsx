@@ -24,6 +24,8 @@ interface SearchOptions {
   skip?: number;
 }
 
+const HA_CAN_ADD_APPLICANT = false;
+
 const DEFAULT_PAGE_SIZE = 10;
 const QUERY_DELAY = 300;
 
@@ -142,7 +144,7 @@ const Applicants = () => {
         />
         <div className='flex justify-between items-center'>
           <div className='text-bcGray px-4'>{`Showing ${applicants.length} results`}</div>
-          {false && (
+          {HA_CAN_ADD_APPLICANT && (
             <AclMask acl={[Access.APPLICANT_WRITE]}>
               <Button
                 className='mr-4 mb-3'
