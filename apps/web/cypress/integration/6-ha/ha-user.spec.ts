@@ -2,7 +2,7 @@
 /// <reference path="../../support/index.ts"/>
 
 describe('Health Authority', () => {
-  it('adds a new applicant', () => {
+  it.skip('adds a new applicant', () => {
     cy.login('ien_fha');
     cy.visit('/');
 
@@ -24,9 +24,7 @@ describe('Health Authority', () => {
   it('allows users in the same authority to view applicants', () => {
     cy.login('ien_fha2');
     cy.visit('/');
-    cy.fixture('ha-user.json').then(({ applicant }) => {
-      cy.searchApplicants(`${applicant.first_name} ${applicant.last_name}`);
-    });
+    cy.searchApplicants(`Gabriel Lockman`);
   });
 
   it('filters out users of other authorities', () => {

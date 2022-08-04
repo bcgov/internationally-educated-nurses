@@ -19,6 +19,7 @@ interface MilestoneTableProps {
 }
 
 const DEFAULT_TAB_PAGE_SIZE = 5;
+const EDIT_NON_RECRUITMENT_MILESTONES = false;
 
 const getStatus = (milestone: ApplicantStatusAuditRO) => {
   const { status } = milestone.status;
@@ -51,11 +52,9 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
   useEffect(
     function filterMilestones() {
       const audits =
-        milestones
-          ?.filter(audit => {
-            return audit.status.parent?.id === category;
-          })
-          .sort((a, b) => (a.id > b.id ? 1 : -1)) || [];
+        milestones?.filter(audit => {
+          return audit.status.parent?.id === category;
+        }) || [];
       setFilteredMilestones(audits);
     },
     [milestones, category, applicant],
@@ -129,7 +128,7 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
               <th className='px-4' scope='col'>
                 Duration
               </th>
-              <th className='px-4' scope='col'></th>
+              {EDIT_NON_RECRUITMENT_MILESTONES && <th className='px-4' scope='col'></th>}
             </tr>
           </thead>
           <tbody className='text-bcBlack'>
@@ -140,43 +139,47 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
                     editing && activeEdit === index ? currentlyEditing : 'even:bg-bcLightGray'
                   }`}
                 >
-                  <td className='pl-8 py-5 w-96'>{getStatus(audit)}</td>
+                  <td className='pl-8 py-5'>{getStatus(audit)}</td>
                   <td className='px-4'>{formatDate(audit.start_date || '')}</td>
                   <td className='px-4'>{getDuration(audit)}</td>
-                  <td className='items-center px-4'>
-                    <AclMask acl={[Access.APPLICANT_WRITE]}>
-                      <button
-                        onClick={() => {
-                          setEditing(audit);
-                          setActiveEdit(index);
-                        }}
-                        disabled={
-                          !canAddEditNonRecruitmentMilestone() || (!!editing && audit === editing)
-                        }
-                      >
-                        <img
-                          src={
-                            canAddEditNonRecruitmentMilestone()
-                              ? editIcon.src
-                              : disabledEditIcon.src
+                  {EDIT_NON_RECRUITMENT_MILESTONES && (
+                    <td className='items-center px-4'>
+                      <AclMask acl={[Access.APPLICANT_WRITE]}>
+                        <button
+                          onClick={() => {
+                            setEditing(audit);
+                            setActiveEdit(index);
+                          }}
+                          disabled={
+                            !canAddEditNonRecruitmentMilestone() || (!!editing && audit === editing)
                           }
-                          alt='edit milestone'
-                        />
-                      </button>
-                    </AclMask>
-                  </td>
+                        >
+                          <img
+                            src={
+                              canAddEditNonRecruitmentMilestone()
+                                ? editIcon.src
+                                : disabledEditIcon.src
+                            }
+                            alt='edit milestone'
+                          />
+                        </button>
+                      </AclMask>
+                    </td>
+                  )}
                 </tr>
-                <tr>
-                  <td colSpan={5}>
-                    <EditMilestone
-                      milestone={audit}
-                      editing={editing}
-                      onEditing={setEditing}
-                      handleSubmit={values => handleUpdateMilestone(audit.id, values)}
-                      milestoneTabId={category}
-                    />
-                  </td>
-                </tr>
+                {EDIT_NON_RECRUITMENT_MILESTONES && (
+                  <tr>
+                    <td colSpan={5}>
+                      <EditMilestone
+                        milestone={audit}
+                        editing={editing}
+                        onEditing={setEditing}
+                        handleSubmit={values => handleUpdateMilestone(audit.id, values)}
+                        milestoneTabId={category}
+                      />
+                    </td>
+                  </tr>
+                )}
               </Fragment>
             ))}
           </tbody>
@@ -187,7 +190,9 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
         {/* first check if applicant has write access,
         then only show form if applicant was not added by ATS and if current logged-in user added applicant */}
         <AclMask acl={[Access.APPLICANT_WRITE]}>
-          {canAddEditNonRecruitmentMilestone() && <AddMilestone milestoneTabId={category} />}
+          {EDIT_NON_RECRUITMENT_MILESTONES && canAddEditNonRecruitmentMilestone() && (
+            <AddMilestone milestoneTabId={category} />
+          )}
         </AclMask>
       </div>
       <Pagination
