@@ -28,8 +28,6 @@ interface AddRecordProps {
   setExpandRecord?: (expand: boolean) => void | undefined;
 }
 
-const NON_HMBC_USER = true;
-
 export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) => {
   const { job, milestones, visible, onClose, setExpandRecord } = props;
 
@@ -85,7 +83,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
   };
 
   const initialValues: IENApplicantJobCreateUpdateDTO = {
-    ha_pcn: `${job?.ha_pcn?.id || authUser?.ha_pcn_id}`,
+    ha_pcn: `${job?.ha_pcn?.id || authUser?.ha_pcn_id || ''}`,
     job_id: `${job?.job_id || ''}`,
     job_title: `${job?.job_title?.id || ''}`,
     job_location: job?.job_location ? job?.job_location.map(j => j.id) : [],
@@ -104,7 +102,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
             <FormikForm>
               <div className='grid grid-cols-4 gap-4 bg-white rounded px-8 pt-6 pb-7'>
                 <div className='mb-3 col-span-2'>
-                  {NON_HMBC_USER ? (
+                  {authUser?.ha_pcn_id ? (
                     <Field
                       name='ha_pcn'
                       label='Health Authorities'

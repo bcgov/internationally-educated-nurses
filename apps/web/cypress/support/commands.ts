@@ -85,6 +85,7 @@ Cypress.Commands.add('filterUsers', (roles: string[], revokedOnly = false) => {
 
 Cypress.Commands.add('addJob', (job: IENApplicantJobCreateUpdateDTO) => {
   cy.contains('button', 'Add Record').click();
+  cy.get('#ha_pcn').click().type(`${job.ha_pcn}{enter}`);
   cy.get('#job_id').type(`${job.job_id}`);
   cy.get('#job_title').click();
   cy.get('#job_title').click().type(`${job.job_title}{enter}`);

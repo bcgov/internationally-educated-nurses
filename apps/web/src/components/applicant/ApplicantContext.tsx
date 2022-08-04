@@ -93,7 +93,9 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
     const applicantData = await getApplicant(applicantId);
 
     if (applicantData) {
-      const filteredJobs = applicantData.jobs?.filter(j => j.ha_pcn.id === authUser?.ha_pcn_id);
+      const filteredJobs = authUser?.ha_pcn_id
+        ? applicantData.jobs?.filter(j => j.ha_pcn.id === authUser?.ha_pcn_id)
+        : applicantData.jobs;
 
       setApplicant({ ...applicantData, jobs: filteredJobs });
       setMilestones(sortMilestones(applicantData.applicant_status_audit || []));

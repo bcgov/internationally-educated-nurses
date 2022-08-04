@@ -6,6 +6,7 @@ import { Spinner } from '../Spinner';
 import { useRouter } from 'next/router';
 import { SortButton } from '../SortButton';
 import hiredCheckmarkIcon from '@assets/img/hired_checkmark.svg';
+import { useAuthContext } from '../AuthContexts';
 
 export interface ApplicantTableProps {
   applicants: ApplicantRO[];
@@ -36,6 +37,8 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
   const { applicants, loading, onSortChange } = props;
   const router = useRouter();
 
+  const { authUser } = useAuthContext();
+
   return (
     <div className='overflow-x-auto'>
       <table className='text-left w-full'>
@@ -47,7 +50,7 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
             <th className='px-6' scope='col'>
               <SortButton label='Name' sortKey='name' onChange={onSortChange} />
             </th>
-            <th className='px-6 w-1/4'>Latest Milestone</th>
+            {!authUser?.ha_pcn_id && <th className='px-6 w-1/4'>Latest Milestone</th>}
             <th className='px-6' scope='col'>
               <SortButton label='Last Updated' sortKey='updated_date' onChange={onSortChange} />
             </th>
@@ -69,7 +72,7 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
               >
                 <td className='pl-6'>{app.applicant_id || 'N/A'}</td>
                 <td className='px-6 py-5'>{app.name}</td>
-                {milestoneText(app.status?.id, app.status?.status)}
+                {!authUser?.ha_pcn_id && milestoneText(app.status?.id, app.status?.status)}
                 <td className='px-6'>{app.updated_date && formatDate(app.updated_date)}</td>
                 <td className='px-6'>{app.assigned_to?.map(({ name }) => name).join(', ')}</td>
                 <td className='px-6 text-right'>
