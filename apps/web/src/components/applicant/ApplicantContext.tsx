@@ -39,7 +39,13 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
 
   const sortMilestones = (audits: ApplicantStatusAuditRO[]): ApplicantStatusAuditRO[] => {
     return audits.sort((a, b) => {
-      return (a.start_date || 0) > (b.start_date || 0) ? 1 : -1;
+      if ((a.start_date || 0) > (b.start_date || 0)) return 1;
+      if (a.start_date === b.start_date) {
+        if (a.id > b.id) return 1;
+        if (a.id === b.id) return 0;
+        return -1;
+      }
+      return -1;
     });
   };
 

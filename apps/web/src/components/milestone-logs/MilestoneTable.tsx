@@ -51,11 +51,9 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
   useEffect(
     function filterMilestones() {
       const audits =
-        milestones
-          ?.filter(audit => {
-            return audit.status.parent?.id === category;
-          })
-          .sort((a, b) => (a.id > b.id ? 1 : -1)) || [];
+        milestones?.filter(audit => {
+          return audit.status.parent?.id === category;
+        }) || [];
       setFilteredMilestones(audits);
     },
     [milestones, category, applicant],
