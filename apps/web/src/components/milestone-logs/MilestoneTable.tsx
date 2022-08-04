@@ -190,7 +190,9 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
         {/* first check if applicant has write access,
         then only show form if applicant was not added by ATS and if current logged-in user added applicant */}
         <AclMask acl={[Access.APPLICANT_WRITE]}>
-          {canAddEditNonRecruitmentMilestone() && <AddMilestone milestoneTabId={category} />}
+          {EDIT_NON_RECRUITMENT_MILESTONES && canAddEditNonRecruitmentMilestone() && (
+            <AddMilestone milestoneTabId={category} />
+          )}
         </AclMask>
       </div>
       <Pagination
