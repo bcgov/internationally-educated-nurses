@@ -9,6 +9,7 @@ import {
   InternalServerErrorException,
   Logger,
   NotFoundException,
+  Query,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -16,6 +17,8 @@ import { EmptyResponse } from 'src/common/ro/empty-response.ro';
 import { AppLogger } from 'src/common/logger.service';
 import { ExternalAPIService } from './external-api.service';
 import { SyncApplicantsAudit } from './entity/sync-applicants-audit.entity';
+import { IENUsers } from './entity/ienusers.entity';
+import { IENUserFilterAPIDTO } from './dto/ienuser-filter.dto';
 
 @Controller('external-api')
 @ApiTags('External API data process')
@@ -83,5 +86,15 @@ export class ExternalAPIController {
   @Get('/sync-applicants-audit')
   async getLatestSuccessfulSync(): Promise<SyncApplicantsAudit[]> {
     return this.externalAPIService.getLatestSuccessfulSync();
+  }
+
+  @ApiOperation({
+    summary: `Sync Users to ATS`,
+  })
+  @UseInterceptors(ClassSerializerInterceptor)
+  @HttpCode(HttpStatus.OK)
+  @Get('/users')
+  async getUsers(@Query() filter: IENUserFilterAPIDTO): Promise<[data: IENUsers[], count: number]> {
+    return this.externalAPIService.getUsers(filter);
   }
 }

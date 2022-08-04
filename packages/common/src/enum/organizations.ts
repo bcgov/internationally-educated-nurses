@@ -24,3 +24,16 @@ export const EmailDomains = {
   'northernhealth.ca': Organizations.NORTHERN_HEALTH,
   'vch.ca': Organizations.VANCOUVER_COASTAL_HEALTH,
 };
+
+export const EmailDomainByAcronym = {
+  moh: 'gov.bc.ca',
+  hmbc: 'healthmatchbc.org,heabc.bc.ca',
+  fnha: 'fnha.ca',
+  phc: 'providencehealth.bc.ca',
+  phsa: 'phsa.ca',
+  fha: 'fraserhealth.org',
+  iha: 'interiorhealth.ca',
+  viha: 'islandhealth.ca',
+  nha: 'northernhealth.ca',
+  vch: 'vch.ca',
+};
