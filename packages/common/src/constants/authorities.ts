@@ -56,3 +56,11 @@ export const Authorities: Record<string, Authority> = {
     domains: ['vch.ca'],
   },
 };
+
+export const RegionalHealthAuthorities: Authority[] = [
+  Authorities.FHA,
+  Authorities.IHA,
+  Authorities.VIHA,
+  Authorities.NHA,
+  Authorities.VCHA,
+];

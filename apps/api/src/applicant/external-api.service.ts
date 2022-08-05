@@ -64,13 +64,15 @@ export class ExternalAPIService {
     try {
       const data = await this.external_request.getHa();
       if (Array.isArray(data)) {
-        const listHa = data.map(item => {
-          return {
-            id: item.id,
-            title: item.name,
-            abbreviation: item?.abbreviation,
-          };
-        });
+        const listHa = data
+          .filter(({ name }) => name !== 'Education' && name !== 'Other') // until ATS fixes ha list
+          .map(item => {
+            return {
+              id: item.id,
+              title: item.name,
+              abbreviation: item?.abbreviation,
+            };
+          });
         await this.ienMasterService.ienHaPcnRepository.upsert(listHa, ['id']);
       }
     } catch (e) {

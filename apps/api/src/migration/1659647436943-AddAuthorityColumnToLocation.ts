@@ -118,6 +118,8 @@ export class AddAuthorityColumnToLocation1659647436943 implements MigrationInter
       );
       
       ALTER TABLE ien_job_locations ALTER COLUMN ha_pcn_id SET NOT NULL;
+      
+      DELETE FROM ien_ha_pcn WHERE title IN ('Education', 'Other');
     `);
   }
 
