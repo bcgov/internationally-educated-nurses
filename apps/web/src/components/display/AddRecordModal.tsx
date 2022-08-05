@@ -18,6 +18,7 @@ import { Modal } from '../Modal';
 import { ApplicantStatusAuditRO } from '@ien/common/src/ro/applicant.ro';
 import { useApplicantContext } from '../applicant/ApplicantContext';
 import { toast } from 'react-toastify';
+import { useAuthContext } from '../AuthContexts';
 
 interface AddRecordProps {
   job?: ApplicantJobRO;
@@ -31,6 +32,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
   const { job, milestones, visible, onClose, setExpandRecord } = props;
 
   const { applicant } = useApplicantContext();
+  const { authUser } = useAuthContext();
 
   const router = useRouter();
 
@@ -81,7 +83,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
   };
 
   const initialValues: IENApplicantJobCreateUpdateDTO = {
-    ha_pcn: `${job?.ha_pcn?.id || ''}`,
+    ha_pcn: `${job?.ha_pcn?.id || authUser?.ha_pcn_id || ''}`,
     job_id: `${job?.job_id || ''}`,
     job_title: `${job?.job_title?.id || ''}`,
     job_location: job?.job_location ? job?.job_location.map(j => j.id) : [],
@@ -100,21 +102,34 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
             <FormikForm>
               <div className='grid grid-cols-4 gap-4 bg-white rounded px-8 pt-6 pb-7'>
                 <div className='mb-3 col-span-2'>
-                  <Field
-                    name='ha_pcn'
-                    label='Health Authority'
-                    component={({ field, form }: FieldProps) => (
-                      <ReactSelect<RecordTypeOptions>
-                        inputId={field.name}
-                        value={haPcn?.data?.find(s => s.id == field.value)}
-                        onBlur={field.onBlur}
-                        onChange={value => form.setFieldValue(field.name, `${value?.id}`)}
-                        options={haPcn?.data?.map(s => ({ ...s, isDisabled: s.id == field.value }))}
-                        getOptionLabel={option => `${option.title}`}
-                        styles={getSelectStyleOverride<RecordTypeOptions>()}
-                      />
-                    )}
-                  />
+                  {authUser?.ha_pcn_id ? (
+                    <Field
+                      name='ha_pcn'
+                      label='Health Authorities'
+                      type='text'
+                      disabled
+                      value={authUser?.organization}
+                    />
+                  ) : (
+                    <Field
+                      name='ha_pcn'
+                      label='Health Authority'
+                      component={({ field, form }: FieldProps) => (
+                        <ReactSelect<RecordTypeOptions>
+                          inputId={field.name}
+                          value={haPcn?.data?.find(s => s.id == field.value)}
+                          onBlur={field.onBlur}
+                          onChange={value => form.setFieldValue(field.name, `${value?.id}`)}
+                          options={haPcn?.data?.map(s => ({
+                            ...s,
+                            isDisabled: s.id == field.value,
+                          }))}
+                          getOptionLabel={option => `${option.title}`}
+                          styles={getSelectStyleOverride<RecordTypeOptions>()}
+                        />
+                      )}
+                    />
+                  )}
                 </div>
                 <div className='mb-3 col-span-2'>
                   <Field name='job_id' label='Job ID' type='text' />

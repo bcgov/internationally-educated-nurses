@@ -10,6 +10,7 @@ import { ApplicantRO, ApplicantStatusAuditRO, ApplicantJobRO } from '@ien/common
 import { getApplicant } from '@services';
 import { Spinner } from '../Spinner';
 import { useRouter } from 'next/router';
+import { useAuthContext } from '../AuthContexts';
 
 export const ApplicantContext = createContext<{
   applicant: ApplicantRO;
@@ -28,6 +29,8 @@ export const ApplicantContext = createContext<{
 export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) => {
   const router = useRouter();
   const id = router.query.id as string;
+
+  const { authUser } = useAuthContext();
 
   if (!id) {
     router.replace('/applicants');
@@ -90,7 +93,11 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
     const applicantData = await getApplicant(applicantId);
 
     if (applicantData) {
-      setApplicant(applicantData);
+      const filteredJobs = authUser?.ha_pcn_id
+        ? applicantData.jobs?.filter(j => j.ha_pcn.id === authUser?.ha_pcn_id)
+        : applicantData.jobs;
+
+      setApplicant({ ...applicantData, jobs: filteredJobs });
       setMilestones(sortMilestones(applicantData.applicant_status_audit || []));
     }
 

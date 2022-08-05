@@ -1,11 +1,12 @@
 import Link from 'next/link';
 
 import { buttonBase, buttonColor } from '@components';
-import { ApplicantRO, formatDate, STATUS } from '@ien/common';
+import { ApplicantRO, formatDate, IENApplicantStatusRO, STATUS } from '@ien/common';
 import { Spinner } from '../Spinner';
 import { useRouter } from 'next/router';
 import { SortButton } from '../SortButton';
 import hiredCheckmarkIcon from '@assets/img/hired_checkmark.svg';
+import { useAuthContext } from '../AuthContexts';
 
 export interface ApplicantTableProps {
   applicants: ApplicantRO[];
@@ -17,24 +18,35 @@ export const isHired = (id?: number) => {
   return id === STATUS.Candidate_accepted_the_job_offer;
 };
 
-const milestoneText = (id?: number, status?: string) => {
-  if (!id && !status) {
+// determine milestone text for status
+const milestoneText = (status?: IENApplicantStatusRO, haId?: number | null) => {
+  if (!status) {
     return <td className='px-6'></td>;
   }
 
-  return isHired(id) ? (
-    <td className='px-6 font-bold text-bcGreenHiredText'>
-      Hired
-      <img src={hiredCheckmarkIcon.src} alt='hired checkmark' className='inline-block h-6 mx-2' />
-    </td>
+  // if applicant has accepted an offer, show detailed Hired status and checkmark
+  if (isHired(status.id)) {
+    return (
+      <td className='px-6 font-bold text-bcGreenHiredText'>
+        Hired
+        <img src={hiredCheckmarkIcon.src} alt='hired checkmark' className='inline-block h-6 mx-2' />
+      </td>
+    );
+  }
+
+  // else check if current user is part of a HA and the status is in the Recruitment step
+  return haId && status?.parent?.id === STATUS.IEN_Recruitment ? (
+    <td className='px-6'>In Progress</td>
   ) : (
-    <td className='px-6'>{status}</td>
+    <td className='px-6'>{status?.status}</td>
   );
 };
 
 export const ApplicantTable = (props: ApplicantTableProps) => {
   const { applicants, loading, onSortChange } = props;
   const router = useRouter();
+
+  const { authUser } = useAuthContext();
 
   return (
     <div className='overflow-x-auto'>
@@ -47,7 +59,7 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
             <th className='px-6' scope='col'>
               <SortButton label='Name' sortKey='name' onChange={onSortChange} />
             </th>
-            <th className='px-6 w-1/4'>Latest Milestone</th>
+            {<th className='px-6 w-1/4'>Current Status</th>}
             <th className='px-6' scope='col'>
               <SortButton label='Last Updated' sortKey='updated_date' onChange={onSortChange} />
             </th>
@@ -69,7 +81,7 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
               >
                 <td className='pl-6'>{app.applicant_id || 'N/A'}</td>
                 <td className='px-6 py-5'>{app.name}</td>
-                {milestoneText(app.status?.id, app.status?.status)}
+                {milestoneText(app.status, authUser?.ha_pcn_id)}
                 <td className='px-6'>{app.updated_date && formatDate(app.updated_date)}</td>
                 <td className='px-6'>{app.assigned_to?.map(({ name }) => name).join(', ')}</td>
                 <td className='px-6 text-right'>
