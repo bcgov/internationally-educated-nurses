@@ -167,11 +167,14 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
                             value.map(v => v.id),
                           )
                         }
-                        options={jobLocation?.data}
+                        options={jobLocation?.data?.filter(
+                          o => o.ha_pcn.id === +form.values.ha_pcn,
+                        )}
                         getOptionLabel={option => `${option.title}`}
                         getOptionValue={option => `${option.id}`}
                         isOptionDisabled={option => field.value.includes(option.id)}
                         styles={getSelectStyleOverride<RecordTypeOptions>()}
+                        isDisabled={!form.values.ha_pcn}
                         isMulti
                       />
                     )}

@@ -2,7 +2,7 @@ import { EmployeeFilterAPIDTO } from './dto/employee-filter.dto';
 import { BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Not, IsNull, Repository, getManager } from 'typeorm';
-import { EmailDomains, Employee, EmployeeRO, RoleSlug } from '@ien/common';
+import { Authorities, Employee, EmployeeRO, RoleSlug } from '@ien/common';
 import { EmployeeEntity } from './entity/employee.entity';
 import { IENUsers } from 'src/applicant/entity/ienusers.entity';
 import { RoleEntity } from './entity/role.entity';
@@ -53,7 +53,8 @@ export class EmployeeService {
     const domain = email.substring(email.lastIndexOf('@') + 1);
 
     //return organization or undefined
-    return EmailDomains[domain as keyof typeof EmailDomains];
+    const authority = Object.values(Authorities).find(a => a.domains.includes(domain));
+    return authority?.name;
   }
 
   async getUserByKeycloakId(keycloakId: string): Promise<EmployeeRO | undefined> {

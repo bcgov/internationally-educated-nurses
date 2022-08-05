@@ -1,4 +1,5 @@
 import {
+  IsArray,
   IsDateString,
   IsNotEmpty,
   IsOptional,
@@ -13,12 +14,14 @@ export class IENApplicantJobCreateUpdateDTO {
   ha_pcn!: string;
 
   @IsString({ message: 'Job ID must be a string' })
-  job_id?: string;
+  @IsNotEmpty({ message: 'Job ID is required' })
+  job_id!: string;
 
   @IsString()
   @IsOptional()
   job_title?: string;
 
+  @IsArray()
   @IsOptional()
   job_location?: number[];
 

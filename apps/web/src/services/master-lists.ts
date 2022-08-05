@@ -1,6 +1,6 @@
 import useSWRImmutable from 'swr/immutable';
 
-import { IENStatusReasonRO } from '@ien/common';
+import { IENHaPcnRO, IENStatusReasonRO } from '@ien/common';
 import { fetcher } from '../utils';
 import { StyleOption } from './constants/roles.constants';
 
@@ -13,7 +13,7 @@ export interface RecordTypeOptions extends StyleOption {
 export interface RecordType {
   haPcn: { data: RecordTypeOptions[] };
   jobTitle: { data: RecordTypeOptions[] };
-  jobLocation: { data: RecordTypeOptions[] };
+  jobLocation: { data: (RecordTypeOptions & { ha_pcn: IENHaPcnRO })[] };
 }
 
 // get record options for adding new record modal

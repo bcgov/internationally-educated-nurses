@@ -28,6 +28,7 @@ export interface IENJobTitleRO {
 export interface IENJobLocationRO {
   id: number;
   title: string;
+  ha_pcn: IENHaPcnRO;
 }
 
 export interface IENStatusReasonRO {
