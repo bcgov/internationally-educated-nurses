@@ -33,7 +33,7 @@ export const MenuBar: React.FC = () => {
                 </Link>
               ))}
           </div>
-          <LastSyncBar />
+          {!authUser?.revoked_access_date && <LastSyncBar />}
         </div>
       </div>
     </nav>
