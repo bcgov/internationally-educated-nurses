@@ -12,7 +12,7 @@ export const MenuBar: React.FC = () => {
 
   const active = `font-bold`;
 
-  if (isPending(authUser?.roles)) return <></>;
+  if (isPending(authUser?.roles) || authUser?.revoked_access_date) return <></>;
 
   return (
     <nav className='w-full bg-bcBlueAccent flex flex-row justify-center'>
