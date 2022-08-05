@@ -26,7 +26,11 @@ export const UserDropdown = () => {
         <img src={downArrowIcon.src} alt='down arrow' />
       </button>
       {showMenu && (
-        <Button variant='outline' className='absolute right-0' onClick={() => keycloak?.logout()}>
+        <Button
+          variant='outline'
+          className='absolute right-0 z-50'
+          onClick={() => keycloak?.logout()}
+        >
           Logout
         </Button>
       )}
