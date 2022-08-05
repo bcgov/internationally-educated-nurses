@@ -38,7 +38,7 @@ const milestoneText = (status?: IENApplicantStatusRO, haId?: number | null) => {
   return haId && status?.parent?.id === STATUS.IEN_Recruitment ? (
     <td className='px-6'>In Progress</td>
   ) : (
-    <td className='px-6'>{status?.status}</td>
+    <td className='px-6 truncate'>{status?.status}</td>
   );
 };
 
@@ -48,25 +48,30 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
 
   const { authUser } = useAuthContext();
 
+  const getApplicantId = (applicant: ApplicantRO): string => {
+    const { id, applicant_id } = applicant;
+    return `${applicant_id || id}`.substring(0, 8);
+  };
+
   return (
     <div className='overflow-x-auto'>
-      <table className='text-left w-full'>
+      <table className='text-left w-full table-fixed'>
         <thead className='whitespace-nowrap bg-bcLightGray text-bcDeepBlack'>
           <tr className='border-b-2 border-yellow-300 text-sm'>
-            <th className='pl-6 py-4' scope='col'>
+            <th className='pl-6 py-4 w-24' scope='col'>
               <SortButton label='ID' sortKey='applicant_id' onChange={onSortChange} />
             </th>
             <th className='px-6' scope='col'>
               <SortButton label='Name' sortKey='name' onChange={onSortChange} />
             </th>
-            {<th className='px-6 w-1/4'>Current Status</th>}
-            <th className='px-6' scope='col'>
+            <th className='px-6 w-1/3'>Current Status</th>
+            <th className='px-6 w-36' scope='col'>
               <SortButton label='Last Updated' sortKey='updated_date' onChange={onSortChange} />
             </th>
             <th className='px-6' scope='col'>
               Assigned to
             </th>
-            <th scope='col'></th>
+            <th className='w-32' scope='col'></th>
           </tr>
         </thead>
         <tbody className='text-bcBlack'>
@@ -79,11 +84,13 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
                   isHired(app.status?.id) ? 'bg-bcGreenHiredContainer' : 'even:bg-bcLightGray'
                 } text-sm`}
               >
-                <td className='pl-6'>{app.applicant_id || 'N/A'}</td>
-                <td className='px-6 py-5'>{app.name}</td>
+                <td className='pl-6'>{getApplicantId(app)}</td>
+                <td className='px-6 py-5 truncate'>{app.name}</td>
                 {milestoneText(app.status, authUser?.ha_pcn_id)}
                 <td className='px-6'>{app.updated_date && formatDate(app.updated_date)}</td>
-                <td className='px-6'>{app.assigned_to?.map(({ name }) => name).join(', ')}</td>
+                <td className='px-6 truncate'>
+                  {app.assigned_to?.map(({ name }) => name).join(', ')}
+                </td>
                 <td className='px-6 text-right'>
                   <Link
                     href={{
