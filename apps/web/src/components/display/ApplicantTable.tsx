@@ -19,13 +19,13 @@ export const isHired = (id?: number) => {
 };
 
 // determine milestone text for status
-const milestoneText = (id?: number, status?: IENApplicantStatusRO, haId?: number | null) => {
-  if (!id && !status) {
+const milestoneText = (status?: IENApplicantStatusRO, haId?: number | null) => {
+  if (!status) {
     return <td className='px-6'></td>;
   }
 
   // if applicant has accepted an offer, show detailed Hired status and checkmark
-  if (isHired(id)) {
+  if (isHired(status.id)) {
     return (
       <td className='px-6 font-bold text-bcGreenHiredText'>
         Hired
@@ -81,7 +81,7 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
               >
                 <td className='pl-6'>{app.applicant_id || 'N/A'}</td>
                 <td className='px-6 py-5'>{app.name}</td>
-                {milestoneText(app.status?.id, app.status, authUser?.ha_pcn_id)}
+                {milestoneText(app.status, authUser?.ha_pcn_id)}
                 <td className='px-6'>{app.updated_date && formatDate(app.updated_date)}</td>
                 <td className='px-6'>{app.assigned_to?.map(({ name }) => name).join(', ')}</td>
                 <td className='px-6 text-right'>
