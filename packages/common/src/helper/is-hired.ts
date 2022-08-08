@@ -1,4 +1,5 @@
-import { ApplicantJobRO, STATUS } from '@ien/common';
+import { STATUS } from '../enum';
+import { ApplicantJobRO } from '../ro';
 
 export const isHired = (id?: number) => {
   return id === STATUS.Candidate_accepted_the_job_offer;
