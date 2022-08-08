@@ -29,7 +29,7 @@ module.exports = {
         bcGreenHiredText: '#2E8540',
         bcGreenHiredContainer: 'rgba(46, 133, 64, 0.2)',
         bcYellowWarning: '#F5A623',
-        bcYellowBanner: '#F9F1C6',
+        bcYellowBanner: '#EED202',
         bcLightBackground: '#E5E5E5',
         bcLightBlueBackground: '#D9EAF7',
         bcOrange: '#F6A622',

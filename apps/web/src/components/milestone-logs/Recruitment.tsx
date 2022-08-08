@@ -1,22 +1,13 @@
 import { useEffect, useState } from 'react';
+import dayjs from 'dayjs';
 
 import { AddRecordModal } from '../display/AddRecordModal';
 import { Record } from './recruitment/Record';
-import { Access, ApplicantJobRO, JobFilterOptions } from '@ien/common';
-import {
-  AclMask,
-  buttonBase,
-  buttonColor,
-  isHired,
-  JobCompetitionModal,
-  PageOptions,
-  Pagination,
-} from '@components';
+import { Access, ApplicantJobRO, isHired, JobFilterOptions } from '@ien/common';
+import { AclMask, buttonBase, buttonColor, PageOptions, Pagination } from '@components';
 import addIcon from '@assets/img/add.svg';
-import hiredIndIcon from '@assets/img/hired_indicator.svg';
 import { JobFilters } from './recruitment/JobFilters';
 import { useApplicantContext } from '../applicant/ApplicantContext';
-import dayjs from 'dayjs';
 
 const DEFAULT_JOB_PAGE_SIZE = 5;
 
@@ -25,7 +16,6 @@ export const Recruitment: React.FC = () => {
 
   const [jobRecords, setJobRecords] = useState<ApplicantJobRO[]>([]);
   const [recordModalVisible, setRecordModalVisible] = useState(false);
-  const [jobInfoModalVisible, setJobInfoModalVisible] = useState(false);
 
   const [filters, setFilters] = useState<Partial<JobFilterOptions>>({});
   const [pageIndex, setPageIndex] = useState(1);
@@ -66,10 +56,6 @@ export const Recruitment: React.FC = () => {
     }
   };
 
-  const closeJobCompetitionModal = () => {
-    setJobInfoModalVisible(false);
-  };
-
   const handlePageOptions = (options: PageOptions) => {
     setPageIndex(options.pageIndex);
     setPageSize(options.pageSize);
@@ -86,35 +72,9 @@ export const Recruitment: React.FC = () => {
     return job.status_audit?.some(s => isHired(s.status.id));
   };
 
-  // get completed job competition info for modal
-  const getAcceptedJobOfferInfo = (): ApplicantJobRO | undefined => {
-    return applicant.jobs?.find(s => s.status_audit?.find(a => isHired(a.status.id)));
-  };
-
   return (
     <>
       <JobFilters options={filters} update={handleFilters} />
-
-      {getAcceptedJobOfferInfo() && (
-        <div className='flex items-center bg-bcYellowBanner text-bcBrown h-14 mb-3 rounded'>
-          <img src={hiredIndIcon.src} alt='add' className='mx-3 h-5' />
-          This applicant has already accepted a job offer.&nbsp;
-          <button
-            type='button'
-            onClick={() => {
-              setJobInfoModalVisible(true);
-            }}
-            className='underline'
-          >
-            Click here to view the job competition.
-          </button>
-          <JobCompetitionModal
-            job={getAcceptedJobOfferInfo()}
-            onClose={closeJobCompetitionModal}
-            visible={jobInfoModalVisible}
-          />
-        </div>
-      )}
       {jobRecords.map((job, index) => (
         <Record
           key={job.id}

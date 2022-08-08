@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
 import { buttonBase, buttonColor } from '@components';
-import { ApplicantRO, formatDate, IENApplicantStatusRO, STATUS } from '@ien/common';
+import { ApplicantRO, formatDate, IENApplicantStatusRO, STATUS, isHired } from '@ien/common';
 import { Spinner } from '../Spinner';
 import { useRouter } from 'next/router';
 import { SortButton } from '../SortButton';
@@ -13,10 +13,6 @@ export interface ApplicantTableProps {
   loading?: boolean;
   onSortChange: (field: string) => void;
 }
-
-export const isHired = (id?: number) => {
-  return id === STATUS.Candidate_accepted_the_job_offer;
-};
 
 // determine milestone text for status
 const milestoneText = (status?: IENApplicantStatusRO, haId?: number | null) => {

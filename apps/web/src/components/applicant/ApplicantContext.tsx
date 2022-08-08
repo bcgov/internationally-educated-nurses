@@ -6,7 +6,12 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { ApplicantRO, ApplicantStatusAuditRO, ApplicantJobRO } from '@ien/common';
+import {
+  ApplicantRO,
+  ApplicantStatusAuditRO,
+  ApplicantJobRO,
+  hasAcceptedOfferWithDiffHa,
+} from '@ien/common';
 import { getApplicant } from '@services';
 import { Spinner } from '../Spinner';
 import { useRouter } from 'next/router';
@@ -15,6 +20,7 @@ import { useAuthContext } from '../AuthContexts';
 export const ApplicantContext = createContext<{
   applicant: ApplicantRO;
   milestones: ApplicantStatusAuditRO[];
+  offerWithDiffHa: boolean;
   updateJob: (job: ApplicantJobRO) => void;
   deleteMilestone: (milestoneId: string, jobId: string) => void;
   updateMilestoneContext: (milestone: ApplicantStatusAuditRO) => void;
@@ -24,6 +30,7 @@ export const ApplicantContext = createContext<{
   updateMilestoneContext: () => void 0,
   applicant: {} as ApplicantRO,
   milestones: [],
+  offerWithDiffHa: false,
 });
 
 export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) => {
@@ -39,6 +46,7 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
   const [loading, setLoading] = useState(true);
   const [applicant, setApplicant] = useState<ApplicantRO>({} as ApplicantRO);
   const [milestones, setMilestones] = useState<ApplicantStatusAuditRO[]>([]);
+  const [offerWithDiffHa, setOfferWithDiffHa] = useState<boolean>(false);
 
   const sortMilestones = (audits: ApplicantStatusAuditRO[]): ApplicantStatusAuditRO[] => {
     return audits.sort((a, b) => {
@@ -93,6 +101,9 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
     const applicantData = await getApplicant(applicantId);
 
     if (applicantData) {
+      // check if there is an accepted offer in any job outside current HA
+      setOfferWithDiffHa(hasAcceptedOfferWithDiffHa(applicantData.jobs || [], authUser?.ha_pcn_id));
+
       const filteredJobs = authUser?.ha_pcn_id
         ? applicantData.jobs?.filter(j => j.ha_pcn.id === authUser?.ha_pcn_id)
         : applicantData.jobs;
@@ -114,6 +125,7 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
   const value = {
     applicant,
     milestones,
+    offerWithDiffHa,
     updateJob,
     deleteMilestone,
     updateMilestoneContext,

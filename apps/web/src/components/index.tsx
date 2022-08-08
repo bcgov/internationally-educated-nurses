@@ -21,3 +21,4 @@ export * from './reporting';
 export * from './display';
 export * from './applicant';
 export * from './user';
+export * from './milestone-logs';
