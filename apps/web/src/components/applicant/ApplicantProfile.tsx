@@ -9,7 +9,7 @@ import hiredIndCheckmark from '@assets/img/hired_checkmark_banner.svg';
 export const ApplicantProfile = () => {
   const { applicant, offerWithDiffHa } = useApplicantContext();
 
-  // get completed job competition info for modal
+  // check for an accepted offer within the same HA as current user
   const acceptedJobOfferWithSameHa = (): boolean | undefined => {
     return applicant.jobs?.some(s => s.status_audit?.find(a => isHired(a.status.id)));
   };
@@ -33,6 +33,7 @@ export const ApplicantProfile = () => {
         </OfferAcceptedBanner>
       );
     } else {
+      // null if no accepted offers exist
       return null;
     }
   };
