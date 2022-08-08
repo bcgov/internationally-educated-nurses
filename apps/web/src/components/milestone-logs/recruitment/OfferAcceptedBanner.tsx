@@ -1,4 +1,4 @@
-import { useApplicantContext } from 'src/components/applicant/ApplicantContext';
+import { useApplicantContext } from '../../applicant/ApplicantContext';
 import hiredIndIcon from '@assets/img/hired_indicator.svg';
 import hiredIndCheckmark from '@assets/img/hired_checkmark_banner.svg';
 import { isHired } from '@ien/common';
