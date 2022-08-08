@@ -44,8 +44,7 @@ export const ReportTable = () => {
   };
 
   const download = async (period: Period) => {
-    const from =
-      order === 'DESC' ? scopedPeriods[0].from : scopedPeriods[scopedPeriods.length - 1].from;
+    const from = order === 'ASC' ? periods[0].from : periods[periods.length - 1].from;
     const to = dayjs(period.to).format('YYYY-MM-DD');
     const workbook = await createReportWorkbook({ from, to });
     if (workbook) {
