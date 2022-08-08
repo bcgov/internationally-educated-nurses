@@ -12,5 +12,5 @@ export const hasAcceptedOfferWithDiffHa = (
   // filter out jobs that are from current HA
   const filteredJobs = jobs.filter(j => j.ha_pcn.id !== currentHa);
 
-  return filteredJobs.filter(j => j.status_audit?.some(s => isHired(s.status.id))).length > 0;
+  return filteredJobs.some(j => j.status_audit?.some(s => isHired(s.status.id)));
 };
