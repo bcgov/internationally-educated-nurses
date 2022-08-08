@@ -79,7 +79,7 @@ export const ReportTable = () => {
 
   const downloadReport = async (index: number) => {
     setDownloadIndex(index);
-    await download(periods[index]);
+    await download(scopedPeriods[index]);
     setDownloadIndex(-1);
   };
 
