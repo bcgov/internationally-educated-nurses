@@ -1,5 +1,5 @@
 import { Access } from '../enum';
-import { Role } from '../ro';
+import { Role } from '../interfaces';
 
 export const hasAccess = (roles: Role[], acl: Access[], and = true): boolean => {
   const condition = (access: Access) => {

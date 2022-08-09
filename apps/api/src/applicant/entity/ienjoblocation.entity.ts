@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryColumn } from 'typeorm';
+import { Entity, Column, PrimaryColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { IENHaPcn } from './ienhapcn.entity';
 
 @Entity('ien_job_locations')
 export class IENJobLocation {
@@ -7,4 +8,8 @@ export class IENJobLocation {
 
   @Column('varchar')
   title!: string;
+
+  @ManyToOne(() => IENHaPcn, { eager: true })
+  @JoinColumn({ name: 'ha_pcn_id' })
+  ha_pcn!: IENHaPcn;
 }

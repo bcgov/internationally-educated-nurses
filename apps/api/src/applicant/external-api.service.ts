@@ -20,7 +20,7 @@ import { SyncApplicantsAudit } from './entity/sync-applicants-audit.entity';
 import { IENMasterService } from './ien-master.service';
 import { IENUsers } from './entity/ienusers.entity';
 import { IENUserFilterAPIDTO } from './dto/ienuser-filter.dto';
-import { EmailDomainByAcronym } from '@ien/common';
+import { Authorities } from '@ien/common';
 
 @Injectable()
 export class ExternalAPIService {
@@ -64,13 +64,15 @@ export class ExternalAPIService {
     try {
       const data = await this.external_request.getHa();
       if (Array.isArray(data)) {
-        const listHa = data.map(item => {
-          return {
-            id: item.id,
-            title: item.name,
-            abbreviation: item?.abbreviation,
-          };
-        });
+        const listHa = data
+          .filter(({ name }) => name !== 'Education' && name !== 'Other') // until ATS fixes ha list
+          .map(item => {
+            return {
+              id: item.id,
+              title: item.name,
+              abbreviation: item?.abbreviation,
+            };
+          });
         await this.ienMasterService.ienHaPcnRepository.upsert(listHa, ['id']);
       }
     } catch (e) {
@@ -588,22 +590,11 @@ export class ExternalAPIService {
 
     if (organization) {
       // get email domain to check for based on acronym search param
-      const domain = EmailDomainByAcronym[organization as keyof typeof EmailDomainByAcronym];
+      const domains = Authorities[organization]?.domains;
 
-      // hmbc has two possible domains, check both
-      if (organization === 'hmbc') {
-        const org_array = domain.split(',');
+      const condition = domains?.map(n => `email LIKE '%${n}'`).join(' OR ');
 
-        const condition = org_array
-          .map(n => {
-            return `email LIKE '%${n}'`;
-          })
-          .join(' OR ');
-        conditions.push(`(${condition})`);
-      } else {
-        const users_in_org = `email LIKE '%${domain}'`;
-        conditions.push(users_in_org);
-      }
+      condition && conditions.push(`(${condition})`);
     }
 
     if (conditions.length > 0) {

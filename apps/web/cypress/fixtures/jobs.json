@@ -49,7 +49,7 @@
     "ha_pcn": "Interior Health Authority",
     "job_id": "1234567897",
     "job_title": "Education",
-    "job_location": "Burnaby",
+    "job_location": "Cranbrook",
     "job_post_date": "2019-07-02",
     "recruiter_name": "Recruit7"
   },
@@ -57,7 +57,7 @@
     "ha_pcn": "Interior Health Authority",
     "job_id": "9234567891",
     "job_title": "Clinical Educator",
-    "job_location": "Bella Coola Valley",
+    "job_location": "Creston",
     "job_post_date": "2018-01-02",
     "recruiter_name": "Recruit11"
   },
@@ -66,7 +66,7 @@
       "ha_pcn": "Fraser Health Authority",
       "job_id": "1234567891",
       "job_title": "Nursing practitioner",
-      "job_location": "100 Mile House",
+      "job_location": "Abbotsford",
       "job_post_date": "2018-01-01",
       "recruiter_name": "Recruit1"
     },
@@ -74,7 +74,7 @@
       "ha_pcn": "Interior Health Authority",
       "job_id": "1234567892",
       "job_title": "Nursing practitioner",
-      "job_location": "Abbotsford",
+      "job_location": "Kamloops",
       "job_post_date": "2019-02-02",
       "recruiter_name": "Recruit2"
     },
@@ -82,7 +82,7 @@
       "ha_pcn": "Northern Health Authority",
       "job_id": "1234567893",
       "job_title": "Aboriginal Health Nursing",
-      "job_location": "Agassiz-Harrison",
+      "job_location": "Burns Lake",
       "job_post_date": "2019-03-02",
       "recruiter_name": "Recruit3"
     },
@@ -98,7 +98,7 @@
       "ha_pcn": "Vancouver Coastal Health Authority",
       "job_id": "1234567895",
       "job_title": "Advanced Practice",
-      "job_location": "Armstrong-Spallumcheen",
+      "job_location": "Comox Valley",
       "job_post_date": "2019-05-02",
       "recruiter_name": "Recruit5"
     },
@@ -106,7 +106,7 @@
       "ha_pcn": "Fraser Health Authority",
       "job_id": "1234567896",
       "job_title": "Ambulatory Care",
-      "job_location": "Arrow Lakes",
+      "job_location": "Agassiz-Harrison",
       "job_post_date": "2019-06-02",
       "recruiter_name": "Recruit6"
     }

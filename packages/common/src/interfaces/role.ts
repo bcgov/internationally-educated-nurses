@@ -1,4 +1,4 @@
-import { AclBase } from '../ro';
+import { AclBase } from './acl-base';
 
 export interface Role extends AclBase {
   id: number;

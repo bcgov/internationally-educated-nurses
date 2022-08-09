@@ -74,6 +74,7 @@ export class IENMasterService {
   async getJobLocations(): Promise<IENJobLocation[]> {
     return this.ienJobLocationRepository.find({
       order: {
+        ha_pcn: 'ASC',
         title: 'ASC',
       },
     });

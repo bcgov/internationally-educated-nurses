@@ -187,7 +187,7 @@ Cypress.Commands.add('pagination', () => {
 });
 
 Cypress.Commands.add('visitDetails', (applicant: ApplicantRO) => {
-  cy.intercept(`/api/v1//ien/${applicant.id}?relation=audit`).as('getApplicant');
+  cy.intercept(`/api/v1/ien/${applicant.id}?relation=audit`).as('getApplicant');
   cy.visit(`/details?id=${applicant.id}`);
   cy.wait('@getApplicant').then(() => {
     cy.waitForLoading();

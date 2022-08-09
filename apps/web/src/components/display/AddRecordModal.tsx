@@ -6,7 +6,11 @@ import ReactSelect from 'react-select';
 import dayjs from 'dayjs';
 
 import { Button, getSelectStyleOverride } from '@components';
-import { ApplicantJobRO, IENApplicantJobCreateUpdateDTO } from '@ien/common';
+import {
+  ApplicantJobRO,
+  IENApplicantJobCreateUpdateDTO,
+  RegionalHealthAuthorities,
+} from '@ien/common';
 import {
   addJobRecord,
   useGetAddRecordOptions,
@@ -82,6 +86,11 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
     }
   };
 
+  const isRegionalAuthority = (ha_pcn_id: number): boolean => {
+    const authority = haPcn.data.find(ha => ha.id === ha_pcn_id);
+    return RegionalHealthAuthorities.some(rha => rha.name === authority?.title);
+  };
+
   const initialValues: IENApplicantJobCreateUpdateDTO = {
     ha_pcn: `${job?.ha_pcn?.id || authUser?.ha_pcn_id || ''}`,
     job_id: `${job?.job_id || ''}`,
@@ -119,7 +128,10 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
                           inputId={field.name}
                           value={haPcn?.data?.find(s => s.id == field.value)}
                           onBlur={field.onBlur}
-                          onChange={value => form.setFieldValue(field.name, `${value?.id}`)}
+                          onChange={value => {
+                            form.setFieldValue(field.name, `${value?.id}`);
+                            form.setFieldValue('job_location', []);
+                          }}
                           options={haPcn?.data?.map(s => ({
                             ...s,
                             isDisabled: s.id == field.value,
@@ -167,11 +179,16 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
                             value.map(v => v.id),
                           )
                         }
-                        options={jobLocation?.data}
+                        options={
+                          isRegionalAuthority(+form.values.ha_pcn)
+                            ? jobLocation?.data?.filter(o => o.ha_pcn.id === +form.values.ha_pcn)
+                            : jobLocation?.data
+                        }
                         getOptionLabel={option => `${option.title}`}
                         getOptionValue={option => `${option.id}`}
                         isOptionDisabled={option => field.value.includes(option.id)}
                         styles={getSelectStyleOverride<RecordTypeOptions>()}
+                        isDisabled={!form.values.ha_pcn}
                         isMulti
                       />
                     )}
