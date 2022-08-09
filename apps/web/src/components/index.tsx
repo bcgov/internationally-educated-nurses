@@ -12,6 +12,7 @@ export * from './Alert';
 export * from './DetailsItem';
 export * from './MenuBar';
 export * from './Pagination';
+export * from './Banner';
 
 // Form Controls
 export * from './form';
@@ -21,4 +22,3 @@ export * from './reporting';
 export * from './display';
 export * from './applicant';
 export * from './user';
-export * from './milestone-logs';

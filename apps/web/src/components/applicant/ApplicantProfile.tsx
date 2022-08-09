@@ -1,8 +1,9 @@
 import { formatDate } from '@ien/common';
-import { DetailsItem, OfferAcceptedBanner } from '@components';
+import { DetailsItem } from '@components';
 import { useApplicantContext } from './ApplicantContext';
 import { convertCountryCode } from '../../services/convert-country-code';
 import { DetailsHeader } from '../DetailsHeader';
+import { OfferAcceptedBanner } from './OfferAcceptedBanner';
 
 export const ApplicantProfile = () => {
   const { applicant } = useApplicantContext();
@@ -15,6 +16,7 @@ export const ApplicantProfile = () => {
       <p className='text-bcGray text-sm pt-1 pb-4'>
         Last Updated: {formatDate(applicant?.updated_date)}
       </p>
+      {/* Offer Accepted Banner */}
       <OfferAcceptedBanner />
       {/* Details container */}
       <div className='border-1 border-bcDisabled rounded px-5 pb-3 bg-white text-bcBlack'>
