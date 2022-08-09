@@ -6,7 +6,7 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { ApplicantRO, ApplicantStatusAuditRO, ApplicantJobRO } from '@ien/common';
+import { ApplicantRO, ApplicantStatusAuditRO, ApplicantJobRO, isHired } from '@ien/common';
 import { getApplicant } from '@services';
 import { Spinner } from '../Spinner';
 import { useRouter } from 'next/router';
@@ -15,6 +15,7 @@ import { useAuthContext } from '../AuthContexts';
 export const ApplicantContext = createContext<{
   applicant: ApplicantRO;
   milestones: ApplicantStatusAuditRO[];
+  hiredHa: number | undefined;
   updateJob: (job: ApplicantJobRO) => void;
   deleteMilestone: (milestoneId: string, jobId: string) => void;
   updateMilestoneContext: (milestone: ApplicantStatusAuditRO) => void;
@@ -24,6 +25,7 @@ export const ApplicantContext = createContext<{
   updateMilestoneContext: () => void 0,
   applicant: {} as ApplicantRO,
   milestones: [],
+  hiredHa: undefined,
 });
 
 export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) => {
@@ -39,6 +41,7 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
   const [loading, setLoading] = useState(true);
   const [applicant, setApplicant] = useState<ApplicantRO>({} as ApplicantRO);
   const [milestones, setMilestones] = useState<ApplicantStatusAuditRO[]>([]);
+  const [hiredHa, setHiredHa] = useState<number>();
 
   const sortMilestones = (audits: ApplicantStatusAuditRO[]): ApplicantStatusAuditRO[] => {
     return audits.sort((a, b) => {
@@ -52,6 +55,13 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
     });
   };
 
+  // check if there is an accepted offer in any job
+  const checkForAcceptedOffer = (jobs: ApplicantJobRO[] | null | undefined) => {
+    const acceptedOffer = jobs && jobs.find(j => j.status_audit?.find(s => isHired(s.status.id)));
+
+    acceptedOffer ? setHiredHa(acceptedOffer.ha_pcn.id) : setHiredHa(undefined);
+  };
+
   const updateJob = (job: ApplicantJobRO) => {
     const index = applicant.jobs?.findIndex(j => job.id === j.id);
     if (index === undefined) {
@@ -61,6 +71,7 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
     } else {
       applicant.jobs?.push(job);
     }
+    checkForAcceptedOffer(applicant.jobs);
     setApplicant({ ...applicant });
   };
 
@@ -72,6 +83,7 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
       if (toDelete !== undefined && toDelete >= 0) {
         job.status_audit?.splice(toDelete, 1);
       }
+      checkForAcceptedOffer(applicant.jobs);
       setApplicant({ ...applicant });
     }
   };
@@ -93,6 +105,8 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
     const applicantData = await getApplicant(applicantId);
 
     if (applicantData) {
+      checkForAcceptedOffer(applicantData.jobs);
+
       const filteredJobs = authUser?.ha_pcn_id
         ? applicantData.jobs?.filter(j => j.ha_pcn.id === authUser?.ha_pcn_id)
         : applicantData.jobs;
@@ -114,6 +128,7 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
   const value = {
     applicant,
     milestones,
+    hiredHa,
     updateJob,
     deleteMilestone,
     updateMilestoneContext,
