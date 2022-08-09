@@ -45,7 +45,7 @@ export const Recruitment: React.FC = () => {
       .slice(pageSize * (pageIndex - 1), pageSize * pageIndex);
     setJobRecords(jobs || []);
 
-    setTotal(applicant?.jobs?.length || 0);
+    setTotal(jobs?.length || 0);
   }, [pageIndex, pageSize, filters, applicant]);
 
   const handleNewRecord = (record?: ApplicantJobRO) => {
