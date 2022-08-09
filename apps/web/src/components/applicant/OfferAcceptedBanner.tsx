@@ -9,6 +9,10 @@ export const OfferAcceptedBanner: React.FC = () => {
   const { hiredHa } = useApplicantContext();
   const { authUser } = useAuthContext();
 
+  if (!hiredHa) {
+    return null;
+  }
+
   if (hiredHa === authUser?.ha_pcn_id) {
     return (
       <Banner style='success' image={hiredIndCheckmark.src}>
