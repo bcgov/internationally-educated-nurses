@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
 import { buttonBase, buttonColor } from '@components';
-import { ApplicantRO, formatDate, IENApplicantStatusRO, STATUS, isHired } from '@ien/common';
+import { ApplicantRO, formatDate, STATUS } from '@ien/common';
 import { Spinner } from '../Spinner';
 import { useRouter } from 'next/router';
 import { SortButton } from '../SortButton';
@@ -15,13 +15,14 @@ export interface ApplicantTableProps {
 }
 
 // determine milestone text for status
-const milestoneText = (status?: IENApplicantStatusRO, haId?: number | null) => {
+const milestoneText = (applicant: ApplicantRO, haId?: number | null) => {
+  const { status, job_accepted } = applicant;
   if (!status) {
     return <td className='px-6'></td>;
   }
 
   // if applicant has accepted an offer, show detailed Hired status and checkmark
-  if (isHired(status.id)) {
+  if (job_accepted) {
     return (
       <td className='px-6 font-bold text-bcGreenHiredText'>
         Hired
@@ -77,12 +78,12 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
               <tr
                 key={app.id}
                 className={`text-left shadow-xs whitespace-nowrap ${
-                  isHired(app.status?.id) ? 'bg-bcGreenHiredContainer' : 'even:bg-bcLightGray'
+                  app.job_accepted ? 'bg-bcGreenHiredContainer' : 'even:bg-bcLightGray'
                 } text-sm`}
               >
                 <td className='pl-6'>{getApplicantId(app)}</td>
                 <td className='px-6 py-5 truncate'>{app.name}</td>
-                {milestoneText(app.status, authUser?.ha_pcn_id)}
+                {milestoneText(app, authUser?.ha_pcn_id)}
                 <td className='px-6'>{app.updated_date && formatDate(app.updated_date)}</td>
                 <td className='px-6 truncate'>
                   {app.assigned_to?.map(({ name }) => name).join(', ')}

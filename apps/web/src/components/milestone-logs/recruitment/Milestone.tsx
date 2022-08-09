@@ -52,7 +52,7 @@ interface AddMilestoneProps {
 }
 
 export const AddMilestone = ({ job, milestoneTabId }: AddMilestoneProps) => {
-  const { applicant, updateJob, milestones, updateMilestoneContext } = useApplicantContext();
+  const { applicant, milestones, fetchApplicant } = useApplicantContext();
 
   const isDuplicate = ({ status, start_date }: IENApplicantAddStatusDTO) => {
     return job
@@ -69,37 +69,12 @@ export const AddMilestone = ({ job, milestoneTabId }: AddMilestoneProps) => {
       return;
     }
 
-    // check whether a job is present to determine which fn to add milestone
-    if (job) {
-      await updateRecruitmentMilestone(values);
-    } else {
-      await updateNonRecruitmentMilestone(values);
-    }
-
-    // reset form after submitting
-    helpers && helpers.resetForm(getInitialValues());
-  };
-
-  // handle recruitment related adding of milestones
-  const updateRecruitmentMilestone = async (values: IENApplicantAddStatusDTO) => {
-    values.job_id = `${job?.id}`;
-
-    const milestone = await addMilestone(applicant.id, values);
-
-    // get updated milestones
-    if (milestone && milestone.id && job) {
-      const jobMilestones = [...(job.status_audit || []), milestone];
-      updateJob({ ...job, status_audit: jobMilestones });
-    }
-  };
-
-  // handle non recruitment related adding of milestones
-  const updateNonRecruitmentMilestone = async (values: IENApplicantAddStatusDTO) => {
-    const milestone = await addMilestone(applicant.id, values);
-
+    const milestone = await addMilestone(applicant.id, { ...values, job_id: `${job?.id}` });
     if (milestone) {
-      updateMilestoneContext(milestone);
+      fetchApplicant();
     }
+
+    helpers && helpers.resetForm(getInitialValues());
   };
 
   return (

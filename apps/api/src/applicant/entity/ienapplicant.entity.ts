@@ -11,6 +11,7 @@ import {
   Index,
   OneToMany,
   AfterLoad,
+  OneToOne,
 } from 'typeorm';
 import { IENApplicantAudit } from './ienapplicant-audit.entity';
 import { IENApplicantStatusAudit } from './ienapplicant-status-audit.entity';
@@ -102,6 +103,10 @@ export class IENApplicant {
 
   @UpdateDateColumn()
   updated_date!: Date;
+
+  @OneToOne(() => IENApplicantJob, { eager: true })
+  @JoinColumn({ name: 'job_accepted' })
+  job_accepted?: IENApplicantJob;
 
   @AfterLoad()
   sortStatus() {

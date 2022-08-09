@@ -31,7 +31,7 @@ export const Record: React.FC<RecordProps> = ({
   jobIndex,
   wasOfferAccepted,
 }) => {
-  const { applicant, updateJob } = useApplicantContext();
+  const { applicant, updateJob, fetchApplicant } = useApplicantContext();
   const [modalVisible, setModalVisible] = useState(false);
   const [editing, setEditing] = useState<ApplicantStatusAuditRO | null>(null); // milestone being edited
 
@@ -89,12 +89,7 @@ export const Record: React.FC<RecordProps> = ({
     setEditing(null);
     const milestone = await updateMilestone(applicant.id, id, values);
     if (milestone) {
-      const index = job.status_audit?.findIndex(m => m.id === id);
-      if (index !== undefined && index >= 0) {
-        const audits = [...(job.status_audit || [])];
-        audits.splice(index, 1, milestone);
-        updateJob({ ...job, status_audit: audits });
-      }
+      fetchApplicant();
     }
   };
 

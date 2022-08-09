@@ -24,7 +24,7 @@ export class IENApplicantJob {
   @PrimaryGeneratedColumn()
   id!: string;
 
-  @ManyToOne(() => IENHaPcn)
+  @ManyToOne(() => IENHaPcn, { eager: true })
   ha_pcn!: IENHaPcn;
 
   @Column('varchar', { nullable: true })
