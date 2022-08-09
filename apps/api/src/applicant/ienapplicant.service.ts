@@ -16,7 +16,7 @@ import { IENApplicantStatusAudit } from './entity/ienapplicant-status-audit.enti
 import { IENApplicantJobCreateUpdateAPIDTO } from './dto/ienapplicant-job-create.dto';
 import { IENApplicantJobQueryDTO } from './dto/ienapplicant-job-filter.dto';
 import { IENJobLocation } from './entity/ienjoblocation.entity';
-import { EmployeeRO } from '@ien/common';
+import { EmployeeRO, STATUS } from '@ien/common';
 
 @Injectable()
 export class IENApplicantService {
@@ -233,12 +233,12 @@ export class IENApplicantService {
   async addApplicantStatus(
     user: EmployeeRO,
     id: string,
-    applicantUpdate: IENApplicantAddStatusAPIDTO,
+    milestone: IENApplicantAddStatusAPIDTO,
   ): Promise<IENApplicantStatusAudit | any> {
     const applicant = await this.getApplicantById(id);
     const { status, start_date, end_date, job_id, notes, reason, effective_date, reason_other } =
-      applicantUpdate;
-    const data: any = {};
+      milestone;
+    const data: Partial<IENApplicantStatusAudit> = {};
 
     /** Only allowing recruiment related milestones here */
     const status_obj = await this.ienapplicantUtilService.getStatusById(status);
@@ -274,11 +274,11 @@ export class IENApplicantService {
 
     data.reason_other = reason_other;
 
-    data.start_date = start_date || new Date();
+    data.start_date = start_date ? new Date(start_date) : new Date();
 
-    data.end_date = end_date;
+    data.end_date = end_date ? new Date(end_date) : undefined;
 
-    data.effective_date = effective_date;
+    data.effective_date = effective_date ? new Date(effective_date) : undefined;
 
     data.notes = notes;
 
@@ -298,11 +298,15 @@ export class IENApplicantService {
       await this.ienapplicantUtilService.updatePreviousActiveStatusForJob(job, data);
     }
 
-    // Let's check and updated latest status on applicant
+    // Let's check and updated the latest status on applicant
     await this.ienapplicantUtilService.updateLatestStatusOnApplicant([applicant.id]);
-    await this.ienapplicantRepository.update(id, { updated_date: new Date() });
 
-    delete status_audit.applicant;
+    const applicantUpdate: Partial<IENApplicant> = { updated_date: new Date() };
+    if (job && status_audit.status.id === STATUS.Candidate_accepted_the_job_offer) {
+      applicantUpdate.job_accepted = job;
+    }
+    await this.ienapplicantRepository.update(id, applicantUpdate);
+
     return status_audit;
   }
 
@@ -315,15 +319,15 @@ export class IENApplicantService {
   async updateApplicantStatus(
     user: EmployeeRO,
     status_id: string,
-    applicantUpdate: IENApplicantUpdateStatusAPIDTO,
+    milestone: IENApplicantUpdateStatusAPIDTO,
   ): Promise<IENApplicantStatusAudit | any> {
     const status_audit = await this.ienapplicantStatusAuditRepository.findOne(status_id, {
-      relations: ['applicant', 'added_by'],
+      relations: ['applicant', 'added_by', 'status', 'job'],
     });
     if (!status_audit) {
       throw new NotFoundException('Provided status/milestone record not found');
     }
-    const { status, start_date, effective_date, end_date, notes, reason } = applicantUpdate;
+    const { status, start_date, effective_date, end_date, notes, reason } = milestone;
     if (user.user_id) {
       const updated_by_data = await this.ienUsersRepository.findOne(user.user_id);
       if (updated_by_data) {
@@ -336,6 +340,7 @@ export class IENApplicantService {
       status_audit.reason = statusReason;
     }
 
+    const oldStatus = status_audit.status;
     if (status) {
       const status_obj = await this.ienapplicantUtilService.getStatusById(status);
       status_audit.status = status_obj;
@@ -357,11 +362,25 @@ export class IENApplicantService {
       status_audit.notes = notes;
     }
     await this.ienapplicantStatusAuditRepository.save(status_audit);
-    await this.ienapplicantRepository.update(status_audit.applicant.id, {
-      updated_date: new Date(),
-    });
 
-    // Let's check and updated latest status on applicant
+    const applicantUpdate: Partial<IENApplicant> = { updated_date: new Date() };
+    const { job_accepted } = status_audit.applicant;
+    if (
+      status_audit.status.id !== STATUS.Candidate_accepted_the_job_offer &&
+      oldStatus.id === STATUS.Candidate_accepted_the_job_offer &&
+      job_accepted?.id === status_audit.job?.id
+    ) {
+      applicantUpdate.job_accepted = undefined;
+    } else if (
+      status_audit.status.id === STATUS.Candidate_accepted_the_job_offer &&
+      status_audit.job &&
+      job_accepted?.id !== status_audit.job?.id
+    ) {
+      applicantUpdate.job_accepted = status_audit.job;
+    }
+    await this.ienapplicantRepository.update(status_audit.applicant.id, applicantUpdate);
+
+    // Let's check and updated the latest status on applicant
     await this.ienapplicantUtilService.updateLatestStatusOnApplicant([status_audit.applicant.id]);
 
     return status_audit;

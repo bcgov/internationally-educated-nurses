@@ -39,7 +39,7 @@ const currentlyEditing = 'bg-blue-100';
 
 export const MilestoneTable = ({ category }: MilestoneTableProps) => {
   const { authUser } = useAuthContext();
-  const { applicant, milestones, updateMilestoneContext } = useApplicantContext();
+  const { applicant, milestones, fetchApplicant } = useApplicantContext();
 
   const [filteredMilestones, setFilteredMilestones] = useState<ApplicantStatusAuditRO[]>([]);
   const [milestonesInPage, setMilestonesInPage] = useState<ApplicantStatusAuditRO[]>([]);
@@ -76,9 +76,8 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
     setEditing(null);
 
     const milestone = await updateMilestone(applicant.id, id, values);
-
     if (milestone) {
-      updateMilestoneContext(milestone);
+      fetchApplicant();
     }
   };
 

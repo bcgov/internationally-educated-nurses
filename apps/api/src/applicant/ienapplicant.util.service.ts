@@ -211,15 +211,15 @@ export class IENApplicantUtilService {
     applicant: IENApplicant,
     dataToUpdate: any,
     job: IENApplicantJob | null,
-  ): Promise<IENApplicantStatusAudit | any> {
+  ): Promise<IENApplicantStatusAudit> {
     // Save
-    const status_audit = this.ienapplicantStatusAuditRepository.create({
+    const status: Partial<IENApplicantStatusAudit> = {
       applicant: applicant,
       job: job,
       ...dataToUpdate,
-    });
-    await this.ienapplicantStatusAuditRepository.save(status_audit);
-    return status_audit;
+    };
+    const status_audit = this.ienapplicantStatusAuditRepository.create(status);
+    return this.ienapplicantStatusAuditRepository.save(status_audit);
   }
 
   /**

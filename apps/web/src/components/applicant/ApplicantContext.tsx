@@ -19,12 +19,12 @@ export const ApplicantContext = createContext<{
   updateJob: (job: ApplicantJobRO) => void;
   deleteJob: (jobId: string) => void;
   deleteMilestone: (milestoneId: string, jobId: string) => void;
-  updateMilestoneContext: (milestone: ApplicantStatusAuditRO) => void;
+  fetchApplicant: () => void;
 }>({
   updateJob: () => void 0,
   deleteJob: () => void 0,
   deleteMilestone: () => void 0,
-  updateMilestoneContext: () => void 0,
+  fetchApplicant: () => void 0,
   applicant: {} as ApplicantRO,
   milestones: [],
   hiredHa: undefined,
@@ -98,21 +98,11 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
     }
   };
 
-  const updateMilestoneContext = (milestone: ApplicantStatusAuditRO) => {
-    const index = milestones.findIndex(m => m.id === milestone.id);
+  const fetchApplicant = async () => {
+    if (!id) return;
 
-    if (index !== undefined && index >= 0) {
-      milestones.splice(index, 1, milestone);
-    } else {
-      applicant.applicant_status_audit?.push(milestone);
-    }
-
-    setApplicant({ ...applicant });
-  };
-
-  const fetchApplicant = async (applicantId: string) => {
     setLoading(true);
-    const applicantData = await getApplicant(applicantId);
+    const applicantData = await getApplicant(id);
 
     if (applicantData) {
       checkForAcceptedOffer(applicantData.jobs);
@@ -129,9 +119,7 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
   };
 
   useEffect(() => {
-    if (id) {
-      fetchApplicant(id);
-    }
+    fetchApplicant();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -142,7 +130,7 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
     updateJob,
     deleteJob,
     deleteMilestone,
-    updateMilestoneContext,
+    fetchApplicant,
   };
   return (
     <ApplicantContext.Provider value={value}>
