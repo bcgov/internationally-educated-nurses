@@ -23,6 +23,7 @@ import { ApplicantStatusAuditRO } from '@ien/common/src/ro/applicant.ro';
 import { useApplicantContext } from '../applicant/ApplicantContext';
 import { toast } from 'react-toastify';
 import { useAuthContext } from '../AuthContexts';
+import hiredIndIcon from '@assets/img/hired_indicator.svg';
 
 interface AddRecordProps {
   job?: ApplicantJobRO;
@@ -35,7 +36,7 @@ interface AddRecordProps {
 export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) => {
   const { job, milestones, visible, onClose, setExpandRecord } = props;
 
-  const { applicant } = useApplicantContext();
+  const { applicant, hiredHa } = useApplicantContext();
   const { authUser } = useAuthContext();
 
   const router = useRouter();
@@ -105,6 +106,18 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
       <Modal.Title as='h1' className='text-lg font-bold leading-6 text-bcBlueLink border-b p-4'>
         {job ? 'Edit Record' : 'Add Record'}
       </Modal.Title>
+      {hiredHa && (
+        <div className='mx-8 p-3 bg-bcYellowCream text-bcBrown mt-6 rounded border-2 border-bcYellowCreamStroke'>
+          <div className='font-bold flex items-center'>
+            <img src={hiredIndIcon.src} alt='add' className='m-1 h-5' />
+            Important Reminder
+          </div>
+          <div className='px-7'>
+            This applicant has already accepted a job offer. You can still add a job competition for
+            this applicant.
+          </div>
+        </div>
+      )}
       <div className='w-full'>
         <Formik initialValues={initialValues} onSubmit={handleSubmit} validate={newJobRecordSchema}>
           {({ isSubmitting }) => (
