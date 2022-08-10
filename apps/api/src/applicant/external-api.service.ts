@@ -420,7 +420,7 @@ export class ExternalAPIService {
         if (a.health_authorities && a.health_authorities != undefined) {
           health_authorities = a.health_authorities.map(
             (h: { title: string; id: number | string; name?: string }) => {
-              h.title = ha[`${h.id}`].title;
+              h.title = ha[`${h.id}`]?.title;
               if (h.hasOwnProperty('name')) {
                 delete h.name;
               }
