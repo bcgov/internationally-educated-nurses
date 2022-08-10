@@ -10,6 +10,13 @@ export class IENUserFilterAPIDTO {
   from?: string;
 
   @ApiPropertyOptional({
+    description: 'End date for range',
+  })
+  @IsOptional()
+  @IsDateString()
+  to?: string;
+
+  @ApiPropertyOptional({
     description: 'Organization to sort by',
   })
   @IsOptional()
