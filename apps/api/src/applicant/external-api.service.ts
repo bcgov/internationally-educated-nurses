@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Inject, Injectable, Logger } from '@nestjs/common';
-import { ExternalRequest } from 'src/common/external-request';
+import { Inject, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   In,
@@ -11,16 +10,17 @@ import {
   ObjectLiteral,
   SelectQueryBuilder,
 } from 'typeorm';
+import { Authorities } from '@ien/common';
+import { ExternalRequest } from 'src/common/external-request';
 import { AppLogger } from 'src/common/logger.service';
-import { IENApplicant } from './entity/ienapplicant.entity';
 import { getMilestoneCategory } from 'src/common/util';
+import { IENApplicant } from './entity/ienapplicant.entity';
 import { IENApplicantStatusAudit } from './entity/ienapplicant-status-audit.entity';
 import { IENApplicantUtilService } from './ienapplicant.util.service';
 import { SyncApplicantsAudit } from './entity/sync-applicants-audit.entity';
 import { IENMasterService } from './ien-master.service';
 import { IENUsers } from './entity/ienusers.entity';
 import { IENUserFilterAPIDTO } from './dto/ienuser-filter.dto';
-import { Authorities } from '@ien/common';
 
 @Injectable()
 export class ExternalAPIService {
@@ -44,6 +44,10 @@ export class ExternalAPIService {
    * Save all data for master tables.
    */
   async saveData() {
+    if (!process.env.HMBC_ATS_AUTH_KEY || !process.env.HMBC_ATS_BASE_URL) {
+      throw new InternalServerErrorException('ATS endpoint is not set.');
+    }
+    this.logger.log(`Using ATS : ${process.env.HMBC_ATS_BASE_URL}`);
     const ha = this.saveHa();
     const users = this.saveUsers();
     const reasons = this.saveReasons();
@@ -73,10 +77,12 @@ export class ExternalAPIService {
               abbreviation: item?.abbreviation,
             };
           });
-        await this.ienMasterService.ienHaPcnRepository.upsert(listHa, ['id']);
+        const result = await this.ienMasterService.ienHaPcnRepository.upsert(listHa, ['id']);
+        this.logger.log(`${result.raw.length}/${listHa.length} authorities updated`, 'ATS');
       }
     } catch (e) {
-      this.logger.log(`Error in saveHa(): ${e}`);
+      this.logger.log(e);
+      this.logger.log(`Error in saveHa(): ${e}`, 'ATS');
     }
   }
 
@@ -95,10 +101,13 @@ export class ExternalAPIService {
             email: item?.email,
           };
         });
-        await this.ienMasterService.ienUsersRepository.upsert(listUsers, ['id']);
+        const result = await this.ienMasterService.ienUsersRepository.upsert(listUsers, [
+          'user_id',
+        ]);
+        this.logger.log(`${result.raw.length}/${listUsers.length} users updated`, 'ATS');
       }
     } catch (e) {
-      this.logger.log(`Error in saveUsers(): ${e}`);
+      this.logger.log(`Error in saveUsers(): ${e}`, 'ATS');
     }
   }
 
@@ -110,10 +119,11 @@ export class ExternalAPIService {
     try {
       const data = await this.external_request.getReason();
       if (Array.isArray(data)) {
-        await this.ienMasterService.ienStatusReasonRepository.upsert(data, ['id']);
+        const result = await this.ienMasterService.ienStatusReasonRepository.upsert(data, ['id']);
+        this.logger.log(`${result.raw.length}/${data.length} reasons updated`, 'ATS');
       }
     } catch (e) {
-      this.logger.log(`Error in saveReasons(): ${e}`);
+      this.logger.log(`Error in saveReasons(): ${e}`, 'ATS');
     }
   }
 
@@ -125,16 +135,19 @@ export class ExternalAPIService {
     try {
       const data = await this.external_request.getDepartment();
       if (Array.isArray(data)) {
-        const listDepartments = data.map(item => {
+        const departments = data.map(item => {
           return {
             id: item.id,
             title: item.name,
           };
         });
-        await this.ienMasterService.ienJobTitleRepository.upsert(listDepartments, ['id']);
+        const result = await this.ienMasterService.ienJobTitleRepository.upsert(departments, [
+          'id',
+        ]);
+        this.logger.log(`${result.raw.length}/${departments.length} departments updated`, 'ATS');
       }
     } catch (e) {
-      this.logger.log(`Error in saveDepartments(): ${e}`);
+      this.logger.log(`Error in saveDepartments(): ${e}`, 'ATS');
     }
   }
 
@@ -146,13 +159,14 @@ export class ExternalAPIService {
     try {
       const data = await this.external_request.getMilestone();
       if (Array.isArray(data)) {
-        await this.ienMasterService.ienApplicantStatusRepository.upsert(
+        const result = await this.ienMasterService.ienApplicantStatusRepository.upsert(
           this.cleanAndFilterMilestone(data),
           ['id'],
         );
+        this.logger.log(`${result.raw.length}/${data.length} milestones updated`, 'ATS');
       }
     } catch (e) {
-      this.logger.log(`Error in saveReasons(): ${e}`);
+      this.logger.log(`Error in saveMilestones(): ${e}`, 'ATS');
     }
   }
 

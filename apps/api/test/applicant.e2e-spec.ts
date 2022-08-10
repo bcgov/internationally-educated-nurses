@@ -18,7 +18,7 @@ import {
   invalidMilestoneToUpdate,
 } from './fixture/ien';
 import { IENUsers } from 'src/applicant/entity/ienusers.entity';
-import { RoleSlug } from '@ien/common';
+import { canActivate } from './override-guard';
 let jobTempId = 10;
 let applicantStatusId = 'NA';
 
@@ -34,16 +34,7 @@ describe('ApplicantController (e2e)', () => {
       imports: [AppModule],
     })
       .overrideGuard(AuthGuard)
-      .useValue({
-        canActivate: (context: ExecutionContext) => {
-          const request = context.switchToHttp().getRequest();
-          request.user = {
-            user_id: request.headers?.user || seedUser.id,
-            roles: [{ id: 1, slug: RoleSlug.Admin }],
-          };
-          return true;
-        },
-      })
+      .useValue({ canActivate })
       .compile();
 
     app = moduleFixture.createNestApplication();
