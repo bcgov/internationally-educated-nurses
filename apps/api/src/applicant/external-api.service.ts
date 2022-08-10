@@ -570,7 +570,7 @@ export class ExternalAPIService {
    * @returns
    */
   async getUsers(filter: IENUserFilterAPIDTO): Promise<[data: IENUsers[], count: number]> {
-    const { from, organization, limit, skip } = filter;
+    const { from, to, organization, limit, skip } = filter;
 
     const query: FindManyOptions<IENUsers> = {};
 
@@ -584,7 +584,10 @@ export class ExternalAPIService {
     const conditions: (string | ObjectLiteral)[] = [];
 
     if (from) {
-      const users_in_range = `created_date >= '${from}'`;
+      const users_in_range = `created_date BETWEEN '${from}' AND '${
+        to || new Date().toISOString().slice(0, 10)
+      }'`;
+
       conditions.push(users_in_range);
     }
 
