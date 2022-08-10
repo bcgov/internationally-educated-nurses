@@ -4,6 +4,7 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 export class IENUserFilterAPIDTO {
   @ApiPropertyOptional({
     description: 'Start date for range',
+    example: '2020-01-01',
   })
   @IsOptional()
   @IsDateString()
@@ -11,6 +12,7 @@ export class IENUserFilterAPIDTO {
 
   @ApiPropertyOptional({
     description: 'Organization to sort by',
+    example: 'VIHA',
   })
   @IsOptional()
   @IsString()
