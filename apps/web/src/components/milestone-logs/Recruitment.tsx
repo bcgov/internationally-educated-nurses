@@ -48,12 +48,14 @@ export const Recruitment: React.FC = () => {
 
     // check if results should show filtered jobs or total jobs
     isFiltered(filters) ? setTotal(jobs?.length || 0) : setTotal(applicant?.jobs?.length || 0);
-
   }, [pageIndex, pageSize, filters, applicant]);
 
   const isFiltered = (filterObj: JobFilterOptions) => {
-    return filterObj.ha_pcn && filterObj.ha_pcn.length > 0 || filterObj.job_title && filterObj.job_title.length > 0
-  }
+    return (
+      (filterObj.ha_pcn && filterObj.ha_pcn.length > 0) ||
+      (filterObj.job_title && filterObj.job_title.length > 0)
+    );
+  };
 
   const handleNewRecord = (record?: ApplicantJobRO) => {
     setRecordModalVisible(false);
