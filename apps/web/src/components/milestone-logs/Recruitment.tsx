@@ -32,7 +32,7 @@ export const Recruitment: React.FC = () => {
   useEffect(() => {
     sortJobs(applicant?.jobs);
 
-    const jobs = applicant?.jobs
+    const filteredJobs = applicant?.jobs
       ?.filter(
         job => !filters.ha_pcn || !filters.ha_pcn.length || filters.ha_pcn.includes(job.ha_pcn.id),
       )
@@ -41,12 +41,24 @@ export const Recruitment: React.FC = () => {
           !filters.job_title ||
           !filters.job_title.length ||
           (job.job_title && filters.job_title.includes(job.job_title.id)),
-      )
-      .slice(pageSize * (pageIndex - 1), pageSize * pageIndex);
-    setJobRecords(jobs || []);
+      );
 
-    setTotal(applicant?.jobs?.length || 0);
+    const jobsInPage = filteredJobs?.slice(pageSize * (pageIndex - 1), pageSize * pageIndex);
+
+    setJobRecords(jobsInPage || []);
+
+    // check if results should show filtered jobs or total jobs
+    isFiltered(filters)
+      ? setTotal(filteredJobs?.length || 0)
+      : setTotal(applicant?.jobs?.length || 0);
   }, [pageIndex, pageSize, filters, applicant]);
+
+  const isFiltered = (filterObj: JobFilterOptions) => {
+    return (
+      (filterObj.ha_pcn && filterObj.ha_pcn.length > 0) ||
+      (filterObj.job_title && filterObj.job_title.length > 0)
+    );
+  };
 
   const handleNewRecord = (record?: ApplicantJobRO) => {
     setRecordModalVisible(false);
