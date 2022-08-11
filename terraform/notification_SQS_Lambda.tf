@@ -52,7 +52,7 @@ resource "aws_lambda_function" "SQSLambda" {
   }
 }
 
-# Trigger Lamnda if new messages received in SQS queue.
+# Trigger Lambda if new messages received in SQS queue.
 resource "aws_lambda_event_source_mapping" "event_source_mapping" {
   event_source_arn = aws_sqs_queue.terraform_queue.arn
   enabled          = true

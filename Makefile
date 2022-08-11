@@ -300,9 +300,9 @@ deploy-app:
 
 # Full redirection to /dev/null is required to not leak env variables
 deploy-api:
-	aws lambda update-function-code --function-name ien-$(ENV_NAME)-api --zip-file fileb://./terraform/build/api.zip --region $(AWS_REGION) > /dev/null 2>&1
-	aws lambda update-function-code --function-name ien-$(ENV_NAME)-syncdata --zip-file fileb://./terraform/build/api.zip --region $(AWS_REGION) > /dev/null 2>&1
-	aws lambda update-function-code --function-name ien-$(ENV_NAME)-notifylambda --zip-file fileb://./terraform/build/api.zip --region $(AWS_REGION) > /dev/null 2>&1
+	aws lambda update-function-code --function-name ien-$(ENV_NAME)-api --zip-file fileb://./terraform/build/api.zip --region $(AWS_REGION) > /dev/null
+	aws lambda update-function-code --function-name ien-$(ENV_NAME)-syncdata --zip-file fileb://./terraform/build/api.zip --region $(AWS_REGION) > /dev/null
+	aws lambda update-function-code --function-name ien-$(ENV_NAME)-notifylambda --zip-file fileb://./terraform/build/api.zip --region $(AWS_REGION) > /dev/null
 
 deploy-all: sync-app deploy-api
 	@echo "Deploying Webapp and API"
