@@ -1,3 +1,8 @@
+import React from 'react';
+import { FieldProps, Formik, Form as FormikForm, FormikHelpers } from 'formik';
+import createValidator from 'class-validator-formik';
+import ReactSelect from 'react-select';
+import dayjs from 'dayjs';
 import {
   MilestoneType,
   StyleOption,
@@ -12,13 +17,8 @@ import {
   IENStatusReasonRO,
   STATUS,
 } from '@ien/common';
-import { FieldProps, Formik, Form as FormikForm, FormikHelpers } from 'formik';
-import dayjs from 'dayjs';
 import { Button, buttonBase, Field, getSelectStyleOverride, Textarea } from '@components';
-import ReactSelect from 'react-select';
 import addIcon from '@assets/img/add.svg';
-import React from 'react';
-import createValidator from 'class-validator-formik';
 
 type ReasonOption = StyleOption & IENStatusReasonRO;
 
