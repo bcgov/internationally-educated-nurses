@@ -222,12 +222,13 @@ export class IENApplicantController {
   @AllowAccess(Access.APPLICANT_WRITE)
   @Post('/:id/job')
   async addApplicantJob(
+    @Req() req: RequestObj,
     @Param('id') id: string,
     @Body() jobData: IENApplicantJobCreateUpdateAPIDTO,
   ): Promise<ApplicantJobRO | undefined> {
     try {
       this.logger.log(`Add job competition for the applicant ${id}`);
-      return await this.ienapplicantService.addApplicantJob(id, jobData);
+      return await this.ienapplicantService.addApplicantJob(req.user, id, jobData);
     } catch (e) {
       this.logger.error(e);
       if (e instanceof NotFoundException) {
@@ -283,6 +284,28 @@ export class IENApplicantController {
           'An unknown error occured while adding applicant job',
         );
       }
+    }
+  }
+
+  @ApiOperation({
+    summary: 'Delete applicant job and all related milestone/status',
+  })
+  @UseInterceptors(ClassSerializerInterceptor)
+  @Delete('/:id/job/:job_id')
+  @AllowAccess(Access.APPLICANT_WRITE)
+  async deleteApplicantJob(
+    @Req() req: RequestObj,
+    @Param('id') _id: string,
+    @Param('job_id') job_id: string,
+  ): Promise<void> {
+    try {
+      this.logger.log(
+        `Delete job (${job_id}) on applicant (${_id}) requested by
+        userId (${req?.user.user_id})/ employeeId/loginId (${req?.user.id})`,
+      );
+      return this.ienapplicantService.deleteApplicantJob(req?.user.user_id, job_id);
+    } catch (e) {
+      throw this._handleStatusException(e);
     }
   }
 

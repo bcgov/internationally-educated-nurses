@@ -396,6 +396,7 @@ export class IENApplicantService {
    * @returns
    */
   async addApplicantJob(
+    user: EmployeeRO,
     id: string,
     jobData: IENApplicantJobCreateUpdateAPIDTO,
   ): Promise<IENApplicantJob | undefined> {
@@ -404,6 +405,12 @@ export class IENApplicantService {
     const { ha_pcn, job_title, job_location, ...data } = jobData;
     const job = this.ienapplicantJobRepository.create(data);
     job.applicant = applicant;
+
+    if (user.user_id) {
+      const added_by_data = await this.ienUsersRepository.findOne(user.user_id);
+      job.added_by = added_by_data;
+    }
+
     return this.saveApplicantJob(job, jobData);
   }
 
@@ -435,6 +442,27 @@ export class IENApplicantService {
     }
     await this.saveApplicantJob(job, jobData);
     return this.getApplicantJob(job_id);
+  }
+
+  /**
+   * Delete applicant job
+   * @param user_id id of user requesting deletion
+   * @param job_id Job id to delete
+   * @returns
+   */
+  async deleteApplicantJob(user_id: string | null, job_id: string | number): Promise<void> {
+    const job: IENApplicantJob | undefined = await this.ienapplicantJobRepository.findOne(job_id, {
+      relations: ['added_by'],
+    });
+
+    if (!job) {
+      throw new NotFoundException(`Applicant job competition not found`);
+    }
+    if (user_id != job.added_by?.id) {
+      throw new BadRequestException(`Requested job competition was added by different user`);
+    }
+
+    await this.ienapplicantJobRepository.delete(job_id);
   }
 
   async getApplicantJob(job_id: string | number): Promise<IENApplicantJob | undefined> {

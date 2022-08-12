@@ -1,4 +1,3 @@
-import { Exclude } from 'class-transformer';
 import sortStatus from 'src/common/util';
 import {
   Entity,
@@ -11,6 +10,7 @@ import {
   AfterLoad,
   ManyToMany,
   JoinTable,
+  JoinColumn,
 } from 'typeorm';
 import { IENApplicantStatusAudit } from './ienapplicant-status-audit.entity';
 import { IENApplicant } from './ienapplicant.entity';
@@ -44,8 +44,8 @@ export class IENApplicantJob {
   job_post_date?: Date;
 
   @ManyToOne(() => IENUsers, user => user.id)
-  @Exclude()
-  added_by?: IENUsers;
+  @JoinColumn({ name: 'added_by_id' })
+  added_by?: IENUsers | null;
 
   // It's for reverse relation but we are not using it in services
   @ManyToOne(() => IENApplicant, applicant => applicant.jobs)

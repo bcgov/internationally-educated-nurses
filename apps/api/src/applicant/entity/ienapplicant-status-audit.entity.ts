@@ -27,7 +27,7 @@ export class IENApplicantStatusAudit {
   @JoinColumn({ name: 'status_id' })
   status!: IENApplicantStatus;
 
-  @ManyToOne(() => IENApplicantJob, job => job.id)
+  @ManyToOne(() => IENApplicantJob, job => job.id, { onDelete: 'CASCADE' })
   job?: IENApplicantJob | null;
 
   @ManyToOne(() => IENApplicant, applicant => applicant.id)

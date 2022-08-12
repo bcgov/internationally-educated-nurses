@@ -32,6 +32,7 @@ import disabledDeleteIcon from '@assets/img/disabled-trash_can.svg';
 import { useApplicantContext } from '../../applicant/ApplicantContext';
 import { useAuthContext } from 'src/components/AuthContexts';
 import { DeleteMilestoneModal } from 'src/components/display/DeleteMilestoneModal';
+import { canDelete } from 'src/utils';
 
 type MilestoneFormValues = IENApplicantAddStatusDTO | IENApplicantUpdateStatusDTO;
 
@@ -126,10 +127,6 @@ export const EditMilestone: React.FC<EditMilestoneProps> = props => {
   const { job, milestone, handleSubmit, editing, onEditing, milestoneTabId } = props;
   const { authUser } = useAuthContext();
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-
-  const canDelete = (loggedInId?: string | null, addedById?: string) => {
-    return loggedInId && loggedInId.toString() === addedById;
-  };
 
   const handleDeleteMilestone = (milestoneId?: string) => {
     setDeleteModalVisible(false);

@@ -12,11 +12,16 @@ import {
   IENApplicantUpdateStatusDTO,
 } from '@ien/common';
 import editIcon from '@assets/img/edit.svg';
+import deleteIcon from '@assets/img/trash_can.svg';
+import disabledDeleteIcon from '@assets/img/disabled-trash_can.svg';
 import dotIcon from '@assets/img/dot.svg';
 import dotIconHired from '@assets/img/dot_green.svg';
 import { AddRecordModal } from '../../display/AddRecordModal';
 import { updateMilestone, getHumanizedDuration, StatusCategory } from '@services';
 import { useApplicantContext } from '../../applicant/ApplicantContext';
+import { useAuthContext } from 'src/components/AuthContexts';
+import { DeleteJobModal } from 'src/components/display/DeleteJobModal';
+import { canDelete } from 'src/utils';
 
 interface RecordProps {
   job: ApplicantJobRO;
@@ -31,11 +36,14 @@ export const Record: React.FC<RecordProps> = ({
   jobIndex,
   wasOfferAccepted,
 }) => {
-  const { applicant, updateJob } = useApplicantContext();
+  const { applicant, updateJob, deleteJob } = useApplicantContext();
   const [modalVisible, setModalVisible] = useState(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [editing, setEditing] = useState<ApplicantStatusAuditRO | null>(null); // milestone being edited
 
-  const { ha_pcn, job_id, job_location, job_post_date, job_title, recruiter_name } = job;
+  const { ha_pcn, job_id, job_location, job_post_date, job_title, recruiter_name, added_by } = job;
+
+  const { authUser } = useAuthContext();
 
   // sort milestones by start_date and status id
   const getSortedMilestones = () => {
@@ -96,6 +104,33 @@ export const Record: React.FC<RecordProps> = ({
         updateJob({ ...job, status_audit: audits });
       }
     }
+  };
+
+  const handleDeleteJob = (jobId?: string) => {
+    if (jobId) {
+      deleteJob(jobId);
+    }
+
+    setDeleteModalVisible(false);
+  };
+
+  const deleteButton = () => {
+    return canDelete(authUser?.user_id, added_by?.id) ? (
+      <button
+        className={`px-6 ml-4 border-bcRedError ${buttonBase} text-bcRedError`}
+        onClick={() => setDeleteModalVisible(true)}
+      >
+        <img src={deleteIcon.src} alt='delete competition' className='mr-2' />
+        Delete Competition
+      </button>
+    ) : (
+      <button
+        className={`pointer-events-none px-6 ml-4 border-bcDisabled ${buttonBase} text-bcDisabled`}
+      >
+        <img src={disabledDeleteIcon.src} alt='disabled delete competition' className='mr-2' />
+        Delete Competition
+      </button>
+    );
   };
 
   return (
@@ -162,6 +197,13 @@ export const Record: React.FC<RecordProps> = ({
                 <img src={editIcon.src} alt='edit job' className='mr-2' />
                 Edit Details
               </button>
+              {deleteButton()}
+              <DeleteJobModal
+                onClose={handleDeleteJob}
+                visible={deleteModalVisible}
+                userId={authUser?.user_id}
+                job={job}
+              />
             </AclMask>
             {milestones.map(mil => (
               <EditMilestone
