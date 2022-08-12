@@ -117,7 +117,11 @@ export const Recruitment: React.FC = () => {
         visible={recordModalVisible}
         setExpandRecord={setExpandRecord}
       />
-      <Pagination pageOptions={{ pageIndex, pageSize, total }} onChange={handlePageOptions} />
+      <Pagination
+        id='job-page'
+        pageOptions={{ pageIndex, pageSize, total }}
+        onChange={handlePageOptions}
+      />
     </>
   );
 };

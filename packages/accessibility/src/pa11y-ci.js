@@ -35,6 +35,7 @@ const urls = [
     // applicants
     url: 'http://localhost:3000',
     actions: [...loginActions],
+    hideElements: 'div[class*="placeholder"], div[class*="singleValue"], .text-bcGreenHiredText',
   },
   {
     // details - recruitment
@@ -47,7 +48,7 @@ const urls = [
       'click element #tab-10003',
       'screen capture captures/details.png',
     ],
-    hideElements: 'div[class*="placeholder"]',
+    hideElements: 'div[class*="placeholder"], div[class*="singleValue"], .text-bcGreenHiredText',
   },
   {
     // details - recruitment - job milestones
@@ -64,7 +65,7 @@ const urls = [
       'screen capture captures/job.png',
     ],
     wait: 1000,
-    hideElements: 'div[class*="placeholder"]',
+    hideElements: 'div[class*="placeholder"], div[class*="singleValue"], .text-bcGreenHiredText',
   },
   {
     // reporting
@@ -75,6 +76,7 @@ const urls = [
       'wait for element .animate-spin to be removed',
       'screen capture captures/reporting.png',
     ],
+    hideElements: 'div[class*="placeholder"], div[class*="singleValue"]',
   },
   {
     // user management
@@ -85,7 +87,7 @@ const urls = [
       'wait for element .animate-spin to be removed',
       'screen capture captures/user-management.png',
     ],
-    hideElements: 'div[class*="placeholder"]',
+    hideElements: 'div[class*="placeholder"], div[class*="singleValue"]',
   },
   {
     // user details

@@ -102,6 +102,7 @@ const UserManagement = () => {
       </div>
       <div className='flex justify-content-center flex-col bg-white px-4 pb-4'>
         <Pagination
+          id='user-page-top'
           pageOptions={{ pageIndex: page, pageSize: limit, total }}
           onChange={handlePageOptions}
         />
@@ -114,6 +115,7 @@ const UserManagement = () => {
         />
 
         <Pagination
+          id='user-page-down'
           pageOptions={{ pageIndex: page, pageSize: limit, total }}
           onChange={handlePageOptions}
         />

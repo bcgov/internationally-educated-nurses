@@ -1,8 +1,7 @@
 import ReactSelect from 'react-select';
 import { RecordTypeOptions, useGetAddRecordOptions } from '@services';
 import { JobFilterOptions } from '@ien/common';
-import { Button } from '@components';
-import { getSelectStyleOverride } from '../../form';
+import { Button, getSelectStyleOverride } from '@components';
 
 interface JobFilterProps {
   options: JobFilterOptions;
@@ -29,7 +28,7 @@ export const JobFilters = ({ options, update }: JobFilterProps) => {
   return (
     <div className='flex flex-col md:flex-row  items-center my-5'>
       <div className='font-bold mr-2'>Filter by</div>
-      <ReactSelect
+      <ReactSelect<RecordTypeOptions, true>
         inputId='ha'
         placeholder='Health Region'
         aria-label='select ha'
@@ -43,7 +42,7 @@ export const JobFilters = ({ options, update }: JobFilterProps) => {
         isClearable
         className='w-80 min-w-full md:min-w-0 mx-1 placeholder-bcGray'
       />
-      <ReactSelect
+      <ReactSelect<RecordTypeOptions, true>
         inputId='specialty'
         placeholder='Specialty'
         aria-label='select specialty'
