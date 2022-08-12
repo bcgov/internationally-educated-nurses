@@ -312,7 +312,7 @@ export const createReportWorkbook = async (filter: PeriodFilter): Promise<WorkBo
 
     return workbook;
   } catch (e: any) {
-    notifyError(e.message || 'It has failed to create a report');
+    notifyError(e.message || 'There was an issue while attempting to create a report');
     return null;
   }
 };
