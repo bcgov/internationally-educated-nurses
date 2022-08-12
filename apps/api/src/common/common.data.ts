@@ -3,6 +3,7 @@ export const CommonData = {
   audit: [
     'jobs',
     'jobs.ha_pcn',
+    'jobs.added_by',
     'jobs.job_title',
     'jobs.job_location',
     'jobs.status_audit',

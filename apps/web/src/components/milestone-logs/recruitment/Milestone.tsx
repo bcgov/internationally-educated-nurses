@@ -32,6 +32,7 @@ import disabledDeleteIcon from '@assets/img/disabled-trash_can.svg';
 import { useApplicantContext } from '../../applicant/ApplicantContext';
 import { useAuthContext } from 'src/components/AuthContexts';
 import { DeleteMilestoneModal } from 'src/components/display/DeleteMilestoneModal';
+import { canDelete } from 'src/utils';
 
 type MilestoneFormValues = IENApplicantAddStatusDTO | IENApplicantUpdateStatusDTO;
 
@@ -127,10 +128,6 @@ export const EditMilestone: React.FC<EditMilestoneProps> = props => {
   const { authUser } = useAuthContext();
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
-  const canDelete = (loggedInId?: string | null, addedById?: string) => {
-    return loggedInId && loggedInId.toString() === addedById;
-  };
-
   const handleDeleteMilestone = (milestoneId?: string) => {
     setDeleteModalVisible(false);
 
@@ -146,7 +143,7 @@ export const EditMilestone: React.FC<EditMilestoneProps> = props => {
         <img src={deleteIcon.src} alt='delete milestone' />
       </button>
     ) : (
-      <button className='pointer-events-none' data-cy='delete milestone'>
+      <button className='cursor-not-allowed' data-cy='delete milestone'>
         <img src={disabledDeleteIcon.src} alt='disabled delete milestone' />
       </button>
     );

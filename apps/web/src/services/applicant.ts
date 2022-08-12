@@ -108,6 +108,18 @@ export const updateJobRecord = async (
   }
 };
 
+export const deleteJobRecord = async (
+  user_id?: string | null,
+  status_id?: string,
+): Promise<void> => {
+  if (!user_id) return;
+  try {
+    await axios.delete(`/ien/${user_id}/job/${status_id}`);
+  } catch (e) {
+    notifyError(e as AxiosError);
+  }
+};
+
 // add a new milestone
 export const addMilestone = async (
   id: string,
