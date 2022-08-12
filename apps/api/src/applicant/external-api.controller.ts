@@ -10,6 +10,7 @@ import {
   Logger,
   NotFoundException,
   Query,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -19,9 +20,11 @@ import { ExternalAPIService } from './external-api.service';
 import { SyncApplicantsAudit } from './entity/sync-applicants-audit.entity';
 import { IENUsers } from './entity/ienusers.entity';
 import { IENUserFilterAPIDTO } from './dto/ienuser-filter.dto';
+import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('external-api')
 @ApiTags('External API data process')
+@UseGuards(AuthGuard)
 export class ExternalAPIController {
   constructor(
     @Inject(Logger) private readonly logger: AppLogger,
@@ -47,7 +50,7 @@ export class ExternalAPIController {
       } else {
         // statements to handle any unspecified exceptions
         throw new InternalServerErrorException(
-          'An unknown error occured while Saving Master table data',
+          'An unknown error occurred while Saving Master table data',
         );
       }
     }

@@ -119,7 +119,7 @@ const createSheet = (
     ...formatDataRows(dataRows, headerRow),
   ];
 
-  if (rowSum) {
+  if (rowSum && dataRows.length) {
     rows.push([
       { v: 'TOTAL', t: 's', s: { fill: { fgColor }, font: bold } },
       ...dataRows
@@ -132,7 +132,7 @@ const createSheet = (
 
   const sheet = utils.aoa_to_sheet(rows);
   if (colWidths) sheet['!cols'] = colWidths.map(wch => ({ wch }));
-  if (name !== 'Report 9') {
+  if (name !== 'Report 9' && dataRows.length) {
     applyNumberFormat(sheet, { r: 5, c: 1 }, { r: rows.length - 1, c: dataRows[0].length });
   }
 
@@ -311,7 +311,8 @@ export const createReportWorkbook = async (filter: PeriodFilter): Promise<WorkBo
     });
 
     return workbook;
-  } catch (e) {
+  } catch (e: any) {
+    notifyError(e.message || 'There was an issue while attempting to create a report');
     return null;
   }
 };
