@@ -10,6 +10,7 @@ export const Documentation = (app: INestApplication) => {
     .setTitle('IEN API Documentation')
     .setDescription("API to perform operations on applicants' application")
     .setVersion(`1.0.0`)
+    .addBearerAuth()
     .build();
 
   const baseDocument = SwaggerModule.createDocument(app, options, {
