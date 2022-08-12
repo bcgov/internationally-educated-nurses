@@ -60,9 +60,9 @@ export class ExternalAPIController {
   @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
   @HttpCode(HttpStatus.OK)
   @Get('/save-applicant')
-  async saveApplicant(): Promise<unknown> {
+  async saveApplicant(@Query('from') from: string, @Query('to') to: string): Promise<unknown> {
     try {
-      return await this.externalAPIService.saveApplicant();
+      return await this.externalAPIService.saveApplicant(from, to);
     } catch (e) {
       this.logger.error(e);
       if (e instanceof NotFoundException) {
