@@ -47,7 +47,11 @@ export const DeleteJobModal: React.FC<DeleteJobProps> = (props: DeleteJobProps) 
           <span className='font-bold col-span-2'>Location: </span>
           <span className='col-span-4'>
             {job.job_location && job.job_location.length > 0
-              ? job.job_location?.map(l => <span className='block'>{l.title}</span>)
+              ? job.job_location?.map(l => (
+                  <span key={job.id + l.title} className='block'>
+                    {l.title}
+                  </span>
+                ))
               : 'N/A'}
           </span>
           <span className='font-bold col-span-2'>Recruiter Name: </span>
@@ -58,7 +62,11 @@ export const DeleteJobModal: React.FC<DeleteJobProps> = (props: DeleteJobProps) 
           </span>
           <span className='col-span-4'>
             {job.status_audit && job.status_audit.length > 0
-              ? job.status_audit?.map(s => <span className='block'>{s.status.status}</span>)
+              ? job.status_audit?.map(s => (
+                  <span key={job.id + s.status.status} className='block'>
+                    {s.status.status}
+                  </span>
+                ))
               : 'N/A'}
           </span>
         </div>
