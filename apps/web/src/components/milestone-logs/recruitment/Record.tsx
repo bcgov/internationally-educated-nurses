@@ -125,7 +125,7 @@ export const Record: React.FC<RecordProps> = ({
       </button>
     ) : (
       <button
-        className={`pointer-events-none px-6 ml-4 border-bcDisabled ${buttonBase} text-bcDisabled`}
+        className={`cursor-not-allowed px-6 ml-4 border-bcGrayDisabled2 ${buttonBase} text-bcGrayDisabled2`}
       >
         <img src={disabledDeleteIcon.src} alt='disabled delete competition' className='mr-2' />
         Delete Competition

@@ -143,7 +143,7 @@ export const EditMilestone: React.FC<EditMilestoneProps> = props => {
         <img src={deleteIcon.src} alt='delete milestone' />
       </button>
     ) : (
-      <button className='pointer-events-none' data-cy='delete milestone'>
+      <button className='cursor-not-allowed' data-cy='delete milestone'>
         <img src={disabledDeleteIcon.src} alt='disabled delete milestone' />
       </button>
     );

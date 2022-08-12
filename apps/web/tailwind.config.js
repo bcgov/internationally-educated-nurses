@@ -13,6 +13,7 @@ module.exports = {
         bcDeepBlack: '#272833',
         bcGray: '#606060',
         bcGrayDisabled: '#808080',
+        bcGrayDisabled2: '#8C8C8C',
         bcGrayInput: '#F5F5F5',
         bcGrayLabel: '#574F5A',
         bcLightGray: '#F2F2F2',
