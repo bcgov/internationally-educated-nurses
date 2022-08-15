@@ -38,7 +38,7 @@ export interface ApplicantRO {
 }
 
 export interface ApplicantJobRO {
-  id: string;
+  id: number;
   ha_pcn: IENHaPcnRO;
   job_id?: string;
   job_title?: IENJobTitleRO | null;

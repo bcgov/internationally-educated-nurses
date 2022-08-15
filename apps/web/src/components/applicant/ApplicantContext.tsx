@@ -17,11 +17,9 @@ export const ApplicantContext = createContext<{
   milestones: ApplicantStatusAuditRO[];
   hiredHa: number | undefined;
   updateJob: (job: ApplicantJobRO) => void;
-  deleteJob: (jobId: string) => void;
   fetchApplicant: () => void;
 }>({
   updateJob: () => void 0,
-  deleteJob: () => void 0,
   fetchApplicant: () => void 0,
   applicant: {} as ApplicantRO,
   milestones: [],
@@ -75,14 +73,6 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
     setApplicant({ ...applicant });
   };
 
-  const deleteJob = (jobId: string) => {
-    const index = applicant.jobs?.findIndex(j => jobId === j.id);
-    if (index !== undefined && index >= 0) {
-      applicant.jobs?.splice(index, 1);
-    }
-    setApplicant({ ...applicant });
-  };
-
   const fetchApplicant = async () => {
     if (!id) return;
 
@@ -113,7 +103,6 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
     milestones,
     hiredHa,
     updateJob,
-    deleteJob,
     fetchApplicant,
   };
   return (

@@ -37,7 +37,7 @@ export const Record: React.FC<RecordProps> = ({
   jobIndex,
   wasOfferAccepted,
 }) => {
-  const { applicant, updateJob, deleteJob, fetchApplicant } = useApplicantContext();
+  const { applicant, updateJob, fetchApplicant } = useApplicantContext();
   const [modalVisible, setModalVisible] = useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [editing, setEditing] = useState<ApplicantStatusAuditRO | null>(null); // milestone being edited
@@ -102,12 +102,11 @@ export const Record: React.FC<RecordProps> = ({
     }
   };
 
-  const handleDeleteJob = (jobId?: string) => {
+  const handleDeleteJob = async (jobId?: number): Promise<void> => {
     if (jobId) {
-      deleteJob(jobId);
+      await fetchApplicant();
+      setDeleteModalVisible(false);
     }
-
-    setDeleteModalVisible(false);
   };
 
   const deleteButton = () => {

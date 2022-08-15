@@ -7,6 +7,7 @@ import deleteIcon from '@assets/img/trash_can.svg';
 import disabledDeleteIcon from '@assets/img/disabled-trash_can.svg';
 import { useAuthContext } from '../../AuthContexts';
 import { MilestoneView } from './MilestoneView';
+import { canDelete } from '../../../utils';
 
 interface EditableMilestoneProps {
   milestone: ApplicantStatusAuditRO;
@@ -21,10 +22,6 @@ export const EditableMilestone = (props: EditableMilestoneProps) => {
   const { authUser } = useAuthContext();
 
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-
-  const canDelete = (loggedInId?: string | null, addedById?: string) => {
-    return loggedInId && loggedInId.toString() === addedById;
-  };
 
   return (
     <MilestoneView milestone={milestone}>
@@ -41,7 +38,7 @@ export const EditableMilestone = (props: EditableMilestoneProps) => {
             <img src={deleteIcon.src} alt='delete milestone' />
           </button>
         ) : (
-          <button className='pointer-events-none' data-cy='delete milestone'>
+          <button className='cursor-not-allowed' data-cy='delete milestone'>
             <img src={disabledDeleteIcon.src} alt='disabled delete milestone' />
           </button>
         )}

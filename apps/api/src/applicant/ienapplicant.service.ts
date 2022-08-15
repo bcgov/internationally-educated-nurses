@@ -473,7 +473,7 @@ export class IENApplicantService {
    */
   async deleteApplicantJob(user_id: string | null, job_id: string | number): Promise<void> {
     const job: IENApplicantJob | undefined = await this.ienapplicantJobRepository.findOne(job_id, {
-      relations: ['added_by'],
+      relations: ['added_by', 'applicant'],
     });
 
     if (!job) {
@@ -484,6 +484,7 @@ export class IENApplicantService {
     }
 
     await this.ienapplicantJobRepository.delete(job_id);
+    await this.ienapplicantUtilService.updateLatestStatusOnApplicant([job.applicant.id]);
   }
 
   async getApplicantJob(job_id: string | number): Promise<IENApplicantJob | undefined> {
