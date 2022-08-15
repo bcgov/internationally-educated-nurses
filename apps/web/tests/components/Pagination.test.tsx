@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { Pagination } from '../../src/components/Pagination';
+import { Pagination } from '@components';
 
 describe('Pagination', () => {
   it('renders a pagination bar', async () => {
@@ -10,15 +10,6 @@ describe('Pagination', () => {
     const total = 37;
 
     render(<Pagination pageOptions={{ pageIndex, pageSize, total }} onChange={mock} />);
-
-    const elements = screen.getAllByRole('listbox');
-    expect(elements.length).toBe(2);
-
-    const pageSizeOption = screen.getByRole('option', { name: `${pageSize}` });
-    expect((pageSizeOption as HTMLOptionElement).selected).toBeTruthy();
-
-    const pageIndexOption = screen.getByRole('option', { name: `${pageIndex}` });
-    expect((pageIndexOption as HTMLOptionElement).selected).toBeTruthy();
 
     const start = pageSize * (pageIndex - 1) + 1;
     const end = pageSize * pageIndex < total ? pageSize * pageIndex : total;

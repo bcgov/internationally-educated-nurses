@@ -173,16 +173,16 @@ Cypress.Commands.add('pagination', () => {
   cy.contains('1 - 10');
 
   // change limit to 5
-  cy.get('select').eq(0).select('5');
+  cy.get('#user-page-top-size').click().type(`5{enter}`);
   cy.contains('Showing 5');
   cy.get('tbody > tr').should('have.length', 5);
 
   // move to page 3
-  cy.get('select').eq(1).select('3');
+  cy.get('#user-page-top-index').click().type(`3{enter}`);
   cy.get('tbody > tr').should('have.length.greaterThan', 1);
 
   // move to page 2
-  cy.get('.p-3.border-l').eq(0).click();
+  cy.get('#user-page-top-index').click().type(`2{enter}`);
   cy.contains('6 - 10');
 });
 

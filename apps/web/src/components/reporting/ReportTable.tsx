@@ -88,6 +88,7 @@ export const ReportTable = () => {
       <div className='text-bcBluePrimary text-lg font-bold mb-4'>Standard Period Report</div>
 
       <Pagination
+        id='report-page-top'
         pageOptions={{ pageIndex, pageSize: limit, total }}
         onChange={handlePageOptions}
       />
@@ -142,6 +143,7 @@ export const ReportTable = () => {
         </table>
 
         <Pagination
+          id='report-page-bottom'
           pageOptions={{ pageIndex, pageSize: limit, total }}
           onChange={handlePageOptions}
         />

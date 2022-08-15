@@ -5,18 +5,12 @@ export interface StyleOption {
   style?: CSSProperties;
 }
 
-export interface RoleOption extends StyleOption {
-  value: string;
-  label: string;
+export interface SelectOption<T extends string | number> extends StyleOption {
+  value: T;
+  label?: string;
 }
 
-export interface ChangeRoleOption {
-  value: string;
-  label: string;
-  style?: CSSProperties;
-}
-
-const getRoleOptions = (roles: Role[], excludes: string[]): RoleOption[] => {
+const getRoleOptions = (roles: Role[], excludes: string[]): SelectOption<string>[] => {
   return (
     roles
       .filter(role => excludes.every(exclude => exclude !== role.slug))
@@ -24,10 +18,6 @@ const getRoleOptions = (roles: Role[], excludes: string[]): RoleOption[] => {
   );
 };
 
-export const getRoleSelectOptions = (roles: Role[]): RoleOption[] => {
-  return getRoleOptions(roles, [RoleSlug.Admin]);
-};
-
-export const getRoleFilterOptions = (roles: Role[]): RoleOption[] => {
+export const getRoleFilterOptions = (roles: Role[]): SelectOption<string>[] => {
   return getRoleOptions(roles, [RoleSlug.Admin]);
 };

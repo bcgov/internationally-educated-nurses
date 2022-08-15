@@ -1,6 +1,7 @@
 import { Field, FieldProps } from '@components';
+import { StyleOption } from '@services';
 
-export interface OptionType {
+export interface OptionType extends StyleOption {
   label: string;
   value: string;
   disabled?: boolean;

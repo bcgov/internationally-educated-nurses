@@ -196,6 +196,7 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
         </AclMask>
       </div>
       <Pagination
+        id='milestone-page'
         pageOptions={{ pageIndex, pageSize, total: filteredMilestones.length }}
         onChange={handlePageOptions}
       />

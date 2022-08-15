@@ -1,8 +1,8 @@
 import ReactSelect from 'react-select';
 
-import { getSelectStyleOverride } from '@components';
-import { getRoleFilterOptions, RoleOption, useRoles } from '@services';
+import { getRoleFilterOptions, SelectOption, useRoles } from '@services';
 import { ChangeEvent } from 'react';
+import { getSelectStyleOverride } from '../BasicSelect';
 
 interface UserFilterProps {
   roles: string[];
@@ -23,14 +23,14 @@ export const UserFilter = (props: UserFilterProps) => {
   return (
     <div className='flex flex-col md:flex-row items-center mt-1 mb-5'>
       <div className='font-bold mr-2'>Filter by</div>
-      <ReactSelect<RoleOption, true>
+      <ReactSelect<SelectOption<string>, true>
         inputId='role-filter'
         aria-label='select role'
         placeholder='Role'
         value={roleFilterOptions.filter(option => roles.includes(option.value))}
         onChange={value => updateRoles(value.map(v => v.value))}
         options={[...roleFilterOptions]}
-        styles={getSelectStyleOverride<RoleOption>()}
+        styles={getSelectStyleOverride<SelectOption<string>>()}
         isMulti
         isClearable
         className='w-60 min-w-full md:min-w-0 mx-1 placeholder-bcGray'

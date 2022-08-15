@@ -1,8 +1,7 @@
 import React from 'react';
 import { FieldProps as FormikFieldProps } from 'formik';
-import ReactSelect, { StylesConfig } from 'react-select';
-import { Field, FieldProps, OptionType } from '@components';
-import { StyleOption } from '@services';
+import ReactSelect from 'react-select';
+import { Field, FieldProps, getSelectStyleOverride, OptionType } from '@components';
 
 interface MultiSelectProps extends FieldProps {
   options: OptionType[];
@@ -20,7 +19,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = props => {
       name={name}
       label={label}
       component={({ field, form }: FormikFieldProps) => (
-        <ReactSelect
+        <ReactSelect<OptionType, true>
           inputId={name}
           options={options}
           value={field.value}
@@ -32,51 +31,10 @@ export const MultiSelect: React.FC<MultiSelectProps> = props => {
           }
           onBlur={field.onBlur}
           isDisabled={disabled}
-          styles={getSelectStyleOverride()}
+          styles={getSelectStyleOverride<OptionType>()}
           isMulti
         />
       )}
     />
   );
 };
-
-export function getSelectStyleOverride<T extends StyleOption>(
-  bgColour?: string,
-): StylesConfig<T, boolean> {
-  const getBgColour = bgColour || '#F5F5F5';
-
-  const selectStyleOverride: StylesConfig<T, boolean> = {
-    indicatorSeparator: styles => ({ ...styles }),
-    clearIndicator: styles => ({ ...styles, color: 'black' }),
-    indicatorsContainer: styles => ({ ...styles, color: 'black' }),
-    dropdownIndicator: styles => ({
-      ...styles,
-      color: 'black',
-      transform: 'scale(0.8, 0.85)',
-    }),
-    input: styles => ({ ...styles }),
-    control: (styles, { isDisabled }) => ({
-      ...styles,
-      display: 'flex',
-      padding: '1px',
-      border: '0',
-      borderBottom: isDisabled ? 'none' : '2px solid #313132',
-      background: isDisabled ? 'rgb(215, 215, 215)' : getBgColour,
-      borderRadius: '0',
-    }),
-    option: (styles, { data, isDisabled }) => ({
-      ...styles,
-      padding: '10px 20px',
-      background: isDisabled ? 'rgb(215, 215, 215)' : 'white',
-      color: 'black',
-      '&:hover': {
-        background: '#F2F2F2',
-      },
-      ...data?.style,
-    }),
-    menuList: styles => ({ ...styles, maxHeight: '350px' }),
-    menu: styles => ({ ...styles, padding: '5px 10px' }),
-    placeholder: styles => ({ ...styles, color: '#606060' }),
-  };
-  return selectStyleOverride;
-}

@@ -1,6 +1,7 @@
 import React from 'react';
 import arrowLeftIcon from '@assets/img/arrow_left.svg';
 import arrowRightIcon from '@assets/img/arrow_right.svg';
+import { BasicSelect } from './BasicSelect';
 
 export interface PageOptions {
   pageSize: number;
@@ -9,6 +10,7 @@ export interface PageOptions {
 }
 
 export interface PaginationProps {
+  id: string;
   pageOptions: PageOptions;
   onChange: (options: PageOptions) => void;
 }
@@ -17,12 +19,15 @@ const PAGE_SIZES = [5, 10, 25, 50];
 
 export const Pagination = (props: PaginationProps) => {
   const {
+    id,
     pageOptions: { pageSize, pageIndex, total },
     onChange,
   } = props;
 
   const numOfPages = Math.ceil(total / pageSize);
-  const pageList = Array.from(Array(numOfPages).keys()).map(i => i + 1);
+
+  const pageSizeOptions = PAGE_SIZES.map(size => ({ value: size }));
+  const pageListOptions = Array.from(Array(numOfPages).keys()).map(i => ({ value: i + 1 }));
 
   const startIndex = (pageIndex - 1) * pageSize + 1;
   const start = startIndex > total ? 0 : startIndex;
@@ -41,43 +46,28 @@ export const Pagination = (props: PaginationProps) => {
       <div className='text-sm py-3'>
         <span className='mr-3'>Items per page: </span>
       </div>
-      <div className='px-3 border-r text-sm'>
-        <select
-          className='cursor-pointer p-3 outline-none'
-          role='listbox'
-          aria-label='page size'
+      <div className='px-3 text-sm my-auto'>
+        <BasicSelect<number>
+          id={`${id}-size`}
+          options={pageSizeOptions}
+          onChange={changePageSize}
           value={pageSize}
-          onChange={e => changePageSize(+e.target.value)}
-        >
-          {PAGE_SIZES.map(size => (
-            <option key={size} value={size} role='option'>
-              {size}
-            </option>
-          ))}
-        </select>
+        />
       </div>
-      <div className='text-sm pl-3 p-3 border-r'>
+      <div className='text-sm pl-3 p-3 border-r border-l'>
         <span>
           {start} - {end} of {total} items
         </span>
       </div>
-      <div className='flex flex-row flex-grow justify-end align-middle'>
-        <select
-          className='border-l px-3 text-sm outline-none'
-          role='listbox'
-          aria-label='page'
-          value={pageIndex}
-          onChange={e => goToPage(+e.target.value)}
-          disabled={total <= pageSize}
-        >
-          {pageList.map(index => (
-            <option key={index} value={index} role='option'>
-              {index}{' '}
-            </option>
-          ))}
-          {/* listbox ARIA role must contain children */}
-          <option value='' role='option' hidden></option>
-        </select>
+      <div className='flex flex-row flex-grow justify-end'>
+        <div className='px-3 pt-1 border-l border-r h-100 text-sm'>
+          <BasicSelect<number>
+            id={`${id}-index`}
+            options={pageListOptions}
+            onChange={goToPage}
+            value={pageIndex}
+          />
+        </div>
         <div className='text-sm p-3'>of {numOfPages} pages</div>
         <button
           className='p-3 border-l'
