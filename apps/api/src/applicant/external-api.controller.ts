@@ -13,14 +13,17 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { EmptyResponse } from 'src/common/ro/empty-response.ro';
 import { AppLogger } from 'src/common/logger.service';
 import { ExternalAPIService } from './external-api.service';
 import { SyncApplicantsAudit } from './entity/sync-applicants-audit.entity';
 import { IENUsers } from './entity/ienusers.entity';
 import { IENUserFilterAPIDTO } from './dto/ienuser-filter.dto';
+
 import { AuthGuard } from '../auth/auth.guard';
+import { IENApplicant } from './entity/ienapplicant.entity';
+import { JWTGuard } from 'src/auth/jwt.guard';
 
 @Controller('external-api')
 @ApiTags('External API data process')
@@ -96,8 +99,22 @@ export class ExternalAPIController {
   })
   @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @UseGuards(JWTGuard)
   @Get('/users')
   async getUsers(@Query() filter: IENUserFilterAPIDTO): Promise<[data: IENUsers[], count: number]> {
     return this.externalAPIService.getUsers(filter);
+  }
+
+  @ApiOperation({
+    summary: `Sync Applicants to ATS`,
+  })
+  @UseInterceptors(ClassSerializerInterceptor)
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JWTGuard)
+  @ApiBearerAuth()
+  @Get('/applicants')
+  async getApplicants(): Promise<IENApplicant[]> {
+    return this.externalAPIService.getApplicants();
   }
 }

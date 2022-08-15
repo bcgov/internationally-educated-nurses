@@ -627,4 +627,17 @@ export class ExternalAPIService {
       return this.ienMasterService.ienUsersRepository.findAndCount(query);
     }
   }
+
+  async getApplicants() {
+    return this.ienapplicantRepository.find({
+      relations: [
+        'status',
+        'added_by',
+        'updated_by',
+        'jobs',
+        'applicant_status_audit',
+        'applicant_audit',
+      ],
+    });
+  }
 }
