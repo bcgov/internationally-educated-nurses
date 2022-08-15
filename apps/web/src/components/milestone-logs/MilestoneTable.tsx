@@ -7,12 +7,13 @@ import {
   formatDate,
   IENApplicantUpdateStatusDTO,
 } from '@ien/common';
-import { getHumanizedDuration, StatusCategory, updateMilestone } from '@services';
-import { useApplicantContext } from '../applicant/ApplicantContext';
-import { AddMilestone, EditMilestone } from './recruitment/Milestone';
-import { useAuthContext } from '../AuthContexts';
 import editIcon from '@assets/img/edit.svg';
 import disabledEditIcon from '@assets/img/disabled_edit.svg';
+import { getHumanizedDuration, StatusCategory, updateMilestone } from '@services';
+import { useApplicantContext } from '../applicant/ApplicantContext';
+import { useAuthContext } from '../AuthContexts';
+import { AddMilestone } from './recruitment/AddMilestone';
+import { Milestone } from './recruitment/Milestone';
 
 interface MilestoneTableProps {
   category: StatusCategory;
@@ -39,7 +40,7 @@ const currentlyEditing = 'bg-blue-100';
 
 export const MilestoneTable = ({ category }: MilestoneTableProps) => {
   const { authUser } = useAuthContext();
-  const { applicant, milestones, updateMilestoneContext } = useApplicantContext();
+  const { applicant, milestones, fetchApplicant } = useApplicantContext();
 
   const [filteredMilestones, setFilteredMilestones] = useState<ApplicantStatusAuditRO[]>([]);
   const [milestonesInPage, setMilestonesInPage] = useState<ApplicantStatusAuditRO[]>([]);
@@ -76,9 +77,8 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
     setEditing(null);
 
     const milestone = await updateMilestone(applicant.id, id, values);
-
     if (milestone) {
-      updateMilestoneContext(milestone);
+      fetchApplicant();
     }
   };
 
@@ -170,7 +170,7 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
                 {EDIT_NON_RECRUITMENT_MILESTONES && (
                   <tr>
                     <td colSpan={5}>
-                      <EditMilestone
+                      <Milestone
                         milestone={audit}
                         editing={editing}
                         onEditing={setEditing}

@@ -1,6 +1,7 @@
 import * as dotenv from 'dotenv';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 import { DatabaseNamingStrategy } from './database/database.naming-strategy';
+import DatabaseLogger from './database/database-logger';
 dotenv.config();
 // Check typeORM documentation for more information.
 
@@ -16,11 +17,14 @@ const config: PostgresConnectionOptions = {
     migrationsDir: 'src/migration',
     entitiesDir: 'src/**/entity/*.entity.ts',
   },
+  entities: ['dist/**/entity/*.entity.js'],
   migrations: ['dist/migration/*.js'],
   subscribers: ['dist/**/*.subscribers.js'],
   synchronize: false,
   migrationsRun: true,
   namingStrategy: new DatabaseNamingStrategy(),
-  logging: true,
+  logging: !!process.env.DEBUG,
+  logger: process.env.DEBUG ? new DatabaseLogger() : undefined,
 };
+
 export default config;

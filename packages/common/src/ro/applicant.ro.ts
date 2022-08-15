@@ -32,12 +32,13 @@ export interface ApplicantRO {
   jobs?: ApplicantJobRO[] | null;
   applicant_status_audit?: ApplicantStatusAuditRO[] | null;
   applicant_audit?: ApplicantAuditRO[] | null;
+  job_accepted?: ApplicantJobRO;
   created_date?: Date;
   updated_date?: Date;
 }
 
 export interface ApplicantJobRO {
-  id: string;
+  id: number;
   ha_pcn: IENHaPcnRO;
   job_id?: string;
   job_title?: IENJobTitleRO | null;

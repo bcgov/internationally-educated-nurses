@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 
 import { buttonBase, buttonColor, DetailsItem, Disclosure, AclMask } from '@components';
-import { AddMilestone, EditMilestone } from './Milestone';
+import { Milestone } from './Milestone';
 import {
   Access,
   ApplicantJobRO,
@@ -22,6 +22,7 @@ import { useApplicantContext } from '../../applicant/ApplicantContext';
 import { useAuthContext } from 'src/components/AuthContexts';
 import { DeleteJobModal } from 'src/components/display/DeleteJobModal';
 import { canDelete } from 'src/utils';
+import { AddMilestone } from './AddMilestone';
 
 interface RecordProps {
   job: ApplicantJobRO;
@@ -36,7 +37,7 @@ export const Record: React.FC<RecordProps> = ({
   jobIndex,
   wasOfferAccepted,
 }) => {
-  const { applicant, updateJob, deleteJob } = useApplicantContext();
+  const { applicant, updateJob, fetchApplicant } = useApplicantContext();
   const [modalVisible, setModalVisible] = useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [editing, setEditing] = useState<ApplicantStatusAuditRO | null>(null); // milestone being edited
@@ -97,21 +98,15 @@ export const Record: React.FC<RecordProps> = ({
     setEditing(null);
     const milestone = await updateMilestone(applicant.id, id, values);
     if (milestone) {
-      const index = job.status_audit?.findIndex(m => m.id === id);
-      if (index !== undefined && index >= 0) {
-        const audits = [...(job.status_audit || [])];
-        audits.splice(index, 1, milestone);
-        updateJob({ ...job, status_audit: audits });
-      }
+      fetchApplicant();
     }
   };
 
-  const handleDeleteJob = (jobId?: string) => {
+  const handleDeleteJob = async (jobId?: number): Promise<void> => {
     if (jobId) {
-      deleteJob(jobId);
+      await fetchApplicant();
+      setDeleteModalVisible(false);
     }
-
-    setDeleteModalVisible(false);
   };
 
   const deleteButton = () => {
@@ -206,7 +201,7 @@ export const Record: React.FC<RecordProps> = ({
               />
             </AclMask>
             {milestones.map(mil => (
-              <EditMilestone
+              <Milestone
                 job={job}
                 key={mil.id}
                 milestone={mil}

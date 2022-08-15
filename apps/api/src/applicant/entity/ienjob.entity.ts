@@ -22,9 +22,9 @@ import { IENUsers } from './ienusers.entity';
 @Entity('ien_applicant_jobs')
 export class IENApplicantJob {
   @PrimaryGeneratedColumn()
-  id!: string;
+  id!: number;
 
-  @ManyToOne(() => IENHaPcn)
+  @ManyToOne(() => IENHaPcn, { eager: true })
   ha_pcn!: IENHaPcn;
 
   @Column('varchar', { nullable: true })

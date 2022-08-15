@@ -97,7 +97,7 @@ export class ReportController {
   @ApiOperation({
     summary: 'Report 9: Average Amount of Time with Each Stakeholder Group',
   })
-  @Get('/applicant/average-time-with-stackholder-group')
+  @Get('/applicant/average-time-with-stakeholder-group')
   @AllowAccess(Access.REPORTING)
   async getAverageTimeWithEachStakeholderGroup(@Query('to') to: string): Promise<object[]> {
     return this.reportService.getAverageTimeWithEachStakeholderGroup(to);

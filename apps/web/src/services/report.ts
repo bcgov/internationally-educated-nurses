@@ -230,7 +230,7 @@ const reportCreators: ReportCreator[] = [
   {
     name: 'Report 9',
     description: 'Average Amount of Time with Each Stakeholder Group',
-    apiPath: '/reports/applicant/average-time-with-stackholder-group',
+    apiPath: '/reports/applicant/average-time-with-stakeholder-group',
     header: ['', '', 'Mean', 'Median', 'Mode'],
     rowProcessor: (data: Record<string, string | number>[]) => {
       const rows = data.map(Object.values);

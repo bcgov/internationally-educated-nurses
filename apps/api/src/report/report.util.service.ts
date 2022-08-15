@@ -621,7 +621,7 @@ export class ReportUtilService {
     return `
       -- ONLY HIRED Applicants are selected in "Average Amount of Time" calculation with Each Stakeholder Group
       -- If we receive 2 hired state for different HA, Then we will pick only latest one
-      -- One assumption that withdrwal/hold period does not overlap each other for same applicant.
+      -- One assumption that withdrawal/hold period does not overlap each other for same applicant.
         -- For developer reference
         -- ROUND(avg(average_time_to_hire), 2)::double precision as mean_value; --mean
         -- SELECT PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY some_value) FROM tbl; -- median
