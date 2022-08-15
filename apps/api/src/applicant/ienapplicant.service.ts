@@ -370,12 +370,14 @@ export class IENApplicantService {
       oldStatus.id === STATUS.Candidate_accepted_the_job_offer &&
       job_accepted?.id === status_audit.job?.id
     ) {
+      // cancelled job acceptance
       applicantUpdate.job_accepted = undefined;
     } else if (
       status_audit.status.id === STATUS.Candidate_accepted_the_job_offer &&
       status_audit.job &&
       job_accepted?.id !== status_audit.job?.id
     ) {
+      // accepted a new job offer
       applicantUpdate.job_accepted = status_audit.job;
     }
     await this.ienapplicantRepository.update(status_audit.applicant.id, applicantUpdate);
