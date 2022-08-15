@@ -629,7 +629,7 @@ export class ExternalAPIService {
   }
 
   async getApplicants() {
-    return await this.ienapplicantRepository.find({
+    return this.ienapplicantRepository.find({
       relations: [
         'status',
         'added_by',

@@ -99,6 +99,7 @@ export class ExternalAPIController {
   })
   @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
   @UseGuards(JWTGuard)
   @Get('/users')
   async getUsers(@Query() filter: IENUserFilterAPIDTO): Promise<[data: IENUsers[], count: number]> {
