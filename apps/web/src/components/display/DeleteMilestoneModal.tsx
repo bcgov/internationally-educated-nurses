@@ -3,6 +3,7 @@ import React from 'react';
 import { Button } from '@components';
 import { Modal } from '../Modal';
 import { deleteApplicantStatus } from '@services';
+import { useApplicantContext } from '../applicant/ApplicantContext';
 
 interface DeleteMilestoneProps {
   onClose: (milestoneId?: string) => void;
@@ -15,9 +16,11 @@ export const DeleteMilestoneModal: React.FC<DeleteMilestoneProps> = (
   props: DeleteMilestoneProps,
 ) => {
   const { visible, onClose, userId, milestoneId } = props;
+  const { fetchApplicant } = useApplicantContext();
 
   const handleSubmit = async () => {
     await deleteApplicantStatus(userId, milestoneId);
+    await fetchApplicant();
     onClose(milestoneId);
   };
 

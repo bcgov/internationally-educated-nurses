@@ -17,11 +17,9 @@ export const ApplicantContext = createContext<{
   milestones: ApplicantStatusAuditRO[];
   hiredHa: number | undefined;
   updateJob: (job: ApplicantJobRO) => void;
-  deleteMilestone: (milestoneId: string, jobId: string) => void;
   fetchApplicant: () => void;
 }>({
   updateJob: () => void 0,
-  deleteMilestone: () => void 0,
   fetchApplicant: () => void 0,
   applicant: {} as ApplicantRO,
   milestones: [],
@@ -75,19 +73,6 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
     setApplicant({ ...applicant });
   };
 
-  const deleteMilestone = (milestoneId: string, jobId: string) => {
-    const job = applicant.jobs?.find(j => jobId === j.id);
-    if (job && job.status_audit) {
-      const toDelete = job.status_audit?.findIndex(m => m.id === milestoneId);
-
-      if (toDelete !== undefined && toDelete >= 0) {
-        job.status_audit?.splice(toDelete, 1);
-      }
-      checkForAcceptedOffer(applicant.jobs);
-      setApplicant({ ...applicant });
-    }
-  };
-
   const fetchApplicant = async () => {
     if (!id) return;
 
@@ -118,7 +103,6 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
     milestones,
     hiredHa,
     updateJob,
-    deleteMilestone,
     fetchApplicant,
   };
   return (

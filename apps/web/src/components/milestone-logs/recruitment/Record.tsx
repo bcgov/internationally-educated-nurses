@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 
 import { buttonBase, buttonColor, DetailsItem, Disclosure, AclMask } from '@components';
-import { AddMilestone, EditMilestone } from './Milestone';
+import { Milestone } from './Milestone';
 import {
   Access,
   ApplicantJobRO,
@@ -17,6 +17,7 @@ import dotIconHired from '@assets/img/dot_green.svg';
 import { AddRecordModal } from '../../display/AddRecordModal';
 import { updateMilestone, getHumanizedDuration, StatusCategory } from '@services';
 import { useApplicantContext } from '../../applicant/ApplicantContext';
+import { AddMilestone } from './AddMilestone';
 
 interface RecordProps {
   job: ApplicantJobRO;
@@ -159,7 +160,7 @@ export const Record: React.FC<RecordProps> = ({
               </button>
             </AclMask>
             {milestones.map(mil => (
-              <EditMilestone
+              <Milestone
                 job={job}
                 key={mil.id}
                 milestone={mil}
