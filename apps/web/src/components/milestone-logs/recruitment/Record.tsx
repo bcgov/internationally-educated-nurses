@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 
 import { buttonBase, buttonColor, DetailsItem, Disclosure, AclMask } from '@components';
-import { AddMilestone, EditMilestone } from './Milestone';
+import { Milestone } from './Milestone';
 import {
   Access,
   ApplicantJobRO,
@@ -22,6 +22,7 @@ import { useApplicantContext } from '../../applicant/ApplicantContext';
 import { useAuthContext } from 'src/components/AuthContexts';
 import { DeleteJobModal } from 'src/components/display/DeleteJobModal';
 import { canDelete } from 'src/utils';
+import { AddMilestone } from './AddMilestone';
 
 interface RecordProps {
   job: ApplicantJobRO;
@@ -201,7 +202,7 @@ export const Record: React.FC<RecordProps> = ({
               />
             </AclMask>
             {milestones.map(mil => (
-              <EditMilestone
+              <Milestone
                 job={job}
                 key={mil.id}
                 milestone={mil}
