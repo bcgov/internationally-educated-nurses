@@ -36,7 +36,7 @@ interface AddRecordProps {
 export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) => {
   const { job, milestones, visible, onClose, setExpandRecord } = props;
 
-  const { applicant, hiredHa } = useApplicantContext();
+  const { applicant, hiredHa, fetchApplicant } = useApplicantContext();
   const { authUser } = useAuthContext();
 
   const router = useRouter();
@@ -69,6 +69,10 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
     const data = job
       ? await updateJobRecord(applicantId, job.id, values)
       : await addJobRecord(applicantId, values);
+
+    if (data) {
+      fetchApplicant();
+    }
 
     if (setExpandRecord) {
       setExpandRecord(true);
