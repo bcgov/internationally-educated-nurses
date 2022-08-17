@@ -28,7 +28,7 @@ export enum STATUS {
   'Offered_position',
   'Candidate_withdrew',
   'Candidate_was_unresponsive',
-  'Candidate_was_not_selected_',
+  'Candidate_was_not_selected',
   'Candidate_accepted_the_job_offer',
   'HMBC_First_Steps_Document_Sent' = 401,
   'HA_Documents_sent_to_HMBC',
@@ -50,6 +50,6 @@ export enum STATUS {
 export const COMPLETED_STATUSES = [
   STATUS.Candidate_withdrew,
   STATUS.Candidate_was_unresponsive,
-  STATUS.Candidate_was_not_selected_,
+  STATUS.Candidate_was_not_selected,
   STATUS.Candidate_accepted_the_job_offer,
 ];
