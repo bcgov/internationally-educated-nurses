@@ -19,6 +19,7 @@ import {
 } from '@ien/common';
 import { Button, buttonBase, Field, getSelectStyleOverride, Textarea } from '@components';
 import addIcon from '@assets/img/add.svg';
+import { DatePickerField } from '../../form/DatePickerField';
 
 type ReasonOption = StyleOption & IENStatusReasonRO;
 
@@ -106,13 +107,12 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
                   </div>
 
                   <div className='pt-4'>
-                    <Field
+                    <DatePickerField
                       name='start_date'
                       label='Date'
-                      type='date'
+                      format='yyyy-MM-dd'
                       bgColour='bg-white'
-                      min={job ? job.job_post_date : 1900}
-                      max={dayjs().format('YYYY-MM-DD')}
+                      max={new Date()}
                       validate={(val: string) => validateStartDate(val)}
                     />
                   </div>
@@ -164,12 +164,11 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
                 {/* Candidate accepted job offer conditional */}
                 {values.status === `${STATUS.Candidate_accepted_the_job_offer}` ? (
                   <span className='col-span-12 sm:col-span-6 lg:col-span-3 pr-1 md:pr-2'>
-                    <Field
+                    <DatePickerField
                       name='effective_date'
                       label='Target Start Date'
-                      type='date'
+                      format='yyyy-MM-dd'
                       bgColour='bg-white'
-                      max='9999-12-31'
                     />
                   </span>
                 ) : null}

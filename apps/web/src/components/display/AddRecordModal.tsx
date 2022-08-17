@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { Formik, Form as FormikForm, FieldProps } from 'formik';
 import createValidator from 'class-validator-formik';
 import ReactSelect from 'react-select';
+import { toast } from 'react-toastify';
 import dayjs from 'dayjs';
 
 import { Button, getSelectStyleOverride } from '@components';
@@ -17,13 +18,13 @@ import {
   RecordTypeOptions,
   updateJobRecord,
 } from '@services';
+import hiredIndIcon from '@assets/img/hired_indicator.svg';
+import { ApplicantStatusAuditRO } from '@ien/common/src/ro/applicant.ro';
 import { Field } from '../form';
 import { Modal } from '../Modal';
-import { ApplicantStatusAuditRO } from '@ien/common/src/ro/applicant.ro';
 import { useApplicantContext } from '../applicant/ApplicantContext';
-import { toast } from 'react-toastify';
 import { useAuthContext } from '../AuthContexts';
-import hiredIndIcon from '@assets/img/hired_indicator.svg';
+import { DatePickerField } from '../form/DatePickerField';
 
 interface AddRecordProps {
   job?: ApplicantJobRO;
@@ -215,11 +216,11 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
                   <Field name='recruiter_name' label='HA Recruiter Name' type='text' />
                 </div>
                 <div className='mb-3 col-span-2'>
-                  <Field
+                  <DatePickerField
                     name='job_post_date'
                     label='Date Job Was First Posted'
-                    type='date'
-                    max={dayjs().format('YYYY-MM-DD')}
+                    format='yyyy-MM-dd'
+                    max={new Date()}
                     validate={(val: string) => validatePostDate(val)}
                   />
                 </div>

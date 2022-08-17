@@ -3,9 +3,11 @@ import { Formik, Form as FormikForm, FormikHelpers } from 'formik';
 import { writeFileXLSX } from 'xlsx-js-style';
 import createValidator from 'class-validator-formik';
 
-import { Button, Field } from '@components';
+import { Button } from '@components';
 import { PeriodFilter, ReportPeriodDTO } from '@ien/common';
 import { createApplicantDataExtractWorkbook } from '@services';
+import { DatePickerField } from '../form/DatePickerField';
+import React from 'react';
 
 const REPORT_PREFIX = 'ien-applicant-data-extract';
 const MIN_DATE = 'January 1, 2001';
@@ -64,22 +66,22 @@ export const DataExtractReport = () => {
           <FormikForm>
             <div className='flex flex-row pb-6'>
               <span className='pr-3 w-full'>
-                <Field
+                <DatePickerField
                   name='from'
                   label='Start Date'
-                  type='date'
-                  min={dayjs(MIN_DATE).format('YYYY-MM-DD')}
-                  max={values.to || getMaxDate()}
+                  format='yyyy-MM-dd'
+                  min={dayjs(MIN_DATE).toDate()}
+                  max={dayjs(values.to || getMaxDate()).toDate()}
                   validate={(val: string) => validateDate(val, values.to)}
                 />
               </span>
               <span className='pr-3 w-full'>
-                <Field
+                <DatePickerField
                   name='to'
                   label='End Date'
-                  type='date'
-                  min={dayjs(values.from || MIN_DATE).format('YYYY-MM-DD')}
-                  max={getMaxDate()}
+                  format='yyyy-MM-dd'
+                  min={dayjs(values.from || MIN_DATE).toDate()}
+                  max={dayjs(values.to || getMaxDate()).toDate()}
                   validate={(val: string) => validateDate(val)}
                 />
               </span>

@@ -80,7 +80,7 @@ export class IENApplicantUtilService {
   /**
    * Build a query using given filters
    * @param filter
-   * @returns retrun promise of find()
+   * @returns promise of find()
    */
   async applicantFilterQueryBuilder(
     filter: IENApplicantFilterAPIDTO,

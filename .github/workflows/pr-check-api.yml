@@ -19,6 +19,9 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('./yarn.lock') }}
           restore-keys: ${{ runner.os }}-yarn-${{ hashFiles('./yarn.lock') }}
 
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
       - name: Install dependencies
         run: yarn workspace @ien/api install
 
@@ -36,6 +39,3 @@ jobs:
 
       - name: Integration test API Package
         run: make api-integration-test
-
-      - name: Build API Package
-        run: yarn workspace @ien/api build
