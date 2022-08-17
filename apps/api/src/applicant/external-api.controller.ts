@@ -27,7 +27,6 @@ import { JWTGuard } from 'src/auth/jwt.guard';
 
 @Controller('external-api')
 @ApiTags('External API data process')
-@UseGuards(AuthGuard)
 export class ExternalAPIController {
   constructor(
     @Inject(Logger) private readonly logger: AppLogger,
@@ -40,6 +39,7 @@ export class ExternalAPIController {
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
   @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
   @Get('/save')
   async saveData(): Promise<unknown> {
     try {
@@ -65,6 +65,7 @@ export class ExternalAPIController {
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
   @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
   @Get('/save-applicant')
   async saveApplicant(@Query('from') from: string, @Query('to') to: string): Promise<unknown> {
     try {
@@ -89,6 +90,7 @@ export class ExternalAPIController {
   })
   @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
   @Get('/sync-applicants-audit')
   async getLatestSuccessfulSync(): Promise<SyncApplicantsAudit[]> {
     return this.externalAPIService.getLatestSuccessfulSync();

@@ -41,6 +41,7 @@ resource "aws_lambda_function" "SyncApplicants" {
       POSTGRES_DATABASE = aws_rds_cluster.pgsql.database_name
       HMBC_ATS_BASE_URL = data.aws_ssm_parameter.hmbc_ats_base_url.value
       HMBC_ATS_AUTH_KEY = data.aws_ssm_parameter.hmbc_ats_auth_key.value
+      JWT_SECRET        = data.aws_ssm_parameter.sync_jwt_secret.value
     }
   }
 }
