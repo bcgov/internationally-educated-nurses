@@ -102,16 +102,6 @@ export const Record: React.FC<RecordProps> = ({
     }
   };
 
-<<<<<<< HEAD
-  const handleDeleteJob = async (jobId?: number): Promise<void> => {
-    if (jobId) {
-      fetchApplicant();
-      setDeleteModalVisible(false);
-    }
-  };
-
-=======
->>>>>>> 254ebce (fix cancel button not working in delete job modal)
   const deleteButton = () => {
     return canDelete(authUser?.user_id, added_by?.id) ? (
       <button
