@@ -15,12 +15,13 @@ interface DeleteJobProps {
 
 export const DeleteJobModal: React.FC<DeleteJobProps> = (props: DeleteJobProps) => {
   const { visible, onClose, userId, job } = props;
-  const { applicant } = useApplicantContext();
+  const { applicant, fetchApplicant } = useApplicantContext();
 
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const handleSubmit = async () => {
     await deleteJobRecord(userId, job.id);
+    fetchApplicant();
     setConfirmDelete(false);
     onClose(job.id);
   };
