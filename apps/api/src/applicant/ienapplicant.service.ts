@@ -397,7 +397,7 @@ export class IENApplicantService {
   async deleteApplicantStatus(user_id: string | null, status_id: string): Promise<void> {
     const status: IENApplicantStatusAudit | undefined =
       await this.ienapplicantStatusAuditRepository.findOne(status_id, {
-        relations: ['applicant', 'added_by'],
+        relations: ['applicant', 'added_by', 'status'],
       });
 
     if (!status) {
@@ -406,8 +406,16 @@ export class IENApplicantService {
     if (user_id != status.added_by?.id) {
       throw new BadRequestException(`Requested milestone/status was added by different user`);
     }
+
     await this.ienapplicantStatusAuditRepository.delete(status_id);
+
     await this.ienapplicantUtilService.updateLatestStatusOnApplicant([status.applicant.id]);
+
+    const applicantUpdate: Partial<IENApplicant> = { updated_date: new Date() };
+    if (status.status.id === STATUS.Candidate_accepted_the_job_offer) {
+      applicantUpdate.job_accepted = undefined;
+    }
+    await this.ienapplicantRepository.update(status.applicant.id, applicantUpdate);
   }
 
   /**
