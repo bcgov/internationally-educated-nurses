@@ -4,6 +4,10 @@ data "aws_ssm_parameter" "hmbc_ats_base_url" {
   name = "/${var.project_code}/${var.target_env}/hmbc/ats/base-url"
 }
 
+data "aws_ssm_parameter" "sync_jwt_secret" {
+  name = "/${var.project_code}/${var.target_env}/hmbc/ats/jwt_secret"
+}
+
 data "aws_ssm_parameter" "hmbc_ats_auth_key" {
   name = "/${var.project_code}/${var.target_env}/hmbc/ats/auth-key"
 }

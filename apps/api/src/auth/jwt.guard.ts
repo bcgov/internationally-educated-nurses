@@ -4,21 +4,28 @@ import {
   ExecutionContext,
   HttpException,
   HttpStatus,
+  Logger,
+  Inject,
 } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
-import { Reflector } from '@nestjs/core';
+import { AppLogger } from 'src/common/logger.service';
 
 @Injectable()
 export class JWTGuard implements CanActivate {
-  constructor(private readonly reflector: Reflector) {}
+  constructor(
+    @Inject(Logger) private readonly logger: AppLogger,
+    ) {}
   async canActivate(ctx: ExecutionContext): Promise<boolean> {
     const req = ctx.switchToHttp().getRequest();
     if (!req.headers.authorization) {
       return false;
     }
     req.token = await this.validateToken(req.headers.authorization);
-
-    return true;
+    if(req.token){
+      return true;
+    }else{
+      return false;
+    }
   }
 
   async validateToken(auth: string) {
@@ -38,19 +45,12 @@ export class JWTGuard implements CanActivate {
     try {
       const decoded = jwt.verify(
         token,
-        process.env.JWT_TOKEN ? process.env.JWT_TOKEN : 'jwtsecret',
+        process.env.JWT_SECRET ? process.env.JWT_SECRET : 'jwtsecret',
       );
       return decoded;
     } catch (err) {
-      const message = 'Token error: ' + err;
-      throw new HttpException(
-        {
-          dev_message: message,
-          client_message: 'You seem to have been logged out. Please log out and log back in again.',
-          logout: true,
-        },
-        HttpStatus.FORBIDDEN,
-      );
+      this.logger.log(`Error in jwt guard:` + err);
+      return false
     }
   }
 }
