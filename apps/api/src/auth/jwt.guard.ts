@@ -12,18 +12,16 @@ import { AppLogger } from 'src/common/logger.service';
 
 @Injectable()
 export class JWTGuard implements CanActivate {
-  constructor(
-    @Inject(Logger) private readonly logger: AppLogger,
-    ) {}
+  constructor(@Inject(Logger) private readonly logger: AppLogger) {}
   async canActivate(ctx: ExecutionContext): Promise<boolean> {
     const req = ctx.switchToHttp().getRequest();
     if (!req.headers.authorization) {
       return false;
     }
     req.token = await this.validateToken(req.headers.authorization);
-    if(req.token){
+    if (req.token) {
       return true;
-    }else{
+    } else {
       return false;
     }
   }
@@ -50,7 +48,7 @@ export class JWTGuard implements CanActivate {
       return decoded;
     } catch (err) {
       this.logger.log(`Error in jwt guard:` + err);
-      return false
+      return false;
     }
   }
 }
