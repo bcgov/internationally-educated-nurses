@@ -104,7 +104,7 @@ export const Record: React.FC<RecordProps> = ({
 
   const handleDeleteJob = async (jobId?: number): Promise<void> => {
     if (jobId) {
-      await fetchApplicant();
+      fetchApplicant();
       setDeleteModalVisible(false);
     }
   };
