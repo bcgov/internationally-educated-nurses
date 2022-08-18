@@ -4,19 +4,21 @@
 describe('User Management - Details', () => {
   beforeEach(() => {});
 
+  const testUserId = 'ien_moh';
+
   const visitUserDetails = () => {
     cy.login();
     cy.visitUserManagement();
-    cy.contains('tr', 'ien_hmbc').find('a').eq(0).click();
+    cy.contains('tr', testUserId).find('a').eq(0).click();
   };
 
   it('changes an employees role', () => {
     visitUserDetails();
-    cy.get('[data-cy=reporting]').find('[aria-checked=false]');
-    cy.get('[data-cy=reporting]').find('button').click();
-    cy.get('[data-cy=reporting]').find('[aria-checked=true]');
-    cy.get('[data-cy=reporting]').find('button').click();
-    cy.get('[data-cy=reporting]').find('[aria-checked=false]');
+    cy.get('[data-cy=data-extract]').find('[aria-checked=false]');
+    cy.get('[data-cy=data-extract]').find('button').click();
+    cy.get('[data-cy=data-extract]').find('[aria-checked=true]');
+    cy.get('[data-cy=data-extract]').find('button').click();
+    cy.get('[data-cy=data-extract]').find('[aria-checked=false]');
   });
 
   it('revokes user access', () => {
@@ -26,7 +28,7 @@ describe('User Management - Details', () => {
   });
 
   it('denies access of revoked user', () => {
-    cy.login('ien_hmbc');
+    cy.login(testUserId);
     cy.visit('/');
     cy.contains('You are not authorized to use');
   });

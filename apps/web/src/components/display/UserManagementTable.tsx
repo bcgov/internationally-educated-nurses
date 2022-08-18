@@ -86,7 +86,9 @@ export const UserManagementTable = (props: UserManagementProps) => {
                 <td className='px-6'>
                   {employee.created_date && formatDate(employee.created_date)}
                 </td>
-                <td className='px-6'>{employee.roles?.map(({ name }) => name).join(',')}</td>
+                <td className='px-6 max-w-xs truncate'>
+                  {employee.roles?.map(({ name }) => name).join(',')}
+                </td>
                 <td className={`px-6 text-center ${getStatusClass(employee)}`}>
                   {getStatus(employee)}
                 </td>

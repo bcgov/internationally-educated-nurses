@@ -1,11 +1,12 @@
 import { EmployeeFilterAPIDTO } from './dto/employee-filter.dto';
 import { BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Not, IsNull, Repository, getManager } from 'typeorm';
-import { Authorities, Employee, EmployeeRO, RoleSlug } from '@ien/common';
+import { Not, IsNull, Repository, getManager, In } from 'typeorm';
+import { Authorities, Authority, Employee, EmployeeRO, RoleSlug } from '@ien/common';
 import { EmployeeEntity } from './entity/employee.entity';
 import { IENUsers } from 'src/applicant/entity/ienusers.entity';
 import { RoleEntity } from './entity/role.entity';
+import { DefaultRoles } from '@ien/common/dist/enum/default-roles';
 
 export class EmployeeService {
   constructor(
@@ -18,34 +19,32 @@ export class EmployeeService {
   ) {}
 
   async resolveUser(keycloakId: string, userData: Partial<EmployeeEntity>): Promise<EmployeeRO> {
-    const existingEmployee = await this.getUserByKeycloakId(keycloakId);
-    if (existingEmployee) {
-      if (!existingEmployee.organization) {
-        const org = this._getOrganization(existingEmployee.email);
+    let employee: Employee | undefined = await this.getUserByKeycloakId(keycloakId);
 
-        if (org) {
-          await this.employeeRepository.update(existingEmployee.id, { organization: org });
-        }
-      }
-      if (existingEmployee.email && !existingEmployee.user_id) {
-        // It will add missing entry in user's table
-        const tempUser = await this.getUser(existingEmployee as EmployeeEntity);
-        if (tempUser) {
-          existingEmployee.user_id = tempUser.id;
-        }
-      }
-      return existingEmployee;
+    let needToSave = false;
+    if (!employee) {
+      employee = this.employeeRepository.create(userData);
+      needToSave = true;
     }
 
-    userData.organization = this._getOrganization(userData.email);
-    const employee = this.employeeRepository.create(userData);
-    await this.employeeRepository.save(employee);
+    if (!employee.organization) {
+      const authority = this._getOrganization(userData.email);
+      if (authority) {
+        employee.organization = authority.name;
+        if (Object.keys(DefaultRoles).includes(authority.id)) {
+          employee.roles = await this.getDefaultRoles(authority.id);
+        }
+        needToSave = true;
+      }
+    }
+    needToSave && (await this.employeeRepository.save(employee));
+
     const user = await this.getUser(userData); // It will add new user record if not exist.
 
     return { ...employee, user_id: user ? user.id : null };
   }
 
-  _getOrganization(email?: string): string | undefined {
+  _getOrganization(email?: string): Authority | undefined {
     if (!email) {
       return undefined;
     }
@@ -53,8 +52,7 @@ export class EmployeeService {
     const domain = email.substring(email.lastIndexOf('@') + 1);
 
     //return organization or undefined
-    const authority = Object.values(Authorities).find(a => a.domains.includes(domain));
-    return authority?.name;
+    return Object.values(Authorities).find(a => a.domains.includes(domain));
   }
 
   async getUserByKeycloakId(keycloakId: string): Promise<EmployeeRO | undefined> {
@@ -129,7 +127,10 @@ export class EmployeeService {
       qb.andWhere({ revoked_access_date: Not(IsNull()) });
     }
 
-    if (!user.roles.some(({ slug }) => slug === RoleSlug.Admin)) {
+    if (
+      !user.roles.some(({ slug }) => slug === RoleSlug.Admin) &&
+      user.organization !== Authorities.HMBC.name
+    ) {
       qb.andWhere({ organization: user.organization });
     }
 
@@ -238,5 +239,9 @@ export class EmployeeService {
       .getRawOne();
 
     return { ...employeeUser, ...employee };
+  }
+
+  async getDefaultRoles(userType: keyof typeof DefaultRoles): Promise<RoleEntity[]> {
+    return this.roleRepository.find({ slug: In(DefaultRoles[userType]) });
   }
 }
