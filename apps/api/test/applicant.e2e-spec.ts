@@ -22,8 +22,6 @@ import { canActivate } from './override-guard';
 let jobTempId = 10;
 let applicantStatusId = 'NA';
 
-jest.setTimeout(10000);
-
 describe('ApplicantController (e2e)', () => {
   let app: INestApplication;
   let ienHaPcnRepository: Repository<IENHaPcn>;

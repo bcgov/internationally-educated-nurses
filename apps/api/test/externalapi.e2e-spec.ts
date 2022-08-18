@@ -7,8 +7,6 @@ import { INestApplication } from '@nestjs/common';
 import { AppModule } from '../src/app.module';
 import { canActivate } from './override-guard';
 
-jest.setTimeout(10000);
-
 describe('ExternalAPIController (e2e)', () => {
   let app: INestApplication;
 
