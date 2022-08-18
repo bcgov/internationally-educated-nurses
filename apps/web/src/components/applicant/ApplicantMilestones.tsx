@@ -1,13 +1,17 @@
+import { useEffect, useState } from 'react';
+
 import historyIcon from '@assets/img/history.svg';
 import { StatusCategoryTab } from '../display/StatusCategoryTab';
 import { milestoneTabs, StatusCategory } from '@services';
 import { useApplicantContext } from './ApplicantContext';
 import { MilestoneTable } from '../milestone-logs/MilestoneTable';
 import { Recruitment } from '../milestone-logs/Recruitment';
-import { useEffect, useState } from 'react';
+import { useAuthContext } from '../AuthContexts';
 
 export const ApplicantMilestones = () => {
   const { applicant } = useApplicantContext();
+
+  const { authUser } = useAuthContext();
 
   const [statusCategory, setStatusCategory] = useState(0);
 
@@ -26,15 +30,21 @@ export const ApplicantMilestones = () => {
         <img src={historyIcon.src} alt='history icon' />
         <h2 className='ml-2 font-bold text-bcBluePrimary text-xl'>Milestones Logs</h2>
       </div>
-      <StatusCategoryTab
-        tabs={milestoneTabs}
-        categoryIndex={statusCategory}
-        onTabClick={setStatusCategory}
-      />
-      {statusCategory === StatusCategory.RECRUITMENT ? (
-        <Recruitment />
+      {!authUser?.ha_pcn_id ? (
+        <>
+          <StatusCategoryTab
+            tabs={milestoneTabs}
+            categoryIndex={statusCategory}
+            onTabClick={setStatusCategory}
+          />
+          {statusCategory === StatusCategory.RECRUITMENT ? (
+            <Recruitment />
+          ) : (
+            <MilestoneTable category={statusCategory} />
+          )}
+        </>
       ) : (
-        <MilestoneTable category={statusCategory} />
+        <Recruitment />
       )}
     </div>
   );
