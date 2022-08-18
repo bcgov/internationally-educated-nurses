@@ -21,21 +21,23 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { IENApplicantService } from './ienapplicant.service';
+import { QueryFailedError } from 'typeorm';
+import { Access, ApplicantJobRO, ApplicantRO, ApplicantStatusAuditRO } from '@ien/common';
 import { EmptyResponse } from 'src/common/ro/empty-response.ro';
 import { AppLogger } from 'src/common/logger.service';
-import { IENApplicantCreateUpdateAPIDTO } from './dto/ienapplicant-create.dto';
-import { IENApplicantFilterByIdAPIDTO } from './dto/ienapplicant-by-id.dto';
-import { IENApplicantAddStatusAPIDTO } from './dto/ienapplicant-add-status.dto';
 import { IENApplicantFilterAPIDTO } from './dto/ienapplicant-filter.dto';
-import { QueryFailedError } from 'typeorm';
-import { IENApplicantUpdateStatusAPIDTO } from './dto/ienapplicant-update-status.dto';
-import { IENApplicantJobCreateUpdateAPIDTO } from './dto/ienapplicant-job-create.dto';
-import { Access, ApplicantJobRO, ApplicantRO, ApplicantStatusAuditRO } from '@ien/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { AllowAccess } from 'src/common/decorators';
-import { IENApplicantJobQueryDTO } from './dto/ienapplicant-job-filter.dto';
 import { RequestObj } from 'src/common/interface/RequestObj';
+import { IENApplicantService } from './ienapplicant.service';
+import {
+  IENApplicantAddStatusAPIDTO,
+  IENApplicantCreateUpdateAPIDTO,
+  IENApplicantFilterByIdAPIDTO,
+  IENApplicantJobCreateUpdateAPIDTO,
+  IENApplicantJobQueryDTO,
+  IENApplicantUpdateStatusAPIDTO,
+} from './dto';
 
 @Controller('ien')
 @ApiTags('IEN Applicant')

@@ -13,14 +13,14 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { EmptyResponse } from 'src/common/ro/empty-response.ro';
 import { AppLogger } from 'src/common/logger.service';
 import { ExternalAPIService } from './external-api.service';
 import { SyncApplicantsAudit } from './entity/sync-applicants-audit.entity';
 import { IENUsers } from './entity/ienusers.entity';
-import { IENUserFilterAPIDTO } from './dto/ienuser-filter.dto';
 
+import { IENUserFilterAPIDTO, SyncApplicantsResultDTO } from './dto';
 import { AuthGuard } from '../auth/auth.guard';
 import { IENApplicant } from './entity/ienapplicant.entity';
 import { JWTGuard } from 'src/auth/jwt.guard';
@@ -63,11 +63,28 @@ export class ExternalAPIController {
     summary: `Fetch and Save applicant data`,
   })
   @UseInterceptors(ClassSerializerInterceptor)
-  @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
+  @ApiResponse({ status: HttpStatus.OK, type: SyncApplicantsResultDTO })
+  @ApiParam({
+    name: 'from',
+    type: Date,
+    description: 'Start date: default is the last sync date or yesterday',
+    required: false,
+    example: '2022-01-01',
+  })
+  @ApiParam({
+    name: 'to',
+    type: Date,
+    description: 'End date: default is today',
+    required: false,
+    example: '2022-02-01',
+  })
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard)
   @Get('/save-applicant')
-  async saveApplicant(@Query('from') from: string, @Query('to') to: string): Promise<unknown> {
+  async saveApplicant(
+    @Query('from') from: string,
+    @Query('to') to: string,
+  ): Promise<SyncApplicantsResultDTO | undefined> {
     try {
       return await this.externalAPIService.saveApplicant(from, to);
     } catch (e) {
