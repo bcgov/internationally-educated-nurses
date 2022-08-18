@@ -4,6 +4,7 @@ import { useAuthContext } from '../AuthContexts';
 
 type AclMaskProps = PropsWithChildren<ReactNode> & {
   acl: Access[];
+  fallback?: ReactNode | (() => ReactNode);
 };
 
 export const AclMask = ({ acl, children }: AclMaskProps) => {

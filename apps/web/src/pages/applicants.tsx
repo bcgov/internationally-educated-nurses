@@ -14,6 +14,7 @@ import {
   Pagination,
   AclMask,
 } from '@components';
+import { useAuthContext } from '../components/AuthContexts';
 
 interface SearchOptions {
   name?: string;
@@ -30,6 +31,7 @@ const DEFAULT_PAGE_SIZE = 10;
 const QUERY_DELAY = 300;
 
 const Applicants = () => {
+  const { authUser } = useAuthContext();
   const [applicants, setApplicants] = useState<ApplicantRO[]>([]);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -128,7 +130,7 @@ const Applicants = () => {
 
   return (
     <div className='container w-full mx-6 xl:w-xl mb-4'>
-      <h1 className='font-bold text-3xl py-6'>Manage Applicants</h1>
+      <h1 className='font-bold text-4xl py-6'>Manage Applicants</h1>
       <Search
         onChange={handleKeywordChange}
         keyword={name}
@@ -137,13 +139,17 @@ const Applicants = () => {
       />
 
       <div className='bg-white'>
-        <StatusCategoryTab
-          tabs={[{ title: 'All', value: 0 }, ...milestoneTabs]}
-          categoryIndex={status ? status : 0}
-          onTabClick={handleTabChange}
-        />
+        {authUser?.ha_pcn_id ? (
+          <div className='font-bold px-4 pt-3 pb-2 text-3xl'>Recruitment</div>
+        ) : (
+          <StatusCategoryTab
+            tabs={[{ title: 'All', value: 0 }, ...milestoneTabs]}
+            categoryIndex={status ? status : 0}
+            onTabClick={handleTabChange}
+          />
+        )}
+        <div className='text-bcGray px-4 mb-4'>{`Showing ${applicants.length} results`}</div>
         <div className='flex justify-between items-center'>
-          <div className='text-bcGray px-4'>{`Showing ${applicants.length} results`}</div>
           {HA_CAN_ADD_APPLICANT && (
             <AclMask acl={[Access.APPLICANT_WRITE]}>
               <Button
