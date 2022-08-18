@@ -20,7 +20,8 @@ export class IENApplicantJobCreateUpdateAPIDTO extends IENApplicantJobCreateUpda
     example: 'ABC1234',
   })
   @IsString()
-  job_id!: string;
+  @IsOptional()
+  job_id?: string;
 
   @ApiProperty({ description: 'Job title Id', example: '1' })
   @IsOptional()
