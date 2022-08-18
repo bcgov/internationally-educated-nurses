@@ -4,8 +4,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { AppModule } from '../src/app.module';
 
-jest.setTimeout(10000);
-
 describe('IENMasterController (e2e)', () => {
   let app: INestApplication;
 

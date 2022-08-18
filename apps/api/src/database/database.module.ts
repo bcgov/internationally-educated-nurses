@@ -76,6 +76,7 @@ const appOrmConfig: PostgresConnectionOptions = {
   synchronize: false,
   migrationsRun: true,
 };
+
 @Module({
   imports: [TypeOrmModule.forRoot(appOrmConfig)],
   providers: [Logger],

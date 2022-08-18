@@ -36,6 +36,3 @@ jobs:
 
       - name: Integration test API Package
         run: make api-integration-test
-
-      - name: Build API Package
-        run: yarn workspace @ien/api build

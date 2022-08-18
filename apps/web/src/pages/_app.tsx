@@ -13,8 +13,9 @@ import { Footer, Header, MenuBar } from '@components';
 import { AuthProvider } from 'src/components/AuthContexts';
 import { Maintenance } from '../components/Maintenance';
 
-import '../styles/globals.css';
 import 'react-toastify/dist/ReactToastify.min.css';
+import 'react-datepicker/dist/react-datepicker.css';
+import '../styles/globals.css';
 
 axios.defaults.baseURL = process.env.NEXT_PUBLIC_API_URL;
 axios.interceptors.response.use(

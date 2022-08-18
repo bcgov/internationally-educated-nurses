@@ -39,10 +39,16 @@ describe('Details - Milestones', () => {
   it('edits a milestone', () => {
     cy.fixture('edit-milestone.json').then(milestone => {
       cy.get('[data-cy=record-0]').click();
+
       cy.get('[alt="edit milestone"]').eq(0).click();
+
       cy.get('#status').focus().type(`${milestone.status}{enter}`);
-      cy.get('#start_date').focus().click().type(`${milestone.start_date}`);
       cy.get('#notes').click().clear().type(`${milestone.notes}`);
+
+      cy.get('#start_date').click({ force: true });
+      cy.get('#start_date').focus().clear();
+      cy.get('#start_date').focus().type(`${milestone.start_date}{enter}`);
+
       cy.contains('button', 'Save Changes').click();
 
       cy.contains(milestone.status);

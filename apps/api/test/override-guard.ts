@@ -1,6 +1,6 @@
 import { ExecutionContext } from '@nestjs/common';
-import { seedUser } from './fixture/ien';
 import { RoleSlug } from '@ien/common';
+import { seedUser } from './fixture/ien';
 
 export const canActivate = (context: ExecutionContext) => {
   const request = context.switchToHttp().getRequest();

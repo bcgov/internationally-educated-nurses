@@ -1,10 +1,11 @@
-import { useApplicantContext } from '../../applicant/ApplicantContext';
-import { ApplicantJobRO, IENApplicantAddStatusDTO } from '@ien/common';
+import React from 'react';
 import { FormikHelpers } from 'formik';
 import { toast } from 'react-toastify';
+
+import { ApplicantJobRO, IENApplicantAddStatusDTO } from '@ien/common';
 import { addMilestone } from '@services';
 import { getInitialMilestoneFormValues, MilestoneForm } from './MilestoneForm';
-import React from 'react';
+import { useApplicantContext } from '../../applicant/ApplicantContext';
 
 interface AddMilestoneProps {
   job?: ApplicantJobRO;
