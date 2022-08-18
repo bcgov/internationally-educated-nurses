@@ -42,6 +42,7 @@ resource "aws_lambda_function" "api" {
       HMBC_ATS_BASE_URL = data.aws_ssm_parameter.hmbc_ats_base_url.value
       HMBC_ATS_AUTH_KEY = data.aws_ssm_parameter.hmbc_ats_auth_key.value
       SQS_QUEUE_URL     = aws_sqs_queue.terraform_queue.url
+      JWT_SECRET        = data.aws_ssm_parameter.sync_jwt_secret.value
       # MAIL_FROM                = var.mail_from
       # CHES_CLIENT_ID           = var.ches_client_id
       # CHES_CLIENT_SECRET       = data.aws_ssm_parameter.ches_client_secret.value
