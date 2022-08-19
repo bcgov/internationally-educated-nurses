@@ -22,7 +22,6 @@ import { SyncApplicantsAudit } from './entity/sync-applicants-audit.entity';
 import { IENMasterService } from './ien-master.service';
 import { IENUsers } from './entity/ienusers.entity';
 import { IENUserFilterAPIDTO } from './dto/ienuser-filter.dto';
-import dayjs from 'dayjs';
 
 @Injectable()
 export class ExternalAPIService {
