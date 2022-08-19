@@ -39,9 +39,8 @@ export class ExternalAPIService {
     private readonly ienapplicantStatusAuditRepository: Repository<IENApplicantStatusAudit>,
     @InjectRepository(SyncApplicantsAudit)
     private readonly syncApplicantsAuditRepository: Repository<SyncApplicantsAudit>,
-
   ) {}
-  
+
   /**
    * Save all data for master tables.
    */
@@ -630,26 +629,22 @@ export class ExternalAPIService {
     }
   }
 
-
-  
-  async getApplicants(start?:string,end?:string ) {
-      return this.ienapplicantRepository.find({
-        where: {
-          updated_date: Between(
-            new Date(start ||'1918-07-18' ).toISOString(),
-            end? new Date(end).toISOString():new Date().toISOString(),
-          ),
-        },
-        relations: [
-          'status',
-          'added_by',
-          'updated_by',
-          'jobs',
-          'applicant_status_audit',
-          'applicant_audit',
-        ]
-        
-      });
-    }
-
+  async getApplicants(start?: string, end?: string) {
+    return this.ienapplicantRepository.find({
+      where: {
+        updated_date: Between(
+          new Date(start || '1918-07-18').toISOString(),
+          end ? new Date(end).toISOString() : new Date().toISOString(),
+        ),
+      },
+      relations: [
+        'status',
+        'added_by',
+        'updated_by',
+        'jobs',
+        'applicant_status_audit',
+        'applicant_audit',
+      ],
+    });
   }
+}

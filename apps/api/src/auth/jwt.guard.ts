@@ -42,18 +42,22 @@ export class JWTGuard implements CanActivate {
 
     const token = authSplit[1];
     try {
-      const decoded:{exp:number} = (jwt.verify(
+      const decoded: { exp: number } = jwt.verify(
         token,
         process.env.JWT_SECRET ? process.env.JWT_SECRET : 'jwtsecret',
-      )) as any;
-      if(!decoded.exp){
-        return false; 
+        /* eslint-disable  @typescript-eslint/no-explicit-any */
+      ) as any;
+      if (!decoded.exp) {
+        return false;
       }
       // Check token expiry
       // JWT Token expiry is in seconds since the unix epoc, so we need to multiply them by 1000 to convert them into timestamps.
-      if(dayjs(decoded?.exp*1000).isAfter(dayjs()) && dayjs(decoded?.exp*1000).isBefore(dayjs().add(5,'minutes')) ){
-        return decoded
-      }else{
+      if (
+        dayjs(decoded?.exp * 1000).isAfter(dayjs()) &&
+        dayjs(decoded?.exp * 1000).isBefore(dayjs().add(5, 'minutes'))
+      ) {
+        return decoded;
+      } else {
         return false;
       }
     } catch (err) {
