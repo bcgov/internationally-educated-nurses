@@ -7,6 +7,7 @@ import {
   Logger,
   Inject,
 } from '@nestjs/common';
+import dayjs from 'dayjs';
 import * as jwt from 'jsonwebtoken';
 import { AppLogger } from 'src/common/logger.service';
 
@@ -41,11 +42,20 @@ export class JWTGuard implements CanActivate {
 
     const token = authSplit[1];
     try {
-      const decoded = jwt.verify(
+      const decoded:{exp:number} = (jwt.verify(
         token,
         process.env.JWT_SECRET ? process.env.JWT_SECRET : 'jwtsecret',
-      );
-      return decoded;
+      )) as any;
+      if(!decoded.exp){
+        return false; 
+      }
+      // Check token expiry
+      // JWT Token expiry is in seconds since the unix epoc, so we need to multiply them by 1000 to convert them into timestamps.
+      if(dayjs(decoded?.exp*1000).isAfter(dayjs()) && dayjs(decoded?.exp*1000).isBefore(dayjs().add(5,'minutes')) ){
+        return decoded
+      }else{
+        return false;
+      }
     } catch (err) {
       this.logger.log(`Error in jwt guard:` + err);
       return false;

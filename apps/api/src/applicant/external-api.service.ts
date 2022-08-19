@@ -9,6 +9,7 @@ import {
   FindManyOptions,
   ObjectLiteral,
   SelectQueryBuilder,
+  Between,
 } from 'typeorm';
 import { Authorities } from '@ien/common';
 import { ExternalRequest } from 'src/common/external-request';
@@ -21,6 +22,7 @@ import { SyncApplicantsAudit } from './entity/sync-applicants-audit.entity';
 import { IENMasterService } from './ien-master.service';
 import { IENUsers } from './entity/ienusers.entity';
 import { IENUserFilterAPIDTO } from './dto/ienuser-filter.dto';
+import dayjs from 'dayjs';
 
 @Injectable()
 export class ExternalAPIService {
@@ -38,8 +40,9 @@ export class ExternalAPIService {
     private readonly ienapplicantStatusAuditRepository: Repository<IENApplicantStatusAudit>,
     @InjectRepository(SyncApplicantsAudit)
     private readonly syncApplicantsAuditRepository: Repository<SyncApplicantsAudit>,
-  ) {}
 
+  ) {}
+  
   /**
    * Save all data for master tables.
    */
@@ -628,16 +631,26 @@ export class ExternalAPIService {
     }
   }
 
-  async getApplicants() {
-    return this.ienapplicantRepository.find({
-      relations: [
-        'status',
-        'added_by',
-        'updated_by',
-        'jobs',
-        'applicant_status_audit',
-        'applicant_audit',
-      ],
-    });
+
+  
+  async getApplicants(start?:string,end?:string ) {
+      return this.ienapplicantRepository.find({
+        where: {
+          updated_date: Between(
+            new Date(start ||'1918-07-18' ).toISOString(),
+            end? new Date(end).toISOString():new Date().toISOString(),
+          ),
+        },
+        relations: [
+          'status',
+          'added_by',
+          'updated_by',
+          'jobs',
+          'applicant_status_audit',
+          'applicant_audit',
+        ]
+        
+      });
+    }
+
   }
-}
