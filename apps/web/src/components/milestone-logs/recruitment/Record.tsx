@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
+import classNames from 'classnames';
 import dayjs from 'dayjs';
 
-import { buttonBase, buttonColor, DetailsItem, Disclosure, AclMask } from '@components';
-import { Milestone } from './Milestone';
+import { DetailsItem, Disclosure, AclMask, Button } from '@components';
 import {
   Access,
   ApplicantJobRO,
@@ -22,6 +22,7 @@ import { useApplicantContext } from '../../applicant/ApplicantContext';
 import { useAuthContext } from 'src/components/AuthContexts';
 import { DeleteJobModal } from 'src/components/display/DeleteJobModal';
 import { canDelete } from 'src/utils';
+import { Milestone } from './Milestone';
 import { AddMilestone } from './AddMilestone';
 
 interface RecordProps {
@@ -103,21 +104,27 @@ export const Record: React.FC<RecordProps> = ({
   };
 
   const deleteButton = () => {
+    const classes = 'px-6 ml-4';
     return canDelete(authUser?.user_id, added_by?.id) ? (
-      <button
-        className={`px-6 ml-4 border-bcRedError ${buttonBase} text-bcRedError`}
+      <Button
+        variant='outline'
+        className={classNames(classes, 'border-bcRedError text-bcRedError')}
         onClick={() => setDeleteModalVisible(true)}
       >
         <img src={deleteIcon.src} alt='delete competition' className='mr-2' />
         Delete Competition
-      </button>
+      </Button>
     ) : (
-      <button
-        className={`cursor-not-allowed px-6 ml-4 border-bcGrayDisabled2 ${buttonBase} text-bcGrayDisabled2`}
+      <Button
+        variant='outline'
+        className={classNames(
+          classes,
+          'cursor-not-allowed border-bcGrayDisabled2 text-bcGrayDisabled2',
+        )}
       >
         <img src={disabledDeleteIcon.src} alt='disabled delete competition' className='mr-2' />
         Delete Competition
-      </button>
+      </Button>
     );
   };
 
@@ -178,13 +185,10 @@ export const Record: React.FC<RecordProps> = ({
               />
             </div>
             <AclMask acl={[Access.APPLICANT_WRITE]}>
-              <button
-                className={`px-6 mb-2 ${buttonColor.secondary} ${buttonBase}`}
-                onClick={() => setModalVisible(true)}
-              >
+              <Button variant='outline' className='px-6 mb-2' onClick={() => setModalVisible(true)}>
                 <img src={editIcon.src} alt='edit job' className='mr-2' />
                 Edit Details
-              </button>
+              </Button>
               {deleteButton()}
               <DeleteJobModal
                 onClose={() => setDeleteModalVisible(false)}
