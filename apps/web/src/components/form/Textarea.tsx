@@ -5,9 +5,11 @@ import { Field, FieldProps } from '@components';
 interface TextareaProps extends FieldProps {
   maxLength?: number;
   rows?: number;
+  placeholder?: string;
 }
 
-export const Textarea: React.FC<TextareaProps> = ({ name, label, description, maxLength }) => {
+export const Textarea = (props: TextareaProps) => {
+  const { name, label, placeholder, description, maxLength } = props;
   const { values } = useFormikContext<Record<string, string>>();
 
   const showMaxLength = () => {
@@ -22,9 +24,10 @@ export const Textarea: React.FC<TextareaProps> = ({ name, label, description, ma
         name={name}
         label={label}
         description={description}
+        placeholder={placeholder}
         maxLength={maxLength}
         as='textarea'
-        className='bg-white h-32 w-full border rounded border-bcGray p-1.5 '
+        className='bg-white h-[120px] w-full border rounded border-bcGray p-1.5 '
       />
       {maxLength ? (
         <>

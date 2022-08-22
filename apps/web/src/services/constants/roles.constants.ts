@@ -1,14 +1,5 @@
 import { Role, RoleSlug } from '@ien/common';
-import { CSSProperties } from 'react';
-
-export interface StyleOption {
-  style?: CSSProperties;
-}
-
-export interface SelectOption<T extends string | number> extends StyleOption {
-  value: T;
-  label?: string;
-}
+import { SelectOption } from './select-options';
 
 const getRoleOptions = (roles: Role[], excludes: string[]): SelectOption<string>[] => {
   return (
