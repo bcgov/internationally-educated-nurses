@@ -44,7 +44,10 @@ export const ApplicantMilestones = () => {
           )}
         </>
       ) : (
-        <Recruitment />
+        <>
+          <h1 className='font-bold text-2xl my-3'>Recruitment</h1>
+          <Recruitment />
+        </>
       )}
     </div>
   );
