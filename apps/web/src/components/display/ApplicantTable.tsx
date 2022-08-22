@@ -1,11 +1,10 @@
 import Link from 'next/link';
-
-import { buttonBase, buttonColor } from '@components';
-import { ApplicantRO, formatDate, STATUS } from '@ien/common';
-import { Spinner } from '../Spinner';
 import { useRouter } from 'next/router';
-import { SortButton } from '../SortButton';
+import { buttonBase, buttonColor } from '@components';
+import { ApplicantRO, EmployeeRO, formatDate, isHiredByUs, STATUS } from '@ien/common';
 import hiredCheckmarkIcon from '@assets/img/hired_checkmark.svg';
+import { Spinner } from '../Spinner';
+import { SortButton } from '../SortButton';
 import { useAuthContext } from '../AuthContexts';
 
 export interface ApplicantTableProps {
@@ -15,14 +14,14 @@ export interface ApplicantTableProps {
 }
 
 // determine milestone text for status
-const milestoneText = (applicant: ApplicantRO, haId?: number | null) => {
-  const { status, job_accepted } = applicant;
+const milestoneText = (applicant: ApplicantRO, user?: EmployeeRO) => {
+  const { status } = applicant;
   if (!status) {
     return <td className='px-6'></td>;
   }
 
   // if applicant has accepted an offer, show detailed Hired status and checkmark
-  if (job_accepted) {
+  if (isHiredByUs(applicant, user)) {
     return (
       <td className='px-6 font-bold text-bcGreenHiredText'>
         Hired
@@ -32,7 +31,7 @@ const milestoneText = (applicant: ApplicantRO, haId?: number | null) => {
   }
 
   // else check if current user is part of a HA and the status is in the Recruitment step
-  return haId && status?.parent?.id === STATUS.IEN_Recruitment ? (
+  return user?.ha_pcn_id && status?.parent?.id === STATUS.IEN_Recruitment ? (
     <td className='px-6'>In Progress</td>
   ) : (
     <td className='px-6 truncate'>{status?.status}</td>
@@ -78,12 +77,12 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
               <tr
                 key={app.id}
                 className={`text-left shadow-xs whitespace-nowrap ${
-                  app.job_accepted ? 'bg-bcGreenHiredContainer' : 'even:bg-bcLightGray'
+                  isHiredByUs(app, authUser) ? 'bg-bcGreenHiredContainer' : 'even:bg-bcLightGray'
                 } text-sm`}
               >
                 <td className='pl-6'>{getApplicantId(app)}</td>
                 <td className='px-6 py-5 truncate'>{app.name}</td>
-                {milestoneText(app, authUser?.ha_pcn_id)}
+                {milestoneText(app, authUser)}
                 <td className='px-6'>{app.updated_date && formatDate(app.updated_date)}</td>
                 <td className='px-6 truncate'>
                   {app.assigned_to?.map(({ name }) => name).join(', ')}

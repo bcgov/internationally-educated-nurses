@@ -10,6 +10,7 @@ import { Button, getSelectStyleOverride } from '@components';
 import {
   ApplicantJobRO,
   IENApplicantJobCreateUpdateDTO,
+  isHiredByUs,
   RegionalHealthAuthorities,
 } from '@ien/common';
 import {
@@ -37,7 +38,7 @@ interface AddRecordProps {
 export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) => {
   const { job, milestones, visible, onClose, setExpandRecord } = props;
 
-  const { applicant, hiredHa, fetchApplicant } = useApplicantContext();
+  const { applicant, fetchApplicant } = useApplicantContext();
   const { authUser } = useAuthContext();
 
   const router = useRouter();
@@ -111,7 +112,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
       <Modal.Title as='h1' className='text-lg font-bold leading-6 text-bcBlueLink border-b p-4'>
         {job ? 'Edit Record' : 'Add Record'}
       </Modal.Title>
-      {hiredHa && (
+      {isHiredByUs(applicant, authUser) && (
         <div className='mx-8 p-3 bg-bcYellowCream text-bcBrown mt-6 rounded border-2 border-bcYellowCreamStroke'>
           <div className='font-bold flex items-center'>
             <img src={hiredIndIcon.src} alt='add' className='m-1 h-5' />
