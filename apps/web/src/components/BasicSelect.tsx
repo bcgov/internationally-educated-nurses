@@ -1,18 +1,23 @@
-import React from 'react';
+import { CSSProperties } from 'react';
 import ReactSelect, { StylesConfig, components, GroupBase } from 'react-select';
 import { DropdownIndicatorProps } from 'react-select/dist/declarations/src/components/indicators';
-import { SelectOption, StyleOption } from '@services';
+import { Property } from 'csstype';
 import downCaret from '@assets/img/arrow_down.svg';
+import { Label } from './form';
+import { OptionValueType, SelectOption, StyleOption } from '../services/constants';
 
-export interface BasicSelectProps<T extends string | number> {
+export interface BasicSelectProps<T extends OptionValueType> {
   id: string;
   options: SelectOption<T>[];
   value: T;
   label?: string;
   onChange: (value: T) => void;
+  textAlign?: Property.TextAlign;
+  underline?: boolean;
+  optionStyle?: CSSProperties;
 }
 
-const DropdownIndicator = <T extends string | number>(
+const DropdownIndicator = <T extends OptionValueType>(
   props: DropdownIndicatorProps<SelectOption<T>, false, GroupBase<SelectOption<T>>>,
 ) => {
   return (
@@ -22,24 +27,44 @@ const DropdownIndicator = <T extends string | number>(
   );
 };
 
-export const BasicSelect = <T extends string | number>(props: BasicSelectProps<T>) => {
-  const { id, value, label, options, onChange } = props;
+export const BasicSelect = <T extends OptionValueType>(props: BasicSelectProps<T>) => {
+  const {
+    id,
+    value,
+    label,
+    options,
+    onChange,
+    textAlign = 'center',
+    underline = false,
+    optionStyle,
+  } = props;
   return (
-    <ReactSelect<SelectOption<T>>
-      inputId={id}
-      aria-label={label || `${id} label`}
-      value={options.find(o => o.value === value)}
-      onChange={option => option && onChange(option.value)}
-      getOptionLabel={o => `${o.label || o.value}`}
-      isOptionDisabled={o => o.value === value}
-      options={options}
-      styles={getNoBorderSelectStyle<SelectOption<T>>()}
-      components={{ DropdownIndicator }}
-    />
+    <div>
+      {label && (
+        <div className='mb-2'>
+          <Label htmlFor={id}>{label}</Label>
+        </div>
+      )}
+      <ReactSelect<SelectOption<T>>
+        inputId={id}
+        aria-label={label || `${id} label`}
+        value={options.find(o => o.value === value)}
+        onChange={option => option && onChange(option.value)}
+        getOptionLabel={o => `${o.label || o.value}`}
+        isOptionDisabled={o => o.value === value}
+        options={options}
+        styles={getNoBorderSelectStyle<SelectOption<T>>(textAlign, underline, optionStyle)}
+        components={{ DropdownIndicator }}
+      />
+    </div>
   );
 };
 
-const getNoBorderSelectStyle = <T extends StyleOption>(): StylesConfig<T, boolean> => {
+const getNoBorderSelectStyle = <T extends StyleOption>(
+  textAlign: Property.TextAlign,
+  underline: boolean,
+  optionStyle?: CSSProperties,
+): StylesConfig<T, boolean> => {
   return {
     indicatorSeparator: styles => ({ ...styles, display: 'none' }),
     indicatorsContainer: styles => ({ ...styles, color: 'black' }),
@@ -49,6 +74,7 @@ const getNoBorderSelectStyle = <T extends StyleOption>(): StylesConfig<T, boolea
       padding: '1px',
       border: '0',
       borderRadius: '0',
+      borderBottom: underline ? '2px solid #313132' : 'none',
     }),
     option: (styles, { data, isDisabled }) => ({
       ...styles,
@@ -59,9 +85,10 @@ const getNoBorderSelectStyle = <T extends StyleOption>(): StylesConfig<T, boolea
         background: '#F2F2F2',
       },
       ...data?.style,
+      ...optionStyle,
     }),
     menuList: styles => ({ ...styles, maxHeight: '350px' }),
-    menu: styles => ({ ...styles, padding: '5px 5px', textAlign: 'center' }),
+    menu: styles => ({ ...styles, padding: '5px 5px', textAlign }),
     placeholder: styles => ({ ...styles, color: '#606060' }),
   };
 };
