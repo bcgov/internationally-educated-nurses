@@ -30,6 +30,18 @@ export enum STATUS {
   'Candidate_was_unresponsive',
   'Candidate_was_not_selected',
   'Candidate_accepted_the_job_offer',
+  // TODO: NEW ->
+  'Candidate_passed_the_prescreen',
+  'Candidate_did_not_pass_the_prescreen',
+  'Candidate_passed_the_interview',
+  'Candidate_did_not_pass_the_interview',
+  'Candidate_passed_the_reference_check',
+  'Candidate_did_not_pass_the_reference_check',
+  'Job_offer_not_accepted',
+  'Job_competition_cancelled',
+  'HA_was_not_interested',
+  'No_position_available',
+  // <- NEW
   'HMBC_First_Steps_Document_Sent' = 401,
   'HA_Documents_sent_to_HMBC',
   'Candidate_Application_Submitted_to_BC_PNP',

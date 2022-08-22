@@ -2,7 +2,7 @@ import useSWRImmutable from 'swr/immutable';
 
 import { IENHaPcnRO, IENStatusReasonRO } from '@ien/common';
 import { fetcher } from '../utils';
-import { StyleOption } from './constants/roles.constants';
+import { StyleOption } from './constants';
 
 export interface RecordTypeOptions extends StyleOption {
   id: number;
