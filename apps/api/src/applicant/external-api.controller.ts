@@ -133,7 +133,10 @@ export class ExternalAPIController {
   @UseGuards(JWTGuard)
   @ApiBearerAuth()
   @Get('/applicants')
-  async getApplicants(): Promise<IENApplicant[]> {
-    return this.externalAPIService.getApplicants();
+  async getApplicants(
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+  ): Promise<IENApplicant[]> {
+    return this.externalAPIService.getApplicants(from, to);
   }
 }

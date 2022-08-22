@@ -9,6 +9,7 @@ import {
   FindManyOptions,
   ObjectLiteral,
   SelectQueryBuilder,
+  Between,
 } from 'typeorm';
 import { Authorities } from '@ien/common';
 import { ExternalRequest } from 'src/common/external-request';
@@ -632,8 +633,14 @@ export class ExternalAPIService {
     }
   }
 
-  async getApplicants() {
+  async getApplicants(start?: string, end?: string) {
     return this.ienapplicantRepository.find({
+      where: {
+        updated_date: Between(
+          new Date(start || '1918-07-18').toISOString(),
+          end ? new Date(end).toISOString() : new Date().toISOString(),
+        ),
+      },
       relations: [
         'status',
         'added_by',
