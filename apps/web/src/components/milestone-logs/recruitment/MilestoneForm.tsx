@@ -214,7 +214,7 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
                   />
                 </div>
                 {/* Candidate accepted job offer conditional */}
-                {values.status === `${STATUS.JOB_OFFER_ACCEPTED}` ? (
+                {values.status === `${STATUS.Candidate_accepted_the_job_offer}` ? (
                   <div className='col-span-6 pr-1 md:pr-2 ml-3'>
                     <DatePickerField
                       name='effective_date'
