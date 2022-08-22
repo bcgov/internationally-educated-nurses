@@ -460,9 +460,9 @@ export class IENApplicantService {
     }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { ha_pcn, job_title, job_location, ...data } = jobData;
-    if (data.job_id) {
-      job.job_id = data.job_id;
-    }
+
+    job.job_id = data.job_id;
+
     if (data.job_post_date) {
       job.job_post_date = data.job_post_date as any;
     }
