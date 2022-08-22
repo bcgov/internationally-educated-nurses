@@ -2,21 +2,23 @@
 import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { FindManyOptions, In, IsNull, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { EmployeeRO, STATUS } from '@ien/common';
 import { AppLogger } from 'src/common/logger.service';
-import { IENApplicantCreateUpdateAPIDTO } from './dto/ienapplicant-create.dto';
 import { IENApplicant } from './entity/ienapplicant.entity';
 import { IENUsers } from './entity/ienusers.entity';
 import { IENApplicantFilterAPIDTO } from './dto/ienapplicant-filter.dto';
-import { IENApplicantAddStatusAPIDTO } from './dto/ienapplicant-add-status.dto';
 import { IENApplicantUtilService } from './ienapplicant.util.service';
 import { CommonData } from 'src/common/common.data';
 import { IENApplicantJob } from './entity/ienjob.entity';
-import { IENApplicantUpdateStatusAPIDTO } from './dto/ienapplicant-update-status.dto';
 import { IENApplicantStatusAudit } from './entity/ienapplicant-status-audit.entity';
-import { IENApplicantJobCreateUpdateAPIDTO } from './dto/ienapplicant-job-create.dto';
-import { IENApplicantJobQueryDTO } from './dto/ienapplicant-job-filter.dto';
 import { IENJobLocation } from './entity/ienjoblocation.entity';
-import { EmployeeRO, STATUS } from '@ien/common';
+import {
+  IENApplicantAddStatusAPIDTO,
+  IENApplicantCreateUpdateAPIDTO,
+  IENApplicantJobCreateUpdateAPIDTO,
+  IENApplicantJobQueryDTO,
+  IENApplicantUpdateStatusAPIDTO,
+} from './dto';
 
 @Injectable()
 export class IENApplicantService {

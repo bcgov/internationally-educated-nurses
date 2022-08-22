@@ -20,7 +20,7 @@ import { IENApplicantUtilService } from './ienapplicant.util.service';
 import { SyncApplicantsAudit } from './entity/sync-applicants-audit.entity';
 import { IENMasterService } from './ien-master.service';
 import { IENUsers } from './entity/ienusers.entity';
-import { IENUserFilterAPIDTO } from './dto/ienuser-filter.dto';
+import { IENUserFilterAPIDTO, SyncApplicantsResultDTO } from './dto';
 
 @Injectable()
 export class ExternalAPIService {
@@ -232,7 +232,7 @@ export class ExternalAPIService {
   /**
    * fetch and upsert applicant details
    */
-  async saveApplicant(from?: string, to?: string): Promise<void> {
+  async saveApplicant(from?: string, to?: string): Promise<SyncApplicantsResultDTO | undefined> {
     const audit = await this.saveSyncApplicantsAudit();
     try {
       /**
@@ -292,10 +292,14 @@ export class ExternalAPIService {
         pages = [];
       }
 
-      this.logger.log(`prosessing ${newData.length} applicants record now`);
       await this.createBulkApplicants(newData);
       await this.saveSyncApplicantsAudit(audit.id, true);
-      this.logger.log('Done!');
+      this.logger.log(`processed ${newData.length} applicants record`);
+      return {
+        from: from_date,
+        to: to_date,
+        count: newData.length,
+      };
     } catch (e: any) {
       await this.saveSyncApplicantsAudit(audit.id, false, { message: e.message, stack: e.stack });
       this.logger.error(e);
