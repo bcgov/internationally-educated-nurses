@@ -1,5 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Inject, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   In,
@@ -11,6 +17,7 @@ import {
   SelectQueryBuilder,
   Between,
 } from 'typeorm';
+import dayjs from 'dayjs';
 import { Authorities } from '@ien/common';
 import { ExternalRequest } from 'src/common/external-request';
 import { AppLogger } from 'src/common/logger.service';
@@ -233,7 +240,17 @@ export class ExternalAPIService {
   /**
    * fetch and upsert applicant details
    */
-  async saveApplicant(from?: string, to?: string): Promise<SyncApplicantsResultDTO | undefined> {
+  async saveApplicant(from: string, to?: string): Promise<SyncApplicantsResultDTO | undefined> {
+    if (!from) {
+      throw new BadRequestException('from date is required');
+    }
+
+    if (dayjs(to).isBefore(dayjs(from))) {
+      throw new BadRequestException(
+        `${to} falls before ${from} : 'from' date must come before 'to' date.`,
+      );
+    }
+
     const audit = await this.saveSyncApplicantsAudit();
     try {
       /**
