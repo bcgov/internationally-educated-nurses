@@ -28,7 +28,7 @@ export class EmployeeService {
     }
 
     if (!employee.organization) {
-      const authority = this._getOrganization(userData.email);
+      const authority = this._getOrganization(employee.email);
       if (authority) {
         employee.organization = authority.name;
         if (Object.keys(DefaultRoles).includes(authority.id)) {
