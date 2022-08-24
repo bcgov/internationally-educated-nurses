@@ -59,7 +59,7 @@ export const DatePickerField = (props: DatePickerFieldProps) => {
             maxDate={max}
             showYearDropdown
             yearDropdownItemNumber={numOfYears}
-            selected={field.value ? new Date(field.value.replace('-', '/')) : null}
+            selected={field.value ? dayjs(field.value).toDate() : null}
             onChangeRaw={e => {
               if (isDateString(e.target.value)) {
                 valRef.current = e.target.value;
