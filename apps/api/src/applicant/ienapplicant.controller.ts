@@ -160,7 +160,7 @@ export class IENApplicantController {
     try {
       this.logger.log(
         `Add milestone/status for applicant (${id}) requested by
-        userId (${req?.user.user_id})/ employeeId/loginId (${req?.user.id})`,
+        userId (${req?.user?.user_id})/ employeeId/loginId (${req?.user?.id})`,
       );
       return await this.ienapplicantService.addApplicantStatus(req?.user, id, applicantStatus);
     } catch (e) {

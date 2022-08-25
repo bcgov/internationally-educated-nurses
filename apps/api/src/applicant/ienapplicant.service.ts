@@ -161,7 +161,7 @@ export class IENApplicantService {
       applicant.assigned_to = await this.ienapplicantUtilService.getUserArray(assigned_to);
     }
 
-    if (user.user_id) {
+    if (user?.user_id) {
       const added_by_data = await this.ienUsersRepository.findOne(user.user_id);
       if (added_by_data) {
         applicant.added_by = added_by_data;
@@ -264,7 +264,7 @@ export class IENApplicantService {
       throw new BadRequestException(`Competition/job are required to add a milestone`);
     }
 
-    if (user.user_id) {
+    if (user?.user_id) {
       const added_by_data = await this.ienUsersRepository.findOne(user.user_id);
       data.added_by = added_by_data;
     }
@@ -330,7 +330,7 @@ export class IENApplicantService {
       throw new NotFoundException('Provided status/milestone record not found');
     }
     const { status, start_date, effective_date, end_date, notes, reason } = milestone;
-    if (user.user_id) {
+    if (user?.user_id) {
       const updated_by_data = await this.ienUsersRepository.findOne(user.user_id);
       if (updated_by_data) {
         status_audit.updated_by = updated_by_data;
@@ -437,7 +437,7 @@ export class IENApplicantService {
     const job = this.ienapplicantJobRepository.create(data);
     job.applicant = applicant;
 
-    if (user.user_id) {
+    if (user?.user_id) {
       const added_by_data = await this.ienUsersRepository.findOne(user.user_id);
       job.added_by = added_by_data;
     }
