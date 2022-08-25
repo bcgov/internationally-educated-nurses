@@ -14,14 +14,12 @@ export class AuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
 
-    const token:string | undefined =  this.authService.extractToken(request.headers || '')
-    if(!token){
+    const token: string | undefined = this.authService.extractToken(request.headers || '');
+    if (!token) {
       return false;
     }
 
-    const tokenUser = await this.authService.getUserFromToken(
-      token
-    );
+    const tokenUser = await this.authService.getUserFromToken(token);
     if (!tokenUser) {
       return false;
     }
