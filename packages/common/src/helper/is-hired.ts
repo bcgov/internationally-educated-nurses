@@ -8,7 +8,13 @@ export const isHired = (id?: number) => {
 };
 
 export const isHiredByUs = (applicant: ApplicantRO, user?: EmployeeRO): boolean => {
-  const { job_accepted } = applicant;
+  const { job_accepted, status } = applicant;
+
+  // if current user is HMBC, show applicants latest milestone regardless of accepted job
+  if (isHmbc(user)) {
+    return isHired(status?.id);
+  }
+
   return (
     !!job_accepted &&
     !!user &&

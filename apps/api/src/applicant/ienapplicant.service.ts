@@ -306,6 +306,8 @@ export class IENApplicantService {
     const applicantUpdate: Partial<IENApplicant> = { updated_date: new Date() };
     if (job && status_audit.status.id === STATUS.Candidate_accepted_the_job_offer) {
       applicantUpdate.job_accepted = job;
+    } else if (job && status_audit.status.id === STATUS.Candidate_was_not_selected) {
+      applicantUpdate.job_accepted = undefined;
     }
     await this.ienapplicantRepository.update(id, applicantUpdate);
 
