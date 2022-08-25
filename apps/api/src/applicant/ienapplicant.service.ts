@@ -298,12 +298,20 @@ export class IENApplicantService {
      */
     if (job) {
       await this.ienapplicantUtilService.updatePreviousActiveStatusForJob(job, data);
+
       const applicantUpdate: Partial<IENApplicant> = { updated_date: new Date() };
-      if (status_audit.status.id === STATUS.Candidate_accepted_the_job_offer) {
-        applicantUpdate.job_accepted = job;
-      } else if (status_audit.status.id === STATUS.Candidate_was_not_selected) {
-        applicantUpdate.job_accepted = undefined;
+
+      switch (status_audit.status.id) {
+        case STATUS.Candidate_accepted_the_job_offer:
+          applicantUpdate.job_accepted = job;
+          break;
+        case STATUS.Candidate_was_not_selected:
+          applicantUpdate.job_accepted = undefined;
+          break;
+        default:
+          return;
       }
+
       await this.ienapplicantRepository.update(id, applicantUpdate);
     }
 
