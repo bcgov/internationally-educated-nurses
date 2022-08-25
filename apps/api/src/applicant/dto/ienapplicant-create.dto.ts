@@ -92,7 +92,7 @@ export class IENApplicantCreateUpdateAPIDTO extends IENApplicantCreateUpdateDTO 
   @IsArray()
   @ArrayMinSize(1, { message: 'At least 1 Education is required' })
   @ArrayNotEmpty({ message: 'Education is required' })
-  @ValidateIf(e => e.nursing_educations.length > 0)
+  @ValidateIf(e => (e?.nursing_educations?.length || 0) > 0)
   @ValidateNested()
   @Type(() => NursingEducationDTO)
   nursing_educations!: NursingEducationDTO[];

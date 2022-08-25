@@ -14,8 +14,13 @@ export class AuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
 
+    const token:string | undefined =  this.authService.extractToken(request.headers || '')
+    if(!token){
+      return false;
+    }
+
     const tokenUser = await this.authService.getUserFromToken(
-      this.authService.extractToken(request.headers || '') || '',
+      token
     );
     if (!tokenUser) {
       return false;
