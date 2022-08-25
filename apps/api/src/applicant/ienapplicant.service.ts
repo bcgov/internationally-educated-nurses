@@ -298,18 +298,17 @@ export class IENApplicantService {
      */
     if (job) {
       await this.ienapplicantUtilService.updatePreviousActiveStatusForJob(job, data);
+      const applicantUpdate: Partial<IENApplicant> = { updated_date: new Date() };
+      if (status_audit.status.id === STATUS.Candidate_accepted_the_job_offer) {
+        applicantUpdate.job_accepted = job;
+      } else if (status_audit.status.id === STATUS.Candidate_was_not_selected) {
+        applicantUpdate.job_accepted = undefined;
+      }
+      await this.ienapplicantRepository.update(id, applicantUpdate);
     }
 
     // Let's check and updated the latest status on applicant
     await this.ienapplicantUtilService.updateLatestStatusOnApplicant([applicant.id]);
-
-    const applicantUpdate: Partial<IENApplicant> = { updated_date: new Date() };
-    if (job && status_audit.status.id === STATUS.Candidate_accepted_the_job_offer) {
-      applicantUpdate.job_accepted = job;
-    } else if (job && status_audit.status.id === STATUS.Candidate_was_not_selected) {
-      applicantUpdate.job_accepted = undefined;
-    }
-    await this.ienapplicantRepository.update(id, applicantUpdate);
 
     return status_audit;
   }
@@ -344,7 +343,6 @@ export class IENApplicantService {
       status_audit.reason = statusReason;
     }
 
-    const oldStatus = status_audit.status;
     if (status) {
       const status_obj = await this.ienapplicantUtilService.getStatusById(status);
       status_audit.status = status_obj;
@@ -371,7 +369,6 @@ export class IENApplicantService {
     const { job_accepted } = status_audit.applicant;
     if (
       status_audit.status.id !== STATUS.Candidate_accepted_the_job_offer &&
-      oldStatus.id === STATUS.Candidate_accepted_the_job_offer &&
       job_accepted?.id === status_audit.job?.id
     ) {
       // cancelled job acceptance
