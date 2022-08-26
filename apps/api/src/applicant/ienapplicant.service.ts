@@ -309,7 +309,7 @@ export class IENApplicantService {
           applicantUpdate.job_accepted = undefined;
           break;
         default:
-          return;
+          break;
       }
 
       await this.ienapplicantRepository.update(id, applicantUpdate);
