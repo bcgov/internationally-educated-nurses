@@ -651,14 +651,18 @@ export class ExternalAPIService {
     }
   }
 
-  async getApplicants(start?: string, end?: string) {
+  async getApplicants(filter:IENUserFilterAPIDTO) {
+    const { from, to, organization, limit, skip } = filter;
     return this.ienapplicantRepository.find({
       where: {
         updated_date: Between(
-          new Date(start || '1918-07-18').toISOString(),
-          end ? new Date(end).toISOString() : new Date().toISOString(),
+          new Date(from || '1918-07-18').toISOString(),
+          to ? new Date(to).toISOString() : new Date().toISOString(),
         ),
+        
       },
+      skip: skip? skip : 0,
+      take: limit? limit : undefined,
       relations: [
         'status',
         'added_by',
