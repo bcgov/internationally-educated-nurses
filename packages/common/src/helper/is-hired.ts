@@ -1,23 +1,23 @@
 import { STATUS } from '../enum';
-import { ApplicantRO, EmployeeRO } from '../ro';
-import { isAdmin } from './is-admin';
-import { isHmbc } from './is-hmbc';
+import { ApplicantJobRO, ApplicantRO, EmployeeRO } from '../ro';
+import dayjs from 'dayjs';
 
-export const isHired = (id?: number) => {
+export const isHired = (id?: STATUS) => {
   return id === STATUS.Candidate_accepted_the_job_offer;
 };
 
-export const isHiredByUs = (applicant: ApplicantRO, user?: EmployeeRO): boolean => {
-  const { job_accepted, status } = applicant;
-
-  // if current user is HMBC, show applicants latest milestone regardless of accepted job
-  if (isHmbc(user)) {
-    return isHired(status?.id);
-  }
-
-  return (
-    !!job_accepted &&
-    !!user &&
-    (job_accepted.ha_pcn.id === user.ha_pcn_id || isAdmin(user) || isHmbc(user))
+export const isJobAccepted = (job: ApplicantJobRO): boolean => {
+  const selected = job.status_audit?.find(s => isHired(s.status.id));
+  const notSelected = job.status_audit?.find(
+    s => s.status.id === STATUS.Candidate_was_not_selected,
   );
+  return !!selected && (!notSelected || dayjs(selected.start_date).isAfter(notSelected.start_date));
+};
+
+export const hasJobAccepted = (applicant: ApplicantRO): boolean => {
+  return !!applicant.jobs?.some(isJobAccepted);
+};
+
+export const isHiredByUs = (applicant: ApplicantRO, user?: EmployeeRO): boolean => {
+  return !!user?.ha_pcn_id && hasJobAccepted(applicant);
 };

@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { ApplicantTable } from '../../src/components/display/ApplicantTable';
 import { ApplicantRO } from '@ien/common';
+import { ApplicantTable } from '@components';
 
 describe('ApplicantTable', () => {
   it('renders applicants table', () => {

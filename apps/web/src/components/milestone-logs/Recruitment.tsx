@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 
 import { AddRecordModal } from '../display/AddRecordModal';
 import { Record } from './recruitment/Record';
-import { Access, ApplicantJobRO, isHired, JobFilterOptions, STATUS } from '@ien/common';
+import { Access, ApplicantJobRO, isJobAccepted, JobFilterOptions } from '@ien/common';
 import { AclMask, buttonBase, buttonColor, PageOptions, Pagination } from '@components';
 import addIcon from '@assets/img/add.svg';
 import { JobFilters } from './recruitment/JobFilters';
@@ -80,14 +80,6 @@ export const Recruitment: React.FC = () => {
     setExpandRecord(false);
   };
 
-  const isAnOfferAccepted = (job: ApplicantJobRO): boolean => {
-    const hiredIndex = job.status_audit?.findIndex(s => isHired(s.status.id));
-    const notSelectedIndex = job.status_audit?.findIndex(
-      s => s.status.id === STATUS.Candidate_was_not_selected,
-    );
-    return Boolean(hiredIndex) && Boolean((hiredIndex || -1) > (notSelectedIndex || -1));
-  };
-
   return (
     <>
       <JobFilters options={filters} update={handleFilters} />
@@ -97,7 +89,7 @@ export const Recruitment: React.FC = () => {
           job={job}
           expandRecord={expandRecord}
           jobIndex={index}
-          wasOfferAccepted={isAnOfferAccepted(job)}
+          wasOfferAccepted={isJobAccepted(job)}
         />
       ))}
       <AclMask acl={[Access.APPLICANT_WRITE]}>
