@@ -2,7 +2,7 @@
 import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { FindManyOptions, In, IsNull, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EmployeeRO, STATUS } from '@ien/common';
+import { EmployeeRO } from '@ien/common';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicant } from './entity/ienapplicant.entity';
 import { IENUsers } from './entity/ienusers.entity';
@@ -298,21 +298,6 @@ export class IENApplicantService {
      */
     if (job) {
       await this.ienapplicantUtilService.updatePreviousActiveStatusForJob(job, data);
-
-      const applicantUpdate: Partial<IENApplicant> = { updated_date: new Date() };
-
-      switch (status_audit.status.id) {
-        case STATUS.Candidate_accepted_the_job_offer:
-          applicantUpdate.job_accepted = job;
-          break;
-        case STATUS.Candidate_was_not_selected:
-          applicantUpdate.job_accepted = undefined;
-          break;
-        default:
-          break;
-      }
-
-      await this.ienapplicantRepository.update(id, applicantUpdate);
     }
 
     // Let's check and updated the latest status on applicant
@@ -373,23 +358,9 @@ export class IENApplicantService {
     }
     await this.ienapplicantStatusAuditRepository.save(status_audit);
 
-    const applicantUpdate: Partial<IENApplicant> = { updated_date: new Date() };
-    const { job_accepted } = status_audit.applicant;
-    if (
-      status_audit.status.id !== STATUS.Candidate_accepted_the_job_offer &&
-      job_accepted?.id === status_audit.job?.id
-    ) {
-      // cancelled job acceptance
-      applicantUpdate.job_accepted = undefined;
-    } else if (
-      status_audit.status.id === STATUS.Candidate_accepted_the_job_offer &&
-      status_audit.job &&
-      job_accepted?.id !== status_audit.job?.id
-    ) {
-      // accepted a new job offer
-      applicantUpdate.job_accepted = status_audit.job;
-    }
-    await this.ienapplicantRepository.update(status_audit.applicant.id, applicantUpdate);
+    await this.ienapplicantRepository.update(status_audit.applicant.id, {
+      updated_date: new Date(),
+    });
 
     // Let's check and updated the latest status on applicant
     await this.ienapplicantUtilService.updateLatestStatusOnApplicant([status_audit.applicant.id]);
@@ -420,11 +391,7 @@ export class IENApplicantService {
 
     await this.ienapplicantUtilService.updateLatestStatusOnApplicant([status.applicant.id]);
 
-    const applicantUpdate: Partial<IENApplicant> = { updated_date: new Date() };
-    if (status.status.id === STATUS.Candidate_accepted_the_job_offer) {
-      applicantUpdate.job_accepted = undefined;
-    }
-    await this.ienapplicantRepository.update(status.applicant.id, applicantUpdate);
+    await this.ienapplicantRepository.update(status.applicant.id, { updated_date: new Date() });
   }
 
   /**
