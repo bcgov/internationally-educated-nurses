@@ -95,7 +95,15 @@ export class IENApplicantUtilService {
       order: {
         [sortKey || 'updated_date']: sortKey ? order : 'DESC',
       },
-      relations: this.applicantRelations.status,
+      relations: [
+        'status',
+        'status.parent',
+        'added_by',
+        'updated_by',
+        'jobs',
+        'jobs.status_audit',
+        'jobs.status_audit.status',
+      ],
     };
 
     if (limit) query.take = limit;

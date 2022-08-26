@@ -1,11 +1,20 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { buttonBase, buttonColor } from '@components';
-import { ApplicantRO, EmployeeRO, formatDate, isHiredByUs, STATUS } from '@ien/common';
+import {
+  ApplicantJobRO,
+  ApplicantRO,
+  ApplicantStatusAuditRO,
+  EmployeeRO,
+  formatDate,
+  isHiredByUs,
+  isHmbc,
+} from '@ien/common';
 import hiredCheckmarkIcon from '@assets/img/hired_checkmark.svg';
 import { Spinner } from '../Spinner';
 import { SortButton } from '../SortButton';
 import { useAuthContext } from '../AuthContexts';
+import dayjs from 'dayjs';
 
 export interface ApplicantTableProps {
   applicants: ApplicantRO[];
@@ -13,29 +22,19 @@ export interface ApplicantTableProps {
   onSortChange: (field: string) => void;
 }
 
-// determine milestone text for status
-const milestoneText = (applicant: ApplicantRO, user?: EmployeeRO) => {
-  const { status } = applicant;
-  if (!status) {
-    return <td className='px-6'></td>;
+const compareJobStartDates = (d1?: ApplicantStatusAuditRO, d2?: ApplicantStatusAuditRO) => {
+  if (d1 && d2) {
+    return dayjs(d1.start_date) > dayjs(d2.start_date) ? d1 : d2;
   }
+  return undefined;
+};
 
-  // if applicant has accepted an offer, show detailed Hired status and checkmark
-  if (isHiredByUs(applicant, user)) {
-    return (
-      <td className='px-6 font-bold text-bcGreenHiredText'>
-        Hired
-        <img src={hiredCheckmarkIcon.src} alt='hired checkmark' className='inline-block h-6 mx-2' />
-      </td>
-    );
+const filterAudits = (job?: ApplicantJobRO) => {
+  if (job && job.status_audit) {
+    return job?.status_audit && job?.status_audit.length > 0
+      ? job?.status_audit[job?.status_audit.length - 1]
+      : job?.status_audit[0];
   }
-
-  // else check if current user is part of a HA and the status is in the Recruitment step
-  return user?.ha_pcn_id && status?.parent?.id === STATUS.IEN_Recruitment ? (
-    <td className='px-6'>In Progress</td>
-  ) : (
-    <td className='px-6 truncate'>{status?.status}</td>
-  );
 };
 
 export const ApplicantTable = (props: ApplicantTableProps) => {
@@ -43,6 +42,48 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
   const router = useRouter();
 
   const { authUser } = useAuthContext();
+
+  // determine milestone text for status
+  const milestoneText = (applicant: ApplicantRO, user?: EmployeeRO) => {
+    const { status, jobs } = applicant;
+
+    // if applicant has accepted an offer, show detailed Hired status and checkmark
+    if (isHiredByUs(applicant, user)) {
+      return (
+        <td className='px-6 font-bold text-bcGreenHiredText'>
+          Hired
+          <img
+            src={hiredCheckmarkIcon.src}
+            alt='hired checkmark'
+            className='inline-block h-6 mx-2'
+          />
+        </td>
+      );
+    }
+
+    // if user is hmbc show latest status
+    if (isHmbc(user)) {
+      return <td className='px-6'>{status?.status}</td>;
+    }
+
+    // if all checks passed, filter jobs by users HA
+    const filterByHaJobs = jobs
+      ?.filter(j => j.ha_pcn.id === authUser?.ha_pcn_id)
+      .map((job: ApplicantJobRO) => filterAudits(job))
+      .filter(s => s !== undefined);
+
+    // filter jobs by start_date to determine latest milestone
+    if (filterByHaJobs && filterByHaJobs.length > 0) {
+      const mostRecentMilestone = filterByHaJobs?.reduce(
+        (prev: ApplicantStatusAuditRO | undefined, curr: ApplicantStatusAuditRO | undefined) =>
+          compareJobStartDates(prev, curr),
+      );
+
+      return <td className='px-6'>{mostRecentMilestone?.status?.status}</td>;
+    }
+
+    return <td className='px-6'>N/A</td>;
+  };
 
   const getApplicantId = (applicant: ApplicantRO): string => {
     const { id, applicant_id } = applicant;
