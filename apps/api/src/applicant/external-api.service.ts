@@ -241,34 +241,34 @@ export class ExternalAPIService {
    * fetch and upsert applicant details
    */
   async saveApplicant(from: string, to?: string): Promise<SyncApplicantsResultDTO | undefined> {
-    if (!from) {
-      throw new BadRequestException('from date is required');
+    /**
+     * We want to sync yesterday's data on everyday basis
+     * On daily basis we will use auto generated from and to date
+     * If we pass from-to date, It will sync data between given dates.
+     * That helps to import data on any environment and correct past data anytime.
+     */
+    let from_date = from;
+    if (!from_date) {
+      // Fetch last successful run, to make sure we are not missing any data to sync due to external server failure
+      const lastSync = await this.getLatestSuccessfulSync();
+      from_date = lastSync.length ? dayjs(lastSync[0].updated_date).format('YYYY-MM-DD') : '';
+    }
+    if (!from_date) {
+      from_date = dayjs().add(-1, 'day').format('YYYY-MM-DD'); // yesterday
     }
 
-    if (dayjs(to).isBefore(dayjs(from))) {
+    const to_date = to || dayjs().format('YYYY-MM-DD');
+
+    if (dayjs(to_date).isBefore(from_date)) {
       throw new BadRequestException(
-        `${to} falls before ${from} : 'from' date must come before 'to' date.`,
+        `'to' (${to_date}) falls before 'from' (${from_date}) : 'from' date must come before 'to' date.`,
       );
     }
 
+    const parallel_requests = 5;
+
     const audit = await this.saveSyncApplicantsAudit();
     try {
-      /**
-       * We want to sync yesterday's data on everyday basis
-       * On daily basis we will use auto generated from and to date
-       * If we pass from-to date, It will sync data between given dates.
-       * That helps to import data on any environment and correct past data anytime.
-       */
-      const yesterday = new Date();
-      yesterday.setDate(new Date().getDate() - 1);
-      // Fetch last succesfull run, to make sure we are not missing any data to sync due to external server failure
-      const lastSync = await this.getLatestSuccessfulSync();
-      const fromLastSync = lastSync.length
-        ? lastSync[0].updated_date.toISOString().slice(0, 10)
-        : undefined;
-      const from_date = from || fromLastSync || yesterday.toISOString().slice(0, 10);
-      const to_date = to || new Date().toISOString().slice(0, 10);
-      const parallel_requests = 5;
       const per_page = 50;
       let offset = 0;
       let is_next = true;
