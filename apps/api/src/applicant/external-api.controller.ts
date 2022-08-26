@@ -133,9 +133,7 @@ export class ExternalAPIController {
   // @UseGuards(JWTGuard)
   @ApiBearerAuth()
   @Get('/applicants')
-  async getApplicants(
-    @Query() filter: IENUserFilterAPIDTO
-  ): Promise<IENApplicant[]> {
+  async getApplicants(@Query() filter: IENUserFilterAPIDTO): Promise<IENApplicant[]> {
     return this.externalAPIService.getApplicants(filter);
   }
 }

@@ -54,7 +54,7 @@ export class JWTGuard implements CanActivate {
       // JWT Token expiry is in seconds since the unix epoc, so we need to multiply them by 1000 to convert them into timestamps.
       if (
         dayjs(decoded?.exp * 1000).isAfter(dayjs()) &&
-        dayjs(decoded?.exp * 1000).isBefore(dayjs().add(90, 'minutes'))
+        dayjs(decoded?.exp * 1000).isBefore(dayjs().add(5, 'minutes'))
       ) {
         return decoded;
       } else {

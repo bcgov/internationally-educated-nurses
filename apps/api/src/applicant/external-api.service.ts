@@ -15,7 +15,6 @@ import {
   FindManyOptions,
   ObjectLiteral,
   SelectQueryBuilder,
-  Between,
 } from 'typeorm';
 import dayjs from 'dayjs';
 import { Authorities } from '@ien/common';
@@ -651,18 +650,25 @@ export class ExternalAPIService {
     }
   }
 
-  async getApplicants(filter:IENUserFilterAPIDTO) {
-    const { from, to, organization, limit, skip } = filter;
+  async getApplicants(filter: IENUserFilterAPIDTO) {
+    const { from, to, limit, skip } = filter;
+    const queryString = `SELECT DISTINCT applicant_id  
+    FROM ien_applicant_status_audit 
+    WHERE updated_date <'${to || dayjs().add(1, 'day').format('YYYY-MM-DD')}' and updated_date >'${
+      from || '1914-07-18'
+    }';`;
+    const ids: string[] = (await this.ienapplicantStatusAuditRepository.query(queryString)).map(
+      (result: { applicant_id: string }) => result.applicant_id,
+    );
+    if (!ids.length) {
+      return [];
+    }
     return this.ienapplicantRepository.find({
-      where: {
-        updated_date: Between(
-          new Date(from || '1918-07-18').toISOString(),
-          to ? new Date(to).toISOString() : new Date().toISOString(),
-        ),
-        
+      where: (qb: any) => {
+        qb.where(`IENApplicant.id IN (:...ids)`, { ids });
       },
-      skip: skip? skip : 0,
-      take: limit? limit : undefined,
+      skip: skip ? skip : 0,
+      take: limit ? limit : undefined,
       relations: [
         'status',
         'added_by',
