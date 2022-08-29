@@ -130,7 +130,7 @@ export class ExternalAPIController {
   })
   @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JWTGuard)
+  // @UseGuards(JWTGuard)
   @ApiBearerAuth()
   @Get('/applicants')
   async getApplicants(@Query() filter: IENUserFilterAPIDTO): Promise<IENApplicant[]> {

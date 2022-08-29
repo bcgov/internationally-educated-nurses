@@ -652,11 +652,17 @@ export class ExternalAPIService {
 
   async getApplicants(filter: IENUserFilterAPIDTO) {
     const { from, to, limit, skip } = filter;
-    const queryString = `SELECT DISTINCT applicant_id  
+    let queryString = `SELECT DISTINCT applicant_id  
     FROM ien_applicant_status_audit 
     WHERE updated_date <'${to || dayjs().add(1, 'day').format('YYYY-MM-DD')}' and updated_date >'${
       from || '1914-07-18'
-    }';`;
+    }'`;
+    if(limit){
+      queryString = queryString +(limit? ` LIMIT ${limit} `:'' )
+    }
+    if(skip){
+      queryString = queryString + (skip?` OFFSET ${skip} `:'');
+    }
     const ids: string[] = (await this.ienapplicantStatusAuditRepository.query(queryString)).map(
       (result: { applicant_id: string }) => result.applicant_id,
     );
@@ -667,8 +673,6 @@ export class ExternalAPIService {
       where: (qb: any) => {
         qb.where(`IENApplicant.id IN (:...ids)`, { ids });
       },
-      skip: skip ? skip : 0,
-      take: limit ? limit : undefined,
       relations: [
         'status',
         'added_by',
