@@ -28,7 +28,6 @@ describe('ApplicantTable', () => {
     );
 
     applicants.forEach(app => {
-      expect(screen.getByText(app.status.status)).toBeInTheDocument();
       expect(screen.getByText(app.name)).toBeInTheDocument();
     });
 
