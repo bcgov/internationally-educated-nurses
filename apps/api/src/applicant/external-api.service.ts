@@ -670,7 +670,6 @@ export class ExternalAPIService {
         ids.push(result.applicant_id);
       }
     });
-    console.log(ids);
     if (!ids.length) {
       return [];
     }
