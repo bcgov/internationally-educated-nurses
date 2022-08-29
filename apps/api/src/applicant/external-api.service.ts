@@ -652,20 +652,25 @@ export class ExternalAPIService {
 
   async getApplicants(filter: IENUserFilterAPIDTO) {
     const { from, to, limit, skip } = filter;
-    let queryString = `SELECT DISTINCT applicant_id  
-    FROM ien_applicant_status_audit 
-    WHERE updated_date <'${to || dayjs().add(1, 'day').format('YYYY-MM-DD')}' and updated_date >'${
-      from || '1914-07-18'
-    }'`;
-    if (limit) {
-      queryString = queryString +` LIMIT ${limit} `;
-    }
-    if (skip) {
-      queryString = queryString + `OFFSET ${skip} `;
-    }
-    const ids: string[] = (await this.ienapplicantStatusAuditRepository.query(queryString)).map(
-      (result: { applicant_id: string }) => result.applicant_id,
-    );
+    let ids: string[] = [];
+    (
+      await this.ienapplicantStatusAuditRepository
+        .createQueryBuilder()
+        .select('applicant_id')
+        .where('updated_date < :toDate AND updated_date > :fromDate', {
+          toDate: to || dayjs().add(1, 'day').format('YYYY-MM-DD'),
+          fromDate: from || '1914-07-18',
+        })
+        .limit(limit)
+        .skip(skip)
+        .distinct()
+        .execute()
+    ).map((result: { applicant_id: string }) => {
+      if (result.applicant_id) {
+        ids.push(result.applicant_id);
+      }
+    });
+    console.log(ids);
     if (!ids.length) {
       return [];
     }
@@ -673,14 +678,7 @@ export class ExternalAPIService {
       where: (qb: any) => {
         qb.where(`IENApplicant.id IN (:...ids)`, { ids });
       },
-      relations: [
-        'status',
-        'added_by',
-        'updated_by',
-        'jobs',
-        'applicant_status_audit',
-        'applicant_audit',
-      ],
+      relations: ['applicant_status_audit'],
     });
   }
 }
