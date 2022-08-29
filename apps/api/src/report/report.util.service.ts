@@ -307,18 +307,25 @@ export class ReportUtilService {
 
   licenseApplicantsQuery(from: string, to: string) {
     return `
-      WITH applicants_count AS (
-        SELECT status_id, count(*) as total
-        FROM public.ien_applicant_status_audit 
-        WHERE 
-          status_id IN (16, 19) AND
-          start_date >= '${from}' AND
-          start_date <= '${to}'
-        GROUP BY status_id
-      )
-      SELECT 'Provisional License' as status, COALESCE((SELECT total FROM applicants_count WHERE status_id = 16), 0) as applicants
-      UNION ALL
-      SELECT 'Full License' as status, COALESCE((SELECT total FROM applicants_count WHERE status_id = 19), 0) as applicants;
+    WITH full_licenses AS (
+      SELECT DISTINCT applicant_id, status_id
+                    FROM public.ien_applicant_status_audit 
+                    WHERE 
+                      status_id = 19 AND
+                      start_date >= '${to}' AND
+                      start_date <= '${from}'),
+    partial_licenses AS (
+      SELECT DISTINCT applicant_id, status_id
+                    FROM public.ien_applicant_status_audit 
+                    WHERE 
+                      status_id IN (16) AND
+                      start_date >= '${to}' AND
+                      start_date <= '${from}'
+              AND applicant_id NOT in(Select applicant_id from full_licenses))
+              
+    select 'Provisional License' as status, count(*) AS applicant_count from full_licenses 
+    UNION ALL 
+    select 'Full License' as status, count(*) as applicant_count from partial_licenses; 
     `;
   }
 
