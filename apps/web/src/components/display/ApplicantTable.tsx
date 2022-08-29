@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { buttonBase, buttonColor } from '@components';
-import { ApplicantRO, EmployeeRO, formatDate, isHiredByUs, STATUS } from '@ien/common';
+import { ApplicantRO, formatDate, isHmbc, isHired } from '@ien/common';
 import hiredCheckmarkIcon from '@assets/img/hired_checkmark.svg';
 import { Spinner } from '../Spinner';
 import { SortButton } from '../SortButton';
@@ -14,14 +14,14 @@ export interface ApplicantTableProps {
 }
 
 // determine milestone text for status
-const milestoneText = (applicant: ApplicantRO, user?: EmployeeRO) => {
+const milestoneText = (applicant: ApplicantRO) => {
   const { status } = applicant;
   if (!status) {
     return <td className='px-6'></td>;
   }
 
   // if applicant has accepted an offer, show detailed Hired status and checkmark
-  if (isHiredByUs(applicant, user)) {
+  if (isHired(status.id)) {
     return (
       <td className='px-6 font-bold text-bcGreenHiredText'>
         Hired
@@ -30,12 +30,7 @@ const milestoneText = (applicant: ApplicantRO, user?: EmployeeRO) => {
     );
   }
 
-  // else check if current user is part of a HA and the status is in the Recruitment step
-  return user?.ha_pcn_id && status?.parent?.id === STATUS.IEN_Recruitment ? (
-    <td className='px-6'>In Progress</td>
-  ) : (
-    <td className='px-6 truncate'>{status?.status}</td>
-  );
+  return <td className='px-6 truncate'>{status.status}</td>;
 };
 
 export const ApplicantTable = (props: ApplicantTableProps) => {
@@ -60,7 +55,8 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
             <th className='px-6' scope='col'>
               <SortButton label='Name' sortKey='name' onChange={onSortChange} />
             </th>
-            <th className='px-6 w-1/3'>Current Status</th>
+            {isHmbc(authUser) && <th className='px-6 w-1/3'>Current Status</th>}
+
             <th className='px-6 w-36' scope='col'>
               <SortButton label='Last Updated' sortKey='updated_date' onChange={onSortChange} />
             </th>
@@ -77,12 +73,15 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
               <tr
                 key={app.id}
                 className={`text-left shadow-xs whitespace-nowrap ${
-                  isHiredByUs(app, authUser) ? 'bg-bcGreenHiredContainer' : 'even:bg-bcLightGray'
+                  isHmbc(authUser) && isHired(app.status?.id)
+                    ? 'bg-bcGreenHiredContainer'
+                    : 'even:bg-bcLightGray'
                 } text-sm`}
               >
                 <td className='pl-6'>{getApplicantId(app)}</td>
                 <td className='px-6 py-5 truncate'>{app.name}</td>
-                {milestoneText(app, authUser)}
+                {isHmbc(authUser) && milestoneText(app)}
+
                 <td className='px-6'>{app.updated_date && formatDate(app.updated_date)}</td>
                 <td className='px-6 truncate'>
                   {app.assigned_to?.map(({ name }) => name).join(', ')}
