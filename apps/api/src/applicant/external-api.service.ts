@@ -658,10 +658,10 @@ export class ExternalAPIService {
       from || '1914-07-18'
     }'`;
     if (limit) {
-      queryString = queryString + (limit ? ` LIMIT ${limit} ` : '');
+      queryString = queryString +` LIMIT ${limit} `;
     }
     if (skip) {
-      queryString = queryString + (skip ? ` OFFSET ${skip} ` : '');
+      queryString = queryString + `OFFSET ${skip} `;
     }
     const ids: string[] = (await this.ienapplicantStatusAuditRepository.query(queryString)).map(
       (result: { applicant_id: string }) => result.applicant_id,
