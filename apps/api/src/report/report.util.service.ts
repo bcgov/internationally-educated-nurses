@@ -323,9 +323,9 @@ export class ReportUtilService {
                       start_date <= '${from}'
               AND applicant_id NOT in(Select applicant_id from full_licenses))
               
-    select 'Provisional License' as status, count(*) AS applciant_count from full_licenses 
+    select 'Provisional License' as status, count(*) AS applicant_count from full_licenses 
     UNION ALL 
-    select 'Full License' as status, count(*) as applciant_count from partial_licenses; 
+    select 'Full License' as status, count(*) as applicant_count from partial_licenses; 
     `;
   }
 
