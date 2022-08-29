@@ -657,11 +657,11 @@ export class ExternalAPIService {
     WHERE updated_date <'${to || dayjs().add(1, 'day').format('YYYY-MM-DD')}' and updated_date >'${
       from || '1914-07-18'
     }'`;
-    if(limit){
-      queryString = queryString +(limit? ` LIMIT ${limit} `:'' )
+    if (limit) {
+      queryString = queryString + (limit ? ` LIMIT ${limit} ` : '');
     }
-    if(skip){
-      queryString = queryString + (skip?` OFFSET ${skip} `:'');
+    if (skip) {
+      queryString = queryString + (skip ? ` OFFSET ${skip} ` : '');
     }
     const ids: string[] = (await this.ienapplicantStatusAuditRepository.query(queryString)).map(
       (result: { applicant_id: string }) => result.applicant_id,
