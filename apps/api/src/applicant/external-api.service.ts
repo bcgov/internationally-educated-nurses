@@ -15,7 +15,6 @@ import {
   FindManyOptions,
   ObjectLiteral,
   SelectQueryBuilder,
-  Between,
 } from 'typeorm';
 import dayjs from 'dayjs';
 import { Authorities } from '@ien/common';
@@ -651,22 +650,30 @@ export class ExternalAPIService {
     }
   }
 
-  async getApplicants(start?: string, end?: string) {
+  async getApplicants(filter: IENUserFilterAPIDTO) {
+    const { from, to, limit, skip } = filter;
+    const audits: { applicant_id: string }[] = await this.ienapplicantStatusAuditRepository
+      .createQueryBuilder()
+      .select('applicant_id')
+      .where('updated_date < :toDate AND updated_date > :fromDate', {
+        toDate: to || dayjs().add(1, 'day').format('YYYY-MM-DD'),
+        fromDate: from || '1914-07-18',
+      })
+      .andWhere({ applicant: Not(IsNull()) })
+      .limit(limit)
+      .skip(skip)
+      .distinct()
+      .execute();
+
+    if (!audits.length) {
+      return [];
+    }
+    const ids = audits.map(audit => audit.applicant_id);
     return this.ienapplicantRepository.find({
-      where: {
-        updated_date: Between(
-          new Date(start || '1918-07-18').toISOString(),
-          end ? new Date(end).toISOString() : new Date().toISOString(),
-        ),
+      where: (qb: any) => {
+        qb.where(`IENApplicant.id IN (:...ids)`, { ids });
       },
-      relations: [
-        'status',
-        'added_by',
-        'updated_by',
-        'jobs',
-        'applicant_status_audit',
-        'applicant_audit',
-      ],
+      relations: ['applicant_status_audit'],
     });
   }
 }
