@@ -652,27 +652,23 @@ export class ExternalAPIService {
 
   async getApplicants(filter: IENUserFilterAPIDTO) {
     const { from, to, limit, skip } = filter;
-    let ids: string[] = [];
-    (
-      await this.ienapplicantStatusAuditRepository
-        .createQueryBuilder()
-        .select('applicant_id')
-        .where('updated_date < :toDate AND updated_date > :fromDate', {
-          toDate: to || dayjs().add(1, 'day').format('YYYY-MM-DD'),
-          fromDate: from || '1914-07-18',
-        })
-        .limit(limit)
-        .skip(skip)
-        .distinct()
-        .execute()
-    ).map((result: { applicant_id: string }) => {
-      if (result.applicant_id) {
-        ids.push(result.applicant_id);
-      }
-    });
-    if (!ids.length) {
+    const audits: { applicant_id: string }[] = await this.ienapplicantStatusAuditRepository
+      .createQueryBuilder()
+      .select('applicant_id')
+      .where('updated_date < :toDate AND updated_date > :fromDate', {
+        toDate: to || dayjs().add(1, 'day').format('YYYY-MM-DD'),
+        fromDate: from || '1914-07-18',
+      })
+      .andWhere({ applicant: Not(IsNull()) })
+      .limit(limit)
+      .skip(skip)
+      .distinct()
+      .execute();
+
+    if (!audits.length) {
       return [];
     }
+    const ids = audits.map(audit => audit.applicant_id);
     return this.ienapplicantRepository.find({
       where: (qb: any) => {
         qb.where(`IENApplicant.id IN (:...ids)`, { ids });
