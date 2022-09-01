@@ -27,11 +27,6 @@ export class IENApplicant {
   @Column('varchar')
   name!: string;
 
-  // description: 'HMBC ATS system unique ID'
-  @Index({ unique: true })
-  @Column('bigint', { nullable: true, comment: 'HMBC ATS system unique ID' })
-  applicant_id_old?: number;
-
   @Index({unique:true})
   @Column('uuid',{nullable:true})
   applicant_id?:string;

@@ -5,8 +5,11 @@ import { IENApplicant } from './ienapplicant.entity';
 
 @Entity('ien_applicant_status')
 export class IENApplicantStatus {
-  @PrimaryColumn()
-  id!: number;
+  @PrimaryColumn({
+    type:'uuid',
+    nullable:false,
+  })
+  id!: string;
 
   @Column()
   status!: string;
@@ -18,6 +21,10 @@ export class IENApplicantStatus {
   @Exclude()
   full_name?: string;
 
+  @Column({type:'varchar', length:256,nullable:true})
+  category?:string
+
+  // TODO - Rework 
   @ManyToOne(() => IENApplicantStatus, status => status.id)
   parent?: IENApplicantStatus;
 

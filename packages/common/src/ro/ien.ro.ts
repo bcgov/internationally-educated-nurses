@@ -1,5 +1,5 @@
 export interface IENApplicantStatusRO {
-  id: number;
+  id: string;
   status: string;
   party?: string;
   parent?: IENApplicantStatusRO;

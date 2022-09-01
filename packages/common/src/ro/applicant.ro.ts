@@ -12,7 +12,7 @@ import {
 export interface ApplicantRO {
   id: string;
   name: string;
-  applicant_id?: number;
+  applicant_id?: string;
   email_address?: string;
   phone_number?: string;
   registration_date?: Date;

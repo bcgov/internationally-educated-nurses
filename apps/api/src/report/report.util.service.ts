@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { isValidDateFormat } from 'src/common/util';
+import { isValidDateFormat, StatusCategory } from 'src/common/util';
 import dayjs from 'dayjs';
 import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.entity';
 
@@ -209,7 +209,7 @@ export class ReportUtilService {
   SQL query explains:
   active_applicants:
     Let's find active applicants first.
-    Let's find the applicant's latest status from the (10001, 10002, and 10003) category(Ignoring immigration category).
+    Let's find the applicant's latest status from the (INTAKE, , and 10003) category(Ignoring immigration category).
       If the applicant withdrawal then-latest status must be withdrawn,
       If the applicant is hired then-latest status must be hired only(from 10001, 10002, and 10003 categories)
       has_license: during this process, we are capturing provisional/full license detail too
@@ -255,7 +255,7 @@ export class ReportUtilService {
                 SELECT ien_status.status_id 
                 FROM public.ien_applicant_status_audit ien_status
                 LEFT JOIN public.ien_applicant_status status ON status.id=ien_status.status_id
-                WHERE ien_status.applicant_id=applicants.id AND ien_status.start_date::date <= '${to}' AND status.parent_id IN (10001, 10002, 10003)
+                WHERE ien_status.applicant_id=applicants.id AND ien_status.start_date::date <= '${to}' AND status.category IN (${StatusCategory.INTAKE},${StatusCategory.LICENSING_REGISTRATION} ,${StatusCategory.RECRUITMENT})
                 ORDER BY ien_status.start_date DESC limit 1
               ),0) IN (20, 28) 
             THEN 1
@@ -281,7 +281,7 @@ export class ReportUtilService {
             start_date::date >= '${from}' AND
             start_date::date <= '${to}' AND
             aa.id=status_audit.applicant_id AND
-            status.parent_id = 10002
+            status.category = '${StatusCategory.LICENSING_REGISTRATION}'
           ORDER BY start_date desc
           limit 1
         ) b ON aa.id=b.applicant_id
@@ -348,7 +348,7 @@ export class ReportUtilService {
           LEFT JOIN public.ien_applicant_status status ON status.id=ien_status.status_id
           WHERE
             ien_status.start_date::date <= '${to}' 
-            AND status.parent_id IN (10001, 10002, 10003)
+            AND status.category IN (${StatusCategory.INTAKE}, ${StatusCategory.LICENSING_REGISTRATION}, ${StatusCategory.RECRUITMENT})
             AND ien_status.status_id IN (20, 28)
         ) as t1
         WHERE t1.rank=1
@@ -699,7 +699,7 @@ export class ReportUtilService {
             WHEN sdoes.nnas IS NOT null THEN (
             (
               SELECT min(start_date) FROM public.ien_applicant_status_audit asa LEFT JOIN public.ien_applicant_status ien_status ON ien_status.id=asa.status_id
-              WHERE asa.applicant_id=sdoes.id AND asa.start_date >= sdoes.nnas AND (asa.status_id IN (6,7,8,9,10,11,12,13,14,15,16,17,18,19) OR ien_status.parent_id IN (10003, 10004, 10005))
+              WHERE asa.applicant_id=sdoes.id AND asa.start_date >= sdoes.nnas AND (asa.status_id IN (6,7,8,9,10,11,12,13,14,15,16,17,18,19) OR ien_status.parent_id IN (${StatusCategory.RECRUITMENT}, ${StatusCategory.BC_PNP}, ${StatusCategory.FINAL}))
             ) - sdoes.nnas)
           END
           ) AS nnas_duration,
@@ -708,7 +708,7 @@ export class ReportUtilService {
             WHEN sdoes.bccnm_ncas IS NOT null THEN (
             (
               SELECT min(start_date) FROM public.ien_applicant_status_audit asa LEFT JOIN public.ien_applicant_status ien_status ON ien_status.id=asa.status_id
-              WHERE asa.applicant_id=sdoes.id AND asa.start_date >= sdoes.nnas AND (asa.status_id IN (12,13,14,15,16,17,18,19) OR ien_status.parent_id IN (10003, 10004, 10005))
+              WHERE asa.applicant_id=sdoes.id AND asa.start_date >= sdoes.nnas AND (asa.status_id IN (12,13,14,15,16,17,18,19) OR ien_status.category IN (${StatusCategory.RECRUITMENT}, ${StatusCategory.BC_PNP}, ${StatusCategory.FINAL}))
             ) - sdoes.bccnm_ncas)
           END
           ) AS bccnm_ncas_duration,
@@ -791,7 +791,7 @@ export class ReportUtilService {
   extractApplicantsDataQuery(from: string, to: string, milestones: IENApplicantStatus[]) {
     const milestone_ids: string[] = [];
     const milestoneList: string[] = [];
-    milestones.forEach((item: { id: number; status: string }) => {
+    milestones.forEach((item: { id: string; status: string }) => {
       milestone_ids.push(`"${item.id}" date`); // It will help to create dynamic column from json object
       milestoneList.push(`to_char(x."${item.id}", 'YYYY-MM-DD') as "${item.status}"`); // Display status name instead of id
     });

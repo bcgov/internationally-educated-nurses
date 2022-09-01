@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 import { ReportUtilService } from './report.util.service';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.entity';
-import { startDateOfFiscal } from 'src/common/util';
+import { startDateOfFiscal, StatusCategory } from 'src/common/util';
 import { ReportPeriodDTO } from '@ien/common';
 
 const PERIOD_START_DATE = '2022-05-02';
@@ -247,7 +247,8 @@ export class ReportService {
     this.logger.log(`extractApplicantsData: Apply date filter from (${from}) and to (${to})`);
     /** Data correction not done yet from ATS, that's why added lessThanOrEqual condition */
     const milestones: IENApplicantStatus[] = await this.ienapplicantStatusRepository.find({
-      where: { parent: 10002, id: LessThanOrEqual(99) },
+      // TODO  - Verify if this is the correct status for export
+      where: { category: StatusCategory.RECRUITMENT},
     });
     const entityManager = getManager();
     const data = await entityManager.query(

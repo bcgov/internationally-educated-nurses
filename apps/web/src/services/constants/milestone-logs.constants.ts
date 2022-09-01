@@ -1,7 +1,7 @@
 export enum StatusCategory {
-  INTAKE = 10001,
-  LICENSING_REGISTRATION = 10002,
-  RECRUITMENT = 10003,
-  BC_PNP = 10004,
-  FINAL = 10005,
+  INTAKE = "INTAKE",
+  LICENSING_REGISTRATION = "IEN Licensing/Registration Process",
+  RECRUITMENT = "IEN Recruitment Process",
+  BC_PNP = "BC PNP Process",
+  FINAL = "FINAL",
 }

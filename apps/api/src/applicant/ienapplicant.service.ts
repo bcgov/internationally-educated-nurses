@@ -20,6 +20,7 @@ import {
   IENApplicantUpdateStatusAPIDTO,
 } from './dto';
 import { isAdmin } from '@ien/common/dist/helper/is-admin';
+import { StatusCategory } from 'src/common/util';
 
 @Injectable()
 export class IENApplicantService {
@@ -250,7 +251,7 @@ export class IENApplicantService {
       throw new BadRequestException(`Invalid milestone: id(${status})`);
     }
 
-    if (!isAdmin(user) && status_obj.parent?.id != 10003) {
+    if (!isAdmin(user) && status_obj.category != StatusCategory.RECRUITMENT) {
       throw new BadRequestException(
         `Only recruitment-related milestones/statuses are allowed here`,
       );
@@ -265,7 +266,7 @@ export class IENApplicantService {
         throw new BadRequestException('Provided applicant and competition/job does not match');
       }
     }
-    if (data.status.parent?.id === 10003 && !job) {
+    if (data.status.category === StatusCategory.RECRUITMENT && !job) {
       throw new BadRequestException(`Competition/job are required to add a milestone`);
     }
 

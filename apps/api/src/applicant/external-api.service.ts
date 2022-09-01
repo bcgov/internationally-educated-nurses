@@ -20,7 +20,7 @@ import dayjs from 'dayjs';
 import { Authorities } from '@ien/common';
 import { ExternalRequest } from 'src/common/external-request';
 import { AppLogger } from 'src/common/logger.service';
-import { getMilestoneCategory } from 'src/common/util';
+import { StatusCategory } from 'src/common/util';
 import { IENApplicant } from './entity/ienapplicant.entity';
 import { IENApplicantStatusAudit } from './entity/ienapplicant-status-audit.entity';
 import { IENApplicantUtilService } from './ienapplicant.util.service';
@@ -164,10 +164,11 @@ export class ExternalAPIService {
    */
   async saveMilestones(): Promise<void> {
     try {
-      const data = await this.external_request.getMilestone();
+      const data:{id:string, name:string, category:string, "process-related":boolean} = await this.external_request.getMilestone();
+      console.log(data);
       if (Array.isArray(data)) {
         const result = await this.ienMasterService.ienApplicantStatusRepository.upsert(
-          this.cleanAndFilterMilestone(data),
+          data,
           ['id'],
         );
         this.logger.log(`${result.raw.length}/${data.length} milestones updated`, 'ATS');
@@ -177,39 +178,6 @@ export class ExternalAPIService {
     }
   }
 
-  cleanAndFilterMilestone(data: any) {
-    return data.reduce(
-      (
-        filtered: {
-          parent: number;
-          id: string | number;
-          status: string;
-          party: string;
-          full_name: string;
-        }[],
-        item: {
-          category: string;
-          id: string | number;
-          name: string;
-          party: string;
-          full_name: string;
-        },
-      ) => {
-        const category = getMilestoneCategory(item.category);
-        if (category && category !== 10003) {
-          filtered.push({
-            id: item.id,
-            status: item.name,
-            party: item.party,
-            parent: category,
-            full_name: item?.full_name,
-          });
-        }
-        return filtered;
-      },
-      [],
-    );
-  }
 
   createParallelRequestRun(input: {
     parallel_requests: number;
@@ -508,15 +476,20 @@ export class ExternalAPIService {
   /**
    * We need to ignore all the recruiment related milestone for now
    */
-  async allowedMilestones(): Promise<number[] | []> {
-    const allowedIds: number[] = [];
+  async allowedMilestones(): Promise<string[] | []> {
+    const allowedIds: string[] = [];
     const milestones = await this.ienMasterService.ienApplicantStatusRepository.find({
       select: ['id'],
       where: {
-        parent: In([10001, 10002, 10004, 10005]),
+        category: In([
+          StatusCategory.INTAKE, 
+          StatusCategory.LICENSING_REGISTRATION,
+          StatusCategory.BC_PNP, 
+          StatusCategory.FINAL, 
+        ]),
       },
     });
-    milestones.forEach(a => allowedIds.push(a.id));
+    milestones.forEach(a => allowedIds.push(a?.id));
     return allowedIds;
   }
 
@@ -537,7 +510,7 @@ export class ExternalAPIService {
     savedApplicants.forEach(item => {
       applicantIdsMapping[`${item.applicant_id}`] = item.id;
     });
-    const allowedMilestones: number[] = await this.allowedMilestones();
+    const allowedMilestones: string[] = await this.allowedMilestones();
     data.forEach(
       (item: {
         applicant_id: string | number;
@@ -558,9 +531,9 @@ export class ExternalAPIService {
 
   /** create applicant-milestone object */
   mapMilestoneData(
-    allowedMilestones: number[],
+    allowedMilestones: string[],
     m: {
-      id: number;
+      id: string;
       start_date: string;
       created_date: string;
       note: any;
@@ -573,7 +546,7 @@ export class ExternalAPIService {
     tableId: any,
     users: any[],
   ) {
-    if (allowedMilestones.includes(m.id)) {
+    if (allowedMilestones.includes(m?.id)) {
       const temp: any = {
         status: m.id,
         start_date: m.start_date,

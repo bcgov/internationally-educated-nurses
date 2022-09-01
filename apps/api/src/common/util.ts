@@ -16,32 +16,6 @@ export default function sortStatus(data: any[]): any[] {
   return data;
 }
 
-export function getMilestoneCategory(name: string) {
-  // HMBC provide as a category for status. We have added 5 main category with unique ID in seed.
-  // This category-ID are only for internal purpose, So we will check it with predefined array of match keyword and return it's value
-  // We will use switch case or object-value in future, once we receive production API endpoints from HMBC ATS system
-  if (name.toLocaleLowerCase().indexOf('hmbc process') !== -1) {
-    return 10001;
-  } else if (
-    name.toLocaleLowerCase().indexOf('licensing') !== -1 ||
-    name.toLocaleLowerCase().indexOf('registration') !== -1
-  ) {
-    return 10002;
-  } else if (
-    name.toLocaleLowerCase().indexOf('competition') !== -1 ||
-    name.toLocaleLowerCase().indexOf('recruitment') !== -1
-  ) {
-    return 10003;
-  } else if (
-    name.toLocaleLowerCase().indexOf('pnp') !== -1 ||
-    name.toLocaleLowerCase().indexOf('immigration') !== -1
-  ) {
-    return 10004;
-  } else if (name.toLocaleLowerCase().indexOf('final') !== -1) {
-    return 10005;
-  }
-  return null;
-}
 
 export function isValidDateFormat(dt: string) {
   const regx = /^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12]\d{1}|3[01])$/;
@@ -70,4 +44,12 @@ export function startDateOfFiscal(date: string) {
     fiscalYearStartDate = today.getFullYear() - 1;
   }
   return `${fiscalYearStartDate}-04-01`;
+}
+
+export enum StatusCategory {
+  INTAKE = "INTAKE",
+  LICENSING_REGISTRATION = "IEN Licensing/Registration Process",
+  RECRUITMENT = "IEN Recruitment Process",
+  BC_PNP = "BC PNP Process",
+  FINAL = "FINAL",
 }
