@@ -31,12 +31,7 @@ export class IENMasterService {
   ) {}
 
   async getStatus(): Promise<IENApplicantStatus[]> {
-    return this.ienApplicantStatusRepository.find({
-      where: {
-        parent: IsNull(),
-      },
-      relations: ['children'],
-    });
+    return this.ienApplicantStatusRepository.find();
   }
 
   async getHaPcn(): Promise<IENHaPcn[]> {

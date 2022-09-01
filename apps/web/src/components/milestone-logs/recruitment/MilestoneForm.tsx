@@ -48,6 +48,7 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
   const { job, milestone, handleSubmit, onClose, milestoneTabId } = props;
 
   const milestones = useGetMilestoneOptions(milestoneTabId);
+  console.log(milestones);
   const reasons = useGetWithdrawReasonOptions();
 
   const milestoneValidator = createValidator(IENApplicantAddStatusDTO);

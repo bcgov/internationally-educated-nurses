@@ -33,6 +33,7 @@ export interface MilestoneType extends StyleOption {
 // milestone status' for adding milestones
 export const useGetMilestoneOptions = (categoryId: number): MilestoneType[] => {
   const { data } = useSWRImmutable('ienmaster/status', fetcher);
+  console.log(data);
   const milestones: MilestoneType[] = data?.data?.find(
     (item: { id: number }) => item.id == categoryId,
   )?.children;

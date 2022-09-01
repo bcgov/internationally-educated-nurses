@@ -165,7 +165,6 @@ export class ExternalAPIService {
   async saveMilestones(): Promise<void> {
     try {
       const data:{id:string, name:string, category:string, "process-related":boolean} = await this.external_request.getMilestone();
-      console.log(data);
       if (Array.isArray(data)) {
         const result = await this.ienMasterService.ienApplicantStatusRepository.upsert(
           data,

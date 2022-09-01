@@ -82,6 +82,7 @@ export class IENApplicantUtilService {
    * @param filter
    * @returns promise of find()
    */
+
   async applicantFilterQueryBuilder(
     filter: IENApplicantFilterAPIDTO,
     ha_pcn_id: number | undefined | null,
@@ -125,7 +126,7 @@ export class IENApplicantUtilService {
         .join(' OR ');
       conditions.push(`(${condition})`);
     }
-
+    console.log(conditions)
     if (conditions.length > 0) {
       return this.ienapplicantRepository.findAndCount({
         where: (qb: SelectQueryBuilder<IENApplicant>) => {
