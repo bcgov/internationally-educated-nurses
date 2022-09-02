@@ -242,7 +242,7 @@ export class IENApplicantService {
       milestone;
     const data: Partial<IENApplicantStatusAudit> = {};
 
-    /** Only allowing recruiment related milestones here */
+    /** Only allowing recruitment related milestones here */
     const status_obj = await this.ienapplicantUtilService.getStatusById(status);
 
     if (status_obj && !user.ha_pcn_id && status_obj.parent?.id != 10003) {

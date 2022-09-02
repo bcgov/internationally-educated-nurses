@@ -307,25 +307,31 @@ export class ReportUtilService {
 
   licenseApplicantsQuery(from: string, to: string) {
     return `
-    WITH full_licenses AS (
-      SELECT DISTINCT applicant_id, status_id
-                    FROM public.ien_applicant_status_audit 
-                    WHERE 
-                      status_id = 19 AND
-                      start_date >= '${to}' AND
-                      start_date <= '${from}'),
-    partial_licenses AS (
-      SELECT DISTINCT applicant_id, status_id
-                    FROM public.ien_applicant_status_audit 
-                    WHERE 
-                      status_id IN (16) AND
-                      start_date >= '${to}' AND
-                      start_date <= '${from}'
-              AND applicant_id NOT in(Select applicant_id from full_licenses))
-              
-    select 'Provisional License' as status, count(*) AS applicant_count from full_licenses 
-    UNION ALL 
-    select 'Full License' as status, count(*) as applicant_count from partial_licenses; 
+      WITH full_licenses AS (
+        SELECT DISTINCT applicant_id
+        FROM public.ien_applicant_status_audit 
+        WHERE 
+          status_id = 19 AND
+          start_date <= '${to}' AND
+          start_date >= '${from}'
+      ),
+      partial_licenses AS (
+        SELECT DISTINCT iasa.applicant_id
+        FROM public.ien_applicant_status_audit iasa
+        WHERE 
+          iasa.status_id = 16 AND
+          iasa.start_date <= '${to}' AND
+          iasa.start_date >= '${from}' AND
+          NOT EXISTS (
+            SELECT applicant_id
+            FROM full_licenses fl
+            WHERE fl.applicant_id = iasa.applicant_id
+          )
+      )
+      
+      SELECT 'Provisional License' AS status, count(*) AS applicant_count FROM partial_licenses
+      UNION ALL 
+      SELECT 'Full License' AS status, count(*) AS applicant_count FROM full_licenses ; 
     `;
   }
 
