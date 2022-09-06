@@ -10,7 +10,7 @@ describe('Report', () => {
 
   it('lists report periods', () => {
     cy.contains('h1', 'Reporting');
-    cy.get('tbody').find('tr').should('have.length', 10);
+    cy.get('tbody').find('tr').should('have.length', 5);
   });
 
   it('downloads a report', () => {
