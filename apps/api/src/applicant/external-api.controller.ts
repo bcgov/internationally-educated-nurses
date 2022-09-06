@@ -107,7 +107,7 @@ export class ExternalAPIController {
   })
   @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.OK)
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Get('/sync-applicants-audit')
   async getLatestSuccessfulSync(): Promise<SyncApplicantsAudit[]> {
     return this.externalAPIService.getLatestSuccessfulSync();

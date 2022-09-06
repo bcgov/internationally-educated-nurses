@@ -24,7 +24,6 @@ export class IENApplicantStatus {
   @Column({ type: 'varchar', length: 256, nullable: true })
   category?: string;
 
-  // TODO - Rework
   @ManyToOne(() => IENApplicantStatus, status => status.id)
   parent?: IENApplicantStatus;
 

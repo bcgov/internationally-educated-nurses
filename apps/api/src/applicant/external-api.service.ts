@@ -8,7 +8,6 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
-  In,
   IsNull,
   Not,
   Repository,
@@ -475,20 +474,13 @@ export class ExternalAPIService {
    * We need to ignore all the recruiment related milestone for now
    */
   async allowedMilestones(): Promise<string[] | []> {
-    const allowedIds: string[] = [];
     const milestones = await this.ienMasterService.ienApplicantStatusRepository.find({
       select: ['id'],
       where: {
-        category: In([
-          StatusCategory.INTAKE,
-          StatusCategory.LICENSING_REGISTRATION,
-          StatusCategory.BC_PNP,
-          StatusCategory.FINAL,
-        ]),
+        category: Not([StatusCategory.RECRUITMENT]),
       },
     });
-    milestones.forEach(a => allowedIds.push(a?.id));
-    return allowedIds;
+    return milestones.map(({ id }) => id);
   }
 
   /**

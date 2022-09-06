@@ -245,9 +245,8 @@ export class ReportService {
   async extractApplicantsData(dates: ReportPeriodDTO) {
     const { from, to } = dates;
     this.logger.log(`extractApplicantsData: Apply date filter from (${from}) and to (${to})`);
-    /** Data correction not done yet from ATS, that's why added lessThanOrEqual condition */
+
     const milestones: IENApplicantStatus[] = await this.ienapplicantStatusRepository.find({
-      // TODO  - Verify if this is the correct status for export
       where: { category: StatusCategory.RECRUITMENT },
     });
     const entityManager = getManager();

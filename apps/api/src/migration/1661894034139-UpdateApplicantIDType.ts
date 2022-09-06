@@ -5,7 +5,7 @@ import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
 
 export class UpdateApplicantIDType1661894034139 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    // Need to clear
+    // Clear old applicant statuses to make way for new ones.
     await queryRunner.connection
       .createQueryBuilder()
       .update(IENApplicant)
@@ -19,7 +19,6 @@ export class UpdateApplicantIDType1661894034139 implements MigrationInterface {
       .execute();
     // Applicant statuses need to be delete because we do not have a mapping between the current ones and ones with new ids
     await queryRunner.connection.createQueryBuilder().delete().from(IENApplicantStatus).execute();
-    // Rename id to id_old - milestones
 
     await queryRunner.query(
       `ALTER TABLE "ien_applicants" DROP CONSTRAINT "FK_2a4f42fa3db57d0a519036e86f3"`,
