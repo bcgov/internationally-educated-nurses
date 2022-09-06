@@ -8,7 +8,7 @@ import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.ent
 import { startDateOfFiscal } from 'src/common/util';
 import { ReportPeriodDTO } from '@ien/common';
 
-const PERIOD_START_DATE = '2021-04-01';
+const PERIOD_START_DATE = '2022-05-02';
 
 export class ReportService {
   constructor(
