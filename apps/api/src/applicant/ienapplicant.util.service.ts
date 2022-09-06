@@ -126,7 +126,6 @@ export class IENApplicantUtilService {
         .join(' OR ');
       conditions.push(`(${condition})`);
     }
-    console.log(conditions)
     if (conditions.length > 0) {
       return this.ienapplicantRepository.findAndCount({
         where: (qb: SelectQueryBuilder<IENApplicant>) => {
@@ -168,9 +167,7 @@ export class IENApplicantUtilService {
    * @returns Status Object or NotFoundException
    */
   async getStatusById(id: string): Promise<IENApplicantStatus> {
-    const statusObj = await this.ienMasterService.ienApplicantStatusRepository.findOne(
-      id,
-    );
+    const statusObj = await this.ienMasterService.ienApplicantStatusRepository.findOne(id);
     if (!statusObj) {
       throw new NotFoundException(`Status with given value "${id}" not found`);
     }

@@ -27,9 +27,9 @@ export class IENApplicant {
   @Column('varchar')
   name!: string;
 
-  @Index({unique:true})
-  @Column('uuid',{nullable:true})
-  applicant_id?:string;
+  @Index({ unique: true })
+  @Column('uuid', { nullable: true })
+  applicant_id?: string;
 
   @Column('varchar', { nullable: true })
   email_address?: string;

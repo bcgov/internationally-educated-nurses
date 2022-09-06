@@ -46,9 +46,7 @@ interface MilestoneFormProps<T extends MilestoneFormValues> {
 
 export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFormProps<T>) => {
   const { job, milestone, handleSubmit, onClose, milestoneTabId } = props;
-  console.log(milestoneTabId);
   const milestones = useGetMilestoneOptions(milestoneTabId);
-  console.log(milestones);
   const reasons = useGetWithdrawReasonOptions();
 
   const milestoneValidator = createValidator(IENApplicantAddStatusDTO);

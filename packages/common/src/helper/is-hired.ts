@@ -2,7 +2,7 @@ import { STATUS } from '../enum';
 import { ApplicantJobRO, ApplicantRO, EmployeeRO } from '../ro';
 import dayjs from 'dayjs';
 
-export const isHired = (id?: string | number ) => {
+export const isHired = (id?: string | number) => {
   return id === STATUS.Candidate_accepted_the_job_offer;
 };
 

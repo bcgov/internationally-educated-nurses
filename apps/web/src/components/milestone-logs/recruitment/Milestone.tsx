@@ -16,7 +16,6 @@ interface MilestoneProps {
 
 export const Milestone: React.FC<MilestoneProps> = props => {
   const { job, milestone, handleSubmit, editing, onEditing, milestoneTabId } = props;
-  console.log(milestoneTabId);
   return (
     <>
       {editing !== milestone ? (

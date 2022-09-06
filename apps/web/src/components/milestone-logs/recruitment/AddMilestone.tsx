@@ -16,8 +16,6 @@ export const AddMilestone = ({ job, milestoneTabId }: AddMilestoneProps) => {
   const { applicant, milestones, fetchApplicant } = useApplicantContext();
 
   const isDuplicate = ({ status, start_date }: IENApplicantAddStatusDTO) => {
-    console.log(status)
-    console.log(job);
     return job
       ? job.status_audit?.find(m => m.status.id == status && m.start_date == start_date)
       : milestones.find(m => m.status.id == +status && m.start_date == start_date);

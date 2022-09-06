@@ -162,7 +162,6 @@ export class IENApplicantController {
         `Add milestone/status for applicant (${id}) requested by
         userId (${req?.user?.user_id})/ employeeId/loginId (${req?.user?.id})`,
       );
-      console.log(applicantStatus);
       return await this.ienapplicantService.addApplicantStatus(req?.user, id, applicantStatus);
     } catch (e) {
       throw this._handleStatusException(e);

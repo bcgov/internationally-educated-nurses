@@ -164,19 +164,18 @@ export class ExternalAPIService {
    */
   async saveMilestones(): Promise<void> {
     try {
-      const data:{id:string, name:string, category:string, "process-related":boolean} = await this.external_request.getMilestone();
+      const data: { id: string; name: string; category: string; 'process-related': boolean } =
+        await this.external_request.getMilestone();
       if (Array.isArray(data)) {
-        const result = await this.ienMasterService.ienApplicantStatusRepository.upsert(
-          data,
-          ['id'],
-        );
+        const result = await this.ienMasterService.ienApplicantStatusRepository.upsert(data, [
+          'id',
+        ]);
         this.logger.log(`${result.raw.length}/${data.length} milestones updated`, 'ATS');
       }
     } catch (e) {
       this.logger.log(`Error in saveMilestones(): ${e}`, 'ATS');
     }
   }
-
 
   createParallelRequestRun(input: {
     parallel_requests: number;
@@ -481,10 +480,10 @@ export class ExternalAPIService {
       select: ['id'],
       where: {
         category: In([
-          StatusCategory.INTAKE, 
+          StatusCategory.INTAKE,
           StatusCategory.LICENSING_REGISTRATION,
-          StatusCategory.BC_PNP, 
-          StatusCategory.FINAL, 
+          StatusCategory.BC_PNP,
+          StatusCategory.FINAL,
         ]),
       },
     });

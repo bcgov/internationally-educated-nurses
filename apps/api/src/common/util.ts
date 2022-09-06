@@ -16,7 +16,6 @@ export default function sortStatus(data: any[]): any[] {
   return data;
 }
 
-
 export function isValidDateFormat(dt: string) {
   const regx = /^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12]\d{1}|3[01])$/;
   return !!dt.match(regx);
@@ -47,9 +46,9 @@ export function startDateOfFiscal(date: string) {
 }
 
 export enum StatusCategory {
-  INTAKE = "INTAKE",
-  LICENSING_REGISTRATION = "IEN Licensing/Registration Process",
-  RECRUITMENT = "IEN Recruitment Process",
-  BC_PNP = "BC PNP Process",
-  FINAL = "FINAL",
+  INTAKE = 'INTAKE',
+  LICENSING_REGISTRATION = 'IEN Licensing/Registration Process',
+  RECRUITMENT = 'IEN Recruitment Process',
+  BC_PNP = 'BC PNP Process',
+  FINAL = 'FINAL',
 }

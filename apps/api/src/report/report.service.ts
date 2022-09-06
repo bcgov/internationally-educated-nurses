@@ -1,5 +1,5 @@
 import { Inject, Logger } from '@nestjs/common';
-import { getManager, LessThanOrEqual, Repository } from 'typeorm';
+import { getManager, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import dayjs from 'dayjs';
 import { ReportUtilService } from './report.util.service';
@@ -248,7 +248,7 @@ export class ReportService {
     /** Data correction not done yet from ATS, that's why added lessThanOrEqual condition */
     const milestones: IENApplicantStatus[] = await this.ienapplicantStatusRepository.find({
       // TODO  - Verify if this is the correct status for export
-      where: { category: StatusCategory.RECRUITMENT},
+      where: { category: StatusCategory.RECRUITMENT },
     });
     const entityManager = getManager();
     const data = await entityManager.query(
