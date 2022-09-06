@@ -19,6 +19,7 @@ import {
   IENApplicantJobQueryDTO,
   IENApplicantUpdateStatusAPIDTO,
 } from './dto';
+import { isAdmin } from '@ien/common/dist/helper/is-admin';
 
 @Injectable()
 export class IENApplicantService {
@@ -245,7 +246,11 @@ export class IENApplicantService {
     /** Only allowing recruitment related milestones here */
     const status_obj = await this.ienapplicantUtilService.getStatusById(status);
 
-    if (status_obj && !user.ha_pcn_id && status_obj.parent?.id != 10003) {
+    if (!status_obj || !status_obj.parent) {
+      throw new BadRequestException(`Invalid milestone: id(${status})`);
+    }
+
+    if (!isAdmin(user) && status_obj.parent?.id != 10003) {
       throw new BadRequestException(
         `Only recruitment-related milestones/statuses are allowed here`,
       );

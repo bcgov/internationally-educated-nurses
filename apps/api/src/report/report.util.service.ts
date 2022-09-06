@@ -549,7 +549,7 @@ export class ReportUtilService {
         SELECT 
           applicant_id, max(start_date) as start_date
         FROM public.ien_applicant_status_audit
-        WHERE status_id=37 AND start_date::date <= '${to}'
+        WHERE status_id = 37 AND start_date::date <= '${to}'
         GROUP BY applicant_id
       ), applicantHA AS (
         SELECT
