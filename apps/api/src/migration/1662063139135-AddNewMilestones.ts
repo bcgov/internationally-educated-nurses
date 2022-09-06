@@ -300,12 +300,6 @@ export class AddNewMilestones1662063139135 implements MigrationInterface {
                 "process-related": false
             },
             {
-                "id": "0AD291F8-3749-4003-99D1-E39071F24F0E",
-                "name": "Referred to BC PNP",
-                "category": "IEN Recruitment Process",
-                "process-related": false
-            },
-            {
                 "id": "897156C7-958C-4EC0-879A-ED4943AF7B72",
                 "name": "Submitted Documents (NNAS Application in Review)",
                 "category": "IEN Licensing/Registration Process",

@@ -3,21 +3,23 @@ import { FormikHelpers } from 'formik';
 import { toast } from 'react-toastify';
 
 import { ApplicantJobRO, IENApplicantAddStatusDTO } from '@ien/common';
-import { addMilestone } from '@services';
+import { addMilestone, StatusCategory } from '@services';
 import { getInitialMilestoneFormValues, MilestoneForm } from './MilestoneForm';
 import { useApplicantContext } from '../../applicant/ApplicantContext';
 
 interface AddMilestoneProps {
   job?: ApplicantJobRO;
-  milestoneTabId: number;
+  milestoneTabId: StatusCategory | string;
 }
 
 export const AddMilestone = ({ job, milestoneTabId }: AddMilestoneProps) => {
   const { applicant, milestones, fetchApplicant } = useApplicantContext();
 
   const isDuplicate = ({ status, start_date }: IENApplicantAddStatusDTO) => {
+    console.log(status)
+    console.log(job);
     return job
-      ? job.status_audit?.find(m => m.status.id == +status && m.start_date == start_date)
+      ? job.status_audit?.find(m => m.status.id == status && m.start_date == start_date)
       : milestones.find(m => m.status.id == +status && m.start_date == start_date);
   };
 

@@ -31,12 +31,12 @@ export interface MilestoneType extends StyleOption {
 }
 
 // milestone status' for adding milestones
-export const useGetMilestoneOptions = (categoryId: number): MilestoneType[] => {
+export const useGetMilestoneOptions = (categoryId: string): MilestoneType[] => {
   const { data } = useSWRImmutable('ienmaster/status', fetcher);
-  console.log(data);
-  const milestones: MilestoneType[] = data?.data?.find(
-    (item: { id: number }) => item.id == categoryId,
-  )?.children;
+  const milestones: MilestoneType[] = data?.data?.filter(
+    (item: { category: string }) => item.category == categoryId,
+  );
+  console.log(milestones);
   if (milestones) {
     return milestones.sort((a, b) => (a.id > b.id ? 1 : -1));
   }

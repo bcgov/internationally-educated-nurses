@@ -167,15 +167,12 @@ export class IENApplicantUtilService {
    * @param status
    * @returns Status Object or NotFoundException
    */
-  async getStatusById(status: string): Promise<IENApplicantStatus> {
+  async getStatusById(id: string): Promise<IENApplicantStatus> {
     const statusObj = await this.ienMasterService.ienApplicantStatusRepository.findOne(
-      parseInt(status),
-      {
-        relations: ['parent'],
-      },
+      id,
     );
     if (!statusObj) {
-      throw new NotFoundException(`Status with given value "${status}" not found`);
+      throw new NotFoundException(`Status with given value "${id}" not found`);
     }
 
     return statusObj;

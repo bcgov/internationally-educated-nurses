@@ -52,7 +52,7 @@ export const Record: React.FC<RecordProps> = ({
     const sortedMilestones = [...job.status_audit];
     sortedMilestones.sort((a, b) => {
       if (a.start_date === b.start_date) {
-        return a.status.id - b.status.id;
+        return -1;
       }
       return dayjs(a.start_date).diff(b.start_date);
     });

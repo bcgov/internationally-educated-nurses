@@ -41,12 +41,12 @@ interface MilestoneFormProps<T extends MilestoneFormValues> {
   milestone?: ApplicantStatusAuditRO;
   handleSubmit: (values: T, { resetForm }: FormikHelpers<T>) => Promise<void>;
   onClose?: () => void;
-  milestoneTabId: number;
+  milestoneTabId: string;
 }
 
 export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFormProps<T>) => {
   const { job, milestone, handleSubmit, onClose, milestoneTabId } = props;
-
+  console.log(milestoneTabId);
   const milestones = useGetMilestoneOptions(milestoneTabId);
   console.log(milestones);
   const reasons = useGetWithdrawReasonOptions();
