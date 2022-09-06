@@ -9,7 +9,7 @@ export const isHired = (id?: string | number) => {
 export const isJobAccepted = (job: ApplicantJobRO): boolean => {
   const selected = job.status_audit?.find(s => isHired(s.status.id));
   const notSelected = job.status_audit?.find(
-    s => s.status.id === STATUS.Candidate_was_not_selected,
+    s => s.status.id === STATUS.Candidate_was_not_selected.toString(),
   );
   return !!selected && (!notSelected || dayjs(selected.start_date).isAfter(notSelected.start_date));
 };
