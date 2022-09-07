@@ -242,7 +242,9 @@ export class IENApplicantService {
     const { status, start_date, end_date, job_id, notes, reason, effective_date, reason_other } =
       milestone;
     const data: Partial<IENApplicantStatusAudit> = {};
-
+    if (!status) {
+      throw new BadRequestException(`Invalid milestone: id(${status})`);
+    }
     /** Only allowing recruitment related milestones here */
     const status_obj = await this.ienapplicantUtilService.getStatusById(status);
     if (!status_obj) {

@@ -4,7 +4,7 @@ require('../env');
 import request from 'supertest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ExecutionContext, INestApplication } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { getConnection, Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { AppModule } from '../src/app.module';
 import { IENHaPcn } from 'src/applicant/entity/ienhapcn.entity';
@@ -19,6 +19,7 @@ import {
 } from './fixture/ien';
 import { IENUsers } from 'src/applicant/entity/ienusers.entity';
 import { canActivate } from './override-guard';
+import { randomUUID } from 'crypto';
 let jobTempId = 10;
 let applicantStatusId = 'NA';
 
@@ -26,7 +27,8 @@ describe('ApplicantController (e2e)', () => {
   let app: INestApplication;
   let ienHaPcnRepository: Repository<IENHaPcn>;
   let ienUsersRepository: Repository<IENUsers>;
-
+  let applicanIdOne: string;
+  let applicanIdTwo: string;
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -37,6 +39,9 @@ describe('ApplicantController (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     await app.init();
+
+    applicanIdOne = randomUUID();
+    applicanIdTwo = randomUUID();
 
     // Let's add some seed for required master table
     ienHaPcnRepository = moduleFixture.get(getRepositoryToken(IENHaPcn));
@@ -51,6 +56,7 @@ describe('ApplicantController (e2e)', () => {
   });
 
   it('Add Applicant /ien (POST)', done => {
+    validApplicant.applicant_id = applicanIdOne;
     request(app.getHttpServer())
       .post('/ien')
       .send(validApplicant)
@@ -75,7 +81,7 @@ describe('ApplicantController (e2e)', () => {
   });
 
   it('Add second Applicant /ien (POST) ', done => {
-    validApplicant.applicant_id += 1;
+    validApplicant.applicant_id = applicanIdTwo;
     validApplicant.last_name = 'notexample';
     validApplicant.email_address = 'test.example2@mailinator.com';
     request(app.getHttpServer()).post('/ien').send(validApplicant).expect(201).end(done);
@@ -225,7 +231,7 @@ describe('ApplicantController (e2e)', () => {
       .expect(res => {
         const { body } = res;
         expect(body.jobs.length).toBe(1);
-        expect(body.applicant_id).toBe(`${validApplicant.applicant_id - 1}`);
+        expect(body.applicant_id).toBe(`${applicanIdOne}`);
       })
       .expect(200)
       .end(done);
