@@ -469,6 +469,16 @@ export class UpdateApplicantIDType1661894034139 implements MigrationInterface {
       );
     }
 
+    await queryRunner.query(`ALTER TABLE "ien_applicants" DROP COLUMN IF EXISTS "applicant_id";`);
+    await queryRunner.addColumn(
+      'ien_applicants',
+      new TableColumn({
+        type: 'uuid',
+        name: 'applicant_id',
+        isNullable: true,
+      }),
+    );
+
     await queryRunner.query(
       `ALTER TABLE "ien_applicant_status_audit" DROP COLUMN IF EXISTS "applicant_id";`,
     );
