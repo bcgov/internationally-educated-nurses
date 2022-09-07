@@ -13,7 +13,7 @@ export const ApplicantMilestones = () => {
 
   const { authUser } = useAuthContext();
 
-  const [statusCategory, setStatusCategory] = useState(StatusCategory.INTAKE);
+  const [statusCategory, setStatusCategory] = useState('');
 
   useEffect(
     function setDefaultCategory() {
