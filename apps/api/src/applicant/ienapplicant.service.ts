@@ -245,8 +245,7 @@ export class IENApplicantService {
 
     /** Only allowing recruitment related milestones here */
     const status_obj = await this.ienapplicantUtilService.getStatusById(status);
-
-    if (!status_obj || !status_obj.parent) {
+    if (!status_obj) {
       throw new BadRequestException(`Invalid milestone: id(${status})`);
     }
 

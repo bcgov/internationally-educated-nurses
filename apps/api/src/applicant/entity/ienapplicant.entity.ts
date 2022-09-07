@@ -129,7 +129,7 @@ export class IENApplicant {
       is_open: this.is_open,
       added_by: this.added_by,
       updated_by: this.updated_by,
-      jobs: this.jobs.map(job => job.toResponseObject()),
+      jobs: this.jobs?.map(job => job.toResponseObject()),
       // Will add to Response object functions later
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       applicant_status_audit: this.applicant_status_audit as any,

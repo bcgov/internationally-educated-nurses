@@ -62,7 +62,7 @@ export class IENApplicantController {
   ): Promise<[ApplicantRO[], number]> {
     try {
       const [data, count] = await this.ienapplicantService.getApplicants(filter, req.user);
-      return [data.map(applicant => applicant.toResponseObject()), count];
+      return [data?.map(applicant => applicant.toResponseObject()), count];
     } catch (e) {
       this.logger.error(e);
       throw new InternalServerErrorException('An unknown error occured retriving applicants');
@@ -331,7 +331,7 @@ export class IENApplicantController {
     try {
       this.logger.log(`Fetch job competition for the applicant ${id} with below options/filter`);
       const [data, count] = await this.ienapplicantService.getApplicantJobs(id, options);
-      return [data.map(job => job.toResponseObject()), count];
+      return [data?.map(job => job.toResponseObject()), count];
     } catch (e) {
       if (e instanceof NotFoundException) {
         throw e;
