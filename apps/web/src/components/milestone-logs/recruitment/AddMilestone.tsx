@@ -16,8 +16,9 @@ export const AddMilestone = ({ job, milestoneTabId }: AddMilestoneProps) => {
   const { applicant, fetchApplicant } = useApplicantContext();
 
   const isDuplicate = ({ status, start_date }: IENApplicantAddStatusDTO) => {
-    return job
-      && job.status_audit?.find(m => m.status.status == status && m.start_date == start_date)
+    return (
+      job && job.status_audit?.find(m => m.status.status == status && m.start_date == start_date)
+    );
   };
 
   const handleSubmit = async (

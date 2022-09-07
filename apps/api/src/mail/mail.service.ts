@@ -12,14 +12,13 @@ import { ChesResponse } from './types/ches-response';
 @Injectable()
 export class MailService {
   constructor() {
-    try{
+    try {
       const templatePath = path.resolve(`${__dirname}/templates/partials/layout.hbs`);
       const templateContent = fs.readFileSync(templatePath, 'utf-8');
       handlebars.registerPartial('layout', templateContent);
-    }catch(e){
+    } catch (e) {
       Logger.log(e);
     }
-
   }
   /**
    * Sends an email

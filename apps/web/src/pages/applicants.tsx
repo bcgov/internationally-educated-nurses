@@ -145,7 +145,7 @@ const Applicants = () => {
           <StatusCategoryTab
             tabs={[{ title: 'All', value: StatusCategory.INTAKE }, ...milestoneTabs]}
             categoryIndex={status ? status : StatusCategory.INTAKE}
-            onTabClick={(value)=>handleTabChange(parseInt(value))}
+            onTabClick={value => handleTabChange(parseInt(value))}
           />
         )}
         <div className='text-bcGray px-4 mb-4'>{`Showing ${applicants.length} results`}</div>

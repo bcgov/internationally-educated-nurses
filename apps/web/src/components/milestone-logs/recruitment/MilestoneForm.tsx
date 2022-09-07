@@ -121,7 +121,8 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
                   <Textarea name='notes' label='Notes' />
                 </span>
                 {/* Withdraw reason conditional field */}
-                {values.status === `${STATUS.WITHDREW_FROM_COMPETITION}` || values.status === STATUS.WITHDREW_FROM_PROGRAM ? (
+                {values.status === `${STATUS.WITHDREW_FROM_COMPETITION}` ||
+                values.status === STATUS.WITHDREW_FROM_PROGRAM ? (
                   <>
                     <span className='col-span-12 sm:col-span-6 lg:col-span-3 pr-1 md:pr-2'>
                       <Field

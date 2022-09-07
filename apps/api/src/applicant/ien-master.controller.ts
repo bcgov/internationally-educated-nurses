@@ -39,7 +39,7 @@ export class IENMasterController {
   @Get('/status')
   async getApplicantStatus(): Promise<IENApplicantStatusRO[]> {
     try {
-      return (await this.ienmasterService.getStatus()).map((status)=>{
+      return (await this.ienmasterService.getStatus()).map(status => {
         return status.toResponseObject();
       });
     } catch (e) {

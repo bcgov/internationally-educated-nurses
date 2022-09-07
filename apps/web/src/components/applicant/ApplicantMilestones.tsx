@@ -18,7 +18,7 @@ export const ApplicantMilestones = () => {
   useEffect(
     function setDefaultCategory() {
       if (!statusCategory) {
-        setStatusCategory(applicant?.status?.category as StatusCategory || StatusCategory.INTAKE);
+        setStatusCategory((applicant?.status?.category as StatusCategory) || StatusCategory.INTAKE);
       }
     },
     [applicant, statusCategory],
@@ -35,7 +35,7 @@ export const ApplicantMilestones = () => {
           <StatusCategoryTab
             tabs={milestoneTabs}
             categoryIndex={statusCategory}
-            onTabClick={(value:string)=>setStatusCategory(value as StatusCategory)}
+            onTabClick={(value: string) => setStatusCategory(value as StatusCategory)}
           />
           {statusCategory === StatusCategory.RECRUITMENT ? (
             <Recruitment />

@@ -2,7 +2,7 @@
 import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { FindManyOptions, In, IsNull, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EmployeeRO ,isAdmin} from '@ien/common';
+import { EmployeeRO, isAdmin } from '@ien/common';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicant } from './entity/ienapplicant.entity';
 import { IENUsers } from './entity/ienusers.entity';

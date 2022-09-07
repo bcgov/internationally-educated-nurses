@@ -108,32 +108,35 @@ export class IENApplicant {
       this.applicant_status_audit = sortStatus(this.applicant_status_audit);
     }
   }
-  toResponseObject():ApplicantRO{
+  toResponseObject(): ApplicantRO {
     return {
-      id:this.id, 
-      name:this.name, 
-      applicant_id:this.applicant_id,
-      email_address:this.email_address,
-      phone_number:this.phone_number,
-      registration_date:this.registration_date,
-      assigned_to:this.assigned_to,
-      country_of_citizenship:this.country_of_citizenship,
-      country_of_residence:this.country_of_residence,
-      pr_status:this.pr_status,
-      nursing_educations:this.nursing_educations,
-      bccnm_license_number:this.bccnm_license_number,
-      health_authorities:this.health_authorities,
-      notes:this.notes,
-      status:this.status?.toResponseObject(),
-      additional_data:this.additional_data,
-      is_open:this.is_open,
-      added_by:this.added_by,
-      updated_by:this.updated_by,
-      jobs:this.jobs as any,
-      applicant_status_audit:this.applicant_status_audit as any,
-      applicant_audit:this.applicant_audit as any,
-      created_date:this.created_date,
-      updated_date:this.updated_date
-    }
+      id: this.id,
+      name: this.name,
+      applicant_id: this.applicant_id,
+      email_address: this.email_address,
+      phone_number: this.phone_number,
+      registration_date: this.registration_date,
+      assigned_to: this.assigned_to,
+      country_of_citizenship: this.country_of_citizenship,
+      country_of_residence: this.country_of_residence,
+      pr_status: this.pr_status,
+      nursing_educations: this.nursing_educations,
+      bccnm_license_number: this.bccnm_license_number,
+      health_authorities: this.health_authorities,
+      notes: this.notes,
+      status: this.status?.toResponseObject(),
+      additional_data: this.additional_data,
+      is_open: this.is_open,
+      added_by: this.added_by,
+      updated_by: this.updated_by,
+      jobs: this.jobs.map(job => job.toResponseObject()),
+      // Will add to Response object functions later
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      applicant_status_audit: this.applicant_status_audit as any,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      applicant_audit: this.applicant_audit as any,
+      created_date: this.created_date,
+      updated_date: this.updated_date,
+    };
   }
 }

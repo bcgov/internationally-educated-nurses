@@ -26,7 +26,11 @@ export class IENApplicantAddStatusDTO {
   @IsOptional()
   notes?: string;
 
-  @ValidateIf(s => s.status === `${STATUS.WITHDREW_FROM_COMPETITION}` || s.status == `${STATUS.WITHDREW_FROM_PROGRAM}`)
+  @ValidateIf(
+    s =>
+      s.status === `${STATUS.WITHDREW_FROM_COMPETITION}` ||
+      s.status == `${STATUS.WITHDREW_FROM_PROGRAM}`,
+  )
   @IsString()
   @IsNotEmpty({ message: 'Reason is required' })
   reason?: string;

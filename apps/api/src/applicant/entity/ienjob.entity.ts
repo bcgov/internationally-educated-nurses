@@ -1,4 +1,4 @@
-import { ApplicantJobRO, ApplicantStatusAuditRO } from '@ien/common';
+import { ApplicantJobRO } from '@ien/common';
 import sortStatus from 'src/common/util';
 import {
   Entity,
@@ -71,22 +71,23 @@ export class IENApplicantJob {
       this.status_audit = sortStatus(this.status_audit);
     }
   }
-  toResponseObject():ApplicantJobRO{
+  toResponseObject(): ApplicantJobRO {
     return {
-      id:this.id,
-      uid:this.uid,
-      ha_pcn:this.ha_pcn,
-      job_id:this.job_id,
-      job_title:this.job_title,
-      job_location:this.job_location,
-      recruiter_name:this.recruiter_name,
-      job_post_date:this.job_post_date,
-      added_by:this.added_by,
-      applicant:this.applicant?.toResponseObject(),
-      status_audit:this.status_audit as any,
-      created_date:this.created_date,
-      updated_date:this.updated_date
-
-    }
+      id: this.id,
+      uid: this.uid,
+      ha_pcn: this.ha_pcn,
+      job_id: this.job_id,
+      job_title: this.job_title,
+      job_location: this.job_location,
+      recruiter_name: this.recruiter_name,
+      job_post_date: this.job_post_date,
+      added_by: this.added_by,
+      applicant: this.applicant?.toResponseObject(),
+      // Will add toResponseObject function later
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      status_audit: this.status_audit as any,
+      created_date: this.created_date,
+      updated_date: this.updated_date,
+    };
   }
 }
