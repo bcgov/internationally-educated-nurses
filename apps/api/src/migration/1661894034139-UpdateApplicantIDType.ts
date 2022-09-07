@@ -452,53 +452,14 @@ export class UpdateApplicantIDType1661894034139 implements MigrationInterface {
         isNullable: true,
       }),
     );
-  }
-
-  public async up(queryRunner: QueryRunner): Promise<void> {
-    await this.changeStatusIdToUuid(queryRunner);
-
-    if (!(await queryRunner.hasColumn('ien_applicant_status', 'category'))) {
-      await queryRunner.addColumn(
-        'ien_applicant_status',
-        new TableColumn({
-          type: 'varchar',
-          length: '256',
-          isNullable: true,
-          name: 'category',
-        }),
-      );
-    }
 
     await queryRunner.query(`ALTER TABLE "ien_applicants" DROP COLUMN IF EXISTS "applicant_id";`);
     await queryRunner.addColumn(
       'ien_applicants',
       new TableColumn({
         type: 'uuid',
-        name: 'status_id',
-        isNullable: true,
-      }),
-    );
-    await queryRunner.query(`
-      ALTER TABLE "ien_applicant_status_audit" DROP COLUMN IF EXISTS "status_id";
-    `);
-    await queryRunner.addColumn(
-      'ien_applicant_status_audit',
-      new TableColumn({
-        type: 'uuid',
-        name: 'status_id',
-        isNullable: true,
-      }),
-    );
-
-    await queryRunner.query(
-      `ALTER TABLE "ien_applicant_status_audit" DROP COLUMN IF EXISTS "applicant_id";`,
-    );
-    await queryRunner.addColumn(
-      'ien_applicant_status_audit',
-      new TableColumn({
-        type: 'uuid',
         name: 'applicant_id',
-        isNullable: false,
+        isNullable: true,
       }),
     );
 
@@ -538,14 +499,6 @@ export class UpdateApplicantIDType1661894034139 implements MigrationInterface {
         name: 'applicant_id',
         isNullable: false,
       }),
-    );
-
-    // restore fk constraints related to status.id
-    await queryRunner.query(
-      `ALTER TABLE "ien_applicants" ADD CONSTRAINT "FK_2a4f42fa3db57d0a519036e86f3" FOREIGN KEY ("status_id") REFERENCES "ien_applicant_status"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "ien_applicant_status_audit" ADD CONSTRAINT "FK_167d0e7e6a4a4c1cab226938914" FOREIGN KEY ("status_id") REFERENCES "ien_applicant_status"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`,
     );
 
     await this.addMilestones(queryRunner);
