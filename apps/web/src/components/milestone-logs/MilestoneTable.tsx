@@ -16,7 +16,7 @@ import { AddMilestone } from './recruitment/AddMilestone';
 import { Milestone } from './recruitment/Milestone';
 
 interface MilestoneTableProps {
-  category: StatusCategory;
+  category: string | StatusCategory;
 }
 
 const DEFAULT_TAB_PAGE_SIZE = 5;

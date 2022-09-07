@@ -142,23 +142,15 @@ export class IENApplicantUtilService {
 
   /** fetch all status if parent status passed */
   async fetchChildStatusList(status: string): Promise<string[]> {
-    const status_list = status.split(',');
-    const parent_status = await this.ienMasterService.ienApplicantStatusRepository.find({
+    const categories = status.split(',');
+
+    const statuses = await this.ienMasterService.ienApplicantStatusRepository.find({
       where: {
-        id: In(status_list),
-        parent: IsNull(),
+        category: In(categories),
       },
-      relations: ['children'],
     });
-    if (parent_status.length > 0) {
-      parent_status.forEach(s => {
-        const children = s.children;
-        children.forEach(c => {
-          status_list.push(`${c.id}`);
-        });
-      });
-    }
-    return status_list;
+
+    return statuses.map(({ id }) => id);
   }
 
   /**
