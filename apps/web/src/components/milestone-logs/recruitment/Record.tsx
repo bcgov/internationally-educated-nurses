@@ -10,6 +10,7 @@ import {
   COMPLETED_STATUSES,
   formatDate,
   IENApplicantUpdateStatusDTO,
+  STATUS,
 } from '@ien/common';
 import editIcon from '@assets/img/edit.svg';
 import deleteIcon from '@assets/img/trash_can.svg';
@@ -71,9 +72,9 @@ export const Record: React.FC<RecordProps> = ({
     if (!milestones.length) return 'On Going';
 
     const lastMilestone = milestones[milestones.length - 1];
-    const { id, status } = lastMilestone.status;
+    const { status } = lastMilestone.status;
 
-    const done = COMPLETED_STATUSES.includes(id);
+    const done = COMPLETED_STATUSES.includes(status as STATUS);
     return `${done ? 'Complete - ' : 'On Going - '} ${status}`;
   };
 

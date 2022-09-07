@@ -15,7 +15,7 @@ import {
   ValidateIf,
 } from 'class-validator';
 import { HaPcnDTO } from './ha-pcn.dto';
-import { NursingEducationDTO } from './nursing-education.dto';
+import { CommonNursingEducationDTO } from './nursing-education.dto';
 
 export class IENApplicantCreateUpdateDTO {
   @IsString()
@@ -27,7 +27,7 @@ export class IENApplicantCreateUpdateDTO {
   last_name!: string;
 
   @IsOptional()
-  applicant_id?: number;
+  applicant_id?: string;
 
   @IsEmail({}, { message: 'Must be a valid Email' })
   @Length(1, 256)
@@ -61,8 +61,8 @@ export class IENApplicantCreateUpdateDTO {
   @ArrayNotEmpty({ message: 'Education is required' })
   @ValidateIf(e => e.nursing_educations.length > 0)
   @ValidateNested()
-  @Type(() => NursingEducationDTO)
-  nursing_educations!: NursingEducationDTO[];
+  @Type(() => CommonNursingEducationDTO)
+  nursing_educations!: CommonNursingEducationDTO[];
 
   @IsOptional()
   @IsString()

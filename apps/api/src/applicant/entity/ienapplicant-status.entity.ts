@@ -1,3 +1,4 @@
+import { IENApplicantStatusRO, StatusCategory } from '@ien/common';
 import { Exclude } from 'class-transformer';
 import { Entity, Column, OneToMany, PrimaryColumn, ManyToOne } from 'typeorm';
 import { IENApplicantStatusAudit } from './ienapplicant-status-audit.entity';
@@ -37,4 +38,15 @@ export class IENApplicantStatus {
   // only use for relation reference, We will not attach it in services
   @OneToMany(() => IENApplicantStatusAudit, applicant_status => applicant_status.status)
   applicant_status!: IENApplicantStatusAudit[];
+
+  toResponseObject():IENApplicantStatusRO{
+    return {
+      id: this.id,
+      status:this.status, 
+      party: this.party, 
+      category:this.category as StatusCategory,
+      parent:this.parent?.toResponseObject(),
+      children:this.children?.map((child)=>child.toResponseObject()),
+    }
+  }
 }

@@ -26,7 +26,7 @@ export class IENApplicantAddStatusDTO {
   @IsOptional()
   notes?: string;
 
-  @ValidateIf(s => s.status === `${STATUS.Candidate_withdrew}`)
+  @ValidateIf(s => s.status === `${STATUS.WITHDREW_FROM_COMPETITION}` || s.status == `${STATUS.WITHDREW_FROM_PROGRAM}`)
   @IsString()
   @IsNotEmpty({ message: 'Reason is required' })
   reason?: string;
@@ -35,7 +35,7 @@ export class IENApplicantAddStatusDTO {
   @IsOptional()
   reason_other?: string;
 
-  @ValidateIf(s => s.status === `${STATUS.Candidate_accepted_the_job_offer}`)
+  @ValidateIf(s => s.status === `${STATUS.JOB_OFFER_ACCEPTED}`)
   @IsDateString({}, { message: 'Must be a valid Date' })
   @IsOptional()
   effective_date?: string;

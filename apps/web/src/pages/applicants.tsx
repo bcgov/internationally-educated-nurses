@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from 'react';
 
-import { getApplicants, milestoneTabs } from '@services';
+import { getApplicants, milestoneTabs, StatusCategory } from '@services';
 import { Search } from '../components/Search';
 import { StatusCategoryTab } from '../components/display/StatusCategoryTab';
 import withAuth from '../components/Keycloak';
@@ -38,7 +38,7 @@ const Applicants = () => {
 
   // search options
   const name = router.query.name as string;
-  const status = +(router.query.status as string);
+  const status = router.query.status as string;
 
   const [sortKey, setSortKey] = useState('');
   const [order, setOrder] = useState<'ASC' | 'DESC'>('DESC');
@@ -143,9 +143,9 @@ const Applicants = () => {
           <div className='font-bold px-4 pt-3 pb-2 text-3xl'>Recruitment</div>
         ) : (
           <StatusCategoryTab
-            tabs={[{ title: 'All', value: 0 }, ...milestoneTabs]}
-            categoryIndex={status ? status : 0}
-            onTabClick={handleTabChange}
+            tabs={[{ title: 'All', value: StatusCategory.INTAKE }, ...milestoneTabs]}
+            categoryIndex={status ? status : StatusCategory.INTAKE}
+            onTabClick={(value)=>handleTabChange(parseInt(value))}
           />
         )}
         <div className='text-bcGray px-4 mb-4'>{`Showing ${applicants.length} results`}</div>

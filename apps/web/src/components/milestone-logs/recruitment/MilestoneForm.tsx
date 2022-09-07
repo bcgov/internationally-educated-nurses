@@ -52,7 +52,7 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
   const milestoneValidator = createValidator(IENApplicantAddStatusDTO);
 
   const submit = async (values: T, helpers: FormikHelpers<T>) => {
-    if (values.status !== `${STATUS.Candidate_accepted_the_job_offer}`) {
+    if (values.status !== `${STATUS.JOB_OFFER_ACCEPTED}`) {
       values.effective_date = undefined;
     }
 
@@ -121,7 +121,7 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
                   <Textarea name='notes' label='Notes' />
                 </span>
                 {/* Withdraw reason conditional field */}
-                {values.status === `${STATUS.Candidate_withdrew}` ? (
+                {values.status === `${STATUS.WITHDREW_FROM_COMPETITION}` || values.status === STATUS.WITHDREW_FROM_PROGRAM ? (
                   <>
                     <span className='col-span-12 sm:col-span-6 lg:col-span-3 pr-1 md:pr-2'>
                       <Field
@@ -161,7 +161,7 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
                 ) : null}
 
                 {/* Candidate accepted job offer conditional */}
-                {values.status === `${STATUS.Candidate_accepted_the_job_offer}` ? (
+                {values.status === `${STATUS.JOB_OFFER_ACCEPTED}` ? (
                   <span className='col-span-12 sm:col-span-6 lg:col-span-3 pr-1 md:pr-2'>
                     <DatePickerField
                       name='effective_date'

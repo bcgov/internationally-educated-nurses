@@ -3,13 +3,13 @@ import { ApplicantJobRO, ApplicantRO, EmployeeRO } from '../ro';
 import dayjs from 'dayjs';
 
 export const isHired = (id?: string | number) => {
-  return id === STATUS.Candidate_accepted_the_job_offer;
+  return id === STATUS.JOB_OFFER_ACCEPTED;
 };
 
 export const isJobAccepted = (job: ApplicantJobRO): boolean => {
   const selected = job.status_audit?.find(s => isHired(s.status.id));
   const notSelected = job.status_audit?.find(
-    s => s.status.id === STATUS.Candidate_was_not_selected.toString(),
+    s => s.status.status === STATUS.JOB_OFFER_NOT_ACCEPTED.toString(),
   );
   return !!selected && (!notSelected || dayjs(selected.start_date).isAfter(notSelected.start_date));
 };
