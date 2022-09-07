@@ -323,20 +323,12 @@ export class AddNewMilestones1662063139135 implements MigrationInterface {
     },
   ];
   public async up(queryRunner: QueryRunner): Promise<void> {
-    const formattedMilestones = this.milestones.map(milestone => {
-      return {
-        id: milestone.id,
-        status: milestone.name,
-        category: milestone.category,
-        full_name: milestone.name,
-      };
-    });
-    await queryRunner.connection
-      .createQueryBuilder()
-      .insert()
-      .into(IENApplicantStatus)
-      .values(formattedMilestones)
-      .execute();
+    console.log('Query 2 started')
+    
+    await Promise.all(this.milestones.map(milestone => {
+      return queryRunner.query(`INSERT INTO public.ien_applicant_status (id, status, parent_id, category, full_name) VALUES ('${milestone.id}','${milestone.name}',NULL,'${milestone.category}','${milestone.name}') ON CONFLICT(id) DO NOTHING;\n`);
+  }));
+      console.log('Query 2 complete');
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {

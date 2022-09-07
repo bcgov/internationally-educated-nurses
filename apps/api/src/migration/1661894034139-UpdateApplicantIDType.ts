@@ -38,6 +38,7 @@ export class UpdateApplicantIDType1661894034139 implements MigrationInterface {
         type: 'uuid',
         name: 'id',
         isNullable: false,
+        isUnique:true
       }),
     );
 
@@ -48,6 +49,7 @@ export class UpdateApplicantIDType1661894034139 implements MigrationInterface {
         length: '256',
         isNullable: true,
         name: 'category',
+        
       }),
     );
 
@@ -59,8 +61,10 @@ export class UpdateApplicantIDType1661894034139 implements MigrationInterface {
         type: 'uuid',
         name: 'applicant_id',
         isNullable: true,
+        isUnique:true
       }),
     );
+    console.log('Query 1 complete')
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
