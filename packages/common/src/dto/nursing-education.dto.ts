@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsNumber, IsString, Max, Min, ValidateIf } from 'class-validator';
 
-export class CommonNursingEducationDTO {
+export class NursingEducationDTO {
   constructor(name: string, year: string, country: string, num_years: string) {
     this.name = name;
     this.year = year;

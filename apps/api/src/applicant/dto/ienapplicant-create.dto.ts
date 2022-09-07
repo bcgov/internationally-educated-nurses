@@ -14,7 +14,7 @@ import {
   ValidateNested,
   ValidateIf,
 } from 'class-validator';
-import { HaPcnDTO, IENApplicantCreateUpdateDTO, CommonNursingEducationDTO } from '@ien/common';
+import { HaPcnDTO, IENApplicantCreateUpdateDTO, NursingEducationDTO } from '@ien/common';
 import { Type } from 'class-transformer';
 
 export class IENApplicantCreateUpdateAPIDTO extends IENApplicantCreateUpdateDTO {
@@ -94,8 +94,8 @@ export class IENApplicantCreateUpdateAPIDTO extends IENApplicantCreateUpdateDTO 
   @ArrayNotEmpty({ message: 'Education is required' })
   @ValidateIf(e => (e?.nursing_educations?.length || 0) > 0)
   @ValidateNested()
-  @Type(() => CommonNursingEducationDTO)
-  nursing_educations!: CommonNursingEducationDTO[];
+  @Type(() => NursingEducationDTO)
+  nursing_educations!: NursingEducationDTO[];
 
   @ApiPropertyOptional({ description: 'Applicant bccnm license number', default: '545432A' })
   @IsOptional()

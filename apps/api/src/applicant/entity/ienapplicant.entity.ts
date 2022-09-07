@@ -17,7 +17,7 @@ import { IENApplicantStatusAudit } from './ienapplicant-status-audit.entity';
 import { IENApplicantStatus } from './ienapplicant-status.entity';
 import { IENApplicantJob } from './ienjob.entity';
 import { IENUsers } from './ienusers.entity';
-import { ApplicantRO, HaPcnDTO, IENUserRO, CommonNursingEducationDTO } from '@ien/common';
+import { ApplicantRO, HaPcnDTO, IENUserRO, NursingEducationDTO } from '@ien/common';
 
 @Entity('ien_applicants')
 export class IENApplicant {
@@ -53,7 +53,7 @@ export class IENApplicant {
   pr_status?: string;
 
   @Column('jsonb', { nullable: true })
-  nursing_educations?: CommonNursingEducationDTO[];
+  nursing_educations?: NursingEducationDTO[];
 
   @Column('varchar', { nullable: true })
   bccnm_license_number?: string;
