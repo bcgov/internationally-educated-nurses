@@ -109,7 +109,7 @@ const Applicants = () => {
     }
   };
 
-  const changeRoute = (keyword: string, tabIndex: number) => {
+  const changeRoute = (keyword: string, tabIndex: string) => {
     const urlParams = new URLSearchParams();
 
     keyword && urlParams.append('name', keyword);
@@ -120,12 +120,12 @@ const Applicants = () => {
 
   const handleKeywordChange = (keyword: string) => {
     setPageIndex(1);
-    changeRoute(keyword, 0);
+    changeRoute(keyword, StatusCategory.ALL);
   };
 
-  const handleTabChange = (index: number) => {
+  const handleTabChange = (index: string) => {
     setPageIndex(1);
-    changeRoute(name, index ? index : 0);
+    changeRoute(name, index ? index : StatusCategory.ALL);
   };
 
   return (
@@ -143,9 +143,9 @@ const Applicants = () => {
           <div className='font-bold px-4 pt-3 pb-2 text-3xl'>Recruitment</div>
         ) : (
           <StatusCategoryTab
-            tabs={[{ title: 'All', value: StatusCategory.INTAKE }, ...milestoneTabs]}
-            categoryIndex={status ? status : StatusCategory.INTAKE}
-            onTabClick={value => handleTabChange(parseInt(value))}
+            tabs={[{ title: 'All', value: StatusCategory.ALL }, ...milestoneTabs]}
+            categoryIndex={status ? status : StatusCategory.ALL}
+            onTabClick={value => handleTabChange(value)}
           />
         )}
         <div className='text-bcGray px-4 mb-4'>{`Showing ${applicants.length} results`}</div>

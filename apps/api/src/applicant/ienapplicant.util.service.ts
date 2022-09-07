@@ -145,20 +145,19 @@ export class IENApplicantUtilService {
     const status_list = status.split(',');
     const parent_status = await this.ienMasterService.ienApplicantStatusRepository.find({
       where: {
-        id: In(status_list),
+        category: In(status_list),
         parent: IsNull(),
       },
-      relations: ['children'],
     });
+
+    const status_to_return: string[] = [];
+
     if (parent_status.length > 0) {
       parent_status.forEach(s => {
-        const children = s.children;
-        children.forEach(c => {
-          status_list.push(`${c.id}`);
-        });
+        status_to_return.push(`${s.id}`);
       });
     }
-    return status_list;
+    return status_to_return;
   }
 
   /**
