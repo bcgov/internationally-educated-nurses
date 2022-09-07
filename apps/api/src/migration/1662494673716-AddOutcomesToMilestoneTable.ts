@@ -26,11 +26,13 @@ export class AddOutcomesToMilestoneTable1662494673716 implements MigrationInterf
     },
   ];
   public async up(queryRunner: QueryRunner): Promise<void> {
-    console.log('Query 4 started');
-    await Promise.all(this.milestones.map(milestone => {
-      return queryRunner.query(`INSERT INTO public.ien_applicant_status (id, status, parent_id, category, full_name) VALUES ('${milestone.id}','${milestone.name}',NULL,'${StatusCategory.FINAL}','${milestone.name}') ON CONFLICT(id) DO NOTHING;\n`);
-  }));
-      console.log('Query 4 completed');
+    await Promise.all(
+      this.milestones.map(milestone => {
+        return queryRunner.query(
+          `INSERT INTO public.ien_applicant_status (id, status, parent_id, category, full_name) VALUES ('${milestone.id}','${milestone.name}',NULL,'${StatusCategory.FINAL}','${milestone.name}') ON CONFLICT(id) DO NOTHING;\n`,
+        );
+      }),
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {

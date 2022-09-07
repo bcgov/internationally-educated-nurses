@@ -19,7 +19,7 @@ export class UpdateAtsApplicantIdToUUID1662066445229 implements MigrationInterfa
         type: 'uuid',
         name: 'status_id',
         isNullable: true,
-        isUnique:true
+        isUnique: true,
       }),
     );
     await queryRunner.changeColumn(
@@ -29,10 +29,9 @@ export class UpdateAtsApplicantIdToUUID1662066445229 implements MigrationInterfa
         type: 'uuid',
         name: 'status_id',
         isNullable: true,
-        isUnique:true
+        isUnique: true,
       }),
     );
-    console.log('Query 3 completed')
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {

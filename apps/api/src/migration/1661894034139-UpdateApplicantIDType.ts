@@ -1,24 +1,13 @@
-import { IENApplicantStatusAudit } from 'src/applicant/entity/ienapplicant-status-audit.entity';
-import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.entity';
-import { IENApplicant } from 'src/applicant/entity/ienapplicant.entity';
 import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
 
 export class UpdateApplicantIDType1661894034139 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     // Clear old applicant statuses to make way for new ones.
-    await queryRunner.connection
-      .createQueryBuilder()
-      .update(IENApplicant)
-      .set({ status: undefined })
-      .execute();
+    await queryRunner.query(
+      'UPDATE "ien_applicants" SET "status_id" = null, "updated_date" = CURRENT_TIMESTAMP',
+    );
     // Applicant status audits will need to be deleted because they will be referencing status ids that do not exist
-    await queryRunner.connection
-      .createQueryBuilder()
-      .delete()
-      .from(IENApplicantStatusAudit)
-      .execute();
-    // Applicant statuses need to be delete because we do not have a mapping between the current ones and ones with new ids
-    await queryRunner.connection.createQueryBuilder().delete().from(IENApplicantStatus).execute();
+    await queryRunner.query('DELETE FROM "ien_applicant_status"');
 
     await queryRunner.query(
       `ALTER TABLE "ien_applicants" DROP CONSTRAINT "FK_2a4f42fa3db57d0a519036e86f3"`,
@@ -29,6 +18,7 @@ export class UpdateApplicantIDType1661894034139 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "ien_applicant_status" DROP CONSTRAINT "FK_9fe541de3226e5de1e5f0219f0f"`,
     );
+
     await queryRunner.dropPrimaryKey('ien_applicant_status');
 
     await queryRunner.changeColumn(
@@ -38,7 +28,7 @@ export class UpdateApplicantIDType1661894034139 implements MigrationInterface {
         type: 'uuid',
         name: 'id',
         isNullable: false,
-        isUnique:true
+        isUnique: true,
       }),
     );
 
@@ -49,7 +39,6 @@ export class UpdateApplicantIDType1661894034139 implements MigrationInterface {
         length: '256',
         isNullable: true,
         name: 'category',
-        
       }),
     );
 
@@ -61,10 +50,8 @@ export class UpdateApplicantIDType1661894034139 implements MigrationInterface {
         type: 'uuid',
         name: 'applicant_id',
         isNullable: true,
-        isUnique:true
       }),
     );
-    console.log('Query 1 complete')
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
