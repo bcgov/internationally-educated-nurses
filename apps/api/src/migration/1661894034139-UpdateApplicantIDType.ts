@@ -1,5 +1,4 @@
 import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
-import { IENApplicantStatus } from '../applicant/entity/ienapplicant-status.entity';
 
 export class UpdateApplicantIDType1661894034139 implements MigrationInterface {
   milestones = [
@@ -354,35 +353,19 @@ export class UpdateApplicantIDType1661894034139 implements MigrationInterface {
   ];
 
   private async addMilestones(queryRunner: QueryRunner): Promise<void> {
-    const formattedMilestones = this.milestones.map(milestone => {
-      return {
-        id: milestone.id,
-        status: milestone.name,
-        category: milestone.category,
-        full_name: milestone.name,
-      };
-    });
-
     await queryRunner.query(`
       DELETE FROM "ien_applicant_status";
     `);
 
-    await queryRunner.manager
-      .createQueryBuilder()
-      .insert()
-      .into(IENApplicantStatus)
-      .values(formattedMilestones)
-      .execute();
-  }
-
-  private async removeMilestones(queryRunner: QueryRunner): Promise<void> {
-    const ids = this.milestones.map(milestone => milestone.id);
-    await queryRunner.manager
-      .createQueryBuilder()
-      .delete()
-      .from(IENApplicantStatus)
-      .whereInIds(ids)
-      .execute();
+    await Promise.all(
+      this.milestones
+        .map(({ id, name, category }) => `('${id}', '${name}', '${category}', '${name}')`)
+        .map(values =>
+          queryRunner.query(`
+          INSERT INTO "ien_applicant_status" (id, status, category, full_name) VALUES ${values};
+        `),
+        ),
+    );
   }
 
   private async changeStatusIdToUuid(queryRunner: QueryRunner): Promise<void> {
@@ -453,16 +436,6 @@ export class UpdateApplicantIDType1661894034139 implements MigrationInterface {
       }),
     );
 
-    await queryRunner.query(`ALTER TABLE "ien_applicants" DROP COLUMN IF EXISTS "applicant_id";`);
-    await queryRunner.addColumn(
-      'ien_applicants',
-      new TableColumn({
-        type: 'uuid',
-        name: 'applicant_id',
-        isNullable: true,
-      }),
-    );
-
     // restore fk constraints related to status.id
     await queryRunner.query(
       `ALTER TABLE "ien_applicants" ADD CONSTRAINT "FK_2a4f42fa3db57d0a519036e86f3" FOREIGN KEY ("status_id") REFERENCES "ien_applicant_status"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`,
@@ -470,8 +443,6 @@ export class UpdateApplicantIDType1661894034139 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "ien_applicant_status_audit" ADD CONSTRAINT "FK_167d0e7e6a4a4c1cab226938914" FOREIGN KEY ("status_id") REFERENCES "ien_applicant_status"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`,
     );
-
-    await this.addMilestones(queryRunner);
   }
 
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -488,6 +459,16 @@ export class UpdateApplicantIDType1661894034139 implements MigrationInterface {
         }),
       );
     }
+
+    await queryRunner.query(`ALTER TABLE "ien_applicants" DROP COLUMN IF EXISTS "applicant_id";`);
+    await queryRunner.addColumn(
+      'ien_applicants',
+      new TableColumn({
+        type: 'uuid',
+        name: 'applicant_id',
+        isNullable: true,
+      }),
+    );
 
     await queryRunner.query(
       `ALTER TABLE "ien_applicant_status_audit" DROP COLUMN IF EXISTS "applicant_id";`,
@@ -515,7 +496,7 @@ export class UpdateApplicantIDType1661894034139 implements MigrationInterface {
       `ALTER TABLE "ien_applicant_status_audit" DROP CONSTRAINT IF EXISTS "FK_167d0e7e6a4a4c1cab226938914"`,
     );
 
-    await this.removeMilestones(queryRunner);
+    await queryRunner.query(`DELETE FROM "ien_applicant_status"`);
 
     // milestones - drop new id column, then rename the old one.
     if (await queryRunner.hasColumn('ien_applicant_status', 'id')) {
