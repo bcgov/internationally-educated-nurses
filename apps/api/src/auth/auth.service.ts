@@ -3,10 +3,11 @@ import jwt, { TokenExpiredError } from 'jsonwebtoken';
 import jwksRsa from 'jwks-rsa';
 export class AuthService {
   jwksClient = jwksRsa({
-    jwksUri: `${process.env.AUTH_URL}/realms/${process.env.AUTH_REALM}/protocol/openid-connect/certs`,
+    jwksUri: `https://keycloak.freshworks.club/auth/realms/ien/protocol/openid-connect/certs`,
   });
 
   extractToken = (headers: { [key: string]: string }): string | undefined => {
+    
     if (headers.authorization) {
       const auth = headers.authorization.split(' ');
       const type = auth[0].toLowerCase();

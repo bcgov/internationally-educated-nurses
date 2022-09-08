@@ -19,6 +19,7 @@ import {
 } from './fixture/ien';
 import { IENUsers } from 'src/applicant/entity/ienusers.entity';
 import { canActivate } from './override-guard';
+import { randomUUID } from 'crypto';
 let jobTempId = 10;
 let applicantStatusId = 'NA';
 
@@ -26,6 +27,8 @@ describe('ApplicantController (e2e)', () => {
   let app: INestApplication;
   let ienHaPcnRepository: Repository<IENHaPcn>;
   let ienUsersRepository: Repository<IENUsers>;
+  let applicanIdOne: string;
+  let applicanIdTwo: string;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -34,7 +37,8 @@ describe('ApplicantController (e2e)', () => {
       .overrideGuard(AuthGuard)
       .useValue({ canActivate })
       .compile();
-
+      applicanIdOne = randomUUID();
+      applicanIdTwo = randomUUID();
     app = moduleFixture.createNestApplication();
     await app.init();
 
@@ -51,6 +55,7 @@ describe('ApplicantController (e2e)', () => {
   });
 
   it('Add Applicant /ien (POST)', done => {
+    validApplicant.applicant_id = applicanIdOne;
     request(app.getHttpServer())
       .post('/ien')
       .send(validApplicant)
@@ -75,7 +80,7 @@ describe('ApplicantController (e2e)', () => {
   });
 
   it('Add second Applicant /ien (POST) ', done => {
-    validApplicant.applicant_id += 1;
+    validApplicant.applicant_id = applicanIdTwo;
     validApplicant.last_name = 'notexample';
     validApplicant.email_address = 'test.example2@mailinator.com';
     request(app.getHttpServer()).post('/ien').send(validApplicant).expect(201).end(done);
@@ -225,7 +230,7 @@ describe('ApplicantController (e2e)', () => {
       .expect(res => {
         const { body } = res;
         expect(body.jobs.length).toBe(1);
-        expect(body.applicant_id).toBe(`${validApplicant.applicant_id - 1}`);
+        expect(body.applicant_id).toBe(`${applicanIdOne}`);
       })
       .expect(200)
       .end(done);
