@@ -29,7 +29,7 @@ export enum STATUS {
   INTERVIEW_NOT_PASSED = 'Candidate Did Not Pass Interview',
   REFERENCE_CHECK_PASSED = 'Candidate Passed Reference Check',
   REFERENCE_CHECK_NOT_PASSED = 'Candidate Did Not Pass Reference Check',
-  JOB_OFFER_ACCEPTED = 'Job Offer Accepted',
+  JOB_OFFER_ACCEPTED = '70b1f5f1-1a0d-ef71-42ea-3a0601b46bc2',
   JOB_OFFER_NOT_ACCEPTED = 'Job Offer Not Accepted',
   JOB_COMPETITION_CANCELLED = 'Job Competition Cancelled',
   HA_NOT_INTERERESTED = 'HA is Not Interested',
