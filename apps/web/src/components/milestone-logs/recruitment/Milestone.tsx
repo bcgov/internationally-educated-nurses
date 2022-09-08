@@ -11,11 +11,11 @@ interface MilestoneProps {
   handleSubmit: (milestone: IENApplicantUpdateStatusDTO) => Promise<void>;
   editing: ApplicantStatusAuditRO | null;
   onEditing: (editing: ApplicantStatusAuditRO | null) => void;
-  milestoneTabId: StatusCategory | string;
+  category: StatusCategory | string;
 }
 
 export const Milestone: React.FC<MilestoneProps> = props => {
-  const { job, milestone, handleSubmit, editing, onEditing, milestoneTabId } = props;
+  const { job, milestone, handleSubmit, editing, onEditing, category } = props;
   return (
     <>
       {editing !== milestone ? (
@@ -32,7 +32,7 @@ export const Milestone: React.FC<MilestoneProps> = props => {
             milestone={milestone}
             handleSubmit={values => handleSubmit(values)}
             onClose={() => onEditing(null)}
-            milestoneTabId={milestoneTabId}
+            category={category}
           />
         </>
       )}

@@ -25,6 +25,7 @@ import {
   buttonBase,
   Field,
   getSelectStyleOverride,
+  HorizontalLine,
   Textarea,
 } from '@components';
 import addIcon from '@assets/img/add.svg';
@@ -50,22 +51,25 @@ interface MilestoneFormProps<T extends MilestoneFormValues> {
   milestone?: ApplicantStatusAuditRO;
   handleSubmit: (values: T, { resetForm }: FormikHelpers<T>) => Promise<void>;
   onClose?: () => void;
-  milestoneTabId: number;
+  category: string;
 }
 
 export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFormProps<T>) => {
-  const { job, milestone, handleSubmit, onClose, milestoneTabId } = props;
+  const { job, milestone, handleSubmit, onClose, category } = props;
 
-  const milestones = useGetMilestoneOptions(milestoneTabId);
+  const milestones = useGetMilestoneOptions(category);
   const reasons = useGetWithdrawReasonOptions();
 
   const [outcomeGroup, setOutcomeGroup] = useState<OutcomeGroup | null>(null);
   const [outcomeOptions, setOutcomeOptions] = useState<MilestoneType[]>([]);
+  const [outcome, setOutcome] = useState<MilestoneType | undefined>(
+    milestones?.find(m => m.id === milestone?.id),
+  );
 
   const milestoneValidator = createValidator(IENApplicantAddStatusDTO);
 
   const submit = async (values: T, helpers: FormikHelpers<T>) => {
-    if (values.status !== `${STATUS.Candidate_accepted_the_job_offer}`) {
+    if (milestones.find(m => m.id === values.status)?.status !== `${STATUS.JOB_OFFER_ACCEPTED}`) {
       values.effective_date = undefined;
     }
 
@@ -94,7 +98,9 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
     function initOutcomeGroup() {
       if (milestone) {
         setOutcomeGroup(
-          OutcomeGroups.find(group => group.milestones.includes(milestone.status.id)) || null,
+          OutcomeGroups.find(group =>
+            group.milestones.includes(milestone.status.status as STATUS),
+          ) || null,
         );
       }
     },
@@ -107,7 +113,9 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
         setOutcomeOptions([]);
         return;
       }
-      const options = milestones.filter(option => outcomeGroup.milestones.includes(+option.id));
+      const options = milestones.filter(option =>
+        outcomeGroup.milestones.includes(option.status as STATUS),
+      );
       setOutcomeOptions(options);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -122,10 +130,10 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
           onSubmit={submit}
           validate={milestoneValidator}
         >
-          {({ isSubmitting, values }) => (
+          {({ isSubmitting }) => (
             <FormikForm>
-              <div className='grid grid-cols-12 gap-y-2 mb-4 content-end'>
-                <div className='col-span-12 sm:col-span-6 pr-1 md:pr-2'>
+              <div className='grid grid-cols-12 gap-y-2 mb-2 content-end'>
+                <div className='col-span-12 sm:col-span-6'>
                   <BasicSelect<string>
                     id='outcomeType'
                     label='Milestone'
@@ -137,33 +145,35 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
                     optionStyle={{ padding: '10px 20px' }}
                   />
                 </div>
-                <div className='col-span-6 pr-1 md:pr-2 ml-3'>
-                  <Field
-                    name='status'
-                    label='Outcome'
-                    component={({ field, form }: FieldProps) => (
-                      <ReactSelect<MilestoneType>
-                        inputId={field.name}
-                        value={outcomeOptions?.find(s => s.id == field.value)}
-                        onBlur={field.onBlur}
-                        onChange={value => {
-                          form.setFieldValue(field.name, `${value?.id}`);
-                          if (value?.id !== `${STATUS.Candidate_withdrew}`) {
-                            form.setFieldValue('reason', '');
-                          }
-                        }}
-                        options={outcomeOptions?.map(s => ({
-                          ...s,
-                          isDisabled: s.id == field.value,
-                        }))}
-                        getOptionLabel={option => option.status}
-                        styles={getSelectStyleOverride<MilestoneType>('bg-white')}
-                      />
-                    )}
-                  />
-                  {/* Withdraw reason conditional field */}
-                  {values.status === `${STATUS.Candidate_withdrew}` ? (
-                    <div className='mt-5'>
+                <div className='col-span-6 pr-1 ml-3'>
+                  <div className='mb-4'>
+                    <Field
+                      name='status'
+                      label='Outcome'
+                      component={({ field, form }: FieldProps) => (
+                        <ReactSelect<MilestoneType>
+                          inputId={field.name}
+                          value={outcomeOptions?.find(s => s.id == field.value)}
+                          onBlur={field.onBlur}
+                          onChange={value => {
+                            form.setFieldValue(field.name, `${value?.id}`);
+                            setOutcome(milestones.find(m => m.id === value?.id));
+                            if (outcome?.status !== `${STATUS.WITHDREW_FROM_COMPETITION}`) {
+                              form.setFieldValue('reason', '');
+                            }
+                          }}
+                          options={outcomeOptions?.map(s => ({
+                            ...s,
+                            isDisabled: s.id == field.value,
+                          }))}
+                          getOptionLabel={option => option.status}
+                          styles={getSelectStyleOverride<MilestoneType>('bg-white')}
+                        />
+                      )}
+                    />
+                  </div>
+                  {outcome?.status === `${STATUS.WITHDREW_FROM_COMPETITION}` ? (
+                    <div>
                       <Field
                         name='reason'
                         label='Outcome Reason'
@@ -199,11 +209,12 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
                     </div>
                   ) : null}
                 </div>
-
-                <hr className='col-span-12 border-black w-full mt-5 mb-1' />
+              </div>
+              <div className='py-5'>
+                <HorizontalLine />
               </div>
               <div className='grid grid-cols-12 gap-y-2 mb-4'>
-                <div className='col-span-6 pr-1 md:pr-2'>
+                <div className='col-span-6'>
                   <DatePickerField
                     name='start_date'
                     label='Date'
@@ -214,8 +225,8 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
                   />
                 </div>
                 {/* Candidate accepted job offer conditional */}
-                {values.status === `${STATUS.Candidate_accepted_the_job_offer}` ? (
-                  <div className='col-span-6 pr-1 md:pr-2 ml-3'>
+                {outcome?.status === `${STATUS.JOB_OFFER_ACCEPTED}` ? (
+                  <div className='col-span-6 ml-3'>
                     <DatePickerField
                       name='effective_date'
                       label='Target Start Date'
@@ -224,7 +235,7 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
                     />
                   </div>
                 ) : null}
-                <div className='col-span-12 pr-1 md:pr-2 mt-4'>
+                <div className='col-span-12 mt-4'>
                   <Textarea name='notes' label='Notes' placeholder='Type note here...' />
                 </div>
               </div>
