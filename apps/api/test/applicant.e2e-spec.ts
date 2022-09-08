@@ -37,8 +37,8 @@ describe('ApplicantController (e2e)', () => {
       .overrideGuard(AuthGuard)
       .useValue({ canActivate })
       .compile();
-      applicanIdOne = randomUUID();
-      applicanIdTwo = randomUUID();
+    applicanIdOne = randomUUID();
+    applicanIdTwo = randomUUID();
     app = moduleFixture.createNestApplication();
     await app.init();
 

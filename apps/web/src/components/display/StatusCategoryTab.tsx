@@ -29,7 +29,7 @@ export const StatusCategoryTab = ({ tabs, categoryIndex, onTabClick }: TabFields
         {tabs.map(({ title, value }) => (
           <button
             key={title}
-            id={`tab-${value.replaceAll(' ','_')}`}
+            id={`tab-${value.replaceAll(' ', '_')}`}
             className={getButtonClasses(value)}
             onClick={() => onTabClick(value)}
           >
