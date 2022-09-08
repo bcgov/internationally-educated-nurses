@@ -243,6 +243,10 @@ export class IENApplicantService {
       milestone;
     const data: Partial<IENApplicantStatusAudit> = {};
 
+    if (!status) {
+      throw new BadRequestException(`Invalid milestone: id(${status})`);
+    }
+
     /** Only allowing recruitment related milestones here */
     const status_obj = await this.ienapplicantUtilService.getStatusById(status);
     if (!status_obj) {
