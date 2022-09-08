@@ -77,7 +77,7 @@ const Applicants = () => {
   useEffect(() => {
     const skip = (pageIndex - 1) * limit;
     const options: SearchOptions = { name, sortKey, order, limit, skip };
-    if (status) options.status = `${status}`;
+    if (status && status !== 'ALL') options.status = `${status}`;
     setLoading(true);
     searchApplicants(options).then(({ data, count }) => {
       setTotal(count);
@@ -109,11 +109,11 @@ const Applicants = () => {
     }
   };
 
-  const changeRoute = (keyword: string, tabIndex: string) => {
+  const changeRoute = (keyword: string, tabStatus: string) => {
     const urlParams = new URLSearchParams();
 
     keyword && urlParams.append('name', keyword);
-    urlParams.append('status', tabIndex.toString());
+    urlParams.append('status', tabStatus);
 
     router.push(`?${urlParams.toString()}`, undefined, { shallow: true });
   };
