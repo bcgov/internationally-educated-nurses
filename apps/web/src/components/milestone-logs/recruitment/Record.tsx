@@ -141,7 +141,7 @@ export const Record: React.FC<RecordProps> = ({
               <span
                 className={`text-sm ${
                   wasOfferAccepted ? 'text-bcGreenHiredText' : 'text-bcBlueLink'
-                } font-bold mr-3 ml-auto capitalize`}
+                } font-bold mr-3 ml-auto`}
               >
                 <img
                   src={wasOfferAccepted ? dotIconHired.src : dotIcon.src}

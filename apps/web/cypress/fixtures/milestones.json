@@ -1,11 +1,13 @@
 {
   "new": {
-    "status": "Candidate was unresponsive",
+    "milestone": "Interview completed",
+    "outcome": "Candidate Passed Interview",
     "start_date": "2020-08-01",
     "notes": "new milestone"
   },
   "update": {
-    "status": "References completed",
+    "milestone": "Interview completed",
+    "outcome": "Candidate Did Not Pass Interview",
     "start_date": "2020-09-01",
     "notes": "edit milestone"
   }

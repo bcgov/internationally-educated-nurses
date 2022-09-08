@@ -26,23 +26,13 @@ describe('Details - Milestones', () => {
     });
   });
 
-  it('deletes a milestone', () => {
-    cy.fixture('milestones.json').then(data => {
-      cy.get('[data-cy=record-0]').click();
-      cy.deleteMilestone(4);
-      cy.contains(`${data.new.status}`).should('not.exist');
-      cy.contains(`${data.new.notes}`).should('not.exist');
-      cy.contains(dayjs(data.new.start_date).format('MMM DD, YYYY')).should('not.exist');
-    });
-  });
-
   it('edits a milestone', () => {
     cy.fixture('edit-milestone.json').then(milestone => {
       cy.get('[data-cy=record-0]').click();
 
       cy.get('[alt="edit milestone"]').eq(0).click();
 
-      cy.get('#status').focus().type(`${milestone.status}{enter}`);
+      cy.get('#status').focus().type(`${milestone.outcome}{enter}`);
       cy.get('#notes').click().clear().type(`${milestone.notes}`);
 
       cy.get('#start_date').click({ force: true });
@@ -51,9 +41,19 @@ describe('Details - Milestones', () => {
 
       cy.contains('button', 'Save Changes').click();
 
-      cy.contains(milestone.status);
+      cy.contains(milestone.outcome);
       cy.contains(dayjs(milestone.start_date).format('MMM DD, YYYY'));
       cy.contains(milestone.notes);
+    });
+  });
+
+  it('deletes a milestone', () => {
+    cy.fixture('milestones.json').then(data => {
+      cy.get('[data-cy=record-0]').click();
+      cy.deleteMilestone(0);
+      cy.contains(`${data.new.outcome}`).should('not.exist');
+      cy.contains(`${data.new.notes}`).should('not.exist');
+      cy.contains(dayjs(data.new.start_date).format('MMM DD, YYYY')).should('not.exist');
     });
   });
 
