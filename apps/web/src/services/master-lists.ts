@@ -36,7 +36,6 @@ export const useGetMilestoneOptions = (categoryId: string): MilestoneType[] => {
   const milestones: MilestoneType[] = data?.data?.filter(
     (item: { category: string }) => item.category == categoryId,
   );
-  console.log(milestones);
   if (milestones) {
     return milestones.sort((a, b) => (a.id > b.id ? 1 : -1));
   }
