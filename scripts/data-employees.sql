@@ -21,13 +21,14 @@ VALUES
 INSERT INTO ien_users
     (name, created_date, email, id)
 VALUES
-    ('ien_e2e', '2022-07-25 20:54:58.045', 'ien@freshworks.io', '29ce5826-c548-4583-8f95-ba427237627b'),
-    ('ien_ha', '2022-07-25 20:54:58.045', 'ien_ha@islandhealth.ca', '038fd6eb-3613-436e-af5b-8d2df6ac530f'),
-    ('ien_e2e_view', '2022-07-25 20:54:58.045', 'ien_e2e_view@phsa.ca', '8e059067-267e-46ef-91fb-7c745cd141c2'),
+    ('ien_e2e', '2022-07-25 20:54:58.045', 'ien@freshworks.io', 'b1529f60-5429-4f89-bbf7-a0d48481bacf'),
+    ('ien_ha', '2022-07-25 20:54:58.045', 'ien_ha@islandhealth.ca', '271d4951-5f7a-4b78-84a3-a73a30e30155'),
+    ('ien_e2e_view', '2022-07-25 20:54:58.045', 'ien_e2e_view@phsa.ca', 'fcba0a95-37ec-4e29-ac9b-0ea082a8e4a7'),
     ('ien_moh', '2022-07-25 20:54:58.045', 'ien_moh@gov.bc.ca', '6f73a3f5-6702-4be5-8002-12b0a9cdd5a3'),
     ('ien_hmbc', '2022-07-25 20:55:15.046', 'ien_hmbc@healthmatchbc.org', '794d1efb-8948-4d81-a811-1ada357fb3cc'),
     ('ien_fnha', '2022-07-25 20:55:29.316', 'ien_fnha@fnha.ca', 'f469c633-130d-4c7c-9dc6-eb12af62910c'),
     ('ien_fha', '2022-07-25 20:55:41.646', 'ien_fha@fraserhealth.org', '08270482-0080-456b-85df-57668b0939f1'),
+    ('ien_fha2', '2022-07-25 20:55:41.646', 'ien_fha2@fraserhealth.org', 'e7355885-7d52-48de-9a2e-fc89a0fa270d'),
     ('ien_iha', '2022-07-25 20:55:55.491', 'ien_iha@interiorhealth.ca', '9255a537-e14e-4fa4-864b-f43253ceb909'),
     ('ien_viha', '2022-07-25 20:56:08.080', 'ien_viha@islandhealth.ca', 'f32bf751-6777-4312-b330-9ce46d695509'),
     ('ien_nha', '2022-07-25 20:56:21.819', 'ien_nha@northernhealth.ca', '68874e11-a7a0-4be5-947e-5190ab06e4c8'),
