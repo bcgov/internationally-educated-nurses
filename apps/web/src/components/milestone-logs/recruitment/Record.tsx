@@ -206,11 +206,11 @@ export const Record: React.FC<RecordProps> = ({
                 editing={editing}
                 onEditing={setEditing}
                 handleSubmit={values => handleUpdateMilestone(mil.id, values)}
-                milestoneTabId={StatusCategory.RECRUITMENT}
+                category={StatusCategory.RECRUITMENT}
               />
             ))}
             <AclMask acl={[Access.APPLICANT_WRITE]}>
-              {!editing && <AddMilestone job={job} milestoneTabId={StatusCategory.RECRUITMENT} />}
+              {!editing && <AddMilestone job={job} category={StatusCategory.RECRUITMENT} />}
               <AddRecordModal
                 job={job}
                 milestones={milestones}

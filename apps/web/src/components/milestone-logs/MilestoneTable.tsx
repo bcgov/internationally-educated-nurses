@@ -54,7 +54,7 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
     function filterMilestones() {
       const audits =
         milestones?.filter(audit => {
-          return audit.status.parent?.id === category;
+          return audit.status.parent?.category === category;
         }) || [];
       setFilteredMilestones(audits);
     },
@@ -175,7 +175,7 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
                         editing={editing}
                         onEditing={setEditing}
                         handleSubmit={values => handleUpdateMilestone(audit.id, values)}
-                        milestoneTabId={category}
+                        category={category}
                       />
                     </td>
                   </tr>
@@ -191,7 +191,7 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
         then only show form if applicant was not added by ATS and if current logged-in user added applicant */}
         <AclMask acl={[Access.APPLICANT_WRITE]}>
           {EDIT_NON_RECRUITMENT_MILESTONES && canAddEditNonRecruitmentMilestone() && (
-            <AddMilestone milestoneTabId={category} />
+            <AddMilestone category={category} />
           )}
         </AclMask>
       </div>
