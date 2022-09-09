@@ -1,7 +1,6 @@
 import dayjs from 'dayjs';
 import {
   ApplicantRO,
-  IENApplicantAddStatusDTO,
   IENApplicantCreateUpdateDTO,
   IENApplicantJobCreateUpdateDTO,
 } from '@ien/common';
@@ -137,13 +136,16 @@ Cypress.Commands.add('editDuplicateJob', (job: IENApplicantJobCreateUpdateDTO) =
   cy.contains('button', 'Cancel').click();
 });
 
-Cypress.Commands.add('addMilestone', (milestone: IENApplicantAddStatusDTO) => {
+Cypress.Commands.add('addMilestone', (milestone: any) => {
   cy.get('#start_date').focus().clear();
   cy.get('#start_date').focus().clear().type(`${milestone.start_date}`);
   cy.get('#notes').click().clear().type(`${milestone.notes}`);
   cy.get('form').find('#status').click({ force: true });
+  cy.get('#outcomeType').each(el => {
+    cy.wrap(el).focus().wait(100).type(`${milestone.milestone}{enter}`);
+  });
   cy.get('#status').each(el => {
-    cy.wrap(el).focus().wait(100).type(`${milestone.status}{enter}`);
+    cy.wrap(el).focus().wait(100).type(`${milestone.outcome}{enter}`);
   });
   if (milestone.reason) {
     cy.get('form').find('#reason').click({ force: true });
@@ -153,7 +155,7 @@ Cypress.Commands.add('addMilestone', (milestone: IENApplicantAddStatusDTO) => {
     cy.get('#effective_date').focus().click().type(`${milestone.effective_date}{enter}`);
   }
   cy.contains('button', 'Save Milestone').click();
-  cy.contains(milestone.status);
+  cy.contains(milestone.outcome);
   cy.contains(`${milestone.notes}`);
 });
 

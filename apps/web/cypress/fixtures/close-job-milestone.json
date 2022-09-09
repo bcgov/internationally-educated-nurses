@@ -1,19 +1,16 @@
 {
   "withdraw": {
-    "status": "Candidate withdrew",
+    "milestone": "Competition outcome",
+    "outcome": "Candidate withdrew",
     "start_date": "2020-06-01",
     "notes": "close milestone",
     "reason": "Personal reasons"
   },
   "acceptOffer": {
-    "status": "Candidate accepted the job offer",
+    "milestone": "Competition outcome",
+    "outcome": "Job Offer Accepted",
     "start_date": "2020-08-01",
     "notes": "close milestone by accepting offer",
     "effective_date": "2020-09-01"
-  },
-  "reopen": {
-    "status": "Offered position",
-    "start_date": "2020-07-01",
-    "notes": "reopen job competition"
   }
 }

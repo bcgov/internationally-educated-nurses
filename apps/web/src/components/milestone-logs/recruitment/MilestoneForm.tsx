@@ -1,8 +1,18 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 import { FieldProps, Formik, Form as FormikForm, FormikHelpers } from 'formik';
 import createValidator from 'class-validator-formik';
 import ReactSelect from 'react-select';
 import dayjs from 'dayjs';
+import {
+  ApplicantJobRO,
+  ApplicantStatusAuditRO,
+  IENApplicantAddStatusDTO,
+  IENApplicantUpdateStatusDTO,
+  IENStatusReasonRO,
+  OutcomeGroup,
+  OutcomeGroups,
+  STATUS,
+} from '@ien/common';
 import {
   MilestoneType,
   StyleOption,
@@ -10,14 +20,14 @@ import {
   useGetWithdrawReasonOptions,
 } from '@services';
 import {
-  ApplicantJobRO,
-  ApplicantStatusAuditRO,
-  IENApplicantAddStatusDTO,
-  IENApplicantUpdateStatusDTO,
-  IENStatusReasonRO,
-  STATUS,
-} from '@ien/common';
-import { Button, buttonBase, Field, getSelectStyleOverride, Textarea } from '@components';
+  BasicSelect,
+  Button,
+  buttonBase,
+  Field,
+  getSelectStyleOverride,
+  HorizontalLine,
+  Textarea,
+} from '@components';
 import addIcon from '@assets/img/add.svg';
 import { DatePickerField } from '../../form/DatePickerField';
 
@@ -41,18 +51,25 @@ interface MilestoneFormProps<T extends MilestoneFormValues> {
   milestone?: ApplicantStatusAuditRO;
   handleSubmit: (values: T, { resetForm }: FormikHelpers<T>) => Promise<void>;
   onClose?: () => void;
-  milestoneTabId: string;
+  category: string;
 }
 
 export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFormProps<T>) => {
-  const { job, milestone, handleSubmit, onClose, milestoneTabId } = props;
-  const milestones = useGetMilestoneOptions(milestoneTabId);
+  const { job, milestone, handleSubmit, onClose, category } = props;
+
+  const milestones = useGetMilestoneOptions(category);
   const reasons = useGetWithdrawReasonOptions();
+
+  const [outcomeGroup, setOutcomeGroup] = useState<OutcomeGroup | null>(null);
+  const [outcomeOptions, setOutcomeOptions] = useState<MilestoneType[]>([]);
+  const [outcome, setOutcome] = useState<MilestoneType | undefined>(
+    milestones?.find(m => m.id === milestone?.id),
+  );
 
   const milestoneValidator = createValidator(IENApplicantAddStatusDTO);
 
   const submit = async (values: T, helpers: FormikHelpers<T>) => {
-    if (values.status !== `${STATUS.JOB_OFFER_ACCEPTED}`) {
+    if (milestones.find(m => m.id === values.status)?.status !== `${STATUS.JOB_OFFER_ACCEPTED}`) {
       values.effective_date = undefined;
     }
 
@@ -72,6 +89,39 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
     }
   };
 
+  const handleOutcomeType = (group: string) => {
+    const outcomeGroup = Object.values(OutcomeGroups).find(({ value }) => value === group);
+    setOutcomeGroup(outcomeGroup || null);
+  };
+
+  useEffect(
+    function initOutcomeGroup() {
+      if (milestone) {
+        setOutcomeGroup(
+          OutcomeGroups.find(group =>
+            group.milestones.includes(milestone.status.status as STATUS),
+          ) || null,
+        );
+      }
+    },
+    [milestone],
+  );
+
+  useEffect(
+    function updateAvailableOutcomeOptions() {
+      if (!outcomeGroup) {
+        setOutcomeOptions([]);
+        return;
+      }
+      const options = milestones.filter(option =>
+        outcomeGroup.milestones.includes(option.status as STATUS),
+      );
+      setOutcomeOptions(options);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [outcomeGroup],
+  );
+
   return (
     <div className='border border-gray-200 rounded bg-gray-200 my-3 px-3 pb-4'>
       <div className='w-full pt-4'>
@@ -80,21 +130,39 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
           onSubmit={submit}
           validate={milestoneValidator}
         >
-          {({ isSubmitting, values }) => (
+          {({ isSubmitting }) => (
             <FormikForm>
-              <div className='grid grid-cols-12 gap-y-2 mb-4'>
-                <span className='col-span-12 sm:col-span-6 pr-1 md:pr-2'>
-                  <div>
+              <div className='grid grid-cols-12 gap-y-2 mb-2 content-end'>
+                <div className='col-span-12 sm:col-span-6'>
+                  <BasicSelect<string>
+                    id='outcomeType'
+                    label='Milestone'
+                    onChange={handleOutcomeType}
+                    options={OutcomeGroups}
+                    value={outcomeGroup?.value || ''}
+                    underline
+                    textAlign='left'
+                    optionStyle={{ padding: '10px 20px' }}
+                  />
+                </div>
+                <div className='col-span-6 pr-1 ml-3'>
+                  <div className='mb-4'>
                     <Field
                       name='status'
-                      label='Milestone'
+                      label='Outcome'
                       component={({ field, form }: FieldProps) => (
                         <ReactSelect<MilestoneType>
                           inputId={field.name}
-                          value={milestones?.find(s => s.id == field.value)}
+                          value={outcomeOptions?.find(s => s.id == field.value)}
                           onBlur={field.onBlur}
-                          onChange={value => form.setFieldValue(field.name, `${value?.id}`)}
-                          options={milestones?.map(s => ({
+                          onChange={value => {
+                            form.setFieldValue(field.name, `${value?.id}`);
+                            setOutcome(milestones.find(m => m.id === value?.id));
+                            if (outcome?.status !== `${STATUS.WITHDREW_FROM_COMPETITION}`) {
+                              form.setFieldValue('reason', '');
+                            }
+                          }}
+                          options={outcomeOptions?.map(s => ({
                             ...s,
                             isDisabled: s.id == field.value,
                           }))}
@@ -104,30 +172,11 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
                       )}
                     />
                   </div>
-
-                  <div className='pt-4'>
-                    <DatePickerField
-                      name='start_date'
-                      label='Date'
-                      format='yyyy-MM-dd'
-                      bgColour='bg-white'
-                      max={new Date()}
-                      validate={(val: string) => validateStartDate(val)}
-                    />
-                  </div>
-                </span>
-
-                <span className='col-span-12 sm:col-span-6  pr-1 md:pr-2 ml-3'>
-                  <Textarea name='notes' label='Notes' />
-                </span>
-                {/* Withdraw reason conditional field */}
-                {values.status === `${STATUS.WITHDREW_FROM_COMPETITION}` ||
-                values.status === STATUS.WITHDREW_FROM_PROGRAM ? (
-                  <>
-                    <span className='col-span-12 sm:col-span-6 lg:col-span-3 pr-1 md:pr-2'>
+                  {outcome?.status === `${STATUS.WITHDREW_FROM_COMPETITION}` ? (
+                    <div>
                       <Field
                         name='reason'
-                        label='Withdraw Reason'
+                        label='Outcome Reason'
                         component={({ field, form }: FieldProps) => (
                           <ReactSelect<ReasonOption>
                             inputId={field.name}
@@ -144,53 +193,71 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
                           />
                         )}
                       />
-                    </span>
-                    <div className='col-span-12 sm:col-span-6 lg:col-span-2 md:pr-2 mt-auto'>
-                      {/* hiding add new reason button until implemented, kept in dom for layout purposes */}
-                      <div className='invisible'>
-                        <button
-                          className={`border border-bcGray rounded text-bcGray ${buttonBase} pointer-events-none`}
-                        >
-                          <span className='whitespace-nowrap px-1 text-bcGray text-xs'>
-                            Add New Reason
-                          </span>
-                          <img src={addIcon.src} alt='add reason' />
-                        </button>
+                      <div className='hidden'>
+                        <div className='col-span-12 sm:col-span-6 lg:col-span-2 md:pr-2 mt-auto'>
+                          {/* hiding add new reason button until implemented, kept in dom for layout purposes */}
+                          <button
+                            className={`border border-bcGray rounded text-bcGray ${buttonBase} pointer-events-none`}
+                          >
+                            <span className='whitespace-nowrap px-1 text-bcGray text-xs'>
+                              Add New Reason
+                            </span>
+                            <img src={addIcon.src} alt='add reason' />
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </>
-                ) : null}
-
+                  ) : null}
+                </div>
+              </div>
+              <div className='py-5'>
+                <HorizontalLine />
+              </div>
+              <div className='grid grid-cols-12 gap-y-2 mb-4'>
+                <div className='col-span-6'>
+                  <DatePickerField
+                    name='start_date'
+                    label='Date'
+                    format='yyyy-MM-dd'
+                    bgColour='bg-white'
+                    max={new Date()}
+                    validate={(val: string) => validateStartDate(val)}
+                  />
+                </div>
                 {/* Candidate accepted job offer conditional */}
-                {values.status === `${STATUS.JOB_OFFER_ACCEPTED}` ? (
-                  <span className='col-span-12 sm:col-span-6 lg:col-span-3 pr-1 md:pr-2'>
+                {outcome?.status === `${STATUS.JOB_OFFER_ACCEPTED}` ? (
+                  <div className='col-span-6 ml-3'>
                     <DatePickerField
                       name='effective_date'
                       label='Target Start Date'
                       format='yyyy-MM-dd'
                       bgColour='bg-white'
                     />
-                  </span>
+                  </div>
                 ) : null}
+                <div className='col-span-12 mt-4'>
+                  <Textarea name='notes' label='Notes' placeholder='Type note here...' />
+                </div>
               </div>
-              <Button
-                className='px-3'
-                variant={milestone ? 'primary' : 'outline'}
-                disabled={isSubmitting}
-                type='submit'
-                loading={isSubmitting}
-              >
-                {milestone ? 'Save Changes' : 'Save Milestone'}
-              </Button>
-              {milestone && (
+              <div className='mt-12'>
                 <Button
-                  className='ml-2 px-7 border-2 border-bcBluePrimary'
-                  variant='outline'
-                  onClick={onClose}
+                  variant={milestone ? 'primary' : 'outline'}
+                  disabled={isSubmitting}
+                  type='submit'
+                  loading={isSubmitting}
                 >
-                  Cancel
+                  {milestone ? 'Save Changes' : 'Save Milestone'}
                 </Button>
-              )}
+                {milestone && (
+                  <Button
+                    className='ml-2 px-7 border-2 border-bcBluePrimary'
+                    variant='outline'
+                    onClick={onClose}
+                  >
+                    Cancel
+                  </Button>
+                )}
+              </div>
             </FormikForm>
           )}
         </Formik>

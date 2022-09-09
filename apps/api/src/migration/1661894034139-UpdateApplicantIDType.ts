@@ -437,12 +437,16 @@ export class UpdateApplicantIDType1661894034139 implements MigrationInterface {
     );
 
     // restore fk constraints related to status.id
-    await queryRunner.query(
-      `ALTER TABLE "ien_applicants" ADD CONSTRAINT "FK_2a4f42fa3db57d0a519036e86f3" FOREIGN KEY ("status_id") REFERENCES "ien_applicant_status"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "ien_applicant_status_audit" ADD CONSTRAINT "FK_167d0e7e6a4a4c1cab226938914" FOREIGN KEY ("status_id") REFERENCES "ien_applicant_status"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`,
-    );
+    await queryRunner.query(`
+      ALTER TABLE "ien_applicants"
+      ADD CONSTRAINT "FK_2a4f42fa3db57d0a519036e86f3" FOREIGN KEY ("status_id")
+      REFERENCES "ien_applicant_status"("id") ON DELETE NO ACTION ON UPDATE NO ACTION
+    `);
+    await queryRunner.query(`
+      ALTER TABLE "ien_applicant_status_audit"
+      ADD CONSTRAINT "FK_167d0e7e6a4a4c1cab226938914" FOREIGN KEY ("status_id")
+      REFERENCES "ien_applicant_status"("id") ON DELETE NO ACTION ON UPDATE NO ACTION
+    `);
   }
 
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -481,6 +485,13 @@ export class UpdateApplicantIDType1661894034139 implements MigrationInterface {
         isNullable: false,
       }),
     );
+
+    // restore unique index for milestones
+    await queryRunner.query(`
+      CREATE UNIQUE INDEX "unique_applicant_status_date_job"
+      ON "ien_applicant_status_audit" (applicant_id, status_id, start_date, job_id)
+      WHERE job_id IS NOT NULL
+    `);
 
     await this.addMilestones(queryRunner);
   }

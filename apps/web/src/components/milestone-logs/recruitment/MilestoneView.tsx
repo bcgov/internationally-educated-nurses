@@ -12,7 +12,7 @@ export const MilestoneView = ({ milestone, children }: MilestoneViewProps) => {
     <div className='border border-gray-200 rounded bg-bcLightGray my-2 p-5'>
       <div className='w-full'>
         <div className='flex items-center font-bold text-black '>
-          <span className='capitalize'>{milestone.status.status}</span>
+          <span>{milestone.status.status}</span>
           <span className='mx-2'>|</span>
           <span className='mr-2'>
             <img src={calendarIcon.src} alt='calendar' width={16} height={16} />

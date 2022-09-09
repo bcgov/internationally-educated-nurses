@@ -1,4 +1,4 @@
-import { isoCountries } from './constants/countries.constants';
+import { isoCountries } from './constants';
 
 // convert alpha 2 code for countries to full name
 export const convertCountryCode = (code: string | undefined) => {

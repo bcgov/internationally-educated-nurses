@@ -1,6 +1,7 @@
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { HTMLProps } from 'react';
+import classNames from 'classnames';
 
 export interface ButtonProps extends HTMLProps<HTMLButtonElement> {
   onClick?: () => void;
@@ -18,7 +19,7 @@ export const buttonColor: Record<string, string> = {
   outline: `bg-white hover:bg-gray-100 focus:ring-blue-500`,
 };
 
-export const buttonBase = `inline-flex justify-center items-center rounded border-2 border-bcBluePrimary
+export const buttonBase = `h-[38px] inline-flex justify-center items-center rounded border-2 border-bcBluePrimary
                               shadow-sm px-4 py-2 text-xs sm:text-sm font-bold focus:outline-none
                               disabled:opacity-50
                               focus:ring-2 focus:ring-offset-2 sm:mt-0 sm:text-sm`;
@@ -27,22 +28,18 @@ export const modalButtonBase = `inline-flex justify-center items-center rounded 
                               px-16 py-2 text-xs sm:text-sm font-bold focus:outline-none disabled:opacity-50
                               focus:ring-2 focus:ring-offset-2 sm:mt-0 sm:text-sm`;
 
-export const Button: React.FC<ButtonProps> = props => {
+export const Button = (props: ButtonProps) => {
   const { variant, type, children, disabled, loading, forModal, className, onClick, ...moreProps } =
     props;
 
+  const classes = classNames(
+    className,
+    buttonColor[variant],
+    forModal ? modalButtonBase : buttonBase,
+  );
+
   return (
-    <button
-      onClick={onClick}
-      type={type}
-      className={`
-        ${className}
-        ${buttonColor[variant]}
-        ${forModal ? modalButtonBase : buttonBase}
-      `}
-      disabled={disabled}
-      {...moreProps}
-    >
+    <button onClick={onClick} type={type} className={classes} disabled={disabled} {...moreProps}>
       {loading ? (
         <FontAwesomeIcon icon={faSpinner} className='h-5 w-5 animate-spin anim' />
       ) : (
