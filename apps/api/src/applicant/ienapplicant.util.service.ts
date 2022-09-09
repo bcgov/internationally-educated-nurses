@@ -82,6 +82,7 @@ export class IENApplicantUtilService {
    * @param filter
    * @returns promise of find()
    */
+
   async applicantFilterQueryBuilder(
     filter: IENApplicantFilterAPIDTO,
     ha_pcn_id: number | undefined | null,
@@ -125,7 +126,6 @@ export class IENApplicantUtilService {
         .join(' OR ');
       conditions.push(`(${condition})`);
     }
-
     if (conditions.length > 0) {
       return this.ienapplicantRepository.findAndCount({
         where: (qb: SelectQueryBuilder<IENApplicant>) => {
@@ -142,23 +142,15 @@ export class IENApplicantUtilService {
 
   /** fetch all status if parent status passed */
   async fetchChildStatusList(status: string): Promise<string[]> {
-    const status_list = status.split(',');
-    const parent_status = await this.ienMasterService.ienApplicantStatusRepository.find({
+    const categories = status.split(',');
+
+    const statuses = await this.ienMasterService.ienApplicantStatusRepository.find({
       where: {
-        id: In(status_list),
-        parent: IsNull(),
+        category: In(categories),
       },
-      relations: ['children'],
     });
-    if (parent_status.length > 0) {
-      parent_status.forEach(s => {
-        const children = s.children;
-        children.forEach(c => {
-          status_list.push(`${c.id}`);
-        });
-      });
-    }
-    return status_list;
+
+    return statuses.map(({ id }) => id);
   }
 
   /**
@@ -166,15 +158,10 @@ export class IENApplicantUtilService {
    * @param status
    * @returns Status Object or NotFoundException
    */
-  async getStatusById(status: string): Promise<IENApplicantStatus> {
-    const statusObj = await this.ienMasterService.ienApplicantStatusRepository.findOne(
-      parseInt(status),
-      {
-        relations: ['parent'],
-      },
-    );
+  async getStatusById(id: string): Promise<IENApplicantStatus> {
+    const statusObj = await this.ienMasterService.ienApplicantStatusRepository.findOne(id);
     if (!statusObj) {
-      throw new NotFoundException(`Status with given value "${status}" not found`);
+      throw new NotFoundException(`Status with given value "${id}" not found`);
     }
 
     return statusObj;

@@ -39,7 +39,9 @@ export class IENMasterController {
   @Get('/status')
   async getApplicantStatus(): Promise<IENApplicantStatusRO[]> {
     try {
-      return await this.ienmasterService.getStatus();
+      return (await this.ienmasterService.getStatus()).map(status => {
+        return status.toResponseObject();
+      });
     } catch (e) {
       this.logger.error(e);
       throw new InternalServerErrorException('An unknown error occured retriving applicant status');

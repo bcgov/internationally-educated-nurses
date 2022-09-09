@@ -9,7 +9,7 @@
   "defaultCommandTimeout": 60000,
   "chromeWebSecurity": false,
   "viewportWidth": 1280,
-  "viewportHeight": 960,
+  "viewportHeight": 1500,
   "videoUploadOnPasses": false,
   "experimentalSessionAndOrigin": true,
   "waitForAnimations": true

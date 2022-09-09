@@ -3,22 +3,22 @@ import { FormikHelpers } from 'formik';
 import { toast } from 'react-toastify';
 
 import { ApplicantJobRO, IENApplicantAddStatusDTO } from '@ien/common';
-import { addMilestone } from '@services';
+import { addMilestone, StatusCategory } from '@services';
 import { getInitialMilestoneFormValues, MilestoneForm } from './MilestoneForm';
 import { useApplicantContext } from '../../applicant/ApplicantContext';
 
 interface AddMilestoneProps {
   job?: ApplicantJobRO;
-  milestoneTabId: number;
+  category: StatusCategory | string;
 }
 
-export const AddMilestone = ({ job, milestoneTabId }: AddMilestoneProps) => {
-  const { applicant, milestones, fetchApplicant } = useApplicantContext();
+export const AddMilestone = ({ job, category }: AddMilestoneProps) => {
+  const { applicant, fetchApplicant } = useApplicantContext();
 
   const isDuplicate = ({ status, start_date }: IENApplicantAddStatusDTO) => {
-    return job
-      ? job.status_audit?.find(m => m.status.id == +status && m.start_date == start_date)
-      : milestones.find(m => m.status.id == +status && m.start_date == start_date);
+    return (
+      job && job.status_audit?.find(m => m.status.status == status && m.start_date == start_date)
+    );
   };
 
   const handleSubmit = async (
@@ -42,7 +42,7 @@ export const AddMilestone = ({ job, milestoneTabId }: AddMilestoneProps) => {
     <MilestoneForm<IENApplicantAddStatusDTO>
       job={job}
       handleSubmit={handleSubmit}
-      milestoneTabId={milestoneTabId}
+      category={category}
     />
   );
 };

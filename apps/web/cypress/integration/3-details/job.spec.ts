@@ -53,28 +53,18 @@ describe('Details - Job', () => {
 
   it('closes a job competition by withdraw', () => {
     cy.get('[data-cy=record-0]').click();
-    cy.fixture('open-close-job-milestone.json').then(({ withdraw }) => {
+    cy.fixture('close-job-milestone.json').then(({ withdraw }) => {
       cy.addMilestone(withdraw);
-      cy.contains(`Complete - ${withdraw.status}`);
-    });
-  });
-
-  it('reopen a job competition', () => {
-    cy.get('[data-cy=record-0]').click();
-    cy.fixture('open-close-job-milestone.json').then(({ reopen }) => {
-      cy.addMilestone(reopen);
-      cy.contains(`On Going - ${reopen.status}`);
-      cy.deleteMilestone(5);
-      cy.deleteMilestone(4);
+      cy.contains(`Complete - ${withdraw.outcome}`);
     });
   });
 
   it('closes a job competition by accepting an offer', () => {
-    cy.get('[data-cy=record-0]').click();
-    cy.fixture('open-close-job-milestone.json').then(({ acceptOffer }) => {
+    cy.get('[data-cy=record-1]').click();
+    cy.fixture('close-job-milestone.json').then(({ acceptOffer }) => {
       cy.addMilestone(acceptOffer);
-      cy.contains(`Complete - ${acceptOffer.status}`);
-      cy.deleteMilestone(4);
+      cy.contains(`Complete - ${acceptOffer.outcome}`);
+      cy.deleteMilestone(0);
     });
   });
 

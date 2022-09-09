@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable } from '@nestjs/common';
-import { IsNull, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IENApplicantStatus } from './entity/ienapplicant-status.entity';
 import { IENHaPcn } from './entity/ienhapcn.entity';
@@ -31,12 +31,7 @@ export class IENMasterService {
   ) {}
 
   async getStatus(): Promise<IENApplicantStatus[]> {
-    return this.ienApplicantStatusRepository.find({
-      where: {
-        parent: IsNull(),
-      },
-      relations: ['children'],
-    });
+    return this.ienApplicantStatusRepository.find();
   }
 
   async getHaPcn(): Promise<IENHaPcn[]> {

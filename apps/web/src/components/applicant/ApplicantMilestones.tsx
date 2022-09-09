@@ -13,12 +13,12 @@ export const ApplicantMilestones = () => {
 
   const { authUser } = useAuthContext();
 
-  const [statusCategory, setStatusCategory] = useState(0);
+  const [statusCategory, setStatusCategory] = useState('');
 
   useEffect(
     function setDefaultCategory() {
       if (!statusCategory) {
-        setStatusCategory(applicant.status?.parent?.id || StatusCategory.INTAKE);
+        setStatusCategory((applicant?.status?.category as StatusCategory) || StatusCategory.INTAKE);
       }
     },
     [applicant, statusCategory],
@@ -35,7 +35,7 @@ export const ApplicantMilestones = () => {
           <StatusCategoryTab
             tabs={milestoneTabs}
             categoryIndex={statusCategory}
-            onTabClick={setStatusCategory}
+            onTabClick={(value: string) => setStatusCategory(value as StatusCategory)}
           />
           {statusCategory === StatusCategory.RECRUITMENT ? (
             <Recruitment />

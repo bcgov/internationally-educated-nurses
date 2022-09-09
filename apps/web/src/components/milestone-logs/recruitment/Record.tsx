@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
+import classNames from 'classnames';
 import dayjs from 'dayjs';
 
-import { buttonBase, buttonColor, DetailsItem, Disclosure, AclMask } from '@components';
-import { Milestone } from './Milestone';
+import { DetailsItem, Disclosure, AclMask, Button } from '@components';
 import {
   Access,
   ApplicantJobRO,
@@ -10,6 +10,7 @@ import {
   COMPLETED_STATUSES,
   formatDate,
   IENApplicantUpdateStatusDTO,
+  STATUS,
 } from '@ien/common';
 import editIcon from '@assets/img/edit.svg';
 import deleteIcon from '@assets/img/trash_can.svg';
@@ -22,6 +23,7 @@ import { useApplicantContext } from '../../applicant/ApplicantContext';
 import { useAuthContext } from 'src/components/AuthContexts';
 import { DeleteJobModal } from 'src/components/display/DeleteJobModal';
 import { canDelete } from 'src/utils';
+import { Milestone } from './Milestone';
 import { AddMilestone } from './AddMilestone';
 
 interface RecordProps {
@@ -52,7 +54,7 @@ export const Record: React.FC<RecordProps> = ({
     const sortedMilestones = [...job.status_audit];
     sortedMilestones.sort((a, b) => {
       if (a.start_date === b.start_date) {
-        return a.status.id - b.status.id;
+        return -1;
       }
       return dayjs(a.start_date).diff(b.start_date);
     });
@@ -71,9 +73,9 @@ export const Record: React.FC<RecordProps> = ({
     if (!milestones.length) return 'On Going';
 
     const lastMilestone = milestones[milestones.length - 1];
-    const { id, status } = lastMilestone.status;
+    const { status } = lastMilestone.status;
 
-    const done = COMPLETED_STATUSES.includes(id);
+    const done = COMPLETED_STATUSES.includes(status as STATUS);
     return `${done ? 'Complete - ' : 'On Going - '} ${status}`;
   };
 
@@ -103,21 +105,27 @@ export const Record: React.FC<RecordProps> = ({
   };
 
   const deleteButton = () => {
+    const classes = 'px-6 ml-4';
     return canDelete(authUser?.user_id, added_by?.id) ? (
-      <button
-        className={`px-6 ml-4 border-bcRedError ${buttonBase} text-bcRedError`}
+      <Button
+        variant='outline'
+        className={classNames(classes, 'border-bcRedError text-bcRedError')}
         onClick={() => setDeleteModalVisible(true)}
       >
         <img src={deleteIcon.src} alt='delete competition' className='mr-2' />
         Delete Competition
-      </button>
+      </Button>
     ) : (
-      <button
-        className={`cursor-not-allowed px-6 ml-4 border-bcGrayDisabled2 ${buttonBase} text-bcGrayDisabled2`}
+      <Button
+        variant='outline'
+        className={classNames(
+          classes,
+          'cursor-not-allowed border-bcGrayDisabled2 text-bcGrayDisabled2',
+        )}
       >
         <img src={disabledDeleteIcon.src} alt='disabled delete competition' className='mr-2' />
         Delete Competition
-      </button>
+      </Button>
     );
   };
 
@@ -133,7 +141,7 @@ export const Record: React.FC<RecordProps> = ({
               <span
                 className={`text-sm ${
                   wasOfferAccepted ? 'text-bcGreenHiredText' : 'text-bcBlueLink'
-                } font-bold mr-3 ml-auto capitalize`}
+                } font-bold mr-3 ml-auto`}
               >
                 <img
                   src={wasOfferAccepted ? dotIconHired.src : dotIcon.src}
@@ -178,13 +186,10 @@ export const Record: React.FC<RecordProps> = ({
               />
             </div>
             <AclMask acl={[Access.APPLICANT_WRITE]}>
-              <button
-                className={`px-6 mb-2 ${buttonColor.secondary} ${buttonBase}`}
-                onClick={() => setModalVisible(true)}
-              >
+              <Button variant='outline' className='px-6 mb-2' onClick={() => setModalVisible(true)}>
                 <img src={editIcon.src} alt='edit job' className='mr-2' />
                 Edit Details
-              </button>
+              </Button>
               {deleteButton()}
               <DeleteJobModal
                 onClose={() => setDeleteModalVisible(false)}
@@ -201,11 +206,11 @@ export const Record: React.FC<RecordProps> = ({
                 editing={editing}
                 onEditing={setEditing}
                 handleSubmit={values => handleUpdateMilestone(mil.id, values)}
-                milestoneTabId={StatusCategory.RECRUITMENT}
+                category={StatusCategory.RECRUITMENT}
               />
             ))}
             <AclMask acl={[Access.APPLICANT_WRITE]}>
-              {!editing && <AddMilestone job={job} milestoneTabId={StatusCategory.RECRUITMENT} />}
+              {!editing && <AddMilestone job={job} category={StatusCategory.RECRUITMENT} />}
               <AddRecordModal
                 job={job}
                 milestones={milestones}

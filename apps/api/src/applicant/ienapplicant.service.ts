@@ -2,7 +2,7 @@
 import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { FindManyOptions, In, IsNull, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EmployeeRO } from '@ien/common';
+import { EmployeeRO, isAdmin } from '@ien/common';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicant } from './entity/ienapplicant.entity';
 import { IENUsers } from './entity/ienusers.entity';
@@ -19,7 +19,7 @@ import {
   IENApplicantJobQueryDTO,
   IENApplicantUpdateStatusAPIDTO,
 } from './dto';
-import { isAdmin } from '@ien/common/dist/helper/is-admin';
+import { StatusCategory } from 'src/common/util';
 
 @Injectable()
 export class IENApplicantService {
@@ -88,7 +88,7 @@ export class IENApplicantService {
           applicant: applicant,
           job: IsNull(),
         },
-        relations: ['status', 'reason', 'status.parent', 'added_by', 'updated_by'],
+        relations: ['status', 'reason', 'added_by', 'updated_by'],
       });
     }
     return applicant;
@@ -243,14 +243,17 @@ export class IENApplicantService {
       milestone;
     const data: Partial<IENApplicantStatusAudit> = {};
 
-    /** Only allowing recruitment related milestones here */
-    const status_obj = await this.ienapplicantUtilService.getStatusById(status);
-
-    if (!status_obj || !status_obj.parent) {
+    if (!status) {
       throw new BadRequestException(`Invalid milestone: id(${status})`);
     }
 
-    if (!isAdmin(user) && status_obj.parent?.id != 10003) {
+    /** Only allowing recruitment related milestones here */
+    const status_obj = await this.ienapplicantUtilService.getStatusById(status);
+    if (!status_obj) {
+      throw new BadRequestException(`Invalid milestone: id(${status})`);
+    }
+
+    if (!isAdmin(user) && status_obj.category != StatusCategory.RECRUITMENT) {
       throw new BadRequestException(
         `Only recruitment-related milestones/statuses are allowed here`,
       );
@@ -265,7 +268,7 @@ export class IENApplicantService {
         throw new BadRequestException('Provided applicant and competition/job does not match');
       }
     }
-    if (data.status.parent?.id === 10003 && !job) {
+    if (data.status.category === StatusCategory.RECRUITMENT && !job) {
       throw new BadRequestException(`Competition/job are required to add a milestone`);
     }
 

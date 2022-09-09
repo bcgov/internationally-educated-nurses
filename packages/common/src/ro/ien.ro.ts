@@ -1,7 +1,10 @@
+import { StatusCategory } from '../enum/status-category';
+
 export interface IENApplicantStatusRO {
-  id: number;
+  id: string;
   status: string;
   party?: string;
+  category?: StatusCategory;
   parent?: IENApplicantStatusRO;
   children?: IENApplicantStatusRO[];
 }

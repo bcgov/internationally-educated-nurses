@@ -39,6 +39,7 @@ APIs list receives from the HMBC side.
     - fetched data stores in ien_applicant_status table.
     - Intake, Licensing, Recruitment, Immigration, and Final. These categories are hard coded in the IEN application too.
     - Note: the finalized list of milestones was updated on the 2nd week of June(2022), But those new references are not attached with applicants yet.
+    - This list is set to fetch once per month on the 15th. This is temporary and will revert to every day once the ATS api is updated
 ​
 ​
 ### **A list of applicants**

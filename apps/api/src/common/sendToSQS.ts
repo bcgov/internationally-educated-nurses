@@ -24,5 +24,6 @@ export default async function sendToSQS(data: unknown): Promise<void> {
     }
   } else {
     Logger.warn('SQS_QUEUE_URL not available, Message not sent', 'sendToSlack');
+    Logger.log(data);
   }
 }

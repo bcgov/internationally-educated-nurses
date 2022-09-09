@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from 'react';
 
-import { getApplicants, milestoneTabs } from '@services';
+import { getApplicants, milestoneTabs, StatusCategory } from '@services';
 import { Search } from '../components/Search';
 import { StatusCategoryTab } from '../components/display/StatusCategoryTab';
 import withAuth from '../components/Keycloak';
@@ -38,7 +38,7 @@ const Applicants = () => {
 
   // search options
   const name = router.query.name as string;
-  const status = +(router.query.status as string);
+  const status = router.query.status as string;
 
   const [sortKey, setSortKey] = useState('');
   const [order, setOrder] = useState<'ASC' | 'DESC'>('DESC');
@@ -77,7 +77,7 @@ const Applicants = () => {
   useEffect(() => {
     const skip = (pageIndex - 1) * limit;
     const options: SearchOptions = { name, sortKey, order, limit, skip };
-    if (status) options.status = `${status}`;
+    if (status && status !== 'ALL') options.status = `${status}`;
     setLoading(true);
     searchApplicants(options).then(({ data, count }) => {
       setTotal(count);
@@ -109,23 +109,23 @@ const Applicants = () => {
     }
   };
 
-  const changeRoute = (keyword: string, tabIndex: number) => {
+  const changeRoute = (keyword: string, tabStatus: string) => {
     const urlParams = new URLSearchParams();
 
     keyword && urlParams.append('name', keyword);
-    urlParams.append('status', tabIndex.toString());
+    urlParams.append('status', tabStatus);
 
     router.push(`?${urlParams.toString()}`, undefined, { shallow: true });
   };
 
   const handleKeywordChange = (keyword: string) => {
     setPageIndex(1);
-    changeRoute(keyword, 0);
+    changeRoute(keyword, StatusCategory.ALL);
   };
 
-  const handleTabChange = (index: number) => {
+  const handleTabChange = (index: string) => {
     setPageIndex(1);
-    changeRoute(name, index ? index : 0);
+    changeRoute(name, index ? index : StatusCategory.ALL);
   };
 
   return (
@@ -143,9 +143,9 @@ const Applicants = () => {
           <div className='font-bold px-4 pt-3 pb-2 text-3xl'>Recruitment</div>
         ) : (
           <StatusCategoryTab
-            tabs={[{ title: 'All', value: 0 }, ...milestoneTabs]}
-            categoryIndex={status ? status : 0}
-            onTabClick={handleTabChange}
+            tabs={[{ title: 'All', value: StatusCategory.ALL }, ...milestoneTabs]}
+            categoryIndex={status ? status : StatusCategory.ALL}
+            onTabClick={value => handleTabChange(value)}
           />
         )}
         <div className='text-bcGray px-4 mb-4'>{`Showing ${applicants.length} results`}</div>

@@ -2,7 +2,7 @@ import useSWRImmutable from 'swr/immutable';
 
 import { IENHaPcnRO, IENStatusReasonRO } from '@ien/common';
 import { fetcher } from '../utils';
-import { StyleOption } from './constants/roles.constants';
+import { StyleOption } from './constants';
 
 export interface RecordTypeOptions extends StyleOption {
   id: number;
@@ -31,11 +31,11 @@ export interface MilestoneType extends StyleOption {
 }
 
 // milestone status' for adding milestones
-export const useGetMilestoneOptions = (categoryId: number): MilestoneType[] => {
+export const useGetMilestoneOptions = (categoryId: string): MilestoneType[] => {
   const { data } = useSWRImmutable('ienmaster/status', fetcher);
-  const milestones: MilestoneType[] = data?.data?.find(
-    (item: { id: number }) => item.id == categoryId,
-  )?.children;
+  const milestones: MilestoneType[] = data?.data?.filter(
+    (item: { category: string }) => item.category == categoryId,
+  );
   if (milestones) {
     return milestones.sort((a, b) => (a.id > b.id ? 1 : -1));
   }

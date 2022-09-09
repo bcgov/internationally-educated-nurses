@@ -11,7 +11,7 @@ export class AddUUIDtoJob1660929515982 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-      ALTER TABLE ien_applicant_jobs DROP COLUMN "uid";
+      ALTER TABLE ien_applicant_jobs DROP COLUMN IF EXISTS "uid";
     `);
   }
 }

@@ -51,7 +51,7 @@ export class IENApplicantStatusAudit {
   @JoinColumn({ name: 'updated_by_id' })
   updated_by?: IENUsers | null;
 
-  @ManyToOne(() => IENStatusReason, reason => reason.id)
+  @ManyToOne(() => IENStatusReason, reason => reason.id, { eager: true })
   @JoinColumn({ name: 'reason_id' })
   reason?: IENStatusReason | null;
 

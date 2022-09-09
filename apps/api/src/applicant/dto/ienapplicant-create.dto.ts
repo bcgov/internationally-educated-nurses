@@ -30,10 +30,10 @@ export class IENApplicantCreateUpdateAPIDTO extends IENApplicantCreateUpdateDTO 
 
   @ApiPropertyOptional({
     description: 'Applicant unique ID',
-    default: 1,
+    default: '',
   })
   @IsOptional()
-  applicant_id?: number;
+  applicant_id?: string;
 
   @ApiProperty({
     description: 'Applicant email address',

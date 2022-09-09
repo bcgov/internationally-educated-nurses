@@ -55,7 +55,7 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
 
   // check if there is an accepted offer in any job
   const checkForAcceptedOffer = (jobs: ApplicantJobRO[] | null | undefined) => {
-    const acceptedOffer = jobs && jobs.find(j => j.status_audit?.find(s => isHired(s.status.id)));
+    const acceptedOffer = jobs && jobs.find(j => j.status_audit?.find(s => isHired(s.id)));
 
     acceptedOffer ? setHiredHa(acceptedOffer.ha_pcn.id) : setHiredHa(undefined);
   };

@@ -61,7 +61,8 @@ export class IENApplicantController {
     @Query() filter: IENApplicantFilterAPIDTO,
   ): Promise<[ApplicantRO[], number]> {
     try {
-      return await this.ienapplicantService.getApplicants(filter, req.user);
+      const [data, count] = await this.ienapplicantService.getApplicants(filter, req.user);
+      return [data?.map(applicant => applicant.toResponseObject()), count];
     } catch (e) {
       this.logger.error(e);
       throw new InternalServerErrorException('An unknown error occured retriving applicants');
@@ -81,7 +82,7 @@ export class IENApplicantController {
     @Query() relation: IENApplicantFilterByIdAPIDTO,
   ): Promise<ApplicantRO> {
     try {
-      return await this.ienapplicantService.getApplicantById(id, relation);
+      return (await this.ienapplicantService.getApplicantById(id, relation)).toResponseObject();
     } catch (e) {
       if (e instanceof NotFoundException) {
         throw e;
@@ -230,7 +231,9 @@ export class IENApplicantController {
   ): Promise<ApplicantJobRO | undefined> {
     try {
       this.logger.log(`Add job competition for the applicant ${id}`);
-      return await this.ienapplicantService.addApplicantJob(req.user, id, jobData);
+      return (
+        await this.ienapplicantService.addApplicantJob(req.user, id, jobData)
+      )?.toResponseObject();
     } catch (e) {
       this.logger.error(e);
       if (e instanceof NotFoundException) {
@@ -255,7 +258,7 @@ export class IENApplicantController {
   @Get('/job/:job_id')
   @AllowAccess(Access.APPLICANT_READ)
   async getJob(@Param('job_id') job_id: string): Promise<ApplicantJobRO | undefined> {
-    return this.ienapplicantService.getApplicantJob(job_id);
+    return (await this.ienapplicantService.getApplicantJob(job_id))?.toResponseObject();
   }
 
   @ApiOperation({
@@ -271,7 +274,9 @@ export class IENApplicantController {
   ): Promise<ApplicantJobRO | undefined> {
     try {
       this.logger.log(`Update job competition (${job_id}) for the applicant ${id}`);
-      return await this.ienapplicantService.updateApplicantJob(id, job_id, jobData);
+      return (
+        await this.ienapplicantService.updateApplicantJob(id, job_id, jobData)
+      )?.toResponseObject();
     } catch (e) {
       this.logger.error(e);
       if (e instanceof NotFoundException) {
@@ -325,7 +330,8 @@ export class IENApplicantController {
   ): Promise<[ApplicantJobRO[], number]> {
     try {
       this.logger.log(`Fetch job competition for the applicant ${id} with below options/filter`);
-      return await this.ienapplicantService.getApplicantJobs(id, options);
+      const [data, count] = await this.ienapplicantService.getApplicantJobs(id, options);
+      return [data?.map(job => job.toResponseObject()), count];
     } catch (e) {
       if (e instanceof NotFoundException) {
         throw e;

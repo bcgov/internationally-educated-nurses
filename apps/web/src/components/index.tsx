@@ -9,6 +9,7 @@ export * from './ExternalLink';
 export * from './FormStepHeader';
 export * from './Footer';
 export * from './Header';
+export * from './HorizontalLine';
 export * from './Link';
 export * from './MenuBar';
 export * from './Notice';

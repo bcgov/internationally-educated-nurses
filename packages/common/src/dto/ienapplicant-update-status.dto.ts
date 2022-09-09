@@ -30,7 +30,11 @@ export class IENApplicantUpdateStatusDTO {
   @IsOptional()
   reason_other?: string;
 
-  @ValidateIf(s => s.status === `${STATUS.Candidate_withdrew}`)
+  @ValidateIf(
+    s =>
+      s.status === `${STATUS.WITHDREW_FROM_COMPETITION}` ||
+      s.status === `${STATUS.WITHDREW_FROM_PROGRAM}`,
+  )
   @IsDateString()
   @IsOptional()
   effective_date?: Date;
