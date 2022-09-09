@@ -65,7 +65,8 @@ const urls = [
       'screen capture captures/job.png',
     ],
     wait: 1000,
-    hideElements: 'div[class*="placeholder"], div[class*="singleValue"], .text-bcGreenHiredText',
+    hideElements:
+      'div[class*="placeholder"], div[class*="singleValue"], .text-bcGreenHiredText, a[target="_blank"]',
   },
   {
     // reporting
