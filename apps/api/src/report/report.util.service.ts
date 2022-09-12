@@ -360,31 +360,43 @@ export class ReportUtilService {
 
   licenseApplicantsQuery(from: string, to: string) {
     return `
-      WITH full_licenses AS (
+      WITH full_licenses_lpn AS (
         SELECT DISTINCT applicant_id
         FROM public.ien_applicant_status_audit 
         WHERE 
-          status_id = 19 AND
+          status_id = '632374e6-ca2f-0baa-f994-3a05e77c118a' AND
           start_date <= '${to}' AND
           start_date >= '${from}'
       ),
-      partial_licenses AS (
+      full_licenses_rn AS (
+        SELECT DISTINCT applicant_id
+        FROM public.ien_applicant_status_audit 
+        WHERE 
+          status_id = '18aa32c3-a6a4-4431-8283-89931c141fde' AND
+          start_date <= '${to}' AND
+          start_date >= '${from}'
+      ),
+      partial_licenses_lpn AS (
         SELECT DISTINCT iasa.applicant_id
         FROM public.ien_applicant_status_audit iasa
         WHERE 
-          iasa.status_id = 16 AND
+          iasa.status_id = '91f55faa-c71d-83c8-4f10-3a05e778afbc' AND
           iasa.start_date <= '${to}' AND
-          iasa.start_date >= '${from}' AND
-          NOT EXISTS (
-            SELECT applicant_id
-            FROM full_licenses fl
-            WHERE fl.applicant_id = iasa.applicant_id
-          )
+          iasa.start_date >= '${from}'
+      ),
+      partial_licenses_rn AS (
+        SELECT DISTINCT iasa.applicant_id
+        FROM public.ien_applicant_status_audit iasa
+        WHERE 
+          iasa.status_id = 'd2656957-ec58-15c9-1e21-3a05e778dc8e' AND
+          iasa.start_date <= '${to}' AND
+          iasa.start_date >= '${from}'
       )
       
-      SELECT 'Provisional License' AS status, count(*) AS applicant_count FROM partial_licenses
-      UNION ALL 
-      SELECT 'Full License' AS status, count(*) AS applicant_count FROM full_licenses ; 
+      SELECT 'BCCNM Provisional Licence LPN' AS status, count(*) AS applicant_count FROM partial_licenses_lpn UNION ALL
+      SELECT 'BCCNM Provisional Licence RN' AS status, count(*) AS applicant_count FROM partial_licenses_rn UNION ALL 
+      SELECT 'BCCNM Full Licence LPN' AS status, count(*) AS applicant_count FROM full_licenses_lpn UNION ALL
+      SELECT 'BCCNM Full Licence RN' AS status, count(*) AS applicant_count FROM full_licenses_rn ; 
     `;
   }
 
