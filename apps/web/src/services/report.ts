@@ -195,13 +195,13 @@ const reportCreators: ReportCreator[] = [
     },
     colWidths: [40, 20],
   },
-  {
-    name: 'Report 5',
-    description: 'Number of Internationally Educated Nurse Registrants Eligible for Job Search',
-    apiPath: '/reports/applicant/license',
-    header: ['', 'applicants'],
-    colWidths: [40, 20],
-  },
+  // {
+  //   name: 'Report 5',
+  //   description: 'Number of Internationally Educated Nurse Registrants Eligible for Job Search',
+  //   apiPath: '/reports/applicant/license',
+  //   header: ['', 'applicants'],
+  //   colWidths: [40, 20],
+  // },
   {
     name: 'Report 6',
     description: 'Number of Internationally Educated Nurse Registrants in the Recruitment Stage',
