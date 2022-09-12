@@ -13,7 +13,7 @@ describe('Report', () => {
     cy.get('tbody').find('tr').should('have.length', 5);
   });
 
-  it('downloads a report', () => {
+  it.skip('downloads a report', () => {
     cy.contains('button.bg-white', 'Download').eq(0).click();
     cy.verifyDownload('.xlsx', { contains: true });
     cy.task('checkReport');

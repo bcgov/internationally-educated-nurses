@@ -6,10 +6,11 @@ import {
   ApplicantStatusAuditRO,
   formatDate,
   IENApplicantUpdateStatusDTO,
+  StatusCategory,
 } from '@ien/common';
 import editIcon from '@assets/img/edit.svg';
 import disabledEditIcon from '@assets/img/disabled_edit.svg';
-import { getHumanizedDuration, StatusCategory, updateMilestone } from '@services';
+import { getHumanizedDuration, updateMilestone } from '@services';
 import { useApplicantContext } from '../applicant/ApplicantContext';
 import { useAuthContext } from '../AuthContexts';
 import { AddMilestone } from './recruitment/AddMilestone';
@@ -104,12 +105,7 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
 
   const canAddEditNonRecruitmentMilestone = () => {
     // success: no applicant_id(not from ATS), ha id exists, applicant is part of same ha as logged-in user
-    return (
-      !applicant.applicant_id &&
-      authUser?.ha_pcn_id &&
-      applicant.health_authorities?.some(h => h.id === authUser?.ha_pcn_id) &&
-      !editing
-    );
+    return !applicant.applicant_id && authUser?.ha_pcn_id && !editing;
   };
 
   return (

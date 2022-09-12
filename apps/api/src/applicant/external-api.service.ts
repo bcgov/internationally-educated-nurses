@@ -16,10 +16,9 @@ import {
   SelectQueryBuilder,
 } from 'typeorm';
 import dayjs from 'dayjs';
-import { Authorities } from '@ien/common';
+import { Authorities, StatusCategory } from '@ien/common';
 import { ExternalRequest } from 'src/common/external-request';
 import { AppLogger } from 'src/common/logger.service';
-import { StatusCategory } from 'src/common/util';
 import { IENApplicant } from './entity/ienapplicant.entity';
 import { IENApplicantStatusAudit } from './entity/ienapplicant-status-audit.entity';
 import { IENApplicantUtilService } from './ienapplicant.util.service';
@@ -397,10 +396,9 @@ export class ExternalAPIService {
    * @returns object that use in upsert applicants
    */
   async mapApplicants(data: any) {
-    const { users, ha } = await this.getApplicantMasterData();
+    const { users } = await this.getApplicantMasterData();
     return data.map(
       (a: {
-        health_authorities: { title: string; id: number | string; name?: string }[] | undefined;
         assigned_to: { id: string | number; name: string }[] | undefined;
         registration_date: string;
         applicant_id: string | number;
@@ -417,19 +415,6 @@ export class ExternalAPIService {
         created_date: string;
         updated_date: string;
       }) => {
-        let health_authorities = null;
-        if (a.health_authorities && a.health_authorities != undefined) {
-          health_authorities = a.health_authorities.map(
-            (h: { title: string; id: number | string; name?: string }) => {
-              h.title = ha[`${h.id}`]?.title;
-              if (h.hasOwnProperty('name')) {
-                delete h.name;
-              }
-              return h;
-            },
-          );
-        }
-
         let assigned_to = null;
         if (a.assigned_to && a.assigned_to != undefined) {
           assigned_to = a.assigned_to.map((user: { id: string | number; name: string }) => {
@@ -456,7 +441,6 @@ export class ExternalAPIService {
           bccnm_license_number: a?.bccnm_license_number,
           pr_status: a?.pr_status,
           nursing_educations: a?.nursing_educations,
-          health_authorities,
           notes: a?.notes,
           assigned_to,
           additional_data: {

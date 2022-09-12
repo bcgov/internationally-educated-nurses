@@ -1,11 +1,11 @@
 import { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from 'react';
 
-import { getApplicants, milestoneTabs, StatusCategory } from '@services';
+import { Access, ApplicantRO, StatusCategory } from '@ien/common';
+import { getApplicants, milestoneTabs } from '@services';
 import { Search } from '../components/Search';
 import { StatusCategoryTab } from '../components/display/StatusCategoryTab';
 import withAuth from '../components/Keycloak';
-import { Access, ApplicantRO } from '@ien/common';
 import {
   AddApplicantModal,
   ApplicantTable,

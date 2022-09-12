@@ -2,7 +2,7 @@
 import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { FindManyOptions, In, IsNull, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EmployeeRO, isAdmin } from '@ien/common';
+import { EmployeeRO, isAdmin, StatusCategory } from '@ien/common';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicant } from './entity/ienapplicant.entity';
 import { IENUsers } from './entity/ienusers.entity';
@@ -19,7 +19,6 @@ import {
   IENApplicantJobQueryDTO,
   IENApplicantUpdateStatusAPIDTO,
 } from './dto';
-import { StatusCategory } from 'src/common/util';
 
 @Injectable()
 export class IENApplicantService {
@@ -117,15 +116,8 @@ export class IENApplicantService {
    * @returns
    */
   async createApplicantObject(addApplicant: IENApplicantCreateUpdateAPIDTO, user: EmployeeRO) {
-    const {
-      health_authorities,
-      assigned_to,
-      first_name,
-      last_name,
-      email_address,
-      country_of_citizenship,
-      ...data
-    } = addApplicant;
+    const { assigned_to, first_name, last_name, email_address, country_of_citizenship, ...data } =
+      addApplicant;
     const duplicate = await this.ienapplicantRepository.findOne({ email_address });
     if (duplicate) {
       throw new BadRequestException('There is already an applicant with this email.');
@@ -147,16 +139,6 @@ export class IENApplicantService {
     applicant.name = `${first_name} ${last_name}`;
     applicant.email_address = email_address;
 
-    // collect HA/PCN
-    if (health_authorities && health_authorities instanceof Array && health_authorities.length) {
-      applicant.health_authorities = await this.ienapplicantUtilService.getHaPcns(
-        health_authorities,
-      );
-    } else if (user.ha_pcn_id) {
-      applicant.health_authorities = await this.ienapplicantUtilService.getHaPcns([
-        { id: `${user.ha_pcn_id}` },
-      ]);
-    }
     // collect assigned user details
     if (assigned_to && assigned_to instanceof Array && assigned_to.length) {
       applicant.assigned_to = await this.ienapplicantUtilService.getUserArray(assigned_to);
@@ -183,19 +165,7 @@ export class IENApplicantService {
     applicantUpdate: IENApplicantCreateUpdateAPIDTO,
   ): Promise<IENApplicant | any> {
     const applicant = await this.getApplicantById(id);
-    const {
-      health_authorities,
-      assigned_to,
-      first_name,
-      last_name,
-      country_of_citizenship,
-      ...data
-    } = applicantUpdate;
-    if (health_authorities && health_authorities instanceof Array && health_authorities.length) {
-      applicant.health_authorities = await this.ienapplicantUtilService.getHaPcns(
-        health_authorities,
-      );
-    }
+    const { assigned_to, first_name, last_name, country_of_citizenship, ...data } = applicantUpdate;
     if (country_of_citizenship) {
       if (country_of_citizenship instanceof Array) {
         applicant.country_of_citizenship = country_of_citizenship;

@@ -2,8 +2,8 @@ import React from 'react';
 import { FormikHelpers } from 'formik';
 import { toast } from 'react-toastify';
 
-import { ApplicantJobRO, IENApplicantAddStatusDTO } from '@ien/common';
-import { addMilestone, StatusCategory } from '@services';
+import { ApplicantJobRO, IENApplicantAddStatusDTO, StatusCategory } from '@ien/common';
+import { addMilestone } from '@services';
 import { getInitialMilestoneFormValues, MilestoneForm } from './MilestoneForm';
 import { useApplicantContext } from '../../applicant/ApplicantContext';
 

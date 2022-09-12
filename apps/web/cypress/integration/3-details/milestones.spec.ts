@@ -64,9 +64,5 @@ describe('Details - Milestones', () => {
     cy.get('[data-cy^=record-]').should('exist');
     cy.contains('button', 'BC PNP').click();
     cy.get('[data-cy^=record-]').should('not.exist');
-    cy.contains('button', 'Final').click();
-    cy.get('[data-cy^=record-]').should('not.exist');
-    cy.contains('button', 'Intake').click();
-    cy.get('[data-cy^=record-]').should('not.exist');
   });
 });

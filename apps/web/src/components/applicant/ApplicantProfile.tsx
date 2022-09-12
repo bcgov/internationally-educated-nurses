@@ -11,7 +11,7 @@ export const ApplicantProfile = () => {
   return (
     <>
       <h1 className='font-bold text-3xl'>
-        {applicant?.name} #{applicant?.applicant_id ? applicant.applicant_id : 'NA'}
+        {applicant?.name} #{(applicant?.applicant_id || applicant?.id || 'NA').substring(0, 8)}
       </h1>
       <p className='text-bcGray text-sm pt-1 pb-4'>
         Last Updated: {formatDate(applicant?.updated_date)}

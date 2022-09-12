@@ -51,11 +51,21 @@ describe('Details - Job', () => {
     cy.editDuplicateJob(duplicateJob);
   });
 
+  it('reopen a job competition', () => {
+    cy.get('[data-cy=record-0]').click();
+    cy.fixture('close-job-milestone.json').then(({ reopen }) => {
+      cy.addMilestone(reopen);
+      cy.contains(`On Going - ${reopen.outcome}`);
+      cy.deleteMilestone(4);
+    });
+  });
+
   it('closes a job competition by withdraw', () => {
     cy.get('[data-cy=record-0]').click();
     cy.fixture('close-job-milestone.json').then(({ withdraw }) => {
       cy.addMilestone(withdraw);
       cy.contains(`Complete - ${withdraw.outcome}`);
+      cy.deleteMilestone(4);
     });
   });
 

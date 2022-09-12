@@ -8,7 +8,7 @@ describe('Search', () => {
       { id: '1', name: 'Jane Doe', status: { id: 1, status: 'Recruitment' } },
       { id: '2', name: 'Mark Twain', status: { id: 5, status: 'Final Milestone' } },
     ];
-    const search = async () => searchData;
+    const search = async (): Promise<any[]> => searchData;
 
     render(<Search onChange={mock} onSelect={mock} keyword='' search={search} />);
 

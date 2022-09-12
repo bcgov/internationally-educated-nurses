@@ -1,9 +1,13 @@
 import React from 'react';
 
-import { ApplicantJobRO, ApplicantStatusAuditRO, IENApplicantUpdateStatusDTO } from '@ien/common';
+import {
+  ApplicantJobRO,
+  ApplicantStatusAuditRO,
+  IENApplicantUpdateStatusDTO,
+  StatusCategory,
+} from '@ien/common';
 import { MilestoneForm } from './MilestoneForm';
 import { EditableMilestone } from './EditableMilestone';
-import { StatusCategory } from '@services';
 
 interface MilestoneProps {
   job?: ApplicantJobRO;

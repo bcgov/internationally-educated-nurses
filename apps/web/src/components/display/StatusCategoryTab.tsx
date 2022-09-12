@@ -1,4 +1,4 @@
-import { StatusCategory } from '@services';
+import { StatusCategory } from '@ien/common';
 import classNames from 'classnames';
 
 interface TabFields {

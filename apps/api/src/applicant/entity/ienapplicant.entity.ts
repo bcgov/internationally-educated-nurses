@@ -17,7 +17,7 @@ import { IENApplicantStatusAudit } from './ienapplicant-status-audit.entity';
 import { IENApplicantStatus } from './ienapplicant-status.entity';
 import { IENApplicantJob } from './ienjob.entity';
 import { IENUsers } from './ienusers.entity';
-import { ApplicantRO, HaPcnDTO, IENUserRO, NursingEducationDTO } from '@ien/common';
+import { ApplicantRO, IENUserRO, NursingEducationDTO } from '@ien/common';
 
 @Entity('ien_applicants')
 export class IENApplicant {
@@ -59,12 +59,9 @@ export class IENApplicant {
   bccnm_license_number?: string;
 
   @Column('jsonb', { nullable: true })
-  health_authorities?: HaPcnDTO[];
-
-  @Column('jsonb', { nullable: true })
   notes?: JSON;
 
-  @ManyToOne(() => IENApplicantStatus, status => status.applicants)
+  @ManyToOne(() => IENApplicantStatus, status => status.applicants, { eager: true })
   @JoinColumn({ name: 'status_id' })
   status?: IENApplicantStatus;
 
@@ -122,7 +119,6 @@ export class IENApplicant {
       pr_status: this.pr_status,
       nursing_educations: this.nursing_educations,
       bccnm_license_number: this.bccnm_license_number,
-      health_authorities: this.health_authorities,
       notes: this.notes,
       status: this.status?.toResponseObject(),
       additional_data: this.additional_data,

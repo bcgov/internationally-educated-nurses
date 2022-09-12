@@ -5,8 +5,8 @@ import dayjs from 'dayjs';
 import { ReportUtilService } from './report.util.service';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.entity';
-import { startDateOfFiscal, StatusCategory } from 'src/common/util';
-import { ReportPeriodDTO } from '@ien/common';
+import { startDateOfFiscal } from 'src/common/util';
+import { ReportPeriodDTO, StatusCategory } from '@ien/common';
 
 const PERIOD_START_DATE = '2022-05-02';
 
