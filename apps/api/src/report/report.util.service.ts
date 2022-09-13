@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { isValidDateFormat, StatusCategory } from 'src/common/util';
 import dayjs from 'dayjs';
 import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.entity';
+import { StatusId } from '@ien/common';
 
 @Injectable()
 export class ReportUtilService {
@@ -146,12 +147,10 @@ export class ReportUtilService {
   */
   hiredActiveWithdrawnApplicantCountQuery(from: string, to: string) {
     return `
-      -- 70b1f5f1-1a0d-ef71-42ea-3a0601b46bc2 hired
-      -- 009761c9-a857-4e40-978a-9cbcc6f94e35 Withdrew
       WITH withdrawn_applicants AS (
         SELECT applicant_id, max(start_date) as start_date
         FROM public.ien_applicant_status_audit 
-        WHERE status_id = '009761c9-a857-4e40-978a-9cbcc6f94e35' 
+        WHERE status_id = '${StatusId.WITHDREW_FROM_PROGRAM}' 
           AND start_date::date <= '${to}'
         GROUP BY applicant_id
       ), reactive_applicants AS (
@@ -159,13 +158,13 @@ export class ReportUtilService {
         FROM withdrawn_applicants wa INNER JOIN public.ien_applicant_status_audit ien ON wa.applicant_id=ien.applicant_id
         WHERE ien.start_date::date >= wa.start_date
           AND ien.start_date::date <= '${to}'
-          AND ien.status_id != '009761c9-a857-4e40-978a-9cbcc6f94e35'
+          AND ien.status_id != '${StatusId.WITHDREW_FROM_PROGRAM}'
         GROUP BY wa.applicant_id
       ), hired_applicants AS (
         SELECT ien.applicant_id, max(ien.start_date) as start_date
         FROM public.ien_applicant_status_audit ien
         LEFT JOIN withdrawn_applicants wa ON ien.applicant_id=wa.applicant_id
-        WHERE ien.status_id = '70b1f5f1-1a0d-ef71-42ea-3a0601b46bc2' 
+        WHERE ien.status_id = '${StatusId.JOB_OFFER_ACCEPTED}' 
           AND ien.start_date::date <= '${to}' 
           AND (wa.start_date IS null OR ien.start_date >= wa.start_date)
         GROUP BY ien.applicant_id
@@ -231,53 +230,22 @@ export class ReportUtilService {
   */
   licensingStageApplicantsQuery(from: string, to: string) {
     return `
-      --col01 - 'Applied to NNAS' status: 4, 5, 6 e68f902c-8440-4a9c-a05f-2765301de800
-      --col01 - 'Submitted documents (NNAS Application in Review)' 897156c7-958c-4ec0-879a-ed4943af7b72
-      --col01 - 'Received NNAS Report' 20268c6e-145e-48cd-889a-2346985db957
-      --col02 - 'Applied to BCCNM' status: 7 8a9b0d13-f5d7-4be3-8d38-11e5459f9e9a
-      --col02 - 'Completed English Language Requirement' status: 8 da06889e-55a1-4ff2-9984-80ae23d7e44b
-      --col03 - 'Referred to NCAS' status: 9,10,11 ead2e076-df00-4dab-a0cc-5a7f0bafc51a
-      --col03 - 'Completed Computer-Based Assessment (CBA)' 61150e8a-6e83-444a-9dab-3129a8cc0719
-      --col03 - 'Completed Simulation Lab Assessment (SLA)' 9066b792-6fbf-4e60-803f-0554e4b4dba9
-      --col04 - 'Completed NCAS' status: 12 06e2d762-05ba-4667-93d2-7843d3cf9fc5
-      --col06 - 'Referred to Additional Education' 8024ed3a-803f-4e34-9934-c29565daaf63
-      --col06 - 'Completed Additional Education' status: 13, 14 59263418-77ea-411f-894d-c84b5e1f710f
-      --col07 - 'NCLEX - Written' status: 15,17 0d6bcfe1-fb00-45cb-a9c6-c6a53da12e62
-      --col08 - 'NCLEX - Passed' status: 18 b0d38aa5-b776-4033-97f7-9894e9b33a3c
-      --col09 - 'REx-PN – Written' d9ad22cd-7629-67ea-5734-3a05e77a47f6
-      --col10 - 'REx-PN – Passed' 36b0cacf-acd1-6bc5-3e4c-3a05e77a79c9
-      --col11 - 'BCCNM Full Licence LPN' 632374e6-ca2f-0baa-f994-3a05e77c118a
-      --col12 - 'BCCNM Full Licence RN' status: 19 18aa32c3-a6a4-4431-8283-89931c141fde
-      --col13 - 'BCCNM Provisional Licence LPN' 91f55faa-c71d-83c8-4f10-3a05e778afbc
-      --col14 - 'BCCNM Provisional Licence RN' d2656957-ec58-15c9-1e21-3a05e778dc8e
-      --col15 - 'Referred for registration exam' 4189ca04-c1e1-4c22-9d6b-8afd80130313
-      --col16 - 'Registered as an HCA' ca858996-d1ad-2fe3-d8d3-3a05e77c9a2a
-      --col17 - 'Registration Journey Complete' 5b4173e1-e750-9b85-9464-3a05e77d4547
-      --col18 - 'Withdrew from IEN program' f84a4167-a636-4b21-977c-f11aefc486af
-      --col19 - 'Applicant ready for job search' b93e7bf6-5f2b-43fd-b4b7-58c42aa02bfa
-
-      --col20 - 'Applicant Referred to FNHA' 73a4b092-ae7e-de91-17e1-3a05e7864830
-      --col21 - 'Applicant Referred to FHA' dfcfa87a-40f9-ec41-2afa-3a0601a9ce32
-      --col22 - 'Applicant Referred to IHA' b5452d40-7dfd-d614-0319-3a0601aa0749
-      --col23 - 'Applicant Referred to NHA' 9e97a1b3-a48e-3fb0-082c-3a0601aa2678
-      --col24 - 'Applicant Referred to PHC' e5f02166-36cb-12a8-a5ba-3a0601aa5aed
-      --col25 - 'Applicant Referred to PHSA' 42054107-17fb-e6e7-eb58-3a0601aa8dd3
-      --col26 - 'Applicant Referred to VCHA' 26069c6c-a5b8-a2ac-c94d-3a0601aab009
-      --col27 - 'Applicant Referred to VIHA' 001dfb24-1618-e975-6578-3a0601aac804
-
-      --col29 - 'Granted full licensure' status: 19 632374e6-ca2f-0baa-f994-3a05e77c118a, 18aa32c3-a6a4-4431-8283-89931c141fde
-      --col30 - 'Granted provisional licensure' status: 16 91f55faa-c71d-83c8-4f10-3a05e778afbc, d2656957-ec58-15c9-1e21-3a05e778dc8e
       WITH active_applicants AS (
         SELECT
           t1.*,
-          COALESCE((SELECT sa.status_id FROM public.ien_applicant_status_audit sa 
-          WHERE sa.applicant_id=t1.id AND sa.status_id 
-          IN (
-            '632374e6-ca2f-0baa-f994-3a05e77c118a',
-            '18aa32c3-a6a4-4431-8283-89931c141fde',
-            '91f55faa-c71d-83c8-4f10-3a05e778afbc', 
-            'd2656957-ec58-15c9-1e21-3a05e778dc8e'
-              )), '${this.nil_uuid}') 
+          COALESCE(
+            (
+              SELECT sa.status_id 
+              FROM public.ien_applicant_status_audit sa 
+              WHERE sa.applicant_id=t1.id AND sa.status_id 
+                IN (
+                  '${StatusId.BCCNM_FULL_LICENCE_LPN}',
+                  '${StatusId.BCCNM_FULL_LICENSE_RN}',
+                  '${StatusId.BCCNM_PROVISIONAL_LICENSE_LPN}', 
+                  '${StatusId.BCCNM_PROVISIONAL_LICENSE_RN}'
+                   )
+              ),
+            '${this.nil_uuid}') 
           AS has_license
         FROM (
           SELECT 
@@ -291,7 +259,7 @@ export class ReportUtilService {
                 LEFT JOIN public.ien_applicant_status status ON status.id=ien_status.status_id
                 WHERE ien_status.applicant_id=applicants.id AND ien_status.start_date::date <= '${to}' AND status.category IN ('${StatusCategory.INTAKE}','${StatusCategory.LICENSING_REGISTRATION}' ,'${StatusCategory.RECRUITMENT}')
                 ORDER BY ien_status.start_date DESC limit 1
-              ),'${this.nil_uuid}') IN ('009761c9-a857-4e40-978a-9cbcc6f94e35', '70b1f5f1-1a0d-ef71-42ea-3a0601b46bc2') 
+              ),'${this.nil_uuid}') IN ('${StatusId.WITHDREW_FROM_PROGRAM}', '${StatusId.JOB_OFFER_ACCEPTED}') 
             THEN 1
             ELSE 0 
           END as hired_or_withdrawn
@@ -326,35 +294,35 @@ export class ReportUtilService {
       )
 
 
-      SELECT 'Applied to NNAS' as status, count(*) as applicants FROM report WHERE status_id IN ('e68f902c-8440-4a9c-a05f-2765301de800','897156c7-958c-4ec0-879a-ed4943af7b72','20268c6e-145e-48cd-889a-2346985db957') AND has_license = '${this.nil_uuid}' UNION ALL
-      SELECT 'Applied to BCCNM' as status, count(*) FROM report WHERE status_id IN ('8a9b0d13-f5d7-4be3-8d38-11e5459f9e9a') AND has_license = '${this.nil_uuid}' UNION ALL
-      SELECT 'Completed English Language Requirement' as status, count(*) FROM report WHERE status_id IN ('da06889e-55a1-4ff2-9984-80ae23d7e44b') AND has_license = '${this.nil_uuid}' UNION ALL
-      SELECT 'Referred to NCAS' as status, count(*) FROM report WHERE status_id IN ('ead2e076-df00-4dab-a0cc-5a7f0bafc51a','61150e8a-6e83-444a-9dab-3129a8cc0719','9066b792-6fbf-4e60-803f-0554e4b4dba9') AND has_license = '${this.nil_uuid}' UNION ALL
-      SELECT 'Completed NCAS' as status, count(*) FROM report WHERE status_id IN ('06e2d762-05ba-4667-93d2-7843d3cf9fc5') AND has_license = '${this.nil_uuid}' UNION ALL
-      SELECT 'Completed Additional Education' as status, count(*) FROM report WHERE status_id IN ('8024ed3a-803f-4e34-9934-c29565daaf63','59263418-77ea-411f-894d-c84b5e1f710f') AND has_license = '${this.nil_uuid}' UNION ALL
-      SELECT 'NCLEX - Written' as status, count(*) FROM report WHERE status_id IN ('0d6bcfe1-fb00-45cb-a9c6-c6a53da12e62') AND has_license = '${this.nil_uuid}' UNION ALL
-      SELECT 'NCLEX - Passed' as status, count(*) FROM report WHERE status_id IN ('b0d38aa5-b776-4033-97f7-9894e9b33a3c') AND has_license = '${this.nil_uuid}' UNION ALL
-      SELECT 'REx-PN – Written' as status, count(*) FROM report WHERE status_id IN ('d9ad22cd-7629-67ea-5734-3a05e77a47f6') AND has_license = '${this.nil_uuid}' UNION ALL
-      SELECT 'REx-PN – Passed' as status, count(*) FROM report WHERE status_id IN ('36b0cacf-acd1-6bc5-3e4c-3a05e77a79c9') AND has_license = '${this.nil_uuid}' UNION ALL
-      SELECT 'BCCNM Full Licence LPN' as status, count(*) FROM report WHERE status_id IN ('632374e6-ca2f-0baa-f994-3a05e77c118a') AND has_license = '632374e6-ca2f-0baa-f994-3a05e77c118a' UNION ALL
-      SELECT 'BCCNM Full Licence RN' as status, count(*) FROM report WHERE status_id IN ('18aa32c3-a6a4-4431-8283-89931c141fde') AND has_license = '18aa32c3-a6a4-4431-8283-89931c141fde' UNION ALL
-      SELECT 'BCCNM Provisional Licence LPN' as status, count(*) FROM report WHERE status_id IN ('91f55faa-c71d-83c8-4f10-3a05e778afbc') AND has_license = '91f55faa-c71d-83c8-4f10-3a05e778afbc' UNION ALL
-      SELECT 'BCCNM Provisional Licence RN' as status, count(*) FROM report WHERE status_id IN ('d2656957-ec58-15c9-1e21-3a05e778dc8e') AND has_license = 'd2656957-ec58-15c9-1e21-3a05e778dc8e' UNION ALL
-      SELECT 'Referred for registration exam' as status, count(*) FROM report WHERE status_id IN ('4189ca04-c1e1-4c22-9d6b-8afd80130313') AND has_license = '${this.nil_uuid}' UNION ALL
-      SELECT 'Registered as an HCA' as status, count(*) FROM report WHERE status_id IN ('ca858996-d1ad-2fe3-d8d3-3a05e77c9a2a') AND has_license = '${this.nil_uuid}' UNION ALL
-      SELECT 'Registration Journey Complete' as status, count(*) FROM report WHERE status_id IN ('5b4173e1-e750-9b85-9464-3a05e77d4547') AND has_license = '${this.nil_uuid}' UNION ALL
-      SELECT 'Withdrew from IEN program' as status, count(*) FROM report WHERE status_id IN ('f84a4167-a636-4b21-977c-f11aefc486af') AND has_license = '${this.nil_uuid}' UNION ALL
-      SELECT 'Applicant ready for job search' as status, count(*) FROM report WHERE status_id IN ('b93e7bf6-5f2b-43fd-b4b7-58c42aa02bfa') AND has_license = '${this.nil_uuid}' UNION ALL 
-      SELECT 'Applicant Referred to FNHA' as status, count(*) FROM report WHERE status_id IN ('73a4b092-ae7e-de91-17e1-3a05e7864830') AND has_license = '${this.nil_uuid}' UNION ALL  
-      SELECT 'Applicant Referred to FHA' as status, count(*) FROM report WHERE status_id IN ('dfcfa87a-40f9-ec41-2afa-3a0601a9ce32') AND has_license = '${this.nil_uuid}' UNION ALL  
-      SELECT 'Applicant Referred to IHA' as status, count(*) FROM report WHERE status_id IN ('b5452d40-7dfd-d614-0319-3a0601aa0749') AND has_license = '${this.nil_uuid}' UNION ALL  
-      SELECT 'Applicant Referred to NHA' as status, count(*) FROM report WHERE status_id IN ('9e97a1b3-a48e-3fb0-082c-3a0601aa2678') AND has_license = '${this.nil_uuid}' UNION ALL  
-      SELECT 'Applicant Referred to PHC' as status, count(*) FROM report WHERE status_id IN ('e5f02166-36cb-12a8-a5ba-3a0601aa5aed') AND has_license = '${this.nil_uuid}' UNION ALL  
-      SELECT 'Applicant Referred to PHSA' as status, count(*) FROM report WHERE status_id IN ('42054107-17fb-e6e7-eb58-3a0601aa8dd3') AND has_license = '${this.nil_uuid}' UNION ALL  
-      SELECT 'Applicant Referred to VCHA' as status, count(*) FROM report WHERE status_id IN ('26069c6c-a5b8-a2ac-c94d-3a0601aab009') AND has_license = '${this.nil_uuid}' UNION ALL  
-      SELECT 'Applicant Referred to VIHA' as status, count(*) FROM report WHERE status_id IN ('001dfb24-1618-e975-6578-3a0601aac804') AND has_license = '${this.nil_uuid}' UNION ALL       
-      SELECT 'Granted full licensure' as status, count(*) FROM report WHERE has_license = '18aa32c3-a6a4-4431-8283-89931c141fde' OR has_license = '632374e6-ca2f-0baa-f994-3a05e77c118a' UNION ALL
-      SELECT 'Granted provisional licensure' as status, count(*) FROM report WHERE has_license = 'd2656957-ec58-15c9-1e21-3a05e778dc8e' OR has_license = '91f55faa-c71d-83c8-4f10-3a05e778afbc';    
+      SELECT 'Applied to NNAS' as status, count(*) as applicants FROM report WHERE status_id IN ('${StatusId.APPLIED_TO_NNAS}','${StatusId.SUBMITTED_DOCUMENTS}','${StatusId.RECEIVED_NNAS_REPORT}') AND has_license = '${this.nil_uuid}' UNION ALL
+      SELECT 'Applied to BCCNM' as status, count(*) FROM report WHERE status_id IN ('${StatusId.APPLIED_TO_BCCNM}') AND has_license = '${this.nil_uuid}' UNION ALL
+      SELECT 'Completed English Language Requirement' as status, count(*) FROM report WHERE status_id IN ('${StatusId.COMPLETED_LANGUAGE_REQUIREMENT}') AND has_license = '${this.nil_uuid}' UNION ALL
+      SELECT 'Referred to NCAS' as status, count(*) FROM report WHERE status_id IN ('${StatusId.REFERRED_TO_NCAS}','${StatusId.COMPLETED_CBA}','${StatusId.COMPLETED_SLA}') AND has_license = '${this.nil_uuid}' UNION ALL
+      SELECT 'Completed NCAS' as status, count(*) FROM report WHERE status_id IN ('${StatusId.COMPLETED_NCAS}') AND has_license = '${this.nil_uuid}' UNION ALL
+      SELECT 'Completed Additional Education' as status, count(*) FROM report WHERE status_id IN ('${StatusId.REFERRED_TO_ADDITIONAL_EDUCTION}','${StatusId.COMPLETED_ADDITIONAL_EDUCATION}') AND has_license = '${this.nil_uuid}' UNION ALL
+      SELECT 'NCLEX - Written' as status, count(*) FROM report WHERE status_id IN ('${StatusId.NCLEX_WRITTEN}') AND has_license = '${this.nil_uuid}' UNION ALL
+      SELECT 'NCLEX - Passed' as status, count(*) FROM report WHERE status_id IN ('${StatusId.NCLEX_PASSED}') AND has_license = '${this.nil_uuid}' UNION ALL
+      SELECT 'REx-PN – Written' as status, count(*) FROM report WHERE status_id IN ('${StatusId.REX_PN_WRITTEN}') AND has_license = '${this.nil_uuid}' UNION ALL
+      SELECT 'REx-PN – Passed' as status, count(*) FROM report WHERE status_id IN ('${StatusId.REX_PN_PASSED}') AND has_license = '${this.nil_uuid}' UNION ALL
+      SELECT 'BCCNM Full Licence LPN' as status, count(*) FROM report WHERE status_id IN ('${StatusId.BCCNM_FULL_LICENCE_LPN}') AND has_license = '${StatusId.BCCNM_FULL_LICENCE_LPN}' UNION ALL
+      SELECT 'BCCNM Full Licence RN' as status, count(*) FROM report WHERE status_id IN ('${StatusId.BCCNM_FULL_LICENSE_RN}') AND has_license = '${StatusId.BCCNM_FULL_LICENSE_RN}' UNION ALL
+      SELECT 'BCCNM Provisional Licence LPN' as status, count(*) FROM report WHERE status_id IN ('${StatusId.BCCNM_PROVISIONAL_LICENSE_LPN}') AND has_license = '${StatusId.BCCNM_PROVISIONAL_LICENSE_LPN}' UNION ALL
+      SELECT 'BCCNM Provisional Licence RN' as status, count(*) FROM report WHERE status_id IN ('${StatusId.BCCNM_PROVISIONAL_LICENSE_RN}') AND has_license = '${StatusId.BCCNM_PROVISIONAL_LICENSE_RN}' UNION ALL
+      SELECT 'Referred for registration exam' as status, count(*) FROM report WHERE status_id IN ('${StatusId.REFERRED_TO_REGISTRATION_EXAM}') AND has_license = '${this.nil_uuid}' UNION ALL
+      SELECT 'Registered as an HCA' as status, count(*) FROM report WHERE status_id IN ('${StatusId.REGISTERED_AS_AN_HCA}') AND has_license = '${this.nil_uuid}' UNION ALL
+      SELECT 'Registration Journey Complete' as status, count(*) FROM report WHERE status_id IN ('${StatusId.REGISTRATION_JOURNEY_COMPLETED}') AND has_license = '${this.nil_uuid}' UNION ALL
+      SELECT 'Withdrew from IEN program' as status, count(*) FROM report WHERE status_id IN ('${StatusId.WITHDREW_FROM_PROGRAM}') AND has_license = '${this.nil_uuid}' UNION ALL
+      SELECT 'Applicant ready for job search' as status, count(*) FROM report WHERE status_id IN ('${StatusId.READY_FOR_JOB_SEARCH}') AND has_license = '${this.nil_uuid}' UNION ALL 
+      SELECT 'Applicant Referred to FNHA' as status, count(*) FROM report WHERE status_id IN ('${StatusId.REFERRED_TO_FNHA}') AND has_license = '${this.nil_uuid}' UNION ALL  
+      SELECT 'Applicant Referred to FHA' as status, count(*) FROM report WHERE status_id IN ('${StatusId.REFERRED_TO_FHA}') AND has_license = '${this.nil_uuid}' UNION ALL  
+      SELECT 'Applicant Referred to IHA' as status, count(*) FROM report WHERE status_id IN ('${StatusId.REFERRED_TO_IHA}') AND has_license = '${this.nil_uuid}' UNION ALL  
+      SELECT 'Applicant Referred to NHA' as status, count(*) FROM report WHERE status_id IN ('${StatusId.REFERRED_TO_NHA}') AND has_license = '${this.nil_uuid}' UNION ALL  
+      SELECT 'Applicant Referred to PHC' as status, count(*) FROM report WHERE status_id IN ('${StatusId.REFERRED_TO_PHC}') AND has_license = '${this.nil_uuid}' UNION ALL  
+      SELECT 'Applicant Referred to PHSA' as status, count(*) FROM report WHERE status_id IN ('${StatusId.REFERRED_TO_PHSA}') AND has_license = '${this.nil_uuid}' UNION ALL  
+      SELECT 'Applicant Referred to VCHA' as status, count(*) FROM report WHERE status_id IN ('${StatusId.REFERRED_TO_VCHA}') AND has_license = '${this.nil_uuid}' UNION ALL  
+      SELECT 'Applicant Referred to VIHA' as status, count(*) FROM report WHERE status_id IN ('${StatusId.REFERRED_TO_VIHA}') AND has_license = '${this.nil_uuid}' UNION ALL       
+      SELECT 'Granted full licensure' as status, count(*) FROM report WHERE has_license = '${StatusId.BCCNM_FULL_LICENSE_RN}' OR has_license = '${StatusId.BCCNM_FULL_LICENCE_LPN}' UNION ALL
+      SELECT 'Granted provisional licensure' as status, count(*) FROM report WHERE has_license = '${StatusId.BCCNM_PROVISIONAL_LICENSE_RN}' OR has_license = '${StatusId.BCCNM_PROVISIONAL_LICENSE_LPN}';    
       `;
   }
 
@@ -364,7 +332,7 @@ export class ReportUtilService {
         SELECT DISTINCT applicant_id
         FROM public.ien_applicant_status_audit 
         WHERE 
-          status_id = '632374e6-ca2f-0baa-f994-3a05e77c118a' AND
+          status_id = '${StatusId.BCCNM_FULL_LICENCE_LPN}' AND
           start_date <= '${to}' AND
           start_date >= '${from}'
       ),
@@ -372,7 +340,7 @@ export class ReportUtilService {
         SELECT DISTINCT applicant_id
         FROM public.ien_applicant_status_audit 
         WHERE 
-          status_id = '18aa32c3-a6a4-4431-8283-89931c141fde' AND
+          status_id = '${StatusId.BCCNM_FULL_LICENSE_RN}' AND
           start_date <= '${to}' AND
           start_date >= '${from}'
       ),
@@ -380,7 +348,7 @@ export class ReportUtilService {
         SELECT DISTINCT iasa.applicant_id
         FROM public.ien_applicant_status_audit iasa
         WHERE 
-          iasa.status_id = '91f55faa-c71d-83c8-4f10-3a05e778afbc' AND
+          iasa.status_id = '${StatusId.BCCNM_PROVISIONAL_LICENSE_LPN}' AND
           iasa.start_date <= '${to}' AND
           iasa.start_date >= '${from}'
       ),
@@ -388,7 +356,7 @@ export class ReportUtilService {
         SELECT DISTINCT iasa.applicant_id
         FROM public.ien_applicant_status_audit iasa
         WHERE 
-          iasa.status_id = 'd2656957-ec58-15c9-1e21-3a05e778dc8e' AND
+          iasa.status_id = '${StatusId.BCCNM_PROVISIONAL_LICENSE_RN}' AND
           iasa.start_date <= '${to}' AND
           iasa.start_date >= '${from}'
       )
@@ -414,7 +382,7 @@ export class ReportUtilService {
           WHERE
             ien_status.start_date::date <= '${to}' 
             AND status.category IN ('${StatusCategory.INTAKE}', '${StatusCategory.LICENSING_REGISTRATION}', '${StatusCategory.RECRUITMENT}')
-            AND ien_status.status_id IN ('009761c9-a857-4e40-978a-9cbcc6f94e35', '70b1f5f1-1a0d-ef71-42ea-3a0601b46bc2')
+            AND ien_status.status_id IN ('${StatusId.WITHDREW_FROM_PROGRAM}', '${StatusId.JOB_OFFER_ACCEPTED}')
         ) as t1
         WHERE t1.rank=1
       ), find_reactive_applicants AS (
@@ -426,14 +394,14 @@ export class ReportUtilService {
             wha.status_id,
             wha.job_id,
             wha.start_date,
-            CASE WHEN wha.status_id='009761c9-a857-4e40-978a-9cbcc6f94e35' THEN (
+            CASE WHEN wha.status_id='${StatusId.WITHDREW_FROM_PROGRAM}' THEN (
               SELECT iasa.start_date FROM public.ien_applicant_status_audit iasa 
-              WHERE iasa.applicant_id=wha.applicant_id AND iasa.status_id != '009761c9-a857-4e40-978a-9cbcc6f94e35' AND iasa.start_date > wha.start_date
+              WHERE iasa.applicant_id=wha.applicant_id AND iasa.status_id != '${StatusId.WITHDREW_FROM_PROGRAM}' AND iasa.start_date > wha.start_date
               ORDER BY start_date limit 1
             ) END as next_date
           FROM withdew_hired_applicants wha
           ) t1
-        WHERE (t1.status_id='009761c9-a857-4e40-978a-9cbcc6f94e35' and t1.next_date is null) OR t1.status_id='70b1f5f1-1a0d-ef71-42ea-3a0601b46bc2'
+        WHERE (t1.status_id='${StatusId.WITHDREW_FROM_PROGRAM}' and t1.next_date is null) OR t1.status_id='${StatusId.JOB_OFFER_ACCEPTED}'
       ),
       applicant_jobs AS (
         -- It contain all the jobs that possibly fits in this report till 'to' date filter
@@ -443,7 +411,7 @@ export class ReportUtilService {
           ha_pcn_id,
           (SELECT status_id FROM public.ien_applicant_status_audit as status 
             WHERE status.job_id=job.id AND start_date <= '${to}'
-            -- put new status restriction here (from 21 to 28 are allowded)
+            -- put new status restriction here
             ORDER BY start_date DESC limit 1) as status_id,
           applicant_id
         FROM
@@ -489,19 +457,19 @@ export class ReportUtilService {
         SELECT id, 0 AS FNHA, 0 AS FHA, 0 AS IHA, 0 AS VIHA, 0 AS NHA, 0 AS PVHA, 0 AS PHSA, 0 AS VCHA
         FROM public.ien_applicant_status WHERE category='${StatusCategory.RECRUITMENT}' AND 
         id IN (
-          'f004f837-3357-416b-918e-651bd6faecb5',
-          'db964868-9eeb-e34d-9992-3a0601b2382c',
-          '66d4ec85-6a28-87fd-0aaa-3a0601b26edd',
-          'bd91e596-8f9a-0c98-8b9c-3a0601b2a18b',
-          '91c06396-a8f3-4d10-5a09-3a0601b2c98e',
-          'd875b680-f027-46b7-05a5-3a0601b3a0e1',
-          '4f5e371e-f05e-a374-443f-3a0601b3eede',
-          'fc048e66-0173-fa1a-d0d2-3a0601b4ea3a',
-          '22ea1aa6-78b7-ecb6-88a7-3a0601b53b20',
-          '9b40266e-93c8-d827-b7cb-3a0601b593e0',
-          'b8ba04a8-148e-ab32-7eb9-3a0601b5b5af',
-          '009761c9-a857-4e40-978a-9cbcc6f94e35',
-          '70b1f5f1-1a0d-ef71-42ea-3a0601b46bc2'
+          '${StatusId.REFERRAL_ACKNOWLEDGED}',
+          '${StatusId.PRESCREEN_PASSED}',
+          '${StatusId.PRESCREEN_NOT_PASSED}',
+          '${StatusId.INTERVIEW_PASSED}',
+          '${StatusId.INTERVIEW_NOT_PASSED}',
+          '${StatusId.REFERENCE_CHECK_PASSED}',
+          '${StatusId.REFERENCE_CHECK_NOT_PASSED}',
+          '${StatusId.JOB_OFFER_NOT_ACCEPTED}',
+          '${StatusId.JOB_COMPETITION_CANCELLED}',
+          '${StatusId.HA_NOT_INTERESTED}',
+          '${StatusId.NO_POSITION_AVAILABLE}',
+          '${StatusId.WITHDREW_FROM_COMPETITION}',
+          '${StatusId.JOB_OFFER_ACCEPTED}'
           )
         )
         SELECT status,
@@ -532,21 +500,13 @@ export class ReportUtilService {
 
   applicantsInImmigrationQuery(to: string) {
     return `
-      -- 30	"Sent First Steps document to candidate" 4d435c42-f588-4174-bb1e-1fe086b23214
-      -- 31	"Sent employer documents to HMBC" 1651cad1-1e56-4c79-92ce-f548ad9ec52c
-      -- 32	"Submitted application to BC PNP" f3369599-1749-428b-a35d-562f92782e1c
-      -- 33	"Received Confirmation of Nomination" 3ef75425-42eb-4cc2-8a27-c9726f6f55fa
-      -- 34	"Sent Second Steps document to candidate" da813b28-f617-4b5c-8e05-84f0ae3c9429
-      -- 35	"Submitted Work Permit Application" f2008e2f-5f44-4f4c-80b4-f4ad284e9938
-      -- 36	"Received Work Permit Approval Letter" caa18ecd-fea5-459e-af27-bca15ac26133
-      -- 37	"Received Work Permit (Arrival in Canada)" e768029b-4ba1-4147-94f8-29587c6bb650
       WITH hired_applicants AS (
         SELECT
           sa.applicant_id, ha.abbreviation
         FROM public.ien_applicant_status_audit as sa
         JOIN public.ien_applicant_jobs job ON sa.job_id=job.id
         JOIN public.ien_ha_pcn ha ON job.ha_pcn_id=ha.id
-        WHERE sa.status_id = '70b1f5f1-1a0d-ef71-42ea-3a0601b46bc2' AND sa.start_date::date <= '${to}'
+        WHERE sa.status_id = '${StatusId.JOB_OFFER_ACCEPTED}' AND sa.start_date::date <= '${to}'
         GROUP BY sa.applicant_id, ha.abbreviation
       ),
       ha_status AS (
@@ -560,14 +520,14 @@ export class ReportUtilService {
               FROM public.ien_applicant_status_audit as sa 
               WHERE sa.applicant_id=a1.applicant_id
                 AND sa.status_id IN (
-                  '4d435c42-f588-4174-bb1e-1fe086b23214',
-                  '1651cad1-1e56-4c79-92ce-f548ad9ec52c',
-                  'f3369599-1749-428b-a35d-562f92782e1c',
-                  '3ef75425-42eb-4cc2-8a27-c9726f6f55fa',
-                  'da813b28-f617-4b5c-8e05-84f0ae3c9429',
-                  'f2008e2f-5f44-4f4c-80b4-f4ad284e9938',
-                  'caa18ecd-fea5-459e-af27-bca15ac26133',
-                  'e768029b-4ba1-4147-94f8-29587c6bb650'
+                  '${StatusId.SENT_FIRST_STEPS_DOCUMENT}',
+                  '${StatusId.SENT_EMPLOYER_DOCUMENTS_TO_HMBC}',
+                  '${StatusId.SUBMITTED_BC_PNP_APPLICATION}',
+                  '${StatusId.RECEIVED_CONFIRMATION_OF_NOMINATION}',
+                  '${StatusId.SENT_SECOND_STEPS_DOCUMENT}',
+                  '${StatusId.SUBMITTED_WORK_PERMIT_APPLICATION}',
+                  '${StatusId.WORK_PERMIT_APPROVAL_RECEIVED}',
+                  '${StatusId.RECEIVED_WORK_PERMIT}'
                   )
                 AND sa.start_date <= '${to}'
               ORDER BY sa.start_date DESC limit 1
@@ -595,14 +555,14 @@ export class ReportUtilService {
         SELECT id, 0 AS FNHA, 0 AS FHA, 0 AS IHA, 0 AS VIHA, 0 AS NHA, 0 AS PVHA, 0 AS PHSA, 0 AS VCHA
         FROM public.ien_applicant_status WHERE category='${StatusCategory.BC_PNP}' AND
         id IN (
-          '4d435c42-f588-4174-bb1e-1fe086b23214',
-          '1651cad1-1e56-4c79-92ce-f548ad9ec52c',
-          'f3369599-1749-428b-a35d-562f92782e1c',
-          '3ef75425-42eb-4cc2-8a27-c9726f6f55fa',
-          'da813b28-f617-4b5c-8e05-84f0ae3c9429',
-          'f2008e2f-5f44-4f4c-80b4-f4ad284e9938',
-          'caa18ecd-fea5-459e-af27-bca15ac26133',
-          'e768029b-4ba1-4147-94f8-29587c6bb650'
+          '${StatusId.SENT_FIRST_STEPS_DOCUMENT}',
+          '${StatusId.SENT_EMPLOYER_DOCUMENTS_TO_HMBC}',
+          '${StatusId.SUBMITTED_BC_PNP_APPLICATION}',
+          '${StatusId.RECEIVED_CONFIRMATION_OF_NOMINATION}',
+          '${StatusId.SENT_SECOND_STEPS_DOCUMENT}',
+          '${StatusId.SUBMITTED_WORK_PERMIT_APPLICATION}',
+          '${StatusId.WORK_PERMIT_APPROVAL_RECEIVED}',
+          '${StatusId.RECEIVED_WORK_PERMIT}'
           )
       ),
       final_data as (
@@ -639,8 +599,6 @@ export class ReportUtilService {
 
   applicantHAForCurrentPeriodFiscalQuery(from: string, to: string) {
     return `
-      -- milestoneId 37 - Received Work Permit (Arrival in Canada) e768029b-4ba1-4147-94f8-29587c6bb650
-      -- 
       WITH periods AS (
         SELECT
           to_char('${from}'::date + ((('${to}'::date - '${from}'::date)/28)*28), 'YYYY-MM-DD') as period_start
@@ -648,7 +606,7 @@ export class ReportUtilService {
         SELECT 
           applicant_id, max(start_date) as start_date
         FROM public.ien_applicant_status_audit
-        WHERE status_id = 'e768029b-4ba1-4147-94f8-29587c6bb650' AND start_date::date <= '${to}'
+        WHERE status_id = '${StatusId.RECEIVED_WORK_PERMIT}' AND start_date::date <= '${to}'
         GROUP BY applicant_id
       ), applicantHA AS (
         SELECT
@@ -750,16 +708,16 @@ export class ReportUtilService {
               ROW_NUMBER() OVER(PARTITION BY iasa.applicant_id ORDER BY iasa.start_date DESC) AS rank
         FROM public.ien_applicant_status_audit iasa
         LEFT JOIN public.ien_applicant_jobs iaj ON iasa.job_id=iaj.id
-        WHERE iasa.status_id IN ('009761c9-a857-4e40-978a-9cbcc6f94e35', '70b1f5f1-1a0d-ef71-42ea-3a0601b46bc2') AND iasa.start_date::date <= '${to}'
+        WHERE iasa.status_id IN ('${StatusId.WITHDREW_FROM_PROGRAM}', '${StatusId.JOB_OFFER_ACCEPTED}') AND iasa.start_date::date <= '${to}'
       ), hired_applicants AS (
         SELECT applicant_id as "id", start_date as hired_date, ha, job_id
         FROM latest_hired_withdrawal_status
-        WHERE rank = 1 AND status_id='70b1f5f1-1a0d-ef71-42ea-3a0601b46bc2'
+        WHERE rank = 1 AND status_id='${StatusId.JOB_OFFER_ACCEPTED}'
       ), applicant_with_withdrawal AS (
         SELECT 
           DISTINCT(applicant_id) as applicant_id 
         FROM public.ien_applicant_status_audit 
-        WHERE status_id='009761c9-a857-4e40-978a-9cbcc6f94e35'
+        WHERE status_id='${StatusId.WITHDREW_FROM_PROGRAM}'
         AND applicant_id IN (SELECT id FROM hired_applicants)
       ), applicant_withdrawal_duration AS (
         SELECT applicant_id, next_start_at - start_date as duration
@@ -771,7 +729,7 @@ export class ReportUtilService {
           WHERE start_date::date <= '${to}'
           AND applicant_id IN (SELECT applicant_id FROM applicant_with_withdrawal)
         ) q
-        WHERE status_id='009761c9-a857-4e40-978a-9cbcc6f94e35' AND next_start_at IS NOT null
+        WHERE status_id='${StatusId.WITHDREW_FROM_PROGRAM}' AND next_start_at IS NOT null
       ), withdrawal_duration AS (
         SELECT applicant_id, sum(duration)::integer as duration
         FROM applicant_withdrawal_duration
@@ -780,11 +738,11 @@ export class ReportUtilService {
         SELECT
           hired.*,
           (SELECT min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id) as milestone_start_date,
-          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id AND asa.status_id IN ('e68f902c-8440-4a9c-a05f-2765301de800','897156c7-958c-4ec0-879a-ed4943af7b72','20268c6e-145e-48cd-889a-2346985db957')) as nnas,
-          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id AND asa.status_id IN ('8a9b0d13-f5d7-4be3-8d38-11e5459f9e9a','da06889e-55a1-4ff2-9984-80ae23d7e44b','ead2e076-df00-4dab-a0cc-5a7f0bafc51a','61150e8a-6e83-444a-9dab-3129a8cc0719','9066b792-6fbf-4e60-803f-0554e4b4dba9','06e2d762-05ba-4667-93d2-7843d3cf9fc5')) as bccnm_ncas,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id AND asa.status_id IN ('${StatusId.APPLIED_TO_NNAS}','${StatusId.SUBMITTED_DOCUMENTS}','${StatusId.RECEIVED_NNAS_REPORT}')) as nnas,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id AND asa.status_id IN ('${StatusId.APPLIED_TO_BCCNM}','${StatusId.COMPLETED_LANGUAGE_REQUIREMENT}','${StatusId.REFERRED_TO_NCAS}','${StatusId.COMPLETED_CBA}','${StatusId.COMPLETED_SLA}','${StatusId.COMPLETED_NCAS}')) as bccnm_ncas,
           (SELECT max(start_date) - min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id AND asa.job_id = hired.job_id) as employer_duration,
-          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id AND asa.status_id IN ('4d435c42-f588-4174-bb1e-1fe086b23214','1651cad1-1e56-4c79-92ce-f548ad9ec52c','f3369599-1749-428b-a35d-562f92782e1c','3ef75425-42eb-4cc2-8a27-c9726f6f55fa','da813b28-f617-4b5c-8e05-84f0ae3c9429','f2008e2f-5f44-4f4c-80b4-f4ad284e9938') AND asa.start_date::date <= '${to}') as immigration,
-          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id AND asa.status_id IN ('caa18ecd-fea5-459e-af27-bca15ac26133','e768029b-4ba1-4147-94f8-29587c6bb650','74173fde-b057-42da-b2ba-327bde532d2d') AND asa.start_date::date <= '${to}') as immigration_completed,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id AND asa.status_id IN ('${StatusId.SENT_FIRST_STEPS_DOCUMENT}','${StatusId.SENT_EMPLOYER_DOCUMENTS_TO_HMBC}','${StatusId.SUBMITTED_BC_PNP_APPLICATION}','${StatusId.RECEIVED_CONFIRMATION_OF_NOMINATION}','${StatusId.SENT_SECOND_STEPS_DOCUMENT}','${StatusId.SUBMITTED_WORK_PERMIT_APPLICATION}') AND asa.start_date::date <= '${to}') as immigration,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id AND asa.status_id IN ('${StatusId.WORK_PERMIT_APPROVAL_RECEIVED}','${StatusId.RECEIVED_WORK_PERMIT}','${StatusId.RECEIVED_PR}') AND asa.start_date::date <= '${to}') as immigration_completed,
           wd.duration as withdrawal_duration
         FROM hired_applicants hired
         LEFT JOIN withdrawal_duration wd ON wd.applicant_id=hired.id
@@ -801,23 +759,23 @@ export class ReportUtilService {
               WHERE asa.applicant_id=sdoes.id AND asa.start_date >= sdoes.nnas 
               AND (asa.status_id 
                 IN (
-                  'e68f902c-8440-4a9c-a05f-2765301de800',
-                  '897156c7-958c-4ec0-879a-ed4943af7b72',
-                  '20268c6e-145e-48cd-889a-2346985db957',
-                  '8a9b0d13-f5d7-4be3-8d38-11e5459f9e9a',
-                  'da06889e-55a1-4ff2-9984-80ae23d7e44b',
-                  'ead2e076-df00-4dab-a0cc-5a7f0bafc51a',
-                  '61150e8a-6e83-444a-9dab-3129a8cc0719',
-                  '9066b792-6fbf-4e60-803f-0554e4b4dba9',
-                  '06e2d762-05ba-4667-93d2-7843d3cf9fc5',
-                  '8024ed3a-803f-4e34-9934-c29565daaf63',
-                  '59263418-77ea-411f-894d-c84b5e1f710f',
-                  '0d6bcfe1-fb00-45cb-a9c6-c6a53da12e62',
-                  'b0d38aa5-b776-4033-97f7-9894e9b33a3c',
-                  '91f55faa-c71d-83c8-4f10-3a05e778afbc',
-                  'd2656957-ec58-15c9-1e21-3a05e778dc8e',
-                  '18aa32c3-a6a4-4431-8283-89931c141fde',
-                  '632374e6-ca2f-0baa-f994-3a05e77c118a'
+                  '${StatusId.APPLIED_TO_NNAS}',
+                  '${StatusId.SUBMITTED_DOCUMENTS}',
+                  '${StatusId.RECEIVED_NNAS_REPORT}',
+                  '${StatusId.APPLIED_TO_BCCNM}',
+                  '${StatusId.COMPLETED_LANGUAGE_REQUIREMENT}',
+                  '${StatusId.REFERRED_TO_NCAS}',
+                  '${StatusId.COMPLETED_CBA}',
+                  '${StatusId.COMPLETED_SLA}',
+                  '${StatusId.COMPLETED_NCAS}',
+                  '${StatusId.REFERRED_TO_ADDITIONAL_EDUCTION}',
+                  '${StatusId.COMPLETED_ADDITIONAL_EDUCATION}',
+                  '${StatusId.NCLEX_WRITTEN}',
+                  '${StatusId.NCLEX_PASSED}',
+                  '${StatusId.BCCNM_PROVISIONAL_LICENSE_LPN}',
+                  '${StatusId.BCCNM_PROVISIONAL_LICENSE_RN}',
+                  '${StatusId.BCCNM_FULL_LICENSE_RN}',
+                  '${StatusId.BCCNM_FULL_LICENCE_LPN}'
                   ) OR ien_status.category IN ('${StatusCategory.RECRUITMENT}', '${StatusCategory.BC_PNP}', '${StatusCategory.FINAL}'))
             ) - sdoes.nnas)
           END
@@ -831,15 +789,15 @@ export class ReportUtilService {
               AND asa.start_date >= sdoes.nnas 
               AND (asa.status_id 
                 IN (
-                  '06e2d762-05ba-4667-93d2-7843d3cf9fc5',
-                  '8024ed3a-803f-4e34-9934-c29565daaf63',
-                  '59263418-77ea-411f-894d-c84b5e1f710f',
-                  '0d6bcfe1-fb00-45cb-a9c6-c6a53da12e62',
-                  'b0d38aa5-b776-4033-97f7-9894e9b33a3c',
-                  '91f55faa-c71d-83c8-4f10-3a05e778afbc',
-                  'd2656957-ec58-15c9-1e21-3a05e778dc8e',
-                  '18aa32c3-a6a4-4431-8283-89931c141fde',
-                  '632374e6-ca2f-0baa-f994-3a05e77c118a'
+                  '${StatusId.COMPLETED_NCAS}',
+                  '${StatusId.REFERRED_TO_ADDITIONAL_EDUCTION}',
+                  '${StatusId.COMPLETED_ADDITIONAL_EDUCATION}',
+                  '${StatusId.NCLEX_WRITTEN}',
+                  '${StatusId.NCLEX_PASSED}',
+                  '${StatusId.BCCNM_PROVISIONAL_LICENSE_LPN}',
+                  '${StatusId.BCCNM_PROVISIONAL_LICENSE_RN}',
+                  '${StatusId.BCCNM_FULL_LICENSE_RN}',
+                  '${StatusId.BCCNM_FULL_LICENCE_LPN}'
                   ) OR ien_status.category IN ('${StatusCategory.RECRUITMENT}', '${StatusCategory.BC_PNP}', '${StatusCategory.FINAL}'))
             ) - sdoes.bccnm_ncas)
           END
