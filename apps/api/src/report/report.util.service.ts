@@ -1,9 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { StatusCategory } from '@ien/common';
+import { StatusCategory, StatusId } from '@ien/common';
 import { isValidDateFormat } from 'src/common/util';
 import dayjs from 'dayjs';
 import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.entity';
-import { StatusId } from '@ien/common';
 
 @Injectable()
 export class ReportUtilService {
