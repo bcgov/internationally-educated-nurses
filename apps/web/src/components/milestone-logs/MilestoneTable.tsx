@@ -54,7 +54,7 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
     function filterMilestones() {
       const audits =
         milestones?.filter(audit => {
-          return audit.status.parent?.category === category;
+          return audit.status.category === category;
         }) || [];
       setFilteredMilestones(audits);
     },

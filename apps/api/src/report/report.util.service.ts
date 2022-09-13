@@ -2,9 +2,12 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { isValidDateFormat, StatusCategory } from 'src/common/util';
 import dayjs from 'dayjs';
 import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.entity';
+import { StatusId } from '@ien/common';
 
 @Injectable()
 export class ReportUtilService {
+  nil_uuid = '00000000-0000-0000-0000-000000000000';
+
   applicantCountQuery(from: string, to: string) {
     return `
         with ien_applicants as (
@@ -144,12 +147,10 @@ export class ReportUtilService {
   */
   hiredActiveWithdrawnApplicantCountQuery(from: string, to: string) {
     return `
-      -- 28 hired
-      -- 20 Withdrew
       WITH withdrawn_applicants AS (
         SELECT applicant_id, max(start_date) as start_date
         FROM public.ien_applicant_status_audit 
-        WHERE status_id=20 
+        WHERE status_id = '${StatusId.WITHDREW_FROM_PROGRAM}' 
           AND start_date::date <= '${to}'
         GROUP BY applicant_id
       ), reactive_applicants AS (
@@ -157,13 +158,13 @@ export class ReportUtilService {
         FROM withdrawn_applicants wa INNER JOIN public.ien_applicant_status_audit ien ON wa.applicant_id=ien.applicant_id
         WHERE ien.start_date::date >= wa.start_date
           AND ien.start_date::date <= '${to}'
-          AND ien.status_id != 20
+          AND ien.status_id != '${StatusId.WITHDREW_FROM_PROGRAM}'
         GROUP BY wa.applicant_id
       ), hired_applicants AS (
         SELECT ien.applicant_id, max(ien.start_date) as start_date
         FROM public.ien_applicant_status_audit ien
         LEFT JOIN withdrawn_applicants wa ON ien.applicant_id=wa.applicant_id
-        WHERE ien.status_id=28 
+        WHERE ien.status_id = '${StatusId.JOB_OFFER_ACCEPTED}' 
           AND ien.start_date::date <= '${to}' 
           AND (wa.start_date IS null OR ien.start_date >= wa.start_date)
         GROUP BY ien.applicant_id
@@ -229,22 +230,23 @@ export class ReportUtilService {
   */
   licensingStageApplicantsQuery(from: string, to: string) {
     return `
-      --col01 - 'Applied to NNAS' status: 4, 5, 6
-      --col02 - 'Applied to BCCNM' status: 7
-      --col03 - 'Completed English Language Requirement' status: 8
-      --col04 - 'Referred to NCAS' status: 9,10,11
-      --col05 - 'Completed NCAS (BCCNM Assessment)' status: 12
-      --col06 - 'Completed Additional Education' status: 13, 14
-      --col07 - 'Referred to NCLEX' status: 15,17
-      --col08 - 'NCLEX - Passed' status: 18
-      --col09 - 'BCCNM Licensed - Full License' status: 19
-      --col10 - 'Granted full licensure' status: 19
-      --col11 - 'Granted provisional licensure' status: 16
       WITH active_applicants AS (
         SELECT
           t1.*,
-          COALESCE((SELECT max(sa.status_id) FROM public.ien_applicant_status_audit sa 
-          WHERE sa.applicant_id=t1.id AND sa.status_id IN (19, 16)), 0) AS has_license
+          COALESCE(
+            (
+              SELECT sa.status_id 
+              FROM public.ien_applicant_status_audit sa 
+              WHERE sa.applicant_id=t1.id AND sa.status_id 
+                IN (
+                  '${StatusId.BCCNM_FULL_LICENCE_LPN}',
+                  '${StatusId.BCCNM_FULL_LICENSE_RN}',
+                  '${StatusId.BCCNM_PROVISIONAL_LICENSE_LPN}', 
+                  '${StatusId.BCCNM_PROVISIONAL_LICENSE_RN}'
+                   )
+              ),
+            '${this.nil_uuid}') 
+          AS has_license
         FROM (
           SELECT 
           applicants.id,
@@ -255,9 +257,9 @@ export class ReportUtilService {
                 SELECT ien_status.status_id 
                 FROM public.ien_applicant_status_audit ien_status
                 LEFT JOIN public.ien_applicant_status status ON status.id=ien_status.status_id
-                WHERE ien_status.applicant_id=applicants.id AND ien_status.start_date::date <= '${to}' AND status.category IN (${StatusCategory.INTAKE},${StatusCategory.LICENSING_REGISTRATION} ,${StatusCategory.RECRUITMENT})
+                WHERE ien_status.applicant_id=applicants.id AND ien_status.start_date::date <= '${to}' AND status.category IN ('${StatusCategory.INTAKE}','${StatusCategory.LICENSING_REGISTRATION}' ,'${StatusCategory.RECRUITMENT}')
                 ORDER BY ien_status.start_date DESC limit 1
-              ),0) IN (20, 28) 
+              ),'${this.nil_uuid}') IN ('${StatusId.WITHDREW_FROM_PROGRAM}', '${StatusId.JOB_OFFER_ACCEPTED}') 
             THEN 1
             ELSE 0 
           END as hired_or_withdrawn
@@ -269,7 +271,7 @@ export class ReportUtilService {
         SELECT
           aa.*,
           b.applicant_id,
-          COALESCE(b.status_id, 0) as status_id
+          COALESCE(b.status_id, '${this.nil_uuid}') as status_id
         FROM active_applicants aa
         LEFT JOIN LATERAL (
           SELECT 
@@ -288,50 +290,81 @@ export class ReportUtilService {
       ),
       report AS (
         SELECT * FROM period_data 
-        WHERE has_license <> 0 OR status_id <> 0
+        WHERE has_license <> '${this.nil_uuid}' OR status_id <> '${this.nil_uuid}'
       )
-      
-      SELECT 'Applied to NNAS' as status, count(*) as applicants FROM report WHERE status_id IN (4,5,6) AND has_license = 0 UNION ALL
-      SELECT 'Applied to BCCNM' as status, count(*) FROM report WHERE status_id IN (7) AND has_license = 0 UNION ALL
-      SELECT 'Completed English Language Requirement' as status, count(*) FROM report WHERE status_id IN (8) AND has_license = 0 UNION ALL
-      SELECT 'Referred to NCAS' as status, count(*) FROM report WHERE status_id IN (9,10,11) AND has_license = 0 UNION ALL
-      SELECT 'Completed NCAS (BCCNM Assessment)' as status, count(*) FROM report WHERE status_id IN (12) AND has_license = 0 UNION ALL
-      SELECT 'Completed Additional Education' as status, count(*) FROM report WHERE status_id IN (13,14) AND has_license = 0 UNION ALL
-      SELECT 'Referred to NCLEX' as status, count(*) FROM report WHERE status_id IN (15,17) AND has_license = 0 UNION ALL
-      SELECT 'NCLEX - Passed' as status, count(*) FROM report WHERE status_id IN (18) AND has_license = 0 UNION ALL
-      SELECT 'BCCNM Licensed - Full License' as status, count(*) FROM report WHERE status_id IN (19) AND has_license = 19 UNION ALL
-      SELECT 'Granted full licensure' as status, count(*) FROM report WHERE has_license = 19 UNION ALL
-      SELECT 'Granted provisional licensure' as status, count(*) FROM report WHERE has_license = 16;
-    `;
+
+
+      SELECT 'Applied to NNAS' as status, count(*) as applicants FROM report WHERE status_id IN ('${StatusId.APPLIED_TO_NNAS}','${StatusId.SUBMITTED_DOCUMENTS}','${StatusId.RECEIVED_NNAS_REPORT}') AND has_license = '${this.nil_uuid}' UNION ALL
+      SELECT 'Applied to BCCNM' as status, count(*) FROM report WHERE status_id IN ('${StatusId.APPLIED_TO_BCCNM}') AND has_license = '${this.nil_uuid}' UNION ALL
+      SELECT 'Completed English Language Requirement' as status, count(*) FROM report WHERE status_id IN ('${StatusId.COMPLETED_LANGUAGE_REQUIREMENT}') AND has_license = '${this.nil_uuid}' UNION ALL
+      SELECT 'Referred to NCAS' as status, count(*) FROM report WHERE status_id IN ('${StatusId.REFERRED_TO_NCAS}','${StatusId.COMPLETED_CBA}','${StatusId.COMPLETED_SLA}') AND has_license = '${this.nil_uuid}' UNION ALL
+      SELECT 'Completed NCAS' as status, count(*) FROM report WHERE status_id IN ('${StatusId.COMPLETED_NCAS}') AND has_license = '${this.nil_uuid}' UNION ALL
+      SELECT 'Completed Additional Education' as status, count(*) FROM report WHERE status_id IN ('${StatusId.REFERRED_TO_ADDITIONAL_EDUCTION}','${StatusId.COMPLETED_ADDITIONAL_EDUCATION}') AND has_license = '${this.nil_uuid}' UNION ALL
+      SELECT 'NCLEX - Written' as status, count(*) FROM report WHERE status_id IN ('${StatusId.NCLEX_WRITTEN}') AND has_license = '${this.nil_uuid}' UNION ALL
+      SELECT 'NCLEX - Passed' as status, count(*) FROM report WHERE status_id IN ('${StatusId.NCLEX_PASSED}') AND has_license = '${this.nil_uuid}' UNION ALL
+      SELECT 'REx-PN – Written' as status, count(*) FROM report WHERE status_id IN ('${StatusId.REX_PN_WRITTEN}') AND has_license = '${this.nil_uuid}' UNION ALL
+      SELECT 'REx-PN – Passed' as status, count(*) FROM report WHERE status_id IN ('${StatusId.REX_PN_PASSED}') AND has_license = '${this.nil_uuid}' UNION ALL
+      SELECT 'BCCNM Full Licence LPN' as status, count(*) FROM report WHERE status_id IN ('${StatusId.BCCNM_FULL_LICENCE_LPN}') AND has_license = '${StatusId.BCCNM_FULL_LICENCE_LPN}' UNION ALL
+      SELECT 'BCCNM Full Licence RN' as status, count(*) FROM report WHERE status_id IN ('${StatusId.BCCNM_FULL_LICENSE_RN}') AND has_license = '${StatusId.BCCNM_FULL_LICENSE_RN}' UNION ALL
+      SELECT 'BCCNM Provisional Licence LPN' as status, count(*) FROM report WHERE status_id IN ('${StatusId.BCCNM_PROVISIONAL_LICENSE_LPN}') AND has_license = '${StatusId.BCCNM_PROVISIONAL_LICENSE_LPN}' UNION ALL
+      SELECT 'BCCNM Provisional Licence RN' as status, count(*) FROM report WHERE status_id IN ('${StatusId.BCCNM_PROVISIONAL_LICENSE_RN}') AND has_license = '${StatusId.BCCNM_PROVISIONAL_LICENSE_RN}' UNION ALL
+      SELECT 'Referred for registration exam' as status, count(*) FROM report WHERE status_id IN ('${StatusId.REFERRED_TO_REGISTRATION_EXAM}') AND has_license = '${this.nil_uuid}' UNION ALL
+      SELECT 'Registered as an HCA' as status, count(*) FROM report WHERE status_id IN ('${StatusId.REGISTERED_AS_AN_HCA}') AND has_license = '${this.nil_uuid}' UNION ALL
+      SELECT 'Registration Journey Complete' as status, count(*) FROM report WHERE status_id IN ('${StatusId.REGISTRATION_JOURNEY_COMPLETED}') AND has_license = '${this.nil_uuid}' UNION ALL
+      SELECT 'Withdrew from IEN program' as status, count(*) FROM report WHERE status_id IN ('${StatusId.WITHDREW_FROM_PROGRAM}') AND has_license = '${this.nil_uuid}' UNION ALL
+      SELECT 'Applicant ready for job search' as status, count(*) FROM report WHERE status_id IN ('${StatusId.READY_FOR_JOB_SEARCH}') AND has_license = '${this.nil_uuid}' UNION ALL 
+      SELECT 'Applicant Referred to FNHA' as status, count(*) FROM report WHERE status_id IN ('${StatusId.REFERRED_TO_FNHA}') AND has_license = '${this.nil_uuid}' UNION ALL  
+      SELECT 'Applicant Referred to FHA' as status, count(*) FROM report WHERE status_id IN ('${StatusId.REFERRED_TO_FHA}') AND has_license = '${this.nil_uuid}' UNION ALL  
+      SELECT 'Applicant Referred to IHA' as status, count(*) FROM report WHERE status_id IN ('${StatusId.REFERRED_TO_IHA}') AND has_license = '${this.nil_uuid}' UNION ALL  
+      SELECT 'Applicant Referred to NHA' as status, count(*) FROM report WHERE status_id IN ('${StatusId.REFERRED_TO_NHA}') AND has_license = '${this.nil_uuid}' UNION ALL  
+      SELECT 'Applicant Referred to PHC' as status, count(*) FROM report WHERE status_id IN ('${StatusId.REFERRED_TO_PHC}') AND has_license = '${this.nil_uuid}' UNION ALL  
+      SELECT 'Applicant Referred to PHSA' as status, count(*) FROM report WHERE status_id IN ('${StatusId.REFERRED_TO_PHSA}') AND has_license = '${this.nil_uuid}' UNION ALL  
+      SELECT 'Applicant Referred to VCHA' as status, count(*) FROM report WHERE status_id IN ('${StatusId.REFERRED_TO_VCHA}') AND has_license = '${this.nil_uuid}' UNION ALL  
+      SELECT 'Applicant Referred to VIHA' as status, count(*) FROM report WHERE status_id IN ('${StatusId.REFERRED_TO_VIHA}') AND has_license = '${this.nil_uuid}' UNION ALL       
+      SELECT 'Granted full licensure' as status, count(*) FROM report WHERE has_license = '${StatusId.BCCNM_FULL_LICENSE_RN}' OR has_license = '${StatusId.BCCNM_FULL_LICENCE_LPN}' UNION ALL
+      SELECT 'Granted provisional licensure' as status, count(*) FROM report WHERE has_license = '${StatusId.BCCNM_PROVISIONAL_LICENSE_RN}' OR has_license = '${StatusId.BCCNM_PROVISIONAL_LICENSE_LPN}';    
+      `;
   }
 
   licenseApplicantsQuery(from: string, to: string) {
     return `
-      WITH full_licenses AS (
+      WITH full_licenses_lpn AS (
         SELECT DISTINCT applicant_id
         FROM public.ien_applicant_status_audit 
         WHERE 
-          status_id = 19 AND
+          status_id = '${StatusId.BCCNM_FULL_LICENCE_LPN}' AND
           start_date <= '${to}' AND
           start_date >= '${from}'
       ),
-      partial_licenses AS (
+      full_licenses_rn AS (
+        SELECT DISTINCT applicant_id
+        FROM public.ien_applicant_status_audit 
+        WHERE 
+          status_id = '${StatusId.BCCNM_FULL_LICENSE_RN}' AND
+          start_date <= '${to}' AND
+          start_date >= '${from}'
+      ),
+      partial_licenses_lpn AS (
         SELECT DISTINCT iasa.applicant_id
         FROM public.ien_applicant_status_audit iasa
         WHERE 
-          iasa.status_id = 16 AND
+          iasa.status_id = '${StatusId.BCCNM_PROVISIONAL_LICENSE_LPN}' AND
           iasa.start_date <= '${to}' AND
-          iasa.start_date >= '${from}' AND
-          NOT EXISTS (
-            SELECT applicant_id
-            FROM full_licenses fl
-            WHERE fl.applicant_id = iasa.applicant_id
-          )
+          iasa.start_date >= '${from}'
+      ),
+      partial_licenses_rn AS (
+        SELECT DISTINCT iasa.applicant_id
+        FROM public.ien_applicant_status_audit iasa
+        WHERE 
+          iasa.status_id = '${StatusId.BCCNM_PROVISIONAL_LICENSE_RN}' AND
+          iasa.start_date <= '${to}' AND
+          iasa.start_date >= '${from}'
       )
       
-      SELECT 'Provisional License' AS status, count(*) AS applicant_count FROM partial_licenses
-      UNION ALL 
-      SELECT 'Full License' AS status, count(*) AS applicant_count FROM full_licenses ; 
+      SELECT 'BCCNM Provisional Licence LPN' AS status, count(*) AS applicant_count FROM partial_licenses_lpn UNION ALL
+      SELECT 'BCCNM Provisional Licence RN' AS status, count(*) AS applicant_count FROM partial_licenses_rn UNION ALL 
+      SELECT 'BCCNM Full Licence LPN' AS status, count(*) AS applicant_count FROM full_licenses_lpn UNION ALL
+      SELECT 'BCCNM Full Licence RN' AS status, count(*) AS applicant_count FROM full_licenses_rn ; 
     `;
   }
 
@@ -348,8 +381,8 @@ export class ReportUtilService {
           LEFT JOIN public.ien_applicant_status status ON status.id=ien_status.status_id
           WHERE
             ien_status.start_date::date <= '${to}' 
-            AND status.category IN (${StatusCategory.INTAKE}, ${StatusCategory.LICENSING_REGISTRATION}, ${StatusCategory.RECRUITMENT})
-            AND ien_status.status_id IN (20, 28)
+            AND status.category IN ('${StatusCategory.INTAKE}', '${StatusCategory.LICENSING_REGISTRATION}', '${StatusCategory.RECRUITMENT}')
+            AND ien_status.status_id IN ('${StatusId.WITHDREW_FROM_PROGRAM}', '${StatusId.JOB_OFFER_ACCEPTED}')
         ) as t1
         WHERE t1.rank=1
       ), find_reactive_applicants AS (
@@ -361,14 +394,14 @@ export class ReportUtilService {
             wha.status_id,
             wha.job_id,
             wha.start_date,
-            CASE WHEN wha.status_id=20 THEN (
+            CASE WHEN wha.status_id='${StatusId.WITHDREW_FROM_PROGRAM}' THEN (
               SELECT iasa.start_date FROM public.ien_applicant_status_audit iasa 
-              WHERE iasa.applicant_id=wha.applicant_id AND iasa.status_id != 20 AND iasa.start_date > wha.start_date
+              WHERE iasa.applicant_id=wha.applicant_id AND iasa.status_id != '${StatusId.WITHDREW_FROM_PROGRAM}' AND iasa.start_date > wha.start_date
               ORDER BY start_date limit 1
             ) END as next_date
           FROM withdew_hired_applicants wha
           ) t1
-        WHERE (t1.status_id=20 and t1.next_date is null) OR t1.status_id=28
+        WHERE (t1.status_id='${StatusId.WITHDREW_FROM_PROGRAM}' and t1.next_date is null) OR t1.status_id='${StatusId.JOB_OFFER_ACCEPTED}'
       ),
       applicant_jobs AS (
         -- It contain all the jobs that possibly fits in this report till 'to' date filter
@@ -378,7 +411,7 @@ export class ReportUtilService {
           ha_pcn_id,
           (SELECT status_id FROM public.ien_applicant_status_audit as status 
             WHERE status.job_id=job.id AND start_date <= '${to}'
-            -- put new status restriction here (from 21 to 28 are allowded)
+            -- put new status restriction here
             ORDER BY start_date DESC limit 1) as status_id,
           applicant_id
         FROM
@@ -422,7 +455,22 @@ export class ReportUtilService {
         SELECT * FROM applicant_ha_status
         UNION ALL
         SELECT id, 0 AS FNHA, 0 AS FHA, 0 AS IHA, 0 AS VIHA, 0 AS NHA, 0 AS PVHA, 0 AS PHSA, 0 AS VCHA
-        FROM public.ien_applicant_status WHERE parent_id=10003 AND id IN (21,22,23,24,25,26,27,28)
+        FROM public.ien_applicant_status WHERE category='${StatusCategory.RECRUITMENT}' AND 
+        id IN (
+          '${StatusId.REFERRAL_ACKNOWLEDGED}',
+          '${StatusId.PRESCREEN_PASSED}',
+          '${StatusId.PRESCREEN_NOT_PASSED}',
+          '${StatusId.INTERVIEW_PASSED}',
+          '${StatusId.INTERVIEW_NOT_PASSED}',
+          '${StatusId.REFERENCE_CHECK_PASSED}',
+          '${StatusId.REFERENCE_CHECK_NOT_PASSED}',
+          '${StatusId.JOB_OFFER_NOT_ACCEPTED}',
+          '${StatusId.JOB_COMPETITION_CANCELLED}',
+          '${StatusId.HA_NOT_INTERESTED}',
+          '${StatusId.NO_POSITION_AVAILABLE}',
+          '${StatusId.WITHDREW_FROM_COMPETITION}',
+          '${StatusId.JOB_OFFER_ACCEPTED}'
+          )
         )
         SELECT status,
           FNHA as "First Nations Health",
@@ -452,21 +500,13 @@ export class ReportUtilService {
 
   applicantsInImmigrationQuery(to: string) {
     return `
-      -- 30	"Sent First Steps document to candidate"
-      -- 31	"Sent employer documents to HMBC"
-      -- 32	"Submitted application to BC PNP"
-      -- 33	"Received Confirmation of Nomination"
-      -- 34	"Sent Second Steps document to candidate"
-      -- 35	"Submitted Work Permit Application"
-      -- 36	"Received Work Permit Approval Letter"
-      -- 37	"Received Work Permit (Arrival in Canada)"
       WITH hired_applicants AS (
         SELECT
           sa.applicant_id, ha.abbreviation
         FROM public.ien_applicant_status_audit as sa
         JOIN public.ien_applicant_jobs job ON sa.job_id=job.id
         JOIN public.ien_ha_pcn ha ON job.ha_pcn_id=ha.id
-        WHERE sa.status_id = 28 AND sa.start_date::date <= '${to}'
+        WHERE sa.status_id = '${StatusId.JOB_OFFER_ACCEPTED}' AND sa.start_date::date <= '${to}'
         GROUP BY sa.applicant_id, ha.abbreviation
       ),
       ha_status AS (
@@ -479,7 +519,16 @@ export class ReportUtilService {
               SELECT sa.status_id
               FROM public.ien_applicant_status_audit as sa 
               WHERE sa.applicant_id=a1.applicant_id
-                AND sa.status_id IN (30,31,32,33,34,35,36,37)
+                AND sa.status_id IN (
+                  '${StatusId.SENT_FIRST_STEPS_DOCUMENT}',
+                  '${StatusId.SENT_EMPLOYER_DOCUMENTS_TO_HMBC}',
+                  '${StatusId.SUBMITTED_BC_PNP_APPLICATION}',
+                  '${StatusId.RECEIVED_CONFIRMATION_OF_NOMINATION}',
+                  '${StatusId.SENT_SECOND_STEPS_DOCUMENT}',
+                  '${StatusId.SUBMITTED_WORK_PERMIT_APPLICATION}',
+                  '${StatusId.WORK_PERMIT_APPROVAL_RECEIVED}',
+                  '${StatusId.RECEIVED_WORK_PERMIT}'
+                  )
                 AND sa.start_date <= '${to}'
               ORDER BY sa.start_date DESC limit 1
             ) as status_id
@@ -504,7 +553,17 @@ export class ReportUtilService {
       ),
       temp_status AS (
         SELECT id, 0 AS FNHA, 0 AS FHA, 0 AS IHA, 0 AS VIHA, 0 AS NHA, 0 AS PVHA, 0 AS PHSA, 0 AS VCHA
-        FROM public.ien_applicant_status WHERE parent_id=10004 AND id IN (30,31,32,33,34,35,36,37)
+        FROM public.ien_applicant_status WHERE category='${StatusCategory.BC_PNP}' AND
+        id IN (
+          '${StatusId.SENT_FIRST_STEPS_DOCUMENT}',
+          '${StatusId.SENT_EMPLOYER_DOCUMENTS_TO_HMBC}',
+          '${StatusId.SUBMITTED_BC_PNP_APPLICATION}',
+          '${StatusId.RECEIVED_CONFIRMATION_OF_NOMINATION}',
+          '${StatusId.SENT_SECOND_STEPS_DOCUMENT}',
+          '${StatusId.SUBMITTED_WORK_PERMIT_APPLICATION}',
+          '${StatusId.WORK_PERMIT_APPROVAL_RECEIVED}',
+          '${StatusId.RECEIVED_WORK_PERMIT}'
+          )
       ),
       final_data as (
         SELECT * FROM applicant_ha_status
@@ -540,8 +599,6 @@ export class ReportUtilService {
 
   applicantHAForCurrentPeriodFiscalQuery(from: string, to: string) {
     return `
-      -- milestoneId 37 - Received Work Permit (Arrival in Canada)
-      -- 
       WITH periods AS (
         SELECT
           to_char('${from}'::date + ((('${to}'::date - '${from}'::date)/28)*28), 'YYYY-MM-DD') as period_start
@@ -549,7 +606,7 @@ export class ReportUtilService {
         SELECT 
           applicant_id, max(start_date) as start_date
         FROM public.ien_applicant_status_audit
-        WHERE status_id = 37 AND start_date::date <= '${to}'
+        WHERE status_id = '${StatusId.RECEIVED_WORK_PERMIT}' AND start_date::date <= '${to}'
         GROUP BY applicant_id
       ), applicantHA AS (
         SELECT
@@ -639,7 +696,7 @@ export class ReportUtilService {
         -- ROUND(avg(average_time_to_hire), 2)::double precision as mean_value; --mean
         -- SELECT PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY some_value) FROM tbl; -- median
         -- SELECT mode() WITHIN GROUP (ORDER BY some_value) AS mode_value FROM tbl; -- mode
-      
+
       WITH latest_hired_withdrawal_status AS (
         SELECT
           iasa.id,
@@ -651,16 +708,16 @@ export class ReportUtilService {
               ROW_NUMBER() OVER(PARTITION BY iasa.applicant_id ORDER BY iasa.start_date DESC) AS rank
         FROM public.ien_applicant_status_audit iasa
         LEFT JOIN public.ien_applicant_jobs iaj ON iasa.job_id=iaj.id
-        WHERE iasa.status_id IN (20, 28) AND iasa.start_date::date <= '${to}'
+        WHERE iasa.status_id IN ('${StatusId.WITHDREW_FROM_PROGRAM}', '${StatusId.JOB_OFFER_ACCEPTED}') AND iasa.start_date::date <= '${to}'
       ), hired_applicants AS (
         SELECT applicant_id as "id", start_date as hired_date, ha, job_id
         FROM latest_hired_withdrawal_status
-        WHERE rank = 1 AND status_id=28
+        WHERE rank = 1 AND status_id='${StatusId.JOB_OFFER_ACCEPTED}'
       ), applicant_with_withdrawal AS (
         SELECT 
           DISTINCT(applicant_id) as applicant_id 
         FROM public.ien_applicant_status_audit 
-        WHERE status_id=20
+        WHERE status_id='${StatusId.WITHDREW_FROM_PROGRAM}'
         AND applicant_id IN (SELECT id FROM hired_applicants)
       ), applicant_withdrawal_duration AS (
         SELECT applicant_id, next_start_at - start_date as duration
@@ -672,20 +729,20 @@ export class ReportUtilService {
           WHERE start_date::date <= '${to}'
           AND applicant_id IN (SELECT applicant_id FROM applicant_with_withdrawal)
         ) q
-        WHERE status_id=20 AND next_start_at IS NOT null
+        WHERE status_id='${StatusId.WITHDREW_FROM_PROGRAM}' AND next_start_at IS NOT null
       ), withdrawal_duration AS (
         SELECT applicant_id, sum(duration)::integer as duration
         FROM applicant_withdrawal_duration
         GROUP BY applicant_id
-      ), start_date_of_each_stage AS (
+      ), start_date_of_each_stage AS (         
         SELECT
           hired.*,
           (SELECT min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id) as milestone_start_date,
-          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id AND asa.status_id IN (4,5,6)) as nnas,
-          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id AND asa.status_id IN (7,8,9,10,11,12)) as bccnm_ncas,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id AND asa.status_id IN ('${StatusId.APPLIED_TO_NNAS}','${StatusId.SUBMITTED_DOCUMENTS}','${StatusId.RECEIVED_NNAS_REPORT}')) as nnas,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id AND asa.status_id IN ('${StatusId.APPLIED_TO_BCCNM}','${StatusId.COMPLETED_LANGUAGE_REQUIREMENT}','${StatusId.REFERRED_TO_NCAS}','${StatusId.COMPLETED_CBA}','${StatusId.COMPLETED_SLA}','${StatusId.COMPLETED_NCAS}')) as bccnm_ncas,
           (SELECT max(start_date) - min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id AND asa.job_id = hired.job_id) as employer_duration,
-          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id AND asa.status_id IN (30,31,32,33,34,35) AND asa.start_date::date <= '${to}') as immigration,
-          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id AND asa.status_id IN (36,37,38) AND asa.start_date::date <= '${to}') as immigration_completed,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id AND asa.status_id IN ('${StatusId.SENT_FIRST_STEPS_DOCUMENT}','${StatusId.SENT_EMPLOYER_DOCUMENTS_TO_HMBC}','${StatusId.SUBMITTED_BC_PNP_APPLICATION}','${StatusId.RECEIVED_CONFIRMATION_OF_NOMINATION}','${StatusId.SENT_SECOND_STEPS_DOCUMENT}','${StatusId.SUBMITTED_WORK_PERMIT_APPLICATION}') AND asa.start_date::date <= '${to}') as immigration,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id AND asa.status_id IN ('${StatusId.WORK_PERMIT_APPROVAL_RECEIVED}','${StatusId.RECEIVED_WORK_PERMIT}','${StatusId.RECEIVED_PR}') AND asa.start_date::date <= '${to}') as immigration_completed,
           wd.duration as withdrawal_duration
         FROM hired_applicants hired
         LEFT JOIN withdrawal_duration wd ON wd.applicant_id=hired.id
@@ -699,7 +756,27 @@ export class ReportUtilService {
             WHEN sdoes.nnas IS NOT null THEN (
             (
               SELECT min(start_date) FROM public.ien_applicant_status_audit asa LEFT JOIN public.ien_applicant_status ien_status ON ien_status.id=asa.status_id
-              WHERE asa.applicant_id=sdoes.id AND asa.start_date >= sdoes.nnas AND (asa.status_id IN (6,7,8,9,10,11,12,13,14,15,16,17,18,19) OR ien_status.parent_id IN (${StatusCategory.RECRUITMENT}, ${StatusCategory.BC_PNP}, ${StatusCategory.FINAL}))
+              WHERE asa.applicant_id=sdoes.id AND asa.start_date >= sdoes.nnas 
+              AND (asa.status_id 
+                IN (
+                  '${StatusId.APPLIED_TO_NNAS}',
+                  '${StatusId.SUBMITTED_DOCUMENTS}',
+                  '${StatusId.RECEIVED_NNAS_REPORT}',
+                  '${StatusId.APPLIED_TO_BCCNM}',
+                  '${StatusId.COMPLETED_LANGUAGE_REQUIREMENT}',
+                  '${StatusId.REFERRED_TO_NCAS}',
+                  '${StatusId.COMPLETED_CBA}',
+                  '${StatusId.COMPLETED_SLA}',
+                  '${StatusId.COMPLETED_NCAS}',
+                  '${StatusId.REFERRED_TO_ADDITIONAL_EDUCTION}',
+                  '${StatusId.COMPLETED_ADDITIONAL_EDUCATION}',
+                  '${StatusId.NCLEX_WRITTEN}',
+                  '${StatusId.NCLEX_PASSED}',
+                  '${StatusId.BCCNM_PROVISIONAL_LICENSE_LPN}',
+                  '${StatusId.BCCNM_PROVISIONAL_LICENSE_RN}',
+                  '${StatusId.BCCNM_FULL_LICENSE_RN}',
+                  '${StatusId.BCCNM_FULL_LICENCE_LPN}'
+                  ) OR ien_status.category IN ('${StatusCategory.RECRUITMENT}', '${StatusCategory.BC_PNP}', '${StatusCategory.FINAL}'))
             ) - sdoes.nnas)
           END
           ) AS nnas_duration,
@@ -708,7 +785,20 @@ export class ReportUtilService {
             WHEN sdoes.bccnm_ncas IS NOT null THEN (
             (
               SELECT min(start_date) FROM public.ien_applicant_status_audit asa LEFT JOIN public.ien_applicant_status ien_status ON ien_status.id=asa.status_id
-              WHERE asa.applicant_id=sdoes.id AND asa.start_date >= sdoes.nnas AND (asa.status_id IN (12,13,14,15,16,17,18,19) OR ien_status.category IN (${StatusCategory.RECRUITMENT}, ${StatusCategory.BC_PNP}, ${StatusCategory.FINAL}))
+              WHERE asa.applicant_id=sdoes.id 
+              AND asa.start_date >= sdoes.nnas 
+              AND (asa.status_id 
+                IN (
+                  '${StatusId.COMPLETED_NCAS}',
+                  '${StatusId.REFERRED_TO_ADDITIONAL_EDUCTION}',
+                  '${StatusId.COMPLETED_ADDITIONAL_EDUCATION}',
+                  '${StatusId.NCLEX_WRITTEN}',
+                  '${StatusId.NCLEX_PASSED}',
+                  '${StatusId.BCCNM_PROVISIONAL_LICENSE_LPN}',
+                  '${StatusId.BCCNM_PROVISIONAL_LICENSE_RN}',
+                  '${StatusId.BCCNM_FULL_LICENSE_RN}',
+                  '${StatusId.BCCNM_FULL_LICENCE_LPN}'
+                  ) OR ien_status.category IN ('${StatusCategory.RECRUITMENT}', '${StatusCategory.BC_PNP}', '${StatusCategory.FINAL}'))
             ) - sdoes.bccnm_ncas)
           END
           ) AS bccnm_ncas_duration,
@@ -758,7 +848,7 @@ export class ReportUtilService {
         FROM stackholder_duration
         GROUP BY ha
       ) as t1 ON t1.ha=id
-      WHERE title NOT IN ('Other', 'Education') ORDER BY title) as a1
+      ORDER BY title) as a1
       UNION ALL
       SELECT
         'Immigration',
