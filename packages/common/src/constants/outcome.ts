@@ -1,10 +1,10 @@
 import { STATUS } from '../enum';
 
 export enum OutcomeType {
-  Prescreen = 'Prescreen completed',
-  Interview = 'Interview completed',
-  Reference = 'References completed',
-  Competition = 'Competition outcome',
+  Prescreen = 'Prescreen Completed',
+  Interview = 'Interview Completed',
+  Reference = 'References Completed',
+  Competition = 'Competition Outcome',
 }
 
 export interface OutcomeGroup {
