@@ -63,7 +63,7 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
   const [outcomeGroup, setOutcomeGroup] = useState<OutcomeGroup | null>(null);
   const [outcomeOptions, setOutcomeOptions] = useState<MilestoneType[]>([]);
   const [outcome, setOutcome] = useState<MilestoneType | undefined>(
-    milestones?.find(m => m.id === milestone?.id),
+    milestones?.find(m => m.id === milestone?.status?.id),
   );
 
   const milestoneValidator = createValidator(IENApplicantAddStatusDTO);
