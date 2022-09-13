@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import _ from 'lodash';
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
@@ -40,7 +41,9 @@ export class DropApplicantHealthAuthorityColumn1662739359109 implements Migratio
           INSERT INTO "ien_applicant_status_audit"
             ("status_id", "applicant_id", "start_date")
           VALUES
-            ('${haReferralMap[ha]}', '${a.id}', '${a.registration_date}')
+            ('${haReferralMap[ha]}', '${a.id}', '${dayjs(a.registration_date).format(
+              'YYYY-MM-DD',
+            )}')
           ON CONFLICT DO NOTHING;
         `),
           );
