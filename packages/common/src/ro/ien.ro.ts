@@ -1,4 +1,4 @@
-import { StatusCategory } from '../enum/status-category';
+import { StatusCategory } from '../enum';
 
 export interface IENApplicantStatusRO {
   id: string;

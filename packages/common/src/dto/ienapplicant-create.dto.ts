@@ -14,7 +14,6 @@ import {
   ArrayMinSize,
   ValidateIf,
 } from 'class-validator';
-import { HaPcnDTO } from './ha-pcn.dto';
 import { NursingEducationDTO } from './nursing-education.dto';
 
 export class IENApplicantCreateUpdateDTO {
@@ -68,10 +67,6 @@ export class IENApplicantCreateUpdateDTO {
   @IsString()
   @Length(1, 256, { message: 'Please provide applicant bccnm license number' })
   bccnm_license_number?: string;
-
-  @IsArray()
-  @IsOptional()
-  health_authorities?: HaPcnDTO[];
 
   @IsArray()
   @IsOptional()

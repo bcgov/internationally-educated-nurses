@@ -1,15 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import {
-  In,
-  IsNull,
-  Repository,
-  Not,
-  FindManyOptions,
-  getManager,
-  ObjectLiteral,
-  SelectQueryBuilder,
-} from 'typeorm';
+import { In, IsNull, Repository, Not, getManager } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantStatus } from './entity/ienapplicant-status.entity';
@@ -49,32 +40,20 @@ export class IENApplicantUtilService {
     let keywords = keyword.split(' ');
     keywords = keywords.filter(item => item.length);
     if (keywords.length === 1) {
-      return `(IENApplicant.name ilike '%${keywords[0].toLowerCase()}%')`;
+      return `(applicant.name ilike '%${keywords[0].toLowerCase()}%')`;
     } else if (keywords.length === 2) {
-      return `(IENApplicant.name ilike '%${keywords[0]}%${keywords[1]}%' OR IENApplicant.name ilike '%${keywords[1]}%${keywords[0]}%')`;
+      return `(applicant.name ilike '%${keywords[0]}%${keywords[1]}%' OR applicant.name ilike '%${keywords[1]}%${keywords[0]}%')`;
     } else if (keywords.length === 3) {
       const possibleShuffle = [];
-      possibleShuffle.push(
-        `IENApplicant.name ilike '%${keywords[0]}%${keywords[1]}%${keywords[2]}%'`,
-      );
-      possibleShuffle.push(
-        `IENApplicant.name ilike '%${keywords[0]}%${keywords[2]}%${keywords[1]}%'`,
-      );
-      possibleShuffle.push(
-        `IENApplicant.name ilike '%${keywords[1]}%${keywords[0]}%${keywords[2]}%'`,
-      );
-      possibleShuffle.push(
-        `IENApplicant.name ilike '%${keywords[1]}%${keywords[2]}%${keywords[0]}%'`,
-      );
-      possibleShuffle.push(
-        `IENApplicant.name ilike '%${keywords[2]}%${keywords[0]}%${keywords[1]}%'`,
-      );
-      possibleShuffle.push(
-        `IENApplicant.name ilike '%${keywords[2]}%${keywords[1]}%${keywords[0]}%'`,
-      );
+      possibleShuffle.push(`applicant.name ilike '%${keywords[0]}%${keywords[1]}%${keywords[2]}%'`);
+      possibleShuffle.push(`applicant.name ilike '%${keywords[0]}%${keywords[2]}%${keywords[1]}%'`);
+      possibleShuffle.push(`applicant.name ilike '%${keywords[1]}%${keywords[0]}%${keywords[2]}%'`);
+      possibleShuffle.push(`applicant.name ilike '%${keywords[1]}%${keywords[2]}%${keywords[0]}%'`);
+      possibleShuffle.push(`applicant.name ilike '%${keywords[2]}%${keywords[0]}%${keywords[1]}%'`);
+      possibleShuffle.push(`applicant.name ilike '%${keywords[2]}%${keywords[1]}%${keywords[0]}%'`);
       return `( ${possibleShuffle.join(' OR ')} )`;
     }
-    return `IENApplicant.name ilike '%${keyword}%'`;
+    return `applicant.name ilike '%${keyword}%'`;
   }
 
   /**
@@ -87,57 +66,31 @@ export class IENApplicantUtilService {
     filter: IENApplicantFilterAPIDTO,
     ha_pcn_id: number | undefined | null,
   ) {
+    const { status, name, sortKey, order, limit, skip } = filter;
+    const builder = this.ienapplicantRepository.createQueryBuilder('applicant');
+
+    builder.leftJoinAndSelect('applicant.status', 'latest_status');
     if (ha_pcn_id) {
-      filter.ha_pcn = `${ha_pcn_id}`;
-    }
-    const { status, ha_pcn, name, sortKey, order, limit, skip } = filter;
-
-    const query: FindManyOptions<IENApplicant> = {
-      order: {
-        [sortKey || 'updated_date']: sortKey ? order : 'DESC',
-      },
-      relations: this.applicantRelations.status,
-    };
-
-    if (limit) query.take = limit;
-    if (skip) query.skip = skip;
-
-    if (!status && !ha_pcn && !name) {
-      return this.ienapplicantRepository.findAndCount(query);
-    }
-    const conditions: (string | ObjectLiteral)[] = [];
-
-    if (status) {
+      const haPcn = await this.getHaPcn(ha_pcn_id);
+      builder
+        .innerJoin('ien_applicant_status_audit', 'audit', 'applicant.id = audit.applicant_id')
+        .innerJoin('ien_applicant_status', 'status', 'status.id = audit.status_id')
+        .andWhere(`status.status = 'Applicant Referred to ${haPcn.abbreviation}'`);
+    } else if (status) {
       const status_list = await this.fetchChildStatusList(status);
-      this.logger.log(`milestone/status list that are apply as a filter: [${status_list}]`);
-      conditions.push({ status: In(status_list) });
+      if (status_list.length > 0) {
+        builder.andWhere('latest_status.id In(:...status_list)', { status_list });
+      }
     }
-
     if (name) {
-      conditions.push(this._nameSearchQuery(name));
+      builder.andWhere(this._nameSearchQuery(name));
     }
 
-    if (ha_pcn) {
-      const ha_pcn_array = ha_pcn?.split(',');
-      const condition = ha_pcn_array
-        ?.map(id => {
-          return `health_authorities @> '[{"id":${id}}]'`;
-        })
-        .join(' OR ');
-      conditions.push(`(${condition})`);
-    }
-    if (conditions.length > 0) {
-      return this.ienapplicantRepository.findAndCount({
-        where: (qb: SelectQueryBuilder<IENApplicant>) => {
-          const condition = conditions.shift();
-          if (condition) qb.where(condition);
-          conditions.forEach(c => qb.andWhere(c));
-        },
-        ...query,
-      });
-    } else {
-      return this.ienapplicantRepository.findAndCount(query);
-    }
+    return builder
+      .orderBy(`applicant.${sortKey || 'updated_date'}`, order || 'DESC')
+      .skip(skip)
+      .take(limit)
+      .getManyAndCount();
   }
 
   /** fetch all status if parent status passed */
@@ -245,32 +198,6 @@ export class IENApplicantUtilService {
       // when start working on report, We will push it in some eror reporting tool to notify developer.
       this.logger.error(e);
     }
-  }
-
-  /**
-   * Get HA or PCN list for the provided IDs
-   * @param health_authorities
-   */
-  async getHaPcns(health_authorities: any): Promise<IENHaPcn | any> {
-    const ha_pcn = health_authorities.map((item: { id: string | number }) => item.id);
-    const key_object: any = {};
-    health_authorities.forEach((item: { id: string | number }) => {
-      key_object[item.id] = item;
-    });
-    const ha_pcn_data = await this.ienMasterService.ienHaPcnRepository.find({
-      where: {
-        id: In(ha_pcn),
-      },
-    });
-    if (ha_pcn_data.length !== ha_pcn.length) {
-      throw new NotFoundException('Provided all or some of HA not found');
-    }
-    return ha_pcn_data.map(item => {
-      return {
-        ...key_object[item.id],
-        ...item,
-      };
-    });
   }
 
   async getHaPcn(id: number): Promise<IENHaPcn> {

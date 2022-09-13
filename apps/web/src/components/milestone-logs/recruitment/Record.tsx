@@ -11,6 +11,7 @@ import {
   formatDate,
   IENApplicantUpdateStatusDTO,
   STATUS,
+  StatusCategory,
 } from '@ien/common';
 import editIcon from '@assets/img/edit.svg';
 import deleteIcon from '@assets/img/trash_can.svg';
@@ -18,7 +19,7 @@ import disabledDeleteIcon from '@assets/img/disabled-trash_can.svg';
 import dotIcon from '@assets/img/dot.svg';
 import dotIconHired from '@assets/img/dot_green.svg';
 import { AddRecordModal } from '../../display/AddRecordModal';
-import { updateMilestone, getHumanizedDuration, StatusCategory } from '@services';
+import { updateMilestone, getHumanizedDuration } from '@services';
 import { useApplicantContext } from '../../applicant/ApplicantContext';
 import { useAuthContext } from 'src/components/AuthContexts';
 import { DeleteJobModal } from 'src/components/display/DeleteJobModal';

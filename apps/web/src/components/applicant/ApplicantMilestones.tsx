@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 
+import { StatusCategory } from '@ien/common';
 import historyIcon from '@assets/img/history.svg';
 import { StatusCategoryTab } from '../display/StatusCategoryTab';
-import { milestoneTabs, StatusCategory } from '@services';
+import { milestoneTabs } from '@services';
 import { useApplicantContext } from './ApplicantContext';
 import { MilestoneTable } from '../milestone-logs/MilestoneTable';
 import { Recruitment } from '../milestone-logs/Recruitment';
@@ -18,7 +19,9 @@ export const ApplicantMilestones = () => {
   useEffect(
     function setDefaultCategory() {
       if (!statusCategory) {
-        setStatusCategory((applicant?.status?.category as StatusCategory) || StatusCategory.INTAKE);
+        setStatusCategory(
+          (applicant?.status?.category as StatusCategory) || StatusCategory.RECRUITMENT,
+        );
       }
     },
     [applicant, statusCategory],

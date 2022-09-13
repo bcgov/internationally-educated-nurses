@@ -14,7 +14,7 @@ import {
   ValidateNested,
   ValidateIf,
 } from 'class-validator';
-import { HaPcnDTO, IENApplicantCreateUpdateDTO, NursingEducationDTO } from '@ien/common';
+import { IENApplicantCreateUpdateDTO, NursingEducationDTO } from '@ien/common';
 import { Type } from 'class-transformer';
 
 export class IENApplicantCreateUpdateAPIDTO extends IENApplicantCreateUpdateDTO {
@@ -102,14 +102,6 @@ export class IENApplicantCreateUpdateAPIDTO extends IENApplicantCreateUpdateDTO 
   @IsString()
   @Length(1, 256, { message: 'Please provide applicant bccnm license number' })
   bccnm_license_number?: string;
-
-  @ApiPropertyOptional({
-    description: 'Health authorities to which the applicant has referred',
-    default: [{ id: 1, referral_date: '2011-04-02T00:00:00' }],
-  })
-  @IsArray()
-  @IsOptional()
-  health_authorities?: HaPcnDTO[];
 
   @ApiPropertyOptional({
     description: 'Notes: that keep an audit of non-milestone activity',
