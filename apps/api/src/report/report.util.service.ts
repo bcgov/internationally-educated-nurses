@@ -258,7 +258,7 @@ export class ReportUtilService {
                 SELECT ien_status.status_id 
                 FROM public.ien_applicant_status_audit ien_status
                 LEFT JOIN public.ien_applicant_status status ON status.id=ien_status.status_id
-                WHERE ien_status.applicant_id=applicants.id AND ien_status.start_date::date <= '${to}' AND status.category IN (${StatusCategory.LICENSING_REGISTRATION}, ${StatusCategory.RECRUITMENT})
+                WHERE ien_status.applicant_id=applicants.id AND ien_status.start_date::date <= '${to}' AND status.category IN ('${StatusCategory.LICENSING_REGISTRATION}', '${StatusCategory.RECRUITMENT}')
                 ORDER BY ien_status.start_date DESC limit 1
               ),'${this.nil_uuid}') IN ('${StatusId.WITHDREW_FROM_PROGRAM}', '${StatusId.JOB_OFFER_ACCEPTED}') 
             THEN 1
@@ -382,7 +382,7 @@ export class ReportUtilService {
           LEFT JOIN public.ien_applicant_status status ON status.id=ien_status.status_id
           WHERE
             ien_status.start_date::date <= '${to}' 
-            AND status.category IN (${StatusCategory.LICENSING_REGISTRATION}, ${StatusCategory.RECRUITMENT})
+            AND status.category IN ('${StatusCategory.LICENSING_REGISTRATION}', '${StatusCategory.RECRUITMENT}')
             AND ien_status.status_id IN ('${StatusId.WITHDREW_FROM_PROGRAM}', '${StatusId.JOB_OFFER_ACCEPTED}')
         ) as t1
         WHERE t1.rank=1
@@ -456,7 +456,7 @@ export class ReportUtilService {
         SELECT * FROM applicant_ha_status
         UNION ALL
         SELECT id, 0 AS FNHA, 0 AS FHA, 0 AS IHA, 0 AS VIHA, 0 AS NHA, 0 AS PVHA, 0 AS PHSA, 0 AS VCHA
-        FROM public.ien_applicant_status WHERE category='${StatusCategory.RECRUITMENT}' AND 
+        FROM public.ien_applicant_status WHERE category = '${StatusCategory.RECRUITMENT}' AND 
         id IN (
           '${StatusId.REFERRAL_ACKNOWLEDGED}',
           '${StatusId.PRESCREEN_PASSED}',
@@ -554,7 +554,7 @@ export class ReportUtilService {
       ),
       temp_status AS (
         SELECT id, 0 AS FNHA, 0 AS FHA, 0 AS IHA, 0 AS VIHA, 0 AS NHA, 0 AS PVHA, 0 AS PHSA, 0 AS VCHA
-        FROM public.ien_applicant_status WHERE category='${StatusCategory.BC_PNP}' AND
+        FROM public.ien_applicant_status WHERE category = '${StatusCategory.BC_PNP}' AND
         id IN (
           '${StatusId.SENT_FIRST_STEPS_DOCUMENT}',
           '${StatusId.SENT_EMPLOYER_DOCUMENTS_TO_HMBC}',
