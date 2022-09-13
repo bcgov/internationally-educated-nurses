@@ -12,8 +12,11 @@ export const MilestoneView = ({ milestone, children }: MilestoneViewProps) => {
     const outcomeGroup = Object.values(OutcomeGroups).find(({ milestones }) =>
       milestones.includes(status as STATUS),
     );
-
     return outcomeGroup?.value || null;
+  };
+
+  const setOutcomeText = (status: string) => {
+    return status !== STATUS.REFERRAL_ACKNOWLEDGED ? status : '';
   };
 
   return (
@@ -44,7 +47,7 @@ export const MilestoneView = ({ milestone, children }: MilestoneViewProps) => {
           {children}
         </div>
         <span className='text-sm text-black break-words block py-1'>
-          {milestone.status.status || 'N/A'}
+          {setOutcomeText(milestone.status.status)}
         </span>
         <span className='text-sm text-black break-words'>
           {milestone.notes || 'No Notes Added'}

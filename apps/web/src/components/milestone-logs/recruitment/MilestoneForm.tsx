@@ -89,8 +89,13 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
     }
   };
 
-  const handleOutcomeType = (group: string) => {
+  const handleOutcomeType = (group: string, setFieldValue: FormikHelpers<T>['setFieldValue']) => {
     const outcomeGroup = Object.values(OutcomeGroups).find(({ value }) => value === group);
+
+    if (outcomeGroup?.value === `${STATUS.REFERRAL_ACKNOWLEDGED}`) {
+      const milestoneId = milestones.find(s => s.status == outcomeGroup?.value);
+      setFieldValue('status', milestoneId?.id);
+    }
     setOutcomeGroup(outcomeGroup || null);
   };
 
@@ -130,14 +135,16 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
           onSubmit={submit}
           validate={milestoneValidator}
         >
-          {({ isSubmitting }) => (
+          {({ isSubmitting, setFieldValue }) => (
             <FormikForm>
               <div className='grid grid-cols-12 gap-y-2 mb-2 content-end'>
                 <div className='col-span-12 sm:col-span-6'>
                   <BasicSelect<string>
                     id='outcomeType'
                     label='Milestone'
-                    onChange={handleOutcomeType}
+                    onChange={val => {
+                      handleOutcomeType(val, setFieldValue);
+                    }}
                     options={OutcomeGroups}
                     value={outcomeGroup?.value || ''}
                     underline
@@ -153,7 +160,11 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
                       component={({ field, form }: FieldProps) => (
                         <ReactSelect<MilestoneType>
                           inputId={field.name}
-                          value={outcomeOptions?.find(s => s.id == field.value)}
+                          value={
+                            outcomeGroup?.value === `${STATUS.REFERRAL_ACKNOWLEDGED}`
+                              ? undefined
+                              : outcomeOptions?.find(s => s.id == field.value)
+                          }
                           onBlur={field.onBlur}
                           onChange={value => {
                             form.setFieldValue(field.name, `${value?.id}`);
@@ -168,6 +179,7 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
                           }))}
                           getOptionLabel={option => option.status}
                           styles={getSelectStyleOverride<MilestoneType>('bg-white')}
+                          isDisabled={outcomeGroup?.value === `${STATUS.REFERRAL_ACKNOWLEDGED}`}
                         />
                       )}
                     />
