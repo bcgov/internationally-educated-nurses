@@ -194,6 +194,53 @@ export class ExternalAPIService {
     return pages;
   }
 
+  async fetchApplicantsFromATS(from: string, to: string) {
+    const parallel_requests = 5;
+
+    const per_page = 50;
+    let offset = 0;
+    let is_next = true;
+    let pages: any = [];
+    let newData: any[] = [];
+
+    /**
+     * Here we do not have the total page count and the total number of records that we have to fetch.
+     * We will run ${parallel_requests} numbers parallel requests. It helps o reduce fetch time.
+     * The higher number of records per page does not perform well due to external server limitations.
+     * So set up a few default values like five(5) pages and 50 records per page simultaneously.
+     * A developer responsible for an external API on HMBC ATS data has verified these parameters' values.
+     */
+    while (is_next) {
+      is_next = false; // It will set true if next page is available.
+      const input = {
+        parallel_requests,
+        per_page,
+        offset,
+        from,
+        to,
+      };
+      pages = pages.concat(this.createParallelRequestRun(input));
+      let temp: any[] = [];
+      await Promise.all(pages).then(res => {
+        res.forEach(r => {
+          this.logger.log(`${temp.length}, ${Array.isArray(r) ? r.length : 0}`);
+          temp = temp.concat(r);
+        });
+      });
+      this.logger.log(`temp ${temp.length} and ${parallel_requests * per_page}`);
+      // let's check if next pages are available
+      if (temp.length >= parallel_requests * per_page) {
+        is_next = true;
+        offset += parallel_requests * per_page;
+      }
+      // Cleanup & set data for the next iteration
+      newData = newData.concat(temp);
+      temp = [];
+      pages = [];
+    }
+    return newData;
+  }
+
   /**
    * fetch and upsert applicant details
    */
@@ -222,59 +269,19 @@ export class ExternalAPIService {
       );
     }
 
-    const parallel_requests = 5;
-
     const audit = await this.saveSyncApplicantsAudit();
     try {
-      const per_page = 50;
-      let offset = 0;
-      let is_next = true;
-      let pages: any = [];
-      let newData: any[] = [];
+      // restore after updating ats endpoints
+      // const applicants = await this.fetchApplicantsFromATS(from_date, to_date);
+      const applicants = await this.external_request.getData('/applicant');
 
-      /**
-       * Here we do not have the total page count and the total number of records that we have to fetch.
-       * We will run ${parallel_requests} numbers parallel requests. It helps o reduce fetch time.
-       * The higher number of records per page does not perform well due to external server limitations.
-       * So set up a few default values like five(5) pages and 50 records per page simultaneously.
-       * A developer responsible for an external API on HMBC ATS data has verified these parameters' values.
-       */
-      while (is_next) {
-        is_next = false; // It will set true if next page is available.
-        const input = {
-          parallel_requests,
-          per_page,
-          offset,
-          from_date,
-          to_date,
-        };
-        pages = pages.concat(this.createParallelRequestRun(input));
-        let temp: any[] = [];
-        await Promise.all(pages).then(res => {
-          res.forEach(r => {
-            this.logger.log(`${temp.length}, ${Array.isArray(r) ? r.length : 0}`);
-            temp = temp.concat(r);
-          });
-        });
-        this.logger.log(`temp ${temp.length} and ${parallel_requests * per_page}`);
-        // let's check if next pages are available
-        if (temp.length >= parallel_requests * per_page) {
-          is_next = true;
-          offset += parallel_requests * per_page;
-        }
-        // Cleanup & set data for the next iteration
-        newData = newData.concat(temp);
-        temp = [];
-        pages = [];
-      }
-
-      await this.createBulkApplicants(newData);
+      await this.createBulkApplicants(applicants);
       await this.saveSyncApplicantsAudit(audit.id, true);
-      this.logger.log(`processed ${newData.length} applicants record`);
+      this.logger.log(`processed ${applicants.length} applicants record`);
       return {
         from: from_date,
         to: to_date,
-        count: newData.length,
+        count: applicants.length,
       };
     } catch (e: any) {
       await this.saveSyncApplicantsAudit(audit.id, false, { message: e.message, stack: e.stack });
@@ -349,35 +356,34 @@ export class ExternalAPIService {
     }
     const applicants = await this.mapApplicants(data);
     if (applicants.length > 0) {
-      const processed_applicant = await this.ienapplicantRepository.upsert(applicants, [
-        'applicant_id',
-      ]);
-      this.logger.log(`processed applicants`);
-      const mappedApplicantList = processed_applicant?.raw.map((item: { id: string | number }) => {
-        return item.id;
-      });
+      const processed_applicant = await this.ienapplicantRepository.upsert(applicants, ['id']);
+      this.logger.log(
+        `applicants synced from ATS: ${processed_applicant.raw.length}/${data.length}`,
+      );
+      const mappedApplicantList = processed_applicant?.raw.map(
+        (item: { id: string | number }) => item.id,
+      );
 
       // Upsert milestones
       const milestones = await this.mapMilestones(data, mappedApplicantList);
       if (milestones.length > 0) {
         try {
-          const updatedstatus = await this.ienapplicantStatusAuditRepository
+          const result = await this.ienapplicantStatusAuditRepository
             .createQueryBuilder()
             .insert()
             .into(IENApplicantStatusAudit)
             .values(milestones)
             .orIgnore(`("status_id", "applicant_id", "start_date") WHERE job_id IS NULL`)
             .execute();
-          this.logger.log(`updatedstatus`);
-          this.logger.log(`milestone count ${milestones.length}`);
-          this.logger.log(`updatedstatus.raw count ${updatedstatus.raw.length}`);
+          this.logger.log(
+            `applicant milestones synced from ATS: ${result.raw.length}/${milestones.length}`,
+          );
         } catch (e) {
-          this.logger.log(`milestone upsert error`);
           this.logger.error(e);
         }
       }
 
-      // update applicant with latest status
+      // update applicant with the latest status
       await this.ienapplicantUtilService.updateLatestStatusOnApplicant(mappedApplicantList);
     } else {
       this.logger.log(`No applicants received today`);
@@ -395,7 +401,7 @@ export class ExternalAPIService {
       (a: {
         assigned_to: { id: string | number; name: string }[] | undefined;
         registration_date: string;
-        applicant_id: string | number;
+        applicant_id: string;
         first_name: string;
         last_name: string;
         email_address: string;
@@ -425,7 +431,7 @@ export class ExternalAPIService {
         }
 
         return {
-          applicant_id: a.applicant_id,
+          id: a.applicant_id.toLowerCase(),
           name: `${a.first_name} ${a.last_name}`,
           email_address: a.email_address,
           phone_number: a.phone_number,
@@ -470,26 +476,17 @@ export class ExternalAPIService {
   async mapMilestones(data: any, mappedApplicantList: string[]) {
     const { users } = await this.getApplicantMasterData();
     const savedApplicants = await this.ienapplicantRepository.findByIds(mappedApplicantList);
-    const applicantIdsMapping: any = {};
     const milestones: any = [];
     if (savedApplicants.length <= 0) {
       return [];
     }
-    savedApplicants.forEach(item => {
-      applicantIdsMapping[`${item.applicant_id}`] = item.id;
-    });
     const allowedMilestones: string[] = await this.allowedMilestones();
     data.forEach(
-      (item: {
-        applicant_id: string | number;
-        hasOwnProperty: (arg0: string) => any;
-        milestones: any;
-      }) => {
-        const tableId = applicantIdsMapping[item.applicant_id];
+      (item: { applicant_id: string; hasOwnProperty: (arg0: string) => any; milestones: any }) => {
         if (item.hasOwnProperty('milestones') && Array.isArray(item.milestones)) {
           const existingMilestones = item.milestones;
           existingMilestones.forEach(m => {
-            this.mapMilestoneData(allowedMilestones, m, milestones, tableId, users);
+            this.mapMilestoneData(allowedMilestones, m, milestones, item.applicant_id, users);
           });
         }
       },
@@ -506,21 +503,21 @@ export class ExternalAPIService {
       created_date: string;
       note: any;
       added_by: number;
-      reason_id: number | string;
+      reason_id: string;
       reason_other: string;
       effective_date: string;
     },
     milestones: any[],
-    tableId: any,
+    applicant_id: any,
     users: any[],
   ) {
-    if (allowedMilestones.includes(m?.id)) {
+    if (allowedMilestones.includes(m?.id.toLowerCase())) {
       const temp: any = {
-        status: m.id,
+        status: m.id.toLowerCase(),
         start_date: m.start_date,
         created_date: m.created_date,
         updated_date: m.created_date,
-        applicant: tableId,
+        applicant: applicant_id.toLowerCase(),
         notes: m?.note,
         added_by: null,
       };
@@ -528,7 +525,7 @@ export class ExternalAPIService {
         temp['added_by'] = users[m.added_by].id;
       }
       if ('reason_id' in m) {
-        temp['reason'] = m.reason_id;
+        temp['reason'] = m.reason_id.toLowerCase();
       }
       if ('reason_other' in m) {
         temp['reason_other'] = m.reason_other;
