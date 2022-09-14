@@ -17,18 +17,18 @@ export const JobFilters = ({ options, update }: JobFilterProps) => {
     update({ ha_pcn: [], job_title: [] });
   };
 
-  const applyRegions = (regionsFilter: number[]) => {
+  const applyRegions = (regionsFilter: string[]) => {
     update({ ha_pcn: regionsFilter, job_title: specialties });
   };
 
-  const applySpecialties = (specialtiesFilter: number[]) => {
+  const applySpecialties = (specialtiesFilter: string[]) => {
     update({ ha_pcn: regions, job_title: specialtiesFilter });
   };
 
   return (
     <div className='flex flex-col md:flex-row  items-center my-5'>
       <div className='font-bold mr-2'>Filter by</div>
-      <ReactSelect<RecordTypeOptions, true>
+      <ReactSelect<RecordTypeOptions<string>, true>
         inputId='ha'
         placeholder='Health Region'
         aria-label='select ha'
@@ -37,12 +37,12 @@ export const JobFilters = ({ options, update }: JobFilterProps) => {
         options={haPcn?.data?.map(ha => ({ ...ha, isDisabled: regions?.includes(ha.id) }))}
         getOptionLabel={option => `${option.title}`}
         getOptionValue={option => `${option.id}`}
-        styles={getSelectStyleOverride<RecordTypeOptions>()}
+        styles={getSelectStyleOverride<RecordTypeOptions<string>>()}
         isMulti
         isClearable
         className='w-80 min-w-full md:min-w-0 mx-1 placeholder-bcGray'
       />
-      <ReactSelect<RecordTypeOptions, true>
+      <ReactSelect<RecordTypeOptions<string>, true>
         inputId='specialty'
         placeholder='Specialty'
         aria-label='select specialty'
@@ -54,7 +54,7 @@ export const JobFilters = ({ options, update }: JobFilterProps) => {
         }))}
         getOptionLabel={option => `${option.title}`}
         getOptionValue={option => `${option.id}`}
-        styles={getSelectStyleOverride<RecordTypeOptions>()}
+        styles={getSelectStyleOverride<RecordTypeOptions<string>>()}
         isMulti
         isClearable
         className='w-80 min-w-full md:min-w-0 mx-1 placeholder-bcGray'

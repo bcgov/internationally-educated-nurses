@@ -69,7 +69,7 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
   };
 
   // test data - will remove
-  const prStatus: RecordTypeOptions[] = [
+  const prStatus: RecordTypeOptions<number>[] = [
     { id: 1, title: 'Applied for Study Permit' },
     { id: 2, title: 'Permanent Resident' },
     { id: 3, title: 'Applied for Temporary Work Permit' },
@@ -119,7 +119,7 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
                   name='country_of_citizenship'
                   label='Country of Citizenship'
                   component={({ field, form }: FieldProps) => (
-                    <ReactSelect<RecordTypeOptions, true>
+                    <ReactSelect<RecordTypeOptions<number>, true>
                       inputId={field.name}
                       value={getCountries().filter(c => field.value.includes(c.countryCode))}
                       onBlur={field.onBlur}
@@ -133,7 +133,7 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
                       isOptionDisabled={option => field.value.includes(option.countryCode)}
                       getOptionLabel={option => `${option.title}`}
                       getOptionValue={option => `${option.countryCode}`}
-                      styles={getSelectStyleOverride<RecordTypeOptions>()}
+                      styles={getSelectStyleOverride<RecordTypeOptions<number>>()}
                       menuPlacement='bottom'
                       isMulti
                     />
@@ -154,7 +154,7 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
                   name='pr_status'
                   label='Permanent Resident Status'
                   component={({ field, form }: FieldProps) => (
-                    <ReactSelect<RecordTypeOptions>
+                    <ReactSelect<RecordTypeOptions<number>>
                       inputId={field.name}
                       value={prStatus.find(s => s.title == field.value)}
                       onBlur={field.onBlur}
@@ -162,7 +162,7 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
                       options={prStatus}
                       isOptionDisabled={o => o.title == field.value}
                       getOptionLabel={option => `${option.title}`}
-                      styles={getSelectStyleOverride<RecordTypeOptions>()}
+                      styles={getSelectStyleOverride<RecordTypeOptions<number>>()}
                       menuPlacement='bottom'
                     />
                   )}

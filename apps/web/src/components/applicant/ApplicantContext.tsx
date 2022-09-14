@@ -15,7 +15,7 @@ import { useAuthContext } from '../AuthContexts';
 export const ApplicantContext = createContext<{
   applicant: ApplicantRO;
   milestones: ApplicantStatusAuditRO[];
-  hiredHa: number | undefined;
+  hiredHa: string | undefined;
   updateJob: (job: ApplicantJobRO) => void;
   fetchApplicant: () => void;
 }>({
@@ -39,7 +39,7 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
   const [loading, setLoading] = useState(true);
   const [applicant, setApplicant] = useState<ApplicantRO>({} as ApplicantRO);
   const [milestones, setMilestones] = useState<ApplicantStatusAuditRO[]>([]);
-  const [hiredHa, setHiredHa] = useState<number>();
+  const [hiredHa, setHiredHa] = useState<string>();
 
   const sortMilestones = (audits: ApplicantStatusAuditRO[]): ApplicantStatusAuditRO[] => {
     return audits.sort((a, b) => {

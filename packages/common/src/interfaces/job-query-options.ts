@@ -1,6 +1,6 @@
 export interface JobFilterOptions {
-  ha_pcn?: number[];
-  job_title?: number[];
+  ha_pcn?: string[];
+  job_title?: string[];
 }
 
 export interface JobQueryOptions extends JobFilterOptions {

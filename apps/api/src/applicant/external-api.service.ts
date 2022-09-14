@@ -73,15 +73,7 @@ export class ExternalAPIService {
     try {
       const data = await this.external_request.getHa();
       if (Array.isArray(data)) {
-        const listHa = data
-          .filter(({ name }) => name !== 'Education' && name !== 'Other') // until ATS fixes ha list
-          .map(item => {
-            return {
-              id: item.id,
-              title: item.name,
-              abbreviation: item?.abbreviation,
-            };
-          });
+        const listHa = data.map(item => ({ ...item, title: item.name }));
         const result = await this.ienMasterService.ienHaPcnRepository.upsert(listHa, ['id']);
         this.logger.log(`${result.raw.length}/${listHa.length} authorities updated`, 'ATS');
       }
@@ -164,10 +156,12 @@ export class ExternalAPIService {
     try {
       const data: { id: string; name: string; category: string; 'process-related': boolean } =
         await this.external_request.getMilestone();
+
       if (Array.isArray(data)) {
-        const result = await this.ienMasterService.ienApplicantStatusRepository.upsert(data, [
-          'id',
-        ]);
+        const result = await this.ienMasterService.ienApplicantStatusRepository.upsert(
+          data.map(row => ({ ...row, status: row.name })), // name -> status
+          ['id'],
+        );
         this.logger.log(`${result.raw.length}/${data.length} milestones updated`, 'ATS');
       }
     } catch (e) {
