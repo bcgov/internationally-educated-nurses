@@ -64,7 +64,7 @@ export class IENApplicantUtilService {
 
   async applicantFilterQueryBuilder(
     filter: IENApplicantFilterAPIDTO,
-    ha_pcn_id: number | undefined | null,
+    ha_pcn_id: string | undefined | null,
   ) {
     const { status, name, sortKey, order, limit, skip } = filter;
     const builder = this.ienapplicantRepository.createQueryBuilder('applicant');
@@ -200,7 +200,7 @@ export class IENApplicantUtilService {
     }
   }
 
-  async getHaPcn(id: number): Promise<IENHaPcn> {
+  async getHaPcn(id: string): Promise<IENHaPcn> {
     const health_authority = await this.ienMasterService.ienHaPcnRepository.findOne(id);
     if (!health_authority) {
       throw new NotFoundException('Provided all or some of HA not found');

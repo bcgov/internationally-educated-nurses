@@ -16,7 +16,7 @@ export interface IENUserRO {
 }
 
 export interface IENHaPcnRO {
-  id: number;
+  id: string;
   title: string;
   abbreviation?: string;
   description?: string;
@@ -24,7 +24,7 @@ export interface IENHaPcnRO {
 }
 
 export interface IENJobTitleRO {
-  id: number;
+  id: string;
   title: string;
 }
 
@@ -35,7 +35,7 @@ export interface IENJobLocationRO {
 }
 
 export interface IENStatusReasonRO {
-  id: number;
+  id: string;
   name?: string | null;
 }
 

@@ -463,7 +463,7 @@ export class IENApplicantService {
     jobData: IENApplicantJobCreateUpdateAPIDTO,
   ): Promise<IENApplicantJob | undefined> {
     const { ha_pcn, job_title, job_location } = jobData;
-    job.ha_pcn = await this.ienapplicantUtilService.getHaPcn(parseInt(ha_pcn));
+    job.ha_pcn = await this.ienapplicantUtilService.getHaPcn(ha_pcn);
     job.job_title = job_title ? await this.ienapplicantUtilService.getJobTitle(job_title) : null;
     job.job_location = job_location ? await this.fetchJobLocations(job_location) : null;
     await this.ienapplicantJobRepository.save(job);
