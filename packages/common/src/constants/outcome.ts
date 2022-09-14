@@ -1,6 +1,7 @@
 import { STATUS } from '../enum';
 
 export enum OutcomeType {
+  Review = 'Referral Acknowledged/Reviewed',
   Prescreen = 'Prescreen Completed',
   Interview = 'Interview Completed',
   Reference = 'References Completed',
@@ -13,6 +14,10 @@ export interface OutcomeGroup {
 }
 
 export const OutcomeGroups = [
+  {
+    value: OutcomeType.Review,
+    milestones: [STATUS.REFERRAL_ACKNOWLEDGED],
+  },
   {
     value: OutcomeType.Prescreen,
     milestones: [STATUS.PRESCREEN_PASSED, STATUS.PRESCREEN_NOT_PASSED],
