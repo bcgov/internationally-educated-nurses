@@ -284,8 +284,7 @@ export class IENApplicantUtilService {
           DESC limit 1
         )
         WHERE ien_applicants.id IN (${idsToUpdate})`;
-      const updatedApplicants = await getManager().query(queryToUpdate);
-      this.logger.log({ updatedApplicants });
+      await getManager().query(queryToUpdate);
     } catch (e) {
       this.logger.log(`Error in update latest status on applicant`);
       this.logger.error(e);

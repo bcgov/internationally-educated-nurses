@@ -22,6 +22,11 @@ export class DropUnusedStatusColumns1663118591667 implements MigrationInterface 
         'Withdrew from IEN program'
       )
     `);
+
+    // restore missing unique constraint
+    await queryRunner.query(
+      `CREATE UNIQUE INDEX IF NOT EXISTS unique_applicant_status_date ON ien_applicant_status_audit (applicant_id, status_id, start_date) WHERE job_id IS NULL;`,
+    );
   }
 
   public async down(): Promise<void> {

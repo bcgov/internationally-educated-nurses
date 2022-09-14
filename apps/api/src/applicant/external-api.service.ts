@@ -14,6 +14,7 @@ import {
   FindManyOptions,
   ObjectLiteral,
   SelectQueryBuilder,
+  getManager,
 } from 'typeorm';
 import dayjs from 'dayjs';
 import { Authorities, StatusCategory } from '@ien/common';
@@ -276,8 +277,8 @@ export class ExternalAPIService {
       const applicants = await this.external_request.getData('/applicant');
 
       await this.createBulkApplicants(applicants);
+      await this.removeMilestonesNotOnATS(applicants);
       await this.saveSyncApplicantsAudit(audit.id, true);
-      this.logger.log(`processed ${applicants.length} applicants record`);
       return {
         from: from_date,
         to: to_date,
@@ -344,6 +345,38 @@ export class ExternalAPIService {
     return { users: users, ha: ha };
   }
 
+  async removeMilestonesNotOnATS(
+    applicants: { applicant_id: string; milestones: { id: string }[] }[],
+  ): Promise<void> {
+    let removedCount = 0;
+    await Promise.all(
+      applicants.map(async a => {
+        const audits: { id: string; status_id: string }[] = await getManager().query(`
+        SELECT "audit"."id" id, "status"."id" status_id
+        FROM "ien_applicant_status_audit" "audit"
+        INNER JOIN "ien_applicant_status" "status" ON "status"."id" = "audit"."status_id"
+        WHERE
+          "audit"."applicant_id" = '${a.applicant_id.toLowerCase()}' AND
+          "status"."category" != 'IEN Recruitment Process';
+      `);
+
+        if (!audits.length) return;
+
+        const removed = audits.filter(
+          ({ status_id }) => !a.milestones.some(m => m.id.toLowerCase() === status_id),
+        );
+        if (removed.length > 0) {
+          const result = await this.ienapplicantStatusAuditRepository.delete(
+            removed.map(r => r.id),
+          );
+          removedCount += result.affected || 0;
+        }
+      }),
+    );
+
+    this.logger.log(`milestones deleted: ${removedCount}`, 'ATS-SYNC');
+  }
+
   /**
    * Clean raw data and save applicant info into 'ien_applicant' table.
    * @param data Raw Applicant data
@@ -358,11 +391,10 @@ export class ExternalAPIService {
     if (applicants.length > 0) {
       const processed_applicant = await this.ienapplicantRepository.upsert(applicants, ['id']);
       this.logger.log(
-        `applicants synced from ATS: ${processed_applicant.raw.length}/${data.length}`,
+        `applicants synced: ${processed_applicant.raw.length}/${data.length}`,
+        'ATS-SYNC',
       );
-      const mappedApplicantList = processed_applicant?.raw.map(
-        (item: { id: string | number }) => item.id,
-      );
+      const mappedApplicantList = processed_applicant?.raw.map((item: { id: string }) => item.id);
 
       // Upsert milestones
       const milestones = await this.mapMilestones(data, mappedApplicantList);
@@ -373,10 +405,11 @@ export class ExternalAPIService {
             .insert()
             .into(IENApplicantStatusAudit)
             .values(milestones)
-            .orIgnore(`("status_id", "applicant_id", "start_date") WHERE job_id IS NULL`)
+            .orIgnore(true)
             .execute();
           this.logger.log(
-            `applicant milestones synced from ATS: ${result.raw.length}/${milestones.length}`,
+            `applicant milestones updated: ${result.raw.length}/${milestones.length}`,
+            'ATS-SYNC',
           );
         } catch (e) {
           this.logger.error(e);
@@ -399,7 +432,7 @@ export class ExternalAPIService {
     const { users } = await this.getApplicantMasterData();
     return data.map(
       (a: {
-        assigned_to: { id: string | number; name: string }[] | undefined;
+        assigned_to: { id: string; name: string }[] | undefined;
         registration_date: string;
         applicant_id: string;
         first_name: string;
@@ -417,8 +450,8 @@ export class ExternalAPIService {
       }) => {
         let assigned_to = null;
         if (a.assigned_to && a.assigned_to != undefined) {
-          assigned_to = a.assigned_to.map((user: { id: string | number; name: string }) => {
-            user.name = users[user.id].name;
+          assigned_to = a.assigned_to.map((user: { id: string; name: string }) => {
+            user.name = users[user.id.toLowerCase()]?.name;
             return user;
           });
         }

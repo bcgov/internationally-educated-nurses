@@ -10,13 +10,21 @@ export const validApplicant = {
 
 export const applicant = { id: validApplicant.applicant_id };
 
-export const addJob = { ha_pcn: 1, recruiter_name: 'HA Name', job_id: 'JOB11' };
+export const addJob = {
+  ha_pcn: '6ad69443-e3a8-3cbc-8cc9-3a05e5b771e4',
+  recruiter_name: 'HA Name',
+  job_id: 'JOB11',
+};
 
 export const testMilestone = { id: '8a9b0d13-f5d7-4be3-8d38-11e5459f9e9a' };
 
 export const invalidMilestoneToUpdate = { id: '08ff7e3f-3148-43d3-9740-5a255aa0d5ff' };
 
-export const seedHa = { id: 1, title: 'Health Authority', abbreviation: 'ha' };
+export const seedHa = {
+  id: '6ad69443-e3a8-3cbc-8cc9-3a05e5b771e4',
+  title: 'Fraser Health Authority',
+  abbreviation: 'FHA',
+};
 
 export const addMilestone = {
   status: testMilestone.id,
