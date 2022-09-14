@@ -31,9 +31,7 @@ describe('Details - Job', () => {
   });
 
   it('rejects duplicate job record', () => {
-    const duplicateJob = jobs[0];
-
-    cy.addDuplicateJob(duplicateJob);
+    cy.addDuplicateJob(newJob);
   });
 
   it('edits a job competition', () => {
@@ -43,12 +41,9 @@ describe('Details - Job', () => {
   });
 
   it('rejects a duplicate job record by editing', () => {
-    const duplicateJob = jobs[2];
-
     cy.get('[data-cy=record-0]').click();
     cy.contains('button', 'Edit Details').click();
-
-    cy.editDuplicateJob(duplicateJob);
+    cy.editDuplicateJob(newJob);
   });
 
   it('reopen a job competition', () => {
@@ -56,7 +51,6 @@ describe('Details - Job', () => {
     cy.fixture('close-job-milestone.json').then(({ reopen }) => {
       cy.addMilestone(reopen);
       cy.contains(`On Going - ${reopen.outcome}`);
-      cy.deleteMilestone(4);
     });
   });
 
@@ -66,6 +60,7 @@ describe('Details - Job', () => {
       cy.addMilestone(withdraw);
       cy.contains(`Complete - ${withdraw.outcome}`);
       cy.deleteMilestone(4);
+      cy.deleteMilestone(5);
     });
   });
 
@@ -79,7 +74,7 @@ describe('Details - Job', () => {
   });
 
   const filterJobsByHa = () => {
-    const filteredJobs = jobs.slice(2, 4);
+    const filteredJobs = jobs.slice(1, 3);
     filteredJobs.forEach(job => {
       cy.get('#ha').click().type(`${job.ha_pcn}{enter}`);
     });
@@ -95,7 +90,7 @@ describe('Details - Job', () => {
 
   it('filters jobs by specialty', () => {
     // set 'health authority' filter
-    const job = jobs[3];
+    const job = jobs[1];
     cy.get('#specialty').click().type(`${job.job_title}{enter}`);
     const matchedJobs = jobs.filter(j => job.job_title === j.job_title);
     cy.get('[data-cy^=record-]').should('have.length', matchedJobs.length);
@@ -103,7 +98,7 @@ describe('Details - Job', () => {
 
   it('filters jobs by health authority and specialty', () => {
     // set 'health authority' filter
-    const job = jobs[3];
+    const job = jobs[5];
     let matchedJobs = filterJobsByHa();
 
     // set specialty filter

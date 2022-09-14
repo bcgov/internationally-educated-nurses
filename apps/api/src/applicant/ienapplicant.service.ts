@@ -248,7 +248,7 @@ export class IENApplicantService {
     }
 
     if (reason) {
-      const statusReason = await this.ienapplicantUtilService.getStatusReason(+reason);
+      const statusReason = await this.ienapplicantUtilService.getStatusReason(reason);
       data.reason = statusReason;
     }
 
@@ -310,7 +310,7 @@ export class IENApplicantService {
     }
 
     if (reason) {
-      const statusReason = await this.ienapplicantUtilService.getStatusReason(+reason);
+      const statusReason = await this.ienapplicantUtilService.getStatusReason(reason);
       status_audit.reason = statusReason;
     }
 

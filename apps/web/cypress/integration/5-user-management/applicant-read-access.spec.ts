@@ -8,7 +8,6 @@ describe('Read-only access to Applicant', () => {
     cy.contains('button', 'Add Applicant').should('not.exist');
     cy.fixture('jobs.json').then(({ applicant }) => {
       cy.visitDetails(applicant);
-      cy.tabRecruitment();
       cy.contains('button', 'Add Record').should('not.exist');
       cy.get('[data-cy=record-0]').click();
       cy.contains('button', 'Edit Details').should('not.exist');
