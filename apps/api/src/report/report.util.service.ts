@@ -796,8 +796,7 @@ export class ReportUtilService {
       milestoneList.push(`to_char(x."${item.id}", 'YYYY-MM-DD') as "${item.status}"`); // Display status name instead of id
     });
     const applicantColumns: string[] = [
-      'a.id as "ID"',
-      'a.applicant_id as "Applicant ID"',
+      'a.id as "Applicant ID"',
       'a.registration_date as "Registration Date"',
       `(select string_agg(t->>'name', ',') from jsonb_array_elements(a.assigned_to::jsonb) as x(t)) as "Assigned to"`,
       'a.country_of_residence as "Country of Residence"',
