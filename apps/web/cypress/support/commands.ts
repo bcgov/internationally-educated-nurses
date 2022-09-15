@@ -77,7 +77,7 @@ Cypress.Commands.add('filterUsers', (roles: string[], revokedOnly = false) => {
   });
   if (revokedOnly) {
     cy.contains('td', 'Active').should('not.exist');
-    cy.contains('td', 'Pending').should('not.exist');
+    cy.contains('td', 'None').should('not.exist');
     cy.get('#revoked-only').click();
   }
 });

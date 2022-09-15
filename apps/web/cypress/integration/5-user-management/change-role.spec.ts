@@ -14,11 +14,11 @@ describe('User Management - Details', () => {
 
   it('changes an employees role', () => {
     visitUserDetails();
-    cy.get('[data-cy=provisioner]').find('[aria-checked=false]');
-    cy.get('[data-cy=provisioner]').find('button').click();
-    cy.get('[data-cy=provisioner]').find('[aria-checked=true]');
-    cy.get('[data-cy=provisioner]').find('button').click();
-    cy.get('[data-cy=provisioner]').find('[aria-checked=false]');
+    cy.get('[data-cy=data-extract]').find('[aria-checked=false]');
+    cy.get('[data-cy=data-extract]').find('button').click();
+    cy.get('[data-cy=data-extract]').find('[aria-checked=true]');
+    cy.get('[data-cy=data-extract]').find('button').click();
+    cy.get('[data-cy=data-extract]').find('[aria-checked=false]');
   });
 
   it('revokes user access', () => {
