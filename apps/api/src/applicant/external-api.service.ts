@@ -94,7 +94,7 @@ export class ExternalAPIService {
       if (Array.isArray(data)) {
         const listUsers = data.map(item => {
           return {
-            user_id: item.id,
+            user_id: item.id.toLowerCase(),
             name: item.name,
             email: item?.email,
           };
