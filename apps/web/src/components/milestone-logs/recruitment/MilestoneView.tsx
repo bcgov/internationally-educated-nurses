@@ -15,7 +15,7 @@ export const MilestoneView = ({ milestone, children }: MilestoneViewProps) => {
     return outcomeGroup?.value || null;
   };
 
-  const setOutcomeText = (status: string) => {
+  const getOutcomeText = (status: string) => {
     return status !== STATUS.REFERRAL_ACKNOWLEDGED ? status : '';
   };
 
@@ -46,8 +46,11 @@ export const MilestoneView = ({ milestone, children }: MilestoneViewProps) => {
           )}
           {children}
         </div>
-        <span className='text-sm text-black break-words block py-1'>
-          {setOutcomeText(milestone.status.status)}
+        <span
+          className='text-sm text-bcBlueLink font-bold break-words block py-1'
+          style={{ fontStyle: 'italic' }}
+        >
+          {getOutcomeText(milestone.status.status)}
         </span>
         <span className='text-sm text-black break-words'>
           {milestone.notes || 'No Notes Added'}
