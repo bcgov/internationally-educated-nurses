@@ -94,7 +94,7 @@ export const addJobRecord = async (
 
 export const updateJobRecord = async (
   id: string,
-  job_id: number,
+  job_id: string,
   record: IENApplicantJobCreateUpdateDTO,
 ): Promise<ApplicantJobRO | undefined> => {
   try {
@@ -108,7 +108,7 @@ export const updateJobRecord = async (
   }
 };
 
-export const deleteJobRecord = async (user_id?: string | null, job_id?: number): Promise<void> => {
+export const deleteJobRecord = async (user_id?: string | null, job_id?: string): Promise<void> => {
   if (!user_id) return;
   try {
     await axios.delete(`/ien/${user_id}/job/${job_id}`);

@@ -7,7 +7,7 @@ import { ApplicantJobRO } from '@ien/common';
 import { useApplicantContext } from '../applicant/ApplicantContext';
 
 interface DeleteJobProps {
-  onClose: (jobId?: number) => void;
+  onClose: (jobId?: string) => void;
   visible: boolean;
   userId: string | undefined | null;
   job: ApplicantJobRO;

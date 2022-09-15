@@ -405,7 +405,7 @@ export class IENApplicantService {
    */
   async updateApplicantJob(
     id: string,
-    job_id: string | number,
+    job_id: string,
     jobData: IENApplicantJobCreateUpdateAPIDTO,
   ): Promise<IENApplicantJob | undefined> {
     const job = await this.ienapplicantUtilService.getJob(job_id);
@@ -433,7 +433,7 @@ export class IENApplicantService {
    * @param job_id Job id to delete
    * @returns
    */
-  async deleteApplicantJob(user_id: string | null, job_id: string | number): Promise<void> {
+  async deleteApplicantJob(user_id: string | null, job_id: string): Promise<void> {
     const job: IENApplicantJob | undefined = await this.ienapplicantJobRepository.findOne(job_id, {
       relations: ['added_by', 'applicant'],
     });
