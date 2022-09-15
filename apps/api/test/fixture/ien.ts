@@ -28,7 +28,7 @@ export const seedHa = {
 
 export const addMilestone = {
   status: testMilestone.id,
-  job_id: 1,
+  job_id: '08ff7e3f-3148-43d3-9740-6a255aa0d5ff',
   start_date: new Date().toISOString().slice(0, 10),
   notes: 'Test Note',
 };
