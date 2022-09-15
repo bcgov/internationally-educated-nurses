@@ -251,7 +251,7 @@ export class ReportService {
     });
     const entityManager = getManager();
     const data = await entityManager.query(
-      this.reportUtilService.extractApplicantsDataQuery(from, to, milestones)
+      this.reportUtilService.extractApplicantsDataQuery(from, to, milestones),
     );
     this.logger.log(
       `extractApplicantsData: query completed a total of ${data.length} record returns`,
