@@ -1,6 +1,5 @@
 import { IENApplicantStatusRO, StatusCategory } from '@ien/common';
-import { Exclude } from 'class-transformer';
-import { Entity, Column, OneToMany, PrimaryColumn, ManyToOne } from 'typeorm';
+import { Entity, Column, OneToMany, PrimaryColumn } from 'typeorm';
 import { IENApplicantStatusAudit } from './ienapplicant-status-audit.entity';
 import { IENApplicant } from './ienapplicant.entity';
 
@@ -15,21 +14,8 @@ export class IENApplicantStatus {
   @Column()
   status!: string;
 
-  @Column('varchar', { nullable: true })
-  party?: string;
-
-  @Column('varchar', { nullable: true })
-  @Exclude()
-  full_name?: string;
-
   @Column({ type: 'varchar', length: 256, nullable: true })
   category?: string;
-
-  @ManyToOne(() => IENApplicantStatus, status => status.id)
-  parent?: IENApplicantStatus;
-
-  @OneToMany(() => IENApplicantStatus, status => status.parent)
-  children!: IENApplicantStatus[];
 
   // only use for relation reference, We will not attach it in services
   @OneToMany(() => IENApplicant, applicant => applicant.status)
@@ -43,10 +29,7 @@ export class IENApplicantStatus {
     return {
       id: this.id,
       status: this.status,
-      party: this.party,
       category: this.category as StatusCategory,
-      parent: this.parent?.toResponseObject(),
-      children: this.children?.map(child => child.toResponseObject()),
     };
   }
 }

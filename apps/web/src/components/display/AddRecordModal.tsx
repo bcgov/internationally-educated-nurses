@@ -53,7 +53,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
   const isDuplicate = ({ job_id, ha_pcn }: IENApplicantJobCreateUpdateDTO) => {
     const result = applicant?.jobs?.find(j => {
       if (!j.job_id) return false;
-      return j.job_id === job_id && j.ha_pcn.id === +ha_pcn;
+      return j.job_id === job_id && j.ha_pcn.id === ha_pcn;
     });
     return result && (!job || result !== job);
   };
@@ -93,7 +93,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
     }
   };
 
-  const isRegionalAuthority = (ha_pcn_id: number): boolean => {
+  const isRegionalAuthority = (ha_pcn_id: string): boolean => {
     const authority = haPcn.data.find(ha => ha.id === ha_pcn_id);
     return RegionalHealthAuthorities.some(rha => rha.name === authority?.title);
   };
@@ -143,7 +143,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
                       name='ha_pcn'
                       label='Health Authority'
                       component={({ field, form }: FieldProps) => (
-                        <ReactSelect<RecordTypeOptions>
+                        <ReactSelect<RecordTypeOptions<string>>
                           inputId={field.name}
                           value={haPcn?.data?.find(s => s.id == field.value)}
                           onBlur={field.onBlur}
@@ -156,7 +156,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
                             isDisabled: s.id == field.value,
                           }))}
                           getOptionLabel={option => `${option.title}`}
-                          styles={getSelectStyleOverride<RecordTypeOptions>()}
+                          styles={getSelectStyleOverride<RecordTypeOptions<string>>()}
                         />
                       )}
                     />
@@ -170,7 +170,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
                     name='job_title'
                     label='Department'
                     component={({ field, form }: FieldProps) => (
-                      <ReactSelect<RecordTypeOptions>
+                      <ReactSelect<RecordTypeOptions<string>>
                         inputId={field.name}
                         value={jobTitle?.data?.find(s => s.id == field.value)}
                         onBlur={field.onBlur}
@@ -178,7 +178,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
                         options={jobTitle?.data}
                         isOptionDisabled={o => o.id == field.value}
                         getOptionLabel={option => `${option.title}`}
-                        styles={getSelectStyleOverride<RecordTypeOptions>()}
+                        styles={getSelectStyleOverride<RecordTypeOptions<string>>()}
                       />
                     )}
                   />
@@ -188,7 +188,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
                     name='job_location'
                     label='Communities'
                     component={({ field, form }: FieldProps) => (
-                      <ReactSelect<RecordTypeOptions, true>
+                      <ReactSelect<RecordTypeOptions<number>, true>
                         inputId={field.name}
                         value={jobLocation?.data?.filter(s => field.value.includes(s.id))}
                         onBlur={field.onBlur}
@@ -199,14 +199,14 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
                           )
                         }
                         options={
-                          isRegionalAuthority(+form.values.ha_pcn)
-                            ? jobLocation?.data?.filter(o => o.ha_pcn.id === +form.values.ha_pcn)
+                          isRegionalAuthority(form.values.ha_pcn)
+                            ? jobLocation?.data?.filter(o => o.ha_pcn.id === form.values.ha_pcn)
                             : jobLocation?.data
                         }
                         getOptionLabel={option => `${option.title}`}
                         getOptionValue={option => `${option.id}`}
                         isOptionDisabled={option => field.value.includes(option.id)}
-                        styles={getSelectStyleOverride<RecordTypeOptions>()}
+                        styles={getSelectStyleOverride<RecordTypeOptions<number>>()}
                         isDisabled={!form.values.ha_pcn}
                         isMulti
                       />

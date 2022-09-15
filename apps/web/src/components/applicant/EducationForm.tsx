@@ -9,7 +9,7 @@ import { getCountrySelector } from '../../utils';
 interface NursingEducationProps {
   nursing_educations: NursingEducationDTO[];
   errors: string | string[] | FormikErrors<NursingEducationDTO>[] | undefined;
-  educationTitles: RecordTypeOptions[];
+  educationTitles: RecordTypeOptions<number>[];
 }
 
 export const EducationForm: React.FC<NursingEducationProps> = (props: NursingEducationProps) => {
@@ -26,7 +26,7 @@ export const EducationForm: React.FC<NursingEducationProps> = (props: NursingEdu
               name={`nursing_educations[${lastIndex}].name`}
               label='Education'
               component={({ field, form }: FieldProps) => (
-                <ReactSelect<RecordTypeOptions>
+                <ReactSelect<RecordTypeOptions<number>>
                   inputId={field.name}
                   value={educationTitles.find(s => s.title == field.value)}
                   onBlur={field.onBlur}
@@ -37,7 +37,7 @@ export const EducationForm: React.FC<NursingEducationProps> = (props: NursingEdu
                   isOptionDisabled={o => o.id == field.value}
                   getOptionLabel={option => `${option.title}`}
                   getOptionValue={option => `${option.title}`}
-                  styles={getSelectStyleOverride<RecordTypeOptions>()}
+                  styles={getSelectStyleOverride<RecordTypeOptions<number>>()}
                   menuPlacement='auto'
                   isClearable
                 />

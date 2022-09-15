@@ -64,7 +64,7 @@ export class IENApplicantUtilService {
 
   async applicantFilterQueryBuilder(
     filter: IENApplicantFilterAPIDTO,
-    ha_pcn_id: number | undefined | null,
+    ha_pcn_id: string | undefined | null,
   ) {
     const { status, name, sortKey, order, limit, skip } = filter;
     const builder = this.ienapplicantRepository.createQueryBuilder('applicant');
@@ -200,7 +200,7 @@ export class IENApplicantUtilService {
     }
   }
 
-  async getHaPcn(id: number): Promise<IENHaPcn> {
+  async getHaPcn(id: string): Promise<IENHaPcn> {
     const health_authority = await this.ienMasterService.ienHaPcnRepository.findOne(id);
     if (!health_authority) {
       throw new NotFoundException('Provided all or some of HA not found');
@@ -284,15 +284,15 @@ export class IENApplicantUtilService {
           DESC limit 1
         )
         WHERE ien_applicants.id IN (${idsToUpdate})`;
-      const updatedApplicants = await getManager().query(queryToUpdate);
-      this.logger.log({ updatedApplicants });
+      const result = await getManager().query(queryToUpdate);
+      this.logger.log(`applicants status updated: ${result}`);
     } catch (e) {
       this.logger.log(`Error in update latest status on applicant`);
       this.logger.error(e);
     }
   }
 
-  async getStatusReason(id: number): Promise<IENStatusReason> {
+  async getStatusReason(id: string): Promise<IENStatusReason> {
     const statusReason = await this.ienMasterService.ienStatusReasonRepository.findOne(id);
     if (!statusReason) {
       throw new NotFoundException('Provided Milestone/Status reason not found');

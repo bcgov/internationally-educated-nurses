@@ -16,14 +16,14 @@ export class IENApplicantJobQueryDTO implements JobQueryOptions {
   })
   @IsOptional()
   @Transform(({ value }) => value.split(','))
-  ha_pcn?: number[];
+  ha_pcn?: string[];
 
   @ApiPropertyOptional({
     description: 'Provide list of job title IDs separated by ","',
   })
   @IsOptional()
   @Transform(({ value }) => value.split(','))
-  job_title?: number[];
+  job_title?: string[];
 
   @ApiPropertyOptional({
     description: 'Skip the number of results',

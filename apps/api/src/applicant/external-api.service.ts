@@ -14,6 +14,7 @@ import {
   FindManyOptions,
   ObjectLiteral,
   SelectQueryBuilder,
+  getManager,
 } from 'typeorm';
 import dayjs from 'dayjs';
 import { Authorities, StatusCategory } from '@ien/common';
@@ -73,15 +74,7 @@ export class ExternalAPIService {
     try {
       const data = await this.external_request.getHa();
       if (Array.isArray(data)) {
-        const listHa = data
-          .filter(({ name }) => name !== 'Education' && name !== 'Other') // until ATS fixes ha list
-          .map(item => {
-            return {
-              id: item.id,
-              title: item.name,
-              abbreviation: item?.abbreviation,
-            };
-          });
+        const listHa = data.map(item => ({ ...item, title: item.name }));
         const result = await this.ienMasterService.ienHaPcnRepository.upsert(listHa, ['id']);
         this.logger.log(`${result.raw.length}/${listHa.length} authorities updated`, 'ATS');
       }
@@ -164,10 +157,12 @@ export class ExternalAPIService {
     try {
       const data: { id: string; name: string; category: string; 'process-related': boolean } =
         await this.external_request.getMilestone();
+
       if (Array.isArray(data)) {
-        const result = await this.ienMasterService.ienApplicantStatusRepository.upsert(data, [
-          'id',
-        ]);
+        const result = await this.ienMasterService.ienApplicantStatusRepository.upsert(
+          data.map(row => ({ ...row, status: row.name })), // name -> status
+          ['id'],
+        );
         this.logger.log(`${result.raw.length}/${data.length} milestones updated`, 'ATS');
       }
     } catch (e) {
@@ -200,6 +195,53 @@ export class ExternalAPIService {
     return pages;
   }
 
+  async fetchApplicantsFromATS(from: string, to: string) {
+    const parallel_requests = 5;
+
+    const per_page = 50;
+    let offset = 0;
+    let is_next = true;
+    let pages: any = [];
+    let newData: any[] = [];
+
+    /**
+     * Here we do not have the total page count and the total number of records that we have to fetch.
+     * We will run ${parallel_requests} numbers parallel requests. It helps o reduce fetch time.
+     * The higher number of records per page does not perform well due to external server limitations.
+     * So set up a few default values like five(5) pages and 50 records per page simultaneously.
+     * A developer responsible for an external API on HMBC ATS data has verified these parameters' values.
+     */
+    while (is_next) {
+      is_next = false; // It will set true if next page is available.
+      const input = {
+        parallel_requests,
+        per_page,
+        offset,
+        from,
+        to,
+      };
+      pages = pages.concat(this.createParallelRequestRun(input));
+      let temp: any[] = [];
+      await Promise.all(pages).then(res => {
+        res.forEach(r => {
+          this.logger.log(`${temp.length}, ${Array.isArray(r) ? r.length : 0}`);
+          temp = temp.concat(r);
+        });
+      });
+      this.logger.log(`temp ${temp.length} and ${parallel_requests * per_page}`);
+      // let's check if next pages are available
+      if (temp.length >= parallel_requests * per_page) {
+        is_next = true;
+        offset += parallel_requests * per_page;
+      }
+      // Cleanup & set data for the next iteration
+      newData = newData.concat(temp);
+      temp = [];
+      pages = [];
+    }
+    return newData;
+  }
+
   /**
    * fetch and upsert applicant details
    */
@@ -228,59 +270,19 @@ export class ExternalAPIService {
       );
     }
 
-    const parallel_requests = 5;
-
     const audit = await this.saveSyncApplicantsAudit();
     try {
-      const per_page = 50;
-      let offset = 0;
-      let is_next = true;
-      let pages: any = [];
-      let newData: any[] = [];
+      // restore after updating ats endpoints
+      // const applicants = await this.fetchApplicantsFromATS(from_date, to_date);
+      const applicants = await this.external_request.getData('/applicant');
 
-      /**
-       * Here we do not have the total page count and the total number of records that we have to fetch.
-       * We will run ${parallel_requests} numbers parallel requests. It helps o reduce fetch time.
-       * The higher number of records per page does not perform well due to external server limitations.
-       * So set up a few default values like five(5) pages and 50 records per page simultaneously.
-       * A developer responsible for an external API on HMBC ATS data has verified these parameters' values.
-       */
-      while (is_next) {
-        is_next = false; // It will set true if next page is available.
-        const input = {
-          parallel_requests,
-          per_page,
-          offset,
-          from_date,
-          to_date,
-        };
-        pages = pages.concat(this.createParallelRequestRun(input));
-        let temp: any[] = [];
-        await Promise.all(pages).then(res => {
-          res.forEach(r => {
-            this.logger.log(`${temp.length}, ${Array.isArray(r) ? r.length : 0}`);
-            temp = temp.concat(r);
-          });
-        });
-        this.logger.log(`temp ${temp.length} and ${parallel_requests * per_page}`);
-        // let's check if next pages are available
-        if (temp.length >= parallel_requests * per_page) {
-          is_next = true;
-          offset += parallel_requests * per_page;
-        }
-        // Cleanup & set data for the next iteration
-        newData = newData.concat(temp);
-        temp = [];
-        pages = [];
-      }
-
-      await this.createBulkApplicants(newData);
+      await this.createBulkApplicants(applicants);
+      await this.removeMilestonesNotOnATS(applicants);
       await this.saveSyncApplicantsAudit(audit.id, true);
-      this.logger.log(`processed ${newData.length} applicants record`);
       return {
         from: from_date,
         to: to_date,
-        count: newData.length,
+        count: applicants.length,
       };
     } catch (e: any) {
       await this.saveSyncApplicantsAudit(audit.id, false, { message: e.message, stack: e.stack });
@@ -343,6 +345,38 @@ export class ExternalAPIService {
     return { users: users, ha: ha };
   }
 
+  async removeMilestonesNotOnATS(
+    applicants: { applicant_id: string; milestones: { id: string }[] }[],
+  ): Promise<void> {
+    let removedCount = 0;
+    await Promise.all(
+      applicants.map(async a => {
+        const audits: { id: string; status_id: string }[] = await getManager().query(`
+        SELECT "audit"."id" id, "status"."id" status_id
+        FROM "ien_applicant_status_audit" "audit"
+        INNER JOIN "ien_applicant_status" "status" ON "status"."id" = "audit"."status_id"
+        WHERE
+          "audit"."applicant_id" = '${a.applicant_id.toLowerCase()}' AND
+          "status"."category" != 'IEN Recruitment Process';
+      `);
+
+        if (!audits.length) return;
+
+        const removed = audits.filter(
+          ({ status_id }) => !a.milestones.some(m => m.id.toLowerCase() === status_id),
+        );
+        if (removed.length > 0) {
+          const result = await this.ienapplicantStatusAuditRepository.delete(
+            removed.map(r => r.id),
+          );
+          removedCount += result.affected || 0;
+        }
+      }),
+    );
+
+    this.logger.log(`milestones deleted: ${removedCount}`, 'ATS-SYNC');
+  }
+
   /**
    * Clean raw data and save applicant info into 'ien_applicant' table.
    * @param data Raw Applicant data
@@ -355,35 +389,34 @@ export class ExternalAPIService {
     }
     const applicants = await this.mapApplicants(data);
     if (applicants.length > 0) {
-      const processed_applicant = await this.ienapplicantRepository.upsert(applicants, [
-        'applicant_id',
-      ]);
-      this.logger.log(`processed applicants`);
-      const mappedApplicantList = processed_applicant?.raw.map((item: { id: string | number }) => {
-        return item.id;
-      });
+      const processed_applicant = await this.ienapplicantRepository.upsert(applicants, ['id']);
+      this.logger.log(
+        `applicants synced: ${processed_applicant.raw.length}/${data.length}`,
+        'ATS-SYNC',
+      );
+      const mappedApplicantList = processed_applicant?.raw.map((item: { id: string }) => item.id);
 
       // Upsert milestones
       const milestones = await this.mapMilestones(data, mappedApplicantList);
       if (milestones.length > 0) {
         try {
-          const updatedstatus = await this.ienapplicantStatusAuditRepository
+          const result = await this.ienapplicantStatusAuditRepository
             .createQueryBuilder()
             .insert()
             .into(IENApplicantStatusAudit)
             .values(milestones)
-            .orIgnore(`("status_id", "applicant_id", "start_date") WHERE job_id IS NULL`)
+            .orIgnore(true)
             .execute();
-          this.logger.log(`updatedstatus`);
-          this.logger.log(`milestone count ${milestones.length}`);
-          this.logger.log(`updatedstatus.raw count ${updatedstatus.raw.length}`);
+          this.logger.log(
+            `applicant milestones updated: ${result.raw.length}/${milestones.length}`,
+            'ATS-SYNC',
+          );
         } catch (e) {
-          this.logger.log(`milestone upsert error`);
           this.logger.error(e);
         }
       }
 
-      // update applicant with latest status
+      // update applicant with the latest status
       await this.ienapplicantUtilService.updateLatestStatusOnApplicant(mappedApplicantList);
     } else {
       this.logger.log(`No applicants received today`);
@@ -399,9 +432,9 @@ export class ExternalAPIService {
     const { users } = await this.getApplicantMasterData();
     return data.map(
       (a: {
-        assigned_to: { id: string | number; name: string }[] | undefined;
+        assigned_to: { id: string; name: string }[] | undefined;
         registration_date: string;
-        applicant_id: string | number;
+        applicant_id: string;
         first_name: string;
         last_name: string;
         email_address: string;
@@ -417,8 +450,8 @@ export class ExternalAPIService {
       }) => {
         let assigned_to = null;
         if (a.assigned_to && a.assigned_to != undefined) {
-          assigned_to = a.assigned_to.map((user: { id: string | number; name: string }) => {
-            user.name = users[user.id].name;
+          assigned_to = a.assigned_to.map((user: { id: string; name: string }) => {
+            user.name = users[user.id.toLowerCase()]?.name;
             return user;
           });
         }
@@ -431,7 +464,7 @@ export class ExternalAPIService {
         }
 
         return {
-          applicant_id: a.applicant_id,
+          id: a.applicant_id.toLowerCase(),
           name: `${a.first_name} ${a.last_name}`,
           email_address: a.email_address,
           phone_number: a.phone_number,
@@ -476,26 +509,17 @@ export class ExternalAPIService {
   async mapMilestones(data: any, mappedApplicantList: string[]) {
     const { users } = await this.getApplicantMasterData();
     const savedApplicants = await this.ienapplicantRepository.findByIds(mappedApplicantList);
-    const applicantIdsMapping: any = {};
     const milestones: any = [];
     if (savedApplicants.length <= 0) {
       return [];
     }
-    savedApplicants.forEach(item => {
-      applicantIdsMapping[`${item.applicant_id}`] = item.id;
-    });
     const allowedMilestones: string[] = await this.allowedMilestones();
     data.forEach(
-      (item: {
-        applicant_id: string | number;
-        hasOwnProperty: (arg0: string) => any;
-        milestones: any;
-      }) => {
-        const tableId = applicantIdsMapping[item.applicant_id];
+      (item: { applicant_id: string; hasOwnProperty: (arg0: string) => any; milestones: any }) => {
         if (item.hasOwnProperty('milestones') && Array.isArray(item.milestones)) {
           const existingMilestones = item.milestones;
           existingMilestones.forEach(m => {
-            this.mapMilestoneData(allowedMilestones, m, milestones, tableId, users);
+            this.mapMilestoneData(allowedMilestones, m, milestones, item.applicant_id, users);
           });
         }
       },
@@ -512,21 +536,21 @@ export class ExternalAPIService {
       created_date: string;
       note: any;
       added_by: number;
-      reason_id: number | string;
+      reason_id: string;
       reason_other: string;
       effective_date: string;
     },
     milestones: any[],
-    tableId: any,
+    applicant_id: any,
     users: any[],
   ) {
-    if (allowedMilestones.includes(m?.id)) {
+    if (allowedMilestones.includes(m?.id.toLowerCase())) {
       const temp: any = {
-        status: m.id,
+        status: m.id.toLowerCase(),
         start_date: m.start_date,
         created_date: m.created_date,
         updated_date: m.created_date,
-        applicant: tableId,
+        applicant: applicant_id.toLowerCase(),
         notes: m?.note,
         added_by: null,
       };
@@ -534,7 +558,7 @@ export class ExternalAPIService {
         temp['added_by'] = users[m.added_by].id;
       }
       if ('reason_id' in m) {
-        temp['reason'] = m.reason_id;
+        temp['reason'] = m.reason_id.toLowerCase();
       }
       if ('reason_other' in m) {
         temp['reason_other'] = m.reason_other;

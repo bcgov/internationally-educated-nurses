@@ -15,7 +15,7 @@ export class ExternalRequest {
 
   async getData(url: string, header = {}) {
     return this.api_instance
-      .get(`${url}`, { headers: header })
+      .get(`${url}.json`, { headers: header })
       .then((response: AxiosResponse) => {
         if (response.status !== 200) throw new BadRequestException(response);
         return response.data;

@@ -4,16 +4,16 @@ import { IENHaPcnRO, IENStatusReasonRO } from '@ien/common';
 import { fetcher } from '../utils';
 import { StyleOption } from './constants';
 
-export interface RecordTypeOptions extends StyleOption {
-  id: number;
+export interface RecordTypeOptions<T> extends StyleOption {
+  id: T;
   countryCode?: string;
   title: string;
 }
 
 export interface RecordType {
-  haPcn: { data: RecordTypeOptions[] };
-  jobTitle: { data: RecordTypeOptions[] };
-  jobLocation: { data: (RecordTypeOptions & { ha_pcn: IENHaPcnRO })[] };
+  haPcn: { data: RecordTypeOptions<string>[] };
+  jobTitle: { data: RecordTypeOptions<string>[] };
+  jobLocation: { data: (RecordTypeOptions<number> & { ha_pcn: IENHaPcnRO })[] };
 }
 
 // get record options for adding new record modal
@@ -47,7 +47,7 @@ export const useGetWithdrawReasonOptions = (): IENStatusReasonRO[] => {
   return reasons?.data;
 };
 
-export const useGetEducationOptions = (): RecordTypeOptions[] => {
+export const useGetEducationOptions = (): RecordTypeOptions<number>[] => {
   const { data: education } = useSWRImmutable('ienmaster/education', fetcher);
   return education?.data;
 };
