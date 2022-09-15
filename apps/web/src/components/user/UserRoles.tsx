@@ -45,7 +45,9 @@ export const UserRoles = ({ user, updateUser }: UserRolesProps) => {
         <img src={lockIcon.src} alt='history icon' />
         <h2 className='font-bold text-bcBluePrimary text-xl'>Role & Access Control</h2>
       </div>
-      {roles?.filter(role => role.slug !== RoleSlug.Admin).map(getRoleSelector)}
+      {roles
+        ?.filter(role => role.slug !== RoleSlug.Admin && role.slug !== RoleSlug.DataExtract)
+        .map(getRoleSelector)}
     </div>
   );
 };
