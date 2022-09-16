@@ -140,7 +140,7 @@ export class ChangeJobTablePKtoUUID1663166202169 implements MigrationInterface {
         .filter(job => job.job_id)
         .map(job => {
           return queryRunner.query(`
-            UPDATE "${statusAuditTable}" s SET "temp_uid" = (SELECT temp_id FROM "${jobTable}" j WHERE j.id = '${job.job_id}')
+            UPDATE "${statusAuditTable}" s SET "temp_id" = (SELECT temp_id FROM "${jobTable}" j WHERE j.id = '${job.job_id}')
             WHERE s.job_id = '${job.job_id}'
           `);
         }),
