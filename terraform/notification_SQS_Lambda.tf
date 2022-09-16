@@ -1,7 +1,7 @@
 # Create SQS for notification messages
 # Note, We do not need DeadLetter Queue at this point, These messages are error logs only.
 resource "aws_sqs_queue" "terraform_queue" {
-  name                      = "teams-notification-queue"
+  name                      = "notification-queue"
   delay_seconds             = 90
   max_message_size          = 8192
   message_retention_seconds = 86400
