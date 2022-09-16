@@ -331,7 +331,7 @@ export class IENApplicantService {
       status_audit.effective_date = effective_date;
     }
 
-    if (notes) {
+    if (notes !== undefined) {
       status_audit.notes = notes;
     }
     await this.ienapplicantStatusAuditRepository.save(status_audit);
