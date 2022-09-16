@@ -20,10 +20,10 @@ export default async function sendToSQS(data: unknown): Promise<void> {
         )
         .catch(err => Logger.warn(err, 'sendToSQS:Error'));
     } catch (e) {
-      Logger.warn(e, 'sendToSlack:Error');
+      Logger.warn(e, 'sendToTeams:Error');
     }
   } else {
-    Logger.warn('SQS_QUEUE_URL not available, Message not sent', 'sendToSlack');
+    Logger.warn('SQS_QUEUE_URL not available, Message not sent', 'sendToTeams');
     Logger.log(data);
   }
 }

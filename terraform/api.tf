@@ -48,7 +48,7 @@ resource "aws_lambda_function" "api" {
       # CHES_CLIENT_SECRET       = data.aws_ssm_parameter.ches_client_secret.value
       # CHES_SERVICE_HOST        = data.aws_ssm_parameter.ches_service_host.value
       # CHES_AUTH_URL            = data.aws_ssm_parameter.ches_auth_url.value
-      # SLACK_ALERTS_WEBHOOK_URL = data.aws_ssm_parameter.slack_alerts_webhook_url.value
+      # TEAMS_ALERTS_WEBHOOK_URL = data.aws_ssm_parameter.teams_alerts_webhook_url.value
       # POSTGRES_HOST     = aws_rds_cluster.pgsql_backup.endpoint
     }
   }

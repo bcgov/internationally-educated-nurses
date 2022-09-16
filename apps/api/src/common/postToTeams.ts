@@ -3,15 +3,15 @@ import axios from 'axios';
 import yaml from 'js-yaml';
 import https from 'https';
 
-const webhookUrl = process.env.SLACK_ALERTS_WEBHOOK_URL;
+const webhookUrl = process.env.TEAMS_ALERTS_WEBHOOK_URL;
 
-export default async function postToSlack(data: unknown): Promise<void> {
+export default async function postToTeams(data: unknown): Promise<void> {
   if (webhookUrl) {
     const httpsAgent = new https.Agent({
       rejectUnauthorized: false,
       timeout: 20000,
     });
-    Logger.log(`Data that send over slack: ${JSON.stringify(data)}`, 'postToSlack');
+    Logger.log(`Data that send over teams: ${JSON.stringify(data)}`, 'postToTeams');
     await axios
       .post(
         webhookUrl,
@@ -24,12 +24,12 @@ export default async function postToSlack(data: unknown): Promise<void> {
         },
       )
       .then(res => {
-        Logger.log(`Sent successfully, ${JSON.stringify(res)}`, 'postToSlack');
+        Logger.log(`Sent successfully, ${JSON.stringify(res)}`, 'postToTeams');
       })
       .catch(() => {
-        Logger.warn(`Failed to send message to slack`, 'postToSlack');
+        Logger.warn(`Failed to send message to teams`, 'postToTeams');
       });
   } else {
-    Logger.warn('SLACK_ALERTS_WEBHOOK_URL not available, Slack alert not sent', 'postToSlack');
+    Logger.warn('TEAMS_ALERTS_WEBHOOK_URL not available, Teams alert not sent', 'postToTeams');
   }
 }

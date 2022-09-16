@@ -1,7 +1,7 @@
 # Create SQS for notification messages
 # Note, We do not need DeadLetter Queue at this point, These messages are error logs only.
 resource "aws_sqs_queue" "terraform_queue" {
-  name                      = "slack-notification-queue"
+  name                      = "notification-queue"
   delay_seconds             = 90
   max_message_size          = 8192
   message_retention_seconds = 86400
@@ -46,7 +46,7 @@ resource "aws_lambda_function" "SQSLambda" {
       AWS_S3_REGION            = var.region
       BUILD_ID                 = var.build_id
       BUILD_INFO               = var.build_info
-      SLACK_ALERTS_WEBHOOK_URL = data.aws_ssm_parameter.slack_alerts_webhook_url.value
+      TEAMS_ALERTS_WEBHOOK_URL = data.aws_ssm_parameter.teams_alerts_webhook_url.value
       SQS_QUEUE_URL            = aws_sqs_queue.terraform_queue.url
     }
   }

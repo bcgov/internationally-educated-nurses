@@ -1,6 +1,6 @@
 import { Context, Handler } from 'aws-lambda';
 import { Logger } from '@nestjs/common';
-import postToSlack from './common/postToSlack';
+import postToTeams from './common/postToTeams';
 
 /**
  * Stand alone function that design to handle SQS messages
@@ -12,10 +12,10 @@ export const handler: Handler = async (event, _context: Context) => {
     if (event?.Records !== undefined) {
       Logger.log(`Received Records`);
       for (const item of event.Records) {
-        Logger.log(`Let's play with object and send Message to slack`);
+        Logger.log(`Let's play with object and send Message to teams`);
         Logger.log(item);
-        await postToSlack(JSON.parse(item.body));
-        Logger.log(`Seems, Message sent over slack successfully`);
+        await postToTeams(JSON.parse(item.body));
+        Logger.log(`Seems, Message sent over teams successfully`);
       }
     }
   } catch (e) {
