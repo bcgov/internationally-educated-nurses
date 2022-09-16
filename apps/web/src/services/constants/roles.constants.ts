@@ -10,5 +10,5 @@ const getRoleOptions = (roles: Role[], excludes: string[]): SelectOption<string>
 };
 
 export const getRoleFilterOptions = (roles: Role[]): SelectOption<string>[] => {
-  return getRoleOptions(roles, [RoleSlug.Admin]);
+  return getRoleOptions(roles, [RoleSlug.Admin, RoleSlug.DataExtract]);
 };
