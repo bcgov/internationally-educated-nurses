@@ -17,12 +17,8 @@ describe('Search', () => {
 
     input.focus();
     fireEvent.change(input, { target: { value: 'Mark' } });
-    for (const {
-      name,
-      status: { status },
-    } of searchData) {
+    for (const { name } of searchData) {
       await waitFor(() => {
-        expect(screen.getByText(status)).toBeInTheDocument();
         expect(screen.getByText(name)).toBeInTheDocument();
       });
     }

@@ -2,7 +2,8 @@ import React, { ChangeEvent, KeyboardEvent, useEffect, useState } from 'react';
 import searchIcon from '@assets/img/search.svg';
 import clearIcon from '@assets/img/x_clear.svg';
 import barIcon from '@assets/img/bar.svg';
-import { ApplicantRO } from '@ien/common';
+import { ApplicantRO, isAdmin } from '@ien/common';
+import { useAuthContext } from './AuthContexts';
 
 interface SearchProps {
   onChange: (name: string) => void;
@@ -21,6 +22,7 @@ export const Search = (props: SearchProps) => {
   const [searchName, setSearchName] = useState(keyword || '');
   const [focus, setFocus] = useState(false);
   const inputRef = React.createRef<HTMLInputElement>();
+  const { authUser } = useAuthContext();
 
   useEffect(() => {
     if (!searchName.trim()) return;
@@ -48,6 +50,17 @@ export const Search = (props: SearchProps) => {
   const handleClear = () => {
     setSearchName('');
     onChange(''); // refresh the applicant page
+  };
+
+  const getResultText = (applicant: ApplicantRO) => {
+    if (!isAdmin(authUser) || !applicant.status) {
+      return <b>{applicant.name}</b>;
+    }
+    return (
+      <>
+        <b>{applicant.name}</b> found in <b>{applicant.status.status}</b>
+      </>
+    );
   };
 
   return (
@@ -86,17 +99,15 @@ export const Search = (props: SearchProps) => {
       </div>
       {searchName && focus && (
         <div className='absolute bg-white w-full px-2 pt-3'>
-          {options.map(({ id, name, status }) => {
+          {options.map(applicant => {
             return (
               <div
-                key={id}
+                key={applicant.id}
                 className='flex border-b h-10 w-full px-4 hover:bg-bcLightBlueBackground'
-                onClick={() => onSelect(id)}
+                onClick={() => onSelect(applicant.id)}
                 data-cy='search-result-item'
               >
-                <span className='my-auto'>
-                  <b>{name}</b> found in <b>{status?.status}</b>
-                </span>
+                <span className='my-auto'>{getResultText(applicant)}</span>
               </div>
             );
           })}
