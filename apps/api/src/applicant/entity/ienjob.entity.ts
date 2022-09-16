@@ -12,7 +12,6 @@ import {
   ManyToMany,
   JoinTable,
   JoinColumn,
-  Generated,
 } from 'typeorm';
 import { IENApplicantStatusAudit } from './ienapplicant-status-audit.entity';
 import { IENApplicant } from './ienapplicant.entity';
@@ -23,11 +22,8 @@ import { IENUsers } from './ienusers.entity';
 
 @Entity('ien_applicant_jobs')
 export class IENApplicantJob {
-  @PrimaryGeneratedColumn()
-  id!: number;
-
-  @Generated('uuid')
-  uid!: string;
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
 
   @ManyToOne(() => IENHaPcn, { eager: true })
   ha_pcn!: IENHaPcn;
@@ -74,7 +70,6 @@ export class IENApplicantJob {
   toResponseObject(): ApplicantJobRO {
     return {
       id: this.id,
-      uid: this.uid,
       ha_pcn: this.ha_pcn,
       job_id: this.job_id,
       job_title: this.job_title,

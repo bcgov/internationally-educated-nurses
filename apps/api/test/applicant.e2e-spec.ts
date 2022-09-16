@@ -20,7 +20,7 @@ import {
 import { IENUsers } from 'src/applicant/entity/ienusers.entity';
 import { canActivate } from './override-guard';
 import { randomUUID } from 'crypto';
-let jobTempId = 10;
+let jobTempId = '08ff7e3f-2178-43d3-9740-5a255aa0d5ff';
 let applicantStatusId = 'NA';
 
 describe('ApplicantController (e2e)', () => {
