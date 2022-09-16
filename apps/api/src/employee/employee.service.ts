@@ -1,5 +1,5 @@
 import { EmployeeFilterAPIDTO } from './dto/employee-filter.dto';
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, Inject, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Not, IsNull, Repository, getManager, In } from 'typeorm';
 import { Authorities, Authority, Employee, EmployeeRO, RoleSlug } from '@ien/common';
@@ -7,6 +7,7 @@ import { EmployeeEntity } from './entity/employee.entity';
 import { IENUsers } from 'src/applicant/entity/ienusers.entity';
 import { RoleEntity } from './entity/role.entity';
 import { DefaultRoles } from '@ien/common/dist/enum/default-roles';
+import { AppLogger } from '../common/logger.service';
 
 export class EmployeeService {
   constructor(
@@ -16,14 +17,15 @@ export class EmployeeService {
     private ienUsersRepository: Repository<IENUsers>,
     @InjectRepository(RoleEntity)
     private roleRepository: Repository<RoleEntity>,
+    @Inject(Logger)
+    private readonly logger: AppLogger,
   ) {}
 
   async resolveUser(keycloakId: string, userData: Partial<EmployeeEntity>): Promise<EmployeeRO> {
-    let employee: Employee | undefined = await this.getUserByKeycloakId(keycloakId);
-
+    let employee = await this.getUserByKeycloakId(keycloakId);
     let needToSave = false;
     if (!employee) {
-      employee = this.employeeRepository.create(userData);
+      employee = { ...this.employeeRepository.create(userData), user_id: null };
       needToSave = true;
     }
 
@@ -39,9 +41,10 @@ export class EmployeeService {
     }
     needToSave && (await this.employeeRepository.save(employee));
 
-    const user = await this.getUser(userData); // It will add new user record if not exist.
+    // Override keycloak user's email with ours. It will add new user record if not exist.
+    const user = await this.getUser({ ...userData, email: employee.email });
 
-    return { ...employee, user_id: user ? user.id : null };
+    return { ...employee, user_id: user?.id || employee.user_id };
   }
 
   _getOrganization(email?: string): Authority | undefined {
