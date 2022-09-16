@@ -81,11 +81,11 @@ When you create a pull request, be aware that GitHub actions for each project wi
   >
   > The local `.pgdata` folder is mapped to a volume in db container, and it is initialized at the initial launch. If you change env variables to authenticate a db connection, delete `.pgdata` so that database could be reinitialized.
 
-  > **Slack Integration**
+  > **Teams Integration**
   >
-  >`SLACK_ALERTS_WEBHOOK_URL=`
+  >`TEAMS_ALERTS_WEBHOOK_URL=`
   >
-  > If SLACK_ALERTS_WEBHOOK_URL is defined and an exception occurs, the error message will be sent to the Slack channel.
+  > If TEAMS_ALERTS_WEBHOOK_URL is defined and an exception occurs, the error message will be sent to the Teams channel.
 
 ### Run as docker containers
 

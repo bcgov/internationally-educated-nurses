@@ -25,9 +25,9 @@ NestJS serves the app on your local environment but Lambda does in dev, test, an
 - [lambda.ts](src/lambda.ts) - Lambda handler
 
 
-## Slack alerts
+## Teams alerts
 
-If SLACK_ALERTS_WEBHOOK_URL is defined and an exception occurs, the error message will be sent to the Slack channel.
+If TEAMS_ALERTS_WEBHOOK_URL is defined and an exception occurs, the error message will be sent to the Teams channel.
 
 ## Running the app
 
