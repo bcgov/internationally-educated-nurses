@@ -52,7 +52,7 @@ export class IENApplicant {
   @Column('varchar', { nullable: true })
   pr_status?: string;
 
-  @Column('jsonb', { nullable: true })
+  @Column('jsonb', { nullable: false , default:`"[]"` })
   nursing_educations?: NursingEducationDTO[];
 
   @Column('varchar', { nullable: true })
