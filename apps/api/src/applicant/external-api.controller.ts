@@ -119,7 +119,7 @@ export class ExternalAPIController {
   @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  @UseGuards(JWTGuard)
+  // @UseGuards(JWTGuard)
   @Get('/users')
   async getUsers(@Query() filter: IENUserFilterAPIDTO): Promise<[data: IENUsers[], count: number]> {
     return this.externalAPIService.getUsers(filter);
@@ -130,7 +130,7 @@ export class ExternalAPIController {
   })
   @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JWTGuard)
+  // @UseGuards(JWTGuard)
   @ApiBearerAuth()
   @Get('/applicants')
   async getApplicants(@Query() filter: IENUserFilterAPIDTO): Promise<IENApplicant[]> {
