@@ -152,7 +152,7 @@ export class IENApplicantUtilService {
     applicant: IENApplicant,
     dataToUpdate: any,
     job: IENApplicantJob | null,
-  ): Promise<IENApplicantStatusAudit | any> {
+  ): Promise<IENApplicantStatusAudit> {
     // Save
     const status: Partial<IENApplicantStatusAudit> = {
       applicant: applicant,
@@ -160,12 +160,8 @@ export class IENApplicantUtilService {
       ...dataToUpdate,
     };
 
-    await getManager().transaction(async manager => {
-      const status_audit = manager.create<IENApplicantStatusAudit>(IENApplicantStatusAudit, status);
-      return manager.save<IENApplicantStatusAudit>(status_audit);
-    });
-
-    return null;
+    const status_audit = this.ienapplicantStatusAuditRepository.create(status);
+    return this.ienapplicantStatusAuditRepository.save(status_audit);
   }
 
   /**
