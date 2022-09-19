@@ -18,7 +18,6 @@ export class SetDefaultValueForNursingEducation1663620924440 implements Migratio
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-
     await queryRunner.changeColumn(
       'ien_applicants',
       'nursing_educations',
@@ -31,7 +30,6 @@ export class SetDefaultValueForNursingEducation1663620924440 implements Migratio
     await queryRunner.query(
       `update ien_applicants set nursing_educations = NULL WHERE nursing_educations = "[]";`,
     );
-    return; 
-
+    return;
   }
 }
