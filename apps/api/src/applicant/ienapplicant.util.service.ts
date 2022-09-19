@@ -131,14 +131,15 @@ export class IENApplicantUtilService {
    */
   async saveApplicantAudit(applicant: IENApplicant, added_by: IENUsers) {
     const dataToSave: object = applicant;
-    try {
-      const audit = this.ienapplicantAuditRepository.create({
+
+    await getManager().transaction(async manager => {
+      const audit = manager.create<IENApplicantAudit>(IENApplicantAudit, {
         applicant: applicant,
         added_by: added_by,
         data: dataToSave,
       });
-      await this.ienapplicantAuditRepository.save(audit);
-    } catch (e) {}
+      await manager.save<IENApplicantAudit>(audit);
+    });
   }
 
   /**
@@ -151,15 +152,20 @@ export class IENApplicantUtilService {
     applicant: IENApplicant,
     dataToUpdate: any,
     job: IENApplicantJob | null,
-  ): Promise<IENApplicantStatusAudit> {
+  ): Promise<IENApplicantStatusAudit | any> {
     // Save
     const status: Partial<IENApplicantStatusAudit> = {
       applicant: applicant,
       job: job,
       ...dataToUpdate,
     };
-    const status_audit = this.ienapplicantStatusAuditRepository.create(status);
-    return this.ienapplicantStatusAuditRepository.save(status_audit);
+
+    await getManager().transaction(async manager => {
+      const status_audit = manager.create<IENApplicantStatusAudit>(IENApplicantStatusAudit, status);
+      return manager.save<IENApplicantStatusAudit>(status_audit);
+    });
+
+    return null;
   }
 
   /**

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { FindManyOptions, In, IsNull, Repository } from 'typeorm';
+import { FindManyOptions, getManager, In, IsNull, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EmployeeRO, isAdmin, StatusCategory } from '@ien/common';
 import { AppLogger } from 'src/common/logger.service';
@@ -189,8 +189,10 @@ export class IENApplicantService {
     if (assigned_to && assigned_to instanceof Array && assigned_to.length) {
       applicant.assigned_to = await this.ienapplicantUtilService.getUserArray(assigned_to);
     }
-    await this.ienapplicantRepository.update(applicant.id, data);
-    await this.ienapplicantRepository.save(applicant);
+    await getManager().transaction(async manager => {
+      await manager.update<IENApplicant>(IENApplicant, applicant.id, data);
+      await manager.save<IENApplicant>(applicant);
+    });
 
     // audit changes
     await this.ienapplicantUtilService.saveApplicantAudit(applicant, applicant.updated_by);
@@ -334,10 +336,12 @@ export class IENApplicantService {
     if (notes !== undefined) {
       status_audit.notes = notes;
     }
-    await this.ienapplicantStatusAuditRepository.save(status_audit);
 
-    await this.ienapplicantRepository.update(status_audit.applicant.id, {
-      updated_date: new Date(),
+    await getManager().transaction(async manager => {
+      await manager.save<IENApplicantStatusAudit>(status_audit);
+      await manager.update<IENApplicant>(IENApplicant, status_audit.applicant.id, {
+        updated_date: new Date(),
+      });
     });
 
     // Let's check and updated the latest status on applicant
@@ -365,11 +369,13 @@ export class IENApplicantService {
       throw new BadRequestException(`Requested milestone/status was added by different user`);
     }
 
-    await this.ienapplicantStatusAuditRepository.delete(status_id);
-
+    await getManager().transaction(async manager => {
+      await manager.delete<IENApplicantStatusAudit>(IENApplicantStatusAudit, status_id);
+      await manager.update<IENApplicant>(IENApplicant, status.applicant.id, {
+        updated_date: new Date(),
+      });
+    });
     await this.ienapplicantUtilService.updateLatestStatusOnApplicant([status.applicant.id]);
-
-    await this.ienapplicantRepository.update(status.applicant.id, { updated_date: new Date() });
   }
 
   /**
