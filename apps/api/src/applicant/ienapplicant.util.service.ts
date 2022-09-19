@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { In, IsNull, Repository, Not, getManager } from 'typeorm';
+import { In, IsNull, Repository, Not, getManager, EntityManager } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantStatus } from './entity/ienapplicant-status.entity';
@@ -129,17 +129,15 @@ export class IENApplicantUtilService {
    * @param applicant Applicant Object
    * @param added_by Passing it separately, In case of update we have to use updated_by field in place of added_by
    */
-  async saveApplicantAudit(applicant: IENApplicant, added_by: IENUsers) {
+  async saveApplicantAudit(applicant: IENApplicant, added_by: IENUsers, manager: EntityManager) {
     const dataToSave: object = applicant;
 
-    await getManager().transaction(async manager => {
-      const audit = manager.create<IENApplicantAudit>(IENApplicantAudit, {
-        applicant: applicant,
-        added_by: added_by,
-        data: dataToSave,
-      });
-      await manager.save<IENApplicantAudit>(audit);
+    const audit = this.ienapplicantAuditRepository.create({
+      applicant: applicant,
+      added_by: added_by,
+      data: dataToSave,
     });
+    await manager.save<IENApplicantAudit>(audit);
   }
 
   /**
@@ -272,8 +270,12 @@ export class IENApplicantUtilService {
     return this.ienMasterService.ienJobLocationRepository.findByIds(ids);
   }
 
-  async updateLatestStatusOnApplicant(mappedApplicantList: string[]): Promise<void> {
+  async updateLatestStatusOnApplicant(
+    mappedApplicantList: string[],
+    manager?: EntityManager,
+  ): Promise<void> {
     try {
+      const entityManager = manager ? manager : getManager();
       // update applicant with the latest status
       const idsToUpdate = `'${mappedApplicantList.join("','")}'`;
       const queryToUpdate = `
@@ -286,7 +288,7 @@ export class IENApplicantUtilService {
           DESC limit 1
         )
         WHERE ien_applicants.id IN (${idsToUpdate})`;
-      const result = await getManager().query(queryToUpdate);
+      const result = await entityManager.query(queryToUpdate);
       this.logger.log(`applicants status updated: ${result}`);
     } catch (e) {
       this.logger.log(`Error in update latest status on applicant`);

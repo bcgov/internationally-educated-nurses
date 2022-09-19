@@ -103,9 +103,11 @@ export class IENApplicantService {
     user: EmployeeRO,
   ): Promise<IENApplicant | any> {
     const applicant = await this.createApplicantObject(addApplicant, user);
-    await this.ienapplicantRepository.save(applicant);
-    // let's save audit
-    await this.ienapplicantUtilService.saveApplicantAudit(applicant, applicant.added_by);
+
+    await getManager().transaction(async manager => {
+      await manager.save<IENApplicant>(applicant);
+      await this.ienapplicantUtilService.saveApplicantAudit(applicant, applicant.added_by, manager);
+    });
     return applicant;
   }
 
@@ -192,10 +194,15 @@ export class IENApplicantService {
     await getManager().transaction(async manager => {
       await manager.update<IENApplicant>(IENApplicant, applicant.id, data);
       await manager.save<IENApplicant>(applicant);
+
+      // audit changes
+      await this.ienapplicantUtilService.saveApplicantAudit(
+        applicant,
+        applicant.updated_by,
+        manager,
+      );
     });
 
-    // audit changes
-    await this.ienapplicantUtilService.saveApplicantAudit(applicant, applicant.updated_by);
     return this.getApplicantById(id);
   }
 
@@ -269,7 +276,6 @@ export class IENApplicantService {
       data,
       job,
     );
-
     /**
      * Note:
      * Based on scope we are only managing recruitment status.
@@ -342,10 +348,13 @@ export class IENApplicantService {
       await manager.update<IENApplicant>(IENApplicant, status_audit.applicant.id, {
         updated_date: new Date(),
       });
-    });
 
-    // Let's check and updated the latest status on applicant
-    await this.ienapplicantUtilService.updateLatestStatusOnApplicant([status_audit.applicant.id]);
+      // Let's check and updated the latest status on applicant
+      await this.ienapplicantUtilService.updateLatestStatusOnApplicant(
+        [status_audit.applicant.id],
+        manager,
+      );
+    });
 
     return status_audit;
   }
@@ -451,8 +460,13 @@ export class IENApplicantService {
       throw new BadRequestException(`Requested job competition was added by different user`);
     }
 
-    await this.ienapplicantJobRepository.delete(job_id);
-    await this.ienapplicantUtilService.updateLatestStatusOnApplicant([job.applicant.id]);
+    await getManager().transaction(async manager => {
+      await manager.delete<IENApplicantJob>(IENApplicantJob, job_id);
+      await this.ienapplicantUtilService.updateLatestStatusOnApplicant([job.applicant.id], manager);
+    });
+
+    // await this.ienapplicantJobRepository.delete(job_id);
+    // await this.ienapplicantUtilService.updateLatestStatusOnApplicant([job.applicant.id]);
   }
 
   async getApplicantJob(job_id: string | number): Promise<IENApplicantJob | undefined> {
