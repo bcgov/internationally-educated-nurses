@@ -24,6 +24,7 @@ import { IENUserFilterAPIDTO, SyncApplicantsResultDTO } from './dto';
 import { AuthGuard } from '../auth/auth.guard';
 import { IENApplicant } from './entity/ienapplicant.entity';
 import { JWTGuard } from 'src/auth/jwt.guard';
+import dayjs from 'dayjs';
 
 @Controller('external-api')
 @ApiTags('External API data process')
