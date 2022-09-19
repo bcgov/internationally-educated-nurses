@@ -644,7 +644,11 @@ export class ExternalAPIService {
       where: (qb: any) => {
         qb.where(`IENApplicant.id IN (:...ids)`, { ids });
       },
-      relations: ['applicant_status_audit'],
+      relations: [
+        'applicant_status_audit',
+        'applicant_status_audit.status',
+        'applicant_status_audit.job',
+      ],
     });
   }
 }
