@@ -1,7 +1,7 @@
 /// <reference types="cypress" />
 /// <reference path="../../support/index.ts"/>
 
-import dayjs from "dayjs";
+import dayjs from 'dayjs';
 
 describe('Report', () => {
   beforeEach(() => {
@@ -12,7 +12,9 @@ describe('Report', () => {
 
   it('lists report periods', () => {
     cy.contains('h1', 'Reporting');
-    cy.get('tbody').find('tr').should('have.length',(dayjs().diff('2022-05-02','day')/28)+1);
+    cy.get('tbody')
+      .find('tr')
+      .should('have.length', dayjs().diff('2022-05-02', 'day') / 28 + 1);
   });
 
   it('downloads a report', () => {
