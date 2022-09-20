@@ -150,6 +150,7 @@ export class IENApplicantUtilService {
     applicant: IENApplicant,
     dataToUpdate: any,
     job: IENApplicantJob | null,
+    manager: EntityManager,
   ): Promise<IENApplicantStatusAudit> {
     // Save
     const status: Partial<IENApplicantStatusAudit> = {
@@ -159,7 +160,7 @@ export class IENApplicantUtilService {
     };
 
     const status_audit = this.ienapplicantStatusAuditRepository.create(status);
-    return this.ienapplicantStatusAuditRepository.save(status_audit);
+    return manager.save<IENApplicantStatusAudit>(status_audit);
   }
 
   /**
@@ -167,7 +168,11 @@ export class IENApplicantUtilService {
    * @param job Job object to check active status/milestone
    * @param data status/milestone audit data
    */
-  async updatePreviousActiveStatusForJob(job: IENApplicantJob, data: any): Promise<void> {
+  async updatePreviousActiveStatusForJob(
+    job: IENApplicantJob,
+    data: any,
+    manager: EntityManager,
+  ): Promise<void> {
     try {
       if (job) {
         const previousStatus = await this.ienapplicantStatusAuditRepository.find({
@@ -190,7 +195,11 @@ export class IENApplicantUtilService {
               ...updateData,
             });
           });
-          await this.ienapplicantStatusAuditRepository.save(list_status);
+
+          // create instance of entity class
+          const status_list = this.ienapplicantStatusAuditRepository.create(list_status);
+
+          await manager.save<IENApplicantStatusAudit[]>(status_list);
         }
       }
     } catch (e) {

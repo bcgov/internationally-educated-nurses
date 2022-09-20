@@ -207,7 +207,7 @@ export class IENApplicantService {
   }
 
   /**
-   * Update staus and audit it
+   * Update status and audit it
    * @param id applicant IEN ID
    * @param applicantUpdate updated fields only status and related field
    * @returns
@@ -238,58 +238,61 @@ export class IENApplicantService {
       );
     }
 
-    data.status = status_obj;
-
-    let job = null;
-    if (job_id) {
-      job = await this.ienapplicantUtilService.getJob(job_id);
-      if (id !== job.applicant.id) {
-        throw new BadRequestException('Provided applicant and competition/job does not match');
+    await getManager().transaction(async manager => {
+      data.status = status_obj;
+      let job = null;
+      if (job_id) {
+        job = await this.ienapplicantUtilService.getJob(job_id);
+        if (id !== job.applicant.id) {
+          throw new BadRequestException('Provided applicant and competition/job does not match');
+        }
       }
-    }
-    if (data.status.category === StatusCategory.RECRUITMENT && !job) {
-      throw new BadRequestException(`Competition/job are required to add a milestone`);
-    }
+      if (data.status.category === StatusCategory.RECRUITMENT && !job) {
+        throw new BadRequestException(`Competition/job are required to add a milestone`);
+      }
 
-    if (user?.user_id) {
-      const added_by_data = await this.ienUsersRepository.findOne(user.user_id);
-      data.added_by = added_by_data;
-    }
+      if (user?.user_id) {
+        const added_by_data = await this.ienUsersRepository.findOne(user.user_id);
+        data.added_by = added_by_data;
+      }
 
-    if (reason) {
-      const statusReason = await this.ienapplicantUtilService.getStatusReason(reason);
-      data.reason = statusReason;
-    }
+      if (reason) {
+        const statusReason = await this.ienapplicantUtilService.getStatusReason(reason);
+        data.reason = statusReason;
+      }
 
-    data.reason_other = reason_other;
+      data.reason_other = reason_other;
 
-    data.start_date = start_date ? new Date(start_date) : new Date();
+      data.start_date = start_date ? new Date(start_date) : new Date();
 
-    data.end_date = end_date ? new Date(end_date) : undefined;
+      data.end_date = end_date ? new Date(end_date) : undefined;
 
-    data.effective_date = effective_date ? new Date(effective_date) : undefined;
+      data.effective_date = effective_date ? new Date(effective_date) : undefined;
 
-    data.notes = notes;
+      data.notes = notes;
 
-    const status_audit = await this.ienapplicantUtilService.addApplicantStatusAudit(
-      applicant,
-      data,
-      job,
-    );
-    /**
-     * Note:
-     * Based on scope we are only managing recruitment status.
-     * For that we do need job/competition record,
-     * So if that exists, we are updating previous status
-     */
-    if (job) {
-      await this.ienapplicantUtilService.updatePreviousActiveStatusForJob(job, data);
-    }
+      const status_audit = await this.ienapplicantUtilService.addApplicantStatusAudit(
+        applicant,
+        data,
+        job,
+        manager,
+      );
 
-    // Let's check and updated the latest status on applicant
-    await this.ienapplicantUtilService.updateLatestStatusOnApplicant([applicant.id]);
+      /**
+       * Note:
+       * Based on scope we are only managing recruitment status.
+       * For that we do need job/competition record,
+       * So if that exists, we are updating previous status
+       */
+      if (job) {
+        await this.ienapplicantUtilService.updatePreviousActiveStatusForJob(job, data, manager);
+      }
 
-    return status_audit;
+      // Let's check and updated the latest status on applicant
+      await this.ienapplicantUtilService.updateLatestStatusOnApplicant([applicant.id], manager);
+
+      return status_audit;
+    });
   }
 
   /**
