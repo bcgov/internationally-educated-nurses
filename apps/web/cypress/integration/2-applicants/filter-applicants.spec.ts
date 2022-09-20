@@ -8,7 +8,7 @@ describe('Applicants - filter by tabs', () => {
   });
 
   it('clicks each tab on main page table', () => {
-    cy.contains('Manage Applicants');
+    cy.contains('IENs ready for recruitment');
     cy.contains('button', 'Licensing/Registration').click();
     cy.get('td').should('not.exist');
     cy.contains('button', 'Recruitment').click();

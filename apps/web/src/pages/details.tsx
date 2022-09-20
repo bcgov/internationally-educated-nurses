@@ -9,7 +9,7 @@ const Details = () => {
   return (
     <ApplicantProvider>
       <div className='container w-full  xl:w-xl mb-4'>
-        <DetailsNavBar parent='Manage Applicants' label='Applicant Details' />
+        <DetailsNavBar parent='IENs ready for recruitment' label='Applicant Details' />
         <ApplicantProfile />
         <ApplicantMilestones />
       </div>

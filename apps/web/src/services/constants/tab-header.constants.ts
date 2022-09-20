@@ -8,7 +8,7 @@ export const milestoneTabs = [
 
 export const menuBarTabs = [
   {
-    title: 'Manage Applicants',
+    title: 'IENs ready for recruitment',
     defaultPath: '/',
     paths: ['/applicants', '/details'],
     acl: [Access.APPLICANT_READ],
