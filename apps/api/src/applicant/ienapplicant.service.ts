@@ -273,8 +273,10 @@ export class IENApplicantService {
 
     data.notes = notes;
 
+    let status_audit = null;
+
     await getManager().transaction(async manager => {
-      const status_audit = await this.ienapplicantUtilService.addApplicantStatusAudit(
+      status_audit = await this.ienapplicantUtilService.addApplicantStatusAudit(
         applicant,
         data,
         job,
@@ -296,6 +298,7 @@ export class IENApplicantService {
 
       return status_audit;
     });
+    return status_audit;
   }
 
   /**
