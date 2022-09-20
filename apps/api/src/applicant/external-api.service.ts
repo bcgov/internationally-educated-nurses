@@ -15,6 +15,7 @@ import {
   ObjectLiteral,
   SelectQueryBuilder,
   getManager,
+  EntityManager,
 } from 'typeorm';
 import dayjs from 'dayjs';
 import { Authorities, StatusCategory } from '@ien/common';
@@ -27,6 +28,10 @@ import { SyncApplicantsAudit } from './entity/sync-applicants-audit.entity';
 import { IENMasterService } from './ien-master.service';
 import { IENUsers } from './entity/ienusers.entity';
 import { IENUserFilterAPIDTO, SyncApplicantsResultDTO } from './dto';
+import { IENHaPcn } from './entity/ienhapcn.entity';
+import { IENStatusReason } from './entity/ienstatus-reason.entity';
+import { IENJobTitle } from './entity/ienjobtitles.entity';
+import { IENApplicantStatus } from './entity/ienapplicant-status.entity';
 
 @Injectable()
 export class ExternalAPIService {
@@ -54,15 +59,18 @@ export class ExternalAPIService {
       throw new InternalServerErrorException('ATS endpoint is not set.');
     }
     this.logger.log(`Using ATS : ${process.env.HMBC_ATS_BASE_URL}`);
-    const ha = this.saveHa();
-    const users = this.saveUsers();
-    const reasons = this.saveReasons();
-    const departments = this.saveDepartments();
-    const milestones = this.saveMilestones();
 
-    await Promise.all([ha, users, reasons, departments, milestones]).then(res => {
-      this.logger.log(`Response: ${res}`);
-      this.logger.log(`Master tables imported at ${new Date()}`);
+    await getManager().transaction(async manager => {
+      const ha = this.saveHa(manager);
+      const users = this.saveUsers(manager);
+      const reasons = this.saveReasons(manager);
+      const departments = this.saveDepartments(manager);
+      const milestones = this.saveMilestones(manager);
+
+      await Promise.all([ha, users, reasons, departments, milestones]).then(res => {
+        this.logger.log(`Response: ${res}`);
+        this.logger.log(`Master tables imported at ${new Date()}`);
+      });
     });
   }
 
@@ -70,12 +78,12 @@ export class ExternalAPIService {
    * Collect HealthAuthorities data from <domain>/HealthAuthority Url.
    * and Save in ien_ha_pcn table in database for applicant reference.
    */
-  async saveHa(): Promise<void> {
+  async saveHa(manager: EntityManager): Promise<void> {
     try {
       const data = await this.external_request.getHa();
       if (Array.isArray(data)) {
         const listHa = data.map(item => ({ ...item, title: item.name }));
-        const result = await this.ienMasterService.ienHaPcnRepository.upsert(listHa, ['id']);
+        const result = await manager.upsert(IENHaPcn, listHa, ['id']);
         this.logger.log(`${result.raw.length}/${listHa.length} authorities updated`, 'ATS');
       }
     } catch (e) {
@@ -88,7 +96,7 @@ export class ExternalAPIService {
    * Collect Staff/User data from <domain>/staff Url.
    * and Save in ien_users table in database for applicant reference.
    */
-  async saveUsers(): Promise<void> {
+  async saveUsers(manager: EntityManager): Promise<void> {
     try {
       const data = await this.external_request.getStaff();
       if (Array.isArray(data)) {
@@ -99,9 +107,7 @@ export class ExternalAPIService {
             email: item?.email,
           };
         });
-        const result = await this.ienMasterService.ienUsersRepository.upsert(listUsers, [
-          'user_id',
-        ]);
+        const result = await manager.upsert(IENUsers, listUsers, ['user_id']);
         this.logger.log(`${result.raw.length}/${listUsers.length} users updated`, 'ATS');
       }
     } catch (e) {
@@ -113,11 +119,11 @@ export class ExternalAPIService {
    * Collect Milestone reason data from <domain>/Reason Url.
    * and Save in ien_status_reasons table in database for milestone/status reference.
    */
-  async saveReasons(): Promise<void> {
+  async saveReasons(manager: EntityManager): Promise<void> {
     try {
       const data = await this.external_request.getReason();
       if (Array.isArray(data)) {
-        const result = await this.ienMasterService.ienStatusReasonRepository.upsert(data, ['id']);
+        const result = await manager.upsert(IENStatusReason, data, ['id']);
         this.logger.log(`${result.raw.length}/${data.length} reasons updated`, 'ATS');
       }
     } catch (e) {
@@ -129,7 +135,7 @@ export class ExternalAPIService {
    * Collect Job-competition department data from <domain>/department Url.
    * and Save in ien_job_titles table in database for department reference.
    */
-  async saveDepartments(): Promise<void> {
+  async saveDepartments(manager: EntityManager): Promise<void> {
     try {
       const data = await this.external_request.getDepartment();
       if (Array.isArray(data)) {
@@ -139,9 +145,7 @@ export class ExternalAPIService {
             title: item.name,
           };
         });
-        const result = await this.ienMasterService.ienJobTitleRepository.upsert(departments, [
-          'id',
-        ]);
+        const result = await manager.upsert(IENJobTitle, departments, ['id']);
         this.logger.log(`${result.raw.length}/${departments.length} departments updated`, 'ATS');
       }
     } catch (e) {
@@ -153,13 +157,14 @@ export class ExternalAPIService {
    * Let's clean and map status/milestone object with existing schema
    * and upsert it.
    */
-  async saveMilestones(): Promise<void> {
+  async saveMilestones(manager: EntityManager): Promise<void> {
     try {
       const data: { id: string; name: string; category: string; 'process-related': boolean } =
         await this.external_request.getMilestone();
 
       if (Array.isArray(data)) {
-        const result = await this.ienMasterService.ienApplicantStatusRepository.upsert(
+        const result = await manager.upsert(
+          IENApplicantStatus,
           data.map(row => ({ ...row, status: row.name })), // name -> status
           ['id'],
         );
@@ -276,9 +281,12 @@ export class ExternalAPIService {
       // const applicants = await this.fetchApplicantsFromATS(from_date, to_date);
       const applicants = await this.external_request.getData('/applicant');
 
-      await this.createBulkApplicants(applicants);
-      await this.removeMilestonesNotOnATS(applicants);
-      await this.saveSyncApplicantsAudit(audit.id, true);
+      await getManager().transaction(async manager => {
+        await this.createBulkApplicants(applicants, manager);
+        await this.removeMilestonesNotOnATS(applicants, manager);
+        await this.saveSyncApplicantsAudit(audit.id, true, undefined, manager);
+      });
+
       return {
         from: from_date,
         to: to_date,
@@ -294,13 +302,16 @@ export class ExternalAPIService {
     id: number | undefined = undefined,
     is_success = false,
     additional_data: object | undefined | unknown = undefined,
+    manager?: EntityManager,
   ): Promise<SyncApplicantsAudit> {
     if (id) {
       const audit = await this.syncApplicantsAuditRepository.findOne(id);
       if (audit) {
         audit.is_success = is_success;
         audit.additional_data = additional_data;
-        await this.syncApplicantsAuditRepository.save(audit);
+        manager
+          ? await manager.save<SyncApplicantsAudit>(audit)
+          : await this.syncApplicantsAuditRepository.save(audit);
         return audit;
       }
     }
@@ -309,7 +320,9 @@ export class ExternalAPIService {
       additional_data,
     };
     const newAudit = this.syncApplicantsAuditRepository.create(addAuditData);
-    await this.syncApplicantsAuditRepository.save(newAudit);
+    manager
+      ? await manager.save<SyncApplicantsAudit>(newAudit)
+      : await this.syncApplicantsAuditRepository.save(newAudit);
     return newAudit;
   }
 
@@ -347,11 +360,12 @@ export class ExternalAPIService {
 
   async removeMilestonesNotOnATS(
     applicants: { applicant_id: string; milestones: { id: string }[] }[],
+    manager: EntityManager,
   ): Promise<void> {
     let removedCount = 0;
     await Promise.all(
       applicants.map(async a => {
-        const audits: { id: string; status_id: string }[] = await getManager().query(`
+        const audits: { id: string; status_id: string }[] = await manager.query(`
         SELECT "audit"."id" id, "status"."id" status_id
         FROM "ien_applicant_status_audit" "audit"
         INNER JOIN "ien_applicant_status" "status" ON "status"."id" = "audit"."status_id"
@@ -366,7 +380,8 @@ export class ExternalAPIService {
           ({ status_id }) => !a.milestones.some(m => m.id.toLowerCase() === status_id),
         );
         if (removed.length > 0) {
-          const result = await this.ienapplicantStatusAuditRepository.delete(
+          const result = await manager.delete<IENApplicantStatusAudit>(
+            IENApplicantStatusAudit,
             removed.map(r => r.id),
           );
           removedCount += result.affected || 0;
@@ -381,7 +396,7 @@ export class ExternalAPIService {
    * Clean raw data and save applicant info into 'ien_applicant' table.
    * @param data Raw Applicant data
    */
-  async createBulkApplicants(data: any) {
+  async createBulkApplicants(data: any, manager: EntityManager) {
     // upsert applicant list first
     if (!Array.isArray(data)) {
       this.logger.error(`Applicant data error:`, data);
@@ -389,7 +404,7 @@ export class ExternalAPIService {
     }
     const applicants = await this.mapApplicants(data);
     if (applicants.length > 0) {
-      const processed_applicant = await this.ienapplicantRepository.upsert(applicants, ['id']);
+      const processed_applicant = await manager.upsert(IENApplicant, applicants, ['id']);
       this.logger.log(
         `applicants synced: ${processed_applicant.raw.length}/${data.length}`,
         'ATS-SYNC',
@@ -400,7 +415,7 @@ export class ExternalAPIService {
       const milestones = await this.mapMilestones(data, mappedApplicantList);
       if (milestones.length > 0) {
         try {
-          const result = await this.ienapplicantStatusAuditRepository
+          const result = await manager
             .createQueryBuilder()
             .insert()
             .into(IENApplicantStatusAudit)
@@ -417,7 +432,10 @@ export class ExternalAPIService {
       }
 
       // update applicant with the latest status
-      await this.ienapplicantUtilService.updateLatestStatusOnApplicant(mappedApplicantList);
+      await this.ienapplicantUtilService.updateLatestStatusOnApplicant(
+        mappedApplicantList,
+        manager,
+      );
     } else {
       this.logger.log(`No applicants received today`);
     }

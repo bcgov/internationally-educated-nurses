@@ -358,7 +358,7 @@ export class IENApplicantController {
     } else {
       // statements to handle any unspecified exceptions
       return new InternalServerErrorException(
-        'An unknown error occured while update applicant status',
+        `An unknown error occured while updating applicant's status`,
       );
     }
   }

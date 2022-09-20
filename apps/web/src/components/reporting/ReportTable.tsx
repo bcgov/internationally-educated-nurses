@@ -87,7 +87,8 @@ export const ReportTable = () => {
     <div className='bg-white p-5 rounded'>
       <div className='text-bcBluePrimary text-lg font-bold'>Standard Period Report</div>
       <p className='my-4'>
-        All the reports are generated based on period. Available reports begin from May 2nd, 2022.
+        All the reports are generated based on period. Available reports begin from May 2
+        <sup>nd</sup>, 2022.
       </p>
       <Pagination
         id='report-page-top'

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { FindManyOptions, In, IsNull, Repository } from 'typeorm';
+import { FindManyOptions, getManager, In, IsNull, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EmployeeRO, isAdmin, StatusCategory } from '@ien/common';
 import { AppLogger } from 'src/common/logger.service';
@@ -103,9 +103,11 @@ export class IENApplicantService {
     user: EmployeeRO,
   ): Promise<IENApplicant | any> {
     const applicant = await this.createApplicantObject(addApplicant, user);
-    await this.ienapplicantRepository.save(applicant);
-    // let's save audit
-    await this.ienapplicantUtilService.saveApplicantAudit(applicant, applicant.added_by);
+
+    await getManager().transaction(async manager => {
+      await manager.save<IENApplicant>(applicant);
+      await this.ienapplicantUtilService.saveApplicantAudit(applicant, applicant.added_by, manager);
+    });
     return applicant;
   }
 
@@ -189,16 +191,23 @@ export class IENApplicantService {
     if (assigned_to && assigned_to instanceof Array && assigned_to.length) {
       applicant.assigned_to = await this.ienapplicantUtilService.getUserArray(assigned_to);
     }
-    await this.ienapplicantRepository.update(applicant.id, data);
-    await this.ienapplicantRepository.save(applicant);
+    await getManager().transaction(async manager => {
+      await manager.update<IENApplicant>(IENApplicant, applicant.id, data);
+      await manager.save<IENApplicant>(applicant);
 
-    // audit changes
-    await this.ienapplicantUtilService.saveApplicantAudit(applicant, applicant.updated_by);
+      // audit changes
+      await this.ienapplicantUtilService.saveApplicantAudit(
+        applicant,
+        applicant.updated_by,
+        manager,
+      );
+    });
+
     return this.getApplicantById(id);
   }
 
   /**
-   * Update staus and audit it
+   * Update status and audit it
    * @param id applicant IEN ID
    * @param applicantUpdate updated fields only status and related field
    * @returns
@@ -231,13 +240,11 @@ export class IENApplicantService {
 
     data.status = status_obj;
 
-    let job = null;
-    if (job_id) {
-      job = await this.ienapplicantUtilService.getJob(job_id);
-      if (id !== job.applicant.id) {
-        throw new BadRequestException('Provided applicant and competition/job does not match');
-      }
+    const job = await this.ienapplicantUtilService.getJob(job_id);
+    if (id !== job?.applicant.id) {
+      throw new BadRequestException('Provided applicant and competition/job does not match');
     }
+
     if (data.status.category === StatusCategory.RECRUITMENT && !job) {
       throw new BadRequestException(`Competition/job are required to add a milestone`);
     }
@@ -262,25 +269,31 @@ export class IENApplicantService {
 
     data.notes = notes;
 
-    const status_audit = await this.ienapplicantUtilService.addApplicantStatusAudit(
-      applicant,
-      data,
-      job,
-    );
+    let status_audit = null;
 
-    /**
-     * Note:
-     * Based on scope we are only managing recruitment status.
-     * For that we do need job/competition record,
-     * So if that exists, we are updating previous status
-     */
-    if (job) {
-      await this.ienapplicantUtilService.updatePreviousActiveStatusForJob(job, data);
-    }
+    await getManager().transaction(async manager => {
+      status_audit = await this.ienapplicantUtilService.addApplicantStatusAudit(
+        applicant,
+        data,
+        job,
+        manager,
+      );
 
-    // Let's check and updated the latest status on applicant
-    await this.ienapplicantUtilService.updateLatestStatusOnApplicant([applicant.id]);
+      /**
+       * Note:
+       * Based on scope we are only managing recruitment status.
+       * For that we do need job/competition record,
+       * So if that exists, we are updating previous status
+       */
+      if (job) {
+        await this.ienapplicantUtilService.updatePreviousActiveStatusForJob(job, data, manager);
+      }
 
+      // Let's check and updated the latest status on applicant
+      await this.ienapplicantUtilService.updateLatestStatusOnApplicant([applicant.id], manager);
+
+      return status_audit;
+    });
     return status_audit;
   }
 
@@ -334,14 +347,19 @@ export class IENApplicantService {
     if (notes !== undefined) {
       status_audit.notes = notes;
     }
-    await this.ienapplicantStatusAuditRepository.save(status_audit);
 
-    await this.ienapplicantRepository.update(status_audit.applicant.id, {
-      updated_date: new Date(),
+    await getManager().transaction(async manager => {
+      await manager.save<IENApplicantStatusAudit>(status_audit);
+      await manager.update<IENApplicant>(IENApplicant, status_audit.applicant.id, {
+        updated_date: new Date(),
+      });
+
+      // Let's check and updated the latest status on applicant
+      await this.ienapplicantUtilService.updateLatestStatusOnApplicant(
+        [status_audit.applicant.id],
+        manager,
+      );
     });
-
-    // Let's check and updated the latest status on applicant
-    await this.ienapplicantUtilService.updateLatestStatusOnApplicant([status_audit.applicant.id]);
 
     return status_audit;
   }
@@ -365,11 +383,16 @@ export class IENApplicantService {
       throw new BadRequestException(`Requested milestone/status was added by different user`);
     }
 
-    await this.ienapplicantStatusAuditRepository.delete(status_id);
-
-    await this.ienapplicantUtilService.updateLatestStatusOnApplicant([status.applicant.id]);
-
-    await this.ienapplicantRepository.update(status.applicant.id, { updated_date: new Date() });
+    await getManager().transaction(async manager => {
+      await manager.delete<IENApplicantStatusAudit>(IENApplicantStatusAudit, status_id);
+      await manager.update<IENApplicant>(IENApplicant, status.applicant.id, {
+        updated_date: new Date(),
+      });
+      await this.ienapplicantUtilService.updateLatestStatusOnApplicant(
+        [status.applicant.id],
+        manager,
+      );
+    });
   }
 
   /**
@@ -409,7 +432,7 @@ export class IENApplicantService {
     jobData: IENApplicantJobCreateUpdateAPIDTO,
   ): Promise<IENApplicantJob | undefined> {
     const job = await this.ienapplicantUtilService.getJob(job_id);
-    if (job.applicant.id !== id) {
+    if (job?.applicant.id !== id) {
       throw new BadRequestException(`Provided applicant and competition/job does not match)`);
     }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -445,8 +468,10 @@ export class IENApplicantService {
       throw new BadRequestException(`Requested job competition was added by different user`);
     }
 
-    await this.ienapplicantJobRepository.delete(job_id);
-    await this.ienapplicantUtilService.updateLatestStatusOnApplicant([job.applicant.id]);
+    await getManager().transaction(async manager => {
+      await manager.delete<IENApplicantJob>(IENApplicantJob, job_id);
+      await this.ienapplicantUtilService.updateLatestStatusOnApplicant([job.applicant.id], manager);
+    });
   }
 
   async getApplicantJob(job_id: string | number): Promise<IENApplicantJob | undefined> {

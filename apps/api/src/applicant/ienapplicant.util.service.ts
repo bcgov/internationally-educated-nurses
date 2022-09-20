@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { In, IsNull, Repository, Not, getManager } from 'typeorm';
+import { In, IsNull, Repository, Not, getManager, EntityManager } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantStatus } from './entity/ienapplicant-status.entity';
@@ -129,16 +129,15 @@ export class IENApplicantUtilService {
    * @param applicant Applicant Object
    * @param added_by Passing it separately, In case of update we have to use updated_by field in place of added_by
    */
-  async saveApplicantAudit(applicant: IENApplicant, added_by: IENUsers) {
+  async saveApplicantAudit(applicant: IENApplicant, added_by: IENUsers, manager: EntityManager) {
     const dataToSave: object = applicant;
-    try {
-      const audit = this.ienapplicantAuditRepository.create({
-        applicant: applicant,
-        added_by: added_by,
-        data: dataToSave,
-      });
-      await this.ienapplicantAuditRepository.save(audit);
-    } catch (e) {}
+
+    const audit = this.ienapplicantAuditRepository.create({
+      applicant: applicant,
+      added_by: added_by,
+      data: dataToSave,
+    });
+    await manager.save<IENApplicantAudit>(audit);
   }
 
   /**
@@ -151,6 +150,7 @@ export class IENApplicantUtilService {
     applicant: IENApplicant,
     dataToUpdate: any,
     job: IENApplicantJob | null,
+    manager: EntityManager,
   ): Promise<IENApplicantStatusAudit> {
     // Save
     const status: Partial<IENApplicantStatusAudit> = {
@@ -158,8 +158,9 @@ export class IENApplicantUtilService {
       job: job,
       ...dataToUpdate,
     };
+
     const status_audit = this.ienapplicantStatusAuditRepository.create(status);
-    return this.ienapplicantStatusAuditRepository.save(status_audit);
+    return manager.save<IENApplicantStatusAudit>(status_audit);
   }
 
   /**
@@ -167,7 +168,11 @@ export class IENApplicantUtilService {
    * @param job Job object to check active status/milestone
    * @param data status/milestone audit data
    */
-  async updatePreviousActiveStatusForJob(job: IENApplicantJob, data: any): Promise<void> {
+  async updatePreviousActiveStatusForJob(
+    job: IENApplicantJob,
+    data: any,
+    manager: EntityManager,
+  ): Promise<void> {
     try {
       if (job) {
         const previousStatus = await this.ienapplicantStatusAuditRepository.find({
@@ -190,7 +195,11 @@ export class IENApplicantUtilService {
               ...updateData,
             });
           });
-          await this.ienapplicantStatusAuditRepository.save(list_status);
+
+          // create instance of entity class
+          const status_list = this.ienapplicantStatusAuditRepository.create(list_status);
+
+          await manager.save<IENApplicantStatusAudit[]>(status_list);
         }
       }
     } catch (e) {
@@ -232,7 +241,10 @@ export class IENApplicantUtilService {
    * Get Job
    * @param id
    */
-  async getJob(id: string | number): Promise<IENApplicantJob> {
+  async getJob(id: string | number | undefined): Promise<IENApplicantJob | undefined> {
+    if (!id) {
+      return undefined;
+    }
     const job = await this.ienapplicantJobRepository.findOne(id, {
       relations: ['applicant'],
     });
@@ -270,8 +282,12 @@ export class IENApplicantUtilService {
     return this.ienMasterService.ienJobLocationRepository.findByIds(ids);
   }
 
-  async updateLatestStatusOnApplicant(mappedApplicantList: string[]): Promise<void> {
+  async updateLatestStatusOnApplicant(
+    mappedApplicantList: string[],
+    manager?: EntityManager,
+  ): Promise<void> {
     try {
+      const entityManager = manager || getManager();
       // update applicant with the latest status
       const idsToUpdate = `'${mappedApplicantList.join("','")}'`;
       const queryToUpdate = `
@@ -284,7 +300,7 @@ export class IENApplicantUtilService {
           DESC limit 1
         )
         WHERE ien_applicants.id IN (${idsToUpdate})`;
-      const result = await getManager().query(queryToUpdate);
+      const result = await entityManager.query(queryToUpdate);
       this.logger.log(`applicants status updated: ${result}`);
     } catch (e) {
       this.logger.log(`Error in update latest status on applicant`);
