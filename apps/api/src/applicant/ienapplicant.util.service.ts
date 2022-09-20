@@ -241,9 +241,9 @@ export class IENApplicantUtilService {
    * Get Job
    * @param id
    */
-  async getJob(id: string | number | undefined): Promise<IENApplicantJob | undefined> {
+  async getJob(id: string | number | undefined): Promise<IENApplicantJob | null> {
     if (!id) {
-      return undefined;
+      return null;
     }
     const job = await this.ienapplicantJobRepository.findOne(id, {
       relations: ['applicant'],

@@ -241,7 +241,7 @@ export class IENApplicantService {
     data.status = status_obj;
 
     const job = await this.ienapplicantUtilService.getJob(job_id);
-    if (id !== job?.applicant.id) {
+    if (job && id !== job?.applicant.id) {
       throw new BadRequestException('Provided applicant and competition/job does not match');
     }
 
