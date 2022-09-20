@@ -15,7 +15,7 @@ describe('Users - search / filter', () => {
     cy.filterUsers(['Provisioner']);
     cy.get('#role-filter').clear();
 
-    cy.filterUsers(['IENs ready for recruitment']);
+    cy.filterUsers(['Manage Applicants']);
     cy.get('#role-filter').clear();
 
     cy.filterUsers(['Reporting']);
