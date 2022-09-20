@@ -464,9 +464,6 @@ export class IENApplicantService {
       await manager.delete<IENApplicantJob>(IENApplicantJob, job_id);
       await this.ienapplicantUtilService.updateLatestStatusOnApplicant([job.applicant.id], manager);
     });
-
-    // await this.ienapplicantJobRepository.delete(job_id);
-    // await this.ienapplicantUtilService.updateLatestStatusOnApplicant([job.applicant.id]);
   }
 
   async getApplicantJob(job_id: string | number): Promise<IENApplicantJob | undefined> {
