@@ -14,7 +14,7 @@ describe('Report', () => {
     cy.contains('h1', 'Reporting');
     cy.get('tbody')
       .find('tr')
-      .should('have.length', dayjs().diff('2022-05-02', 'day') / 28 + 1);
+      .should('have.length', Math.floor(dayjs().diff('2022-05-02', 'day') / 28 + 1));
   });
 
   it('downloads a report', () => {

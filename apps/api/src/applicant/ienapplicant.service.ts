@@ -383,8 +383,11 @@ export class IENApplicantService {
       await manager.update<IENApplicant>(IENApplicant, status.applicant.id, {
         updated_date: new Date(),
       });
+      await this.ienapplicantUtilService.updateLatestStatusOnApplicant(
+        [status.applicant.id],
+        manager,
+      );
     });
-    await this.ienapplicantUtilService.updateLatestStatusOnApplicant([status.applicant.id]);
   }
 
   /**
