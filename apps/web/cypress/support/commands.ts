@@ -29,7 +29,7 @@ Cypress.Commands.add('logout', () => {
 });
 
 Cypress.Commands.add('searchApplicants', (name: string, show = true) => {
-  cy.contains('IENs ready for recruitment');
+  cy.contains('Manage Applicants');
 
   cy.intercept(`/api/v1/ien?name=${name.split(' ').join('+')}&limit=5`).as('getApplicants');
   cy.get('input[data-cy="search-input"]').type(name);
