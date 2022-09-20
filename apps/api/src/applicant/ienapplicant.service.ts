@@ -240,16 +240,12 @@ export class IENApplicantService {
 
     data.status = status_obj;
 
-    // needed specfic typing as job is now being used inside nested transaction
-    let job = new IENApplicantJob();
-
-    if (job_id) {
-      job = await this.ienapplicantUtilService.getJob(job_id);
-      if (id !== job.applicant.id) {
-        throw new BadRequestException('Provided applicant and competition/job does not match');
-      }
+    const job = await this.ienapplicantUtilService.getJob(job_id);
+    if (id !== job?.applicant.id) {
+      throw new BadRequestException('Provided applicant and competition/job does not match');
     }
-    if (data.status.category === StatusCategory.RECRUITMENT && Object.keys(job).length === 0) {
+
+    if (data.status.category === StatusCategory.RECRUITMENT && !job) {
       throw new BadRequestException(`Competition/job are required to add a milestone`);
     }
 
@@ -436,7 +432,7 @@ export class IENApplicantService {
     jobData: IENApplicantJobCreateUpdateAPIDTO,
   ): Promise<IENApplicantJob | undefined> {
     const job = await this.ienapplicantUtilService.getJob(job_id);
-    if (job.applicant.id !== id) {
+    if (job?.applicant.id !== id) {
       throw new BadRequestException(`Provided applicant and competition/job does not match)`);
     }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
