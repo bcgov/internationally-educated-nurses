@@ -238,39 +238,42 @@ export class IENApplicantService {
       );
     }
 
+    data.status = status_obj;
+
+    // needed specfic typing as job is now being used inside nested transaction
+    let job = new IENApplicantJob();
+
+    if (job_id) {
+      job = await this.ienapplicantUtilService.getJob(job_id);
+      if (id !== job.applicant.id) {
+        throw new BadRequestException('Provided applicant and competition/job does not match');
+      }
+    }
+    if (data.status.category === StatusCategory.RECRUITMENT && Object.keys(job).length === 0) {
+      throw new BadRequestException(`Competition/job are required to add a milestone`);
+    }
+
+    if (user?.user_id) {
+      const added_by_data = await this.ienUsersRepository.findOne(user.user_id);
+      data.added_by = added_by_data;
+    }
+
+    if (reason) {
+      const statusReason = await this.ienapplicantUtilService.getStatusReason(reason);
+      data.reason = statusReason;
+    }
+
+    data.reason_other = reason_other;
+
+    data.start_date = start_date ? new Date(start_date) : new Date();
+
+    data.end_date = end_date ? new Date(end_date) : undefined;
+
+    data.effective_date = effective_date ? new Date(effective_date) : undefined;
+
+    data.notes = notes;
+
     await getManager().transaction(async manager => {
-      data.status = status_obj;
-      let job = null;
-      if (job_id) {
-        job = await this.ienapplicantUtilService.getJob(job_id);
-        if (id !== job.applicant.id) {
-          throw new BadRequestException('Provided applicant and competition/job does not match');
-        }
-      }
-      if (data.status.category === StatusCategory.RECRUITMENT && !job) {
-        throw new BadRequestException(`Competition/job are required to add a milestone`);
-      }
-
-      if (user?.user_id) {
-        const added_by_data = await this.ienUsersRepository.findOne(user.user_id);
-        data.added_by = added_by_data;
-      }
-
-      if (reason) {
-        const statusReason = await this.ienapplicantUtilService.getStatusReason(reason);
-        data.reason = statusReason;
-      }
-
-      data.reason_other = reason_other;
-
-      data.start_date = start_date ? new Date(start_date) : new Date();
-
-      data.end_date = end_date ? new Date(end_date) : undefined;
-
-      data.effective_date = effective_date ? new Date(effective_date) : undefined;
-
-      data.notes = notes;
-
       const status_audit = await this.ienapplicantUtilService.addApplicantStatusAudit(
         applicant,
         data,
