@@ -15,7 +15,7 @@ export class ExternalRequest {
 
   async getData(url: string, header = {}) {
     return this.api_instance
-      .get(`${url}.json`, { headers: header })
+      .get(`${url}/ien`, { headers: header })
       .then((response: AxiosResponse) => {
         if (response.status !== 200) throw new BadRequestException(response);
         return response.data;
@@ -26,26 +26,26 @@ export class ExternalRequest {
   }
 
   async getHa() {
-    return this.getData(`/HealthAuthority`);
+    return this.getData(`/health-authorities`);
   }
 
   async getStaff() {
     const header = {
       ApiKey: process.env.HMBC_ATS_AUTH_KEY,
     };
-    return this.getData(`/staff`, header);
+    return this.getData(`/applicants/staff`, header);
   }
 
   async getReason() {
-    return this.getData(`/Reason`);
+    return this.getData(`/withdrawal-reasons`);
   }
 
   async getDepartment() {
-    return this.getData(`/department`);
+    return this.getData(`/specialty-departments`);
   }
 
   async getMilestone() {
-    return this.getData(`/Milestone`);
+    return this.getData(`/milestones`);
   }
 
   async getApplicants(url: string) {
