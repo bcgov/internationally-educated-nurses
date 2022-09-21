@@ -26,6 +26,7 @@ import {
   Field,
   getSelectStyleOverride,
   HorizontalLine,
+  Input,
   Textarea,
 } from '@components';
 import addIcon from '@assets/img/add.svg';
@@ -202,6 +203,7 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
                             getOptionLabel={opt => `${opt.name}`}
                             getOptionValue={opt => `${opt.id}`}
                             styles={getSelectStyleOverride<ReasonOption>('bg-white')}
+                            components={{ Input }}
                           />
                         )}
                       />

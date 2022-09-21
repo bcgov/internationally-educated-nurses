@@ -1,7 +1,7 @@
 import React from 'react';
 import { FieldProps as FormikFieldProps } from 'formik';
 import ReactSelect from 'react-select';
-import { Field, FieldProps, getSelectStyleOverride, OptionType } from '@components';
+import { Field, FieldProps, getSelectStyleOverride, Input, OptionType } from '@components';
 
 interface MultiSelectProps extends FieldProps {
   options: OptionType[];
@@ -33,6 +33,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = props => {
           isDisabled={disabled}
           styles={getSelectStyleOverride<OptionType>()}
           isMulti
+          components={{ Input }}
         />
       )}
     />

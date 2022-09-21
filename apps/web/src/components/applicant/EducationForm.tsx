@@ -1,7 +1,7 @@
 import { FieldArray, FieldProps, FormikErrors } from 'formik';
 import ReactSelect from 'react-select';
 
-import { Button, Field, getSelectStyleOverride } from '@components';
+import { Button, Field, getSelectStyleOverride, Input } from '@components';
 import { RecordTypeOptions } from '@services';
 import { NursingEducationDTO } from '@ien/common';
 import { getCountrySelector } from '../../utils';
@@ -40,6 +40,7 @@ export const EducationForm: React.FC<NursingEducationProps> = (props: NursingEdu
                   styles={getSelectStyleOverride<RecordTypeOptions<number>>()}
                   menuPlacement='auto'
                   isClearable
+                  components={{ Input }}
                 />
               )}
             />

@@ -2,7 +2,7 @@ import ReactSelect from 'react-select';
 
 import { getRoleFilterOptions, SelectOption, useRoles } from '@services';
 import { ChangeEvent } from 'react';
-import { getSelectStyleOverride } from '../BasicSelect';
+import { getSelectStyleOverride, Input } from '../BasicSelect';
 
 interface UserFilterProps {
   roles: string[];
@@ -34,6 +34,7 @@ export const UserFilter = (props: UserFilterProps) => {
         isMulti
         isClearable
         className='w-60 min-w-full md:min-w-0 mx-1 placeholder-bcGray'
+        components={{ Input }}
       />
       <input
         value={`${revokedOnly}`}
