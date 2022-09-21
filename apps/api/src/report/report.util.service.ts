@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { StatusCategory, StatusId } from '@ien/common';
+import { CandidateWithdrawReasonId, StatusCategory, StatusId } from '@ien/common';
 import { isValidDateFormat } from 'src/common/util';
 import dayjs from 'dayjs';
 import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.entity';
@@ -150,7 +150,7 @@ export class ReportUtilService {
       WITH withdrawn_applicants AS (
         SELECT applicant_id, max(start_date) as start_date
         FROM public.ien_applicant_status_audit 
-        WHERE status_id = '${StatusId.WITHDREW_FROM_PROGRAM}' 
+        WHERE reason_id = '${CandidateWithdrawReasonId.WITHDREW_FROM_PROGRAM}' 
           AND start_date::date <= '${to}'
         GROUP BY applicant_id
       ), reactive_applicants AS (
@@ -158,7 +158,7 @@ export class ReportUtilService {
         FROM withdrawn_applicants wa INNER JOIN public.ien_applicant_status_audit ien ON wa.applicant_id=ien.applicant_id
         WHERE ien.start_date::date >= wa.start_date
           AND ien.start_date::date <= '${to}'
-          AND ien.status_id != '${StatusId.WITHDREW_FROM_PROGRAM}'
+          AND ien.reason_id != '${CandidateWithdrawReasonId.WITHDREW_FROM_PROGRAM}'
         GROUP BY wa.applicant_id
       ), hired_applicants AS (
         SELECT ien.applicant_id, max(ien.start_date) as start_date
