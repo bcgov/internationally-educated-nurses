@@ -2,7 +2,7 @@ import React, { ChangeEvent, KeyboardEvent, useEffect, useState } from 'react';
 import searchIcon from '@assets/img/search.svg';
 import clearIcon from '@assets/img/x_clear.svg';
 import barIcon from '@assets/img/bar.svg';
-import { ApplicantRO, isAdmin, isHmbc } from '@ien/common';
+import { ApplicantRO, isHmbc } from '@ien/common';
 import { useAuthContext } from './AuthContexts';
 
 interface SearchProps {
@@ -53,7 +53,7 @@ export const Search = (props: SearchProps) => {
   };
 
   const getResultText = (applicant: ApplicantRO) => {
-    if (!(isAdmin(authUser) || isHmbc(authUser)) || !applicant.status) {
+    if (!isHmbc(authUser) || !applicant.status) {
       return <b>{applicant.name}</b>;
     }
     return (

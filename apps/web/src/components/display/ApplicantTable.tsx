@@ -21,7 +21,7 @@ const milestoneText = (applicant: ApplicantRO) => {
   }
 
   // if applicant has accepted an offer, show detailed Hired status and checkmark
-  if (isHired(status.id)) {
+  if (isHired(status.status)) {
     return (
       <td className='px-6 font-bold text-bcGreenHiredText'>
         Hired
@@ -73,7 +73,7 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
               <tr
                 key={app.id}
                 className={`text-left shadow-xs whitespace-nowrap ${
-                  isHmbc(authUser) && isHired(app.status?.id)
+                  isHmbc(authUser) && isHired(app.status?.status)
                     ? 'bg-bcGreenHiredContainer'
                     : 'even:bg-bcLightGray'
                 } text-sm`}
