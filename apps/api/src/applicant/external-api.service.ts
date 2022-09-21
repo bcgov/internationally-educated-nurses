@@ -279,7 +279,9 @@ export class ExternalAPIService {
     try {
       // restore after updating ats endpoints
       // const applicants = await this.fetchApplicantsFromATS(from_date, to_date);
-      const applicants = await this.external_request.getData('/applicant');
+      const applicants = await this.external_request.getData('/applicants', {
+        ApiKey: process.env.HMBC_ATS_AUTH_KEY,
+      });
 
       await getManager().transaction(async manager => {
         await this.createBulkApplicants(applicants, manager);
@@ -467,11 +469,17 @@ export class ExternalAPIService {
         updated_date: string;
       }) => {
         let assigned_to = null;
-        if (a.assigned_to && a.assigned_to != undefined) {
+        if (Array.isArray(a.assigned_to)) {
           assigned_to = a.assigned_to.map((user: { id: string; name: string }) => {
             user.name = users[user.id.toLowerCase()]?.name;
             return user;
           });
+        } else if (a.assigned_to) {
+          const user: { id: string; name: string } = a.assigned_to;
+          assigned_to = {
+            ...user,
+            name: user.id ? users[user.id?.toLowerCase()] : '',
+          };
         }
 
         let citizenship = null;
