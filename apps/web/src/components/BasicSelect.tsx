@@ -1,5 +1,5 @@
 import { CSSProperties } from 'react';
-import ReactSelect, { StylesConfig, components, GroupBase } from 'react-select';
+import ReactSelect, { StylesConfig, components, GroupBase, InputProps } from 'react-select';
 import { DropdownIndicatorProps } from 'react-select/dist/declarations/src/components/indicators';
 import { Property } from 'csstype';
 import downCaret from '@assets/img/arrow_down.svg';
@@ -38,6 +38,13 @@ export const BasicSelect = <T extends OptionValueType>(props: BasicSelectProps<T
     underline = false,
     optionStyle,
   } = props;
+
+  const Input = <T extends OptionValueType>(
+    props: InputProps<SelectOption<T>, false, GroupBase<SelectOption<T>>>,
+  ) => {
+    return <components.Input {...props} data-lpignore='true' />;
+  };
+
   return (
     <div>
       {label && (
@@ -54,7 +61,7 @@ export const BasicSelect = <T extends OptionValueType>(props: BasicSelectProps<T
         isOptionDisabled={o => o.value === value}
         options={options}
         styles={getNoBorderSelectStyle<SelectOption<T>>(textAlign, underline, optionStyle)}
-        components={{ DropdownIndicator }}
+        components={{ DropdownIndicator, Input }}
       />
     </div>
   );
