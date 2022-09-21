@@ -140,7 +140,7 @@ const Applicants = () => {
 
       <div className='bg-white'>
         {authUser?.ha_pcn_id ? (
-          <div className='font-bold px-4 pt-3 pb-2 text-3xl'>Recruitment</div>
+          <div className='font-bold px-4 pt-3 pb-2 text-3xl'>IENs ready for recruitment</div>
         ) : (
           <StatusCategoryTab
             tabs={[{ title: 'All', value: StatusCategory.ALL }, ...milestoneTabs]}
