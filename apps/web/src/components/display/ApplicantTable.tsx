@@ -50,14 +50,14 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
         <thead className='whitespace-nowrap bg-bcLightGray text-bcDeepBlack'>
           <tr className='border-b-2 border-yellow-300 text-sm'>
             <th className='pl-6 py-4 w-24' scope='col'>
-              <SortButton label='ID' sortKey='applicant_id' onChange={onSortChange} />
+              ID
             </th>
             <th className='px-6' scope='col'>
               <SortButton label='Name' sortKey='name' onChange={onSortChange} />
             </th>
             {isHmbc(authUser) && <th className='px-6 w-1/3'>Current Status</th>}
 
-            <th className='px-6 w-36' scope='col'>
+            <th className='px-6 min-w-[100px]' scope='col'>
               <SortButton label='Last Updated' sortKey='updated_date' onChange={onSortChange} />
             </th>
             <th className='px-6' scope='col'>
