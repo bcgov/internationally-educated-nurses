@@ -53,8 +53,7 @@ export enum STATUS {
   WITHDREW_FROM_PROGRAM = 'Withdrew from IEN program',
   SUBMITTED_WORK_PERMIT_APPLICATION = 'Submitted Work Permit Application',
   SENT_EMPLOYER_DOCUMENTS_TO_HMBC = 'Sent employer documents to HMBC',
-  HA_WAS_NOT_INTERESTED = 'HA was not interested',
-  WITHDREW_FROM_COMPETITION = 'Candidate withdrew from the job competition',
+  WITHDREW_FROM_COMPETITION = 'Candidate Withdrew from Competition',
 }
 
 export const COMPLETED_STATUSES = [
@@ -120,5 +119,5 @@ export enum StatusId {
   WITHDREW_FROM_PROGRAM = 'f84a4167-a636-4b21-977c-f11aefc486af',
   SUBMITTED_WORK_PERMIT_APPLICATION = 'f2008e2f-5f44-4f4c-80b4-f4ad284e9938',
   SENT_EMPLOYER_DOCUMENTS_TO_HMBC = '1651cad1-1e56-4c79-92ce-f548ad9ec52c',
-  WITHDREW_FROM_COMPETITION = '009761c9-a857-4e40-978a-9cbcc6f94e35',
+  WITHDREW_FROM_COMPETITION = '3fd4f2b0-5151-d7c8-6bbc-3a0601b5e1b0',
 }
