@@ -1,7 +1,7 @@
 import { STATUS } from '../enum';
 import { ApplicantJobRO, ApplicantRO, EmployeeRO } from '../ro';
 
-export const isHired = (status: string) => {
+export const isHired = (status?: string) => {
   return status === STATUS.JOB_OFFER_ACCEPTED;
 };
 
