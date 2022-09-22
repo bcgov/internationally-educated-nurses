@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 
 import { AddRecordModal } from '../display/AddRecordModal';
 import { Record } from './recruitment/Record';
-import { Access, ApplicantJobRO, isJobAccepted, JobFilterOptions } from '@ien/common';
+import { Access, ApplicantJobRO, JobFilterOptions } from '@ien/common';
 import { AclMask, buttonBase, buttonColor, PageOptions, Pagination } from '@components';
 import addIcon from '@assets/img/add.svg';
 import { JobFilters } from './recruitment/JobFilters';
@@ -84,13 +84,7 @@ export const Recruitment: React.FC = () => {
     <>
       <JobFilters options={filters} update={handleFilters} />
       {jobRecords.map((job, index) => (
-        <Record
-          key={job.id}
-          job={job}
-          expandRecord={expandRecord}
-          jobIndex={index}
-          wasOfferAccepted={isJobAccepted(job)}
-        />
+        <Record key={job.id} job={job} expandRecord={expandRecord} jobIndex={index} />
       ))}
       <AclMask acl={[Access.APPLICANT_WRITE]}>
         <div className='border rounded bg-bcBlueBar flex justify-between items-center mb-4 h-12'>

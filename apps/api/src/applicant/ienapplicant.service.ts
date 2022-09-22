@@ -83,10 +83,7 @@ export class IENApplicantService {
     }
     if (is_status_audit) {
       applicant.applicant_status_audit = await this.ienapplicantStatusAuditRepository.find({
-        where: {
-          applicant: applicant,
-          job: IsNull(),
-        },
+        where: { applicant, job: IsNull() },
         relations: ['status', 'reason', 'added_by', 'updated_by'],
       });
     }
