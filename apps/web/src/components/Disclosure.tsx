@@ -5,23 +5,21 @@ interface DisclosureProps {
   buttonText: React.ReactNode;
   content: React.ReactNode;
   shouldExpand?: boolean;
-  wasOfferAccepted?: boolean;
+  bgClass?: string;
 }
 
 export const Disclosure: React.FC<DisclosureProps> = ({
   buttonText,
   content,
   shouldExpand,
-  wasOfferAccepted,
+  bgClass = '',
 }) => {
   return (
     <HeadlessDisclosure defaultOpen={shouldExpand}>
       {({ open }) => (
         <div className='border border-gray-200 rounded'>
           <HeadlessDisclosure.Button
-            className={`${
-              wasOfferAccepted ? 'bg-bcGreenHiredContainer' : 'bg-bcBlueBar'
-            } rounded-b-none flex justify-between w-full py-2`}
+            className={`${bgClass} rounded-b-none flex justify-between w-full py-2`}
           >
             <img
               src={chevronUp.src}

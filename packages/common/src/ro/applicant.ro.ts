@@ -54,7 +54,7 @@ export interface ApplicantStatusAuditRO {
   status: IENApplicantStatusRO;
   job?: ApplicantJobRO | null;
   applicant: ApplicantRO;
-  start_date?: Date;
+  start_date: Date;
   end_date?: Date;
   notes?: string;
   added_by?: IENUserRO | null;
