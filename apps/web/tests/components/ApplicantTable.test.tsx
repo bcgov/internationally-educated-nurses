@@ -5,22 +5,26 @@ import { ApplicantTable } from '@components';
 describe('ApplicantTable', () => {
   it('renders applicants table', () => {
     const mock = jest.fn();
-    const applicants = [
+    const applicants: ApplicantRO[] = [
       {
         id: '1',
         name: 'Jane Doe',
         status: {
-          id: 1,
+          id: '1',
           status: 'IEN HMBC Process',
         },
+        is_open: true,
+        added_by: null,
       },
       {
         id: '2',
         name: 'Mark Twain',
         status: {
-          id: 5,
+          id: '5',
           status: 'Final Milestone',
         },
+        is_open: true,
+        added_by: null,
       },
     ];
     const result = render(

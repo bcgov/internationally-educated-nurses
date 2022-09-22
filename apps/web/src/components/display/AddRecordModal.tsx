@@ -6,7 +6,7 @@ import ReactSelect from 'react-select';
 import { toast } from 'react-toastify';
 import dayjs from 'dayjs';
 
-import { Button, getSelectStyleOverride } from '@components';
+import { Button, getSelectStyleOverride, Input } from '@components';
 import {
   ApplicantJobRO,
   IENApplicantJobCreateUpdateDTO,
@@ -157,6 +157,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
                           }))}
                           getOptionLabel={option => `${option.title}`}
                           styles={getSelectStyleOverride<RecordTypeOptions<string>>()}
+                          components={{ Input }}
                         />
                       )}
                     />
@@ -179,6 +180,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
                         isOptionDisabled={o => o.id == field.value}
                         getOptionLabel={option => `${option.title}`}
                         styles={getSelectStyleOverride<RecordTypeOptions<string>>()}
+                        components={{ Input }}
                       />
                     )}
                   />
@@ -209,6 +211,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
                         styles={getSelectStyleOverride<RecordTypeOptions<number>>()}
                         isDisabled={!form.values.ha_pcn}
                         isMulti
+                        components={{ Input }}
                       />
                     )}
                   />

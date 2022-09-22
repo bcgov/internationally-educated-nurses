@@ -1,7 +1,7 @@
 import ReactSelect from 'react-select';
 import { RecordTypeOptions, useGetAddRecordOptions } from '@services';
 import { JobFilterOptions } from '@ien/common';
-import { Button, getSelectStyleOverride } from '@components';
+import { Button, getSelectStyleOverride, Input } from '@components';
 import { useAuthContext } from '../../AuthContexts';
 
 interface JobFilterProps {
@@ -44,6 +44,7 @@ export const JobFilters = ({ options, update }: JobFilterProps) => {
           isMulti
           isClearable
           className='w-80 min-w-full md:min-w-0 mx-1 placeholder-bcGray'
+          components={{ Input }}
         />
       )}
       <ReactSelect<RecordTypeOptions<string>, true>
@@ -62,6 +63,7 @@ export const JobFilters = ({ options, update }: JobFilterProps) => {
         isMulti
         isClearable
         className='w-80 min-w-full md:min-w-0 mx-1 placeholder-bcGray'
+        components={{ Input }}
       />
       <Button className='ml-2 px-6 text-sm' onClick={clearFilters} variant='primary'>
         Clear

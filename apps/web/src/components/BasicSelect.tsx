@@ -1,10 +1,10 @@
 import { CSSProperties } from 'react';
-import ReactSelect, { StylesConfig, components, GroupBase, InputProps } from 'react-select';
+import ReactSelect, { StylesConfig, components, GroupBase } from 'react-select';
 import { DropdownIndicatorProps } from 'react-select/dist/declarations/src/components/indicators';
 import { Property } from 'csstype';
 import downCaret from '@assets/img/arrow_down.svg';
+import { OptionValueType, SelectOption, StyleOption } from '@services';
 import { Label } from './form';
-import { OptionValueType, SelectOption, StyleOption } from '../services/constants';
 
 export interface BasicSelectProps<T extends OptionValueType> {
   id: string;
@@ -27,6 +27,11 @@ const DropdownIndicator = <T extends OptionValueType>(
   );
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const Input = (props: any) => {
+  return <components.Input {...props} />;
+};
+
 export const BasicSelect = <T extends OptionValueType>(props: BasicSelectProps<T>) => {
   const {
     id,
@@ -38,12 +43,6 @@ export const BasicSelect = <T extends OptionValueType>(props: BasicSelectProps<T
     underline = false,
     optionStyle,
   } = props;
-
-  const Input = <T extends OptionValueType>(
-    props: InputProps<SelectOption<T>, false, GroupBase<SelectOption<T>>>,
-  ) => {
-    return <components.Input {...props} data-lpignore='true' />;
-  };
 
   return (
     <div>

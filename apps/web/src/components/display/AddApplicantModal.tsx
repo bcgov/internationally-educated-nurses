@@ -11,6 +11,7 @@ import {
   getSelectStyleOverride,
   EducationForm,
   Error,
+  Input,
 } from '@components';
 import { addApplicant, RecordTypeOptions, useGetEducationOptions } from '@services';
 import { Modal } from '../Modal';
@@ -136,6 +137,7 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
                       styles={getSelectStyleOverride<RecordTypeOptions<number>>()}
                       menuPlacement='bottom'
                       isMulti
+                      components={{ Input }}
                     />
                   )}
                 />
@@ -164,6 +166,7 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
                       getOptionLabel={option => `${option.title}`}
                       styles={getSelectStyleOverride<RecordTypeOptions<number>>()}
                       menuPlacement='bottom'
+                      components={{ Input }}
                     />
                   )}
                 />

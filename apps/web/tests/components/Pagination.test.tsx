@@ -9,7 +9,7 @@ describe('Pagination', () => {
     const pageSize = 10;
     const total = 37;
 
-    render(<Pagination pageOptions={{ pageIndex, pageSize, total }} onChange={mock} />);
+    render(<Pagination id='test' pageOptions={{ pageIndex, pageSize, total }} onChange={mock} />);
 
     const start = pageSize * (pageIndex - 1) + 1;
     const end = pageSize * pageIndex < total ? pageSize * pageIndex : total;

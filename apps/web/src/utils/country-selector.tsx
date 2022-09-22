@@ -1,4 +1,4 @@
-import { FieldProps, getSelectStyleOverride } from '@components';
+import { FieldProps, getSelectStyleOverride, Input } from '@components';
 import ReactSelect, { MenuPlacement } from 'react-select';
 import { isoCountries, RecordTypeOptions } from '@services';
 
@@ -25,5 +25,6 @@ export const getCountrySelector = (
     getOptionLabel={option => `${option.title}`}
     styles={getSelectStyleOverride<RecordTypeOptions<number>>()}
     menuPlacement={placement}
+    components={{ Input }}
   />
 );
