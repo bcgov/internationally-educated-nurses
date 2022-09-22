@@ -78,7 +78,7 @@ describe('Details - Job', () => {
     filteredJobs.forEach(job => {
       cy.get('#ha').click().type(`${job.ha_pcn}{enter}`);
     });
-    filteredJobs.forEach(job => cy.contains('span', job.ha_pcn));
+    filteredJobs.forEach(job => cy.contains('div', job.ha_pcn));
     const matchedJobs = jobs.filter(j1 => filteredJobs.some(j2 => j2.ha_pcn === j1.ha_pcn));
     cy.get('[data-cy^=record-]').should('have.length', matchedJobs.length);
     return filteredJobs;
