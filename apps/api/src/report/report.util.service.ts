@@ -266,8 +266,8 @@ export class ReportUtilService {
                   WHERE
                     ien_status.applicant_id = applicants.id AND ien_status.start_date::date <= '${to}' AND
                     status.category IN ('${StatusCategory.LICENSING_REGISTRATION}', '${StatusCategory.RECRUITMENT}')
-                  ORDER BY ien_status.start_date
-                  DESC limit 1
+                  ORDER BY ien_status.start_date DESC, ien_status.updated_date DESC
+                  LIMIT 1
                 ),
                 '${this.nil_uuid}'
               ) IN ('${StatusId.WITHDREW_FROM_PROGRAM}', '${StatusId.JOB_OFFER_ACCEPTED}') 
@@ -337,37 +337,71 @@ export class ReportUtilService {
 
   licenseApplicantsQuery(from: string, to: string) {
     return `
-      WITH full_licenses_lpn AS (
-        SELECT DISTINCT applicant_id
-        FROM public.ien_applicant_status_audit 
+       WITH active_applicants AS (
+        SELECT
+          t1.*
+        FROM (
+          SELECT 
+          applicants.id,
+          CASE 
+            WHEN 
+              COALESCE(
+                (
+                  SELECT ien_status.status_id 
+                  FROM public.ien_applicant_status_audit ien_status
+                  LEFT JOIN public.ien_applicant_status status ON status.id = ien_status.status_id
+                  WHERE
+                    ien_status.applicant_id = applicants.id AND ien_status.start_date::date <= '${to}' AND
+                    status.category IN ('${StatusCategory.LICENSING_REGISTRATION}', '${StatusCategory.RECRUITMENT}')
+                  ORDER BY ien_status.start_date DESC, ien_status.updated_date DESC
+                  LIMIT 1
+                ),
+                '${this.nil_uuid}'
+              ) IN ('${StatusId.WITHDREW_FROM_PROGRAM}', '${StatusId.JOB_OFFER_ACCEPTED}') 
+            THEN 0
+            ELSE 1 
+          END as active
+          FROM public.ien_applicants as applicants
+        ) as t1
+      ), full_licenses_lpn AS (
+        SELECT DISTINCT iasa.applicant_id
+        FROM public.ien_applicant_status_audit iasa 
+        INNER JOIN active_applicants aa ON aa.id = iasa.applicant_id
         WHERE 
-          status_id = '${StatusId.BCCNM_FULL_LICENCE_LPN}' AND
-          start_date <= '${to}' AND
-          start_date >= '${from}'
+          iasa.status_id = '${StatusId.BCCNM_FULL_LICENCE_LPN}' AND
+          iasa.start_date <= '${to}' AND
+          iasa.start_date >= '${from}' AND
+          aa.active = 1
       ),
       full_licenses_rn AS (
-        SELECT DISTINCT applicant_id
-        FROM public.ien_applicant_status_audit 
+        SELECT DISTINCT iasa.applicant_id
+        FROM public.ien_applicant_status_audit iasa
+        INNER JOIN active_applicants aa ON aa.id = iasa.applicant_id
         WHERE 
-          status_id = '${StatusId.BCCNM_FULL_LICENSE_RN}' AND
-          start_date <= '${to}' AND
-          start_date >= '${from}'
+          iasa.status_id = '${StatusId.BCCNM_FULL_LICENSE_RN}' AND
+          iasa.start_date <= '${to}' AND
+          iasa.start_date >= '${from}' AND
+          aa.active = 1
       ),
       partial_licenses_lpn AS (
         SELECT DISTINCT iasa.applicant_id
         FROM public.ien_applicant_status_audit iasa
+        INNER JOIN active_applicants aa ON aa.id = iasa.applicant_id
         WHERE 
           iasa.status_id = '${StatusId.BCCNM_PROVISIONAL_LICENSE_LPN}' AND
           iasa.start_date <= '${to}' AND
-          iasa.start_date >= '${from}'
+          iasa.start_date >= '${from}' AND
+          aa.active = 1
       ),
       partial_licenses_rn AS (
         SELECT DISTINCT iasa.applicant_id
         FROM public.ien_applicant_status_audit iasa
+        INNER JOIN active_applicants aa ON aa.id = iasa.applicant_id
         WHERE 
           iasa.status_id = '${StatusId.BCCNM_PROVISIONAL_LICENSE_RN}' AND
           iasa.start_date <= '${to}' AND
-          iasa.start_date >= '${from}'
+          iasa.start_date >= '${from}' AND
+          aa.active = 1
       )
       
       SELECT 'BCCNM Provisional Licence LPN' AS status, count(*) AS applicant_count FROM partial_licenses_lpn UNION ALL
