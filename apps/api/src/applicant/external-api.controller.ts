@@ -22,7 +22,6 @@ import { IENUsers } from './entity/ienusers.entity';
 
 import { IENUserFilterAPIDTO, SyncApplicantsResultDTO } from './dto';
 import { AuthGuard } from '../auth/auth.guard';
-import { IENApplicant } from './entity/ienapplicant.entity';
 import { JWTGuard } from 'src/auth/jwt.guard';
 import { ApplicantSyncRO } from './ro/sync.ro';
 

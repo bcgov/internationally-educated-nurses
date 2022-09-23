@@ -32,7 +32,6 @@ import { IENHaPcn } from './entity/ienhapcn.entity';
 import { IENStatusReason } from './entity/ienstatus-reason.entity';
 import { IENJobTitle } from './entity/ienjobtitles.entity';
 import { IENApplicantStatus } from './entity/ienapplicant-status.entity';
-import e from 'express';
 import { ApplicantSyncRO } from './ro/sync.ro';
 
 @Injectable()
@@ -649,7 +648,7 @@ export class ExternalAPIService {
     }
   }
 
-  async getApplicants(filter: IENUserFilterAPIDTO):Promise<ApplicantSyncRO[]>{
+  async getApplicants(filter: IENUserFilterAPIDTO): Promise<ApplicantSyncRO[]> {
     const { from, to, limit, skip } = filter;
     const audits: { applicant_id: string }[] = await this.ienapplicantStatusAuditRepository
       .createQueryBuilder()
@@ -668,7 +667,7 @@ export class ExternalAPIService {
       return [];
     }
     const ids = audits.map(audit => audit.applicant_id);
-    let results =await  this.ienapplicantRepository.find({
+    const results = await this.ienapplicantRepository.find({
       where: (qb: any) => {
         qb.where(`IENApplicant.id IN (:...ids)`, { ids });
       },
@@ -677,23 +676,23 @@ export class ExternalAPIService {
         'applicant_status_audit.status',
         'applicant_status_audit.job',
         'applicant_status_audit.updated_by',
-        'applicant_status_audit.added_by'
+        'applicant_status_audit.added_by',
       ],
     });
 
-    return results.map((result):ApplicantSyncRO=>{
-      let updated_date = result.updated_date; 
-      result.applicant_status_audit.map((status)=>{
-        if(dayjs(status.updated_date).isAfter(dayjs(updated_date))){
+    return results.map((result): ApplicantSyncRO => {
+      let updated_date = result.updated_date;
+      result.applicant_status_audit.map(status => {
+        if (dayjs(status.updated_date).isAfter(dayjs(updated_date))) {
           updated_date = status.updated_date;
         }
-      })
-      
+      });
+
       return {
-        id:result.id,
+        id: result.id,
         updated_date,
-        milestone_statuses:result.applicant_status_audit
-      }
-    })
+        milestone_statuses: result.applicant_status_audit,
+      };
+    });
   }
 }
