@@ -454,7 +454,7 @@ export class ReportUtilService {
           CASE WHEN abbreviation='IHA' THEN applicants ELSE 0 END AS IHA,
           CASE WHEN abbreviation='VIHA' THEN applicants ELSE 0 END AS VIHA,
           CASE WHEN abbreviation='NHA' THEN applicants ELSE 0 END AS NHA,
-          CASE WHEN abbreviation='PVHA' THEN applicants ELSE 0 END AS PVHA,
+          CASE WHEN abbreviation='PHC' THEN applicants ELSE 0 END AS PHC,
           CASE WHEN abbreviation='PHSA' THEN applicants ELSE 0 END AS PHSA,
           CASE WHEN abbreviation='VCHA' THEN applicants ELSE 0 END AS VCHA
         FROM ha_status
@@ -463,7 +463,7 @@ export class ReportUtilService {
         final_data as (
         SELECT * FROM applicant_ha_status
         UNION ALL
-        SELECT id, 0 AS FNHA, 0 AS FHA, 0 AS IHA, 0 AS VIHA, 0 AS NHA, 0 AS PVHA, 0 AS PHSA, 0 AS VCHA
+        SELECT id, 0 AS FNHA, 0 AS FHA, 0 AS IHA, 0 AS VIHA, 0 AS NHA, 0 AS PHC, 0 AS PHSA, 0 AS VCHA
         FROM public.ien_applicant_status WHERE category = '${StatusCategory.RECRUITMENT}' AND 
         id IN (
           '${StatusId.REFERRAL_ACKNOWLEDGED}',
@@ -487,7 +487,7 @@ export class ReportUtilService {
           IHA as "Interior Health",
           VIHA as "Vancouver Island Health",
           NHA as "Northern Health", 
-          PVHA as "Providence Health",
+          PHC as "Providence Health Care",
           PHSA as "Provincial Health Services", 
           VCHA as "Vancouver Coastal Health"
         FROM (
@@ -498,7 +498,7 @@ export class ReportUtilService {
           sum(IHA) AS IHA,
           sum(VIHA) AS VIHA,
           sum(NHA) AS NHA,
-          sum(PVHA) AS PVHA,
+          sum(PHC) AS PHC,
           sum(PHSA) AS PHSA,
           sum(VCHA) AS VCHA
         FROM final_data
@@ -554,14 +554,14 @@ export class ReportUtilService {
         CASE WHEN abbreviation='IHA' THEN applicants ELSE 0 END AS IHA,
         CASE WHEN abbreviation='VIHA' THEN applicants ELSE 0 END AS VIHA,
         CASE WHEN abbreviation='NHA' THEN applicants ELSE 0 END AS NHA,
-        CASE WHEN abbreviation='PVHA' THEN applicants ELSE 0 END AS PVHA,
+        CASE WHEN abbreviation='PHC' THEN applicants ELSE 0 END AS PHC,
         CASE WHEN abbreviation='PHSA' THEN applicants ELSE 0 END AS PHSA,
         CASE WHEN abbreviation='VCHA' THEN applicants ELSE 0 END AS VCHA
       FROM ha_status
       ORDER BY status_id
       ),
       temp_status AS (
-        SELECT id, 0 AS FNHA, 0 AS FHA, 0 AS IHA, 0 AS VIHA, 0 AS NHA, 0 AS PVHA, 0 AS PHSA, 0 AS VCHA
+        SELECT id, 0 AS FNHA, 0 AS FHA, 0 AS IHA, 0 AS VIHA, 0 AS NHA, 0 AS PHC, 0 AS PHSA, 0 AS VCHA
         FROM public.ien_applicant_status WHERE category = '${StatusCategory.BC_PNP}' AND
         id IN (
           '${StatusId.SENT_FIRST_STEPS_DOCUMENT}',
@@ -586,7 +586,7 @@ export class ReportUtilService {
         IHA as "Interior Health",
         VIHA as "Vancouver Island Health",
         NHA as "Northern Health", 
-        PVHA as "Providence Health",
+        PHC as "Providence Health Care",
         PHSA as "Provincial Health Services", 
         VCHA as "Vancouver Coastal Health"
       FROM (
@@ -597,7 +597,7 @@ export class ReportUtilService {
         sum(IHA) AS IHA,
         sum(VIHA) AS VIHA,
         sum(NHA) AS NHA,
-        sum(PVHA) AS PVHA,
+        sum(PHC) AS PHC,
         sum(PHSA) AS PHSA,
         sum(VCHA) AS VCHA
         FROM final_data
