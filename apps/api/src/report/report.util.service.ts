@@ -413,13 +413,13 @@ export class ReportUtilService {
 
   applicantsInRecruitmentQuery(to: string) {
     return `
-      WITH withdew_hired_applicants AS (
+      WITH withdrew_hired_applicants AS (
         -- let's find candidates who were withdrew/hired in the process
         SELECT t1.* 
         FROM (
           SELECT
             ien_status.*,
-            ROW_NUMBER() OVER(PARTITION BY ien_status.applicant_id ORDER BY ien_status.start_date DESC) AS rank
+            ROW_NUMBER() OVER(PARTITION BY ien_status.applicant_id ORDER BY ien_status.start_date DESC, ien_status.updated_date DESC) AS rank
           FROM public.ien_applicant_status_audit ien_status
           LEFT JOIN public.ien_applicant_status status ON status.id=ien_status.status_id
           WHERE
@@ -437,12 +437,14 @@ export class ReportUtilService {
             wha.status_id,
             wha.job_id,
             wha.start_date,
-            CASE WHEN wha.status_id='${StatusId.WITHDREW_FROM_PROGRAM}' THEN (
+            CASE WHEN wha.status_id = '${StatusId.WITHDREW_FROM_PROGRAM}' THEN (
               SELECT iasa.start_date FROM public.ien_applicant_status_audit iasa 
-              WHERE iasa.applicant_id=wha.applicant_id AND iasa.status_id != '${StatusId.WITHDREW_FROM_PROGRAM}' AND iasa.start_date > wha.start_date
+              WHERE
+                iasa.applicant_id = wha.applicant_id AND iasa.status_id != '${StatusId.WITHDREW_FROM_PROGRAM}' AND
+                (iasa.start_date > wha.start_date OR (iasa.start_date = wha.start_date AND iasa.updated_date > wha.updated_date))
               ORDER BY start_date limit 1
             ) END as next_date
-          FROM withdew_hired_applicants wha
+          FROM withdrew_hired_applicants wha
           ) t1
         WHERE (t1.status_id='${StatusId.WITHDREW_FROM_PROGRAM}' and t1.next_date is null) OR t1.status_id='${StatusId.JOB_OFFER_ACCEPTED}'
       ),
@@ -455,7 +457,7 @@ export class ReportUtilService {
           (SELECT status_id FROM public.ien_applicant_status_audit as status 
             WHERE status.job_id=job.id AND start_date <= '${to}'
             -- put new status restriction here
-            ORDER BY start_date DESC limit 1) as status_id,
+            ORDER BY start_date DESC, updated_date DESC limit 1) as status_id,
           applicant_id
         FROM
           public.ien_applicant_jobs as job
@@ -573,7 +575,8 @@ export class ReportUtilService {
                   '${StatusId.RECEIVED_WORK_PERMIT}'
                   )
                 AND sa.start_date <= '${to}'
-              ORDER BY sa.start_date DESC limit 1
+              ORDER BY sa.start_date DESC, sa.updated_date DESC
+              LIMIT 1
             ) as status_id
           FROM hired_applicants as a1
         ) AS t1
@@ -658,8 +661,8 @@ export class ReportUtilService {
             SELECT aj.ha_pcn_id 
             FROM public.ien_applicant_status_audit asa JOIN public.ien_applicant_jobs aj on aj.id=asa.job_id
             WHERE arwp.applicant_id = asa.applicant_id
-            ORDER BY asa.start_date DESC
-            limit 1
+            ORDER BY asa.start_date DESC, asa.updated_date DESC
+            LIMIT 1
           ) as ha 
         FROM applicantReceivedWP arwp
       ), currentPeriod as (
@@ -748,7 +751,7 @@ export class ReportUtilService {
             iasa.status_id,
           iasa.job_id,
           iaj.ha_pcn_id as ha,
-              ROW_NUMBER() OVER(PARTITION BY iasa.applicant_id ORDER BY iasa.start_date DESC) AS rank
+              ROW_NUMBER() OVER(PARTITION BY iasa.applicant_id ORDER BY iasa.start_date DESC, iasa.updated_date DESC) AS rank
         FROM public.ien_applicant_status_audit iasa
         LEFT JOIN public.ien_applicant_jobs iaj ON iasa.job_id=iaj.id
         WHERE iasa.status_id IN ('${StatusId.WITHDREW_FROM_PROGRAM}', '${StatusId.JOB_OFFER_ACCEPTED}') AND iasa.start_date::date <= '${to}'
