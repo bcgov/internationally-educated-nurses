@@ -20,8 +20,8 @@ export const Authorities: Record<string, Authority> = {
     name: 'First Nations Health Authority',
     domains: ['fnha.ca'],
   },
-  PVHA: {
-    id: 'PVHA',
+  PHC: {
+    id: 'PHC',
     name: 'Providence Health Care Society',
     domains: ['providencehealth.bc.ca'],
   },
