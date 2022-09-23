@@ -295,7 +295,7 @@ export class ReportUtilService {
             start_date::date <= '${to}' AND
             aa.id = status_audit.applicant_id AND
             status.category = '${StatusCategory.LICENSING_REGISTRATION}'
-          ORDER BY start_date desc
+          ORDER BY start_date desc, updated_date desc
           limit 1
         ) b ON aa.id=b.applicant_id
       ),
@@ -313,10 +313,10 @@ export class ReportUtilService {
       SELECT 'NCLEX - Passed' as status, count(*) FROM report WHERE status_id = '${StatusId.NCLEX_PASSED}' UNION ALL
       SELECT 'REx-PN – Written' as status, count(*) FROM report WHERE status_id = '${StatusId.REX_PN_WRITTEN}' UNION ALL
       SELECT 'REx-PN – Passed' as status, count(*) FROM report WHERE status_id = '${StatusId.REX_PN_PASSED}' UNION ALL
-      SELECT 'BCCNM Full Licence LPN' as status, count(*) FROM report WHERE full_lpn > 0 UNION ALL
-      SELECT 'BCCNM Full Licence RN' as status, count(*) FROM report WHERE full_rn > 0 UNION ALL
-      SELECT 'BCCNM Provisional Licence LPN' as status, count(*) FROM report WHERE prov_lpn > 0 UNION ALL
-      SELECT 'BCCNM Provisional Licence RN' as status, count(*) FROM report WHERE prov_rn > 0 UNION ALL
+      SELECT 'BCCNM Full Licence LPN' as status, count(*) FROM report WHERE status_id = '${StatusId.BCCNM_FULL_LICENCE_LPN}' UNION ALL
+      SELECT 'BCCNM Full Licence RN' as status, count(*) FROM report WHERE status_id = '${StatusId.BCCNM_FULL_LICENSE_RN}' UNION ALL
+      SELECT 'BCCNM Provisional Licence LPN' as status, count(*) FROM report WHERE status_id = '${StatusId.BCCNM_PROVISIONAL_LICENSE_LPN}' UNION ALL
+      SELECT 'BCCNM Provisional Licence RN' as status, count(*) FROM report WHERE status_id = '${StatusId.BCCNM_PROVISIONAL_LICENSE_RN}' UNION ALL
       SELECT 'Referred for registration exam' as status, count(*) FROM report WHERE status_id = '${StatusId.REFERRED_TO_REGISTRATION_EXAM}' UNION ALL
       SELECT 'Registered as an HCA' as status, count(*) FROM report WHERE status_id = '${StatusId.REGISTERED_AS_AN_HCA}' UNION ALL
       SELECT 'Registration Journey Complete' as status, count(*) FROM report WHERE status_id = '${StatusId.REGISTRATION_JOURNEY_COMPLETED}' UNION ALL
