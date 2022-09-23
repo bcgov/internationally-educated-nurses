@@ -12,11 +12,11 @@ export class IENApplicantUpdateStatusDTO {
 
   @IsDateString({}, { message: 'Must be a valid Date' })
   @IsOptional()
-  start_date?: Date;
+  start_date?: string;
 
   @IsDateString()
   @IsOptional()
-  end_date?: Date;
+  end_date?: string;
 
   @IsString({ message: 'Notes/Reason must be a string' })
   @IsOptional()
@@ -37,5 +37,5 @@ export class IENApplicantUpdateStatusDTO {
   )
   @IsDateString()
   @IsOptional()
-  effective_date?: Date;
+  effective_date?: string;
 }

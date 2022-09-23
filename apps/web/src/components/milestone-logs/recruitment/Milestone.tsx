@@ -23,12 +23,7 @@ export const Milestone: React.FC<MilestoneProps> = props => {
   return (
     <>
       {editing !== milestone ? (
-        <EditableMilestone
-          milestone={milestone}
-          editing={editing}
-          handleSubmit={handleSubmit}
-          onEditing={onEditing}
-        />
+        <EditableMilestone milestone={milestone} editing={editing} onEditing={onEditing} />
       ) : (
         <>
           <MilestoneForm<IENApplicantUpdateStatusDTO>

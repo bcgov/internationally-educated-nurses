@@ -21,7 +21,7 @@ export class IENApplicantUpdateStatusAPIDTO extends IENApplicantUpdateStatusDTO 
   })
   @IsDateString()
   @IsOptional()
-  start_date?: Date;
+  start_date?: string;
 
   @ApiPropertyOptional({
     description: "Applicant's status end date",
@@ -31,7 +31,7 @@ export class IENApplicantUpdateStatusAPIDTO extends IENApplicantUpdateStatusDTO 
   })
   @IsDateString()
   @IsOptional()
-  end_date?: Date;
+  end_date?: string;
 
   @ApiPropertyOptional({ description: 'Applicant status note', default: 'Notes' })
   @IsString()
@@ -67,5 +67,5 @@ export class IENApplicantUpdateStatusAPIDTO extends IENApplicantUpdateStatusDTO 
   )
   @IsDateString()
   @IsOptional()
-  effective_date?: Date;
+  effective_date?: string;
 }
