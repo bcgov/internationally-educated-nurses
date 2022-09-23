@@ -17,7 +17,7 @@ export const AddMilestone = ({ job, category }: AddMilestoneProps) => {
 
   const isDuplicate = ({ status, start_date }: IENApplicantAddStatusDTO) => {
     return (
-      job && job.status_audit?.find(m => m.status.status == status && m.start_date == start_date)
+      job && job.status_audit?.find(m => m.status.status === status && m.start_date === start_date)
     );
   };
 

@@ -16,8 +16,6 @@ import {
 import editIcon from '@assets/img/edit.svg';
 import deleteIcon from '@assets/img/trash_can.svg';
 import disabledDeleteIcon from '@assets/img/disabled-trash_can.svg';
-import dotIcon from '@assets/img/dot.svg';
-import dotIconHired from '@assets/img/dot_green.svg';
 import { AddRecordModal } from '../../display/AddRecordModal';
 import { updateMilestone, getHumanizedDuration } from '@services';
 import { useApplicantContext } from '../../applicant/ApplicantContext';
@@ -31,15 +29,9 @@ interface RecordProps {
   job: ApplicantJobRO;
   expandRecord: boolean;
   jobIndex: number;
-  wasOfferAccepted?: boolean;
 }
 
-export const Record: React.FC<RecordProps> = ({
-  job,
-  expandRecord,
-  jobIndex,
-  wasOfferAccepted,
-}) => {
+export const Record: React.FC<RecordProps> = ({ job, expandRecord, jobIndex }) => {
   const { applicant, updateJob, fetchApplicant } = useApplicantContext();
   const [modalVisible, setModalVisible] = useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
@@ -70,14 +62,37 @@ export const Record: React.FC<RecordProps> = ({
   }, [applicant, job]);
 
   // set status for Record, returns in ASC, need to grab last item in array
-  const getRecordStatus = () => {
+  const getOutcomeText = () => {
     if (!milestones.length) return 'On Going';
 
-    const lastMilestone = milestones[milestones.length - 1];
-    const { status } = lastMilestone.status;
+    const status = milestones[milestones.length - 1]?.status.status;
 
-    const done = COMPLETED_STATUSES.includes(status as STATUS);
-    return `${done ? 'Complete - ' : 'On Going - '} ${status}`;
+    if (COMPLETED_STATUSES.includes(status as STATUS)) {
+      return `Complete - ${status}`;
+    }
+    return `On Going - ${status}`;
+  };
+
+  const getBgClass = () => {
+    const status = milestones[milestones.length - 1]?.status.status;
+    if (status === STATUS.JOB_OFFER_ACCEPTED) {
+      return 'bg-bcGreenHiredContainer';
+    } else if (COMPLETED_STATUSES.includes(status as STATUS)) {
+      return 'bg-bcYellowCream';
+    } else {
+      return 'bg-bcBlueBar';
+    }
+  };
+
+  const getOutcomeClass = () => {
+    const status = milestones[milestones.length - 1]?.status.status;
+    if (status === STATUS.JOB_OFFER_ACCEPTED) {
+      return 'text-bcGreenHiredText';
+    } else if (COMPLETED_STATUSES.includes(status as STATUS)) {
+      return 'text-bcGray';
+    } else {
+      return 'text-bcBlueLink';
+    }
   };
 
   // time passed since the last milestone only for incomplete job competitions
@@ -134,23 +149,17 @@ export const Record: React.FC<RecordProps> = ({
     <div className='mb-3' data-cy={`record-${jobIndex}`}>
       <Disclosure
         shouldExpand={expandRecord}
-        wasOfferAccepted={wasOfferAccepted}
+        bgClass={getBgClass()}
         buttonText={
           <div className='rounded py-2 pl-5 w-full'>
-            <div className='flex items-center'>
-              <span className='font-bold text-black'>{ha_pcn.title}</span>
-              <span
-                className={`text-sm ${
-                  wasOfferAccepted ? 'text-bcGreenHiredText' : 'text-bcBlueLink'
-                } font-bold mr-3 ml-auto`}
+            <div className='flex items-center align-middle'>
+              <div className='font-bold text-black'>{ha_pcn.title}</div>
+              <div
+                className={`text-sm flex align-middle font-bold mr-3 ml-auto ${getOutcomeClass()}`}
               >
-                <img
-                  src={wasOfferAccepted ? dotIconHired.src : dotIcon.src}
-                  alt='dot heading'
-                  className='inline-block mr-2'
-                />
-                {getRecordStatus()}
-              </span>
+                <span className='mr-2 text-xxs'>&#11044;</span>
+                {getOutcomeText()}
+              </div>
             </div>
             <div className='flex justify-between'>
               <span className='text-sm text-black '>

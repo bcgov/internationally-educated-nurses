@@ -54,16 +54,16 @@ export interface ApplicantStatusAuditRO {
   status: IENApplicantStatusRO;
   job?: ApplicantJobRO | null;
   applicant: ApplicantRO;
-  start_date?: Date;
-  end_date?: Date;
+  start_date: string;
+  end_date?: string;
   notes?: string;
-  added_by?: IENUserRO | null;
-  updated_by?: IENUserRO | null;
-  created_date?: Date;
-  updated_date?: Date;
-  reason?: IENStatusReasonRO | null;
-  reason_other?: string | null;
-  effective_date?: Date;
+  added_by?: IENUserRO;
+  updated_by?: IENUserRO;
+  created_date: string;
+  updated_date: string;
+  reason?: IENStatusReasonRO;
+  reason_other?: string;
+  effective_date?: string;
 }
 
 export interface ApplicantAuditRO {
