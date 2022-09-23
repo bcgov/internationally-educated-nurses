@@ -81,7 +81,7 @@ export const DataExtractReport = () => {
                   label='End Date'
                   format='yyyy-MM-dd'
                   min={dayjs(values.from || MIN_DATE).toDate()}
-                  max={dayjs(getMaxDate() || values.to).toDate()}
+                  max={dayjs(getMaxDate()).toDate()}
                   validate={(val: string) => validateDate(val)}
                 />
               </span>
