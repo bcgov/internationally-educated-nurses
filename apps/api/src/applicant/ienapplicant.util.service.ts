@@ -296,7 +296,7 @@ export class IENApplicantUtilService {
           SELECT status_id
           FROM ien_applicant_status_audit asa
           WHERE asa.applicant_id=ien_applicants.id
-          ORDER BY asa.start_date DESC, updated_date
+          ORDER BY asa.start_date DESC, asa.updated_date
           DESC limit 1
         )
         WHERE ien_applicants.id IN (${idsToUpdate})`;
