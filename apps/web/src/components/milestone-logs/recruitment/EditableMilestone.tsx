@@ -1,4 +1,4 @@
-import { Access, ApplicantStatusAuditRO, IENApplicantUpdateStatusDTO } from '@ien/common';
+import { Access, ApplicantStatusAuditRO } from '@ien/common';
 import { AclMask } from '@components';
 import editIcon from '@assets/img/edit.svg';
 import { DeleteMilestoneModal } from '../../display/DeleteMilestoneModal';
@@ -11,7 +11,6 @@ import { canDelete } from '../../../utils';
 
 interface EditableMilestoneProps {
   milestone: ApplicantStatusAuditRO;
-  handleSubmit: (milestone: IENApplicantUpdateStatusDTO) => Promise<void>;
   editing: ApplicantStatusAuditRO | null;
   onEditing: (editing: ApplicantStatusAuditRO | null) => void;
 }

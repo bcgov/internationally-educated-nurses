@@ -19,6 +19,7 @@ import {
   IENApplicantJobQueryDTO,
   IENApplicantUpdateStatusAPIDTO,
 } from './dto';
+import dayjs from 'dayjs';
 
 @Injectable()
 export class IENApplicantService {
@@ -258,11 +259,11 @@ export class IENApplicantService {
 
     data.reason_other = reason_other;
 
-    data.start_date = start_date ? new Date(start_date) : new Date();
+    data.start_date = start_date ? dayjs(start_date).toDate() : dayjs().toDate();
 
-    data.end_date = end_date ? new Date(end_date) : undefined;
+    data.end_date = end_date ? dayjs(end_date).toDate() : undefined;
 
-    data.effective_date = effective_date ? new Date(effective_date) : undefined;
+    data.effective_date = effective_date ? dayjs(effective_date).toDate() : undefined;
 
     data.notes = notes;
 
@@ -330,15 +331,15 @@ export class IENApplicantService {
     }
 
     if (start_date) {
-      status_audit.start_date = start_date;
+      status_audit.start_date = dayjs(start_date).toDate();
     }
 
     if (end_date) {
-      status_audit.end_date = end_date;
+      status_audit.end_date = dayjs(end_date).toDate();
     }
 
     if (effective_date) {
-      status_audit.effective_date = effective_date;
+      status_audit.effective_date = dayjs(effective_date).toDate();
     }
 
     if (notes !== undefined) {
