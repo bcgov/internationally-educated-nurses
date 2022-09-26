@@ -22,8 +22,8 @@ import { IENUsers } from './entity/ienusers.entity';
 
 import { IENUserFilterAPIDTO, SyncApplicantsResultDTO } from './dto';
 import { AuthGuard } from '../auth/auth.guard';
-import { IENApplicant } from './entity/ienapplicant.entity';
 import { JWTGuard } from 'src/auth/jwt.guard';
+import { ApplicantSyncRO } from './ro/sync.ro';
 
 @Controller('external-api')
 @ApiTags('External API data process')
@@ -133,7 +133,7 @@ export class ExternalAPIController {
   @UseGuards(JWTGuard)
   @ApiBearerAuth()
   @Get('/applicants')
-  async getApplicants(@Query() filter: IENUserFilterAPIDTO): Promise<IENApplicant[]> {
-    return this.externalAPIService.getApplicants(filter);
+  async getApplicants(@Query() filter: IENUserFilterAPIDTO): Promise<ApplicantSyncRO[]> {
+    return await this.externalAPIService.getApplicants(filter);
   }
 }

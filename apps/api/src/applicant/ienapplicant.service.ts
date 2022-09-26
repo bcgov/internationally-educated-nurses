@@ -289,7 +289,9 @@ export class IENApplicantService {
 
       // Let's check and updated the latest status on applicant
       await this.ienapplicantUtilService.updateLatestStatusOnApplicant([applicant.id], manager);
-
+      await manager.update<IENApplicant>(IENApplicant, status_audit.applicant.id, {
+        updated_date: new Date(),
+      });
       return status_audit;
     });
     return status_audit;
