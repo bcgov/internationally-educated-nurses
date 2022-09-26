@@ -680,11 +680,10 @@ export class ExternalAPIService {
       ],
     });
 
-    return results.map((result): ApplicantSyncRO =>{
-
+    return results.map((result): ApplicantSyncRO => {
       return {
         id: result.id,
-        updated_date:result.updated_date,
+        updated_date: result.updated_date,
         milestone_statuses: result.applicant_status_audit,
       };
     });
