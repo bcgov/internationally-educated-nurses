@@ -189,11 +189,11 @@ export class ExternalAPIService {
     for (let i = 0; i < parallel_requests; i++) {
       pages.push(
         this.external_request.getApplicants(
-          `/Applicant?next=${per_page}&offset=${offset}&from=${from_date}&to=${to_date}`,
+          `/applicants/ien?next=${per_page}&offset=${offset}&from=${from_date}&to=${to_date}`,
         ),
       );
       this.logger.log(
-        `/Applicant?next=${per_page}&offset=${offset}&from=${from_date}&to=${to_date}`,
+        `/applicants/ien?next=${per_page}&offset=${offset}&from=${from_date}&to=${to_date}`,
       );
       offset += per_page;
     }
@@ -277,11 +277,7 @@ export class ExternalAPIService {
 
     const audit = await this.saveSyncApplicantsAudit();
     try {
-      // restore after updating ats endpoints
-      // const applicants = await this.fetchApplicantsFromATS(from_date, to_date);
-      const applicants = await this.external_request.getData('/applicants', {
-        ApiKey: process.env.HMBC_ATS_AUTH_KEY,
-      });
+      const applicants = await this.fetchApplicantsFromATS(from_date, to_date);
 
       await getManager().transaction(async manager => {
         await this.createBulkApplicants(applicants, manager);
