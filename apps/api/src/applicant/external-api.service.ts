@@ -195,6 +195,7 @@ export class ExternalAPIService {
       );
       this.logger.log(
         `/applicants/ien?next=${per_page}&offset=${offset}&from=${from_date}&to=${to_date}`,
+        'ATS-SYNC',
       );
       offset += per_page;
     }
@@ -230,11 +231,11 @@ export class ExternalAPIService {
       let temp: any[] = [];
       await Promise.all(pages).then(res => {
         res.forEach(r => {
-          this.logger.log(`${temp.length}, ${Array.isArray(r) ? r.length : 0}`);
+          this.logger.log(`${temp.length}, ${Array.isArray(r) ? r.length : 0}`, 'ATS-SYNC');
           temp = temp.concat(r);
         });
       });
-      this.logger.log(`temp ${temp.length} and ${parallel_requests * per_page}`);
+      this.logger.log(`received ${temp.length} applicants`, 'ATS-SYNC');
       // let's check if next pages are available
       if (temp.length >= parallel_requests * per_page) {
         is_next = true;
@@ -422,7 +423,7 @@ export class ExternalAPIService {
             .orIgnore(true)
             .execute();
           this.logger.log(
-            `applicant milestones updated: ${result.raw.length}/${milestones.length}`,
+            `milestones updated: ${result.raw.length}/${milestones.length}`,
             'ATS-SYNC',
           );
         } catch (e) {
@@ -517,7 +518,7 @@ export class ExternalAPIService {
     const milestones = await this.ienMasterService.ienApplicantStatusRepository.find({
       select: ['id'],
       where: {
-        category: Not([StatusCategory.RECRUITMENT]),
+        category: Not(StatusCategory.RECRUITMENT),
       },
     });
     return milestones.map(({ id }) => id);
@@ -537,16 +538,21 @@ export class ExternalAPIService {
       return [];
     }
     const allowedMilestones: string[] = await this.allowedMilestones();
+    let total = 0;
     data.forEach(
       (item: { applicant_id: string; hasOwnProperty: (arg0: string) => any; milestones: any }) => {
         if (item.hasOwnProperty('milestones') && Array.isArray(item.milestones)) {
           const existingMilestones = item.milestones;
+          total += existingMilestones.length;
           existingMilestones.forEach(m => {
             this.mapMilestoneData(allowedMilestones, m, milestones, item.applicant_id, users);
           });
         }
       },
     );
+    if (total !== milestones.length) {
+      this.logger.log(`milestones rejected: ${total - milestones.length}`, 'ATS-SYNC');
+    }
     return milestones;
   }
 
@@ -591,7 +597,7 @@ export class ExternalAPIService {
       }
       milestones.push(temp);
     } else {
-      this.logger.log(`rejected Id ${m.id}`);
+      this.logger.log(`rejected milestone: ${m.id}`, 'ATS-SYNC');
     }
   }
 
