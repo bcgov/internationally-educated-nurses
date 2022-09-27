@@ -805,9 +805,6 @@ export class ReportUtilService {
               WHERE asa.applicant_id=sdoes.id AND asa.start_date >= sdoes.nnas 
               AND (asa.status_id 
                 IN (
-                  '${StatusId.APPLIED_TO_NNAS}',
-                  '${StatusId.SUBMITTED_DOCUMENTS}',
-                  '${StatusId.RECEIVED_NNAS_REPORT}',
                   '${StatusId.APPLIED_TO_BCCNM}',
                   '${StatusId.COMPLETED_LANGUAGE_REQUIREMENT}',
                   '${StatusId.REFERRED_TO_NCAS}',
@@ -835,7 +832,6 @@ export class ReportUtilService {
               AND asa.start_date >= sdoes.nnas 
               AND (asa.status_id 
                 IN (
-                  '${StatusId.COMPLETED_NCAS}',
                   '${StatusId.REFERRED_TO_ADDITIONAL_EDUCTION}',
                   '${StatusId.COMPLETED_ADDITIONAL_EDUCATION}',
                   '${StatusId.NCLEX_WRITTEN}',
