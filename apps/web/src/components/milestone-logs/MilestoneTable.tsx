@@ -92,7 +92,12 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
     const start = milestone.start_date;
     let end = milestone.end_date;
     if (!end) {
-      const nextMilestone = milestones.filter(m => m.status.id > milestone.status.id)[0];
+      const nextMilestone = milestones.find(m => {
+        return (
+          m.start_date > milestone.start_date ||
+          (m.start_date === milestone.start_date && m.updated_date > milestone.updated_date)
+        );
+      });
       if (nextMilestone) {
         end = nextMilestone.start_date;
       }
