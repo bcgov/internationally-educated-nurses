@@ -3,6 +3,7 @@ import { StatusCategory, StatusId } from '@ien/common';
 import { isValidDateFormat } from 'src/common/util';
 import dayjs from 'dayjs';
 import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.entity';
+import { PERIOD_START_DATE } from './report.service';
 
 @Injectable()
 export class ReportUtilService {
@@ -643,12 +644,10 @@ export class ReportUtilService {
     `;
   }
 
-  applicantHAForCurrentPeriodFiscalQuery(from: string, to: string) {
+  applicantHAForCurrentPeriodFiscalQuery(periodStart: string, fiscalStart: string, to: string) {
+    const startOfTotal = PERIOD_START_DATE > fiscalStart ? fiscalStart : PERIOD_START_DATE;
     return `
-      WITH periods AS (
-        SELECT
-          to_char('${from}'::date + ((('${to}'::date - '${from}'::date)/28)*28), 'YYYY-MM-DD') as period_start
-      ), applicantReceivedWP AS (
+      WITH applicantReceivedWP AS (
         SELECT 
           applicant_id, max(start_date) as start_date
         FROM public.ien_applicant_status_audit
@@ -666,31 +665,30 @@ export class ReportUtilService {
           ) as ha 
         FROM applicantReceivedWP arwp
       ), currentPeriod as (
-      
         SELECT ha, count(*) as current_period
         FROM applicantHA
         WHERE 
-          start_date >= (SELECT period_start::date FROM periods) AND
+          start_date >= '${periodStart}' AND
           start_date <= '${to}'
         GROUP BY ha
       ), currentFiscal as (
         SELECT ha, count(*) as current_fiscal
         FROM applicantHA
         WHERE 
-          start_date >= '${from}' AND
+          start_date >= '${fiscalStart}' AND
           start_date <= '${to}'
         GROUP BY ha
       ), totalToDate as (
-        SELECT ha, count(*) as total_to_date
+        SELECT ha, count(*) as total
         FROM applicantHA
-        WHERE start_date <= '${to}'
+        WHERE start_date <= '${to}' AND start_date >= '${startOfTotal}'
         GROUP BY ha
       ), report AS (
         SELECT 
           title,
-          COALESCE(currentPeriod.current_period, 0) as current_period,
+          COALESCE(currentPeriod.current_period, 0) as "current_period ${periodStart} ~",
           COALESCE(currentFiscal.current_fiscal, 0) as current_fiscal,
-          COALESCE(totalToDate.total_to_date, 0) as total_to_date
+          COALESCE(totalToDate.total, 0) as total
         FROM public.ien_ha_pcn
         LEFT JOIN currentPeriod ON currentPeriod.ha=id
         LEFT JOIN currentFiscal ON currentFiscal.ha=id
@@ -701,11 +699,11 @@ export class ReportUtilService {
       
       SELECT * FROM report
       UNION ALL
-      SELECT 'Total (up to ' || to_char('${to}'::date, 'Mon DD,YYYY') || ')', sum(current_period), sum(current_fiscal), sum(total_to_date) from report;
+      SELECT 'Total', sum("current_period ${periodStart} ~"), sum(current_fiscal), sum(total) from report;
     `;
   }
 
-  /*
+  /**
   Report 9
   SQL query explain:
   latest_hired_withdrawal_status:
