@@ -301,9 +301,9 @@ export class IENApplicantUtilService {
         )
         WHERE ien_applicants.id IN (${idsToUpdate})`;
       const result = await entityManager.query(queryToUpdate);
-      this.logger.log(`applicants status updated: ${result}`);
+      this.logger.log(`applicants with the latest milestone updated: ${result}`, 'ATS-SYNC');
     } catch (e) {
-      this.logger.log(`Error in update latest status on applicant`);
+      this.logger.log(`Error in update latest status on applicant`, 'ATS-SYNC');
       this.logger.error(e);
     }
   }
