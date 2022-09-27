@@ -148,17 +148,24 @@ export class ReportUtilService {
   hiredActiveWithdrawnApplicantCountQuery(from: string, to: string) {
     return `
       WITH withdrawn_applicants AS (
-        SELECT applicant_id, max(start_date) as start_date
-        FROM public.ien_applicant_status_audit 
-        WHERE status_id = '${StatusId.WITHDREW_FROM_PROGRAM}' 
-          AND start_date::date <= '${to}'
-        GROUP BY applicant_id
+        SELECT a.applicant_id, max(a.start_date) as start_date
+        FROM public.ien_applicant_status_audit a
+        LEFT JOIN public.ien_status_reasons r ON a.reason_id = r.id 
+        WHERE
+          ( a.status_id = '${StatusId.WITHDREW_FROM_PROGRAM}' OR
+            (a.status_id = '${StatusId.WITHDREW_FROM_COMPETITION}' AND r.name ILIKE 'withdrew from ien program')
+          ) 
+          AND a.start_date::date <= '${to}'
+        GROUP BY a.applicant_id
       ), reactive_applicants AS (
         SELECT wa.applicant_id, min(ien.start_date) as start_date
-        FROM withdrawn_applicants wa INNER JOIN public.ien_applicant_status_audit ien ON wa.applicant_id=ien.applicant_id
+        FROM withdrawn_applicants wa
+        INNER JOIN public.ien_applicant_status_audit ien ON wa.applicant_id = ien.applicant_id
+        LEFT JOIN public.ien_status_reasons r ON ien.reason_id = r.id
         WHERE ien.start_date::date >= wa.start_date
           AND ien.start_date::date <= '${to}'
           AND ien.status_id != '${StatusId.WITHDREW_FROM_PROGRAM}'
+          AND r.name NOT ILIKE 'withdrew from ien program'
         GROUP BY wa.applicant_id
       ), hired_applicants AS (
         SELECT ien.applicant_id, max(ien.start_date) as start_date
