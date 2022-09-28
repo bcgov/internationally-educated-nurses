@@ -760,8 +760,7 @@ export class ReportUtilService {
         FROM public.ien_applicant_status_audit iasa
         LEFT JOIN public.ien_applicant_jobs iaj ON iasa.job_id=iaj.id
         WHERE iasa.status_id 
-        IN ('${StatusId.WITHDREW_FROM_PROGRAM}', '${StatusId.JOB_OFFER_ACCEPTED}')
-        OR iasa.status_id = '${StatusId.WITHDREW_FROM_COMPETITION}'
+        IN ('${StatusId.WITHDREW_FROM_PROGRAM}', '${StatusId.JOB_OFFER_ACCEPTED}', '${StatusId.WITHDREW_FROM_COMPETITION}')
         AND iasa.start_date::date <= '${to}'
       ), hired_applicants AS (
         SELECT applicant_id as "id", start_date as hired_date, ha, job_id
@@ -771,11 +770,7 @@ export class ReportUtilService {
         SELECT 
           DISTINCT(applicant_id) as applicant_id 
         FROM public.ien_applicant_status_audit a
-        WHERE
-          ( 
-            a.status_id = '${StatusId.WITHDREW_FROM_PROGRAM}' OR
-            a.status_id = '${StatusId.WITHDREW_FROM_COMPETITION}'
-          ) 
+        WHERE a.status_id IN ('${StatusId.WITHDREW_FROM_PROGRAM}', '${StatusId.WITHDREW_FROM_COMPETITION}')
         AND applicant_id IN (SELECT id FROM hired_applicants)
       ), applicant_withdrawal_duration AS (
         SELECT applicant_id, next_start_at - start_date as duration
@@ -787,11 +782,7 @@ export class ReportUtilService {
           WHERE start_date::date <= '${to}'
           AND applicant_id IN (SELECT applicant_id FROM applicant_with_withdrawal)
         ) q
-        WHERE
-          (
-            q.status_id = '${StatusId.WITHDREW_FROM_PROGRAM}' OR
-            q.status_id = '${StatusId.WITHDREW_FROM_COMPETITION}'
-          ) 
+        WHERE q.status_id IN ('${StatusId.WITHDREW_FROM_PROGRAM}', '${StatusId.WITHDREW_FROM_COMPETITION}')
         AND next_start_at IS NOT null
       ), withdrawal_duration AS (
         SELECT applicant_id, sum(duration)::integer as duration
