@@ -664,8 +664,9 @@ export class ReportUtilService {
         SELECT
           arwp.*,
           (
-            SELECT aj.ha_pcn_id 
-            FROM public.ien_applicant_status_audit asa JOIN public.ien_applicant_jobs aj on aj.id=asa.job_id
+            SELECT CASE WHEN asa.status_id = '${StatusId.JOB_OFFER_ACCEPTED}' THEN aj.ha_pcn_id END as ha_pcn_id
+            FROM public.ien_applicant_status_audit asa
+            INNER JOIN public.ien_applicant_jobs aj on aj.id = asa.job_id
             WHERE arwp.applicant_id = asa.applicant_id
             ORDER BY asa.start_date DESC, asa.updated_date DESC
             LIMIT 1
