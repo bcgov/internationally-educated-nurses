@@ -759,7 +759,10 @@ export class ReportUtilService {
               ROW_NUMBER() OVER(PARTITION BY iasa.applicant_id ORDER BY iasa.start_date DESC, iasa.updated_date DESC) AS rank
         FROM public.ien_applicant_status_audit iasa
         LEFT JOIN public.ien_applicant_jobs iaj ON iasa.job_id=iaj.id
-        WHERE iasa.status_id IN ('${StatusId.WITHDREW_FROM_PROGRAM}', '${StatusId.JOB_OFFER_ACCEPTED}') AND iasa.start_date::date <= '${to}'
+        WHERE iasa.status_id 
+        IN ('${StatusId.WITHDREW_FROM_PROGRAM}', '${StatusId.JOB_OFFER_ACCEPTED}')
+        OR iasa.status_id = '${StatusId.WITHDREW_FROM_COMPETITION}'
+        AND iasa.start_date::date <= '${to}'
       ), hired_applicants AS (
         SELECT applicant_id as "id", start_date as hired_date, ha, job_id
         FROM latest_hired_withdrawal_status
@@ -767,8 +770,12 @@ export class ReportUtilService {
       ), applicant_with_withdrawal AS (
         SELECT 
           DISTINCT(applicant_id) as applicant_id 
-        FROM public.ien_applicant_status_audit 
-        WHERE status_id='${StatusId.WITHDREW_FROM_PROGRAM}'
+        FROM public.ien_applicant_status_audit a
+        WHERE
+          ( 
+            a.status_id = '${StatusId.WITHDREW_FROM_PROGRAM}' OR
+            a.status_id = '${StatusId.WITHDREW_FROM_COMPETITION}'
+          ) 
         AND applicant_id IN (SELECT id FROM hired_applicants)
       ), applicant_withdrawal_duration AS (
         SELECT applicant_id, next_start_at - start_date as duration
@@ -776,11 +783,16 @@ export class ReportUtilService {
           SELECT *, 
             ROW_NUMBER() OVER (PARTITION BY applicant_id ORDER BY start_date) AS rn, 
             LEAD(start_date) OVER (PARTITION BY applicant_id ORDER BY start_date, created_date) AS next_start_at
-          FROM public.ien_applicant_status_audit
+          FROM public.ien_applicant_status_audit 
           WHERE start_date::date <= '${to}'
           AND applicant_id IN (SELECT applicant_id FROM applicant_with_withdrawal)
         ) q
-        WHERE status_id='${StatusId.WITHDREW_FROM_PROGRAM}' AND next_start_at IS NOT null
+        WHERE
+          (
+            q.status_id = '${StatusId.WITHDREW_FROM_PROGRAM}' OR
+            q.status_id = '${StatusId.WITHDREW_FROM_COMPETITION}'
+          ) 
+        AND next_start_at IS NOT null
       ), withdrawal_duration AS (
         SELECT applicant_id, sum(duration)::integer as duration
         FROM applicant_withdrawal_duration
