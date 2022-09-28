@@ -115,7 +115,10 @@ const createSheet = (
     [],
     [{ v: getTimeRange(filter) }],
     [],
-    headerRow.map(_.upperCase).map(v => ({ v, t: 's', s: headerStyle })),
+    headerRow
+      .map(_.toUpper)
+      .map(v => v.replaceAll('_', ' '))
+      .map(v => ({ v, t: 's', s: headerStyle })),
     ...formatDataRows(dataRows, headerRow),
   ];
 
@@ -224,8 +227,10 @@ const reportCreators: ReportCreator[] = [
     name: 'Report 8',
     description: 'Number of Internationally Educated Nurse Registrants Working in BC',
     apiPath: '/reports/applicant/ha-current-period-fiscal',
-    header: ['', 'Current Period', 'Current Fiscal', 'Total to Date'],
-    colWidths: [35, 20, 20, 20],
+    header: (data: Record<string, string | number>[]): string[] => {
+      return ['', ...Object.keys(data[0]).slice(1)];
+    },
+    colWidths: [35, 25, 20, 20],
   },
   {
     name: 'Report 9',

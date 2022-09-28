@@ -8,7 +8,7 @@ import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.ent
 import { startDateOfFiscal } from 'src/common/util';
 import { ReportPeriodDTO, StatusCategory } from '@ien/common';
 
-const PERIOD_START_DATE = '2022-05-02';
+export const PERIOD_START_DATE = '2022-05-02';
 
 export class ReportService {
   constructor(
@@ -29,6 +29,11 @@ export class ReportService {
       to = dayjs().format('YYYY-MM-DD');
     }
     return { from, to };
+  }
+
+  getStartOfLastPeriod(from: string, to: string): string {
+    const daysOfLastPeriod = dayjs(to).diff(dayjs(from), 'day') % 14;
+    return dayjs(to).subtract(daysOfLastPeriod, 'days').format('YYYY-MM-DD');
   }
 
   /**
@@ -201,17 +206,22 @@ export class ReportService {
 
   /**
    */
-  async getApplicantHAForCurrentPeriodFiscal(t: string) {
-    const { to } = this.captureFromTo('', t);
+  async getApplicantHAForCurrentPeriodFiscal(from: string, to: string) {
+    const range = this.captureFromTo(from, to);
     // Let's find current fiscal
-    const from = startDateOfFiscal(to);
+    const currentPeriodStart = this.getStartOfLastPeriod(from, to);
+    const fiscalStart = startDateOfFiscal(range.to);
     this.logger.log(
       `getApplicantHAForCurrentPeriodFiscal: current period and Fiscal(start from ${from} till ${to} date)`,
     );
 
     const entityManager = getManager();
     const data = await entityManager.query(
-      this.reportUtilService.applicantHAForCurrentPeriodFiscalQuery(from, to),
+      this.reportUtilService.applicantHAForCurrentPeriodFiscalQuery(
+        currentPeriodStart,
+        fiscalStart,
+        range.to,
+      ),
     );
     this.logger.log(
       `getApplicantHAForCurrentPeriodFiscal: query completed a total of ${data.length} record returns`,

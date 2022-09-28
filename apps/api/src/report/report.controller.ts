@@ -90,8 +90,11 @@ export class ReportController {
   })
   @Get('/applicant/ha-current-period-fiscal')
   @AllowAccess(Access.REPORTING)
-  async getApplicantHAForCurrentPeriodFiscal(@Query('to') to: string): Promise<object[]> {
-    return this.reportService.getApplicantHAForCurrentPeriodFiscal(to);
+  async getApplicantHAForCurrentPeriodFiscal(
+    @Query('from') from: string,
+    @Query('to') to: string,
+  ): Promise<object[]> {
+    return this.reportService.getApplicantHAForCurrentPeriodFiscal(from, to);
   }
 
   @ApiOperation({
