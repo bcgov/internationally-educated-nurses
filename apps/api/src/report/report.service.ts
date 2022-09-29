@@ -7,6 +7,7 @@ import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.entity';
 import { startDateOfFiscal } from 'src/common/util';
 import { ReportPeriodDTO, StatusCategory } from '@ien/common';
+import _ from 'lodash';
 
 export const PERIOD_START_DATE = '2022-05-02';
 
@@ -36,6 +37,11 @@ export class ReportService {
     return dayjs(to)
       .subtract(daysOfLastPeriod || 28, 'days')
       .format('YYYY-MM-DD');
+  }
+
+  async getStatusMap(): Promise<Record<string, string>> {
+    const result = await this.ienapplicantStatusRepository.find({ select: ['id', 'status'] });
+    return result.reduce((a, c) => _.assign(a, { [c.status]: c.id }), {});
   }
 
   /**
@@ -121,14 +127,14 @@ export class ReportService {
    * @param t Duration end date YYYY-MM-DD
    * @returns
    */
-  async getHiredWithdrawnActiveCount(f: string, t: string) {
+  async getHiredWithdrawnActiveApplicants(statuses: Record<string, string>, f: string, t: string) {
     const { from, to } = this.captureFromTo(f, t);
     this.logger.log(
       `getHiredWithdrawnActiveCount: Apply date filter from (${from}) and to (${to})`,
     );
     const entityManager = getManager();
     const data = await entityManager.query(
-      this.reportUtilService.hiredActiveWithdrawnApplicantCountQuery(from, to),
+      this.reportUtilService.hiredActiveWithdrawnApplicantCountQuery(statuses, from, to),
     );
     this.logger.log(
       `getHiredWithdrawnActiveCount: query completed a total of ${data.length} record returns`,
@@ -142,12 +148,12 @@ export class ReportService {
    * @param t Duration end date YYYY-MM-DD
    * @returns
    */
-  async getLicensingStageApplicants(f: string, t: string) {
+  async getLicensingStageApplicants(statuses: Record<string, string>, f: string, t: string) {
     const { from, to } = this.captureFromTo(f, t);
     this.logger.log(`getLicensingStageApplicants: Apply date filter from (${from}) and to (${to})`);
     const entityManager = getManager();
     const data = await entityManager.query(
-      this.reportUtilService.licensingStageApplicantsQuery(from, to),
+      this.reportUtilService.licensingStageApplicantsQuery(statuses, from, to),
     );
     this.logger.log(
       `getLicensingStageApplicants: query completed a total of ${data.length} record returns`,
@@ -161,11 +167,13 @@ export class ReportService {
    * @param t Duration end date YYYY-MM-DD
    * @returns
    */
-  async getLicenseApplicants(f: string, t: string) {
+  async getLicenseApplicants(statuses: Record<string, string>, f: string, t: string) {
     const { from, to } = this.captureFromTo(f, t);
     this.logger.log(`getLicenseApplicants: Apply date filter from (${from}) and to (${to})`);
     const entityManager = getManager();
-    const data = await entityManager.query(this.reportUtilService.licenseApplicantsQuery(from, to));
+    const data = await entityManager.query(
+      this.reportUtilService.licenseApplicantsQuery(statuses, from, to),
+    );
     this.logger.log(
       `getLicenseApplicants: query completed a total of ${data.length} record returns`,
     );
@@ -178,11 +186,13 @@ export class ReportService {
    * @param t Duration end date YYYY-MM-DD
    * @returns
    */
-  async getRecruitmentApplicants(f: string, t: string) {
+  async getRecruitmentApplicants(statuses: Record<string, string>, f: string, t: string) {
     const { from, to } = this.captureFromTo(f, t);
     this.logger.log(`getRecruitmentApplicants: Apply date filter from (${from}) and to (${to})`);
     const entityManager = getManager();
-    const data = await entityManager.query(this.reportUtilService.applicantsInRecruitmentQuery(to));
+    const data = await entityManager.query(
+      this.reportUtilService.applicantsInRecruitmentQuery(statuses, to),
+    );
     this.logger.log(
       `getRecruitmentApplicants: query completed a total of ${data.length} record returns`,
     );
@@ -195,11 +205,13 @@ export class ReportService {
    * @param t Duration end date YYYY-MM-DD
    * @returns
    */
-  async getImmigrationApplicants(f: string, t: string) {
+  async getImmigrationApplicants(statuses: Record<string, string>, f: string, t: string) {
     const { from, to } = this.captureFromTo(f, t);
     this.logger.log(`getImmigrationApplicants: Apply date filter from (${from}) and to (${to})`);
     const entityManager = getManager();
-    const data = await entityManager.query(this.reportUtilService.applicantsInImmigrationQuery(to));
+    const data = await entityManager.query(
+      this.reportUtilService.applicantsInImmigrationQuery(statuses, to),
+    );
     this.logger.log(
       `getImmigrationApplicants: query completed a total of ${data.length} record returns`,
     );
@@ -208,7 +220,11 @@ export class ReportService {
 
   /**
    */
-  async getApplicantHAForCurrentPeriodFiscal(from: string, to: string) {
+  async getApplicantHAForCurrentPeriodFiscal(
+    statuses: Record<string, string>,
+    from: string,
+    to: string,
+  ) {
     const range = this.captureFromTo(from, to);
     // Let's find current fiscal
     const currentPeriodStart = this.getStartOfLastPeriod(from, to);
@@ -220,6 +236,7 @@ export class ReportService {
     const entityManager = getManager();
     const data = await entityManager.query(
       this.reportUtilService.applicantHAForCurrentPeriodFiscalQuery(
+        statuses,
         currentPeriodStart,
         fiscalStart,
         range.to,
@@ -234,13 +251,13 @@ export class ReportService {
   /**
    * @param t Duration end date YYYY-MM-DD
    */
-  async getAverageTimeWithEachStakeholderGroup(t: string) {
+  async getAverageTimeWithEachStakeholderGroup(statuses: Record<string, string>, t: string) {
     const { to } = this.captureFromTo('', t);
     this.logger.log(`getAverageTimeWithEachStakeholderGroup: apply filter till ${to} date)`);
 
     const entityManager = getManager();
     const data = await entityManager.query(
-      this.reportUtilService.averageTimeWithEachStakeholderGroupQuery(to),
+      this.reportUtilService.averageTimeWithEachStakeholderGroupQuery(statuses, to),
     );
     this.logger.log(
       `getAverageTimeWithEachStakeholderGroup: query completed a total of ${data.length} record returns`,
@@ -269,5 +286,22 @@ export class ReportService {
       `extractApplicantsData: query completed a total of ${data.length} record returns`,
     );
     return data;
+  }
+
+  async getReport(from: string, to: string): Promise<object> {
+    const statuses = await this.getStatusMap();
+    const promises: Promise<object>[] = [
+      this.getRegisteredApplicantList(from, to).then(report1 => ({ report1 })),
+      this.getCountryWiseApplicantList(from, to).then(report2 => ({ report2 })),
+      this.getHiredWithdrawnActiveApplicants(statuses, from, to).then(report3 => ({ report3 })),
+      this.getLicensingStageApplicants(statuses, from, to).then(report4 => ({ report4 })),
+      this.getLicenseApplicants(statuses, from, to).then(report5 => ({ report5 })),
+      this.getRecruitmentApplicants(statuses, from, to).then(report6 => ({ report6 })),
+      this.getImmigrationApplicants(statuses, from, to).then(report7 => ({ report7 })),
+      this.getApplicantHAForCurrentPeriodFiscal(statuses, from, to).then(report8 => ({ report8 })),
+      this.getAverageTimeWithEachStakeholderGroup(statuses, to).then(report9 => ({ report9 })),
+    ];
+    const report = await Promise.all(promises);
+    return report.reduce((a, c) => _.assign(a, c), {});
   }
 }

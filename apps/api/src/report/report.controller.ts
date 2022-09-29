@@ -1,10 +1,13 @@
 import { Controller, Get, Inject, Logger, Query, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { Access, ReportPeriodDTO } from '@ien/common';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { ReportService } from './report.service';
 import { AppLogger } from 'src/common/logger.service';
 import { AllowAccess } from 'src/common/decorators';
+import { ReportService } from './report.service';
+import { IENApplicantStatus } from '../applicant/entity/ienapplicant-status.entity';
 
 @Controller('reports')
 @ApiTags('IEN Reports')
@@ -13,16 +16,14 @@ export class ReportController {
   constructor(
     @Inject(Logger) private readonly logger: AppLogger,
     @Inject(ReportService) private readonly reportService: ReportService,
+    @InjectRepository(IENApplicantStatus)
+    private readonly ienapplicantStatusRepository: Repository<IENApplicantStatus>,
   ) {}
 
-  @ApiOperation({ summary: 'Report 2: Applicants nursing education country' })
-  @Get('/applicant/education-country')
+  @Get('/applicant')
   @AllowAccess(Access.REPORTING)
-  async getCountryWiseApplicantList(
-    @Query('from') from: string,
-    @Query('to') to: string,
-  ): Promise<object[]> {
-    return this.reportService.getCountryWiseApplicantList(from, to);
+  async getReport(@Query('from') from: string, @Query('to') to: string): Promise<object> {
+    return this.reportService.getReport(from, to);
   }
 
   @ApiOperation({ summary: 'Report 1: List report periods within the given time range' })
@@ -35,6 +36,16 @@ export class ReportController {
     return this.reportService.getRegisteredApplicantList(from, to);
   }
 
+  @ApiOperation({ summary: 'Report 2: Applicants nursing education country' })
+  @Get('/applicant/education-country')
+  @AllowAccess(Access.REPORTING)
+  async getCountryWiseApplicantList(
+    @Query('from') from: string,
+    @Query('to') to: string,
+  ): Promise<object[]> {
+    return this.reportService.getCountryWiseApplicantList(from, to);
+  }
+
   @ApiOperation({ summary: 'Report 3: hired-withdrawn-active applicants' })
   @Get('/applicant/hired-withdrawn-active')
   @AllowAccess(Access.REPORTING)
@@ -42,7 +53,8 @@ export class ReportController {
     @Query('from') from: string,
     @Query('to') to: string,
   ): Promise<object[]> {
-    return this.reportService.getHiredWithdrawnActiveCount(from, to);
+    const statuses = await this.reportService.getStatusMap();
+    return this.reportService.getHiredWithdrawnActiveApplicants(statuses, from, to);
   }
 
   @ApiOperation({ summary: 'Report 4: licensing stage applicants' })
@@ -52,7 +64,8 @@ export class ReportController {
     @Query('from') from: string,
     @Query('to') to: string,
   ): Promise<object[]> {
-    return this.reportService.getLicensingStageApplicants(from, to);
+    const statuses = await this.reportService.getStatusMap();
+    return this.reportService.getLicensingStageApplicants(statuses, from, to);
   }
 
   @ApiOperation({ summary: 'Report 5: Applicants eligible for job search' })
@@ -62,7 +75,8 @@ export class ReportController {
     @Query('from') from: string,
     @Query('to') to: string,
   ): Promise<object[]> {
-    return this.reportService.getLicenseApplicants(from, to);
+    const statuses = await this.reportService.getStatusMap();
+    return this.reportService.getLicenseApplicants(statuses, from, to);
   }
 
   @ApiOperation({ summary: 'Report 6: Applicants in Recruitment stage' })
@@ -72,7 +86,8 @@ export class ReportController {
     @Query('from') from: string,
     @Query('to') to: string,
   ): Promise<object[]> {
-    return this.reportService.getRecruitmentApplicants(from, to);
+    const statuses = await this.reportService.getStatusMap();
+    return this.reportService.getRecruitmentApplicants(statuses, from, to);
   }
 
   @ApiOperation({ summary: 'Report 7: Applicants in Immigration stage' })
@@ -82,7 +97,8 @@ export class ReportController {
     @Query('from') from: string,
     @Query('to') to: string,
   ): Promise<object[]> {
-    return this.reportService.getImmigrationApplicants(from, to);
+    const statuses = await this.reportService.getStatusMap();
+    return this.reportService.getImmigrationApplicants(statuses, from, to);
   }
 
   @ApiOperation({
@@ -94,7 +110,8 @@ export class ReportController {
     @Query('from') from: string,
     @Query('to') to: string,
   ): Promise<object[]> {
-    return this.reportService.getApplicantHAForCurrentPeriodFiscal(from, to);
+    const statuses = await this.reportService.getStatusMap();
+    return this.reportService.getApplicantHAForCurrentPeriodFiscal(statuses, from, to);
   }
 
   @ApiOperation({
@@ -103,7 +120,8 @@ export class ReportController {
   @Get('/applicant/average-time-with-stakeholder-group')
   @AllowAccess(Access.REPORTING)
   async getAverageTimeWithEachStakeholderGroup(@Query('to') to: string): Promise<object[]> {
-    return this.reportService.getAverageTimeWithEachStakeholderGroup(to);
+    const statuses = await this.reportService.getStatusMap();
+    return this.reportService.getAverageTimeWithEachStakeholderGroup(statuses, to);
   }
 
   /** Additional report other than standard 9 reports */
