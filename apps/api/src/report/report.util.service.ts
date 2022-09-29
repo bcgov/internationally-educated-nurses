@@ -938,13 +938,21 @@ export class ReportUtilService {
       milestoneList.push(`to_char(x."${item.id}", 'YYYY-MM-DD') as "${item.status}"`); // Display status name instead of id
     });
     const applicantColumns: string[] = [
-      'a.id as "Applicant ID"',
-      'a.registration_date as "Registration Date"',
-      `(select string_agg(t->>'name', ',') from jsonb_array_elements(a.assigned_to::jsonb) as x(t)) as "Assigned to"`,
-      'a.country_of_residence as "Country of Residence"',
+      'a.id AS "Applicant ID"',
+      'a.registration_date AS "Registration Date"',
+      `(SELECT string_agg(t->>'name', ',') FROM jsonb_array_elements(a.assigned_to::jsonb) AS x(t)) AS "Assigned to"`,
+      'a.country_of_residence AS "Country of Residence"',
       'a.pr_status as "PR Status"',
-      'CAST(a.nursing_educations AS TEXT) as "Nursing Education"',
-      `a.country_of_citizenship::TEXT as "Country of Citizenship"`,
+      'CAST(a.nursing_educations AS TEXT) AS "Nursing Education"',
+      `(SELECT string_agg(trim(x::text, '"'), ',')
+         FROM jsonb_array_elements(a.country_of_citizenship::jsonb) AS x
+       ) AS "Country of Citizenship"`,
+      `(SELECT string_agg(replace(ias.status, 'Applicant Referred to', ''), ',') 
+         FROM ien_applicant_status_audit sa
+         INNER JOIN ien_applicant_status ias ON ias.id = sa.status_id
+         WHERE sa.applicant_id = a.id and ias.status ILIKE 'applicant referred to%'
+         GROUP BY sa.applicant_id
+       ) AS "Referred Health Authority"`,
     ];
     return `
     SELECT ${applicantColumns.join(',')}, ${milestoneList.join(',')}
