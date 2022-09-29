@@ -238,7 +238,7 @@ export class ReportService {
 
     const entityManager = getManager();
     const data = await entityManager.query(
-      this.reportUtilService.averageTimeWithEachStackholderGroupQuery(to),
+      this.reportUtilService.averageTimeWithEachStakeholderGroupQuery(to),
     );
     this.logger.log(
       `getAverageTimeWithEachStakeholderGroup: query completed a total of ${data.length} record returns`,

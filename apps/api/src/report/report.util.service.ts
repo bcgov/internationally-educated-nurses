@@ -730,7 +730,7 @@ export class ReportUtilService {
     For each stack holder group there is a specific range of milestones, that helps to identify the minimum date from those groups.
     This group does not point directly to the stack holder group that we saw in the report,
     But these groups help to identify each stack holder's duration.
-  stackholder_duration:
+  stakeholder_duration:
     We have a start date(minimum date) available, Now we can find duration by substracting start and end dates of any group.
   
   Now, We have collected all the data applicant-wise.
@@ -738,7 +738,7 @@ export class ReportUtilService {
   Report:
     This query will only put value in a report format so that it is easily readable.
   */
-  averageTimeWithEachStackholderGroupQuery(to: string) {
+  averageTimeWithEachStakeholderGroupQuery(to: string) {
     return `
       -- ONLY HIRED Applicants are selected in "Average Amount of Time" calculation with Each Stakeholder Group
       -- If we receive 2 hired state for different HA, Then we will pick only latest one
@@ -797,7 +797,7 @@ export class ReportUtilService {
           wd.duration as withdrawal_duration
         FROM hired_applicants hired
         LEFT JOIN withdrawal_duration wd ON wd.applicant_id=hired.id
-      ), stackholder_duration AS (
+      ), stakeholder_duration AS (
         SELECT
           sdoes.id,
           sdoes.ha,
@@ -879,7 +879,7 @@ export class ReportUtilService {
         ROUND(avg(nnas_duration), 2) as mean_value,
         PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY nnas_duration) AS median_value,
         mode() WITHIN GROUP (ORDER BY nnas_duration) AS mode_value
-      FROM stackholder_duration
+      FROM stakeholder_duration WHERE nnas_duration >= 0
       UNION ALL
       SELECT
         'BCCNM & NCAS',
@@ -887,7 +887,7 @@ export class ReportUtilService {
         ROUND(avg(bccnm_ncas_duration), 2) as mean_value,
         PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY bccnm_ncas_duration) AS median_value,
         mode() WITHIN GROUP (ORDER BY bccnm_ncas_duration) AS mode_value
-      FROM stackholder_duration
+      FROM stakeholder_duration WHERE bccnm_ncas_duration >= 0
       UNION ALL
       SELECT * FROM (SELECT ' ', title, t1.mean_value, t1.median_value, t1.mode_value
       FROM public.ien_ha_pcn LEFT JOIN (
@@ -896,7 +896,7 @@ export class ReportUtilService {
         avg(employer_duration)::double precision as mean_value,
         PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY employer_duration) AS median_value,
         mode() WITHIN GROUP (ORDER BY employer_duration) AS mode_value
-        FROM stackholder_duration
+        FROM stakeholder_duration WHERE employer_duration >= 0
         GROUP BY ha
       ) as t1 ON t1.ha=id
       ORDER BY title) as a1
@@ -907,7 +907,7 @@ export class ReportUtilService {
         avg(immigration_duration)::double precision as mean_value,
         PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY immigration_duration) AS median_value,
         mode() WITHIN GROUP (ORDER BY immigration_duration) AS mode_value
-      FROM stackholder_duration
+      FROM stakeholder_duration WHERE immigration_duration >= 0
       UNION ALL
       SELECT
         'Overall',
@@ -915,7 +915,7 @@ export class ReportUtilService {
         ROUND(avg(overall), 2) as mean_value,
         PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY overall) AS median_value,
         mode() WITHIN GROUP (ORDER BY overall) AS mode_value
-      FROM stackholder_duration
+      FROM stakeholder_duration WHERE overall >= 0
       UNION ALL
       SELECT
         'Average time to hire',
@@ -923,7 +923,7 @@ export class ReportUtilService {
         ROUND(avg(average_time_to_hire), 2) as mean_value,
         PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY average_time_to_hire) AS median_value,
         mode() WITHIN GROUP (ORDER BY average_time_to_hire) AS mode_value
-      FROM stackholder_duration
+      FROM stakeholder_duration WHERE average_time_to_hire >= 0
       )
       SELECT title, "HA", COALESCE(mean_value, 0) as "Mean", COALESCE(median_value, 0) as "Median", COALESCE(mode_value, 0) as "Mode" FROM report;
     `;
