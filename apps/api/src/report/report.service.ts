@@ -32,8 +32,10 @@ export class ReportService {
   }
 
   getStartOfLastPeriod(from: string, to: string): string {
-    const daysOfLastPeriod = dayjs(to).diff(dayjs(from), 'day') % 14;
-    return dayjs(to).subtract(daysOfLastPeriod, 'days').format('YYYY-MM-DD');
+    const daysOfLastPeriod = dayjs(to).diff(dayjs(from), 'day') % 28;
+    return dayjs(to)
+      .subtract(daysOfLastPeriod || 28, 'days')
+      .format('YYYY-MM-DD');
   }
 
   /**

@@ -653,6 +653,11 @@ export class ReportUtilService {
 
   applicantHAForCurrentPeriodFiscalQuery(periodStart: string, fiscalStart: string, to: string) {
     const startOfTotal = PERIOD_START_DATE > fiscalStart ? fiscalStart : PERIOD_START_DATE;
+    const endOfPeriod =
+      dayjs().diff(dayjs(periodStart), 'day') > 28
+        ? dayjs(periodStart).add(27, 'day').format('YYYY-MM-DD')
+        : '';
+    const currentColumn = `current_period ${periodStart}~${endOfPeriod}`;
     return `
       WITH applicantReceivedWP AS (
         SELECT 
@@ -694,7 +699,7 @@ export class ReportUtilService {
       ), report AS (
         SELECT 
           title,
-          COALESCE(currentPeriod.current_period, 0) as "current_period ${periodStart} ~",
+          COALESCE(currentPeriod.current_period, 0) as "${currentColumn}",
           COALESCE(currentFiscal.current_fiscal, 0) as current_fiscal,
           COALESCE(totalToDate.total, 0) as total
         FROM public.ien_ha_pcn
@@ -707,7 +712,7 @@ export class ReportUtilService {
       
       SELECT * FROM report
       UNION ALL
-      SELECT 'Total', sum("current_period ${periodStart} ~"), sum(current_fiscal), sum(total) from report;
+      SELECT 'Total', sum("${currentColumn}"), sum(current_fiscal), sum(total) from report;
     `;
   }
 
