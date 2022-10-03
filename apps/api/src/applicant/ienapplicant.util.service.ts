@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { In, IsNull, Repository, Not, getManager, EntityManager } from 'typeorm';
+import { In, Repository, getManager, EntityManager } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantStatus } from './entity/ienapplicant-status.entity';
@@ -161,52 +161,6 @@ export class IENApplicantUtilService {
 
     const status_audit = this.ienapplicantStatusAuditRepository.create(status);
     return manager.save<IENApplicantStatusAudit>(status_audit);
-  }
-
-  /**
-   * Update end_date in previous active status/milestone
-   * @param job Job object to check active status/milestone
-   * @param data status/milestone audit data
-   */
-  async updatePreviousActiveStatusForJob(
-    job: IENApplicantJob,
-    data: any,
-    manager: EntityManager,
-  ): Promise<void> {
-    try {
-      if (job) {
-        const previousStatus = await this.ienapplicantStatusAuditRepository.find({
-          where: {
-            status: Not(data.status.id),
-            job: job,
-            end_date: IsNull(),
-          },
-        });
-        // In best case scenario there is only one record here
-        // Let's not put hard limit right now, and accept multiple records here.
-        if (previousStatus.length > 0) {
-          const updateData = {
-            end_date: data.start_date,
-          };
-          const list_status: IENApplicantStatusAudit[] = [];
-          previousStatus.forEach(status => {
-            list_status.push({
-              ...status,
-              ...updateData,
-            });
-          });
-
-          // create instance of entity class
-          const status_list = this.ienapplicantStatusAuditRepository.create(list_status);
-
-          await manager.save<IENApplicantStatusAudit[]>(status_list);
-        }
-      }
-    } catch (e) {
-      // No requirement to throw any error here. so let's log it.
-      // when start working on report, We will push it in some eror reporting tool to notify developer.
-      this.logger.error(e);
-    }
   }
 
   async getHaPcn(id: string): Promise<IENHaPcn> {
