@@ -216,8 +216,7 @@ export class IENApplicantService {
     milestone: IENApplicantAddStatusAPIDTO,
   ): Promise<IENApplicantStatusAudit | any> {
     const applicant = await this.getApplicantById(id);
-    const { status, start_date, end_date, job_id, notes, reason, effective_date, reason_other } =
-      milestone;
+    const { status, start_date, job_id, notes, reason, effective_date, reason_other } = milestone;
     const data: Partial<IENApplicantStatusAudit> = {};
 
     if (!status) {
@@ -261,8 +260,6 @@ export class IENApplicantService {
 
     data.start_date = start_date ? dayjs(start_date).toDate() : dayjs().toDate();
 
-    data.end_date = end_date ? dayjs(end_date).toDate() : undefined;
-
     data.effective_date = effective_date ? dayjs(effective_date).toDate() : undefined;
 
     data.notes = notes;
@@ -276,16 +273,6 @@ export class IENApplicantService {
         job,
         manager,
       );
-
-      /**
-       * Note:
-       * Based on scope we are only managing recruitment status.
-       * For that we do need job/competition record,
-       * So if that exists, we are updating previous status
-       */
-      if (job) {
-        await this.ienapplicantUtilService.updatePreviousActiveStatusForJob(job, data, manager);
-      }
 
       // Let's check and updated the latest status on applicant
       await this.ienapplicantUtilService.updateLatestStatusOnApplicant([applicant.id], manager);
@@ -314,7 +301,7 @@ export class IENApplicantService {
     if (!status_audit) {
       throw new NotFoundException('Provided status/milestone record not found');
     }
-    const { status, start_date, effective_date, end_date, notes, reason } = milestone;
+    const { status, start_date, effective_date, notes, reason } = milestone;
     if (user?.user_id) {
       const updated_by_data = await this.ienUsersRepository.findOne(user.user_id);
       if (updated_by_data) {
@@ -334,10 +321,6 @@ export class IENApplicantService {
 
     if (start_date) {
       status_audit.start_date = dayjs(start_date).toDate();
-    }
-
-    if (end_date) {
-      status_audit.end_date = dayjs(end_date).toDate();
     }
 
     if (effective_date) {

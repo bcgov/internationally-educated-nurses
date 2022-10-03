@@ -45,7 +45,7 @@ export const Record: React.FC<RecordProps> = ({ job, expandRecord, jobIndex }) =
   const getSortedMilestones = () => {
     if (!job.status_audit?.length) return [];
     const sortedMilestones = [...job.status_audit];
-    sortedMilestones.sort((a, b) => {
+    sortedMilestones.sort((b, a) => {
       if (a.start_date === b.start_date) {
         return dayjs(a.updated_date).diff(b.updated_date);
       }

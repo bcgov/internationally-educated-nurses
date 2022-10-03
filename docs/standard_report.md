@@ -11,7 +11,7 @@ This report shows the number of registered applicants in the specific period(4 c
 It can be done in multiple ways. Here I have explained the SQL query to generate the same report.
 
 Step 1: 
-Select all the applicants registed between given duration. `from` date: April 1st, 2022 and `to` date as selected period end_date(for e.g. if you select period 2 then May 26th, 2022 is the end_date here). This is a where condition for the SQL query.
+Select all the applicants registered between given duration. `from` date: April 1st, 2022 and `to` date as selected period end_date(for e.g. if you select period 2 then May 26th, 2022 is the end_date here). This is a where condition for the SQL query.
 While selecting applicants let's find in which period they are in, to calculate period do 
 ```from-date - registration_date / 28```, here we took 28 days due to 4 week duration.\
 *note: It return integer and not decimal, But if you query return float/decimal value cast or apply floor() to get integer value*\

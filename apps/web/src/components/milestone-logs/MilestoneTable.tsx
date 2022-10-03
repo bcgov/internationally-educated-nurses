@@ -90,18 +90,13 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
 
   const getDuration = (milestone: ApplicantStatusAuditRO): string => {
     const start = milestone.start_date;
-    let end = milestone.end_date;
-    if (!end) {
-      const nextMilestone = milestones.find(m => {
-        return (
-          m.start_date > milestone.start_date ||
-          (m.start_date === milestone.start_date && m.updated_date > milestone.updated_date)
-        );
-      });
-      if (nextMilestone) {
-        end = nextMilestone.start_date;
-      }
-    }
+    const nextMilestone = milestones.find(m => {
+      return (
+        m.start_date > milestone.start_date ||
+        (m.start_date === milestone.start_date && m.updated_date > milestone.updated_date)
+      );
+    });
+    const end = nextMilestone?.start_date;
 
     if (start === end) return '-';
 
