@@ -5,13 +5,13 @@
 When a new applicant adds to a system, We add a registration_date(To identify the start date of the IEN journey).\
 This report shows the number of registered applicants in the specific period(4 consecutive weeks count as a period).\
 ***If you download "period 10", then it will give results from "period 1" to "period 10".***\
-*Note: Period starts from April 1st, 2022(This date may change based on final confirmation from the MOH)*
+*Note: Period starts from May 2nd, 2022(This date may change based on final confirmation from the MOH)*
 
 **Developer Side :**\
 It can be done in multiple ways. Here I have explained the SQL query to generate the same report.
 
 Step 1: 
-Select all the applicants registed between given duration. `from` date: April 1st, 2022 and `to` date as selected period end_date(for e.g. if you select period 2 then May 26th, 2022 is the end_date here). This is a where condition for the SQL query.
+Select all the applicants registed between given duration. `from` date: May 2nd, 2022 and `to` date as selected period end_date(for e.g. if you select period 2 then May 26th, 2022 is the end_date here). This is a where condition for the SQL query.
 While selecting applicants let's find in which period they are in, to calculate period do 
 ```from-date - registration_date / 28```, here we took 28 days due to 4 week duration.\
 *note: It return integer and not decimal, But if you query return float/decimal value cast or apply floor() to get integer value*\
@@ -60,8 +60,8 @@ If we want to add a new (an additional) row to show the sum for each country, pl
 ***
 ### Report 3: Status of Internationally Educated Nurse Registrant Applicants
 
-This report shows the applicant's current status/milestone who registered during the period (from April 1st, 2022 to the selected period end date) or before the period (before April 1st, 2021).\
-*It is likely to change and new period will be 1) Before April 18th, 2022, and 2) April 18th, 2022 to current. We are waiting to final confirmation from MOH side on this.*\
+This report shows the applicant's current status/milestone who registered during the period (from May 2nd, 2022 to the selected period end date) or before the period (before May 2nd, 2022).\
+*It is likely to change and new period will be 1) Before May 2nd, 2022, and 2) May 2nd, 2022 to current. We are waiting to final confirmation from MOH side on this.*\
 Here we have identified 3 main statuses `Active`, `Withdrawn`, and `Hired`.\
 ***Note: We will use "to" date only and not "from" date. Because we also have to fetch and count applicants who registered before "from" and "to" duration.***
 
@@ -69,8 +69,11 @@ Here we have identified 3 main statuses `Active`, `Withdrawn`, and `Hired`.\
 It can be implemented in multiple ways. Here I have explained the SQL query to generate the same report.
 
 
-Here we do not have full stop status/milestone, so an applicant can be withdrawn after being hired or reactive their application after withdrawal or hold their application for some period. In these cases, we must need to see what is a final status of an applicant to segregate it into `active`, '`withdrawn, or `hired`.\
-we need to find hired and withdrawn applicants using status-id. 20 for withdrawn and 28 for hire.
+Here we do not have full stop status/milestone, so an applicant can be withdrawn after being hired or reactive their application after withdrawal or hold their application for some period. In these cases, we must need to see what is a final status of an applicant to segregate it into `active`, `withdrawn`, or `hired`.\
+we need to find hired and withdrawn applicants using status-id.\
+ `Withdrew from IEN program (Licensing/Registration)` or `Candidate Withdrew from Competition (Recruitment)` with outcome reason `Withdrew from IEN Program` for withdrawn.\
+ `Job Offer Accepted` for hired.
+
 
 Step 1:
 Find all the withdrawal applicants till `to` date. And from all those withdrawn applicants, remove re-active applicants(who have started their process again with the latest milestone).\
@@ -112,7 +115,7 @@ We will apply only `to` date and intake, license, and recruitment category in th
 As if the applicant gets hired then-latest milestone may be in the immigration category, that's why we are restricting it up to the recruitment category.
 Here we have to ignore hired applicants so we are checking data in the recruitment category.
 
-Subquery: Select all the active applicants by removing hired and withdrawn. We can achieve it by finding the highest milestone in the intake, licensing, and recruitment category and then checking whether its value is 20(withdrawn) or 28(hired) or not.
+Subquery: Select all the active applicants by removing hired and withdrawn. We can achieve it by finding the highest milestone in the intake, licensing, and recruitment category and then checking whether its value is `Withdrew from IEN program (Licensing/Registration)` for withdrawn or `Job Offer Accepted` for hired.
 
 Now you have all the active applicants, Let's find status by checking their full/provisional license (we will select only the latest one if exist).
 Here we only apply `to` date, as discussed above if the candidate is looking for a job we have to count them in the `Granted full licensure` row in the report.
@@ -143,7 +146,7 @@ In this report, we will find out how many applicants received full/provisional l
 **Developer Side:** \
 It is pretty straightforward. We need to identify the highest milestone, full or provisional between `from` and `to` date.
 Now we have to show it in a separate row.\
-For that, we will use UNION all again with a static filter on milestone one query for full, and one query for provisional.
+For that, we will use UNION all again with a static filter on milestone two queries(LPN/ RN) for full and two queries(LPN/ RN) for provisional.
 
 
 
@@ -151,8 +154,8 @@ For that, we will use UNION all again with a static filter on milestone one quer
 ***
 ### Report 6: Number of Internationally Educated Nurse Registrants in the Recruitment Stage
 
-Applicants can apply for multiple job-competition under the same health authorities or different health authorities.\
-In this report, if an applicant has applied in more than one job competition then that applicant count must be shown multiple times in different HA-related job competitions in the report.
+Applicants can apply for multiple job-competitions under the same health authorities or different health authorities.\
+In this report, if an applicant has applied to more than one job competition then that applicant count must be shown multiple times in different HA-related job competitions in the report.
 
 We will fetch all the job-competition data till the `to` date, We do not apply a filter on the `from` date because the applicant may be active but the milestone date is earlier than the `from` date.
 
@@ -160,14 +163,15 @@ Now we will categories and select count based on below 2 cases for each cell in 
 
 Case 1: active applicants (not hired in any HA/job competition and not withdrawn from the process)
 e.g.
-The applicant applied for 3 job competitions (1 in FHA and 2 in IHA). Please find the latest status of each job competition below.
-FHA - Prescreen completed
-IHA - Interview Completed
-IHA - Offered Position
-Here this applicant will appear 1 time in FHA "Prescreen completed" and  2 times in IHA, in "Offered Position" and "interview Completed".
+The applicant applied for 3 job competitions (1 in FHA and 2 in IHA). Please find the latest status of each job competition below:\
+FHA - Milestone: Prescreen Completed, Outcome: Candidate Passed Prescreen\
+IHA - Milestone: Interview Completed, Outcome: Candidate Passed Interview\
+IHA - Referral Acknowledged/ Reviewed\
+\
+Here this applicant will appear 1 time in FHA "Candidate Passed Prescreen" and  2 times in IHA, in "Candidate Passed Interview" and "Referral Acknowledged/ Reviewed".
 
 Case 2: Hired 
-e.g. Applicant got hired in FHA. Now we will count this applicant only one time in the cell ("FHA", "Hired"). and remove this applicant's count from all the other in-process job competitions.
+e.g. Applicant got hired in FHA. Now we will count this applicant only one time in the cell ("FHA", "Job Offer Accepted"). and remove this applicant's count from all the other in-process job competitions.
 Note: If the applicant got hired in 2 HA/job competitions then we will pick the latest one and drop the others.
 
 ***Note: When an applicant gets hired for a job competition (HA). That applicant will be dropped off from all the other pending job competitions.***
@@ -271,7 +275,7 @@ Before we process further please check the below points, which show which data w
 
 Now, Let's understand how we are calculating the duration of each stack holder group.
 1. NNAS:
-    - We have multiple milestones related to NNAS, like "Applied to NNAS", "Referred to NNAS", "NNAS Application in Review", "Received NNAS Report", etc.
+    - We have multiple milestones related to NNAS, like "Applied to NNAS", "Submitted Documents (NNAS Application in Review)", "Received NNAS Report", etc.
     - To calculate duration we need a start and end date. Here we can find the minimum date out of the above-listed milestones group and mark it as the start date. (If no status is found then we won't get any duration. If data is not consistent then we will see such a case)
     - Let's find the end date. In most cases, the end date is found based on the "Received NNAS Report" milestone date. But there is a possibility that applicant data don't have this milestone and start with another milestone like BCCNM or NCAS. In such cases, we will consider the minimum date from the BCCNM, NCAS, and recruitment-related milestones and use it to calculate the duration of NNAS.
     - Using the start and end date we will find the duration for NNAS.
