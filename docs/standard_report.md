@@ -98,10 +98,10 @@ Let's run the group by on date(before and after period dates)(put the date in WH
 ***
 ### Report 4: Number of Internationally Educated Nurse Registrants in the Licensing Stage
 
-In this report, we will see how many applicants are there in each milestone related to licensing stage. These data will be fetched for the given duration only(`from` and to `date`).\
+In this report, we will see how many applicants there are in each milestone related to the licensing stage. This data will be fetched for the given duration only(`from` and to `date`).\
 But we will count full/provisional licenses even if these milestones are added before the `from` date.\
 e.g. If an applicant received a full license before "April 1st, 2021" then that applicant will be considered as an active applicant who is looking for a job so we will show it in the `Granted full licensure` row in the report.
-***Note: If applicants are active and lastest milestone not in licensing stage and do not have full/provisional license, we need to ignore those applicants from this report***
+***Note: If applicants are active and their latest milestone is not in the licensing stage and does not have a full/provisional license, we need to ignore those applicants from this report***
 
 **Developer Side:** \
 It can be implemented in multiple ways. Here I have explained the SQL query to generate the same report.
@@ -111,8 +111,8 @@ E.g. "Applied to NNAS", for the same we have at least 3 milestones so we need to
 
 Step 1:
 Let's find active applicants and remove all hired and withdrawn from the selection list.\
-We will apply only `to` date and intake, license, and recruitment category in the milestone table.\
-As if the applicant gets hired then-latest milestone may be in the immigration category, that's why we are restricting it up to the recruitment category.
+We will apply only `to` date and licensing/ registration and recruitment category in the milestone table.\
+If the applicant gets hired then the latest milestone may be in the immigration category, that's why we are restricting it up to the recruitment category.
 Here we have to ignore hired applicants so we are checking data in the recruitment category.
 
 Subquery: Select all the active applicants by removing hired and withdrawn. We can achieve it by finding the highest milestone in the intake, licensing, and recruitment category and then checking whether its value is `Withdrew from IEN program (Licensing/Registration)` for withdrawn or `Job Offer Accepted` for hired.
@@ -154,10 +154,10 @@ For that, we will use UNION all again with a static filter on milestone two quer
 ***
 ### Report 6: Number of Internationally Educated Nurse Registrants in the Recruitment Stage
 
-Applicants can apply for multiple job-competitions under the same health authorities or different health authorities.\
+Applicants can apply for multiple job competitions under the same health authorities or different health authorities.\
 In this report, if an applicant has applied to more than one job competition then that applicant count must be shown multiple times in different HA-related job competitions in the report.
 
-We will fetch all the job-competition data till the `to` date, We do not apply a filter on the `from` date because the applicant may be active but the milestone date is earlier than the `from` date.
+We will fetch all the job competition data till the `to` date, We do not apply a filter on the `from` date because the applicant may be active but the milestone date is earlier than the `from` date.
 
 Now we will categories and select count based on below 2 cases for each cell in report.
 
@@ -188,9 +188,9 @@ Step 1: Select the latest status (Hired or Withdraw)
 Step 2: For the withdrawal status let's check if any new milestones logged after it or not.
 
 Step 3:
-From the job competition and milestone data, we will find all the job-competition with their latest status for applicants till the `to` date. Ignore all the Hired and withdrawn applicants here.
+From the job competition and milestone data, we will find all the job competition with their latest status for applicants till the `to` date. Ignore all the Hired and withdrawn applicants here.
 +
-Let's find the latest hired HA and use it for the count(It means we are going to drop all the in-process job-competition data if the applicant selected in any one HA/job competition)
+Let's find the latest hired HA and use it for the count(It means we are going to drop all the in-process job competition data if the applicant selected in any one HA/job competition)
 
 Step 4:
 We will find applicant counts for each HA(connected with job competition) along their selected milestones. To achieve that, we can run GROUP BY on HA and milestone.
@@ -273,7 +273,7 @@ Before we process further please check the below points, which show which data w
 - Only hired applicants' duration will be calculated, We are ignoring all the active and withdrawn applicants here.
 - If the applicant is hired by more than one HA, then we will pick the lastest Hired date & that HA and ignore the previous one.
 
-Now, Let's understand how we are calculating the duration of each stack holder group.
+Now, Let's understand how we are calculating the duration of each stakeholder group.
 1. NNAS:
     - We have multiple milestones related to NNAS, like "Applied to NNAS", "Submitted Documents (NNAS Application in Review)", "Received NNAS Report", etc.
     - To calculate duration we need a start and end date. Here we can find the minimum date out of the above-listed milestones group and mark it as the start date. (If no status is found then we won't get any duration. If data is not consistent then we will see such a case)
@@ -288,7 +288,7 @@ Now, Let's understand how we are calculating the duration of each stack holder g
 3. Employer:
     - To find the employer duration we have HA's job competition and Hired date. Because we have only selected hired applicants.
     - From the selected job competition we can find minimum and maximum dates to calculate duration.
-    - Also we can separate HA under Employer using the same job-competition record(Each job competition is attached with one HA).
+    - Also we can separate HA under Employer using the same job competition record(Each job competition is attached with one HA).
 4. Immigration:
     - Now, here we have to consider 2 main possibilities.
       1. applicant completed their process of immigration and we can use, the last milestone of it to calculate the duration.
@@ -306,7 +306,7 @@ Note:
     - We are going to calculate the duration from NNAS to Hired in particular HA here.
     - We will find the NNAS minimum date and Hired date to calculate duration minus any withdrawal time.
 
-We understand how to calculate the duration for each stack holder group. Let's find MEAN, MEDIAN, and MODE values from the list of available durations. It helps to generate the requested report.
+We understand how to calculate the duration for each stakeholder group. Let's find MEAN, MEDIAN, and MODE values from the list of available durations. It helps to generate the requested report.
 MEAN: It is an average value.
 MEDIAN: It is the middle value from the sorted list if the list has an odd number of elements. If values are even in number it will pick 2 values from the middle of the list and show their average.
 MODE: It picks the highest occurrence of any value in the given list.
