@@ -1,12 +1,11 @@
 import { EmployeeFilterAPIDTO } from './dto/employee-filter.dto';
 import { BadRequestException, Inject, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Not, IsNull, Repository, getManager, In } from 'typeorm';
+import { Not, IsNull, Repository, getManager } from 'typeorm';
 import { Authorities, Authority, Employee, EmployeeRO, RoleSlug } from '@ien/common';
 import { EmployeeEntity } from './entity/employee.entity';
 import { IENUsers } from 'src/applicant/entity/ienusers.entity';
 import { RoleEntity } from './entity/role.entity';
-import { DefaultRoles } from '@ien/common/dist/enum/default-roles';
 import { AppLogger } from '../common/logger.service';
 
 export class EmployeeService {
@@ -33,9 +32,6 @@ export class EmployeeService {
       const authority = this._getOrganization(employee.email);
       if (authority) {
         employee.organization = authority.name;
-        if (Object.keys(DefaultRoles).includes(authority.id)) {
-          employee.roles = await this.getDefaultRoles(authority.id);
-        }
         needToSave = true;
       }
     }
@@ -130,10 +126,7 @@ export class EmployeeService {
       qb.andWhere({ revoked_access_date: Not(IsNull()) });
     }
 
-    if (
-      !user.roles.some(({ slug }) => slug === RoleSlug.Admin) &&
-      user.organization !== Authorities.HMBC.name
-    ) {
+    if (!user.roles.some(({ slug }) => slug === RoleSlug.Admin)) {
       qb.andWhere({ organization: user.organization });
     }
 
@@ -242,9 +235,5 @@ export class EmployeeService {
       .getRawOne();
 
     return { ...employeeUser, ...employee };
-  }
-
-  async getDefaultRoles(userType: keyof typeof DefaultRoles): Promise<RoleEntity[]> {
-    return this.roleRepository.find({ slug: In(DefaultRoles[userType]) });
   }
 }
