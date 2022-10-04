@@ -18,7 +18,6 @@ const headerStyle = {
 interface ReportCreator {
   name: string;
   description: string;
-  apiPath: string;
   generator?: (data: any[], creator?: ReportCreator) => WorkSheet;
   header: string[] | ((data: any[], creator?: ReportCreator) => string[]);
   rowProcessor?: (data: any[], creator?: ReportCreator) => (string | number)[][];
@@ -152,7 +151,6 @@ const reportCreators: ReportCreator[] = [
   {
     name: 'Report 1',
     description: 'Number of New Internationally Educated Nurse Registrant EOIs Processed',
-    apiPath: '/reports/applicant/registered',
     header: ['', 'Total Applicants'],
     rowProcessor: (data: Period[]) => {
       return data.map(p => [`Period ${p.period}: ${getTimeRange(p)}`, `${p.applicants}`]);
@@ -163,7 +161,6 @@ const reportCreators: ReportCreator[] = [
   {
     name: 'Report 2',
     description: 'Country of Training of Internationally Educated Nurse Registrants',
-    apiPath: '/reports/applicant/education-country',
     header: (data: Record<string, string | number>[]) => {
       if (!data?.length) return [];
       const row = _.omit(data[0], ['period', 'from', 'to']);
@@ -182,14 +179,12 @@ const reportCreators: ReportCreator[] = [
   {
     name: 'Report 3',
     description: 'Status of Internationally Educated Nurse Registrant Applicants',
-    apiPath: '/reports/applicant/hired-withdrawn-active',
     header: getHeaderFiltered('title'),
     colWidths: [40, 15, 15, 15, 15],
   },
   {
     name: 'Report 4',
     description: 'Number of Internationally Educated Nurse Registrants in the Licensing Stage',
-    apiPath: '/reports/applicant/licensing-stage',
     header: ['', 'IEN Registrants'],
     rowProcessor: (data: Record<string, string | number>[]) => {
       const rows = data.map(Object.values);
@@ -201,14 +196,12 @@ const reportCreators: ReportCreator[] = [
   {
     name: 'Report 5',
     description: 'Number of Internationally Educated Nurse Registrants Eligible for Job Search',
-    apiPath: '/reports/applicant/license',
     header: ['', 'applicants'],
     colWidths: [40, 20],
   },
   {
     name: 'Report 6',
     description: 'Number of Internationally Educated Nurse Registrants in the Recruitment Stage',
-    apiPath: '/reports/applicant/recruitment',
     header: getHeaderFiltered('status'),
     colWidths: [30, 20, 20, 20, 20, 20, 20, 20, 15],
     rowSum: true,
@@ -217,7 +210,6 @@ const reportCreators: ReportCreator[] = [
   {
     name: 'Report 7',
     description: 'Number of Internationally Educated Nurse Registrants in the Immigration Stage',
-    apiPath: '/reports/applicant/immigration',
     header: getHeaderFiltered('status'),
     colWidths: [30, 20, 20, 20, 20, 20, 20, 20, 15],
     rowSum: true,
@@ -226,7 +218,6 @@ const reportCreators: ReportCreator[] = [
   {
     name: 'Report 8',
     description: 'Number of Internationally Educated Nurse Registrants Working in BC',
-    apiPath: '/reports/applicant/ha-current-period-fiscal',
     header: (data: Record<string, string | number>[]): string[] => {
       return ['', ...Object.keys(data[0]).slice(1)];
     },
@@ -235,7 +226,6 @@ const reportCreators: ReportCreator[] = [
   {
     name: 'Report 9',
     description: 'Average Amount of Time with Each Stakeholder Group',
-    apiPath: '/reports/applicant/average-time-with-stakeholder-group',
     header: ['', '', 'Mean', 'Median', 'Mode'],
     rowProcessor: (data: Record<string, string | number>[]) => {
       const rows = data.map(Object.values);
@@ -298,18 +288,22 @@ export const createReportWorkbook = async (filter: PeriodFilter): Promise<WorkBo
   utils.book_append_sheet(workbook, getSummarySheet(filter), 'Summary');
 
   try {
-    const sheets: { name: string; sheet: WorkSheet }[] = await Promise.all(
-      reportCreators.map(async creator => {
-        const { name, apiPath, generator } = creator;
+    const { data } = await axios.get(`/reports/applicant?${convertToParams(filter)}`);
 
-        const { data } = await axios.get(`${apiPath}?${convertToParams(filter)}`);
-        const sheet = generator
-          ? generator(data.data, creator)
-          : createSheet(data.data, creator, filter);
+    const reports = data.data;
 
-        return { name, sheet };
-      }),
-    );
+    const sheets: { name: string; sheet: WorkSheet }[] = reportCreators.map(creator => {
+      const { name, generator } = creator;
+
+      const reportKey = name.toLowerCase().replace(' ', '');
+      const reportData = reports[reportKey];
+
+      const sheet = generator
+        ? generator(reportData, creator)
+        : createSheet(reportData, creator, filter);
+
+      return { name, sheet };
+    });
 
     sheets.forEach(({ name, sheet }) => {
       utils.book_append_sheet(workbook, sheet, name);
