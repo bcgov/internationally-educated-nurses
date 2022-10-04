@@ -45,7 +45,7 @@ export const Record: React.FC<RecordProps> = ({ job, expandRecord, jobIndex }) =
   const getSortedMilestones = () => {
     if (!job.status_audit?.length) return [];
     const sortedMilestones = [...job.status_audit];
-    sortedMilestones.sort((a, b) => {
+    sortedMilestones.sort((b, a) => {
       if (a.start_date === b.start_date) {
         return dayjs(a.updated_date).diff(b.updated_date);
       }
@@ -65,7 +65,7 @@ export const Record: React.FC<RecordProps> = ({ job, expandRecord, jobIndex }) =
   const getOutcomeText = () => {
     if (!milestones.length) return 'On Going';
 
-    const status = milestones[milestones.length - 1]?.status.status;
+    const status = milestones[0]?.status.status;
 
     if (COMPLETED_STATUSES.includes(status as STATUS)) {
       return `Complete - ${status}`;
@@ -74,7 +74,7 @@ export const Record: React.FC<RecordProps> = ({ job, expandRecord, jobIndex }) =
   };
 
   const getBgClass = () => {
-    const status = milestones[milestones.length - 1]?.status.status;
+    const status = milestones[0]?.status.status;
     if (status === STATUS.JOB_OFFER_ACCEPTED) {
       return 'bg-bcGreenHiredContainer';
     } else if (COMPLETED_STATUSES.includes(status as STATUS)) {
@@ -85,7 +85,7 @@ export const Record: React.FC<RecordProps> = ({ job, expandRecord, jobIndex }) =
   };
 
   const getOutcomeClass = () => {
-    const status = milestones[milestones.length - 1]?.status.status;
+    const status = milestones[0]?.status.status;
     if (status === STATUS.JOB_OFFER_ACCEPTED) {
       return 'text-bcGreenHiredText';
     } else if (COMPLETED_STATUSES.includes(status as STATUS)) {
@@ -99,7 +99,7 @@ export const Record: React.FC<RecordProps> = ({ job, expandRecord, jobIndex }) =
   const getMilestoneDuration = (): string => {
     if (!milestones.length) return '';
 
-    const lastItem = milestones[milestones.length - 1];
+    const lastItem = milestones[0];
 
     if (`${lastItem.start_date}` === dayjs().format('YYYY-MM-DD')) {
       return 'Today';

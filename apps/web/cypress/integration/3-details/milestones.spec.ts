@@ -27,23 +27,26 @@ describe('Details - Milestones', () => {
   });
 
   it('edits a milestone', () => {
-    cy.fixture('edit-milestone.json').then(milestone => {
+    cy.fixture('milestones.json').then(({ update }) => {
       cy.get('[data-cy=record-0]').click();
 
       cy.get('[alt="edit milestone"]').eq(0).click();
 
-      cy.get('#status').focus().type(`${milestone.outcome}{enter}`);
-      cy.get('#notes').click().clear().type(`${milestone.notes}`);
+      cy.get('#outcomeType').each(el => {
+        cy.wrap(el).focus().wait(100).type(`${update.milestone}{enter}`);
+      });
+      cy.get('#status').focus().type(`${update.outcome}{enter}`);
+      cy.get('#notes').click().clear().type(`${update.notes}`);
 
       cy.get('#start_date').click({ force: true });
       cy.get('#start_date').focus().clear();
-      cy.get('#start_date').focus().type(`${milestone.start_date}{enter}`);
+      cy.get('#start_date').focus().type(`${update.start_date}{enter}`);
 
       cy.contains('button', 'Save Changes').click();
 
-      cy.contains(milestone.outcome);
-      cy.contains(dayjs(milestone.start_date).format('MMM DD, YYYY'));
-      cy.contains(milestone.notes);
+      cy.contains(update.outcome);
+      cy.contains(dayjs(update.start_date).format('MMM DD, YYYY'));
+      cy.contains(update.notes);
     });
   });
 
@@ -51,9 +54,8 @@ describe('Details - Milestones', () => {
     cy.fixture('milestones.json').then(data => {
       cy.get('[data-cy=record-0]').click();
       cy.deleteMilestone(0);
-      cy.contains(`${data.new.outcome}`).should('not.exist');
-      cy.contains(`${data.new.notes}`).should('not.exist');
-      cy.contains(dayjs(data.new.start_date).format('MMM DD, YYYY')).should('not.exist');
+      cy.contains(`${data.update.outcome}`).should('not.exist');
+      cy.contains(`${data.update.notes}`).should('not.exist');
     });
   });
 

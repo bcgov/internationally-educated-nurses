@@ -15,6 +15,7 @@ import { useApplicantContext } from '../applicant/ApplicantContext';
 import { useAuthContext } from '../AuthContexts';
 import { AddMilestone } from './recruitment/AddMilestone';
 import { Milestone } from './recruitment/Milestone';
+import dayjs from 'dayjs';
 
 interface MilestoneTableProps {
   category: string | StatusCategory;
@@ -54,9 +55,16 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
   useEffect(
     function filterMilestones() {
       const audits =
-        milestones?.filter(audit => {
-          return audit.status.category === category;
-        }) || [];
+        milestones
+          ?.filter(audit => {
+            return audit.status.category === category;
+          })
+          .sort((b, a) => {
+            if (a.start_date === b.start_date) {
+              return dayjs(a.updated_date).diff(b.updated_date);
+            }
+            return dayjs(a.start_date).diff(b.start_date);
+          }) || [];
       setFilteredMilestones(audits);
     },
     [milestones, category, applicant],
@@ -90,18 +98,13 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
 
   const getDuration = (milestone: ApplicantStatusAuditRO): string => {
     const start = milestone.start_date;
-    let end = milestone.end_date;
-    if (!end) {
-      const nextMilestone = milestones.find(m => {
-        return (
-          m.start_date > milestone.start_date ||
-          (m.start_date === milestone.start_date && m.updated_date > milestone.updated_date)
-        );
-      });
-      if (nextMilestone) {
-        end = nextMilestone.start_date;
-      }
-    }
+    const nextMilestone = milestones.find(m => {
+      return (
+        m.start_date > milestone.start_date ||
+        (m.start_date === milestone.start_date && m.updated_date > milestone.updated_date)
+      );
+    });
+    const end = nextMilestone?.start_date;
 
     if (start === end) return '0 days';
 
