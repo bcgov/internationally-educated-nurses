@@ -8,6 +8,15 @@ export const validApplicant = {
   phone_number: '77-555-1234',
 };
 
+export const validApplicantForReportOne = {
+  first_name: 'Test',
+  last_name: 'Report',
+  applicant_id: randomUUID(),
+  email_address: 'test.report@mailinator.com',
+  phone_number: '77-555-1234',
+  registration_date: '2022-06-19',
+};
+
 export const applicant = { id: validApplicant.applicant_id };
 
 export const addJob = {

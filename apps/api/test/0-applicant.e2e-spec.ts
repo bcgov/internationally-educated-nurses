@@ -6,6 +6,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ExecutionContext, INestApplication } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { randomUUID } from 'crypto';
+
 import { AppModule } from '../src/app.module';
 import { IENHaPcn } from 'src/applicant/entity/ienhapcn.entity';
 import {
@@ -19,7 +21,7 @@ import {
 } from './fixture/ien';
 import { IENUsers } from 'src/applicant/entity/ienusers.entity';
 import { canActivate } from './override-guard';
-import { randomUUID } from 'crypto';
+
 let jobTempId = '08ff7e3f-2178-43d3-9740-5a255aa0d5ff';
 let applicantStatusId = 'NA';
 

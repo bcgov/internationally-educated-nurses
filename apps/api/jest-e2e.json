@@ -10,5 +10,6 @@
   "moduleNameMapper": {
     "src/(.*)": "<rootDir>/src/$1"
   },
-  "setupFilesAfterEnv": ["./test/setup.js"]
+  "setupFilesAfterEnv": ["./test/setup.js"],
+  "testSequencer": "./test/custom-sequencer.js"
 }
