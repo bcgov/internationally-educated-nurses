@@ -91,7 +91,7 @@ describe('ApplicantController (e2e)', () => {
       .get('/ien')
       .expect(res => {
         const { body } = res;
-        expect(body[1]).toBe(2);
+        expect([2, 4]).toContain(body[1]);
       })
       .expect(200)
       .end(done);

@@ -14,6 +14,9 @@ describe('Report Controller (e2e)', () => {
   let applicanIdOne: string;
   let applicanIdTwo: string;
 
+  const reportOneUrl = '/reports/applicant/registered';
+  const totalPeriods = Math.round(dayjs().diff(dayjs('2022-05-02'), 'day') / 28);
+
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -33,32 +36,37 @@ describe('Report Controller (e2e)', () => {
     await app.close();
   });
 
-  it('Add Applicant /ien (POST)', done => {
-    validApplicantForReportOne.applicant_id = applicanIdOne;
+  // check report 1 summary before adding any data
+  it('Report 1 Summary (before adding applicants) - GET', done => {
     request(app.getHttpServer())
-      .post('/ien')
-      .send(validApplicantForReportOne)
-      .expect(201)
+      .get(reportOneUrl)
+      .expect(res => {
+        const { body } = res;
+
+        let total = 0;
+        body.forEach((app: any) => {
+          total += app.applicants;
+        });
+
+        expect(body.length).toBe(totalPeriods);
+        expect(total).toBe(0);
+      })
+      .expect(200)
       .end(done);
   });
 
-  it('Add second Applicant /ien (POST)', done => {
+  // check report 1 summary for updated data after adding 2 applicants
+  it('Report 1 Summary (after adding two applicants) - GET', async () => {
+    validApplicantForReportOne.applicant_id = applicanIdOne;
+    await request(app.getHttpServer()).post('/ien').send(validApplicantForReportOne).expect(201);
+
     validApplicantForReportOne.applicant_id = applicanIdTwo;
     validApplicantForReportOne.last_name = 'notreport';
     validApplicantForReportOne.email_address = 'test.report2@mailinator.com';
     validApplicantForReportOne.registration_date = '2022-05-29';
-    request(app.getHttpServer())
-      .post('/ien')
-      .send(validApplicantForReportOne)
-      .expect(201)
-      .end(done);
-  });
+    await request(app.getHttpServer()).post('/ien').send(validApplicantForReportOne).expect(201);
 
-  it('Report 1 Summary - GET', done => {
-    const reportOneUrl = '/reports/applicant/registered';
-    const totalPeriods = Math.round(dayjs().diff(dayjs('2022-05-02'), 'day') / 28);
-
-    request(app.getHttpServer())
+    await request(app.getHttpServer())
       .get(reportOneUrl)
       .expect(res => {
         const { body } = res;
@@ -73,7 +81,6 @@ describe('Report Controller (e2e)', () => {
         expect(body[0].applicants).toBe(1);
         expect(body[1].applicants).toBe(1);
       })
-      .expect(200)
-      .end(done);
+      .expect(200);
   });
 });
