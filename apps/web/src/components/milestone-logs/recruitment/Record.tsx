@@ -208,15 +208,6 @@ export const Record: React.FC<RecordProps> = ({ job, expandRecord, jobIndex }) =
                 job={job}
               />
             </AclMask>
-            <AclMask acl={[Access.APPLICANT_WRITE]}>
-              {!editing && <AddMilestone job={job} category={StatusCategory.RECRUITMENT} />}
-              <AddRecordModal
-                job={job}
-                milestones={milestones}
-                onClose={handleModalClose}
-                visible={modalVisible}
-              />
-            </AclMask>
             {milestones.map(mil => (
               <Milestone
                 job={job}
@@ -228,6 +219,15 @@ export const Record: React.FC<RecordProps> = ({ job, expandRecord, jobIndex }) =
                 category={StatusCategory.RECRUITMENT}
               />
             ))}
+            <AclMask acl={[Access.APPLICANT_WRITE]}>
+              {!editing && <AddMilestone job={job} category={StatusCategory.RECRUITMENT} />}
+              <AddRecordModal
+                job={job}
+                milestones={milestones}
+                onClose={handleModalClose}
+                visible={modalVisible}
+              />
+            </AclMask>
           </div>
         }
       />
