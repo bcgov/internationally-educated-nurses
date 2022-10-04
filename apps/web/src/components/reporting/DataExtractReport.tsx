@@ -40,19 +40,15 @@ export const DataExtractReport = () => {
   };
 
   const validateDate = (value: string, end?: string) => {
-    // check if start date is greater than the end date
     if (dayjs(value).diff(end) > 0) {
       return 'Start Date must be before or equal to the End Date';
     }
-    // check if end date is less than the start date
     if (dayjs(end).diff(value) < 0) {
       return 'End Date must be after or equal to the Start Date';
     }
-    // check if either date is greater than pre set MAX DATE
     if (dayjs(value).diff(getMaxDate()) > 0) {
       return 'Date must be before current date';
     }
-    // check if either date is less than pre set MIN DATE
     if (dayjs(value).diff(MIN_DATE) < 0) {
       return `Date must be after ${MIN_DATE}`;
     }
