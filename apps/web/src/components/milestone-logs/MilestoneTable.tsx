@@ -15,6 +15,7 @@ import { useApplicantContext } from '../applicant/ApplicantContext';
 import { useAuthContext } from '../AuthContexts';
 import { AddMilestone } from './recruitment/AddMilestone';
 import { Milestone } from './recruitment/Milestone';
+import dayjs from 'dayjs';
 
 interface MilestoneTableProps {
   category: string | StatusCategory;
@@ -54,9 +55,16 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
   useEffect(
     function filterMilestones() {
       const audits =
-        milestones?.filter(audit => {
-          return audit.status.category === category;
-        }) || [];
+        milestones
+          ?.filter(audit => {
+            return audit.status.category === category;
+          })
+          .sort((b, a) => {
+            if (a.start_date === b.start_date) {
+              return dayjs(a.updated_date).diff(b.updated_date);
+            }
+            return dayjs(a.start_date).diff(b.start_date);
+          }) || [];
       setFilteredMilestones(audits);
     },
     [milestones, category, applicant],
