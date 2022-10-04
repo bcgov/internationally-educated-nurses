@@ -103,7 +103,7 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
       }
     }
 
-    if (start === end) return '-';
+    if (start === end) return '0 days';
 
     return getHumanizedDuration(start, end);
   };
