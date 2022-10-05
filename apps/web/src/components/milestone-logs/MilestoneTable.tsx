@@ -1,3 +1,5 @@
+import { compareMilestone } from '@ien/common/dist/helper/compare-status';
+import { findNextMilestone } from '@ien/common/dist/helper/find-next-milestone';
 import { Fragment, useEffect, useState } from 'react';
 
 import { AclMask, PageOptions, Pagination } from '@components';
@@ -96,15 +98,28 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
     setPageIndex(options.pageIndex);
   };
 
+  const getNextMilestone = (
+    milestone: ApplicantStatusAuditRO,
+  ): ApplicantStatusAuditRO | undefined => {
+    const nextNonRecruitment = findNextMilestone(milestone, milestones);
+
+    const recruitmentMilestones =
+      applicant?.jobs
+        ?.map(job => job.status_audit || [])
+        .reduce((a, c) => a.concat(c), [])
+        .sort(compareMilestone) || [];
+    const nextRecruitmentMilestone = findNextMilestone(milestone, recruitmentMilestones);
+
+    if (compareMilestone(nextNonRecruitment, nextRecruitmentMilestone) < 0) {
+      return nextNonRecruitment;
+    }
+    return nextRecruitmentMilestone;
+  };
+
   const getDuration = (milestone: ApplicantStatusAuditRO): string => {
     const start = milestone.start_date;
-    const nextMilestone = milestones.find(m => {
-      return (
-        m.start_date > milestone.start_date ||
-        (m.start_date === milestone.start_date && m.updated_date > milestone.updated_date)
-      );
-    });
-    const end = nextMilestone?.start_date;
+
+    const end = getNextMilestone(milestone)?.start_date;
 
     if (start === end) return '0 days';
 
