@@ -54,7 +54,8 @@ export const ReportTable = () => {
 
   useEffect(() => {
     setLoading(true);
-    getReportByEOI().then(data => {
+    const to = dayjs().format('YYYY-MM-DD');
+    getReportByEOI({ to }).then(data => {
       if (data) {
         sortPeriods(data);
         setTotal(data.length);
