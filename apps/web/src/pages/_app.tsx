@@ -21,10 +21,13 @@ axios.defaults.baseURL = process.env.NEXT_PUBLIC_API_URL;
 axios.interceptors.response.use(
   res => res,
   e => {
-    if (e?.response?.data?.errorType) {
-      toast.error(`${e.response.data.errorType}: ${e.response.data.errorMessage}`);
+    const message = e?.response?.data?.errorType
+      ? `${e.response.data.errorType}: ${e.response.data.errorMessage}`
+      : e.message;
+    if (message?.includes('Authentication token expired')) {
+      window.location.replace(`${window.location.origin}/login`);
     } else {
-      toast.error(e.message);
+      toast.error(message);
     }
   },
 );
