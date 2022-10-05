@@ -1,13 +1,14 @@
 import { Inject, Logger } from '@nestjs/common';
-import { getManager, Repository } from 'typeorm';
+import { getManager, Repository, In } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import dayjs from 'dayjs';
+import _ from 'lodash';
+
 import { ReportUtilService } from './report.util.service';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.entity';
 import { startDateOfFiscal } from 'src/common/util';
 import { ReportPeriodDTO, StatusCategory } from '@ien/common';
-import _ from 'lodash';
 
 export const PERIOD_START_DATE = '2022-05-02';
 
@@ -276,7 +277,13 @@ export class ReportService {
     this.logger.log(`extractApplicantsData: Apply date filter from (${from}) and to (${to})`);
 
     const milestones: IENApplicantStatus[] = await this.ienapplicantStatusRepository.find({
-      where: { category: StatusCategory.RECRUITMENT },
+      where: {
+        category: In([
+          StatusCategory.RECRUITMENT,
+          StatusCategory.LICENSING_REGISTRATION,
+          StatusCategory.BC_PNP,
+        ]),
+      },
     });
     const entityManager = getManager();
     const data = await entityManager.query(

@@ -3,7 +3,7 @@
 ### Purpose
 
 The Applicant Data Extract provides basic information on all applicants within a given date range `(from, to)`.\
-Information includes, but is not limited to, Registration Date, Assigned To, Country of Residence(One)/ Citizenship(Many), PR Status, Referred HA's etc. as well as the start dates for any Recruitment related milestones.\
+Information includes, but is not limited to, Registration Date, Assigned To, Country of Residence(One)/ Citizenship(Many), PR Status, Referred HA's etc. as well as the start dates for milestones from all phases of the IEN journey.\
 - If no applicants fall into the given date range, no data will return and no extract will be downloaded.\
 - If no data exists for a column, a blank cell will be shown\
 
