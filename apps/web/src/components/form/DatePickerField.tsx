@@ -55,6 +55,7 @@ export const DatePickerField = (props: DatePickerFieldProps) => {
               bgColour ? bgColour : 'bg-bcGrayInput',
             )}
             placeholderText={format?.toLowerCase()}
+            autoComplete='off'
             minDate={min}
             maxDate={max}
             showYearDropdown
@@ -66,7 +67,10 @@ export const DatePickerField = (props: DatePickerFieldProps) => {
               }
             }}
             onFocus={e => (valRef.current = e.target.value)}
-            onBlur={() => valRef.current && form.setFieldValue(name, valRef.current)}
+            onBlur={() => {
+              form.setFieldTouched(name, true);
+              valRef.current && form.setFieldValue(name, valRef.current);
+            }}
             onChange={value => value || form.setFieldValue(name, '')}
             onSelect={value => {
               const newValue = value ? dayjs(value).format('YYYY-MM-DD') : '';
