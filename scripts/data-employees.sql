@@ -39,6 +39,10 @@ INSERT INTO employee_roles_role
     (role_id, employee_id)
 VALUES
     ((SELECT id FROM role WHERE slug = 'admin'), (SELECT id FROM employee WHERE name = 'ien_e2e')),
+    ((SELECT id FROM role WHERE slug = 'applicant-read'), (SELECT id FROM employee WHERE name = 'ien_e2e')),
+    ((SELECT id FROM role WHERE slug = 'applicant-write'), (SELECT id FROM employee WHERE name = 'ien_e2e')),
+    ((SELECT id FROM role WHERE slug = 'provisioner'), (SELECT id FROM employee WHERE name = 'ien_e2e')),
+    ((SELECT id FROM role WHERE slug = 'reporting'), (SELECT id FROM employee WHERE name = 'ien_e2e')),
     ((SELECT id FROM role WHERE slug = 'applicant-read'), (SELECT id FROM employee WHERE name = 'ien_e2e_view')),
     ((SELECT id FROM role WHERE slug = 'applicant-write'), (SELECT id FROM employee WHERE name = 'ien_hmbc')),
     ((SELECT id FROM role WHERE slug = 'applicant-write'), (SELECT id FROM employee WHERE name = 'ien_ha')),

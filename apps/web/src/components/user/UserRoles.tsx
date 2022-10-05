@@ -1,7 +1,8 @@
 import _ from 'lodash';
-import { EmployeeRO, Role, RoleSlug } from '@ien/common';
+import { EmployeeRO, Role } from '@ien/common';
 import lockIcon from '@assets/img/lock.svg';
-import { updateRoles, useRoles } from '@services';
+import { updateRoles } from '@services';
+import { useAuthContext } from '../AuthContexts';
 import { ToggleSwitch } from '../ToggleSwitch';
 
 interface UserRolesProps {
@@ -10,7 +11,7 @@ interface UserRolesProps {
 }
 
 export const UserRoles = ({ user, updateUser }: UserRolesProps) => {
-  const roles = useRoles();
+  const { authUser } = useAuthContext();
 
   const changeRole = async (role: Role, enabled: boolean) => {
     const roleIds = user.roles.map(r => r.id);
@@ -45,9 +46,7 @@ export const UserRoles = ({ user, updateUser }: UserRolesProps) => {
         <img src={lockIcon.src} alt='history icon' />
         <h2 className='font-bold text-bcBluePrimary text-xl'>Role & Access Control</h2>
       </div>
-      {roles
-        ?.filter(role => role.slug !== RoleSlug.Admin && role.slug !== RoleSlug.DataExtract)
-        .map(getRoleSelector)}
+      {authUser?.roles.map(getRoleSelector)}
     </div>
   );
 };
