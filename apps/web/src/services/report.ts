@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios';
 import _ from 'lodash';
 import dayjs from 'dayjs';
-import { CellAddress, utils, WorkBook, WorkSheet } from 'xlsx-js-style';
+import { CellObject, utils, WorkBook, WorkSheet } from 'xlsx-js-style';
 import { toast } from 'react-toastify';
 
 import { Period, PeriodFilter } from '@ien/common';
@@ -52,14 +52,17 @@ export const getTimeRange = ({ from, to }: PeriodFilter): string => {
   return `${start} ~ `;
 };
 
-const applyNumberFormat = (sheet: WorkSheet, s: CellAddress, e: CellAddress): void => {
-  for (let r = s.r; r <= e.r; ++r) {
-    for (let c = s.c; c <= e.c; ++c) {
+const applyNumberFormat = (sheet: WorkSheet, rows: any[][]): void => {
+  const column = _.max(rows.map(_.size));
+  if (typeof column !== 'number') return;
+
+  for (let r = 0; r <= rows.length; ++r) {
+    for (let c = 0; c <= column; ++c) {
       const cell = sheet[utils.encode_cell({ r, c })];
-      if (cell) {
-        cell.t = 'n';
-        cell.z = '0';
-      }
+      if (isNaN(cell?.v)) continue;
+      if (typeof cell.v === 'string' && !cell.v.trim()) continue;
+      cell.t = 'n';
+      cell.z = '0';
     }
   }
 };
@@ -104,12 +107,20 @@ const fillTotalRow = (rows: any[][], data: (string | number)[][]) => {
       .map(v => ({ v, t: 'n', s: headerStyle })),
   ]);
 };
+
+const styleHeader = (header: string[]): CellObject[] => {
+  return header
+    .map(_.toUpper)
+    .map(v => v.replaceAll('_', ' '))
+    .map(v => ({ v, t: 's', s: headerStyle }));
+};
+
 const createSheet = (
   data: Record<string, string | number>[],
   creator: ReportCreator,
   filter: PeriodFilter,
 ): WorkSheet => {
-  const { description, header, rowProcessor, colWidths, rowSum, colSum, name, details } = creator;
+  const { description, header, rowProcessor, colWidths, rowSum, colSum, details } = creator;
 
   if (colSum) {
     fillTotalColumn(data);
@@ -131,10 +142,7 @@ const createSheet = (
     ['Report Period', getTimeRange(filter)],
     ...detailRows,
     [],
-    headerRow
-      .map(_.toUpper)
-      .map(v => v.replaceAll('_', ' '))
-      .map(v => ({ v, t: 's', s: headerStyle })),
+    styleHeader(headerRow),
     ...formatDataRows(dataRows, headerRow),
   ];
 
@@ -145,9 +153,7 @@ const createSheet = (
   const sheet = utils.aoa_to_sheet(rows);
   if (colWidths) sheet['!cols'] = colWidths.map(wch => ({ wch }));
   if (dataRows.length) {
-    const r = name === 'Report 8' ? 6 : 5; // start row of numbers
-    const c = name === 'Report 9' ? 2 : 1; // start col of numbers
-    applyNumberFormat(sheet, { r, c }, { r: rows.length - 1, c: dataRows[0].length });
+    applyNumberFormat(sheet, rows);
   }
 
   return sheet;
