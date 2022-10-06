@@ -59,6 +59,7 @@ export const DatePickerField = (props: DatePickerFieldProps) => {
             minDate={min}
             maxDate={max}
             showYearDropdown
+            scrollableYearDropdown
             yearDropdownItemNumber={numOfYears}
             selected={field.value ? dayjs(field.value).toDate() : null}
             onChangeRaw={e => {
