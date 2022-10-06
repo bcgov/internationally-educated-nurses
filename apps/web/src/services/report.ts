@@ -18,6 +18,7 @@ const headerStyle = {
 interface ReportCreator {
   name: string;
   description: string;
+  notes?: string[] | ((data: any[]) => any[]);
   generator?: (data: any[], creator?: ReportCreator) => WorkSheet;
   header: string[] | ((data: any[], creator?: ReportCreator) => string[]);
   rowProcessor?: (data: any[], creator?: ReportCreator) => (string | number)[][];
@@ -42,13 +43,12 @@ export const getReportByEOI = async (filter?: PeriodFilter) => {
   }
 };
 
-export const getTimeRange = (period: PeriodFilter): string => {
-  const from =
-    dayjs(period.from).year() === dayjs(period.to).year()
-      ? dayjs(period.from).format('MMM DD')
-      : dayjs(period.from).format('MMM DD, YYYY');
-
-  return `${from} - ${dayjs(period.to).format('MMM DD, YYYY')}`;
+export const getTimeRange = ({ from, to }: PeriodFilter): string => {
+  const start = dayjs(from).format('MMM DD, YYYY');
+  if (to) {
+    return `${start} ~ ${dayjs(to).format('MMM DD, YYYY')}`;
+  }
+  return `${start} ~ `;
 };
 
 const applyNumberFormat = (sheet: WorkSheet, s: CellAddress, e: CellAddress): void => {
@@ -90,7 +90,7 @@ const createSheet = (
   creator: ReportCreator,
   filter: PeriodFilter,
 ): WorkSheet => {
-  const { description, header, rowProcessor, colWidths, rowSum, colSum, name } = creator;
+  const { description, header, rowProcessor, colWidths, rowSum, colSum, name, notes } = creator;
 
   if (colSum) {
     data.forEach(row => {
@@ -108,11 +108,13 @@ const createSheet = (
     row.forEach((v, index) => (row[index] = v || 0));
   });
   const headerRow = Array.isArray(header) ? header : header(data, creator);
+  const noteRows = Array.isArray(notes) ? [notes] : (notes && [notes(data)]) || [];
 
   const rows = [
     [{ v: description, t: 's', s: { font: bold, alignment: { horizontal: 'left' } } }],
     [],
-    [{ v: getTimeRange(filter) }],
+    ['Report Period', getTimeRange(filter)],
+    ...noteRows,
     [],
     headerRow
       .map(_.toUpper)
@@ -134,8 +136,10 @@ const createSheet = (
 
   const sheet = utils.aoa_to_sheet(rows);
   if (colWidths) sheet['!cols'] = colWidths.map(wch => ({ wch }));
-  if (name !== 'Report 9' && dataRows.length) {
-    applyNumberFormat(sheet, { r: 5, c: 1 }, { r: rows.length - 1, c: dataRows[0].length });
+  if (dataRows.length) {
+    const r = name === 'Report 8' ? 6 : 5; // start row of numbers
+    const c = name === 'Report 9' ? 2 : 1; // start col of numbers
+    applyNumberFormat(sheet, { r, c }, { r: rows.length - 1, c: dataRows[0].length });
   }
 
   return sheet;
@@ -219,9 +223,23 @@ const reportCreators: ReportCreator[] = [
     name: 'Report 8',
     description: 'Number of Internationally Educated Nurse Registrants Working in BC',
     header: (data: Record<string, string | number>[]): string[] => {
-      return ['', ...Object.keys(data[0]).slice(1)];
+      return [
+        '',
+        ...Object.keys(data[0])
+          .slice(1)
+          .map(v => {
+            return v.includes('current_period') ? `${v.split(' ')[0]}*` : v;
+          }),
+      ];
     },
-    colWidths: [35, 25, 20, 20],
+    colWidths: [35, 20, 20, 20],
+    notes: (data: Record<string, string | number>[]): any[] => {
+      const currentPeriod = Object.keys(data[0])
+        .find(v => v.includes('current_period'))
+        ?.split(' ')[1];
+      const [from, to] = currentPeriod?.split('~') || [];
+      return currentPeriod ? ['Current Period*', getTimeRange({ from, to })] : [];
+    },
   },
   {
     name: 'Report 9',
@@ -244,7 +262,7 @@ const getSummarySheet = (filter: PeriodFilter): WorkSheet => {
       { v: '', t: 's', s: { fill: { fgColor } } },
     ],
     [],
-    [{ v: getTimeRange(filter), t: 's' }, ''],
+    ['Report Period', { v: getTimeRange(filter), t: 's' }, ''],
     [],
   ];
   rows.push(...reportCreators.map(c => [c.name.toUpperCase(), c.description]));
