@@ -233,7 +233,7 @@ To trigger deployment, run `make tag-{env}`. ex) `make tag-dev`
 
 `dev`, `test` and `prod` deployments to AWS are managed through Terraform configurations and GitHub actions. They do not require access to LZ2. However, in order to access LZ2 for updating parameters, troubleshooting, or diagnosing the app, your IDIRs would have to be onboarded on to LZ2 for the project code `uux0vy` -  IEN.
 
-> **Authentication**
+## Authentication
 > 
 > `local` and `dev` use FreshWorks's Keycloak server at https://keycloak.freshworks.club.
 > 
@@ -266,7 +266,7 @@ As a part of the production release approval:
 
 Database backups occur on every deployment and also during the scheduled backup window.
 
-To restore the database form a backup the following steps need to performed in the specified order
+To restore the database from a backup, the following steps need to be performed in the specified order
 
 * Find the snapshot to restore from the AWS console 
 * snapshots created during a build are tagged with the commit sha
