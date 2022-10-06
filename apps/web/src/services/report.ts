@@ -18,7 +18,8 @@ const headerStyle = {
 interface ReportCreator {
   name: string;
   description: string;
-  notes?: string[] | ((data: any[]) => any[]);
+  // additional information to help to understand the table
+  details?: string[] | ((data: any[]) => any[]);
   generator?: (data: any[], creator?: ReportCreator) => WorkSheet;
   header: string[] | ((data: any[], creator?: ReportCreator) => string[]);
   rowProcessor?: (data: any[], creator?: ReportCreator) => (string | number)[][];
@@ -85,19 +86,33 @@ const formatDataRows = (dataRows: any[][], header: string[]) => {
   });
 };
 
+const fillTotalColumn = (data: Record<string, string | number>[]) => {
+  data.forEach(row => {
+    row.Total = Object.values(row).reduce((a, c) => {
+      return !Number.isNaN(+c) ? +a + +c : a;
+    }, 0);
+  });
+};
+
+const fillTotalRow = (rows: any[][], data: (string | number)[][]) => {
+  rows.push([
+    { v: 'TOTAL', t: 's', s: { fill: { fgColor }, font: bold } },
+    ...data
+      .reduce((total, row) => {
+        return total.map((value, index) => +row[index + 1] + +value);
+      }, Array(data[0].length - 1).fill(0))
+      .map(v => ({ v, t: 'n', s: headerStyle })),
+  ]);
+};
 const createSheet = (
   data: Record<string, string | number>[],
   creator: ReportCreator,
   filter: PeriodFilter,
 ): WorkSheet => {
-  const { description, header, rowProcessor, colWidths, rowSum, colSum, name, notes } = creator;
+  const { description, header, rowProcessor, colWidths, rowSum, colSum, name, details } = creator;
 
   if (colSum) {
-    data.forEach(row => {
-      row.Total = Object.values(row).reduce((a, c) => {
-        return !Number.isNaN(+c) ? +a + +c : a;
-      }, 0);
-    });
+    fillTotalColumn(data);
   }
 
   // object to array
@@ -108,13 +123,13 @@ const createSheet = (
     row.forEach((v, index) => (row[index] = v || 0));
   });
   const headerRow = Array.isArray(header) ? header : header(data, creator);
-  const noteRows = Array.isArray(notes) ? [notes] : (notes && [notes(data)]) || [];
+  const detailRows = Array.isArray(details) ? [details] : (details && [details(data)]) || [];
 
   const rows = [
     [{ v: description, t: 's', s: { font: bold, alignment: { horizontal: 'left' } } }],
     [],
     ['Report Period', getTimeRange(filter)],
-    ...noteRows,
+    ...detailRows,
     [],
     headerRow
       .map(_.toUpper)
@@ -124,14 +139,7 @@ const createSheet = (
   ];
 
   if (rowSum && dataRows.length) {
-    rows.push([
-      { v: 'TOTAL', t: 's', s: { fill: { fgColor }, font: bold } },
-      ...dataRows
-        .reduce((total, row) => {
-          return total.map((value, index) => +row[index + 1] + +value);
-        }, Array(dataRows[0].length - 1).fill(0))
-        .map(v => ({ v, t: 'n', s: headerStyle })),
-    ]);
+    fillTotalRow(rows, dataRows);
   }
 
   const sheet = utils.aoa_to_sheet(rows);
@@ -233,7 +241,7 @@ const reportCreators: ReportCreator[] = [
       ];
     },
     colWidths: [35, 20, 20, 20],
-    notes: (data: Record<string, string | number>[]): any[] => {
+    details: (data: Record<string, string | number>[]): any[] => {
       const currentPeriod = Object.keys(data[0])
         .find(v => v.includes('current_period'))
         ?.split(' ')[1];
