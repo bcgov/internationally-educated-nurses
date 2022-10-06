@@ -7,9 +7,9 @@ import dayjs from 'dayjs';
 import { AppModule } from 'src/app.module';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { canActivate } from './override-guard';
-import { validApplicantForReportOne } from './fixture/ien';
+import { validApplicantForReport } from './fixture/reports';
 
-describe('Report Controller (e2e)', () => {
+describe('Report 1 (e2e)', () => {
   let app: INestApplication;
   let applicanIdOne: string;
   let applicanIdTwo: string;
@@ -57,14 +57,14 @@ describe('Report Controller (e2e)', () => {
 
   // check report 1 summary for updated data after adding 2 applicants
   it('Report 1 Summary (after adding two applicants) - GET', async () => {
-    validApplicantForReportOne.applicant_id = applicanIdOne;
-    await request(app.getHttpServer()).post('/ien').send(validApplicantForReportOne).expect(201);
+    validApplicantForReport.applicant_id = applicanIdOne;
+    await request(app.getHttpServer()).post('/ien').send(validApplicantForReport).expect(201);
 
-    validApplicantForReportOne.applicant_id = applicanIdTwo;
-    validApplicantForReportOne.last_name = 'notreport';
-    validApplicantForReportOne.email_address = 'test.report2@mailinator.com';
-    validApplicantForReportOne.registration_date = '2022-05-29';
-    await request(app.getHttpServer()).post('/ien').send(validApplicantForReportOne).expect(201);
+    validApplicantForReport.applicant_id = applicanIdTwo;
+    validApplicantForReport.last_name = 'notreport';
+    validApplicantForReport.email_address = 'test.report2@mailinator.com';
+    validApplicantForReport.registration_date = '2022-05-29';
+    await request(app.getHttpServer()).post('/ien').send(validApplicantForReport).expect(201);
 
     await request(app.getHttpServer())
       .get(reportOneUrl)
