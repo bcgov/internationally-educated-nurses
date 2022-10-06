@@ -1,12 +1,13 @@
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-This app provides a platform intended to record reporting statistics involved with an Internationally Educated Nurse's hiring journey.  IEN is only resposible for Recruitment related milestones, all other data is submitted to the IEN portal through ATS\
+This app provides a platform intended to record reporting statistics involved with an Internationally Educated Nurse's hiring journey.  IEN is only responsible for Recruitment related milestones, all other data is submitted to the IEN portal through ATS\
 
 > ** Authentication **\
 > See [Authentication](../../README.md#authentication)
 
 ## Pages 
-***Each page requires particular roles and each role grants certain privileges, depending on roles, pages may look different***
+***Each page requires particular roles and each role grants certain privileges.\
+Depending on roles, pages may look different***
 ### Landing Page (Manage Applicants Table)
 Two similar but different versions depending on the type of logged in user.  
 
