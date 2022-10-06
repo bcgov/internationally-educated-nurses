@@ -755,11 +755,7 @@ export class ReportUtilService {
     to: string,
   ) {
     const startOfTotal = PERIOD_START_DATE > fiscalStart ? fiscalStart : PERIOD_START_DATE;
-    const endOfPeriod =
-      dayjs().diff(dayjs(periodStart), 'day') > 28
-        ? dayjs(periodStart).add(27, 'day').format('YYYY-MM-DD')
-        : '';
-    const currentColumn = `current_period ${periodStart}~${endOfPeriod}`;
+    const currentColumn = `current_period ${periodStart}~${to}`;
     return `
       WITH applicantReceivedWP AS (
         SELECT 
