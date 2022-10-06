@@ -15,6 +15,9 @@ export const withdrewFromProgram = { id: 'f84a4167-a636-4b21-977c-f11aefc486af' 
 export const acceptedOffer = { id: '70b1f5f1-1a0d-ef71-42ea-3a0601b46bc2' };
 export const withdrewFromCompetition = { id: '3fd4f2b0-5151-d7c8-6bbc-3a0601b5e1b0' };
 export const withdrewReason = { id: 'a1e0e2c1-e272-468a-8f7a-28686b750cae' };
+export const fullLicenceRN = { id: '18aa32c3-a6a4-4431-8283-89931c141fde' };
+export const provLicenceLPN = { id: '91f55faa-c71d-83c8-4f10-3a05e778afbc' };
+export const provLicenceRN = { id: 'd2656957-ec58-15c9-1e21-3a05e778dc8e' };
 
 export const addMilestone = {
   status: withdrewFromProgram.id,
