@@ -111,9 +111,9 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
     const nextRecruitmentMilestone = findNextMilestone(milestone, recruitmentMilestones);
 
     if (compareMilestone(nextNonRecruitment, nextRecruitmentMilestone) < 0) {
-      return nextNonRecruitment;
+      return nextRecruitmentMilestone;
     }
-    return nextRecruitmentMilestone;
+    return nextNonRecruitment;
   };
 
   const getDuration = (milestone: ApplicantStatusAuditRO): string => {
