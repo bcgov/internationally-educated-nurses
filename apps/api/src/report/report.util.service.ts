@@ -32,7 +32,7 @@ export class ReportUtilService {
     `;
   }
 
-  counrtyWiseApplicantQuery(from: string, to: string) {
+  countryWiseApplicantQuery(from: string, to: string) {
     return `
         WITH applicant_country AS (
           SELECT
@@ -62,7 +62,7 @@ export class ReportUtilService {
             ) as country
           FROM applicant_country as ac
         ),
-        contry_wise_applicants AS (
+        country_wise_applicants AS (
           SELECT
             id,
             periods,
@@ -80,7 +80,7 @@ export class ReportUtilService {
             CASE WHEN country = 'n/a' THEN 1 ELSE 0 END AS "n/a"
           FROM applicant_country_filtered
         ),
-        period_contry_wise_applicants AS (
+        period_country_wise_applicants AS (
         SELECT
           periods+1 as period,
           to_char('${from}'::date + (periods*28), 'YYYY-MM-DD') as "from",
@@ -98,12 +98,12 @@ export class ReportUtilService {
           sum(other) as other,
           sum("n/a") as "n/a",
           (sum(us)+sum(uk)+sum(ie)+sum(au)+sum(ph)+sum("in")+sum(ng)+sum(jm)+sum(ke)+sum(ca)+sum(other)+sum("n/a")) as total
-        FROM contry_wise_applicants
+        FROM country_wise_applicants
         GROUP BY periods
         ORDER by periods
         )
-        -- Let's run it again with union to add addinal columns for total
-        SELECT *  FROM period_contry_wise_applicants
+        -- Run it again with union to add additional columns for total
+        SELECT *  FROM period_country_wise_applicants
         UNION
         SELECT null AS period, null AS "from", null AS "to",
           sum(us) as us,
@@ -119,7 +119,7 @@ export class ReportUtilService {
           sum(other) as other,
           sum("n/a") as "n/a",
           sum(total) as total
-        FROM period_contry_wise_applicants
+        FROM period_country_wise_applicants
         ORDER BY period;    
     `;
   }

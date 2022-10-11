@@ -259,7 +259,10 @@ build-web:
 	@mv ./apps/web/out ./terraform/build/app
 	@echo "++\n*****"
 
-	
+build-common:
+	@echo "++\n***** Building Common\n++"
+	@yarn workspace @ien/common build
+	@echo "++\n*****"
 # ===================================
 # Terraform commands
 # ===================================

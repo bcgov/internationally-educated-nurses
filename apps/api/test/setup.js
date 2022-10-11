@@ -1,1 +1,2 @@
-jest.setTimeout(30000);
+require('../env');
+jest.setTimeout(300000);

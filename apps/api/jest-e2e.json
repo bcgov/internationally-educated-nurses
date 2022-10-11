@@ -11,5 +11,6 @@
     "src/(.*)": "<rootDir>/src/$1"
   },
   "setupFilesAfterEnv": ["./test/setup.js"],
-  "testSequencer": "./test/custom-sequencer.js"
+  "testSequencer": "./test/custom-sequencer.js",
+  "verbose": true
 }
