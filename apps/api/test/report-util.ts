@@ -20,6 +20,7 @@ export const getApplicant = (options?: ApplicantOptions): IENApplicantCreateUpda
     ? faker.date.between(...options.between)
     : faker.date.past();
   return {
+    applicant_id: faker.datatype.uuid(),
     first_name,
     last_name,
     email_address: faker.internet.email(first_name, last_name),

@@ -3,9 +3,9 @@ import { IsNotEmpty, IsNumber, IsString, Max, Min, ValidateIf } from 'class-vali
 export class NursingEducationDTO {
   constructor(name: string, year: string, country: string, num_years: string) {
     this.name = name;
-    this.year = year;
+    this.year = +year;
     this.country = country;
-    this.num_years = num_years;
+    this.num_years = +num_years;
   }
 
   @IsString()
@@ -18,7 +18,7 @@ export class NursingEducationDTO {
   @IsNumber()
   @IsNotEmpty({ message: 'Year is required' })
   @ValidateIf(({ name }) => !!name && name !== 'undefined')
-  year!: string;
+  year!: number;
 
   @IsString()
   @IsNotEmpty({ message: 'Country is required' })
@@ -29,5 +29,5 @@ export class NursingEducationDTO {
   @IsNumber()
   @IsNotEmpty({ message: 'Number of Years is required' })
   @ValidateIf(({ name }) => !!name && name !== 'undefined')
-  num_years!: string;
+  num_years!: number;
 }
