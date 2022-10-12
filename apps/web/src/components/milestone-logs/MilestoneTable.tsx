@@ -1,4 +1,3 @@
-import { compareMilestone } from '@ien/common/dist/helper/compare-status';
 import { findNextMilestone } from '@ien/common/dist/helper/find-next-milestone';
 import { Fragment, useEffect, useState } from 'react';
 
@@ -101,19 +100,11 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
   const getNextMilestone = (
     milestone: ApplicantStatusAuditRO,
   ): ApplicantStatusAuditRO | undefined => {
-    const nextNonRecruitment = findNextMilestone(milestone, milestones);
-
-    const recruitmentMilestones =
+    const mergedMilestones =
       applicant?.jobs
         ?.map(job => job.status_audit || [])
-        .reduce((a, c) => a.concat(c), [])
-        .sort(compareMilestone) || [];
-    const nextRecruitmentMilestone = findNextMilestone(milestone, recruitmentMilestones);
-
-    if (compareMilestone(nextNonRecruitment, nextRecruitmentMilestone) < 0) {
-      return nextRecruitmentMilestone;
-    }
-    return nextNonRecruitment;
+        .reduce((a, c) => a.concat(c), [...milestones]) || milestones;
+    return findNextMilestone(milestone, mergedMilestones);
   };
 
   const getDuration = (milestone: ApplicantStatusAuditRO): string => {
