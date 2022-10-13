@@ -124,6 +124,16 @@ export class ReportController {
     return this.reportService.getAverageTimeWithEachStakeholderGroup(statuses, to);
   }
 
+  @ApiOperation({
+    summary: 'Report 10: Average Amount of Time with Each Milestone in Stakeholder Group',
+  })
+  @Get('/applicant/average-time-of-milestones')
+  @AllowAccess(Access.REPORTING)
+  async getAverageTimeOfMilestones(@Query('to') to: string): Promise<object[]> {
+    const statuses = await this.reportService.getStatusMap();
+    return this.reportService.getAverageTimeOfMilestones(statuses, to);
+  }
+
   /** Additional report other than standard 9 reports */
   @ApiOperation({ summary: 'Extract applicant details' })
   @Get('/applicant/extract-data')

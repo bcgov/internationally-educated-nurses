@@ -1,7 +1,17 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 
-import { STATUS, StatusCategory } from '@ien/common';
+import {
+  BCCNM_NCAS_STAGE,
+  COMPETITION_OUTCOMES,
+  IMMIGRATION_COMPLETE,
+  IMMIGRATION_STAGE,
+  LIC_REG_STAGE,
+  NNAS_STAGE,
+  RECRUITMENT_STAGE,
+  STATUS,
+  StatusCategory,
+} from '@ien/common';
 import { isValidDateFormat } from 'src/common/util';
 import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.entity';
 import { PERIOD_START_DATE } from './report.service';
@@ -618,8 +628,8 @@ export class ReportUtilService {
         FROM public.ien_applicant_status WHERE category = '${StatusCategory.RECRUITMENT}' AND 
         id IN (
           '${statuses[STATUS.REFERRAL_ACKNOWLEDGED]}',
-          '${statuses[STATUS.PRESCREEN_PASSED]}',
-          '${statuses[STATUS.PRESCREEN_NOT_PASSED]}',
+          '${statuses[STATUS.PRE_SCREEN_PASSED]}',
+          '${statuses[STATUS.PRE_SCREEN_NOT_PASSED]}',
           '${statuses[STATUS.INTERVIEW_PASSED]}',
           '${statuses[STATUS.INTERVIEW_NOT_PASSED]}',
           '${statuses[STATUS.REFERENCE_CHECK_PASSED]}',
@@ -688,7 +698,7 @@ export class ReportUtilService {
                   '${statuses[STATUS.RECEIVED_CONFIRMATION_OF_NOMINATION]}',
                   '${statuses[STATUS.SENT_SECOND_STEPS_DOCUMENT]}',
                   '${statuses[STATUS.SUBMITTED_WORK_PERMIT_APPLICATION]}',
-                  '${statuses[STATUS.WORK_PERMIT_APPROVAL_RECEIVED]}',
+                  '${statuses[STATUS.RECEIVED_WORK_PERMIT_APPROVAL_LETTER]}',
                   '${statuses[STATUS.RECEIVED_WORK_PERMIT]}'
                   )
                 AND sa.start_date <= '${to}'
@@ -724,7 +734,7 @@ export class ReportUtilService {
           '${statuses[STATUS.RECEIVED_CONFIRMATION_OF_NOMINATION]}',
           '${statuses[STATUS.SENT_SECOND_STEPS_DOCUMENT]}',
           '${statuses[STATUS.SUBMITTED_WORK_PERMIT_APPLICATION]}',
-          '${statuses[STATUS.WORK_PERMIT_APPROVAL_RECEIVED]}',
+          '${statuses[STATUS.RECEIVED_WORK_PERMIT_APPROVAL_LETTER]}',
           '${statuses[STATUS.RECEIVED_WORK_PERMIT]}'
           )
       ),
@@ -866,7 +876,7 @@ export class ReportUtilService {
       -- If we receive 2 hired state for different HA, Then we will pick only latest one
       -- One assumption that withdrawal/hold period does not overlap each other for same applicant.
         -- For developer reference
-        -- ROUND(avg(average_time_to_hire), 2)::double precision as mean_value; --mean
+        -- ROUND(AVG(average_time_to_hire), 2)::double precision as mean_value; --mean
         -- SELECT PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY some_value) FROM tbl; -- median
         -- SELECT mode() WITHIN GROUP (ORDER BY some_value) AS mode_value FROM tbl; -- mode
 
@@ -881,9 +891,10 @@ export class ReportUtilService {
               ROW_NUMBER() OVER(PARTITION BY iasa.applicant_id ORDER BY iasa.start_date DESC, iasa.updated_date DESC) AS rank
         FROM public.ien_applicant_status_audit iasa
         LEFT JOIN public.ien_applicant_jobs iaj ON iasa.job_id=iaj.id
-        WHERE iasa.status_id IN ('${statuses[STATUS.WITHDREW_FROM_PROGRAM]}', '${
-      statuses[STATUS.JOB_OFFER_ACCEPTED]
-    }') AND iasa.start_date::date <= '${to}'
+        WHERE iasa.status_id IN (
+          '${statuses[STATUS.WITHDREW_FROM_PROGRAM]}',
+           '${statuses[STATUS.JOB_OFFER_ACCEPTED]}'
+        ) AND iasa.start_date::date <= '${to}'
       ), hired_applicants AS (
         SELECT applicant_id as "id", start_date as hired_date, ha, job_id
         FROM latest_hired_withdrawal_status
@@ -912,34 +923,39 @@ export class ReportUtilService {
       ), start_date_of_each_stage AS (         
         SELECT
           hired.*,
-          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id) as milestone_start_date,
-          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id AND asa.status_id IN ('${
-            statuses[STATUS.APPLIED_TO_NNAS]
-          }','${statuses[STATUS.SUBMITTED_DOCUMENTS]}','${
-      statuses[STATUS.RECEIVED_NNAS_REPORT]
-    }')) as nnas,
-          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id AND asa.status_id IN ('${
-            statuses[STATUS.APPLIED_TO_BCCNM]
-          }','${statuses[STATUS.COMPLETED_LANGUAGE_REQUIREMENT]}','${
-      statuses[STATUS.REFERRED_TO_NCAS]
-    }','${statuses[STATUS.COMPLETED_CBA]}','${statuses[STATUS.COMPLETED_SLA]}','${
-      statuses[STATUS.COMPLETED_NCAS]
-    }')) as bccnm_ncas,
-          (SELECT max(start_date) - min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id AND asa.job_id = hired.job_id) as employer_duration,
-          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id AND asa.status_id IN ('${
-            statuses[STATUS.SENT_FIRST_STEPS_DOCUMENT]
-          }','${statuses[STATUS.SENT_EMPLOYER_DOCUMENTS_TO_HMBC]}','${
-      statuses[STATUS.SUBMITTED_BC_PNP_APPLICATION]
-    }','${statuses[STATUS.RECEIVED_CONFIRMATION_OF_NOMINATION]}','${
-      statuses[STATUS.SENT_SECOND_STEPS_DOCUMENT]
-    }','${
-      statuses[STATUS.SUBMITTED_WORK_PERMIT_APPLICATION]
-    }') AND asa.start_date::date <= '${to}') as immigration,
-          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id AND asa.status_id IN ('${
-            statuses[STATUS.WORK_PERMIT_APPROVAL_RECEIVED]
-          }','${statuses[STATUS.RECEIVED_WORK_PERMIT]}','${
-      statuses[STATUS.RECEIVED_PR]
-    }') AND asa.start_date::date <= '${to}') as immigration_completed,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa
+            WHERE asa.applicant_id=hired.id
+          ) as milestone_start_date,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa 
+            WHERE asa.applicant_id=hired.id AND
+              asa.status_id IN (
+                ${this.getMilestoneIds(statuses, NNAS_STAGE)}
+              )
+          ) as nnas,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa
+            WHERE asa.applicant_id=hired.id AND
+              asa.status_id IN (
+                ${this.getMilestoneIds(statuses, BCCNM_NCAS_STAGE)}
+              )
+          ) as bccnm_ncas,
+          (SELECT max(start_date) - min(start_date) FROM public.ien_applicant_status_audit asa
+            WHERE asa.applicant_id=hired.id AND
+              asa.job_id = hired.job_id
+          ) as employer_duration,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa
+            WHERE asa.applicant_id=hired.id AND
+              asa.status_id IN (
+              ${this.getMilestoneIds(statuses, IMMIGRATION_STAGE)}
+              ) AND
+              asa.start_date::date <= '${to}'
+          ) as immigration,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa
+            WHERE asa.applicant_id=hired.id AND
+              asa.status_id IN (
+                ${this.getMilestoneIds(statuses, IMMIGRATION_COMPLETE)}
+              ) AND
+              asa.start_date::date <= '${to}'
+          ) as immigration_completed,
           wd.duration as withdrawal_duration
         FROM hired_applicants hired
         LEFT JOIN withdrawal_duration wd ON wd.applicant_id=hired.id
@@ -956,23 +972,13 @@ export class ReportUtilService {
               WHERE asa.applicant_id=sdoes.id AND asa.start_date >= sdoes.nnas 
               AND (asa.status_id 
                 IN (
-                  '${statuses[STATUS.APPLIED_TO_BCCNM]}',
-                  '${statuses[STATUS.COMPLETED_LANGUAGE_REQUIREMENT]}',
-                  '${statuses[STATUS.REFERRED_TO_NCAS]}',
-                  '${statuses[STATUS.COMPLETED_CBA]}',
-                  '${statuses[STATUS.COMPLETED_SLA]}',
-                  '${statuses[STATUS.COMPLETED_NCAS]}',
-                  '${statuses[STATUS.REFERRED_TO_ADDITIONAL_EDUCTION]}',
-                  '${statuses[STATUS.COMPLETED_ADDITIONAL_EDUCATION]}',
-                  '${statuses[STATUS.NCLEX_WRITTEN]}',
-                  '${statuses[STATUS.NCLEX_PASSED]}',
-                  '${statuses[STATUS.BCCNM_PROVISIONAL_LICENSE_LPN]}',
-                  '${statuses[STATUS.BCCNM_PROVISIONAL_LICENSE_RN]}',
-                  '${statuses[STATUS.BCCNM_FULL_LICENSE_RN]}',
-                  '${statuses[STATUS.BCCNM_FULL_LICENCE_LPN]}'
-                  ) OR ien_status.category IN ('${StatusCategory.RECRUITMENT}', '${
-      StatusCategory.BC_PNP
-    }'))
+                  ${this.getHigherMilestoneIds(LIC_REG_STAGE, statuses, STATUS.COMPLETED_NCAS)}
+                ) OR
+                ien_status.category IN (
+                  '${StatusCategory.RECRUITMENT}',
+                  '${StatusCategory.BC_PNP}'
+                )
+              )
             ) - sdoes.nnas)
           END
           ) AS nnas_duration,
@@ -985,21 +991,13 @@ export class ReportUtilService {
               AND asa.start_date >= sdoes.nnas 
               AND (asa.status_id 
                 IN (
-                  '${statuses[STATUS.REFERRED_TO_ADDITIONAL_EDUCTION]}',
-                  '${statuses[STATUS.COMPLETED_ADDITIONAL_EDUCATION]}',
-                  '${statuses[STATUS.NCLEX_WRITTEN]}',
-                  '${statuses[STATUS.NCLEX_PASSED]}',
-                  '${statuses[STATUS.REX_PN_PASSED]}',
-                  '${statuses[STATUS.REX_PN_WRITTEN]}',
-                  '${statuses[STATUS.REGISTERED_AS_AN_HCA]}',
-                  '${statuses[STATUS.REGISTRATION_JOURNEY_COMPLETED]}',
-                  '${statuses[STATUS.BCCNM_PROVISIONAL_LICENSE_LPN]}',
-                  '${statuses[STATUS.BCCNM_PROVISIONAL_LICENSE_RN]}',
-                  '${statuses[STATUS.BCCNM_FULL_LICENSE_RN]}',
-                  '${statuses[STATUS.BCCNM_FULL_LICENCE_LPN]}'
-                  ) OR ien_status.category IN ('${StatusCategory.RECRUITMENT}', '${
-      StatusCategory.BC_PNP
-    }'))
+                  ${this.getHigherMilestoneIds(LIC_REG_STAGE, statuses, STATUS.COMPLETED_NCAS)}
+                ) OR
+                ien_status.category IN (
+                  '${StatusCategory.RECRUITMENT}',
+                  '${StatusCategory.BC_PNP}'
+                )
+              )
             ) - sdoes.bccnm_ncas)
           END
           ) AS bccnm_ncas_duration,
@@ -1026,7 +1024,7 @@ export class ReportUtilService {
       SELECT
         'NNAS' as "title",
         ' ' as "HA",
-        ROUND(avg(nnas_duration), 2) as mean_value,
+        AVG(nnas_duration) as mean_value,
         PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY nnas_duration) AS median_value,
         mode() WITHIN GROUP (ORDER BY nnas_duration) AS mode_value
       FROM stakeholder_duration WHERE nnas_duration >= 0
@@ -1034,7 +1032,7 @@ export class ReportUtilService {
       SELECT
         'BCCNM & NCAS',
         ' ',
-        ROUND(avg(bccnm_ncas_duration), 2) as mean_value,
+        AVG(bccnm_ncas_duration) as mean_value,
         PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY bccnm_ncas_duration) AS median_value,
         mode() WITHIN GROUP (ORDER BY bccnm_ncas_duration) AS mode_value
       FROM stakeholder_duration WHERE bccnm_ncas_duration >= 0
@@ -1043,7 +1041,7 @@ export class ReportUtilService {
       FROM public.ien_ha_pcn LEFT JOIN (
         SELECT 
         ha,
-        avg(employer_duration)::double precision as mean_value,
+        AVG(employer_duration) as mean_value,
         PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY employer_duration) AS median_value,
         mode() WITHIN GROUP (ORDER BY employer_duration) AS mode_value
         FROM stakeholder_duration WHERE employer_duration >= 0
@@ -1054,7 +1052,7 @@ export class ReportUtilService {
       SELECT
         'Immigration',
         ' ',
-        avg(immigration_duration)::double precision as mean_value,
+        AVG(immigration_duration) as mean_value,
         PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY immigration_duration) AS median_value,
         mode() WITHIN GROUP (ORDER BY immigration_duration) AS mode_value
       FROM stakeholder_duration WHERE immigration_duration >= 0
@@ -1062,7 +1060,7 @@ export class ReportUtilService {
       SELECT
         'Overall',
         ' ',
-        ROUND(avg(overall), 2) as mean_value,
+        AVG(overall) as mean_value,
         PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY overall) AS median_value,
         mode() WITHIN GROUP (ORDER BY overall) AS mode_value
       FROM stakeholder_duration WHERE overall >= 0
@@ -1070,12 +1068,748 @@ export class ReportUtilService {
       SELECT
         'Average time to hire',
         ' ',
-        ROUND(avg(average_time_to_hire), 2) as mean_value,
+        AVG(average_time_to_hire) as mean_value,
         PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY average_time_to_hire) AS median_value,
         mode() WITHIN GROUP (ORDER BY average_time_to_hire) AS mode_value
       FROM stakeholder_duration WHERE average_time_to_hire >= 0
       )
-      SELECT title, "HA", COALESCE(mean_value, 0) as "Mean", COALESCE(median_value, 0) as "Median", COALESCE(mode_value, 0) as "Mode" FROM report;
+      SELECT title, "HA", ROUND(COALESCE(mean_value, 0), 2)::double precision as "Mean", COALESCE(median_value, 0) as "Median", COALESCE(mode_value, 0) as "Mode" FROM report;
+    `;
+  }
+
+  getMilestoneIds(statuses: Record<string, string>, milestones: STATUS[]): string {
+    return milestones.map(m => `'${statuses[m]}'`).join(',');
+  }
+
+  getHigherMilestoneIds(
+    milestones: STATUS[],
+    statuses: Record<string, string>,
+    status: STATUS,
+  ): string {
+    const index = milestones.findIndex(m => m === status);
+    return this.getMilestoneIds(statuses, index >= 0 ? milestones.slice(index + 1) : []);
+  }
+
+  getAverageTimeOfMilestones(statuses: Record<string, string>, to: string) {
+    return `
+      -- ONLY HIRED Applicants are selected in "Average Amount of Time" calculation for each milestone.
+      -- If we receive 2 hired state for different HA, Then we will pick only latest one
+      -- One assumption that withdrawal/hold period does not overlap each other for same applicant.
+        -- For developer reference
+        -- ROUND(AVG(average_time_to_hire), 2)::double precision as mean_value; --mean
+        -- SELECT PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY some_value) FROM tbl; -- median
+        -- SELECT mode() WITHIN GROUP (ORDER BY some_value) AS mode_value FROM tbl; -- mode
+
+      WITH latest_hired_withdrawal_status AS (
+        SELECT
+          iasa.id,
+          iasa.applicant_id, 
+          iasa.start_date,
+          iasa.status_id,
+          iasa.job_id,
+          ROW_NUMBER() OVER(PARTITION BY iasa.applicant_id ORDER BY iasa.start_date DESC, iasa.updated_date DESC) AS rank
+        FROM public.ien_applicant_status_audit iasa
+        WHERE iasa.status_id IN (
+          '${statuses[STATUS.WITHDREW_FROM_PROGRAM]}', '${statuses[STATUS.JOB_OFFER_ACCEPTED]}'
+        ) AND iasa.start_date::date <= '${to}'
+      ),
+      hired_applicants AS (
+        SELECT applicant_id as "id", start_date as hired_date
+        FROM latest_hired_withdrawal_status
+        WHERE rank = 1 AND status_id='${statuses[STATUS.JOB_OFFER_ACCEPTED]}'
+      ),
+      start_date_of_each_stage AS (         
+        SELECT
+          hired.*,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa WHERE asa.applicant_id=hired.id) as milestone_start_date,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa
+            WHERE asa.applicant_id=hired.id AND asa.status_id IN (
+              ${this.getMilestoneIds(statuses, NNAS_STAGE)}
+            )
+          ) as nnas,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa
+            WHERE asa.applicant_id=hired.id AND
+              asa.status_id = '${statuses[STATUS.APPLIED_TO_NNAS]}'
+          ) as applied_to_nnas,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa
+            WHERE asa.applicant_id=hired.id AND
+              asa.status_id = '${statuses[STATUS.SUBMITTED_DOCUMENTS]}'
+          ) as submitted_documents,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa
+            WHERE asa.applicant_id=hired.id AND
+              asa.status_id = '${statuses[STATUS.RECEIVED_NNAS_REPORT]}'
+          ) as received_nnas_report,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa
+            WHERE asa.applicant_id=hired.id AND asa.status_id IN (
+              ${this.getMilestoneIds(statuses, BCCNM_NCAS_STAGE)}
+            )
+          ) as bccnm_ncas,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa
+            WHERE asa.applicant_id=hired.id AND
+              asa.status_id = '${statuses[STATUS.APPLIED_TO_BCCNM]}'
+          ) as applied_to_bccnm,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa
+            WHERE asa.applicant_id=hired.id AND
+              asa.status_id = '${statuses[STATUS.COMPLETED_LANGUAGE_REQUIREMENT]}'
+          ) as completed_language_requirement,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa
+            WHERE asa.applicant_id=hired.id AND
+              asa.status_id = '${statuses[STATUS.REFERRED_TO_NCAS]}'
+          ) as referred_to_ncas,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa
+            WHERE asa.applicant_id=hired.id AND
+              asa.status_id = '${statuses[STATUS.COMPLETED_CBA]}'
+          ) as completed_cba,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa
+            WHERE asa.applicant_id=hired.id AND
+              asa.status_id = '${statuses[STATUS.COMPLETED_SLA]}'
+          ) as completed_sla,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa
+            WHERE asa.applicant_id=hired.id AND
+              asa.status_id = '${statuses[STATUS.COMPLETED_NCAS]}'
+          ) as completed_ncas,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa
+            WHERE asa.applicant_id=hired.id AND asa.status_id IN (
+              ${this.getMilestoneIds(statuses, RECRUITMENT_STAGE)}
+            ) AND asa.start_date::date <= '${to}'
+          ) as recruitment,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa
+            WHERE asa.applicant_id=hired.id AND
+              asa.status_id IN (
+                '${statuses[STATUS.PRE_SCREEN_PASSED]}',
+                '${statuses[STATUS.PRE_SCREEN_NOT_PASSED]}'
+              )
+          ) as pre_screen,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa
+            WHERE asa.applicant_id=hired.id AND
+              asa.status_id IN (
+                '${statuses[STATUS.INTERVIEW_PASSED]}',
+                '${statuses[STATUS.INTERVIEW_NOT_PASSED]}'
+              )
+          ) as interview,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa
+            WHERE asa.applicant_id=hired.id AND
+              asa.status_id IN (
+                '${statuses[STATUS.REFERENCE_CHECK_PASSED]}',
+                '${statuses[STATUS.REFERENCE_CHECK_NOT_PASSED]}'
+              )
+          ) as reference_check,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa
+            WHERE asa.applicant_id=hired.id AND
+              asa.status_id IN (
+                ${this.getMilestoneIds(statuses, COMPETITION_OUTCOMES)}
+              )
+          ) as competition_outcome,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa
+            WHERE asa.applicant_id=hired.id AND
+              asa.status_id IN (
+                ${this.getMilestoneIds(statuses, IMMIGRATION_STAGE)}
+              ) AND
+              asa.start_date::date <= '${to}'
+          ) as immigration,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa
+            WHERE asa.applicant_id=hired.id AND
+              asa.status_id = '${statuses[STATUS.SENT_FIRST_STEPS_DOCUMENT]}'
+          ) as sent_first_steps_document,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa
+            WHERE asa.applicant_id=hired.id AND
+              asa.status_id = '${statuses[STATUS.SENT_EMPLOYER_DOCUMENTS_TO_HMBC]}'
+          ) as sent_employer_documents_to_hmbc,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa
+            WHERE asa.applicant_id=hired.id AND
+              asa.status_id = '${statuses[STATUS.SUBMITTED_BC_PNP_APPLICATION]}'
+          ) as submitted_bc_pnp_application,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa
+            WHERE asa.applicant_id=hired.id AND
+              asa.status_id = '${statuses[STATUS.RECEIVED_CONFIRMATION_OF_NOMINATION]}'
+          ) as received_confirmation_of_nomination,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa
+            WHERE asa.applicant_id=hired.id AND
+              asa.status_id = '${statuses[STATUS.SENT_SECOND_STEPS_DOCUMENT]}'
+          ) as sent_second_steps_document,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa
+            WHERE asa.applicant_id=hired.id AND
+              asa.status_id = '${statuses[STATUS.SUBMITTED_WORK_PERMIT_APPLICATION]}'
+          ) as submitted_work_permit_application,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa
+            WHERE asa.applicant_id=hired.id AND
+              asa.status_id = '${statuses[STATUS.RECEIVED_WORK_PERMIT_APPROVAL_LETTER]}'
+          ) as received_work_permit_approval_letter,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa
+            WHERE asa.applicant_id=hired.id AND
+              asa.status_id = '${statuses[STATUS.RECEIVED_WORK_PERMIT]}'
+          ) as received_work_permit,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa
+            WHERE asa.applicant_id=hired.id AND
+              asa.status_id = '${statuses[STATUS.RECEIVED_PR]}'
+          ) as received_pr,
+          (SELECT min(start_date) FROM public.ien_applicant_status_audit asa
+            WHERE asa.applicant_id=hired.id AND asa.status_id IN (
+              ${this.getMilestoneIds(statuses, IMMIGRATION_COMPLETE)}
+            ) AND asa.start_date::date <= '${to}'
+          ) as immigration_completed
+        FROM hired_applicants hired
+      ),
+      stakeholder_duration AS (
+        SELECT
+          sdoes.id,
+          (CASE WHEN sdoes.nnas IS NOT null THEN
+            ((SELECT min(start_date)
+              FROM public.ien_applicant_status_audit asa
+              LEFT JOIN public.ien_applicant_status ien_status ON ien_status.id=asa.status_id
+              WHERE asa.applicant_id=sdoes.id AND asa.start_date >= sdoes.nnas 
+              AND (asa.status_id 
+                IN (
+                  ${this.getHigherMilestoneIds(
+                    LIC_REG_STAGE,
+                    statuses,
+                    STATUS.RECEIVED_NNAS_REPORT,
+                  )}
+                ) OR
+                ien_status.category IN (
+                  '${StatusCategory.RECRUITMENT}', '${StatusCategory.BC_PNP}'
+                )
+              )
+            ) - sdoes.nnas)
+          END) AS nnas_duration,
+          (CASE WHEN sdoes.applied_to_nnas IS NOT null THEN
+            ((SELECT min(start_date)
+              FROM public.ien_applicant_status_audit asa
+              LEFT JOIN public.ien_applicant_status ien_status ON ien_status.id=asa.status_id
+              WHERE asa.applicant_id=sdoes.id AND asa.start_date >= sdoes.applied_to_nnas 
+              AND (asa.status_id 
+                IN (
+                  ${this.getHigherMilestoneIds(LIC_REG_STAGE, statuses, STATUS.APPLIED_TO_NNAS)}
+                ) OR
+                ien_status.category IN (
+                  '${StatusCategory.RECRUITMENT}', '${StatusCategory.BC_PNP}'
+                )
+              )
+            ) - sdoes.applied_to_nnas)
+          END) AS applied_to_nnas_duration,
+          (CASE WHEN sdoes.submitted_documents IS NOT null THEN
+            ((SELECT min(start_date)
+              FROM public.ien_applicant_status_audit asa
+              LEFT JOIN public.ien_applicant_status ien_status ON ien_status.id=asa.status_id
+              WHERE asa.applicant_id=sdoes.id AND asa.start_date >= sdoes.submitted_documents 
+              AND (asa.status_id 
+                IN (
+                  ${this.getHigherMilestoneIds(LIC_REG_STAGE, statuses, STATUS.SUBMITTED_DOCUMENTS)}
+                ) OR
+                ien_status.category IN ('${StatusCategory.RECRUITMENT}', '${StatusCategory.BC_PNP}')
+              )
+            ) - sdoes.submitted_documents)
+          END) AS submitted_documents_duration,
+          (CASE WHEN sdoes.received_nnas_report IS NOT null THEN
+            ((SELECT min(start_date)
+              FROM public.ien_applicant_status_audit asa
+              LEFT JOIN public.ien_applicant_status ien_status ON ien_status.id=asa.status_id
+              WHERE asa.applicant_id=sdoes.id AND asa.start_date >= sdoes.received_nnas_report 
+              AND (asa.status_id 
+                IN (
+                  ${this.getHigherMilestoneIds(
+                    LIC_REG_STAGE,
+                    statuses,
+                    STATUS.RECEIVED_NNAS_REPORT,
+                  )}
+                ) OR
+                ien_status.category IN ('${StatusCategory.RECRUITMENT}', '${StatusCategory.BC_PNP}')
+              )
+            ) - sdoes.received_nnas_report)
+          END) AS received_nnas_report_duration,
+          (CASE WHEN sdoes.bccnm_ncas IS NOT null THEN (
+            (
+            SELECT min(start_date)
+            FROM public.ien_applicant_status_audit asa
+            LEFT JOIN public.ien_applicant_status ien_status ON ien_status.id=asa.status_id
+              WHERE asa.applicant_id=sdoes.id 
+              AND asa.start_date >= sdoes.bccnm_ncas 
+              AND (asa.status_id IN (
+                  ${this.getHigherMilestoneIds(LIC_REG_STAGE, statuses, STATUS.COMPLETED_NCAS)}
+                ) OR
+                ien_status.category IN ('${StatusCategory.RECRUITMENT}', '${StatusCategory.BC_PNP}')
+              )
+            ) - sdoes.bccnm_ncas)
+          END) AS bccnm_ncas_duration,
+          (CASE WHEN sdoes.applied_to_bccnm IS NOT null THEN
+            ((SELECT min(start_date)
+              FROM public.ien_applicant_status_audit asa
+              LEFT JOIN public.ien_applicant_status ien_status ON ien_status.id=asa.status_id
+              WHERE asa.applicant_id=sdoes.id AND asa.start_date >= sdoes.applied_to_bccnm 
+              AND (asa.status_id 
+                IN (
+                  ${this.getHigherMilestoneIds(LIC_REG_STAGE, statuses, STATUS.APPLIED_TO_BCCNM)}
+                ) OR
+                ien_status.category IN ('${StatusCategory.RECRUITMENT}', '${StatusCategory.BC_PNP}')
+              )
+            ) - sdoes.applied_to_bccnm)
+          END) AS applied_to_bccnm_duration,
+          (CASE WHEN sdoes.completed_language_requirement IS NOT null THEN
+            ((SELECT min(start_date)
+              FROM public.ien_applicant_status_audit asa
+              LEFT JOIN public.ien_applicant_status ien_status ON ien_status.id=asa.status_id
+              WHERE asa.applicant_id=sdoes.id AND asa.start_date >= sdoes.completed_language_requirement 
+              AND (asa.status_id 
+                IN (
+                  ${this.getHigherMilestoneIds(
+                    LIC_REG_STAGE,
+                    statuses,
+                    STATUS.COMPLETED_LANGUAGE_REQUIREMENT,
+                  )}
+                ) OR
+                ien_status.category IN ('${StatusCategory.RECRUITMENT}', '${StatusCategory.BC_PNP}')
+              )
+            ) - sdoes.completed_language_requirement)
+          END) AS completed_language_requirement_duration,
+          (CASE WHEN sdoes.referred_to_ncas IS NOT null THEN
+            ((SELECT min(start_date)
+              FROM public.ien_applicant_status_audit asa
+              LEFT JOIN public.ien_applicant_status ien_status ON ien_status.id=asa.status_id
+              WHERE asa.applicant_id=sdoes.id AND asa.start_date >= sdoes.referred_to_ncas 
+              AND (asa.status_id 
+                IN (
+                  ${this.getHigherMilestoneIds(LIC_REG_STAGE, statuses, STATUS.REFERRED_TO_NCAS)}
+                ) OR
+                ien_status.category IN ('${StatusCategory.RECRUITMENT}', '${StatusCategory.BC_PNP}')
+              )
+            ) - sdoes.referred_to_ncas)
+          END) AS referred_to_ncas_duration,
+          (CASE WHEN sdoes.completed_cba IS NOT null THEN
+            ((SELECT min(start_date)
+              FROM public.ien_applicant_status_audit asa
+              LEFT JOIN public.ien_applicant_status ien_status ON ien_status.id=asa.status_id
+              WHERE asa.applicant_id=sdoes.id AND asa.start_date >= sdoes.completed_cba 
+              AND (asa.status_id 
+                IN (
+                  ${this.getHigherMilestoneIds(LIC_REG_STAGE, statuses, STATUS.COMPLETED_CBA)}
+                ) OR
+                ien_status.category IN ('${StatusCategory.RECRUITMENT}', '${StatusCategory.BC_PNP}')
+              )
+            ) - sdoes.completed_cba)
+          END) AS completed_cba_duration,
+          (CASE WHEN sdoes.completed_sla IS NOT null THEN
+            ((SELECT min(start_date)
+              FROM public.ien_applicant_status_audit asa
+              LEFT JOIN public.ien_applicant_status ien_status ON ien_status.id=asa.status_id
+              WHERE asa.applicant_id=sdoes.id AND asa.start_date >= sdoes.completed_sla 
+              AND (asa.status_id 
+                IN (
+                  ${this.getHigherMilestoneIds(LIC_REG_STAGE, statuses, STATUS.COMPLETED_SLA)}
+                ) OR
+                ien_status.category IN ('${StatusCategory.RECRUITMENT}', '${StatusCategory.BC_PNP}')
+              )
+            ) - sdoes.completed_sla)
+          END) AS completed_sla_duration,
+          (CASE WHEN sdoes.completed_ncas IS NOT null THEN
+            ((SELECT min(start_date)
+              FROM public.ien_applicant_status_audit asa
+              LEFT JOIN public.ien_applicant_status ien_status ON ien_status.id=asa.status_id
+              WHERE asa.applicant_id=sdoes.id AND asa.start_date >= sdoes.completed_ncas 
+              AND (asa.status_id 
+                IN (
+                  ${this.getHigherMilestoneIds(LIC_REG_STAGE, statuses, STATUS.COMPLETED_NCAS)}
+                ) OR
+                ien_status.category IN ('${StatusCategory.RECRUITMENT}', '${StatusCategory.BC_PNP}')
+              )
+            ) - sdoes.completed_ncas)
+          END) AS completed_ncas_duration,
+          (CASE WHEN sdoes.recruitment IS NOT null THEN
+            (COALESCE((SELECT min(start_date)
+              FROM public.ien_applicant_status_audit asa
+              LEFT JOIN public.ien_applicant_status ien_status ON ien_status.id=asa.status_id
+              WHERE asa.applicant_id=sdoes.id AND
+                asa.start_date >= sdoes.recruitment AND 
+                ien_status.category = '${StatusCategory.BC_PNP}'
+            ), '${to}'::date) - sdoes.recruitment)
+          END) AS recruitment_duration,
+          (CASE WHEN sdoes.pre_screen IS NOT null THEN
+            (COALESCE((SELECT min(start_date)
+              FROM public.ien_applicant_status_audit asa
+              LEFT JOIN public.ien_applicant_status ien_status ON ien_status.id=asa.status_id
+              WHERE asa.applicant_id=sdoes.id AND
+                asa.start_date >= sdoes.pre_screen AND 
+                asa.status_id IN (
+                  ${this.getHigherMilestoneIds(
+                    RECRUITMENT_STAGE,
+                    statuses,
+                    STATUS.PRE_SCREEN_NOT_PASSED,
+                  )}
+                )
+            ), '${to}'::date) - sdoes.pre_screen)
+          END) AS pre_screen_duration,
+          (CASE WHEN sdoes.interview IS NOT null THEN
+            (COALESCE((SELECT min(start_date)
+              FROM public.ien_applicant_status_audit asa
+              LEFT JOIN public.ien_applicant_status ien_status ON ien_status.id=asa.status_id
+              WHERE asa.applicant_id=sdoes.id AND
+                asa.start_date >= sdoes.interview AND
+                asa.status_id IN (
+                  ${this.getHigherMilestoneIds(
+                    RECRUITMENT_STAGE,
+                    statuses,
+                    STATUS.INTERVIEW_NOT_PASSED,
+                  )}
+                )
+            ), '${to}'::date) - sdoes.interview)
+          END) AS interview_duration,
+          (CASE WHEN sdoes.reference_check IS NOT null THEN
+            (COALESCE((SELECT min(start_date)
+              FROM public.ien_applicant_status_audit asa
+              LEFT JOIN public.ien_applicant_status ien_status ON ien_status.id=asa.status_id
+              WHERE asa.applicant_id=sdoes.id AND
+                asa.start_date >= sdoes.reference_check AND
+                asa.status_id IN (
+                  ${this.getHigherMilestoneIds(
+                    RECRUITMENT_STAGE,
+                    statuses,
+                    STATUS.REFERENCE_CHECK_NOT_PASSED,
+                  )}
+                )
+            ), '${to}'::date) - sdoes.interview)
+          END) AS reference_check_duration,
+          (CASE WHEN sdoes.competition_outcome IS NOT null THEN
+            (COALESCE((SELECT min(start_date)
+              FROM public.ien_applicant_status_audit asa
+              LEFT JOIN public.ien_applicant_status ien_status ON ien_status.id=asa.status_id
+              WHERE asa.applicant_id=sdoes.id AND
+                asa.start_date >= sdoes.competition_outcome AND
+                ien_status.category = '${StatusCategory.BC_PNP}'
+            ), '${to}'::date) - sdoes.competition_outcome)
+          END) AS competition_outcome_duration,
+          (CASE
+            WHEN sdoes.immigration IS NOT null
+              THEN (COALESCE(sdoes.immigration_completed, '${to}'::date) - sdoes.immigration)
+          END) AS immigration_duration,
+          (CASE WHEN sdoes.sent_first_steps_document IS NOT null THEN
+            (COALESCE((SELECT min(start_date)
+              FROM public.ien_applicant_status_audit asa
+              LEFT JOIN public.ien_applicant_status ien_status ON ien_status.id=asa.status_id
+              WHERE asa.applicant_id=sdoes.id AND
+                asa.start_date >= sdoes.sent_first_steps_document AND 
+                asa.status_id IN (
+                  ${this.getHigherMilestoneIds(
+                    IMMIGRATION_STAGE,
+                    statuses,
+                    STATUS.SENT_FIRST_STEPS_DOCUMENT,
+                  )}
+                )
+            ), '${to}'::date) - sdoes.sent_first_steps_document)
+          END) AS sent_first_steps_document_duration,
+          (CASE WHEN sdoes.sent_employer_documents_to_hmbc IS NOT null THEN
+            (COALESCE((SELECT min(start_date)
+              FROM public.ien_applicant_status_audit asa
+              LEFT JOIN public.ien_applicant_status ien_status ON ien_status.id=asa.status_id
+              WHERE asa.applicant_id=sdoes.id AND
+                asa.start_date >= sdoes.sent_employer_documents_to_hmbc AND
+                asa.status_id IN (
+                  ${this.getHigherMilestoneIds(
+                    IMMIGRATION_STAGE,
+                    statuses,
+                    STATUS.SENT_EMPLOYER_DOCUMENTS_TO_HMBC,
+                  )}
+                )
+            ), '${to}'::date) - sdoes.sent_employer_documents_to_hmbc)
+          END) AS sent_employer_documents_to_hmbc_duration,
+          (CASE WHEN sdoes.submitted_bc_pnp_application IS NOT null THEN
+            (COALESCE((SELECT min(start_date)
+              FROM public.ien_applicant_status_audit asa
+              LEFT JOIN public.ien_applicant_status ien_status ON ien_status.id=asa.status_id
+              WHERE asa.applicant_id=sdoes.id AND
+                asa.start_date >= sdoes.submitted_bc_pnp_application AND
+                asa.status_id IN (
+                  ${this.getHigherMilestoneIds(
+                    IMMIGRATION_STAGE,
+                    statuses,
+                    STATUS.SUBMITTED_BC_PNP_APPLICATION,
+                  )}
+                )
+            ), '${to}'::date) - sdoes.submitted_bc_pnp_application)
+          END) AS submitted_bc_pnp_application_duration,
+          (CASE WHEN sdoes.received_confirmation_of_nomination IS NOT null THEN
+            (COALESCE((SELECT min(start_date)
+              FROM public.ien_applicant_status_audit asa
+              LEFT JOIN public.ien_applicant_status ien_status ON ien_status.id=asa.status_id
+              WHERE asa.applicant_id=sdoes.id AND
+                asa.start_date >= sdoes.received_confirmation_of_nomination AND
+                asa.status_id IN (
+                  ${this.getHigherMilestoneIds(
+                    IMMIGRATION_STAGE,
+                    statuses,
+                    STATUS.RECEIVED_CONFIRMATION_OF_NOMINATION,
+                  )}
+                )
+            ), '${to}'::date) - sdoes.received_confirmation_of_nomination)
+          END) AS received_confirmation_of_nomination_duration,
+          (CASE WHEN sdoes.sent_second_steps_document IS NOT null THEN
+            (COALESCE((SELECT min(start_date)
+              FROM public.ien_applicant_status_audit asa
+              LEFT JOIN public.ien_applicant_status ien_status ON ien_status.id=asa.status_id
+              WHERE asa.applicant_id=sdoes.id AND
+                asa.start_date >= sdoes.sent_second_steps_document AND
+                asa.status_id IN (
+                  ${this.getHigherMilestoneIds(
+                    IMMIGRATION_STAGE,
+                    statuses,
+                    STATUS.SENT_SECOND_STEPS_DOCUMENT,
+                  )}
+                )
+            ), '${to}'::date) - sdoes.sent_second_steps_document)
+          END) AS sent_second_steps_document_duration,
+          (CASE WHEN sdoes.submitted_work_permit_application IS NOT null THEN
+            (COALESCE((SELECT min(start_date)
+              FROM public.ien_applicant_status_audit asa
+              LEFT JOIN public.ien_applicant_status ien_status ON ien_status.id=asa.status_id
+              WHERE asa.applicant_id=sdoes.id AND
+                asa.start_date >= sdoes.submitted_work_permit_application AND
+                asa.status_id IN (
+                  ${this.getHigherMilestoneIds(
+                    IMMIGRATION_STAGE,
+                    statuses,
+                    STATUS.SUBMITTED_WORK_PERMIT_APPLICATION,
+                  )}
+                )
+            ), '${to}'::date) - sdoes.submitted_work_permit_application)
+          END) AS submitted_work_permit_application_duration,
+          (CASE WHEN sdoes.received_work_permit_approval_letter IS NOT null THEN
+            (COALESCE((SELECT min(start_date)
+              FROM public.ien_applicant_status_audit asa
+              LEFT JOIN public.ien_applicant_status ien_status ON ien_status.id=asa.status_id
+              WHERE asa.applicant_id=sdoes.id AND
+                asa.start_date >= sdoes.received_work_permit_approval_letter AND
+                asa.status_id IN (
+                  ${this.getHigherMilestoneIds(
+                    IMMIGRATION_STAGE,
+                    statuses,
+                    STATUS.RECEIVED_WORK_PERMIT_APPROVAL_LETTER,
+                  )}
+                )
+            ), '${to}'::date) - sdoes.received_work_permit_approval_letter)
+          END) AS received_work_permit_approval_letter_duration,
+          (CASE WHEN sdoes.received_work_permit IS NOT null THEN
+            (COALESCE((SELECT min(start_date)
+              FROM public.ien_applicant_status_audit asa
+              LEFT JOIN public.ien_applicant_status ien_status ON ien_status.id=asa.status_id
+              WHERE asa.applicant_id=sdoes.id AND
+                asa.start_date >= sdoes.received_work_permit AND
+                asa.status_id IN (
+                  ${this.getHigherMilestoneIds(
+                    IMMIGRATION_STAGE,
+                    statuses,
+                    STATUS.RECEIVED_WORK_PERMIT,
+                  )}
+                )
+            ), '${to}'::date) - sdoes.received_work_permit)
+          END) AS received_work_permit_duration
+        FROM start_date_of_each_stage sdoes
+      ),
+      report AS (
+        SELECT
+          'NNAS' as stage,
+          ' ' as milestone,
+          AVG(nnas_duration) as mean_value,
+          PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY nnas_duration) AS median_value,
+          mode() WITHIN GROUP (ORDER BY nnas_duration) AS mode_value
+        FROM stakeholder_duration WHERE nnas_duration >= 0
+        UNION ALL
+        SELECT
+          ' ' as stage,
+          '${STATUS.APPLIED_TO_NNAS}' as milestone,
+          AVG(applied_to_nnas_duration) as mean_value,
+          PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY applied_to_nnas_duration) AS median_value,
+          mode() WITHIN GROUP (ORDER BY applied_to_nnas_duration) AS mode_value
+        FROM stakeholder_duration WHERE applied_to_nnas_duration >= 0
+        UNION ALL
+        SELECT
+          ' ' as stage,
+          '${STATUS.SUBMITTED_DOCUMENTS}' as milestone,
+          AVG(submitted_documents_duration) as mean_value,
+          PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY submitted_documents_duration) AS median_value,
+          mode() WITHIN GROUP (ORDER BY submitted_documents_duration) AS mode_value
+        FROM stakeholder_duration WHERE submitted_documents_duration >= 0
+        UNION ALL
+        SELECT
+          ' ' as stage,
+          '${STATUS.RECEIVED_NNAS_REPORT}' as milestone,
+          AVG(received_nnas_report_duration) as mean_value,
+          PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY received_nnas_report_duration) AS median_value,
+          mode() WITHIN GROUP (ORDER BY received_nnas_report_duration) AS mode_value
+        FROM stakeholder_duration WHERE received_nnas_report_duration >= 0
+        UNION ALL
+        SELECT
+          'BCCNM & NCAS',
+          ' ',
+          AVG(bccnm_ncas_duration) as mean_value,
+          PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY bccnm_ncas_duration) AS median_value,
+          mode() WITHIN GROUP (ORDER BY bccnm_ncas_duration) AS mode_value
+        FROM stakeholder_duration WHERE bccnm_ncas_duration >= 0
+        UNION ALL
+        SELECT
+          ' ' as stage,
+          '${STATUS.APPLIED_TO_BCCNM}' as milestone,
+          AVG(applied_to_bccnm_duration) as mean_value,
+          PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY applied_to_bccnm_duration) AS median_value,
+          mode() WITHIN GROUP (ORDER BY applied_to_bccnm_duration) AS mode_value
+        FROM stakeholder_duration WHERE applied_to_bccnm_duration >= 0
+        UNION ALL
+        SELECT
+          ' ' as stage,
+          '${STATUS.COMPLETED_LANGUAGE_REQUIREMENT}' as milestone,
+          AVG(completed_language_requirement_duration) as mean_value,
+          PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY completed_language_requirement_duration) AS median_value,
+          mode() WITHIN GROUP (ORDER BY completed_language_requirement_duration) AS mode_value
+        FROM stakeholder_duration WHERE completed_language_requirement_duration >= 0
+        UNION ALL
+        SELECT
+          ' ' as stage,
+          '${STATUS.REFERRED_TO_NCAS}' as milestone,
+          AVG(referred_to_ncas_duration) as mean_value,
+          PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY referred_to_ncas_duration) AS median_value,
+          mode() WITHIN GROUP (ORDER BY referred_to_ncas_duration) AS mode_value
+        FROM stakeholder_duration WHERE referred_to_ncas_duration >= 0
+        UNION ALL
+        SELECT
+          ' ' as stage,
+          '${STATUS.COMPLETED_CBA}' as milestone,
+          AVG(completed_cba_duration) as mean_value,
+          PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY completed_cba_duration) AS median_value,
+          mode() WITHIN GROUP (ORDER BY completed_cba_duration) AS mode_value
+        FROM stakeholder_duration WHERE completed_cba_duration >= 0
+        UNION ALL
+        SELECT
+          ' ' as stage,
+          '${STATUS.COMPLETED_SLA}' as milestone,
+          AVG(completed_sla_duration) as mean_value,
+          PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY completed_sla_duration) AS median_value,
+          mode() WITHIN GROUP (ORDER BY completed_sla_duration) AS mode_value
+        FROM stakeholder_duration WHERE completed_sla_duration >= 0
+        UNION ALL
+        SELECT
+          ' ' as stage,
+          '${STATUS.COMPLETED_NCAS}' as milestone,
+          AVG(completed_ncas_duration) as mean_value,
+          PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY completed_ncas_duration) AS median_value,
+          mode() WITHIN GROUP (ORDER BY completed_ncas_duration) AS mode_value
+        FROM stakeholder_duration WHERE completed_ncas_duration >= 0
+        UNION ALL
+        SELECT
+          'Recruitment',
+          ' ',
+          AVG(recruitment_duration) as mean_value,
+          PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY recruitment_duration) AS median_value,
+          mode() WITHIN GROUP (ORDER BY recruitment_duration) AS mode_value
+        FROM stakeholder_duration WHERE recruitment_duration >= 0
+        UNION ALL
+        SELECT
+          ' ' as stage,
+          'Completed pre-screen (includes both outcomes)' as milestone,
+          AVG(pre_screen_duration) as mean_value,
+          PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY pre_screen_duration) AS median_value,
+          mode() WITHIN GROUP (ORDER BY pre_screen_duration) AS mode_value
+        FROM stakeholder_duration WHERE pre_screen_duration >= 0
+        UNION ALL
+        SELECT
+          ' ' as stage,
+          'Completed interview (includes both outcomes)' as milestone,
+          AVG(interview_duration) as mean_value,
+          PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY interview_duration) AS median_value,
+          mode() WITHIN GROUP (ORDER BY interview_duration) AS mode_value
+        FROM stakeholder_duration WHERE interview_duration >= 0
+        UNION ALL
+        SELECT
+          ' ' as stage,
+          'Completed reference check (includes both outcomes)' as milestone,
+          AVG(reference_check_duration) as mean_value,
+          PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY reference_check_duration) AS median_value,
+          mode() WITHIN GROUP (ORDER BY reference_check_duration) AS mode_value
+        FROM stakeholder_duration WHERE reference_check_duration >= 0
+        UNION ALL
+        SELECT
+          ' ' as stage,
+          'Competition outcome (includes all outcomes)' as milestone,
+          AVG(competition_outcome_duration) as mean_value,
+          PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY competition_outcome_duration) AS median_value,
+          mode() WITHIN GROUP (ORDER BY competition_outcome_duration) AS mode_value
+        FROM stakeholder_duration WHERE competition_outcome_duration >= 0
+        UNION ALL
+        SELECT
+          'Immigration',
+          ' ',
+          AVG(immigration_duration) as mean_value,
+          PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY immigration_duration) AS median_value,
+          mode() WITHIN GROUP (ORDER BY immigration_duration) AS mode_value
+        FROM stakeholder_duration WHERE immigration_duration >= 0
+        UNION ALL
+        SELECT
+          ' ' as stage,
+          '${STATUS.SENT_FIRST_STEPS_DOCUMENT}' as milestone,
+          AVG(sent_first_steps_document_duration) as mean_value,
+          PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY sent_first_steps_document_duration) AS median_value,
+          mode() WITHIN GROUP (ORDER BY sent_first_steps_document_duration) AS mode_value
+        FROM stakeholder_duration WHERE sent_first_steps_document_duration >= 0
+        UNION ALL
+        SELECT
+          ' ' as stage,
+          '${STATUS.SENT_EMPLOYER_DOCUMENTS_TO_HMBC}' as milestone,
+          AVG(sent_employer_documents_to_hmbc_duration) as mean_value,
+          PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY sent_employer_documents_to_hmbc_duration) AS median_value,
+          mode() WITHIN GROUP (ORDER BY sent_employer_documents_to_hmbc_duration) AS mode_value
+        FROM stakeholder_duration WHERE sent_employer_documents_to_hmbc_duration >= 0
+        UNION ALL
+        SELECT
+          ' ' as stage,
+          '${STATUS.SUBMITTED_BC_PNP_APPLICATION}' as milestone,
+          AVG(submitted_bc_pnp_application_duration) as mean_value,
+          PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY submitted_bc_pnp_application_duration) AS median_value,
+          mode() WITHIN GROUP (ORDER BY submitted_bc_pnp_application_duration) AS mode_value
+        FROM stakeholder_duration WHERE submitted_bc_pnp_application_duration >= 0
+        UNION ALL
+        SELECT
+          ' ' as stage,
+          '${STATUS.RECEIVED_CONFIRMATION_OF_NOMINATION}' as milestone,
+          AVG(received_confirmation_of_nomination_duration) as mean_value,
+          PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY received_confirmation_of_nomination_duration) AS median_value,
+          mode() WITHIN GROUP (ORDER BY received_confirmation_of_nomination_duration) AS mode_value
+        FROM stakeholder_duration WHERE received_confirmation_of_nomination_duration >= 0
+        UNION ALL
+        SELECT
+          ' ' as stage,
+          '${STATUS.SENT_SECOND_STEPS_DOCUMENT}' as milestone,
+          AVG(sent_second_steps_document_duration) as mean_value,
+          PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY sent_second_steps_document_duration) AS median_value,
+          mode() WITHIN GROUP (ORDER BY sent_second_steps_document_duration) AS mode_value
+        FROM stakeholder_duration WHERE sent_second_steps_document_duration >= 0
+        UNION ALL
+        SELECT
+          ' ' as stage,
+          '${STATUS.SUBMITTED_WORK_PERMIT_APPLICATION}' as milestone,
+          AVG(submitted_work_permit_application_duration) as mean_value,
+          PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY submitted_work_permit_application_duration) AS median_value,
+          mode() WITHIN GROUP (ORDER BY submitted_work_permit_application_duration) AS mode_value
+        FROM stakeholder_duration WHERE submitted_work_permit_application_duration >= 0
+        UNION ALL
+        SELECT
+          ' ' as stage,
+          '${STATUS.RECEIVED_WORK_PERMIT_APPROVAL_LETTER}' as milestone,
+          AVG(received_work_permit_approval_letter_duration) as mean_value,
+          PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY received_work_permit_approval_letter_duration) AS median_value,
+          mode() WITHIN GROUP (ORDER BY received_work_permit_approval_letter_duration) AS mode_value
+        FROM stakeholder_duration WHERE received_work_permit_approval_letter_duration >= 0
+        UNION ALL
+        SELECT
+          ' ' as stage,
+          '${STATUS.RECEIVED_WORK_PERMIT}' as milestone,
+          AVG(received_work_permit_duration) as mean_value,
+          PERCENTILE_CONT(0.5) WITHIN GROUP(ORDER BY received_work_permit_duration) AS median_value,
+          mode() WITHIN GROUP (ORDER BY received_work_permit_duration) AS mode_value
+        FROM stakeholder_duration WHERE received_work_permit_duration >= 0
+      )
+      SELECT
+        stage,
+        milestone,
+        ROUND(COALESCE(mean_value, 0), 2)::double precision as "Mean",
+        COALESCE(median_value, 0) as "Median",
+        COALESCE(mode_value, 0) as "Mode"
+      FROM report;
     `;
   }
 
@@ -1166,15 +1900,16 @@ export class ReportUtilService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  _updateLastPeriodToDate(result: any, to: string, additinalRow = 0) {
+  _updateLastPeriodToDate(result: any, to: string, additionalRow = 0) {
     /**
-     * additinalRow:
-     * In report we are adding additional rows like total or notes, That needs to be skipped to identifing last period data.
+     * additional row:
+     * In report, we are adding additional rows like total or notes, That needs to be skipped to identifying last period
+     * data.
      */
     if (result.length) {
-      const lastPeriodEndDate = result[result.length - (1 + additinalRow)].to;
+      const lastPeriodEndDate = result[result.length - (1 + additionalRow)].to;
       if (dayjs(lastPeriodEndDate).isAfter(dayjs(to), 'day')) {
-        result[result.length - (1 + additinalRow)].to = dayjs(to).format('YYYY-MM-DD');
+        result[result.length - (1 + additionalRow)].to = dayjs(to).format('YYYY-MM-DD');
       }
     }
   }

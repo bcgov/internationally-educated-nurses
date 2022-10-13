@@ -20,7 +20,7 @@ export const OutcomeGroups = [
   },
   {
     value: OutcomeType.Prescreen,
-    milestones: [STATUS.PRESCREEN_PASSED, STATUS.PRESCREEN_NOT_PASSED],
+    milestones: [STATUS.PRE_SCREEN_PASSED, STATUS.PRE_SCREEN_NOT_PASSED],
   },
   {
     value: OutcomeType.Interview,
