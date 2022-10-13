@@ -63,9 +63,10 @@ const applyNumberFormat = (sheet: WorkSheet, s: CellAddress, e: CellAddress): vo
   }
 };
 
-const formatDataRows = (dataRows: any[][], header: string[]) => {
+const formatTotal = (dataRows: any[][], header: string[]) => {
   return dataRows.map((row, rowIndex) => {
     if (rowIndex === dataRows.length - 1 && row[0]?.match(/^total/i)) {
+      //format total row
       return row.map((v, colIndex) => {
         if (colIndex === 0)
           return {
@@ -77,6 +78,7 @@ const formatDataRows = (dataRows: any[][], header: string[]) => {
       });
     }
     return row.map((v, colIndex) => {
+      // format total column
       if (header[colIndex]?.match(/^total/i)) {
         return { v, t: 'n', s: headerStyle };
       }
@@ -118,7 +120,7 @@ const createSheet = (
       .map(_.toUpper)
       .map(v => v.replaceAll('_', ' '))
       .map(v => ({ v, t: 's', s: headerStyle })),
-    ...formatDataRows(dataRows, headerRow),
+    ...formatTotal(dataRows, headerRow),
   ];
 
   if (rowSum && dataRows.length) {
@@ -134,7 +136,7 @@ const createSheet = (
 
   const sheet = utils.aoa_to_sheet(rows);
   if (colWidths) sheet['!cols'] = colWidths.map(wch => ({ wch }));
-  if (name !== 'Report 9' && dataRows.length) {
+  if (name !== 'Report 9' && name !== 'Report 10' && dataRows.length) {
     applyNumberFormat(sheet, { r: 5, c: 1 }, { r: rows.length - 1, c: dataRows[0].length });
   }
 
@@ -234,6 +236,12 @@ const reportCreators: ReportCreator[] = [
       return rows;
     },
     colWidths: [25, 35, 15, 15, 15],
+  },
+  {
+    name: 'Report 10',
+    description: 'Average Amount of Time with Each Milestone in Stakeholder Group',
+    header: ['', '', 'Mean', 'Median', 'Mode'],
+    colWidths: [25, 45, 15, 15, 15],
   },
 ];
 
