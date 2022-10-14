@@ -56,7 +56,7 @@ export class ReportService {
     this.logger.log(`getCountryWiseApplicantList: Apply date filter from (${from}) and to (${to})`);
     const entityManager = getManager();
     const data = await entityManager.query(
-      this.reportUtilService.counrtyWiseApplicantQuery(from, to),
+      this.reportUtilService.countryWiseApplicantQuery(from, to),
     );
     this.logger.log(
       `getCountryWiseApplicantList: query completed a total of ${data.length - 1} record returns`,

@@ -1,30 +1,26 @@
+import { IENApplicantCreateUpdateDTO } from '@ien/common';
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { randomUUID } from 'crypto';
 import request from 'supertest';
 
 import { AppModule } from 'src/app.module';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { URLS } from './constants';
 import { canActivate } from './override-guard';
 import {
   acceptedOffer,
   addJob,
   addMilestone,
-  applicant,
-  validApplicantForReport,
   withdrewFromCompetition,
   withdrewReason,
 } from './fixture/reports';
+import { getApplicant } from './report-util';
 
-describe('Report 3 (e2e)', () => {
+describe('Report 3 - Applicant by Status', () => {
   let app: INestApplication;
-  let applicantIdOne: string;
-  let applicantIdTwo: string;
-  let applicantIdThree: string;
   let jobTempId = '';
   let applicantStatusId = 'NA';
-
-  const reportThreeUrl = '/reports/applicant/hired-withdrawn-active';
+  let applicantId: string;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -34,10 +30,6 @@ describe('Report 3 (e2e)', () => {
       .useValue({ canActivate })
       .compile();
 
-    applicantIdOne = randomUUID();
-    applicantIdTwo = randomUUID();
-    applicantIdThree = randomUUID();
-
     app = moduleFixture.createNestApplication();
     await app.init();
   });
@@ -46,33 +38,38 @@ describe('Report 3 (e2e)', () => {
     await app.close();
   });
 
-  it('Report 3 Summary (before adding applicants) - GET', done => {
-    request(app.getHttpServer())
-      .get(reportThreeUrl)
-      .expect(res => {
-        const { body } = res;
-        expect(body[0].total).toBe('0');
-        expect(body[1].active).toBe('2');
-      })
-      .expect(200)
-      .end(done);
+  const getReport3 = async () => {
+    const { body } = await request(app.getHttpServer()).get(URLS.REPORT3);
+    return body;
+  };
+
+  const addApplicant = async (applicant: IENApplicantCreateUpdateDTO) => {
+    const { body } = await request(app.getHttpServer()).post('/ien').send(applicant);
+    return body;
+  };
+
+  it('Add an active applicant', async () => {
+    const before = await getReport3();
+
+    const applicant = getApplicant();
+    applicant.registration_date = '2022-06-01';
+    await addApplicant(applicant);
+
+    const after = await getReport3();
+    expect(after[1].active - before[1].active).toBe(1);
+    expect(after[1].total - before[1].total).toBe(1);
   });
 
-  it('Report 3 Summary (after adding 1 withdrawn L/R status OLD) - GET', async () => {
-    validApplicantForReport.applicant_id = applicantIdOne;
-    validApplicantForReport.last_name = 'Report3';
-    validApplicantForReport.email_address = 'test.report3@mailinator.com';
-    validApplicantForReport.registration_date = '2022-01-29';
-    await request(app.getHttpServer())
-      .post('/ien')
-      .send(validApplicantForReport)
-      .expect(res => {
-        const { body } = res;
-        applicant.id = body.id;
-      })
-      .expect(201);
+  it('Report 3 Summary (after adding 1 withdrawn status OLD) - GET', async () => {
+    const before = await getReport3();
 
-    const addJobUrl = `/ien/${applicant.id}/job`;
+    // add an applicant
+    const applicant = getApplicant();
+    applicant.registration_date = '2022-01-29';
+    const { id } = await addApplicant(applicant);
+
+    // add a job competition
+    const addJobUrl = `/ien/${id}/job`;
     await request(app.getHttpServer())
       .post(addJobUrl)
       .send(addJob)
@@ -82,117 +79,77 @@ describe('Report 3 (e2e)', () => {
       })
       .expect(201);
 
-    const addStatusUrl = `/ien/${applicant.id}/status`;
+    // add a withdrawal milestone
+    const addStatusUrl = `/ien/${id}/status`;
     addMilestone.job_id = jobTempId;
     await request(app.getHttpServer()).post(addStatusUrl).send(addMilestone).expect(201);
 
-    await request(app.getHttpServer())
-      .get(reportThreeUrl)
-      .expect(res => {
-        const { body } = res;
-        expect(body[0].withdrawn).toBe('1');
-      })
-      .expect(200);
+    // check the result
+    const after = await getReport3();
+    expect(after[0].withdrawn - before[0].withdrawn).toBe(1);
+    expect(after[0].total - before[0].total).toBe(1);
   });
 
-  it('Report 3 Summary (after adding 1 withdrawn Recr status NEW) - GET', async () => {
-    validApplicantForReport.applicant_id = applicantIdTwo;
-    validApplicantForReport.last_name = 'Report3.1';
-    validApplicantForReport.email_address = 'test.report3.1@mailinator.com';
-    validApplicantForReport.registration_date = '2022-08-29';
-    await request(app.getHttpServer())
-      .post('/ien')
-      .send(validApplicantForReport)
-      .expect(res => {
-        const { body } = res;
-        applicant.id = body.id;
-      })
-      .expect(201);
+  it('Report 3 Summary (after adding 1 withdrawn status NEW) - GET', async () => {
+    const before = await getReport3();
 
-    const addJobUrl = `/ien/${applicant.id}/job`;
+    // add an applicant
+    const applicant = getApplicant();
+    applicant.registration_date = '2022-08-29';
+    const { id } = await addApplicant(applicant);
+
+    const addJobUrl = `/ien/${id}/job`;
     await request(app.getHttpServer())
       .post(addJobUrl)
       .send(addJob)
-      .expect(res => {
-        const { body } = res;
-        jobTempId = body.id;
-      })
+      .expect(({ body }) => (jobTempId = body.id))
       .expect(201);
 
-    const addStatusUrl = `/ien/${applicant.id}/status`;
+    const addStatusUrl = `/ien/${id}/status`;
     addMilestone.job_id = jobTempId;
     addMilestone.status = withdrewFromCompetition.id;
     addMilestone.reason = withdrewReason.id;
     await request(app.getHttpServer()).post(addStatusUrl).send(addMilestone).expect(201);
 
-    await request(app.getHttpServer())
-      .get(reportThreeUrl)
-      .expect(res => {
-        const { body } = res;
-        expect(body[1].withdrawn).toBe('1');
-        expect(body[1].total).toBe('3');
-      })
-      .expect(200);
+    const after = await getReport3();
+    expect(after[1].withdrawn - before[1].withdrawn).toBe(1);
+    expect(after[1].total - before[1].total).toBe(1);
   });
 
   it('Report 3 Summary (after adding 1 hired status NEW) - GET', async () => {
-    validApplicantForReport.applicant_id = applicantIdThree;
-    validApplicantForReport.last_name = 'Report3.2';
-    validApplicantForReport.email_address = 'test.report3.2@mailinator.com';
-    validApplicantForReport.registration_date = '2022-08-19';
-    await request(app.getHttpServer())
-      .post('/ien')
-      .send(validApplicantForReport)
-      .expect(res => {
-        const { body } = res;
-        applicant.id = body.id;
-      })
-      .expect(201);
+    const before = await getReport3();
 
-    const addJobUrl = `/ien/${applicant.id}/job`;
+    const applicant = getApplicant();
+    applicant.registration_date = '2022-08-19';
+    const { id } = await addApplicant(applicant);
+
+    const addJobUrl = `/ien/${id}/job`;
     await request(app.getHttpServer())
       .post(addJobUrl)
-      .send(addJob)
-      .expect(res => {
-        const { body } = res;
-        jobTempId = body.id;
-      })
-      .expect(201);
+      .expect(({ body }) => (jobTempId = body.id))
+      .send(addJob);
 
-    const addStatusUrl = `/ien/${applicant.id}/status`;
+    const addStatusUrl = `/ien/${id}/status`;
     addMilestone.job_id = jobTempId;
     addMilestone.status = acceptedOffer.id;
-    await request(app.getHttpServer())
-      .post(addStatusUrl)
-      .send(addMilestone)
-      .expect(res => {
-        const { body } = res;
-        applicantStatusId = body.id;
-      })
-      .expect(201);
+    const { body } = await request(app.getHttpServer()).post(addStatusUrl).send(addMilestone);
+    applicantId = id;
+    applicantStatusId = body.id;
 
-    await request(app.getHttpServer())
-      .get(reportThreeUrl)
-      .expect(res => {
-        const { body } = res;
-        expect(body[1].hired).toBe('1');
-        expect(body[1].total).toBe('4');
-      })
-      .expect(200);
+    const after = await getReport3();
+    expect(after[1].hired - before[1].hired).toBe(1);
+    expect(after[1].total - before[1].total).toBe(1);
   });
 
   it('Report 3 Summary (after removing 1 hired status NEW) - GET', async () => {
-    const deleteStatusUrl = `/ien/${applicant.id}/status/${applicantStatusId}`;
+    const before = await getReport3();
+
+    const deleteStatusUrl = `/ien/${applicantId}/status/${applicantStatusId}`;
 
     await request(app.getHttpServer()).delete(deleteStatusUrl).expect(200);
 
-    await request(app.getHttpServer())
-      .get(reportThreeUrl)
-      .expect(res => {
-        const { body } = res;
-        expect(body[1].hired).toBe('0');
-        expect(body[1].total).toBe('4');
-      })
-      .expect(200);
+    const after = await getReport3();
+    expect(after[1].hired - before[1].hired).toBe(-1);
+    expect(after[1].total - before[1].total).toBe(0);
   });
 });
