@@ -83,7 +83,7 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
       checkForAcceptedOffer(applicantData.jobs);
 
       const filteredJobs = authUser?.ha_pcn_id
-        ? applicantData.jobs?.filter(j => j.ha_pcn.id === authUser?.ha_pcn_id)
+        ? applicantData.jobs?.filter(j => j.ha_pcn?.id === authUser?.ha_pcn_id)
         : applicantData.jobs;
 
       setApplicant({ ...applicantData, jobs: filteredJobs });
