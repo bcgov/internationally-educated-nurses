@@ -807,7 +807,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@faker-js/faker@npm:^7.5.0":
+"@faker-js/faker@npm:7.5.0":
   version: 7.5.0
   resolution: "@faker-js/faker@npm:7.5.0"
   checksum: 6f2c48a8017d486eddfe2c3e0b743b810bcc948e5dbd1395c44a38471294584636f565cb081517ce90b634f50d8678d1d38d0f7b6b48b7d402e0a2602cf4f2d9
@@ -926,7 +926,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@ien/api@workspace:apps/api"
   dependencies:
-    "@faker-js/faker": ^7.5.0
+    "@faker-js/faker": 7.5.0
     "@ien/common": 1.0.1
     "@nestjs/cli": 8.0.0
     "@nestjs/common": 8.2.3
