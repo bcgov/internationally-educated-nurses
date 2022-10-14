@@ -460,7 +460,7 @@ export class ReportUtilService {
           END as active
           FROM public.ien_applicants as applicants
         ) as t1
-      ), full_licenses_lpn AS (
+      ), full_lpn AS (
         SELECT DISTINCT iasa.applicant_id
         FROM public.ien_applicant_status_audit iasa 
         INNER JOIN active_applicants aa ON aa.id = iasa.applicant_id
@@ -470,7 +470,7 @@ export class ReportUtilService {
           iasa.start_date >= '${from}' AND
           aa.active = 1
       ),
-      full_licenses_rn AS (
+      full_rn AS (
         SELECT DISTINCT iasa.applicant_id
         FROM public.ien_applicant_status_audit iasa
         INNER JOIN active_applicants aa ON aa.id = iasa.applicant_id
@@ -480,7 +480,7 @@ export class ReportUtilService {
           iasa.start_date >= '${from}' AND
           aa.active = 1
       ),
-      partial_licenses_lpn AS (
+      provisional_lpn AS (
         SELECT DISTINCT iasa.applicant_id
         FROM public.ien_applicant_status_audit iasa
         INNER JOIN active_applicants aa ON aa.id = iasa.applicant_id
@@ -490,7 +490,7 @@ export class ReportUtilService {
           iasa.start_date >= '${from}' AND
           aa.active = 1
       ),
-      partial_licenses_rn AS (
+      provisional_rn AS (
         SELECT DISTINCT iasa.applicant_id
         FROM public.ien_applicant_status_audit iasa
         INNER JOIN active_applicants aa ON aa.id = iasa.applicant_id
@@ -499,12 +499,23 @@ export class ReportUtilService {
           iasa.start_date <= '${to}' AND
           iasa.start_date >= '${from}' AND
           aa.active = 1
+      ),
+      hca AS (
+        SELECT DISTINCT iasa.applicant_id
+        FROM public.ien_applicant_status_audit iasa
+        INNER JOIN active_applicants aa ON aa.id = iasa.applicant_id
+        WHERE 
+          iasa.status_id = '${statuses[STATUS.REGISTERED_AS_AN_HCA]}' AND
+          iasa.start_date <= '${to}' AND
+          iasa.start_date >= '${from}' AND
+          aa.active = 1
       )
       
-      SELECT 'BCCNM Provisional Licence LPN' AS status, count(*) AS applicant_count FROM partial_licenses_lpn UNION ALL
-      SELECT 'BCCNM Provisional Licence RN' AS status, count(*) AS applicant_count FROM partial_licenses_rn UNION ALL 
-      SELECT 'BCCNM Full Licence LPN' AS status, count(*) AS applicant_count FROM full_licenses_lpn UNION ALL
-      SELECT 'BCCNM Full Licence RN' AS status, count(*) AS applicant_count FROM full_licenses_rn ; 
+      SELECT 'BCCNM Provisional Licence LPN' AS status, count(*) AS applicant_count FROM provisional_lpn UNION ALL
+      SELECT 'BCCNM Provisional Licence RN' AS status, count(*) AS applicant_count FROM provisional_rn UNION ALL 
+      SELECT 'BCCNM Full Licence LPN' AS status, count(*) AS applicant_count FROM full_lpn UNION ALL
+      SELECT 'BCCNM Full Licence RN' AS status, count(*) AS applicant_count FROM full_rn UNION ALL
+      SELECT 'Registered as an HCA' AS status, count(*) AS applicant_count FROM hca ; 
     `;
   }
 
