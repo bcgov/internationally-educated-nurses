@@ -52,15 +52,27 @@ export const getTimeRange = ({ from, to }: PeriodFilter): string => {
   return `${start} ~ `;
 };
 
+/**
+ * format cells of data block(except header and title column) in the number format
+ *
+ * @param sheet
+ * @param rows
+ */
 const applyNumberFormat = (sheet: WorkSheet, rows: any[][]): void => {
+  // skip if rows is not an array of arrays
   const column = _.max(rows.map(_.size));
   if (typeof column !== 'number') return;
 
+  // format each cell
   for (let r = 0; r <= rows.length; ++r) {
     for (let c = 0; c <= column; ++c) {
       const cell = sheet[utils.encode_cell({ r, c })];
-      if (isNaN(cell?.v)) continue;
+
+      // skip if value is not a number
+      if (isNaN(+cell?.v)) continue;
+      // skip if value is empty or whitespaces
       if (typeof cell.v === 'string' && !cell.v.trim()) continue;
+
       cell.t = 'n';
       cell.z = '0';
     }
