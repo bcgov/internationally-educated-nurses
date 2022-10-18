@@ -60,13 +60,13 @@ export const getTimeRange = ({ from, to }: PeriodFilter): string => {
  */
 const applyNumberFormat = (sheet: WorkSheet, rows: any[][]): void => {
   // skip if rows is not an array of arrays
-  const column = _.max(rows.map(_.size));
-  if (typeof column !== 'number') return;
+  const maxColumn = _.max(rows.map(_.size));
+  if (typeof maxColumn !== 'number') return;
 
   // format each cell
-  for (let r = 0; r <= rows.length; ++r) {
-    for (let c = 0; c <= column; ++c) {
-      const cell = sheet[utils.encode_cell({ r, c })];
+  for (let rowIndex = 0; rowIndex <= rows.length; ++rowIndex) {
+    for (let columnIndex = 0; columnIndex <= maxColumn; ++columnIndex) {
+      const cell = sheet[utils.encode_cell({ r: rowIndex, c: columnIndex })];
 
       // skip if value is not a number
       if (isNaN(+cell?.v)) continue;
