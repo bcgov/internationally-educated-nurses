@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios';
 import _ from 'lodash';
 import dayjs from 'dayjs';
-import { CellAddress, utils, WorkBook, WorkSheet } from 'xlsx-js-style';
+import { CellObject, utils, WorkBook, WorkSheet } from 'xlsx-js-style';
 import { toast } from 'react-toastify';
 
 import { Period, PeriodFilter } from '@ien/common';
@@ -18,6 +18,8 @@ const headerStyle = {
 interface ReportCreator {
   name: string;
   description: string;
+  // additional information to help to understand the table
+  details?: string[] | ((data: any[]) => any[]);
   generator?: (data: any[], creator?: ReportCreator) => WorkSheet;
   header: string[] | ((data: any[], creator?: ReportCreator) => string[]);
   rowProcessor?: (data: any[], creator?: ReportCreator) => (string | number)[][];
@@ -42,23 +44,37 @@ export const getReportByEOI = async (filter?: PeriodFilter) => {
   }
 };
 
-export const getTimeRange = (period: PeriodFilter): string => {
-  const from =
-    dayjs(period.from).year() === dayjs(period.to).year()
-      ? dayjs(period.from).format('MMM DD')
-      : dayjs(period.from).format('MMM DD, YYYY');
-
-  return `${from} - ${dayjs(period.to).format('MMM DD, YYYY')}`;
+export const getTimeRange = ({ from, to }: PeriodFilter): string => {
+  const start = dayjs(from).format('MMM DD, YYYY');
+  if (to) {
+    return `${start} ~ ${dayjs(to).format('MMM DD, YYYY')}`;
+  }
+  return `${start} ~ `;
 };
 
-const applyNumberFormat = (sheet: WorkSheet, s: CellAddress, e: CellAddress): void => {
-  for (let r = s.r; r <= e.r; ++r) {
-    for (let c = s.c; c <= e.c; ++c) {
-      const cell = sheet[utils.encode_cell({ r, c })];
-      if (cell) {
-        cell.t = 'n';
-        cell.z = '0';
-      }
+/**
+ * format cells of data block(except header and title column) in the number format
+ *
+ * @param sheet
+ * @param rows
+ */
+const applyNumberFormat = (sheet: WorkSheet, rows: any[][]): void => {
+  // skip if rows is not an array of arrays
+  const maxColumn = _.max(rows.map(_.size));
+  if (typeof maxColumn !== 'number') return;
+
+  // format each cell
+  for (let rowIndex = 0; rowIndex <= rows.length; ++rowIndex) {
+    for (let columnIndex = 0; columnIndex <= maxColumn; ++columnIndex) {
+      const cell = sheet[utils.encode_cell({ r: rowIndex, c: columnIndex })];
+
+      // skip if value is not a number
+      if (isNaN(+cell?.v)) continue;
+      // skip if value is empty or whitespaces
+      if (typeof cell.v === 'string' && !cell.v.trim()) continue;
+
+      cell.t = 'n';
+      cell.z = '0';
     }
   }
 };
@@ -87,19 +103,41 @@ const formatTotal = (dataRows: any[][], header: string[]) => {
   });
 };
 
+const fillTotalColumn = (data: Record<string, string | number>[]) => {
+  data.forEach(row => {
+    row.Total = Object.values(row).reduce((a, c) => {
+      return !Number.isNaN(+c) ? +a + +c : a;
+    }, 0);
+  });
+};
+
+const fillTotalRow = (rows: any[][], data: (string | number)[][]) => {
+  rows.push([
+    { v: 'TOTAL', t: 's', s: { fill: { fgColor }, font: bold } },
+    ...data
+      .reduce((total, row) => {
+        return total.map((value, index) => +row[index + 1] + +value);
+      }, Array(data[0].length - 1).fill(0))
+      .map(v => ({ v, t: 'n', s: headerStyle })),
+  ]);
+};
+
+const styleHeader = (header: string[]): CellObject[] => {
+  return header
+    .map(_.toUpper)
+    .map(v => v.replaceAll('_', ' '))
+    .map(v => ({ v, t: 's', s: headerStyle }));
+};
+
 const createSheet = (
   data: Record<string, string | number>[],
   creator: ReportCreator,
   filter: PeriodFilter,
 ): WorkSheet => {
-  const { description, header, rowProcessor, colWidths, rowSum, colSum, name } = creator;
+  const { description, header, rowProcessor, colWidths, rowSum, colSum, details } = creator;
 
   if (colSum) {
-    data.forEach(row => {
-      row.Total = Object.values(row).reduce((a, c) => {
-        return !Number.isNaN(+c) ? +a + +c : a;
-      }, 0);
-    });
+    fillTotalColumn(data);
   }
 
   // object to array
@@ -110,11 +148,13 @@ const createSheet = (
     row.forEach((v, index) => (row[index] = v || 0));
   });
   const headerRow = Array.isArray(header) ? header : header(data, creator);
+  const detailRows = Array.isArray(details) ? [details] : (details && [details(data)]) || [];
 
   const rows = [
     [{ v: description, t: 's', s: { font: bold, alignment: { horizontal: 'left' } } }],
     [],
-    [{ v: getTimeRange(filter) }],
+    ['Report Period', getTimeRange(filter)],
+    ...detailRows,
     [],
     headerRow
       .map(_.toUpper)
@@ -124,14 +164,7 @@ const createSheet = (
   ];
 
   if (rowSum && dataRows.length) {
-    rows.push([
-      { v: 'TOTAL', t: 's', s: { fill: { fgColor }, font: bold } },
-      ...dataRows
-        .reduce((total, row) => {
-          return total.map((value, index) => +row[index + 1] + +value);
-        }, Array(dataRows[0].length - 1).fill(0))
-        .map(v => ({ v, t: 'n', s: headerStyle })),
-    ]);
+    fillTotalRow(rows, dataRows);
   }
 
   const sheet = utils.aoa_to_sheet(rows);
@@ -221,9 +254,23 @@ const reportCreators: ReportCreator[] = [
     name: 'Report 8',
     description: 'Number of Internationally Educated Nurse Registrants Working in BC',
     header: (data: Record<string, string | number>[]): string[] => {
-      return ['', ...Object.keys(data[0]).slice(1)];
+      return [
+        '',
+        ...Object.keys(data[0])
+          .slice(1)
+          .map(v => {
+            return v.includes('current_period') ? `${v.split(' ')[0]}*` : v;
+          }),
+      ];
     },
-    colWidths: [35, 25, 20, 20],
+    colWidths: [35, 20, 20, 20],
+    details: (data: Record<string, string | number>[]): any[] => {
+      const currentPeriod = Object.keys(data[0])
+        .find(v => v.includes('current_period'))
+        ?.split(' ')[1];
+      const [from, to] = currentPeriod?.split('~') || [];
+      return currentPeriod ? ['Current Period*', getTimeRange({ from, to })] : [];
+    },
   },
   {
     name: 'Report 9',
@@ -252,7 +299,7 @@ const getSummarySheet = (filter: PeriodFilter): WorkSheet => {
       { v: '', t: 's', s: { fill: { fgColor } } },
     ],
     [],
-    [{ v: getTimeRange(filter), t: 's' }, ''],
+    ['Report Period', { v: getTimeRange(filter), t: 's' }, ''],
     [],
   ];
   rows.push(...reportCreators.map(c => [c.name.toUpperCase(), c.description]));
