@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios';
 import _ from 'lodash';
 import dayjs from 'dayjs';
-import { CellObject, utils, WorkBook, WorkSheet } from 'xlsx-js-style';
+import { utils, WorkBook, WorkSheet } from 'xlsx-js-style';
 import { toast } from 'react-toastify';
 
 import { Period, PeriodFilter } from '@ien/common';
@@ -122,13 +122,6 @@ const fillTotalRow = (rows: any[][], data: (string | number)[][]) => {
   ]);
 };
 
-const styleHeader = (header: string[]): CellObject[] => {
-  return header
-    .map(_.toUpper)
-    .map(v => v.replaceAll('_', ' '))
-    .map(v => ({ v, t: 's', s: headerStyle }));
-};
-
 const createSheet = (
   data: Record<string, string | number>[],
   creator: ReportCreator,
@@ -169,8 +162,8 @@ const createSheet = (
 
   const sheet = utils.aoa_to_sheet(rows);
   if (colWidths) sheet['!cols'] = colWidths.map(wch => ({ wch }));
-  if (name !== 'Report 9' && name !== 'Report 10' && dataRows.length) {
-    applyNumberFormat(sheet, { r: 5, c: 1 }, { r: rows.length - 1, c: dataRows[0].length });
+  if (dataRows.length) {
+    applyNumberFormat(sheet, rows);
   }
 
   return sheet;
