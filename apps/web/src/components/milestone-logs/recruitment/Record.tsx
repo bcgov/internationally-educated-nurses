@@ -153,7 +153,7 @@ export const Record: React.FC<RecordProps> = ({ job, expandRecord, jobIndex }) =
         buttonText={
           <div className='rounded py-2 pl-5 w-full'>
             <div className='flex items-center align-middle'>
-              <div className='font-bold text-black'>{ha_pcn.title}</div>
+              <div className='font-bold text-black'>{ha_pcn?.title}</div>
               <div
                 className={`text-sm flex align-middle font-bold mr-3 ml-auto ${getOutcomeClass()}`}
               >
