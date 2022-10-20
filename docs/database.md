@@ -181,3 +181,56 @@ It helps to run upsert operations while syncing data from ATS.
 **unique_applicant_status_date_job**
 Uniquely identify row base on 3 columns applicant_id, status_id, start_date, job_id on `status_audit` table.\
 It helps to run upsert operations while syncing data from ATS.
+
+# How to connect to IEN DEV database on AWS
+
+1. Login to AWS LZ2
+
+1. Select dev instance
+    1. Select ‘Click for Credentials’, copy to clipboard and paste in notepad
+    1. Select ‘Login to Console’
+
+1. Once in AWS page, search for Session Manager
+
+1. Click ‘Start session’
+
+1. Take the bastion ‘Instance ID’ value, then select ‘ien-dev-bastion’ radio and click ‘Start session’ (a new window should appear with a blank terminal)
+
+1. Go back to IEN project and open the .env file in root
+
+1. Add bastion Instance ID to ‘BASTION_INSTANCE_ID’ or make sure current value matches
+
+1. Go back to AWS console
+    1. Search for RDS
+    1. Click ‘Databases’ on sidebar    
+    1. Click ‘ien-dev-db’    
+    1. Copy ‘Endpoint name’ (Writer or Reader, whichever meets your needs)
+    1. Go back to .env file and add endpoint name to ‘DB_HOST’
+
+9. Go to terminal and make sure you’re in the root folder of the IEN project
+    1. Here we will paste the AWS LZ2 credentials we copied in step 2
+
+        (Note: on Windows, by default the terminals don’t support multi-line pasting, so you need to either download one or paste one by one)
+
+    1. After entering all the credentials, run the command ‘make open-db-tunnel’
+    
+        Some fun stuff should happen in the terminal and the prompt should be replaced with something similar to ‘ssm-user@.....’
+
+10. We’re now almost ready to connect locally, one more variable is needed
+    1. Go back to AWS
+    1. Search for Lambda    
+    1. Look for the Function ‘ien-dev-syncdata’    
+    1. Select it and go to ‘Configuration’ tab    
+    1. Find and copy ‘POSTGRES_PASSWORD’ value
+
+11. Open up Postgres (pgAdmin)
+    1. Create a new Server
+    1. Add a name (ex. ien_dev)
+    1. Click Connection tab
+    1. Enter these values
+        1. Host: localhost
+        1. Port: 5454
+        1. Username: freshworks
+        1. Password: Value you copied in step 10.5
+
+12. Hit Save and you should be good to go!
