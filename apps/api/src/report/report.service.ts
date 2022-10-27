@@ -46,7 +46,7 @@ export class ReportService {
   }
 
   /**
-   *
+   * Report 2
    * @param f Duration start date YYYY-MM-DD
    * @param t Duration end date YYYY-MM-DD
    * @returns
@@ -93,7 +93,7 @@ export class ReportService {
   }
 
   /**
-   *
+   * Report 1
    * @param f Duration start date YYYY-MM-DD
    * @param t Duration end date YYYY-MM-DD
    * @returns
@@ -123,7 +123,7 @@ export class ReportService {
   }
 
   /**
-   *
+   * Report 3
    * @param f Duration start date YYYY-MM-DD
    * @param t Duration end date YYYY-MM-DD
    * @returns
@@ -144,7 +144,7 @@ export class ReportService {
   }
 
   /**
-   *
+   * Report 4
    * @param f Duration start date YYYY-MM-DD
    * @param t Duration end date YYYY-MM-DD
    * @returns
@@ -163,7 +163,7 @@ export class ReportService {
   }
 
   /**
-   *
+   * Report 5
    * @param f Duration start date YYYY-MM-DD
    * @param t Duration end date YYYY-MM-DD
    * @returns
@@ -182,7 +182,7 @@ export class ReportService {
   }
 
   /**
-   *
+   * Report 6
    * @param f Duration start date YYYY-MM-DD
    * @param t Duration end date YYYY-MM-DD
    * @returns
@@ -201,7 +201,7 @@ export class ReportService {
   }
 
   /**
-   *
+   * Report 7
    * @param f Duration start date YYYY-MM-DD
    * @param t Duration end date YYYY-MM-DD
    * @returns
@@ -220,6 +220,7 @@ export class ReportService {
   }
 
   /**
+   * Report 8
    */
   async getApplicantHAForCurrentPeriodFiscal(
     statuses: Record<string, string>,
@@ -250,7 +251,8 @@ export class ReportService {
   }
 
   /**
-   * @param t Duration end date YYYY-MM-DD
+   * Report 9
+   * @param t end date of report, YYYY-MM-DD
    */
   async getAverageTimeWithEachStakeholderGroup(statuses: Record<string, string>, t: string) {
     const { to } = this.captureFromTo('', t);
@@ -262,6 +264,24 @@ export class ReportService {
     );
     this.logger.log(
       `getAverageTimeWithEachStakeholderGroup: query completed a total of ${data.length} record returns`,
+    );
+    return data;
+  }
+
+  /**
+   * Report 10
+   * @param t end date of report, YYYY-MM-DD
+   */
+  async getAverageTimeOfMilestones(statuses: Record<string, string>, t: string) {
+    const { to } = this.captureFromTo('', t);
+    this.logger.log(`getAverageTimeOfMilestones: apply filter till ${to} date)`);
+
+    const entityManager = getManager();
+    const data = await entityManager.query(
+      this.reportUtilService.getAverageTimeOfMilestones(statuses, to),
+    );
+    this.logger.log(
+      `getAverageTimeOfMilestones: query completed a total of ${data.length} record returns`,
     );
     return data;
   }
@@ -307,6 +327,7 @@ export class ReportService {
       this.getImmigrationApplicants(statuses, from, to).then(report7 => ({ report7 })),
       this.getApplicantHAForCurrentPeriodFiscal(statuses, from, to).then(report8 => ({ report8 })),
       this.getAverageTimeWithEachStakeholderGroup(statuses, to).then(report9 => ({ report9 })),
+      this.getAverageTimeOfMilestones(statuses, to).then(report10 => ({ report10 })),
     ];
     const report = await Promise.all(promises);
     return report.reduce((a, c) => _.assign(a, c), {});

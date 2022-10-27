@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios';
 import _ from 'lodash';
 import dayjs from 'dayjs';
-import { CellObject, utils, WorkBook, WorkSheet } from 'xlsx-js-style';
+import { utils, WorkBook, WorkSheet } from 'xlsx-js-style';
 import { toast } from 'react-toastify';
 
 import { Period, PeriodFilter } from '@ien/common';
@@ -79,9 +79,10 @@ const applyNumberFormat = (sheet: WorkSheet, rows: any[][]): void => {
   }
 };
 
-const formatDataRows = (dataRows: any[][], header: string[]) => {
+const formatTotal = (dataRows: any[][], header: string[]) => {
   return dataRows.map((row, rowIndex) => {
     if (rowIndex === dataRows.length - 1 && row[0]?.match(/^total/i)) {
+      //format total row
       return row.map((v, colIndex) => {
         if (colIndex === 0)
           return {
@@ -93,6 +94,7 @@ const formatDataRows = (dataRows: any[][], header: string[]) => {
       });
     }
     return row.map((v, colIndex) => {
+      // format total column
       if (header[colIndex]?.match(/^total/i)) {
         return { v, t: 'n', s: headerStyle };
       }
@@ -118,13 +120,6 @@ const fillTotalRow = (rows: any[][], data: (string | number)[][]) => {
       }, Array(data[0].length - 1).fill(0))
       .map(v => ({ v, t: 'n', s: headerStyle })),
   ]);
-};
-
-const styleHeader = (header: string[]): CellObject[] => {
-  return header
-    .map(_.toUpper)
-    .map(v => v.replaceAll('_', ' '))
-    .map(v => ({ v, t: 's', s: headerStyle }));
 };
 
 const createSheet = (
@@ -154,8 +149,11 @@ const createSheet = (
     ['Report Period', getTimeRange(filter)],
     ...detailRows,
     [],
-    styleHeader(headerRow),
-    ...formatDataRows(dataRows, headerRow),
+    headerRow
+      .map(_.toUpper)
+      .map(v => v.replaceAll('_', ' '))
+      .map(v => ({ v, t: 's', s: headerStyle })),
+    ...formatTotal(dataRows, headerRow),
   ];
 
   if (rowSum && dataRows.length) {
@@ -278,6 +276,12 @@ const reportCreators: ReportCreator[] = [
       return rows;
     },
     colWidths: [25, 35, 15, 15, 15],
+  },
+  {
+    name: 'Report 10',
+    description: 'Average Amount of Time with Each Milestone in Stakeholder Group',
+    header: ['', '', 'Mean', 'Median', 'Mode'],
+    colWidths: [25, 45, 15, 15, 15],
   },
 ];
 
