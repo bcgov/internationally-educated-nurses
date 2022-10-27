@@ -310,3 +310,50 @@ We understand how to calculate the duration for each stakeholder group. Let's fi
 MEAN: It is an average value.
 MEDIAN: It is the middle value from the sorted list if the list has an odd number of elements. If values are even in number it will pick 2 values from the middle of the list and show their average.
 MODE: It picks the highest occurrence of any value in the given list.
+
+***
+### Report 10: Average Amount of Time with Each Milestone in Stakeholder Group
+
+This report shows how long applicants stayed on each milestone.
+
+**Duration**
+
+A milestone's duration is calculated by date difference between its start date and end date, which is the earliest start date among all the next milestones. Therefore, it's important to keep the chronological order of milestones. If the order is reversed and duration comes out as negative, it will be dropped.
+
+If there is no next milestone, the end date is the last date of the reporting period. Considering we only count hired applicants, all milestones except Competition outcome and immigration milestones should have an end date.
+
+**Query steps**
+
+The query consists of these subqueries.
+
+1. List all hired applicants
+1. List hired applicants' all milestones with start date
+1. Calculate each milestone's duration
+1. Calculate average, mean, and mode value
+
+**Order of milestones**
+
+1. Applied to NNAS
+1. Submitted Documents (NNAS Application in Review)
+1. Received NNAS Report
+1. Applied to BCCNM
+1. Completed English Language Requirement
+1. Referred to NCAS
+1. Completed Computer-Based Assessment (CBA)
+1. Completed Simulation Lab Assessment (SLA)
+1. Completed NCAS
+1. Completed pre-screen (includes both outcomes)
+1. Completed interview (includes both outcomes)
+1. Completed reference check (includes both outcomes)
+1. Competition outcome (includes all outcomes)
+1. Sent First Steps document to candidate
+1. Sent employer documents to HMBC
+1. Submitted application to BC PNP
+1. Received Confirmation of Nomination
+1. Sent Second Steps document to candidate
+1. Submitted Work Permit Application
+1. Received Work Permit Approval Letter
+1. Received Work Permit (Arrival in Canada)
+
+
+
