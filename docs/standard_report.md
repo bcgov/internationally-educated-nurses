@@ -324,7 +324,7 @@ This report shows how long applicants stayed on each milestone.
 
 **Duration**
 
-A milestone's duration is calculated by date difference between its start date and end date, which is the earliest start date among all the next milestones. Therefore, it's important to keep the chronological order of milestones. If the order is reversed and duration comes out as negative, it will be dropped.
+A milestone's duration is calculated by the difference between its start date and end date, which is the earliest start date among all the next milestones. Therefore, it's important to keep the chronological order of milestones. If the order is reversed and duration comes out as negative, it will be dropped.
 
 If there is no next milestone, the end date is the last date of the reporting period. Considering we only count hired applicants, all milestones except Competition outcome and immigration milestones should have an end date.
 
