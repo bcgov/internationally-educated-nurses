@@ -2,7 +2,7 @@
 
 ### Report 1: Number of New Internationally Educated Nurse Registrant EOIs Processed
 
-When a new applicant adds to a system, We add a registration_date(To identify the start date of the IEN journey).\
+When a new applicant adds to a system, we add a registration_date(To identify the start date of the IEN journey).\
 This report shows the number of registered applicants in the specific period(4 consecutive weeks count as a period).\
 ***If you download "period 10", then it will give results from "period 1" to "period 10".***\
 *Note: Period starts from May 2nd, 2022(This date may change based on final confirmation from the MOH)*
@@ -11,7 +11,7 @@ This report shows the number of registered applicants in the specific period(4 c
 It can be done in multiple ways. Here I have explained the SQL query to generate the same report.
 
 Step 1: 
-Select all the applicants registered between given duration. `from` date: May 2nd, 2022 and `to` date as selected period end_date(for e.g. if you select period 2 then June 26th, 2022 is the end_date here). This is a where condition for the SQL query.
+Select all the applicants registered between the given duration, `from` date: May 2nd, 2022 and `to` date as selected period end_date(for e.g. if you select period 2 then June 26th, 2022 is the end_date here). This is a where condition for the SQL query.
 While selecting applicants let's find in which period they are in, to calculate period do 
 ```from-date - registration_date / 28```, here we took 28 days due to 4 week duration.\
 *note: It returns an integer and not a decimal, but if the query returns a float/decimal value cast or apply floor() to get integer value*\
@@ -43,7 +43,7 @@ Step 2:
 We have identified 10 countries to show in the report and all others will be counted in the 'Other' column, unless nursing_education is null, then it will be counted as 'N/A'. This segregation did with the CASE statement in the query.\
 
  \
- Now we have a temporary table with column applicant.id, period, and country. These data are sufficient enough to generate our desired report. Let's put this result in report format.\
+ Now we have a temporary table with column applicant.id, period, and country which is sufficient enough to generate our desired report. Let's put this result in report format.\
   \
 Step 3:
 Let's add additional columns in the above temporary result, columns are an applicant.id, period, 10 countries, 'other' and 'n/a'.\
@@ -61,7 +61,6 @@ If we want to add a new (an additional) row to show the sum for each country, pl
 ### Report 3: Status of Internationally Educated Nurse Registrant Applicants
 
 This report shows the applicant's current status/milestone who registered during the period (from May 2nd, 2022 to the selected period end date) or before the period (before May 2nd, 2022).\
-*It is likely to change and new period will be 1) Before May 2nd, 2022, and 2) May 2nd, 2022 to current. We are waiting to final confirmation from MOH side on this.*\
 Here we have identified 3 main statuses `Active`, `Withdrawn`, and `Hired`.\
 ***Note: We will use "to" date only and not "from" date. Because we also have to fetch and count applicants who registered before "from" and "to" duration.***
 
@@ -69,7 +68,7 @@ Here we have identified 3 main statuses `Active`, `Withdrawn`, and `Hired`.\
 It can be implemented in multiple ways. Here I have explained the SQL query to generate the same report.
 
 
-Here we do not have full stop status/milestone, so an applicant can be withdrawn after being hired or reactive their application after withdrawal or hold their application for some period. In these cases, we need to see the final status of an applicant to segregate it into `active`, `withdrawn`, or `hired`.\
+Here we do not have full stop status/milestone, so an applicant can be withdrawn after being hired or re-activate their application after withdrawal or hold their application for some period. In these cases, we need to see the final status of an applicant to segregate it into `active`, `withdrawn`, or `hired`.\
 We need to find hired and withdrawn applicants using status-id.\
 **Withdrawn** = `Withdrew from IEN program (Licensing/Registration)` or `Candidate Withdrew from Competition (Recruitment)` with outcome reason `Withdrew from IEN Program`.\
 **Hired** = `Job Offer Accepted`.
@@ -83,10 +82,10 @@ Step 2:
 Now let's find hired applicants. Here apply a condition that the withdrawn milestone date is not greater than hired date.
 
 Step 3:
-Now we know all the details, Let's put it as a boolean to find the count using the aggregate function in the next query.
+Now we know all the details, let's put it as a boolean to find the count using the aggregate function in the next query.
 - If the applicant is withdrawn then re-active and not hired yet then that applicant is marked as active.
-- If the applicant not hired or withdrawn yet, it will be count as active too.
-- If hired is the highest milestone, the applicant mark as Hired one.
+- If the applicant is not hired or withdrawn yet, it will count as active too.
+- If hired is the highest milestone, the applicant is marked as Hired one.
 - If the applicant has withdrawn and we still don't have any new milestone till the "to" date of the report, then the applicant is marked as withdrawn.
 
 
@@ -107,7 +106,7 @@ e.g. If an applicant received a full license before "April 1st, 2021" then that 
 It can be implemented in multiple ways. Here I have explained the SQL query to generate the same report.
 
 There is more than one milestone with each intermediate group/stage in the licensing stage/category. So here we have to group by some milestones to match the reporting requirements.
-E.g. "Applied to NNAS", for the same we have at least 3 milestones so we need to aggregate the count for all NNAS-related milestones to one.
+E.g. "Applied to NNAS", for this group we have at least 3 milestones so we need to aggregate the count for all NNAS-related milestones to one.
 
 Step 1:
 Let's find active applicants and remove all hired and withdrawn from the selection list.\
@@ -115,23 +114,23 @@ We will apply only `to` date and licensing/ registration and recruitment categor
 If the applicant gets hired then the latest milestone may be in the immigration category, that's why we are restricting it up to the recruitment category.
 Here we have to ignore hired applicants so we are checking data in the recruitment category.
 
-Subquery: Select all the active applicants by removing hired and withdrawn. We can achieve it by finding the highest milestone in the intake, licensing, and recruitment category and then checking whether its value is  ` Withdrew from IEN program (Licensing/Registration)` for withdrawn or `Job Offer Accepted` for hired.
+Subquery: Select all the active applicants by removing hired and withdrawn. We can achieve it by finding the highest milestone in the licensing/ registration and recruitment category and then checking whether its value is  ` Withdrew from IEN program (Licensing/Registration)` for withdrawn or `Job Offer Accepted` for hired.
 
-Now you have all the active applicants, Let's find status by checking their full/provisional license (we will select only the latest one if exist).
+Now you have all the active applicants, Let's find status by checking their full/provisional license (we will select only the latest one if one exists).
 Here we only apply `to` date, as discussed above if the candidate is looking for a job we have to count them in the `Granted full licensure` row in the report.
 
 Step 2:
-For the active applicants only, Here in this query, we will find the latest milestone from the licensing stage during the `from` and `to` date.
+For the active applicants only, here in this query, we will find the latest milestone from the licensing stage during the `from` and `to` date.
 
 Step 3:
-Based on queries 1 and 2, we will have the highest status_id/milestone_id and has_licence values for each applicant.\
+Based on queries 1 and 2, we will have the highest status_id/milestone_id and has_license values for each applicant.\
 Based on the above notes, we will ignore all those applicants whose license(full/provisional) and latest licensing status_id are not found.\
  \
 Now we have all the data available in a temporary table and we can generate our report format.
 
 Step 4:
 Adding a new column can be done in a single query but to add a new row in the final result we have to apply UNION ALL.
-For that we have to group some milestone to get the final count. So we will run a select query and filter group of status, than apply aggregate.\
+For that we have to group some milestone to get the final count. So we will run a select query and filter group of status, then apply aggregate.\
 E.g.  "Applied to NNAS" here we need to filter the above temporary table to find the milestone related to NNAS and sum it up.
 
 Now we are ready with all the required rows for our final report. UNION ALL makes it more simple.
@@ -145,7 +144,7 @@ In this report, we will find out how many applicants received full/provisional l
 
 **Developer Side:** \
 It is pretty straight forward. We need to identify the highest milestone, full or provisional between `from` and `to` date.
-Now we have to show it in a separate rows.\
+Now we have to show it in separate rows.\
 For that, we will use UNION all again with a static filter on milestones, 5 total queries `BCCNM Provisional Licence LPN`, `BCCNM Provisional Licence RN`, `BCCNM Full Licence LPN`, `BCCNM Full Licence RN` and `Registered as an HCA`.
 
 
@@ -196,7 +195,7 @@ Step 4:
 We will find applicant counts for each HA(connected with job competition) along their selected milestones. To achieve that, we can run GROUP BY on HA and milestone.
 
 
-Looks like we have all the data that can be display in the report.
+Looks like we have all the data that can be displayed in the report.
 
 Step 5:
 Let's add new columns of HA and put applicants count for each milestone row. So we can create a matrix with milestone-HA.
@@ -220,11 +219,11 @@ Step 1:
 Let's find hired applicants with a `Job Offer Accepted` date less than or equal to `to`.
 
 Step 2:
-Let's find the highest milestone from the immigration stage for all hired applicants `to` date. And join the HA table to find HA data.\
+Let's find the highest milestone from the immigration stage for all hired applicants `to` date then join the HA table to find HA data.\
 Now apply GROUP BY on HA and milestone to creating report-ready data.
 
 Same as report 6,
-we will add a new column of HA for each milestone, And UNION ALL with blank data to fill the table with 0 if any cell data is missing.
+we will add a new column of HA for each milestone and UNION ALL with blank data to fill the table with 0 if any cell data is missing.
 
 The final query will generate the report format as per requested.
 
@@ -310,7 +309,7 @@ Note:
 - Here we have to subtract this HOLD/WITHDRAWAL duration from the "Overall" and "Average time to hire". (If the applicant withdraws from the immigration stage then we won't consider it for this report, as we only pick hired applicants)
 
 6. Average time to Hire:
-    - We are going to calculate the duration from NNAS to Hired in particular HA here.
+    - We are going to calculate the duration from NNAS to Hired in a particular HA here.
     - We will find the NNAS minimum date and Hired date to calculate duration minus any withdrawal time.
 
 We understand how to calculate the duration for each stakeholder group. Let's find MEAN, MEDIAN, and MODE values from the list of available durations. It helps to generate the requested report.
@@ -334,9 +333,9 @@ If there is no next milestone, the end date is the last date of the reporting pe
 The query consists of these subqueries.
 
 1. List all hired applicants
-1. List hired applicants' all milestones with start date
+1. List all hired applicants milestones with start date
 1. Calculate each milestone's duration
-1. Calculate average, mean, and mode value
+1. Calculate average, mean and mode value
 
 **Order of milestones**
 
