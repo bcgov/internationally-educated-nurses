@@ -12,7 +12,7 @@ import { getApplicant } from './report-util';
 describe('Report 1 - Number of New IENs', () => {
   let app: INestApplication;
 
-  const totalPeriods = Math.round(dayjs().diff(dayjs('2022-05-02'), 'day') / 28 + 1);
+  const totalPeriods = Math.floor(dayjs().diff(dayjs('2022-05-02'), 'day') / 28 + 1);
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
