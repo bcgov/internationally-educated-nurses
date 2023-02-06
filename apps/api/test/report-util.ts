@@ -84,45 +84,11 @@ export const getEducation = (options?: EducationOptions): NursingEducationDTO =>
   };
 };
 
-export const HEALTH_AUTHORITIES = [
-  {
-    id: 'F314A4D7-86AD-0696-26F5-3A05E5B6FB7F',
-    name: 'Vancouver Coastal Health',
-  },
-  {
-    id: '5C81ED72-6285-7F28-FAF0-3A05E5B8024F',
-    name: 'Interior Health',
-  },
-  {
-    id: '1ADC5904-17A8-B4CA-55C5-3A05E5B6797F',
-    name: 'Vancouver Island Health',
-  },
-  {
-    id: '28F4B8FD-588B-C170-3434-3A05E5B88823',
-    name: 'Northern Health',
-  },
-  {
-    id: '0388F125-E89F-2DF7-24A0-3A05E5C0956D',
-    name: 'Provincial Health Services',
-  },
-  {
-    id: '44B31F94-A91E-7DE3-9BF7-3A05E5C2A625',
-    name: 'Providence Health Care',
-  },
-  {
-    id: 'FEDB572A-C723-4DF7-C478-3A05E5C34A82',
-    name: 'First Nations Health',
-  },
-  {
-    id: '6AD69443-E3A8-3CBC-8CC9-3A05E5B771E4',
-    name: 'Fraser Health',
-  },
-];
-
-export const RECRUITMENT_STAGE_STATUSES = [
-  { id: '70b1f5f1-1a0d-ef71-42ea-3a0601b46bc2', name: 'Job Offer Accepted' },
-  { id: 'D875B680-F027-46B7-05A5-3A0601B3A0E1', name: 'Candidate Passed Reference Check' },
-];
+export const RECRUITMENT_STAGE_STATUSES = {
+  'Job Offer Accepted': '70b1f5f1-1a0d-ef71-42ea-3a0601b46bc2',
+  'Candidate Passed Reference Check': 'D875B680-F027-46B7-05A5-3A0601B3A0E1',
+  'Candidate Passed Interview': 'BD91E596-8F9A-0C98-8B9C-3A0601B2A18B',
+};
 
 export const getJob = (options: JobOptions): IENApplicantJobCreateUpdateDTO => {
   const { ha_pcn, recruiter_name, job_id } = options || {};
@@ -140,4 +106,8 @@ export const getMilestone = (options: MilestoneOptions) => {
     job_id: job_id,
     start_date: start_date || new Date().toISOString().slice(0, 10),
   };
+};
+
+export const getIndexOfStatus = (arr: unknown[], compareTo: string) => {
+  return arr.findIndex((v: any) => v.status === compareTo);
 };

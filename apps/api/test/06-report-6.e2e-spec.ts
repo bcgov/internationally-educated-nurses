@@ -1,25 +1,33 @@
-import { IENApplicantCreateUpdateDTO } from '@ien/common';
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 
+import { IENApplicantCreateUpdateDTO, STATUS } from '@ien/common';
 import { AppModule } from 'src/app.module';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { URLS } from './constants';
 import { canActivate } from './override-guard';
 import {
   getApplicant,
+  getIndexOfStatus,
   getJob,
   getMilestone,
-  HEALTH_AUTHORITIES,
   RECRUITMENT_STAGE_STATUSES,
 } from './report-util';
+import { IENHaPcn } from 'src/applicant/entity/ienhapcn.entity';
 
 describe('Report 6 - Registrants in Recruitment Stage', () => {
   let app: INestApplication;
   let jobTempId = '';
   let applicantStatusId = 'NA';
   let applicantId: string;
+  let HA: IENHaPcn[] = [];
+
+  let refCheckIndex = 0;
+  let intvwIndex = 0;
+  let jobAcceptedIndex = 0;
+
+  let lastHa = '';
 
   const PHSA = 'Provincial Health Services';
   const NHA = 'Northern Health';
@@ -63,11 +71,11 @@ describe('Report 6 - Registrants in Recruitment Stage', () => {
   };
 
   // add a milestone
-  const addMilestone = async (id: string, status_id?: string, start_date?: string) => {
+  const addMilestone = async (id: string, status_id: string, start_date?: string) => {
     const addStatusUrl = `/ien/${id}/status`;
     const milestone = getMilestone({
-      status: status_id || RECRUITMENT_STAGE_STATUSES[1].id,
-      job_id: jobTempId || 'WillHaveJobId',
+      status: status_id,
+      job_id: jobTempId,
       start_date: start_date,
     });
 
@@ -76,66 +84,96 @@ describe('Report 6 - Registrants in Recruitment Stage', () => {
     applicantStatusId = body.id;
   };
 
-  it('Add Recruitment related statuses for 4 HAs', async () => {
-    for (let i = 0; i < 4; i++) {
+  const getHAs = async (): Promise<IENHaPcn[]> => {
+    const { body } = await request(app.getHttpServer()).get('/ienmaster/ha-pcn');
+    // remove 'Authority' from end of HA strings
+    body.forEach((e: IENHaPcn) => {
+      e.title = e.title.substring(0, e.title.lastIndexOf(' '));
+    });
+    return body;
+  };
+
+  it('Add Recruitment related statuses for all HAs', async () => {
+    HA = await getHAs();
+    lastHa = HA[HA.length - 1].title;
+    const before = await getReport6();
+
+    for (let i = 0; i < HA.length; i++) {
       const applicant = getApplicant();
       applicant.registration_date = '2022-06-01';
       const { id } = await addApplicant(applicant);
 
-      await addJob(id, HEALTH_AUTHORITIES[i].id, i.toString());
-      await addMilestone(id);
+      await addJob(id, HA[i].id, i.toString());
+      await addMilestone(
+        id,
+        RECRUITMENT_STAGE_STATUSES[
+          STATUS.REFERENCE_CHECK_PASSED as keyof typeof RECRUITMENT_STAGE_STATUSES
+        ],
+      );
     }
 
     const after = await getReport6();
+    refCheckIndex = getIndexOfStatus(after, STATUS.REFERENCE_CHECK_PASSED);
 
-    expect(Number(after[10][HEALTH_AUTHORITIES[0].name])).toBe(1);
-    expect(Number(after[10][HEALTH_AUTHORITIES[1].name])).toBe(1);
-    expect(Number(after[10][HEALTH_AUTHORITIES[2].name])).toBe(1);
-    expect(Number(after[10][HEALTH_AUTHORITIES[3].name])).toBe(1);
+    for (let i = 0; i < HA.length; i++) {
+      expect(Number(after[refCheckIndex][HA[i].title])).toBe(
+        Number(before[refCheckIndex][HA[i].title]) + 1,
+      );
+    }
   });
 
   it('Add new job/status to applicant with job/status in another HA to Provincial Health Services', async () => {
     const before = await getReport6();
+    const phsaIndex = HA.findIndex(ha => ha.title === PHSA);
 
-    await addJob(applicantId, HEALTH_AUTHORITIES[4].id, 'TestTwoStatusSameApplicant');
-    await addMilestone(applicantId, undefined);
+    await addJob(applicantId, HA[phsaIndex].id, 'TestTwoStatusSameApplicant');
+    await addMilestone(
+      applicantId,
+      RECRUITMENT_STAGE_STATUSES[
+        STATUS.INTERVIEW_PASSED as keyof typeof RECRUITMENT_STAGE_STATUSES
+      ],
+    );
 
     const after = await getReport6();
+    intvwIndex = getIndexOfStatus(after, STATUS.INTERVIEW_PASSED);
 
-    expect(Number(before[10][PHSA])).toBe(0);
-    expect(Number(after[10][PHSA])).toBe(1);
+    expect(Number(after[intvwIndex][PHSA])).toBe(Number(before[intvwIndex][PHSA]) + 1);
 
     // check previous counts for registered statuses
     // to make sure both are counted and prev values are the same
-    expect(Number(after[10][HEALTH_AUTHORITIES[0].name])).toBe(1);
-    expect(Number(after[10][HEALTH_AUTHORITIES[1].name])).toBe(1);
-    expect(Number(after[10][HEALTH_AUTHORITIES[2].name])).toBe(1);
-    expect(Number(after[10][HEALTH_AUTHORITIES[3].name])).toBe(1);
+    for (let i = 0; i < HA.length; i++) {
+      expect(Number(after[refCheckIndex][HA[i].title])).toBe(
+        Number(before[refCheckIndex][HA[i].title]),
+      );
+    }
   });
 
   it('Remove status for Provincial Health Services', async () => {
     const before = await getReport6();
 
     const deleteStatusUrl = `/ien/${applicantId}/status/${applicantStatusId}`;
-
     await request(app.getHttpServer()).delete(deleteStatusUrl).expect(200);
 
     const after = await getReport6();
 
-    expect(Number(before[10][PHSA])).toBe(1);
-    expect(Number(after[10][PHSA])).toBe(0);
+    expect(Number(after[intvwIndex][PHSA])).toBe(Number(before[intvwIndex][PHSA]) - 1);
   });
 
   it('Add Job Accepted to Provincial Health Services', async () => {
     const before = await getReport6();
 
-    await addMilestone(applicantId, RECRUITMENT_STAGE_STATUSES[0].id);
+    await addMilestone(
+      applicantId,
+      RECRUITMENT_STAGE_STATUSES[
+        STATUS.JOB_OFFER_ACCEPTED as keyof typeof RECRUITMENT_STAGE_STATUSES
+      ],
+    );
 
     const after = await getReport6();
+    jobAcceptedIndex = getIndexOfStatus(after, STATUS.JOB_OFFER_ACCEPTED);
 
-    expect(Number(after[4][PHSA])).toBe(1);
+    expect(Number(after[jobAcceptedIndex][PHSA])).toBe(Number(before[jobAcceptedIndex][PHSA]) + 1);
     // should remove all other counts once an applicant accepts job offer
-    expect(Number(before[10][NHA])).toBe(1);
-    expect(Number(after[10][NHA])).toBe(0);
+    expect(Number(after[refCheckIndex][lastHa])).toBe(Number(before[refCheckIndex][lastHa]) - 1);
   });
 });
