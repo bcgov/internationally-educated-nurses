@@ -42,6 +42,14 @@ describe('Report 6 - Registrants in Recruitment Stage', () => {
 
     app = moduleFixture.createNestApplication();
     await app.init();
+
+    const { body: authorities } = await request(app.getHttpServer()).get('/ienmaster/ha-pcn');
+    // remove 'Authority' from end of HA strings
+    authorities.forEach((e: IENHaPcn) => {
+      e.title = e.title.substring(0, e.title.lastIndexOf(' '));
+    });
+    HA = authorities;
+    lastHa = HA[HA.length - 1].title;
   });
 
   afterAll(async () => {
@@ -84,18 +92,7 @@ describe('Report 6 - Registrants in Recruitment Stage', () => {
     applicantStatusId = body.id;
   };
 
-  const getHAs = async (): Promise<IENHaPcn[]> => {
-    const { body } = await request(app.getHttpServer()).get('/ienmaster/ha-pcn');
-    // remove 'Authority' from end of HA strings
-    body.forEach((e: IENHaPcn) => {
-      e.title = e.title.substring(0, e.title.lastIndexOf(' '));
-    });
-    return body;
-  };
-
   it('Add Recruitment related statuses for all HAs', async () => {
-    HA = await getHAs();
-    lastHa = HA[HA.length - 1].title;
     const before = await getReport6();
 
     for (let i = 0; i < HA.length; i++) {
