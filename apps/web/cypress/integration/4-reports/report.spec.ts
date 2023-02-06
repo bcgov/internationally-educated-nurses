@@ -12,9 +12,7 @@ describe('Report', () => {
 
   it('lists report periods', () => {
     cy.contains('h1', 'Reporting');
-    cy.get('tbody')
-      .find('tr')
-      .should('have.length', Math.floor(dayjs().diff('2022-05-02', 'day') / 28 + 1));
+    cy.contains('span', 'of ' + Math.floor(dayjs().diff('2022-05-02', 'day') / 28 + 1) + ' items');
   });
 
   it('downloads a report', () => {
