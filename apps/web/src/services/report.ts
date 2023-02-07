@@ -37,8 +37,8 @@ export const getApplicantDataExtract = async (filter?: PeriodFilter) => {
 export const getReportByEOI = async (filter?: PeriodFilter) => {
   try {
     const url = `/reports/applicant/registered?${convertToParams(filter)}`;
-    const { data } = await axios.get<{ data: Period[] }>(url);
-    return data?.data;
+    const response = await axios.get<{ data: Period[] }>(url);
+    return response?.data?.data;
   } catch (e) {
     notifyError(e as AxiosError);
   }

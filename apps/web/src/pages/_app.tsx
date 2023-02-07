@@ -1,7 +1,7 @@
 import { SSRKeycloakProvider, SSRCookies, useKeycloak } from '@react-keycloak/ssr';
 import axios from 'axios';
 import Head from 'next/head';
-import { toast, ToastContainer } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import type { AppProps } from 'next/app';
 import cookie from 'cookie';
 import { KeycloakInstance } from 'keycloak-js';
@@ -18,19 +18,6 @@ import 'react-datepicker/dist/react-datepicker.css';
 import '../styles/globals.css';
 
 axios.defaults.baseURL = process.env.NEXT_PUBLIC_API_URL;
-axios.interceptors.response.use(
-  res => res,
-  e => {
-    const message = e?.response?.data?.errorType
-      ? `${e.response.data.errorType}: ${e.response.data.errorMessage}`
-      : e.message;
-    if (message?.includes('Authentication token expired')) {
-      window.location.replace(`${window.location.origin}/login`);
-    } else {
-      toast.error(message);
-    }
-  },
-);
 
 const keycloakConfig = {
   realm: process.env.NEXT_PUBLIC_AUTH_REALM || 'moh_applications',
