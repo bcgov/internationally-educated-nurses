@@ -144,11 +144,9 @@ describe('Report 7 - Registrants in Immigration Stage', () => {
     });
 
     const after = await getReport7();
-    firstStepDocIndex = getIndexOfStatus(after, STATUS.RECEIVED_WORK_PERMIT_APPROVAL_LETTER);
+    permitIndex = getIndexOfStatus(after, STATUS.RECEIVED_WORK_PERMIT_APPROVAL_LETTER);
 
     // should not be counted, should only look for hired applicants
-    expect(Number(after[firstStepDocIndex][HA[0].title])).toBe(
-      Number(before[firstStepDocIndex][HA[0].title]),
-    );
+    expect(Number(after[permitIndex][HA[0].title])).toBe(Number(before[permitIndex][HA[0].title]));
   });
 });
