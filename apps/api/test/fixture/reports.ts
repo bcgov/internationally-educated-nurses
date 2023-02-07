@@ -26,9 +26,3 @@ export const addMilestone = {
   notes: 'Test Note 1',
   reason: '',
 };
-
-export const addJob = {
-  ha_pcn: '6ad69443-e3a8-3cbc-8cc9-3a05e5b771e4',
-  recruiter_name: 'HA Name',
-  job_id: 'JOBR3',
-};

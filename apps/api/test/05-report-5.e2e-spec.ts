@@ -119,7 +119,7 @@ describe('Report 3 (e2e)', () => {
       .get(reportFiveUrl)
       .expect(res => {
         const { body } = res;
-        console.log(body);
+
         let total = 0;
         body.forEach((app: any) => {
           total += +app.applicant_count;

@@ -33,6 +33,7 @@ describe('Report 1 - Number of New IENs', () => {
   // check report 1 summary for updated data after adding 2 applicants
   it('Add new applicants', async () => {
     const { body: before } = await request(app.getHttpServer()).get(URLS.REPORT1);
+
     expect(before.length).toBe(totalPeriods);
 
     const totalBefore = before.reduce((a: any, c: { applicants: any }) => a + c.applicants, 0);

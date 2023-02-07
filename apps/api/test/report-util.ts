@@ -1,6 +1,10 @@
 import { faker } from '@faker-js/faker';
 import dayjs from 'dayjs';
-import { IENApplicantCreateUpdateDTO, NursingEducationDTO } from '@ien/common';
+import {
+  IENApplicantCreateUpdateDTO,
+  NursingEducationDTO,
+  IENApplicantJobCreateUpdateDTO,
+} from '@ien/common';
 
 interface EducationOptions {
   count?: number;
@@ -11,6 +15,18 @@ interface EducationOptions {
 
 interface ApplicantOptions {
   between?: [string, string];
+}
+
+interface JobOptions {
+  ha_pcn: string;
+  job_id: string;
+  recruiter_name?: string;
+}
+
+interface MilestoneOptions {
+  status: string;
+  job_id: string;
+  start_date?: string;
 }
 
 export const getApplicant = (options?: ApplicantOptions): IENApplicantCreateUpdateDTO => {
@@ -66,4 +82,32 @@ export const getEducation = (options?: EducationOptions): NursingEducationDTO =>
     country: country || faker.helpers.arrayElement(Object.keys(COUNTRY_OF_EDUCATIONS)),
     num_years: faker.helpers.arrayElement([1, 2, 3, 4]),
   };
+};
+
+export const RECRUITMENT_STAGE_STATUSES = {
+  'Job Offer Accepted': '70b1f5f1-1a0d-ef71-42ea-3a0601b46bc2',
+  'Candidate Passed Reference Check': 'D875B680-F027-46B7-05A5-3A0601B3A0E1',
+  'Candidate Passed Interview': 'BD91E596-8F9A-0C98-8B9C-3A0601B2A18B',
+};
+
+export const getJob = (options: JobOptions): IENApplicantJobCreateUpdateDTO => {
+  const { ha_pcn, recruiter_name, job_id } = options || {};
+  return {
+    ha_pcn: ha_pcn,
+    recruiter_name: recruiter_name || faker.name.fullName(),
+    job_id: job_id + faker.animal.bear() + faker.animal.insect(),
+  };
+};
+
+export const getMilestone = (options: MilestoneOptions) => {
+  const { status, job_id, start_date } = options || {};
+  return {
+    status: status,
+    job_id: job_id,
+    start_date: start_date || new Date().toISOString().slice(0, 10),
+  };
+};
+
+export const getIndexOfStatus = (arr: unknown[], compareTo: string) => {
+  return arr.findIndex((v: any) => v.status === compareTo);
 };

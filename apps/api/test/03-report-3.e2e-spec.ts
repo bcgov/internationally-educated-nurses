@@ -9,18 +9,23 @@ import { URLS } from './constants';
 import { canActivate } from './override-guard';
 import {
   acceptedOffer,
-  addJob,
   addMilestone,
   withdrewFromCompetition,
   withdrewReason,
 } from './fixture/reports';
-import { getApplicant } from './report-util';
+import { getApplicant, getJob } from './report-util';
 
 describe('Report 3 - Applicant by Status', () => {
   let app: INestApplication;
   let jobTempId = '';
   let applicantStatusId = 'NA';
   let applicantId: string;
+
+  const job = getJob({
+    ha_pcn: '6ad69443-e3a8-3cbc-8cc9-3a05e5b771e4',
+    recruiter_name: 'HA Name',
+    job_id: 'JOBR3',
+  });
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -72,7 +77,7 @@ describe('Report 3 - Applicant by Status', () => {
     const addJobUrl = `/ien/${id}/job`;
     await request(app.getHttpServer())
       .post(addJobUrl)
-      .send(addJob)
+      .send(job)
       .expect(res => {
         const { body } = res;
         jobTempId = body.id;
@@ -101,7 +106,7 @@ describe('Report 3 - Applicant by Status', () => {
     const addJobUrl = `/ien/${id}/job`;
     await request(app.getHttpServer())
       .post(addJobUrl)
-      .send(addJob)
+      .send(job)
       .expect(({ body }) => (jobTempId = body.id))
       .expect(201);
 
@@ -127,7 +132,7 @@ describe('Report 3 - Applicant by Status', () => {
     await request(app.getHttpServer())
       .post(addJobUrl)
       .expect(({ body }) => (jobTempId = body.id))
-      .send(addJob);
+      .send(job);
 
     const addStatusUrl = `/ien/${id}/status`;
     addMilestone.job_id = jobTempId;
