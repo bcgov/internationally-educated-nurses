@@ -1,8 +1,8 @@
 import { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
+import { getErrorMessage } from './get-error-message';
 
 export const notifyError = (e: AxiosError | string) => {
-  const message =
-    typeof e === 'string' ? e : `${e.response?.data.errorType}: ${e.response?.data.errorMessage}`;
-  toast.error(message);
+  const message = getErrorMessage(e);
+  if (message) toast.error(message);
 };
