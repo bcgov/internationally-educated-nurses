@@ -40,6 +40,11 @@ describe('Report 6 - Registrants in Recruitment Stage', () => {
 
     HA = await getHAs();
     lastHa = HA[HA.length - 1].title;
+
+    const report = await getReport6();
+    refCheckIndex = getIndexOfStatus(report, STATUS.REFERENCE_CHECK_PASSED);
+    intvwIndex = getIndexOfStatus(report, STATUS.INTERVIEW_PASSED);
+    jobAcceptedIndex = getIndexOfStatus(report, STATUS.JOB_OFFER_ACCEPTED);
   });
 
   afterAll(async () => {
@@ -69,7 +74,6 @@ describe('Report 6 - Registrants in Recruitment Stage', () => {
     }
 
     const after = await getReport6();
-    refCheckIndex = getIndexOfStatus(after, STATUS.REFERENCE_CHECK_PASSED);
 
     for (let i = 0; i < HA.length; i++) {
       expect(Number(after[refCheckIndex][HA[i].title])).toBe(
@@ -96,7 +100,6 @@ describe('Report 6 - Registrants in Recruitment Stage', () => {
     applicantStatusId = status.id;
 
     const after = await getReport6();
-    intvwIndex = getIndexOfStatus(after, STATUS.INTERVIEW_PASSED);
 
     expect(Number(after[intvwIndex][PHSA])).toBe(Number(before[intvwIndex][PHSA]) + 1);
 
@@ -128,7 +131,6 @@ describe('Report 6 - Registrants in Recruitment Stage', () => {
     });
 
     const after = await getReport6();
-    jobAcceptedIndex = getIndexOfStatus(after, STATUS.JOB_OFFER_ACCEPTED);
 
     expect(Number(after[jobAcceptedIndex][PHSA])).toBe(Number(before[jobAcceptedIndex][PHSA]) + 1);
     // should remove all other counts once an applicant accepts job offer

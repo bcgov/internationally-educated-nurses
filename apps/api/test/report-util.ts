@@ -5,6 +5,7 @@ import {
   NursingEducationDTO,
   IENApplicantJobCreateUpdateDTO,
   IENApplicantAddStatusDTO,
+  STATUS,
 } from '@ien/common';
 
 interface EducationOptions {
@@ -64,16 +65,14 @@ export const COUNTRY_OF_EDUCATIONS = {
 };
 
 export const RECRUITMENT_STAGE_STATUSES = {
-  'Job Offer Accepted': '70b1f5f1-1a0d-ef71-42ea-3a0601b46bc2',
-  'Candidate Passed Reference Check': 'D875B680-F027-46B7-05A5-3A0601B3A0E1',
-  'Candidate Passed Interview': 'BD91E596-8F9A-0C98-8B9C-3A0601B2A18B',
-  'Candidate Withdrew from Competition': '3fd4f2b0-5151-d7c8-6bbc-3a0601b5e1b0',
+  [STATUS.JOB_OFFER_ACCEPTED]: '70b1f5f1-1a0d-ef71-42ea-3a0601b46bc2',
+  [STATUS.REFERENCE_CHECK_PASSED]: 'D875B680-F027-46B7-05A5-3A0601B3A0E1',
+  [STATUS.INTERVIEW_PASSED]: 'BD91E596-8F9A-0C98-8B9C-3A0601B2A18B',
 };
 
 export const IMMIGRATION_STAGE_STATUSES = {
-  'Sent First Steps document to candidate': '4d435c42-f588-4174-bb1e-1fe086b23214',
-  'Received Work Permit Approval Letter': 'caa18ecd-fea5-459e-af27-bca15ac26133',
-  'Submitted Work Permit Application': 'f2008e2f-5f44-4f4c-80b4-f4ad284e9938',
+  [STATUS.SENT_FIRST_STEPS_DOCUMENT]: '4d435c42-f588-4174-bb1e-1fe086b23214',
+  [STATUS.RECEIVED_WORK_PERMIT_APPROVAL_LETTER]: 'caa18ecd-fea5-459e-af27-bca15ac26133',
 };
 
 export const getEducation = (options?: EducationOptions): NursingEducationDTO => {

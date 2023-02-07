@@ -42,6 +42,10 @@ describe('Report 7 - Registrants in Immigration Stage', () => {
 
     HA = await getHAs();
     lastHa = HA[HA.length - 1].title;
+
+    const report = await getReport7();
+    firstStepDocIndex = getIndexOfStatus(report, STATUS.SENT_FIRST_STEPS_DOCUMENT);
+    permitIndex = getIndexOfStatus(report, STATUS.RECEIVED_WORK_PERMIT_APPROVAL_LETTER);
   });
 
   afterAll(async () => {
@@ -77,7 +81,6 @@ describe('Report 7 - Registrants in Immigration Stage', () => {
     }
 
     const after = await getReport7();
-    firstStepDocIndex = getIndexOfStatus(after, STATUS.SENT_FIRST_STEPS_DOCUMENT);
 
     for (let i = 0; i < HA.length; i++) {
       expect(Number(after[firstStepDocIndex][HA[i].title])).toBe(
@@ -95,7 +98,6 @@ describe('Report 7 - Registrants in Immigration Stage', () => {
     applicantStatusId = status.id;
 
     const after = await getReport7();
-    permitIndex = getIndexOfStatus(after, STATUS.RECEIVED_WORK_PERMIT_APPROVAL_LETTER);
 
     expect(Number(after[permitIndex][lastHa])).toBe(Number(before[permitIndex][lastHa]) + 1);
 
@@ -132,7 +134,6 @@ describe('Report 7 - Registrants in Immigration Stage', () => {
     });
 
     const after = await getReport7();
-    permitIndex = getIndexOfStatus(after, STATUS.RECEIVED_WORK_PERMIT_APPROVAL_LETTER);
 
     // should not be counted, should only look for hired applicants
     expect(Number(after[permitIndex][HA[0].title])).toBe(Number(before[permitIndex][HA[0].title]));
