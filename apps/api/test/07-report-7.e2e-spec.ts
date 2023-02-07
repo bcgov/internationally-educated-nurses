@@ -67,17 +67,11 @@ describe('Report 7 - Registrants in Immigration Stage', () => {
 
       // add hired milestone - should only count hired applicants
       await addMilestone(id, jobTempId, {
-        status:
-          RECRUITMENT_STAGE_STATUSES[
-            STATUS.JOB_OFFER_ACCEPTED as keyof typeof RECRUITMENT_STAGE_STATUSES
-          ],
+        status: RECRUITMENT_STAGE_STATUSES[STATUS.JOB_OFFER_ACCEPTED],
       });
 
       const status = await addMilestone(id, '', {
-        status:
-          IMMIGRATION_STAGE_STATUSES[
-            STATUS.SENT_FIRST_STEPS_DOCUMENT as keyof typeof IMMIGRATION_STAGE_STATUSES
-          ],
+        status: IMMIGRATION_STAGE_STATUSES[STATUS.SENT_FIRST_STEPS_DOCUMENT],
       });
       applicantStatusId = status.id;
     }
@@ -96,10 +90,7 @@ describe('Report 7 - Registrants in Immigration Stage', () => {
     const before = await getReport7();
 
     const status = await addMilestone(applicantId, jobTempId, {
-      status:
-        IMMIGRATION_STAGE_STATUSES[
-          STATUS.RECEIVED_WORK_PERMIT_APPROVAL_LETTER as keyof typeof IMMIGRATION_STAGE_STATUSES
-        ],
+      status: IMMIGRATION_STAGE_STATUSES[STATUS.RECEIVED_WORK_PERMIT_APPROVAL_LETTER],
     });
     applicantStatusId = status.id;
 
@@ -137,10 +128,7 @@ describe('Report 7 - Registrants in Immigration Stage', () => {
     jobTempId = job.id;
 
     await addMilestone(id, '', {
-      status:
-        IMMIGRATION_STAGE_STATUSES[
-          STATUS.RECEIVED_WORK_PERMIT_APPROVAL_LETTER as keyof typeof IMMIGRATION_STAGE_STATUSES
-        ],
+      status: IMMIGRATION_STAGE_STATUSES[STATUS.RECEIVED_WORK_PERMIT_APPROVAL_LETTER],
     });
 
     const after = await getReport7();

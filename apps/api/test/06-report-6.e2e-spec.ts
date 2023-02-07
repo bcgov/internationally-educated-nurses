@@ -64,10 +64,7 @@ describe('Report 6 - Registrants in Recruitment Stage', () => {
       jobTempId = job.id;
 
       await addMilestone(id, jobTempId, {
-        status:
-          RECRUITMENT_STAGE_STATUSES[
-            STATUS.REFERENCE_CHECK_PASSED as keyof typeof RECRUITMENT_STAGE_STATUSES
-          ],
+        status: RECRUITMENT_STAGE_STATUSES[STATUS.REFERENCE_CHECK_PASSED],
       });
     }
 
@@ -93,10 +90,7 @@ describe('Report 6 - Registrants in Recruitment Stage', () => {
     jobTempId = job.id;
 
     const status = await addMilestone(applicantId, jobTempId, {
-      status:
-        RECRUITMENT_STAGE_STATUSES[
-          STATUS.INTERVIEW_PASSED as keyof typeof RECRUITMENT_STAGE_STATUSES
-        ],
+      status: RECRUITMENT_STAGE_STATUSES[STATUS.INTERVIEW_PASSED],
     });
     applicantId = applicantId;
     applicantStatusId = status.id;
@@ -130,10 +124,7 @@ describe('Report 6 - Registrants in Recruitment Stage', () => {
     const before = await getReport6();
 
     await addMilestone(applicantId, jobTempId, {
-      status:
-        RECRUITMENT_STAGE_STATUSES[
-          STATUS.JOB_OFFER_ACCEPTED as keyof typeof RECRUITMENT_STAGE_STATUSES
-        ],
+      status: RECRUITMENT_STAGE_STATUSES[STATUS.JOB_OFFER_ACCEPTED],
     });
 
     const after = await getReport6();
