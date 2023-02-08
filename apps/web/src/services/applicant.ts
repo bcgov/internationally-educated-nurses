@@ -19,10 +19,11 @@ export const getApplicants = async (filter: IENApplicantFilterDTO = {}) => {
   const response = await axios.get<{ data: [ApplicantRO[], number] }>(
     `/ien?${convertToParams(filter)}`,
   );
-  const {
-    data: [data, count],
-  } = response.data;
-  return { data, count };
+  if (Array.isArray(response?.data?.data)) {
+    const [data, count] = response.data.data;
+    return { data, count };
+  }
+  return { data: [], count: 0 };
 };
 
 // get applicant details

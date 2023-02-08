@@ -17,18 +17,18 @@ export const getEmployees = async (
       : parameter[0] && parameter[1] && params.append(parameter[0], parameter[1].toString());
   });
   try {
-    const { data } = await axios.get<{ data: [EmployeeRO[], number] }>(
+    const response = await axios.get<{ data: [EmployeeRO[], number] }>(
       `/employee/list/all?${params.toString()}`,
     );
-    return data?.data;
+    return response?.data?.data;
   } catch (e) {
     return undefined;
   }
 };
 
 export const getEmployee = async (id?: string): Promise<EmployeeRO> => {
-  const { data } = await axios.get<{ data: EmployeeRO }>(id ? `/employee/${id}` : '/employee');
-  return data?.data;
+  const response = await axios.get<{ data: EmployeeRO }>(id ? `/employee/${id}` : '/employee');
+  return response?.data?.data;
 };
 
 export const updateRoles = async (
