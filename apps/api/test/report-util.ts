@@ -4,6 +4,8 @@ import {
   IENApplicantCreateUpdateDTO,
   NursingEducationDTO,
   IENApplicantJobCreateUpdateDTO,
+  IENApplicantAddStatusDTO,
+  STATUS,
 } from '@ien/common';
 
 interface EducationOptions {
@@ -15,18 +17,6 @@ interface EducationOptions {
 
 interface ApplicantOptions {
   between?: [string, string];
-}
-
-interface JobOptions {
-  ha_pcn: string;
-  job_id: string;
-  recruiter_name?: string;
-}
-
-interface MilestoneOptions {
-  status: string;
-  job_id: string;
-  start_date?: string;
 }
 
 export const getApplicant = (options?: ApplicantOptions): IENApplicantCreateUpdateDTO => {
@@ -74,6 +64,17 @@ export const COUNTRY_OF_EDUCATIONS = {
   'n/a': 'n/a',
 };
 
+export const RECRUITMENT_STAGE_STATUSES = {
+  [STATUS.JOB_OFFER_ACCEPTED]: '70b1f5f1-1a0d-ef71-42ea-3a0601b46bc2',
+  [STATUS.REFERENCE_CHECK_PASSED]: 'D875B680-F027-46B7-05A5-3A0601B3A0E1',
+  [STATUS.INTERVIEW_PASSED]: 'BD91E596-8F9A-0C98-8B9C-3A0601B2A18B',
+};
+
+export const IMMIGRATION_STAGE_STATUSES = {
+  [STATUS.SENT_FIRST_STEPS_DOCUMENT]: '4d435c42-f588-4174-bb1e-1fe086b23214',
+  [STATUS.RECEIVED_WORK_PERMIT_APPROVAL_LETTER]: 'caa18ecd-fea5-459e-af27-bca15ac26133',
+};
+
 export const getEducation = (options?: EducationOptions): NursingEducationDTO => {
   const { country, year, name } = options || {};
   return {
@@ -84,22 +85,18 @@ export const getEducation = (options?: EducationOptions): NursingEducationDTO =>
   };
 };
 
-export const RECRUITMENT_STAGE_STATUSES = {
-  'Job Offer Accepted': '70b1f5f1-1a0d-ef71-42ea-3a0601b46bc2',
-  'Candidate Passed Reference Check': 'D875B680-F027-46B7-05A5-3A0601B3A0E1',
-  'Candidate Passed Interview': 'BD91E596-8F9A-0C98-8B9C-3A0601B2A18B',
-};
-
-export const getJob = (options: JobOptions): IENApplicantJobCreateUpdateDTO => {
+export const getJob = (options: IENApplicantJobCreateUpdateDTO): IENApplicantJobCreateUpdateDTO => {
   const { ha_pcn, recruiter_name, job_id } = options || {};
   return {
     ha_pcn: ha_pcn,
     recruiter_name: recruiter_name || faker.name.fullName(),
-    job_id: job_id + faker.animal.bear() + faker.animal.insect(),
+    job_id:
+      job_id + faker.animal.bear() + faker.animal.insect() ||
+      faker.animal.cow() + faker.animal.rodent(),
   };
 };
 
-export const getMilestone = (options: MilestoneOptions) => {
+export const getMilestone = (options: IENApplicantAddStatusDTO): IENApplicantAddStatusDTO => {
   const { status, job_id, start_date } = options || {};
   return {
     status: status,

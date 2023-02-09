@@ -2,19 +2,14 @@ import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 
-import { IENApplicantCreateUpdateDTO, STATUS } from '@ien/common';
+import { STATUS } from '@ien/common';
 import { AppModule } from 'src/app.module';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { URLS } from './constants';
 import { canActivate } from './override-guard';
-import {
-  getApplicant,
-  getIndexOfStatus,
-  getJob,
-  getMilestone,
-  RECRUITMENT_STAGE_STATUSES,
-} from './report-util';
+import { getApplicant, getIndexOfStatus, RECRUITMENT_STAGE_STATUSES } from './report-util';
 import { IENHaPcn } from 'src/applicant/entity/ienhapcn.entity';
+import { addApplicant, addJob, addMilestone, getHAs, setApp } from './report-request-util';
 
 describe('Report 6 - Registrants in Recruitment Stage', () => {
   let app: INestApplication;
@@ -30,7 +25,6 @@ describe('Report 6 - Registrants in Recruitment Stage', () => {
   let lastHa = '';
 
   const PHSA = 'Provincial Health Services';
-  const NHA = 'Northern Health';
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -42,14 +36,15 @@ describe('Report 6 - Registrants in Recruitment Stage', () => {
 
     app = moduleFixture.createNestApplication();
     await app.init();
+    setApp(app);
 
-    const { body: authorities } = await request(app.getHttpServer()).get('/ienmaster/ha-pcn');
-    // remove 'Authority' from end of HA strings
-    authorities.forEach((e: IENHaPcn) => {
-      e.title = e.title.substring(0, e.title.lastIndexOf(' '));
-    });
-    HA = authorities;
+    HA = await getHAs();
     lastHa = HA[HA.length - 1].title;
+
+    const report = await getReport6();
+    refCheckIndex = getIndexOfStatus(report, STATUS.REFERENCE_CHECK_PASSED);
+    intvwIndex = getIndexOfStatus(report, STATUS.INTERVIEW_PASSED);
+    jobAcceptedIndex = getIndexOfStatus(report, STATUS.JOB_OFFER_ACCEPTED);
   });
 
   afterAll(async () => {
@@ -61,37 +56,6 @@ describe('Report 6 - Registrants in Recruitment Stage', () => {
     return body;
   };
 
-  const addApplicant = async (applicant: IENApplicantCreateUpdateDTO) => {
-    const { body } = await request(app.getHttpServer()).post('/ien').send(applicant);
-    return body;
-  };
-
-  // add a job
-  const addJob = async (id: string, ha_pcn: string, job_id: string) => {
-    const addJobUrl = `/ien/${id}/job`;
-    const job = getJob({ ha_pcn, job_id });
-    const { body } = await request(app.getHttpServer())
-      .post(addJobUrl)
-      .expect(({ body }) => (jobTempId = body.id))
-      .send(job);
-
-    return body;
-  };
-
-  // add a milestone
-  const addMilestone = async (id: string, status_id: string, start_date?: string) => {
-    const addStatusUrl = `/ien/${id}/status`;
-    const milestone = getMilestone({
-      status: status_id,
-      job_id: jobTempId,
-      start_date: start_date,
-    });
-
-    const { body } = await request(app.getHttpServer()).post(addStatusUrl).send(milestone);
-    applicantId = id;
-    applicantStatusId = body.id;
-  };
-
   it('Add Recruitment related statuses for all HAs', async () => {
     const before = await getReport6();
 
@@ -99,18 +63,17 @@ describe('Report 6 - Registrants in Recruitment Stage', () => {
       const applicant = getApplicant();
       applicant.registration_date = '2022-06-01';
       const { id } = await addApplicant(applicant);
+      applicantId = id;
 
-      await addJob(id, HA[i].id, i.toString());
-      await addMilestone(
-        id,
-        RECRUITMENT_STAGE_STATUSES[
-          STATUS.REFERENCE_CHECK_PASSED as keyof typeof RECRUITMENT_STAGE_STATUSES
-        ],
-      );
+      const job = await addJob(id, { ha_pcn: HA[i].id, job_id: i.toString(), recruiter_name: '' });
+      jobTempId = job.id;
+
+      await addMilestone(id, jobTempId, {
+        status: RECRUITMENT_STAGE_STATUSES[STATUS.REFERENCE_CHECK_PASSED],
+      });
     }
 
     const after = await getReport6();
-    refCheckIndex = getIndexOfStatus(after, STATUS.REFERENCE_CHECK_PASSED);
 
     for (let i = 0; i < HA.length; i++) {
       expect(Number(after[refCheckIndex][HA[i].title])).toBe(
@@ -123,16 +86,20 @@ describe('Report 6 - Registrants in Recruitment Stage', () => {
     const before = await getReport6();
     const phsaIndex = HA.findIndex(ha => ha.title === PHSA);
 
-    await addJob(applicantId, HA[phsaIndex].id, 'TestTwoStatusSameApplicant');
-    await addMilestone(
-      applicantId,
-      RECRUITMENT_STAGE_STATUSES[
-        STATUS.INTERVIEW_PASSED as keyof typeof RECRUITMENT_STAGE_STATUSES
-      ],
-    );
+    const job = await addJob(applicantId, {
+      ha_pcn: HA[phsaIndex].id,
+      job_id: 'TwoStatusApp',
+      recruiter_name: '',
+    });
+    jobTempId = job.id;
+
+    const status = await addMilestone(applicantId, jobTempId, {
+      status: RECRUITMENT_STAGE_STATUSES[STATUS.INTERVIEW_PASSED],
+    });
+    applicantId = applicantId;
+    applicantStatusId = status.id;
 
     const after = await getReport6();
-    intvwIndex = getIndexOfStatus(after, STATUS.INTERVIEW_PASSED);
 
     expect(Number(after[intvwIndex][PHSA])).toBe(Number(before[intvwIndex][PHSA]) + 1);
 
@@ -159,15 +126,11 @@ describe('Report 6 - Registrants in Recruitment Stage', () => {
   it('Add Job Accepted to Provincial Health Services', async () => {
     const before = await getReport6();
 
-    await addMilestone(
-      applicantId,
-      RECRUITMENT_STAGE_STATUSES[
-        STATUS.JOB_OFFER_ACCEPTED as keyof typeof RECRUITMENT_STAGE_STATUSES
-      ],
-    );
+    await addMilestone(applicantId, jobTempId, {
+      status: RECRUITMENT_STAGE_STATUSES[STATUS.JOB_OFFER_ACCEPTED],
+    });
 
     const after = await getReport6();
-    jobAcceptedIndex = getIndexOfStatus(after, STATUS.JOB_OFFER_ACCEPTED);
 
     expect(Number(after[jobAcceptedIndex][PHSA])).toBe(Number(before[jobAcceptedIndex][PHSA]) + 1);
     // should remove all other counts once an applicant accepts job offer
