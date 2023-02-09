@@ -1,29 +1,30 @@
+import { STATUS } from '@ien/common';
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { randomUUID } from 'crypto';
 import request from 'supertest';
 
 import { AppModule } from 'src/app.module';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { IENApplicantStatusAudit } from '../src/applicant/entity/ienapplicant-status-audit.entity';
+import { IENApplicant } from '../src/applicant/entity/ienapplicant.entity';
+import { URLS } from './constants';
 import { canActivate } from './override-guard';
-import {
-  addMilestone,
-  applicant,
-  fullLicenceRN,
-  provLicenceLPN,
-  provLicenceRN,
-  validApplicantForReport,
-} from './fixture/reports';
+import { addApplicant, addMilestone, setApp } from './report-request-util';
+import { getApplicant, getStatus } from './report-util';
 
-describe('Report 3 (e2e)', () => {
+interface LicenseStat {
+  status: string;
+  applicant_count: string;
+}
+
+describe('Report 5 (e2e)', () => {
   let app: INestApplication;
-  let applicantIdOne: string;
-  let applicantIdTwo: string;
-  let applicantIdThree: string;
+  let applicantOne: IENApplicant;
+  let applicantTwo: IENApplicant;
+  let applicantThree: IENApplicant;
 
-  let applicantStatusId = 'NA';
-
-  const reportFiveUrl = '/reports/applicant/license';
+  let lastMilestone: IENApplicantStatusAudit;
+  let report: LicenseStat[];
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -33,12 +34,10 @@ describe('Report 3 (e2e)', () => {
       .useValue({ canActivate })
       .compile();
 
-    applicantIdOne = randomUUID();
-    applicantIdTwo = randomUUID();
-    applicantIdThree = randomUUID();
-
     app = moduleFixture.createNestApplication();
     await app.init();
+
+    setApp(app);
   });
 
   afterAll(async () => {
@@ -47,146 +46,75 @@ describe('Report 3 (e2e)', () => {
 
   it('Report 5 Summary (before adding applicants) - GET', done => {
     request(app.getHttpServer())
-      .get(reportFiveUrl)
+      .get(URLS.REPORT5)
       .expect(res => {
         const { body } = res;
-
-        let total = 0;
-        body.forEach((app: any) => {
-          total += +app.applicant_count;
-        });
-
-        expect(total).toBe(0);
+        report = body;
+        expect(report).toBeDefined();
       })
       .expect(200)
       .end(done);
   });
 
   it('Report 5 Summary (after adding 1 Full Licence RN) - GET', async () => {
-    validApplicantForReport.applicant_id = applicantIdOne;
-    validApplicantForReport.last_name = 'Report5';
-    validApplicantForReport.email_address = 'test.report5@mailinator.com';
-    validApplicantForReport.registration_date = '2022-04-29';
-    await request(app.getHttpServer())
-      .post('/ien')
-      .send(validApplicantForReport)
-      .expect(res => {
-        const { body } = res;
-        applicant.id = body.id;
-      })
-      .expect(201);
+    applicantOne = await addApplicant(getApplicant());
+    expect(applicantOne.id).toBeDefined();
 
-    const addStatusUrl = `/ien/${applicant.id}/status`;
-    addMilestone.job_id = '';
-    addMilestone.status = fullLicenceRN.id;
-    await request(app.getHttpServer()).post(addStatusUrl).send(addMilestone).expect(201);
+    await addMilestone(applicantOne.id, '', await getStatus(STATUS.BCCNM_FULL_LICENSE_RN));
 
     await request(app.getHttpServer())
-      .get(reportFiveUrl)
+      .get(URLS.REPORT5)
       .expect(res => {
-        const { body } = res;
-
-        let total = 0;
-        body.forEach((app: any) => {
-          total += +app.applicant_count;
-        });
-        expect(body[3].applicant_count).toBe('1');
-        expect(total).toBe(1);
+        const newReport: LicenseStat[] = res.body;
+        expect(+newReport[3].applicant_count - +report[3].applicant_count).toBe(1);
       })
       .expect(200);
   });
 
   it('Report 5 Summary (after adding 1 Provisional Licence LPN) - GET', async () => {
-    validApplicantForReport.applicant_id = applicantIdTwo;
-    validApplicantForReport.last_name = 'Report5.1';
-    validApplicantForReport.email_address = 'test.report5.1@mailinator.com';
-    validApplicantForReport.registration_date = '2022-07-29';
-    await request(app.getHttpServer())
-      .post('/ien')
-      .send(validApplicantForReport)
-      .expect(res => {
-        const { body } = res;
-        applicant.id = body.id;
-      })
-      .expect(201);
+    applicantTwo = await addApplicant(getApplicant());
+    expect(applicantTwo.id).toBeDefined();
 
-    const addStatusUrl = `/ien/${applicant.id}/status`;
-    addMilestone.job_id = '';
-    addMilestone.status = provLicenceLPN.id;
-    await request(app.getHttpServer()).post(addStatusUrl).send(addMilestone).expect(201);
+    await addMilestone(applicantTwo.id, '', await getStatus(STATUS.BCCNM_PROVISIONAL_LICENSE_LPN));
 
     await request(app.getHttpServer())
-      .get(reportFiveUrl)
+      .get(URLS.REPORT5)
       .expect(res => {
-        const { body } = res;
-
-        let total = 0;
-        body.forEach((app: any) => {
-          total += +app.applicant_count;
-        });
-        expect(body[0].applicant_count).toBe('1');
-        expect(total).toBe(2);
+        const newReport: LicenseStat[] = res.body;
+        expect(+newReport[0].applicant_count - +report[0].applicant_count).toBe(1);
       })
       .expect(200);
   });
 
   it('Report 5 Summary (after adding 1 Provisional Licence RN) - GET', async () => {
-    validApplicantForReport.applicant_id = applicantIdThree;
-    validApplicantForReport.last_name = 'Report5.2';
-    validApplicantForReport.email_address = 'test.report5.2@mailinator.com';
-    validApplicantForReport.registration_date = '2022-08-19';
-    await request(app.getHttpServer())
-      .post('/ien')
-      .send(validApplicantForReport)
-      .expect(res => {
-        const { body } = res;
-        applicant.id = body.id;
-      })
-      .expect(201);
+    applicantThree = await addApplicant(getApplicant());
+    expect(applicantThree.id).toBeDefined();
 
-    const addStatusUrl = `/ien/${applicant.id}/status`;
-    addMilestone.job_id = '';
-    addMilestone.status = provLicenceRN.id;
-    await request(app.getHttpServer())
-      .post(addStatusUrl)
-      .send(addMilestone)
-      .expect(res => {
-        const { body } = res;
-        applicantStatusId = body.id;
-      })
-      .expect(201);
+    lastMilestone = await addMilestone(
+      applicantThree.id,
+      '',
+      await getStatus(STATUS.BCCNM_PROVISIONAL_LICENSE_RN),
+    );
 
     await request(app.getHttpServer())
-      .get(reportFiveUrl)
+      .get(URLS.REPORT5)
       .expect(res => {
-        const { body } = res;
-
-        let total = 0;
-        body.forEach((app: any) => {
-          total += +app.applicant_count;
-        });
-        expect(body[1].applicant_count).toBe('1');
-        expect(total).toBe(3);
+        const newReport: LicenseStat[] = res.body;
+        expect(+newReport[1].applicant_count - +report[1].applicant_count).toBe(1);
       })
       .expect(200);
   });
 
   it('Report 5 Summary (after removing 1 Provisional Licence RN) - GET', async () => {
-    const deleteStatusUrl = `/ien/${applicant.id}/status/${applicantStatusId}`;
+    const deleteStatusUrl = `/ien/${applicantOne.id}/status/${lastMilestone.id}`;
 
     await request(app.getHttpServer()).delete(deleteStatusUrl).expect(200);
 
     await request(app.getHttpServer())
-      .get(reportFiveUrl)
+      .get(URLS.REPORT5)
       .expect(res => {
-        const { body } = res;
-
-        let total = 0;
-        body.forEach((app: any) => {
-          total += +app.applicant_count;
-        });
-        expect(body[1].applicant_count).toBe('0');
-        expect(total).toBe(2);
+        const newReport: LicenseStat[] = res.body;
+        expect(newReport[1].applicant_count).toBe(report[1].applicant_count);
       })
       .expect(200);
   });

@@ -7,7 +7,7 @@ import { AppModule } from 'src/app.module';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { URLS } from './constants';
 import { canActivate } from './override-guard';
-import { getApplicant, getIndexOfStatus, RECRUITMENT_STAGE_STATUSES } from './report-util';
+import { getApplicant, getIndexOfStatus, getStatusId } from './report-util';
 import { IENHaPcn } from 'src/applicant/entity/ienhapcn.entity';
 import { addApplicant, addJob, addMilestone, getHAs, setApp } from './report-request-util';
 
@@ -69,7 +69,7 @@ describe('Report 6 - Registrants in Recruitment Stage', () => {
       jobTempId = job.id;
 
       await addMilestone(id, jobTempId, {
-        status: RECRUITMENT_STAGE_STATUSES[STATUS.REFERENCE_CHECK_PASSED],
+        status: await getStatusId(STATUS.REFERENCE_CHECK_PASSED),
       });
     }
 
@@ -94,7 +94,7 @@ describe('Report 6 - Registrants in Recruitment Stage', () => {
     jobTempId = job.id;
 
     const status = await addMilestone(applicantId, jobTempId, {
-      status: RECRUITMENT_STAGE_STATUSES[STATUS.INTERVIEW_PASSED],
+      status: await getStatusId(STATUS.INTERVIEW_PASSED),
     });
     applicantId = applicantId;
     applicantStatusId = status.id;
@@ -127,7 +127,7 @@ describe('Report 6 - Registrants in Recruitment Stage', () => {
     const before = await getReport6();
 
     await addMilestone(applicantId, jobTempId, {
-      status: RECRUITMENT_STAGE_STATUSES[STATUS.JOB_OFFER_ACCEPTED],
+      status: await getStatusId(STATUS.JOB_OFFER_ACCEPTED),
     });
 
     const after = await getReport6();
