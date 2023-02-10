@@ -126,4 +126,27 @@ describe('Report 8 - Registrants Working in BC', () => {
     // total count
     expect(Number(after[HA.length]['total'])).toBe(Number(before[HA.length]['total']));
   });
+
+  it('Ignores applicant outside fiscal year', async () => {
+    const before = await getReport8();
+
+    const applicant = getApplicant();
+    applicant.registration_date = '2020-06-01';
+    const { id } = await addApplicant(applicant);
+
+    const job = await addJob(id, { ha_pcn: HA[6].id, job_id: '1', recruiter_name: '' });
+
+    // add hired milestone - should only count hired applicants
+    await addMilestone(id, job.id, {
+      status: RECRUITMENT_STAGE_STATUSES[STATUS.JOB_OFFER_ACCEPTED],
+    });
+
+    await addMilestone(id, '', {
+      status: IMMIGRATION_STAGE_STATUSES[STATUS.RECEIVED_WORK_PERMIT],
+      start_date: '2021-01-01',
+    });
+    const after = await getReport8();
+
+    expect(JSON.stringify(after)).toBe(JSON.stringify(before));
+  });
 });
