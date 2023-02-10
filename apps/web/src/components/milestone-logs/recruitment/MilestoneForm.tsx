@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FieldProps, Formik, Form as FormikForm, FormikHelpers } from 'formik';
+import { FieldProps, Formik, Form as FormikForm, FormikHelpers, FormikProps } from 'formik';
 import createValidator from 'class-validator-formik';
 import ReactSelect from 'react-select';
 import dayjs from 'dayjs';
@@ -90,13 +90,19 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
     }
   };
 
-  const handleOutcomeType = (group: string, setFieldValue: FormikHelpers<T>['setFieldValue']) => {
+  const handleOutcomeType = (group: string, { setFieldValue, setFieldTouched }: FormikProps<T>) => {
     const outcomeGroup = Object.values(OutcomeGroups).find(({ value }) => value === group);
 
     if (outcomeGroup?.value === `${STATUS.REFERRAL_ACKNOWLEDGED}`) {
       const milestoneId = milestones.find(s => s.status == outcomeGroup?.value);
       setFieldValue('status', milestoneId?.id);
+    } else {
+      setFieldValue('status', '');
+      setFieldTouched('status', false);
     }
+    setFieldValue('reason', '');
+    setFieldTouched('reason', false);
+    setOutcome(undefined);
     setOutcomeGroup(outcomeGroup || null);
   };
 
@@ -136,7 +142,7 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
           onSubmit={submit}
           validate={milestoneValidator}
         >
-          {({ isSubmitting, setFieldValue }) => (
+          {props => (
             <FormikForm>
               <div className='grid grid-cols-12 gap-y-2 mb-2 content-end'>
                 <div className='col-span-12 sm:col-span-6'>
@@ -144,7 +150,7 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
                     id='outcomeType'
                     label='Milestone'
                     onChange={val => {
-                      handleOutcomeType(val, setFieldValue);
+                      handleOutcomeType(val, props);
                     }}
                     options={OutcomeGroups}
                     value={outcomeGroup?.value || ''}
@@ -256,9 +262,9 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
               <div className='mt-12'>
                 <Button
                   variant={milestone ? 'primary' : 'outline'}
-                  disabled={isSubmitting}
+                  disabled={props.isSubmitting}
                   type='submit'
-                  loading={isSubmitting}
+                  loading={props.isSubmitting}
                 >
                   {milestone ? 'Save Changes' : 'Save Milestone'}
                 </Button>
