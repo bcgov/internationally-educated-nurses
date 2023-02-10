@@ -1,12 +1,14 @@
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-
+import { faker } from '@faker-js/faker';
 import {
+  Authorities,
   IENApplicantAddStatusDTO,
   IENApplicantCreateUpdateDTO,
   IENApplicantJobCreateUpdateDTO,
+  STATUS,
 } from '@ien/common';
-import { getJob, getMilestone } from './report-util';
+import { getHaId, getJob, getMilestone, getStatus } from './report-util';
 import { IENHaPcn } from 'src/applicant/entity/ienhapcn.entity';
 
 let app: INestApplication;
@@ -56,4 +58,14 @@ export const addMilestone = async (id: string, job_id: string, s: IENApplicantAd
 
   const { body } = await request(app.getHttpServer()).post(addStatusUrl).send(milestone);
   return body;
+};
+
+export const hire = async (id: string, ha: keyof typeof Authorities, start: string) => {
+  const ha_pcn = await getHaId(ha);
+  const job = await addJob(id, { ha_pcn, recruiter_name: faker.name.fullName() });
+
+  // add hired milestone - should only count hired applicants
+  await addMilestone(id, job.id, await getStatus(STATUS.JOB_OFFER_ACCEPTED, start));
+
+  return job;
 };

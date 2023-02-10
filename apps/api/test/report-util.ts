@@ -6,7 +6,12 @@ import {
   IENApplicantJobCreateUpdateDTO,
   IENApplicantAddStatusDTO,
   STATUS,
+  Authorities,
 } from '@ien/common';
+import { getRepository } from 'typeorm';
+import { IENApplicantStatusAudit } from '../src/applicant/entity/ienapplicant-status-audit.entity';
+import { IENApplicantStatus } from '../src/applicant/entity/ienapplicant-status.entity';
+import { IENHaPcn } from '../src/applicant/entity/ienhapcn.entity';
 
 interface EducationOptions {
   count?: number;
@@ -64,17 +69,6 @@ export const COUNTRY_OF_EDUCATIONS = {
   'n/a': 'n/a',
 };
 
-export const RECRUITMENT_STAGE_STATUSES = {
-  [STATUS.JOB_OFFER_ACCEPTED]: '70b1f5f1-1a0d-ef71-42ea-3a0601b46bc2',
-  [STATUS.REFERENCE_CHECK_PASSED]: 'D875B680-F027-46B7-05A5-3A0601B3A0E1',
-  [STATUS.INTERVIEW_PASSED]: 'BD91E596-8F9A-0C98-8B9C-3A0601B2A18B',
-};
-
-export const IMMIGRATION_STAGE_STATUSES = {
-  [STATUS.SENT_FIRST_STEPS_DOCUMENT]: '4d435c42-f588-4174-bb1e-1fe086b23214',
-  [STATUS.RECEIVED_WORK_PERMIT_APPROVAL_LETTER]: 'caa18ecd-fea5-459e-af27-bca15ac26133',
-};
-
 export const getEducation = (options?: EducationOptions): NursingEducationDTO => {
   const { country, year, name } = options || {};
   return {
@@ -107,4 +101,39 @@ export const getMilestone = (options: IENApplicantAddStatusDTO): IENApplicantAdd
 
 export const getIndexOfStatus = (arr: unknown[], compareTo: string) => {
   return arr.findIndex((v: any) => v.status === compareTo);
+};
+
+export const getStatusId = async (status: STATUS): Promise<string> => {
+  const result = await getRepository(IENApplicantStatus).findOne({ status });
+  return result?.id || '';
+};
+
+export const getStatus = async (
+  status: STATUS,
+  start?: string,
+): Promise<IENApplicantAddStatusDTO> => {
+  return {
+    status: await getStatusId(status),
+    start_date: start || dayjs().format('YYYY-MM-DD'),
+  };
+};
+
+export const clearMilestones = async () => {
+  const repository = getRepository(IENApplicantStatusAudit);
+  await repository.clear();
+};
+
+export const getHaId = async (ha: keyof typeof Authorities): Promise<string> => {
+  const result = await getRepository(IENHaPcn).findOne({ abbreviation: ha });
+  return result?.id || '';
+};
+
+/**
+ *
+ * @param date
+ * @param days number of days to be added
+ * @return date in the format of 'YYYY-MM-DD'
+ */
+export const addDays = (date: string, days: number) => {
+  return dayjs(date).add(days, 'days').format('YYYY-MM-DD');
 };

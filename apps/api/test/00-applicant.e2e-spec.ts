@@ -1,26 +1,21 @@
+import { IENApplicantCreateUpdateDTO } from '@ien/common';
+import { IENApplicant } from '../src/applicant/entity/ienapplicant.entity';
 import { AuthGuard } from '../src/auth/auth.guard';
 
 require('../env');
 import request from 'supertest';
 import { Test, TestingModule } from '@nestjs/testing';
-import { ExecutionContext, INestApplication } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { randomUUID } from 'crypto';
 
 import { AppModule } from '../src/app.module';
 import { IENHaPcn } from 'src/applicant/entity/ienhapcn.entity';
-import {
-  validApplicant,
-  applicant,
-  addJob,
-  seedHa,
-  addMilestone,
-  seedUser,
-  invalidMilestoneToUpdate,
-} from './fixture/ien';
+import { addJob, seedHa, addMilestone, seedUser, invalidMilestoneToUpdate } from './fixture/ien';
 import { IENUsers } from 'src/applicant/entity/ienusers.entity';
 import { canActivate } from './override-guard';
+import { addApplicant, setApp } from './report-request-util';
+import { getApplicant } from './report-util';
 
 let jobTempId = '08ff7e3f-2178-43d3-9740-5a255aa0d5ff';
 let applicantStatusId = 'NA';
@@ -29,8 +24,9 @@ describe('ApplicantController (e2e)', () => {
   let app: INestApplication;
   let ienHaPcnRepository: Repository<IENHaPcn>;
   let ienUsersRepository: Repository<IENUsers>;
-  let applicanIdOne: string;
-  let applicanIdTwo: string;
+  let applicantDto: IENApplicantCreateUpdateDTO;
+  let applicant: IENApplicant;
+  let applicantCount: number;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -39,10 +35,11 @@ describe('ApplicantController (e2e)', () => {
       .overrideGuard(AuthGuard)
       .useValue({ canActivate })
       .compile();
-    applicanIdOne = randomUUID();
-    applicanIdTwo = randomUUID();
+
     app = moduleFixture.createNestApplication();
     await app.init();
+
+    setApp(app);
 
     // Let's add some seed for required master table
     ienHaPcnRepository = moduleFixture.get(getRepositoryToken(IENHaPcn));
@@ -56,36 +53,33 @@ describe('ApplicantController (e2e)', () => {
     await app.close();
   });
 
-  it('Add Applicant /ien (POST)', done => {
-    validApplicant.applicant_id = applicanIdOne;
+  it('List applicants', done => {
     request(app.getHttpServer())
-      .post('/ien')
-      .send(validApplicant)
+      .get('/ien')
       .expect(res => {
         const { body } = res;
-        applicant.id = body.id;
+        applicantCount = body[1];
+        expect(applicantCount).toBeDefined();
       })
-      .expect(201)
+      .expect(200)
       .end(done);
   });
 
-  it('Duplicate applicant /ien (POST)', done => {
-    request(app.getHttpServer())
-      .post('/ien')
-      .send(validApplicant)
-      .expect(res => {
-        const { body } = res;
-        expect(body.message).toContain('already');
-      })
-      .expect(400)
-      .end(done);
+  it('Add Applicant /ien (POST)', async () => {
+    applicantDto = getApplicant();
+    const { id } = await addApplicant(applicantDto);
+    expect(id).toBeDefined();
   });
 
-  it('Add second Applicant /ien (POST) ', done => {
-    validApplicant.applicant_id = applicanIdTwo;
-    validApplicant.last_name = 'notexample';
-    validApplicant.email_address = 'test.example2@mailinator.com';
-    request(app.getHttpServer()).post('/ien').send(validApplicant).expect(201).end(done);
+  it('Duplicate applicant /ien (POST)', async () => {
+    const { message } = await addApplicant(applicantDto);
+    expect(message).toContain('already');
+  });
+
+  it('Add second Applicant /ien (POST) ', async () => {
+    const second = getApplicant();
+    applicant = await addApplicant(second);
+    expect(applicant.id).toBeDefined();
   });
 
   it('Fetch applicants list /ien (GET)', done => {
@@ -93,15 +87,15 @@ describe('ApplicantController (e2e)', () => {
       .get('/ien')
       .expect(res => {
         const { body } = res;
-        expect(body[1]).toBe(2);
+        expect(body[1]).toBe(applicantCount + 2);
       })
       .expect(200)
       .end(done);
   });
 
-  it('Filter applicants by name /ien?name=notexample (GET)', done => {
+  it('Filter applicants by name /ien?name= (GET)', done => {
     request(app.getHttpServer())
-      .get('/ien?name=notexample')
+      .get(`/ien?name=${applicant.name}`)
       .expect(res => {
         const { body } = res;
         expect(body[1]).toBe(1);
@@ -232,7 +226,7 @@ describe('ApplicantController (e2e)', () => {
       .expect(res => {
         const { body } = res;
         expect(body.jobs.length).toBe(1);
-        expect(body.applicant_id).toBe(`${applicanIdOne}`);
+        expect(body.applicant_id).toBe(`${applicant.applicant_id}`);
       })
       .expect(200)
       .end(done);

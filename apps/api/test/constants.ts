@@ -8,5 +8,6 @@ export const URLS = {
   REPORT7: '/reports/applicant/immigration',
   REPORT8: '/reports/applicant/ha-current-period-fiscal',
   REPORT9: '/reports/applicant/average-time-with-stakeholder-group',
+  REPORT10: '/reports/applicant/average-time-of-milestones',
   IEN: '/ien',
 };
