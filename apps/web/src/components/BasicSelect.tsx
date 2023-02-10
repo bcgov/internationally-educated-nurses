@@ -54,7 +54,7 @@ export const BasicSelect = <T extends OptionValueType>(props: BasicSelectProps<T
       <ReactSelect<SelectOption<T>>
         inputId={id}
         aria-label={label || `${id} label`}
-        value={options.find(o => o.value === value)}
+        value={value ? options.find(o => o.value === value) : null}
         onChange={option => option && onChange(option.value)}
         getOptionLabel={o => `${o.label || o.value}`}
         isOptionDisabled={o => o.value === value}

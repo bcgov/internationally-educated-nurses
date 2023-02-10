@@ -74,6 +74,8 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
       values.effective_date = undefined;
     }
 
+    setOutcomeGroup(null);
+
     await handleSubmit(values, helpers);
     if (onClose) onClose();
   };
@@ -97,6 +99,8 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
       const milestoneId = milestones.find(s => s.status == outcomeGroup?.value);
       setFieldValue('status', milestoneId?.id);
     }
+
+    setOutcome(undefined);
     setOutcomeGroup(outcomeGroup || null);
   };
 
