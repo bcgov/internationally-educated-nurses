@@ -74,6 +74,7 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
       values.effective_date = undefined;
     }
 
+    setOutcomeGroup(null);
     await handleSubmit(values, helpers);
     if (onClose) onClose();
   };
