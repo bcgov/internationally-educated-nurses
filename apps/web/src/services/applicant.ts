@@ -124,9 +124,12 @@ export const addMilestone = async (
   milestone: IENApplicantAddStatusDTO,
 ): Promise<ApplicantStatusAuditRO | undefined> => {
   try {
-    const response = await axios.post<{ data: ApplicantStatusAuditRO }>(`/ien/${id}/status`, milestone);
-    if(response?.data?.data){
-      return response.data.data
+    const response = await axios.post<{ data: ApplicantStatusAuditRO }>(
+      `/ien/${id}/status`,
+      milestone,
+    );
+    if (response?.data?.data) {
+      return response.data.data;
     }
     return;
   } catch (e) {
