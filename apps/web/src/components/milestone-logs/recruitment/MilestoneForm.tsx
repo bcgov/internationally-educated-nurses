@@ -99,8 +99,8 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
       setFieldValue('status', milestoneId?.id);
     } else {
       setFieldValue('status', '');
-      setFieldTouched('status', false);
     }
+    setFieldTouched('status', false);
     setFieldValue('reason', '');
     setFieldTouched('reason', false);
     setOutcome(undefined);
