@@ -34,6 +34,7 @@ describe('Report 8 - Registrants Working in BC', () => {
 
     setApp(app);
     HA = await getHAs();
+    console.log(HA);
   });
 
   afterAll(async () => {
@@ -138,11 +139,11 @@ describe('Report 8 - Registrants Working in BC', () => {
 
     // add hired milestone - should only count hired applicants
     await addMilestone(id, job.id, {
-      status: RECRUITMENT_STAGE_STATUSES[STATUS.JOB_OFFER_ACCEPTED],
+      status: await getStatusId(STATUS.JOB_OFFER_ACCEPTED),
     });
 
     await addMilestone(id, '', {
-      status: IMMIGRATION_STAGE_STATUSES[STATUS.RECEIVED_WORK_PERMIT],
+      status: await getStatusId(STATUS.RECEIVED_WORK_PERMIT),
       start_date: '2021-01-01',
     });
     const after = await getReport8();
