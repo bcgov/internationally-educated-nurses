@@ -1,23 +1,22 @@
 import { INestApplication } from '@nestjs/common';
 import { TestingModule, Test } from '@nestjs/testing';
 import request from 'supertest';
+import dayjs from 'dayjs';
 
 import { AppModule } from 'src/app.module';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { URLS } from './constants';
 import { canActivate } from './override-guard';
 import { IENHaPcn } from 'src/applicant/entity/ienhapcn.entity';
-import { addApplicant, addJob, addMilestone, getHAs, setApp } from './report-request-util';
+import { addApplicant, addMilestone, getHAs, hire, setApp } from './report-request-util';
 import { getApplicant, getStatusId } from './report-util';
 import { STATUS } from '@ien/common';
-import dayjs from 'dayjs';
 
 describe('Report 8 - Registrants Working in BC', () => {
   let app: INestApplication;
-  let jobTempId = '';
-  let applicantStatusId = 'NA';
   let applicantId: string;
   let HA: IENHaPcn[] = [];
+
   const lastYear = dayjs().year() - 1;
   const fiscalDate = dayjs(`${lastYear}-06-06`).format('YYYY-MM-DD');
 
@@ -34,7 +33,6 @@ describe('Report 8 - Registrants Working in BC', () => {
 
     setApp(app);
     HA = await getHAs();
-    console.log(HA);
   });
 
   afterAll(async () => {
@@ -53,17 +51,13 @@ describe('Report 8 - Registrants Working in BC', () => {
     applicant.registration_date = '2022-06-01';
     const { id } = await addApplicant(applicant);
 
-    const job = await addJob(id, { ha_pcn: HA[0].id, job_id: '0', recruiter_name: '' });
-
-    // add hired milestone - should only count hired applicants
-    await addMilestone(id, job.id, {
-      status: await getStatusId(STATUS.JOB_OFFER_ACCEPTED),
-    });
+    await hire(id, 'FNHA', dayjs().format('YYYY-MM-DD'));
 
     await addMilestone(id, '', {
       status: await getStatusId(STATUS.RECEIVED_WORK_PERMIT),
       start_date: fiscalDate,
     });
+
     const after = await getReport8();
 
     // HA count
@@ -83,12 +77,7 @@ describe('Report 8 - Registrants Working in BC', () => {
     const { id } = await addApplicant(applicant);
     applicantId = id;
 
-    const job = await addJob(id, { ha_pcn: HA[1].id, job_id: '1', recruiter_name: '' });
-
-    // add hired milestone - should only count hired applicants
-    await addMilestone(id, job.id, {
-      status: await getStatusId(STATUS.JOB_OFFER_ACCEPTED),
-    });
+    await hire(id, 'FHA', dayjs().format('YYYY-MM-DD'));
 
     await addMilestone(id, '', {
       status: await getStatusId(STATUS.RECEIVED_WORK_PERMIT),
@@ -107,13 +96,7 @@ describe('Report 8 - Registrants Working in BC', () => {
 
   it('Add duplicate status to different job for same applicant', async () => {
     const before = await getReport8();
-
-    const job = await addJob(applicantId, { ha_pcn: HA[2].id, job_id: '1', recruiter_name: '' });
-
-    // add hired milestone - should only count hired applicants
-    await addMilestone(applicantId, job.id, {
-      status: await getStatusId(STATUS.JOB_OFFER_ACCEPTED),
-    });
+    await hire(applicantId, 'IHA', dayjs().format('YYYY-MM-DD'));
 
     await addMilestone(applicantId, '', {
       status: await getStatusId(STATUS.RECEIVED_WORK_PERMIT),
@@ -135,12 +118,7 @@ describe('Report 8 - Registrants Working in BC', () => {
     applicant.registration_date = '2020-06-01';
     const { id } = await addApplicant(applicant);
 
-    const job = await addJob(id, { ha_pcn: HA[6].id, job_id: '1', recruiter_name: '' });
-
-    // add hired milestone - should only count hired applicants
-    await addMilestone(id, job.id, {
-      status: await getStatusId(STATUS.JOB_OFFER_ACCEPTED),
-    });
+    await hire(id, 'VCHA', dayjs().format('YYYY-MM-DD'));
 
     await addMilestone(id, '', {
       status: await getStatusId(STATUS.RECEIVED_WORK_PERMIT),
