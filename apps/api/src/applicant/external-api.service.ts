@@ -38,7 +38,6 @@ import { isNewBCCNMProcess } from 'src/common/util';
 @Injectable()
 export class ExternalAPIService {
   applicantRelations: any;
-  OLD_BCCNM_PROCESS_CUT_OFF_DATE = '2023-01-30';
   constructor(
     @Inject(Logger) private readonly logger: AppLogger,
     @Inject(ExternalRequest) private readonly external_request: ExternalRequest,
