@@ -33,6 +33,7 @@ import { IENStatusReason } from './entity/ienstatus-reason.entity';
 import { IENJobTitle } from './entity/ienjobtitles.entity';
 import { IENApplicantStatus } from './entity/ienapplicant-status.entity';
 import { ApplicantSyncRO } from './ro/sync.ro';
+import { isNewBCCNMProcess } from 'src/common/util';
 
 @Injectable()
 export class ExternalAPIService {
@@ -470,9 +471,7 @@ export class ExternalAPIService {
       }) => {
         let assigned_to = null;
 
-        a.new_bccnm_process = dayjs(a.registration_date).isAfter(
-          this.OLD_BCCNM_PROCESS_CUT_OFF_DATE,
-        );
+        a.new_bccnm_process = isNewBCCNMProcess(a.registration_date);
 
         if (Array.isArray(a.assigned_to)) {
           assigned_to = a.assigned_to.map((user: { id: string; name: string }) => {

@@ -1,5 +1,7 @@
 import dayjs from 'dayjs';
 
+const OLD_BCCNM_PROCESS_CUT_OFF_DATE = '2023-01-30';
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function sortStatus(data: any[]): any[] {
   data.sort((a, b) => {
@@ -43,4 +45,11 @@ export function startDateOfFiscal(date: string) {
     fiscalYearStartDate = today.getFullYear() - 1;
   }
   return `${fiscalYearStartDate}-04-01`;
+}
+
+export function isNewBCCNMProcess(registration_date: string | Date | undefined) {
+  if (!registration_date) {
+    return false;
+  }
+  return dayjs(registration_date).isAfter(OLD_BCCNM_PROCESS_CUT_OFF_DATE);
 }

@@ -1,5 +1,5 @@
 import { Exclude } from 'class-transformer';
-import sortStatus from 'src/common/util';
+import sortStatus, { isNewBCCNMProcess } from 'src/common/util';
 import {
   Entity,
   Column,
@@ -13,7 +13,6 @@ import {
   AfterLoad,
   BeforeInsert,
 } from 'typeorm';
-import dayjs from 'dayjs';
 
 import { IENApplicantAudit } from './ienapplicant-audit.entity';
 import { IENApplicantStatusAudit } from './ienapplicant-status-audit.entity';
@@ -22,12 +21,11 @@ import { IENApplicantJob } from './ienjob.entity';
 import { IENUsers } from './ienusers.entity';
 import { ApplicantRO, IENUserRO, NursingEducationDTO } from '@ien/common';
 
-const OLD_BCCNM_PROCESS_CUT_OFF_DATE = '2023-01-30';
 @Entity('ien_applicants')
 export class IENApplicant {
   @BeforeInsert()
   setBCCNMProcess() {
-    this.new_bccnm_process = dayjs(this.registration_date).isAfter(OLD_BCCNM_PROCESS_CUT_OFF_DATE);
+    this.new_bccnm_process = isNewBCCNMProcess(this.registration_date);
   }
 
   @PrimaryGeneratedColumn('uuid')
