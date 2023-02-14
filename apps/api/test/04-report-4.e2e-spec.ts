@@ -1,16 +1,15 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
-import dayjs from 'dayjs';
 
 import { AppModule } from 'src/app.module';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { URLS } from './constants';
 import { canActivate } from './override-guard';
 import { getApplicant, getJob, getMilestone } from './report-util';
-import { HttpResponse } from 'aws-sdk';
 import { IENApplicantCreateUpdateDTO } from '@ien/common/src/dto';
 import { statusArray, statusNames, applicantStatus } from './fixture/reports';
+import { IENApplicantJobCreateUpdateDTO } from '@ien/common';
 
 describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
   let app: INestApplication;
@@ -42,9 +41,9 @@ describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
     return body;
   };
 
-  const addJob = async (id: string, ha_pcn: string, job_id: string) => {
+  const addJob = async (id: string, j: IENApplicantJobCreateUpdateDTO) => {
     const addJobUrl = `/ien/${id}/job`;
-    const job = getJob({ ha_pcn, job_id });
+    const job = getJob({ ha_pcn: j.ha_pcn, job_id: j.job_id, recruiter_name: j.recruiter_name });
     const { body } = await request(app.getHttpServer())
       .post(addJobUrl)
       .expect(({ body }) => (jobTempId = body.id))
@@ -104,7 +103,12 @@ describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
       const newApplicant = getApplicant();
       const applicant = await addApplicant(newApplicant);
       applicantIds.push(applicant.id);
-      await addJob(applicant.id, '6ad69443-e3a8-3cbc-8cc9-3a05e5b771e4', '148593');
+      const jobInput: IENApplicantJobCreateUpdateDTO = {
+        ha_pcn: '6ad69443-e3a8-3cbc-8cc9-3a05e5b771e4',
+        job_id: '148593',
+        recruiter_name: 'Test 4',
+      };
+      await addJob(applicant.id, jobInput);
       await addMilestone(applicant.id, status);
       statusIds.push(applicantStatusId);
     }
