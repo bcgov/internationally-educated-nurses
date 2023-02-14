@@ -37,6 +37,7 @@ import { ApplicantSyncRO } from './ro/sync.ro';
 @Injectable()
 export class ExternalAPIService {
   applicantRelations: any;
+  OLD_BCCNM_PROCESS_CUT_OFF_DATE = '2023-01-30';
   constructor(
     @Inject(Logger) private readonly logger: AppLogger,
     @Inject(ExternalRequest) private readonly external_request: ExternalRequest,
@@ -459,6 +460,7 @@ export class ExternalAPIService {
         phone_number: string;
         countries_of_citizenship: string[] | string;
         country_of_residence: string;
+        new_bccnm_process: boolean;
         bccnm_license_number: string;
         pr_status: string;
         nursing_educations: any;
@@ -467,6 +469,11 @@ export class ExternalAPIService {
         updated_date: string;
       }) => {
         let assigned_to = null;
+
+        a.new_bccnm_process = dayjs(a.registration_date).isAfter(
+          this.OLD_BCCNM_PROCESS_CUT_OFF_DATE,
+        );
+
         if (Array.isArray(a.assigned_to)) {
           assigned_to = a.assigned_to.map((user: { id: string; name: string }) => {
             user.name = users[user.id.toLowerCase()]?.name;
@@ -495,6 +502,7 @@ export class ExternalAPIService {
           registration_date: new Date(a.registration_date),
           country_of_citizenship: citizenship,
           country_of_residence: a?.country_of_residence,
+          new_bccnm_process: a?.new_bccnm_process,
           bccnm_license_number: a?.bccnm_license_number,
           pr_status: a?.pr_status,
           nursing_educations: a?.nursing_educations,

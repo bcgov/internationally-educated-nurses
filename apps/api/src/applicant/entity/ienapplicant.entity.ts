@@ -72,6 +72,9 @@ export class IENApplicant {
   @Column({ default: true })
   is_open!: boolean;
 
+  @Column({ default: false })
+  new_bccnm_process!: boolean;
+
   @ManyToOne(() => IENUsers, user => user.id)
   @JoinColumn({ name: 'added_by_id' })
   added_by!: IENUsers;
@@ -123,6 +126,7 @@ export class IENApplicant {
       status: this.status?.toResponseObject(),
       additional_data: this.additional_data,
       is_open: this.is_open,
+      new_bccnm_process: this.new_bccnm_process,
       added_by: this.added_by,
       updated_by: this.updated_by,
       jobs: this.jobs?.map(job => job.toResponseObject()),
