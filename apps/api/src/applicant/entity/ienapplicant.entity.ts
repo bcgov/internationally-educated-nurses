@@ -1,5 +1,5 @@
 import { Exclude } from 'class-transformer';
-import sortStatus from 'src/common/util';
+import sortStatus, { isNewBCCNMProcess } from 'src/common/util';
 import {
   Entity,
   Column,
@@ -11,7 +11,9 @@ import {
   Index,
   OneToMany,
   AfterLoad,
+  BeforeInsert,
 } from 'typeorm';
+
 import { IENApplicantAudit } from './ienapplicant-audit.entity';
 import { IENApplicantStatusAudit } from './ienapplicant-status-audit.entity';
 import { IENApplicantStatus } from './ienapplicant-status.entity';
@@ -21,6 +23,11 @@ import { ApplicantRO, IENUserRO, NursingEducationDTO } from '@ien/common';
 
 @Entity('ien_applicants')
 export class IENApplicant {
+  @BeforeInsert()
+  setBCCNMProcess() {
+    this.new_bccnm_process = isNewBCCNMProcess(this.registration_date);
+  }
+
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
@@ -71,6 +78,9 @@ export class IENApplicant {
   @Exclude()
   @Column({ default: true })
   is_open!: boolean;
+
+  @Column({ default: false })
+  new_bccnm_process!: boolean;
 
   @ManyToOne(() => IENUsers, user => user.id)
   @JoinColumn({ name: 'added_by_id' })
@@ -123,6 +133,7 @@ export class IENApplicant {
       status: this.status?.toResponseObject(),
       additional_data: this.additional_data,
       is_open: this.is_open,
+      new_bccnm_process: this.new_bccnm_process,
       added_by: this.added_by,
       updated_by: this.updated_by,
       jobs: this.jobs?.map(job => job.toResponseObject()),

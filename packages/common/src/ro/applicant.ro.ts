@@ -25,6 +25,7 @@ export interface ApplicantRO {
   status?: IENApplicantStatusRO;
   additional_data?: JSON;
   is_open: boolean;
+  new_bccnm_process: boolean;
   added_by: IENUserRO | null;
   updated_by?: IENUserRO | null;
   jobs?: ApplicantJobRO[] | null;
