@@ -1,5 +1,5 @@
 import { Inject, Logger } from '@nestjs/common';
-import { floor, mean, median, mode } from 'mathjs';
+import { floor, mean, median, min, mode } from 'mathjs';
 import { getManager, Repository, In } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import dayjs from 'dayjs';
@@ -290,7 +290,7 @@ export class ReportService {
     const data = entries.map((e: any) => e[milestone]).filter(v => v !== null && v >= 0);
     return {
       Mean: data.length ? floor(mean(data), 2) : '',
-      Mode: data.length ? mode(data)[0] : '',
+      Mode: data.length ? min(mode(data)) : '',
       Median: data.length ? median(data) : '',
     };
   }
