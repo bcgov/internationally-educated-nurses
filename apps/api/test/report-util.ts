@@ -12,6 +12,7 @@ import { getRepository } from 'typeorm';
 import { IENApplicantStatusAudit } from '../src/applicant/entity/ienapplicant-status-audit.entity';
 import { IENApplicantStatus } from '../src/applicant/entity/ienapplicant-status.entity';
 import { IENHaPcn } from '../src/applicant/entity/ienhapcn.entity';
+import { ReportTestStatus } from './fixture/reports';
 
 interface EducationOptions {
   count?: number;
@@ -103,13 +104,13 @@ export const getIndexOfStatus = (arr: unknown[], compareTo: string) => {
   return arr.findIndex((v: any) => v.status === compareTo);
 };
 
-export const getStatusId = async (status: STATUS): Promise<string> => {
+export const getStatusId = async (status: STATUS | ReportTestStatus): Promise<string> => {
   const result = await getRepository(IENApplicantStatus).findOne({ status });
   return result?.id || '';
 };
 
 export const getStatus = async (
-  status: STATUS,
+  status: STATUS | ReportTestStatus,
   start?: string,
 ): Promise<IENApplicantAddStatusDTO> => {
   return {
