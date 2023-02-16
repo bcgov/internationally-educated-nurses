@@ -1,25 +1,26 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class CreateReportView1676405526677 implements MigrationInterface {
-
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
       CREATE OR REPLACE VIEW hired_withdrawn_applicants AS (
-        SELECT
+        (SELECT
           iasa.applicant_id AS id, 
-          iasa.start_date AS hired_date,
+          max(iasa.start_date) AS hired_date,
           CAST(NULL AS date) AS withdraw_date
         FROM public.ien_applicant_status_audit iasa
         LEFT JOIN public.ien_applicant_status ias ON ias.id = iasa.status_id
         WHERE ias.status = 'Job Offer Accepted'
+        GROUP BY iasa.applicant_id)
         UNION ALL
-        SELECT
+        (SELECT
           iasa.applicant_id AS id, 
           CAST(NULL AS date) AS hired_date,
-          iasa.start_date AS withdraw_date
+          max(iasa.start_date) AS withdraw_date
         FROM public.ien_applicant_status_audit iasa
         LEFT JOIN public.ien_applicant_status ias ON ias.id = iasa.status_id
         WHERE ias.status = 'Withdrew from IEN program'
+        GROUP BY iasa.applicant_id)
       );
     `);
     await queryRunner.query(`
@@ -274,5 +275,4 @@ export class CreateReportView1676405526677 implements MigrationInterface {
     await queryRunner.dropView('hired_withdrawn_applicant_milestone');
     await queryRunner.dropView('hired_withdrawn_applicants');
   }
-
 }
