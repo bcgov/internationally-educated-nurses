@@ -5,10 +5,10 @@ export class RemoveOldUnusedTables1676577091787 implements MigrationInterface {
     await queryRunner.query(`
       DROP TABLE IF EXISTS form;
       DROP TABLE IF EXISTS submission;
-      DROP TABLE IF EXISTS applicant_status;
-      DROP TABLE IF EXISTS applicants;
-      DROP TABLE IF EXISTS applicant_status_audit;
-      DROP TABLE IF EXISTS applicant_audit;
+      DROP TABLE IF EXISTS applicant_status CASCADE;
+      DROP TABLE IF EXISTS applicants CASCADE;
+      DROP TABLE IF EXISTS applicant_status_audit CASCADE;
+      DROP TABLE IF EXISTS applicant_audit CASCADE;
     `);
   }
 
