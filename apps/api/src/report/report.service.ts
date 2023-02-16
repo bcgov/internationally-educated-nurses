@@ -1,4 +1,5 @@
 import { Inject, Logger } from '@nestjs/common';
+import { floor, mean, median, mode } from 'mathjs';
 import { getManager, Repository, In } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import dayjs from 'dayjs';
@@ -8,7 +9,7 @@ import { ReportUtilService } from './report.util.service';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.entity';
 import { startDateOfFiscal } from 'src/common/util';
-import { ReportPeriodDTO, StatusCategory } from '@ien/common';
+import { ReportPeriodDTO, STATUS, StatusCategory } from '@ien/common';
 
 export const PERIOD_START_DATE = '2022-05-02';
 
@@ -285,6 +286,15 @@ export class ReportService {
     return data;
   }
 
+  private getMilestoneDurationStats(milestone: string, entries: any[]) {
+    const data = entries.filter((e: any) => e[milestone] > 0).map((e: any) => e[milestone]);
+    return {
+      Mean: data.length ? floor(mean(data), 2) : '',
+      Mode: data.length ? mode(data)[0] : '',
+      Median: data.length ? median(data) : '',
+    }
+  }
+
   /**
    * Report 10
    * @param t end date of report, YYYY-MM-DD
@@ -293,14 +303,87 @@ export class ReportService {
     const { to } = this.captureFromTo('', t);
     this.logger.log(`getAverageTimeOfMilestones: apply filter till ${to} date)`);
 
-    const entityManager = getManager();
-    const data = await entityManager.query(
-      this.reportUtilService.getAverageTimeOfMilestones(statuses, to),
-    );
-    this.logger.log(
-      `getAverageTimeOfMilestones: query completed a total of ${data.length} record returns`,
-    );
-    return data;
+    type Entry = { stage?: string, milestone?: string, field: string, Mean?: number, Mode?: number, Median?: number };
+    const licRecruitment: Entry[] = [
+      { stage: 'NNAS', field: 'nnas' },
+      { milestone: STATUS.APPLIED_TO_NNAS, field: 'applied_to_nnas' },
+      { milestone: STATUS.SUBMITTED_DOCUMENTS, field: 'submitted_documents' },
+      { milestone: STATUS.RECEIVED_NNAS_REPORT, field: 'received_nnas_report' },
+      { stage: 'BCCNM & NCAS', field: 'nnas' },
+      { milestone: STATUS.APPLIED_TO_BCCNM, field: 'applied_to_bccnm' },
+      { milestone: STATUS.COMPLETED_LANGUAGE_REQUIREMENT, field: 'completed_language_requirement' },
+      { milestone: STATUS.REFERRED_TO_NCAS, field: 'referred_to_ncas' },
+      { milestone: STATUS.COMPLETED_CBA, field: 'completed_cba' },
+      { milestone: STATUS.COMPLETED_SLA, field: 'completed_sla' },
+      { milestone: STATUS.COMPLETED_NCAS, field: 'completed_ncas' },
+      { stage: 'Recruitment', field: 'recruitment' },
+      { milestone: 'Completed pre-screen (includes both outcomes)', field: 'pre_screen' },
+      { milestone: 'Completed interview (includes both outcomes)', field: 'interview' },
+      { milestone: 'Completed reference check (includes both outcomes)', field: 'reference_check' },
+      { milestone: 'Competition outcome (includes all outcomes)', field: 'competition_outcome' },
+    ];
+
+    const immigration: Entry[] = [
+      { stage: 'Immigration', field: 'immigration' },
+      { milestone: STATUS.SENT_FIRST_STEPS_DOCUMENT, field: 'sent_first_steps_document' },
+      { milestone: STATUS.SENT_EMPLOYER_DOCUMENTS_TO_HMBC, field: 'sent_employer_documents_to_hmbc' },
+      { milestone: STATUS.SUBMITTED_BC_PNP_APPLICATION, field: 'submitted_bc_pnp_application' },
+      { milestone: STATUS.RECEIVED_CONFIRMATION_OF_NOMINATION, field: 'received_confirmation_of_nomination' },
+      { milestone: STATUS.SENT_SECOND_STEPS_DOCUMENT, field: 'sent_second_steps_document' },
+      { milestone: STATUS.SUBMITTED_WORK_PERMIT_APPLICATION, field: 'submitted_work_permit_application' },
+      { milestone: STATUS.RECEIVED_WORK_PERMIT_APPROVAL_LETTER, field: 'received_work_permit_approval_letter' },
+      { milestone: STATUS.RECEIVED_WORK_PERMIT, field: 'received_work_permit' },
+      { milestone: STATUS.SENT_FIRST_STEPS_DOCUMENT, field: 'sent_first_steps_document' },
+    ];
+
+    const licRecDurations = await getManager().query(`
+      select * from milestone_duration
+      where hired_date < '${to}' or withdraw_date < '${to}'
+    `);
+
+    // the end date of immigration milestones should be limited by 'to' date instead of hired date
+    // because immigration stage comes after recruitment
+    const immigrationDurations = await getManager().query(`
+      SELECT id, 
+        (CASE WHEN immigration IS NOT null THEN
+          (LEAST(withdraw_date, immigration_completed, '${to}') - immigration)
+        END) AS immigration,
+        (CASE WHEN sent_first_steps_document IS NOT null THEN
+          (LEAST(withdraw_date, sent_employer_documents_to_hmbc, submitted_bc_pnp_application, received_confirmation_of_nomination, sent_second_steps_document, submitted_work_permit_application, immigration_completed, '${to}') - sent_first_steps_document)
+        END) AS sent_first_steps_document,
+        (CASE WHEN sent_employer_documents_to_hmbc IS NOT null THEN
+          (LEAST(withdraw_date, submitted_bc_pnp_application, received_confirmation_of_nomination, sent_second_steps_document, submitted_work_permit_application, immigration_completed, '${to}') - sent_employer_documents_to_hmbc)
+        END) AS sent_employer_documents_to_hmbc,
+        (CASE WHEN submitted_bc_pnp_application IS NOT null THEN
+          (LEAST(withdraw_date, received_confirmation_of_nomination, sent_second_steps_document, submitted_work_permit_application, immigration_completed, '${to}') - submitted_bc_pnp_application)
+        END) AS submitted_bc_pnp_application,
+        (CASE WHEN received_confirmation_of_nomination IS NOT null THEN
+          (LEAST(withdraw_date, sent_second_steps_document, submitted_work_permit_application, immigration_completed, '${to}') - received_confirmation_of_nomination)
+        END) AS received_confirmation_of_nomination,
+        (CASE WHEN sent_second_steps_document IS NOT null THEN
+          (LEAST(withdraw_date, submitted_work_permit_application, immigration_completed, '${to}') - sent_second_steps_document)
+        END) AS sent_second_steps_document,
+        (CASE WHEN submitted_work_permit_application IS NOT null THEN
+          (LEAST(withdraw_date, immigration_completed, '${to}') - submitted_work_permit_application)
+        END) AS submitted_work_permit_application,
+        (CASE WHEN received_work_permit_approval_letter IS NOT null THEN
+          (LEAST(withdraw_date, received_work_permit, received_pr, '${to}') - received_work_permit_approval_letter)
+        END) AS received_work_permit_approval_letter,
+        (CASE WHEN received_work_permit IS NOT null THEN
+          (LEAST(withdraw_date, received_pr, '${to}') - received_work_permit)
+        END) AS received_work_permit
+      FROM hired_withdrawn_applicant_milestone
+    `);
+
+    // if stage or milestone is empty string, it would be formatted as 0 in the spreadsheet.
+    return [
+      ...licRecruitment.map(({ stage = ' ', milestone= ' ', field }) => {
+        return { stage, milestone, ...this.getMilestoneDurationStats(field, licRecDurations) };
+      }),
+      ...immigration.map(({ stage = ' ', milestone = ' ', field }) => {
+        return { stage, milestone, ...this.getMilestoneDurationStats(field, immigrationDurations)};
+      }),
+    ];
   }
 
   /**
@@ -308,7 +391,6 @@ export class ReportService {
    * @param dates start and end date for data extract YYYY-MM-DD
    * @returns
    */
-
   async extractApplicantsData(dates: ReportPeriodDTO) {
     const { from, to } = dates;
     this.logger.log(`extractApplicantsData: Apply date filter from (${from}) and to (${to})`);
