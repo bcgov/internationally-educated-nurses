@@ -4,12 +4,12 @@ import { getManager, Repository, In } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import dayjs from 'dayjs';
 import _ from 'lodash';
-
+import { IMMIGRATION_DURATIONS, LICENSE_RECRUITMENT_DURATIONS } from './constants';
 import { ReportUtilService } from './report.util.service';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.entity';
 import { startDateOfFiscal } from 'src/common/util';
-import { ReportPeriodDTO, STATUS, StatusCategory } from '@ien/common';
+import { ReportPeriodDTO, StatusCategory } from '@ien/common';
 
 export const PERIOD_START_DATE = '2022-05-02';
 
@@ -287,12 +287,12 @@ export class ReportService {
   }
 
   private getMilestoneDurationStats(milestone: string, entries: any[]) {
-    const data = entries.filter((e: any) => e[milestone] > 0).map((e: any) => e[milestone]);
+    const data = entries.map((e: any) => e[milestone]).filter(v => v !== null && v >= 0);
     return {
       Mean: data.length ? floor(mean(data), 2) : '',
       Mode: data.length ? mode(data)[0] : '',
       Median: data.length ? median(data) : '',
-    }
+    };
   }
 
   /**
@@ -303,42 +303,9 @@ export class ReportService {
     const { to } = this.captureFromTo('', t);
     this.logger.log(`getAverageTimeOfMilestones: apply filter till ${to} date)`);
 
-    type Entry = { stage?: string, milestone?: string, field: string, Mean?: number, Mode?: number, Median?: number };
-    const licRecruitment: Entry[] = [
-      { stage: 'NNAS', field: 'nnas' },
-      { milestone: STATUS.APPLIED_TO_NNAS, field: 'applied_to_nnas' },
-      { milestone: STATUS.SUBMITTED_DOCUMENTS, field: 'submitted_documents' },
-      { milestone: STATUS.RECEIVED_NNAS_REPORT, field: 'received_nnas_report' },
-      { stage: 'BCCNM & NCAS', field: 'nnas' },
-      { milestone: STATUS.APPLIED_TO_BCCNM, field: 'applied_to_bccnm' },
-      { milestone: STATUS.COMPLETED_LANGUAGE_REQUIREMENT, field: 'completed_language_requirement' },
-      { milestone: STATUS.REFERRED_TO_NCAS, field: 'referred_to_ncas' },
-      { milestone: STATUS.COMPLETED_CBA, field: 'completed_cba' },
-      { milestone: STATUS.COMPLETED_SLA, field: 'completed_sla' },
-      { milestone: STATUS.COMPLETED_NCAS, field: 'completed_ncas' },
-      { stage: 'Recruitment', field: 'recruitment' },
-      { milestone: 'Completed pre-screen (includes both outcomes)', field: 'pre_screen' },
-      { milestone: 'Completed interview (includes both outcomes)', field: 'interview' },
-      { milestone: 'Completed reference check (includes both outcomes)', field: 'reference_check' },
-      { milestone: 'Competition outcome (includes all outcomes)', field: 'competition_outcome' },
-    ];
-
-    const immigration: Entry[] = [
-      { stage: 'Immigration', field: 'immigration' },
-      { milestone: STATUS.SENT_FIRST_STEPS_DOCUMENT, field: 'sent_first_steps_document' },
-      { milestone: STATUS.SENT_EMPLOYER_DOCUMENTS_TO_HMBC, field: 'sent_employer_documents_to_hmbc' },
-      { milestone: STATUS.SUBMITTED_BC_PNP_APPLICATION, field: 'submitted_bc_pnp_application' },
-      { milestone: STATUS.RECEIVED_CONFIRMATION_OF_NOMINATION, field: 'received_confirmation_of_nomination' },
-      { milestone: STATUS.SENT_SECOND_STEPS_DOCUMENT, field: 'sent_second_steps_document' },
-      { milestone: STATUS.SUBMITTED_WORK_PERMIT_APPLICATION, field: 'submitted_work_permit_application' },
-      { milestone: STATUS.RECEIVED_WORK_PERMIT_APPROVAL_LETTER, field: 'received_work_permit_approval_letter' },
-      { milestone: STATUS.RECEIVED_WORK_PERMIT, field: 'received_work_permit' },
-      { milestone: STATUS.SENT_FIRST_STEPS_DOCUMENT, field: 'sent_first_steps_document' },
-    ];
-
     const licRecDurations = await getManager().query(`
-      select * from milestone_duration
-      where hired_date < '${to}' or withdraw_date < '${to}'
+      SELECT * FROM milestone_duration
+      WHERE hired_date <= '${to}' OR withdraw_date <= '${to}'
     `);
 
     // the end date of immigration milestones should be limited by 'to' date instead of hired date
@@ -377,11 +344,11 @@ export class ReportService {
 
     // if stage or milestone is empty string, it would be formatted as 0 in the spreadsheet.
     return [
-      ...licRecruitment.map(({ stage = ' ', milestone= ' ', field }) => {
+      ...LICENSE_RECRUITMENT_DURATIONS.map(({ stage = ' ', milestone = ' ', field }) => {
         return { stage, milestone, ...this.getMilestoneDurationStats(field, licRecDurations) };
       }),
-      ...immigration.map(({ stage = ' ', milestone = ' ', field }) => {
-        return { stage, milestone, ...this.getMilestoneDurationStats(field, immigrationDurations)};
+      ...IMMIGRATION_DURATIONS.map(({ stage = ' ', milestone = ' ', field }) => {
+        return { stage, milestone, ...this.getMilestoneDurationStats(field, immigrationDurations) };
       }),
     ];
   }
