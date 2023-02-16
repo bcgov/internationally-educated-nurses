@@ -1,7 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import dayjs from 'dayjs';
-import { mean, median, mode, round } from 'mathjs';
+import { mean, median, min, mode, round } from 'mathjs';
 import { Authorities, STATUS } from '@ien/common';
 import { AppModule } from '../src/app.module';
 import { AuthGuard } from '../src/auth/auth.guard';
@@ -128,20 +128,20 @@ describe('Report 10 - Average Amount of Time with Each Milestone in Stakeholder 
     // check APPLIED_TO_NNAS stats
     let { Mean, Mode, Median } = report.find(s => s.milestone === STATUS.APPLIED_TO_NNAS) || {};
     expect(Mean).toBe(round(mean(appliedToNNAS), 2));
-    expect(Mode).toBe(mode(appliedToNNAS)[0]);
+    expect(Mode).toBe(min(mode(appliedToNNAS)));
     expect(Median).toBe(median(appliedToNNAS));
 
     // check SUBMITTED_DOCUMENTS stats
     ({ Mean, Mode, Median } = report.find(s => s.milestone === STATUS.SUBMITTED_DOCUMENTS) || {});
     expect(Mean).toBe(round(mean(submittedDocs), 2));
-    expect(Mode).toBe(mode(submittedDocs)[0]);
+    expect(Mode).toBe(min(mode(submittedDocs)));
     expect(Median).toBe(median(submittedDocs));
 
     // check NNAS stats
     ({ Mean, Mode, Median } = report.find(s => s.stage === 'NNAS') || {});
     const nnasDurations = appliedToNNAS.map((n, i) => n + submittedDocs[i]);
     expect(Mean).toBe(round(mean(nnasDurations), 2));
-    expect(Mode).toBe(mode(nnasDurations)[0]);
+    expect(Mode).toBe(min(mode(nnasDurations)));
     expect(Median).toBe(median(nnasDurations));
   });
 
