@@ -21,6 +21,9 @@ import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConne
 import config from '../ormconfig';
 import { RoleEntity } from '../employee/entity/role.entity';
 import { AccessEntity } from '../employee/entity/acl.entity';
+import { HiredWithdrawnApplicantMilestoneEntity } from '../report/entity/hired-withdrawn-applicant-milestone.entity';
+import { HiredWithdrawnApplicantEntity } from '../report/entity/hired-withdrawn-applicant.entity';
+import { MilestoneDurationEntity } from '../report/entity/milestone-duration.entity';
 
 const getEnvironmentSpecificConfig = (env?: string) => {
   switch (env) {
@@ -38,21 +41,24 @@ const getEnvironmentSpecificConfig = (env?: string) => {
         password: process.env.TEST_POSTGRES_PASSWORD,
         database: process.env.TEST_POSTGRES_DATABASE,
         entities: [
-          EmployeeEntity,
-          RoleEntity,
           AccessEntity,
+          EmployeeEntity,
+          HiredWithdrawnApplicantEntity,
+          HiredWithdrawnApplicantMilestoneEntity,
           FormEntity,
           IENApplicant,
           IENApplicantAudit,
+          IENApplicantJob,
           IENApplicantStatus,
           IENApplicantStatusAudit,
-          IENHaPcn,
-          IENUsers,
           IENEducation,
-          IENJobTitle,
+          IENHaPcn,
           IENJobLocation,
-          IENApplicantJob,
+          IENJobTitle,
           IENStatusReason,
+          IENUsers,
+          MilestoneDurationEntity,
+          RoleEntity,
           SyncApplicantsAudit,
         ],
         migrations: ['dist/migration/*.js'],
