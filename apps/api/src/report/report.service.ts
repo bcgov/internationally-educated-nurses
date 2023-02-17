@@ -44,7 +44,7 @@ export class ReportService {
 
   async getStatusMap(): Promise<Record<string, string>> {
     const result = await this.ienapplicantStatusRepository.find({ select: ['id', 'status'] });
-    return result.reduce((a, c) => _.assign(a, { [c.status]: c.id }), {});
+    return _.chain(result).keyBy('status').mapValues('id').value();
   }
 
   /**
