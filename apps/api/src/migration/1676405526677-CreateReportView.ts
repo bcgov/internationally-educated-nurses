@@ -1,9 +1,16 @@
-import { STATUS } from '@ien/common';
+import _ from 'lodash';
 import { MigrationInterface, QueryRunner } from 'typeorm';
-import { STATUS_ID } from '../report/constants/milestone-id';
+import { STATUS } from '@ien/common';
 
 export class CreateReportView1676405526677 implements MigrationInterface {
+  private async getStatusMap(queryRunner: QueryRunner): Promise<Record<string, string>> {
+    const result = await queryRunner.query(`SELECT id, status FROM ien_applicant_status`);
+    return _.chain(result).keyBy('status').mapValues('id').value();
+  }
+
   public async up(queryRunner: QueryRunner): Promise<void> {
+    const STATUS_ID = await this.getStatusMap(queryRunner);
+
     await queryRunner.query(`
       CREATE OR REPLACE VIEW hired_withdrawn_applicant AS (
         (SELECT
