@@ -1,10 +1,11 @@
 import { Inject, Logger } from '@nestjs/common';
 import { floor, mean, median, min, mode } from 'mathjs';
-import { getManager, Repository, In } from 'typeorm';
+import { getManager, Repository, In, LessThanOrEqual, getRepository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import dayjs from 'dayjs';
 import _ from 'lodash';
 import { IMMIGRATION_DURATIONS, LICENSE_RECRUITMENT_DURATIONS } from './constants';
+import { MilestoneDurationEntity } from './entity/milestone-duration.entity';
 import { ReportUtilService } from './report.util.service';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.entity';
@@ -303,10 +304,9 @@ export class ReportService {
     const { to } = this.captureFromTo('', t);
     this.logger.log(`getAverageTimeOfMilestones: apply filter till ${to} date)`);
 
-    const licRecDurations = await getManager().query(`
-      SELECT * FROM milestone_duration
-      WHERE hired_date <= '${to}' OR withdraw_date <= '${to}'
-    `);
+    const licRecDurations = await getRepository(MilestoneDurationEntity).find({
+      where: [{ hired_date: LessThanOrEqual(to) }, { withdraw_date: LessThanOrEqual(to) }],
+    });
 
     // the end date of immigration milestones should be limited by 'to' date instead of hired date
     // because immigration stage comes after recruitment
