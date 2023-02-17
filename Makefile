@@ -65,7 +65,7 @@ ifeq ($(ENV_NAME), test)
 DOMAIN=test.ien.freshworks.club
 NEXT_PUBLIC_AUTH_URL = https://common-logon-test.hlth.gov.bc.ca/auth
 BASTION_INSTANCE_ID = $(BASTION_INSTANCE_ID_TEST)
-DB_HOST = $(DB_HOST_PROD_TEST)
+DB_HOST = $(DB_HOST_TEST)
 endif
 
 define TFVARS_DATA
