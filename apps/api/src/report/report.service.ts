@@ -153,11 +153,28 @@ export class ReportService {
     const { from, to } = this.captureFromTo(f, t);
     this.logger.log(`getLicensingStageApplicants: Apply date filter from (${from}) and to (${to})`);
     const entityManager = getManager();
-    const data = await entityManager.query(
+    const oldProcess = await entityManager.query(
       this.reportUtilService.licensingStageApplicantsQuery(statuses, from, to),
     );
+
+    const newProcess = await entityManager.query(
+      this.reportUtilService.licensingStageApplicantsQuery(statuses, from, to, true),
+    );
+
+    // combine old data with new data
+    const data = oldProcess.map((o: { status: string; applicants: string }) => {
+      const newProcessApplicants = newProcess.find(
+        (n: { status: string }) => n.status === o.status,
+      );
+      return {
+        status: o.status,
+        oldProcessApplicants: o.applicants,
+        newProcessApplicants: newProcessApplicants.applicants,
+      };
+    });
+
     this.logger.log(
-      `getLicensingStageApplicants: query completed a total of ${data.length} record returns`,
+      `getLicensingStageApplicants: query completed a total of ${oldProcess.length} old process and ${newProcess.length} new process record returns`,
     );
     return data;
   }
