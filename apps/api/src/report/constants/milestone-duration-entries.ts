@@ -1,7 +1,8 @@
 import { STATUS } from '@ien/common';
 import { DurationEntry } from '../types';
 
-export const LICENSE_RECRUITMENT_DURATIONS: DurationEntry[] = [
+// helper to generate report 10 stats
+export const MILESTONE_DURATION_ENTRIES: DurationEntry[] = [
   { stage: 'NNAS', field: 'nnas' },
   { milestone: STATUS.APPLIED_TO_NNAS, field: 'applied_to_nnas' },
   { milestone: STATUS.SUBMITTED_DOCUMENTS, field: 'submitted_documents' },
@@ -18,9 +19,6 @@ export const LICENSE_RECRUITMENT_DURATIONS: DurationEntry[] = [
   { milestone: 'Completed interview (includes both outcomes)', field: 'interview' },
   { milestone: 'Completed reference check (includes both outcomes)', field: 'reference_check' },
   { milestone: 'Hired', field: 'hired' },
-];
-
-export const IMMIGRATION_DURATIONS: DurationEntry[] = [
   { stage: 'Immigration', field: 'immigration' },
   { milestone: STATUS.SENT_FIRST_STEPS_DOCUMENT, field: 'sent_first_steps_document' },
   {
