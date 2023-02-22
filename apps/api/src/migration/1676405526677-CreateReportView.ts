@@ -13,30 +13,39 @@ export class CreateReportView1676405526677 implements MigrationInterface {
 
     await queryRunner.query(`
       CREATE OR REPLACE VIEW hired_withdrawn_applicant AS (
-        (SELECT
-          iasa.applicant_id AS id, 
-          max(iasa.start_date) AS hired_date,
-          CAST(NULL AS date) AS withdraw_date
-        FROM public.ien_applicant_status_audit iasa
-        LEFT JOIN public.ien_applicant_status ias ON ias.id = iasa.status_id
-        WHERE ias.id = '${STATUS_ID[STATUS.JOB_OFFER_ACCEPTED]}'
-        GROUP BY iasa.applicant_id)
-        UNION ALL
-        (SELECT
-          iasa.applicant_id AS id, 
-          CAST(NULL AS date) AS hired_date,
-          max(iasa.start_date) AS withdraw_date
-        FROM public.ien_applicant_status_audit iasa
-        LEFT JOIN public.ien_applicant_status ias ON ias.id = iasa.status_id
-        WHERE ias.id = '${STATUS_ID[STATUS.WITHDREW_FROM_PROGRAM]}'
-        GROUP BY iasa.applicant_id)
+        SELECT 
+          a.id,
+          min(ia.registration_date) AS registered_at,
+          max(a.hired_at) AS hired_at,
+          max(a.withdrew_at) AS withdrew_at
+        FROM (
+          (SELECT
+            iasa.applicant_id AS id, 
+            max(iasa.start_date) AS hired_at,
+            CAST(NULL AS date) AS withdrew_at
+          FROM public.ien_applicant_status_audit iasa
+          LEFT JOIN public.ien_applicant_status ias ON ias.id = iasa.status_id
+          WHERE ias.id = '${STATUS_ID[STATUS.JOB_OFFER_ACCEPTED]}'
+          GROUP BY iasa.applicant_id)
+          UNION ALL
+          (SELECT
+            iasa.applicant_id AS id, 
+            CAST(NULL AS date) AS hired_at,
+            max(iasa.start_date) AS withdrew_at
+          FROM public.ien_applicant_status_audit iasa
+          LEFT JOIN public.ien_applicant_status ias ON ias.id = iasa.status_id
+          WHERE ias.id = '${STATUS_ID[STATUS.WITHDREW_FROM_PROGRAM]}'
+          GROUP BY iasa.applicant_id)
+        ) as a
+        LEFT JOIN ien_applicants ia ON a.id = ia.id
+        GROUP BY a.id
       );
     `);
     await queryRunner.query(`
       CREATE OR REPLACE VIEW hired_withdrawn_applicant_milestone AS (
         SELECT
           hwa.*,
-          (SELECT min(start_date)
+          (SELECT LEAST(min(start_date), hwa.registered_at)
             FROM public.ien_applicant_status_audit asa
             WHERE asa.applicant_id = hwa.id
           ) as milestone_start_date,
@@ -219,27 +228,6 @@ export class CreateReportView1676405526677 implements MigrationInterface {
           
           (SELECT min(start_date)
             FROM public.ien_applicant_status_audit asa
-            WHERE asa.applicant_id = hwa.id AND asa.status_id = '${
-              STATUS_ID[STATUS.RECEIVED_WORK_PERMIT_APPROVAL_LETTER]
-            }'   
-          ) as received_work_permit_approval_letter,
-          
-          (SELECT min(start_date)
-            FROM public.ien_applicant_status_audit asa
-            WHERE asa.applicant_id = hwa.id AND asa.status_id = '${
-              STATUS_ID[STATUS.RECEIVED_WORK_PERMIT]
-            }'   
-          ) as received_work_permit,
-          
-          (SELECT min(start_date)
-            FROM public.ien_applicant_status_audit asa
-            WHERE asa.applicant_id = hwa.id AND asa.status_id = '${
-              STATUS_ID[STATUS.RECEIVED_PR]
-            }'   
-          ) as received_pr,
-          
-          (SELECT min(start_date)
-            FROM public.ien_applicant_status_audit asa
             WHERE asa.applicant_id = hwa.id AND asa.status_id IN (
               '${STATUS_ID[STATUS.RECEIVED_WORK_PERMIT_APPROVAL_LETTER]}',
               '${STATUS_ID[STATUS.RECEIVED_WORK_PERMIT]}',
@@ -247,114 +235,111 @@ export class CreateReportView1676405526677 implements MigrationInterface {
             )
           ) as immigration_completed
         FROM hired_withdrawn_applicant hwa
+        WHERE hwa.hired_at > hwa.withdrew_at OR hwa.withdrew_at IS NULL
       );
     `);
     await queryRunner.query(`
       CREATE OR REPLACE VIEW milestone_duration AS (
-        SELECT
-          id,
-          hired_date,
-          withdraw_date,
-          (CASE WHEN nnas IS NOT null THEN
-            (LEAST(bccnm_ncas, recruitment, immigration, hired_date, withdraw_date) - nnas)
-          END) AS nnas,
-          
-          (CASE WHEN applied_to_nnas IS NOT null THEN
-            (LEAST(submitted_documents, received_nnas_report, bccnm_ncas, recruitment, immigration, hired_date, withdraw_date) - applied_to_nnas)
-          END) AS applied_to_nnas,
-          
-          (CASE WHEN submitted_documents IS NOT null THEN
-            (LEAST(received_nnas_report, bccnm_ncas, recruitment, immigration, hired_date, withdraw_date) - submitted_documents)
-          END) AS submitted_documents,
-          
-          (CASE WHEN received_nnas_report IS NOT null THEN
-            (LEAST(bccnm_ncas, recruitment, immigration, hired_date, withdraw_date) - received_nnas_report)
-          END) AS received_nnas_report,
-          
-          (CASE WHEN bccnm_ncas IS NOT null THEN
-            (LEAST(recruitment, immigration, hired_date, withdraw_date) - bccnm_ncas)
-          END) AS bccnm_ncas,
-          
-          (CASE WHEN applied_to_bccnm IS NOT null THEN
-            (LEAST(completed_language_requirement, referred_to_ncas, completed_cba, completed_sla, completed_ncas, recruitment, immigration, hired_date, withdraw_date, CURRENT_DATE) - applied_to_bccnm)
-          END) AS applied_to_bccnm,
-          
-          (CASE WHEN completed_language_requirement IS NOT null THEN
-            (LEAST(referred_to_ncas, completed_cba, completed_sla, completed_ncas, recruitment, immigration, hired_date, withdraw_date) - completed_language_requirement)
-          END) AS completed_language_requirement,
-          
-          (CASE WHEN referred_to_ncas IS NOT null THEN
-            (LEAST(completed_cba, completed_sla, completed_ncas, recruitment, immigration, hired_date, withdraw_date) - referred_to_ncas)
-          END) AS referred_to_ncas,
-          
-          (CASE WHEN completed_cba IS NOT null THEN
-            (LEAST(completed_sla, completed_ncas, recruitment, immigration, hired_date, withdraw_date) - completed_cba)
-          END) AS completed_cba,
-          
-          (CASE WHEN completed_sla IS NOT null THEN
-            (LEAST(completed_ncas, recruitment, immigration, hired_date, withdraw_date) - completed_sla)
-          END) AS completed_sla,
-          
-          (CASE WHEN completed_ncas IS NOT null THEN
-            (LEAST(recruitment, immigration, hired_date, withdraw_date) - completed_ncas)
-          END) AS completed_ncas,
-          
-          (CASE WHEN recruitment IS NOT null THEN
-            (LEAST(immigration, hired_date, withdraw_date) - recruitment)
-          END) AS recruitment,
-          
-          (CASE WHEN pre_screen  IS NOT null THEN
-            (LEAST(interview, reference_check, competition_outcome, immigration, hired_date, withdraw_date) - pre_screen)
-          END) AS pre_screen,
-          
-          (CASE WHEN interview  IS NOT null THEN
-            (LEAST(reference_check, competition_outcome, immigration, hired_date, withdraw_date) - interview)
-          END) AS interview,
-          
-          (CASE WHEN reference_check IS NOT null THEN
-            (LEAST(competition_outcome, immigration, hired_date, withdraw_date) - reference_check)
-          END) AS reference_check,
-          
-          (CASE WHEN competition_outcome IS NOT null THEN
-            (LEAST(immigration, withdraw_date, CURRENT_DATE) - competition_outcome)
-          END) AS competition_outcome,
-          
-          (CASE WHEN immigration IS NOT null THEN
-            (LEAST(withdraw_date, immigration_completed, CURRENT_DATE) - immigration)
-          END) AS immigration,
-          
-          (CASE WHEN sent_first_steps_document IS NOT null THEN
-            (LEAST(withdraw_date, sent_employer_documents_to_hmbc, submitted_bc_pnp_application, received_confirmation_of_nomination, sent_second_steps_document, submitted_work_permit_application, immigration_completed, CURRENT_DATE) - sent_first_steps_document)
-          END) AS sent_first_steps_document,
-          
-          (CASE WHEN sent_employer_documents_to_hmbc IS NOT null THEN
-            (LEAST(withdraw_date, submitted_bc_pnp_application, received_confirmation_of_nomination, sent_second_steps_document, submitted_work_permit_application, immigration_completed, CURRENT_DATE) - sent_employer_documents_to_hmbc)
-          END) AS sent_employer_documents_to_hmbc,
-          
-          (CASE WHEN submitted_bc_pnp_application IS NOT null THEN
-            (LEAST(withdraw_date, received_confirmation_of_nomination, sent_second_steps_document, submitted_work_permit_application, immigration_completed, CURRENT_DATE) - submitted_bc_pnp_application)
-          END) AS submitted_bc_pnp_application,
-          
-          (CASE WHEN received_confirmation_of_nomination IS NOT null THEN
-            (LEAST(withdraw_date, sent_second_steps_document, submitted_work_permit_application, immigration_completed, CURRENT_DATE) - received_confirmation_of_nomination)
-          END) AS received_confirmation_of_nomination,
-          
-          (CASE WHEN sent_second_steps_document IS NOT null THEN
-            (LEAST(withdraw_date, submitted_work_permit_application, immigration_completed, CURRENT_DATE) - sent_second_steps_document)
-          END) AS sent_second_steps_document,
-          
-          (CASE WHEN submitted_work_permit_application IS NOT null THEN
-            (LEAST(withdraw_date, immigration_completed, CURRENT_DATE) - submitted_work_permit_application)
-          END) AS submitted_work_permit_application,
-          
-          (CASE WHEN received_work_permit_approval_letter IS NOT null THEN
-            (LEAST(withdraw_date, received_work_permit, received_pr, CURRENT_DATE) - received_work_permit_approval_letter)
-          END) AS received_work_permit_approval_letter,
-          
-          (CASE WHEN received_work_permit IS NOT null THEN
-            (LEAST(withdraw_date, received_pr, CURRENT_DATE) - received_work_permit)
-          END) AS received_work_permit
-        FROM hired_withdrawn_applicant_milestone
+      SELECT
+        id,
+        registered_at,
+        hired_at,
+        withdrew_at,
+        (CASE WHEN nnas IS NOT null THEN
+          (COALESCE(received_nnas_report, bccnm_ncas, recruitment) - milestone_start_date)
+        END) AS nnas,
+      
+        (CASE WHEN applied_to_nnas IS NOT null THEN
+          (applied_to_nnas - milestone_start_date)
+        END) AS applied_to_nnas,
+        
+        (CASE WHEN submitted_documents IS NOT null THEN
+          (submitted_documents - COALESCE(applied_to_nnas, milestone_start_date))
+        END) AS submitted_documents,
+        
+        (CASE WHEN received_nnas_report IS NOT null THEN
+          (received_nnas_report - COALESCE(submitted_documents, applied_to_nnas, milestone_start_date))
+        END) AS received_nnas_report,
+        
+        (CASE WHEN bccnm_ncas IS NOT null THEN
+          (COALESCE(completed_ncas, recruitment) - COALESCE(received_nnas_report, submitted_documents, applied_to_nnas, milestone_start_date))
+        END) AS bccnm_ncas,
+        
+        (CASE WHEN applied_to_bccnm IS NOT null THEN
+          (applied_to_bccnm - COALESCE(received_nnas_report, submitted_documents, applied_to_nnas, milestone_start_date))
+        END) AS applied_to_bccnm,
+        
+        (CASE WHEN completed_language_requirement IS NOT null THEN
+          (completed_language_requirement - COALESCE(applied_to_bccnm, received_nnas_report, submitted_documents, applied_to_nnas, milestone_start_date))
+        END) AS completed_language_requirement,
+        
+        (CASE WHEN referred_to_ncas IS NOT null THEN
+          (referred_to_ncas - COALESCE(completed_language_requirement, applied_to_bccnm, received_nnas_report, submitted_documents, applied_to_nnas, milestone_start_date))
+        END) AS referred_to_ncas,
+        
+        (CASE WHEN completed_cba IS NOT null THEN
+          (completed_cba - COALESCE(referred_to_ncas, completed_language_requirement, applied_to_bccnm, received_nnas_report, submitted_documents, applied_to_nnas, milestone_start_date))
+        END) AS completed_cba,
+        
+        (CASE WHEN completed_sla IS NOT null THEN
+          (completed_sla - COALESCE(completed_cba, referred_to_ncas, completed_language_requirement, applied_to_bccnm, received_nnas_report, submitted_documents, applied_to_nnas, milestone_start_date))
+        END) AS completed_sla,
+        
+        (CASE WHEN completed_ncas IS NOT null THEN
+          (completed_ncas - COALESCE(completed_sla, completed_cba, referred_to_ncas, completed_language_requirement, applied_to_bccnm, received_nnas_report, submitted_documents, applied_to_nnas, milestone_start_date))
+        END) AS completed_ncas,
+        
+        (CASE WHEN recruitment IS NOT null THEN
+          (hired_at - COALESCE(completed_ncas, completed_sla, completed_cba, referred_to_ncas, completed_language_requirement, applied_to_bccnm, received_nnas_report, submitted_documents, applied_to_nnas, milestone_start_date))
+        END) AS recruitment,
+        
+        (CASE WHEN pre_screen  IS NOT null THEN
+          (pre_screen - COALESCE(completed_ncas, completed_sla, completed_cba, referred_to_ncas, completed_language_requirement, applied_to_bccnm, received_nnas_report, submitted_documents, applied_to_nnas, milestone_start_date))
+        END) AS pre_screen,
+        
+        (CASE WHEN interview  IS NOT null THEN
+          (interview - COALESCE(pre_screen, completed_ncas, completed_sla, completed_cba, referred_to_ncas, completed_language_requirement, applied_to_bccnm, applied_to_nnas, submitted_documents, received_nnas_report, milestone_start_date))
+        END) AS interview,
+        
+        (CASE WHEN reference_check IS NOT null THEN
+          (reference_check - COALESCE(interview, pre_screen, completed_ncas, completed_sla, completed_cba, referred_to_ncas, completed_language_requirement, applied_to_bccnm, applied_to_nnas, submitted_documents, received_nnas_report, milestone_start_date))
+        END) AS reference_check,
+        
+        (hired_at - COALESCE(reference_check, interview, pre_screen, completed_ncas, completed_sla, completed_cba, referred_to_ncas, completed_language_requirement, applied_to_bccnm, applied_to_nnas, submitted_documents, received_nnas_report, milestone_start_date))
+        AS hired,
+        
+        (CASE WHEN immigration IS NOT null THEN
+          (COALESCE(immigration_completed, CURRENT_DATE) - hired_at)
+        END) AS immigration,
+        
+        (CASE WHEN sent_first_steps_document IS NOT null THEN
+          (sent_first_steps_document - hired_at)
+        END) AS sent_first_steps_document,
+        
+        (CASE WHEN sent_employer_documents_to_hmbc IS NOT null THEN
+          (sent_employer_documents_to_hmbc - COALESCE(sent_first_steps_document, hired_at))
+        END) AS sent_employer_documents_to_hmbc,
+        
+        (CASE WHEN submitted_bc_pnp_application IS NOT null THEN
+          (submitted_bc_pnp_application - COALESCE(sent_employer_documents_to_hmbc, sent_first_steps_document, hired_at))
+        END) AS submitted_bc_pnp_application,
+        
+        (CASE WHEN received_confirmation_of_nomination IS NOT null THEN
+          (received_confirmation_of_nomination - COALESCE(submitted_bc_pnp_application, sent_employer_documents_to_hmbc, sent_first_steps_document, hired_at))
+        END) AS received_confirmation_of_nomination,
+        
+        (CASE WHEN sent_second_steps_document IS NOT null THEN
+          (sent_second_steps_document - COALESCE(received_confirmation_of_nomination, submitted_bc_pnp_application, sent_employer_documents_to_hmbc, sent_first_steps_document, hired_at))
+        END) AS sent_second_steps_document,
+        
+        (CASE WHEN submitted_work_permit_application IS NOT null THEN
+          (submitted_work_permit_application - COALESCE(sent_second_steps_document, received_confirmation_of_nomination, submitted_bc_pnp_application, sent_employer_documents_to_hmbc, sent_first_steps_document, hired_at))
+        END) AS submitted_work_permit_application,
+        
+        (CASE WHEN immigration_completed IS NOT null THEN
+          (immigration_completed - COALESCE(submitted_work_permit_application, sent_second_steps_document, received_confirmation_of_nomination, submitted_bc_pnp_application, sent_employer_documents_to_hmbc, sent_first_steps_document, hired_at))
+        END) AS immigration_completed
+      FROM hired_withdrawn_applicant_milestone
       );
     `);
   }

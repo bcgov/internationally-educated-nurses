@@ -8,10 +8,10 @@ export class MilestoneDurationEntity {
   id!: string;
 
   @ViewColumn()
-  hired_date!: Date;
+  hired_at!: Date;
 
   @ViewColumn()
-  withdraw_date!: Date;
+  withdrew_at!: Date;
 
   @ViewColumn()
   nnas!: number;
@@ -59,7 +59,7 @@ export class MilestoneDurationEntity {
   reference_check!: number;
 
   @ViewColumn()
-  competition_outcome!: number;
+  hired!: number;
 
   @ViewColumn()
   immigration!: number;
@@ -83,8 +83,5 @@ export class MilestoneDurationEntity {
   submitted_work_permit_application!: number;
 
   @ViewColumn()
-  received_work_permit_approval_letter!: number;
-
-  @ViewColumn()
-  received_work_permit!: number;
+  immigration_completed!: number;
 }

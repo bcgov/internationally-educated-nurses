@@ -6,7 +6,7 @@ export const LICENSE_RECRUITMENT_DURATIONS: DurationEntry[] = [
   { milestone: STATUS.APPLIED_TO_NNAS, field: 'applied_to_nnas' },
   { milestone: STATUS.SUBMITTED_DOCUMENTS, field: 'submitted_documents' },
   { milestone: STATUS.RECEIVED_NNAS_REPORT, field: 'received_nnas_report' },
-  { stage: 'BCCNM & NCAS', field: 'nnas' },
+  { stage: 'BCCNM & NCAS', field: 'bccnm_ncas' },
   { milestone: STATUS.APPLIED_TO_BCCNM, field: 'applied_to_bccnm' },
   { milestone: STATUS.COMPLETED_LANGUAGE_REQUIREMENT, field: 'completed_language_requirement' },
   { milestone: STATUS.REFERRED_TO_NCAS, field: 'referred_to_ncas' },
@@ -17,7 +17,7 @@ export const LICENSE_RECRUITMENT_DURATIONS: DurationEntry[] = [
   { milestone: 'Completed pre-screen (includes both outcomes)', field: 'pre_screen' },
   { milestone: 'Completed interview (includes both outcomes)', field: 'interview' },
   { milestone: 'Completed reference check (includes both outcomes)', field: 'reference_check' },
-  { milestone: 'Competition outcome (includes all outcomes)', field: 'competition_outcome' },
+  { milestone: 'Hired', field: 'hired' },
 ];
 
 export const IMMIGRATION_DURATIONS: DurationEntry[] = [
@@ -37,10 +37,5 @@ export const IMMIGRATION_DURATIONS: DurationEntry[] = [
     milestone: STATUS.SUBMITTED_WORK_PERMIT_APPLICATION,
     field: 'submitted_work_permit_application',
   },
-  {
-    milestone: STATUS.RECEIVED_WORK_PERMIT_APPROVAL_LETTER,
-    field: 'received_work_permit_approval_letter',
-  },
-  { milestone: STATUS.RECEIVED_WORK_PERMIT, field: 'received_work_permit' },
-  { milestone: STATUS.SENT_FIRST_STEPS_DOCUMENT, field: 'sent_first_steps_document' },
+  { milestone: 'Immigration Completed', field: 'immigration_completed' },
 ];

@@ -125,8 +125,7 @@ export class ReportController {
   @Get('/applicant/average-time-of-milestones')
   @AllowAccess(Access.REPORTING)
   async getAverageTimeOfMilestones(@Query('to') to: string): Promise<object[]> {
-    const statuses = await this.reportService.getStatusMap();
-    return this.reportService.getAverageTimeOfMilestones(statuses, to);
+    return this.reportService.getAverageTimeOfMilestones(to);
   }
 
   /** Additional report other than standard 9 reports */

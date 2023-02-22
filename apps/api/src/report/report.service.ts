@@ -300,55 +300,59 @@ export class ReportService {
    * Report 10
    * @param t end date of report, YYYY-MM-DD
    */
-  async getAverageTimeOfMilestones(statuses: Record<string, string>, t: string) {
+  async getAverageTimeOfMilestones(t: string) {
     const { to } = this.captureFromTo('', t);
     this.logger.log(`getAverageTimeOfMilestones: apply filter till ${to} date)`);
 
-    const licRecDurations = await getRepository(MilestoneDurationEntity).find({
-      where: [{ hired_date: LessThanOrEqual(to) }, { withdraw_date: LessThanOrEqual(to) }],
-    });
+    const licRecDurations = await getRepository(MilestoneDurationEntity)
+      .createQueryBuilder()
+      .where(`hired_at <= :to`, { to })
+      .getMany();
+
+    // excludes applicants with a negative duration
+    const linearLicRecDurations = licRecDurations.filter(d => !Object.values(d).some(v => v < 0));
 
     // the end date of immigration milestones should be limited by 'to' date instead of hired date
     // because immigration stage comes after recruitment
-    const immigrationDurations = await getManager().query(`
+    const immigrationDurations: MilestoneDurationEntity[] = await getManager().query(`
       SELECT id, 
         (CASE WHEN immigration IS NOT null THEN
-          (LEAST(withdraw_date, immigration_completed, '${to}') - immigration)
+          (immigration_completed - hired_at)
         END) AS immigration,
         (CASE WHEN sent_first_steps_document IS NOT null THEN
-          (LEAST(withdraw_date, sent_employer_documents_to_hmbc, submitted_bc_pnp_application, received_confirmation_of_nomination, sent_second_steps_document, submitted_work_permit_application, immigration_completed, '${to}') - sent_first_steps_document)
+          (sent_first_steps_document - hired_at)
         END) AS sent_first_steps_document,
         (CASE WHEN sent_employer_documents_to_hmbc IS NOT null THEN
-          (LEAST(withdraw_date, submitted_bc_pnp_application, received_confirmation_of_nomination, sent_second_steps_document, submitted_work_permit_application, immigration_completed, '${to}') - sent_employer_documents_to_hmbc)
+          (sent_employer_documents_to_hmbc - COALESCE(sent_first_steps_document, hired_at))
         END) AS sent_employer_documents_to_hmbc,
         (CASE WHEN submitted_bc_pnp_application IS NOT null THEN
-          (LEAST(withdraw_date, received_confirmation_of_nomination, sent_second_steps_document, submitted_work_permit_application, immigration_completed, '${to}') - submitted_bc_pnp_application)
+          (submitted_bc_pnp_application - COALESCE(sent_employer_documents_to_hmbc, sent_first_steps_document, hired_at))
         END) AS submitted_bc_pnp_application,
         (CASE WHEN received_confirmation_of_nomination IS NOT null THEN
-          (LEAST(withdraw_date, sent_second_steps_document, submitted_work_permit_application, immigration_completed, '${to}') - received_confirmation_of_nomination)
+          (received_confirmation_of_nomination - COALESCE(submitted_bc_pnp_application, sent_employer_documents_to_hmbc, sent_first_steps_document, hired_at))
         END) AS received_confirmation_of_nomination,
         (CASE WHEN sent_second_steps_document IS NOT null THEN
-          (LEAST(withdraw_date, submitted_work_permit_application, immigration_completed, '${to}') - sent_second_steps_document)
+          (sent_second_steps_document - COALESCE(received_confirmation_of_nomination, submitted_bc_pnp_application, sent_employer_documents_to_hmbc, sent_first_steps_document, hired_at))
         END) AS sent_second_steps_document,
         (CASE WHEN submitted_work_permit_application IS NOT null THEN
-          (LEAST(withdraw_date, immigration_completed, '${to}') - submitted_work_permit_application)
+          (submitted_work_permit_application - COALESCE(sent_second_steps_document, received_confirmation_of_nomination, submitted_bc_pnp_application, sent_employer_documents_to_hmbc, sent_first_steps_document, hired_at))
         END) AS submitted_work_permit_application,
-        (CASE WHEN received_work_permit_approval_letter IS NOT null THEN
-          (LEAST(withdraw_date, received_work_permit, received_pr, '${to}') - received_work_permit_approval_letter)
-        END) AS received_work_permit_approval_letter,
-        (CASE WHEN received_work_permit IS NOT null THEN
-          (LEAST(withdraw_date, received_pr, '${to}') - received_work_permit)
-        END) AS received_work_permit
+        (CASE WHEN immigration_completed IS NOT null THEN
+          (immigration_completed - COALESCE(submitted_work_permit_application, sent_second_steps_document, received_confirmation_of_nomination, submitted_bc_pnp_application, sent_employer_documents_to_hmbc, sent_first_steps_document, hired_at))
+        END) AS immigration_completed
       FROM hired_withdrawn_applicant_milestone
+      WHERE immigration_completed IS NOT NULL
     `);
+
+    const linearImmDurations = immigrationDurations.filter(d => !Object.values(d).some(v => v < 0));
 
     // if stage or milestone is empty string, it would be formatted as 0 in the spreadsheet.
     return [
       ...LICENSE_RECRUITMENT_DURATIONS.map(({ stage = ' ', milestone = ' ', field }) => {
-        return { stage, milestone, ...this.getMilestoneDurationStats(field, licRecDurations) };
+        return { stage, milestone, ...this.getMilestoneDurationStats(field, linearLicRecDurations) };
       }),
       ...IMMIGRATION_DURATIONS.map(({ stage = ' ', milestone = ' ', field }) => {
-        return { stage, milestone, ...this.getMilestoneDurationStats(field, immigrationDurations) };
+        return { stage, milestone, ...this.getMilestoneDurationStats(field, linearImmDurations) };
       }),
     ];
   }
@@ -393,7 +397,7 @@ export class ReportService {
       this.getImmigrationApplicants(statuses, from, to).then(report7 => ({ report7 })),
       this.getApplicantHAForCurrentPeriodFiscal(statuses, from, to).then(report8 => ({ report8 })),
       this.getAverageTimeWithEachStakeholderGroup(statuses, to).then(report9 => ({ report9 })),
-      this.getAverageTimeOfMilestones(statuses, to).then(report10 => ({ report10 })),
+      this.getAverageTimeOfMilestones(to).then(report10 => ({ report10 })),
     ];
     const report = await Promise.all(promises);
     return report.reduce((a, c) => _.assign(a, c), {});
