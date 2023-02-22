@@ -24,14 +24,17 @@ describe('Report 10 - Average Amount of Time with Each Milestone in Stakeholder 
   let report: any[] = [];
 
   // allowed date range for applicant registration date
-  const between: [string, string] = ['2022-01-01', '2022-12-01'];
+  const between: [string, string] = ['2022-01-01', '2022-07-01'];
   // end date of report period
   const to = '2022-12-31';
 
-  // duration of APPLIED_TO_NNAS determines date of SUBMITTED_DOCUMENTS
+  // duration from registration to APPLIED_TO_NNAS
   const appliedToNNAS = [6, 8, 9, 11, 11];
-  // duration of SUBMITTED_DOCUMENTS determines date of JOB_OFFER_ACCEPTED
+  // duration APPLIED_TO_NNAS to SUBMITTED_DOCUMENTS
   const submittedDocs = [21, 31, 43, 54, 65];
+  // duration from SUBMITTED_DOCUMENTS to JOB_OFFER_ACCEPTED
+  const hired = [3, 5, 8, 13, 21];
+
 
   beforeAll(async () => {
     const module = await Test.createTestingModule({
@@ -72,19 +75,18 @@ describe('Report 10 - Average Amount of Time with Each Milestone in Stakeholder 
     const { id } = await addApplicant(applicant);
 
     // hire applicant
-    const daysToBeHired = appliedToNNAS[0] + submittedDocs[0];
-    const appliedToNNASDate = '2022-07-01';
-    const hiredDate = addDays(appliedToNNASDate, daysToBeHired);
+    const appliedToNNASDate = addDays(applicant.registration_date, appliedToNNAS[0]);
+    const submittedDocDate = addDays(appliedToNNASDate, submittedDocs[0]);
+    const hiredDate = addDays(submittedDocDate, hired[0]);
     await hire(id, Authorities.VIHA.id, hiredDate);
 
     // add milestones
-    let duration = appliedToNNAS[0];
-    const submittedDoc = addDays(appliedToNNASDate, duration);
     await addMilestone(id, '', await getStatus(STATUS.APPLIED_TO_NNAS, appliedToNNASDate));
-    await addMilestone(id, '', await getStatus(STATUS.SUBMITTED_DOCUMENTS, submittedDoc));
+    await addMilestone(id, '', await getStatus(STATUS.SUBMITTED_DOCUMENTS, submittedDocDate));
 
     let report = await getReport(to);
 
+    let duration = appliedToNNAS[0];
     // check APPLIED_TO_NNAS stats
     let { Mean, Mode, Median } = report.find(s => s.milestone === STATUS.APPLIED_TO_NNAS) || {};
     expect(Mean).toBe(duration);
@@ -100,7 +102,7 @@ describe('Report 10 - Average Amount of Time with Each Milestone in Stakeholder 
 
     // check NNAS stats
     ({ Mean, Mode, Median } = report.find(s => s.stage === 'NNAS') || {});
-    duration = appliedToNNAS[0] + submittedDocs[0];
+    duration = appliedToNNAS[0] + submittedDocs[0] + hired[0];
     expect(Mean).toBe(duration);
     expect(Mode).toBe(duration);
     expect(Median).toBe(duration);
@@ -112,15 +114,14 @@ describe('Report 10 - Average Amount of Time with Each Milestone in Stakeholder 
       const { id } = await addApplicant(applicant);
 
       // hire applicant
-      const daysToBeHired = appliedToNNAS[i] + submittedDocs[i];
-      const appliedToNNASDate = '2022-08-01';
-      const hiredDate = addDays(appliedToNNASDate, daysToBeHired);
+      const appliedToNNASDate = addDays(applicant.registration_date, appliedToNNAS[i]);
+      const submittedDocDate = addDays(appliedToNNASDate, submittedDocs[i]);
+      const hiredDate = addDays(submittedDocDate, hired[i]);
       await hire(id, 'VIHA', hiredDate);
 
       // add milestones
-      const submittedDoc = addDays(appliedToNNASDate, appliedToNNAS[i]);
       await addMilestone(id, '', await getStatus(STATUS.APPLIED_TO_NNAS, appliedToNNASDate));
-      await addMilestone(id, '', await getStatus(STATUS.SUBMITTED_DOCUMENTS, submittedDoc));
+      await addMilestone(id, '', await getStatus(STATUS.SUBMITTED_DOCUMENTS, submittedDocDate));
     }
 
     report = await getReport(to);
@@ -139,7 +140,7 @@ describe('Report 10 - Average Amount of Time with Each Milestone in Stakeholder 
 
     // check NNAS stats
     ({ Mean, Mode, Median } = report.find(s => s.stage === 'NNAS') || {});
-    const nnasDurations = appliedToNNAS.map((n, i) => n + submittedDocs[i]);
+    const nnasDurations = appliedToNNAS.map((n, i) => n + submittedDocs[i] + hired[i]);
     expect(Mean).toBe(round(mean(nnasDurations), 2));
     expect(Mode).toBe(min(mode(nnasDurations)));
     expect(Median).toBe(median(nnasDurations));
