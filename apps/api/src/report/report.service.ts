@@ -1,10 +1,11 @@
 import { Inject, Logger } from '@nestjs/common';
 import { floor, mean, median, min, mode } from 'mathjs';
-import { getManager, Repository, In, LessThanOrEqual, getRepository } from 'typeorm';
+import { getManager, Repository, In, getRepository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import dayjs from 'dayjs';
 import _ from 'lodash';
-import { IMMIGRATION_DURATIONS, LICENSE_RECRUITMENT_DURATIONS } from './constants';
+import { IENHaPcn } from '../applicant/entity/ienhapcn.entity';
+import { MILESTONE_DURATION_ENTRIES } from './constants';
 import { MilestoneDurationEntity } from './entity/milestone-duration.entity';
 import { ReportUtilService } from './report.util.service';
 import { AppLogger } from 'src/common/logger.service';
@@ -271,24 +272,77 @@ export class ReportService {
 
   /**
    * Report 9
+   * Get average time spent on the stages, NNAS, BCCNM & NCAS, Recruitment by Health Authorities, and Immigration
+   * including overall time from the start to immigration completion and average time to hire.
+   *
+   * NOTE: Counting only hired applicants completed immigration
+   *
    * @param t end date of report, YYYY-MM-DD
    */
   async getAverageTimeWithEachStakeholderGroup(statuses: Record<string, string>, t: string) {
     const { to } = this.captureFromTo('', t);
     this.logger.log(`getAverageTimeWithEachStakeholderGroup: apply filter till ${to} date)`);
 
-    const entityManager = getManager();
-    const data = await entityManager.query(
-      this.reportUtilService.averageTimeWithEachStakeholderGroupQuery(statuses, to),
-    );
-    this.logger.log(
-      `getAverageTimeWithEachStakeholderGroup: query completed a total of ${data.length} record returns`,
-    );
+    // to get durations of NNAS, BCCNM & NCAS, Immigration, Overall, and Average time to hire
+    const durations = await getRepository(MilestoneDurationEntity)
+      .createQueryBuilder()
+      .where(`hired_at <= :to AND immigrated_at  <= :to`, { to })
+      .getMany();
+
+    // excludes applicants with a negative duration caused by nonlinear milestones
+    const linearDurations = durations.filter(d => !Object.values(d).some(v => v < 0));
+
+    // to get duration of recruitment by Health Authorities
+    const durationByHAs = await getManager()
+      .createQueryBuilder(IENHaPcn, 'ha')
+      .select('ha.title', 'HA')
+      .addSelect(`COALESCE(ROUND(AVG(md.recruitment), 2), 0)`, 'Mean')
+      .addSelect(`COALESCE(MODE() WITHIN GROUP (ORDER BY md.recruitment), 0)`, 'Mode')
+      .addSelect(
+        `COALESCE(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY md.recruitment), 0)`,
+        'Median',
+      )
+      .leftJoin(
+        qb => {
+          return qb
+            .from(MilestoneDurationEntity, 'd')
+            .where(`d.hired_at <= :to AND d.immigrated_at <= :to`, { to });
+        },
+        'md',
+        'ha.title = md.ha',
+      )
+      .groupBy('ha.id')
+      .getRawMany();
+
+    const data = [
+      { title: 'NNAS', HA: ' ', ...this.getDurationStats(linearDurations.map(d => d.nnas)) },
+      {
+        title: 'BCCNM & NCAS',
+        HA: ' ',
+        ...this.getDurationStats(linearDurations.map(d => d.bccnm_ncas)),
+      },
+      ...durationByHAs.map(ha => ({ title: ' ', ...ha })),
+      {
+        title: 'Immigration',
+        HA: ' ',
+        ...this.getDurationStats(linearDurations.map(d => d.immigration)),
+      },
+      {
+        title: 'Overall',
+        HA: ' ',
+        ...this.getDurationStats(linearDurations.map(d => d.overall)),
+      },
+      {
+        title: 'Average time to hire',
+        HA: ' ',
+        ...this.getDurationStats(linearDurations.map(d => d.to_hire)),
+      },
+    ];
     return data;
   }
 
-  private getMilestoneDurationStats(milestone: string, entries: any[]) {
-    const data = entries.map((e: any) => e[milestone]).filter(v => v !== null && v >= 0);
+  private getDurationStats(durations: number[]) {
+    const data = durations.filter(v => v !== null && v >= 0);
     return {
       Mean: data.length ? floor(mean(data), 2) : '',
       Mode: data.length ? min(mode(data)) : '',
@@ -298,63 +352,32 @@ export class ReportService {
 
   /**
    * Report 10
+   * Get average time spent on each stage and milestone
+   *
+   * NOTE: Counting only hired applicants completed immigration
+   *
    * @param t end date of report, YYYY-MM-DD
    */
   async getAverageTimeOfMilestones(t: string) {
     const { to } = this.captureFromTo('', t);
     this.logger.log(`getAverageTimeOfMilestones: apply filter till ${to} date)`);
 
-    const licRecDurations = await getRepository(MilestoneDurationEntity)
+    const durations = await getRepository(MilestoneDurationEntity)
       .createQueryBuilder()
-      .where(`hired_at <= :to`, { to })
+      .where(`hired_at <= :to AND immigrated_at  <= :to`, { to })
       .getMany();
 
-    // excludes applicants with a negative duration
-    const linearLicRecDurations = licRecDurations.filter(d => !Object.values(d).some(v => v < 0));
-
-    // the end date of immigration milestones should be limited by 'to' date instead of hired date
-    // because immigration stage comes after recruitment
-    const immigrationDurations: MilestoneDurationEntity[] = await getManager().query(`
-      SELECT id, 
-        (CASE WHEN immigration IS NOT null THEN
-          (immigration_completed - hired_at)
-        END) AS immigration,
-        (CASE WHEN sent_first_steps_document IS NOT null THEN
-          (sent_first_steps_document - hired_at)
-        END) AS sent_first_steps_document,
-        (CASE WHEN sent_employer_documents_to_hmbc IS NOT null THEN
-          (sent_employer_documents_to_hmbc - COALESCE(sent_first_steps_document, hired_at))
-        END) AS sent_employer_documents_to_hmbc,
-        (CASE WHEN submitted_bc_pnp_application IS NOT null THEN
-          (submitted_bc_pnp_application - COALESCE(sent_employer_documents_to_hmbc, sent_first_steps_document, hired_at))
-        END) AS submitted_bc_pnp_application,
-        (CASE WHEN received_confirmation_of_nomination IS NOT null THEN
-          (received_confirmation_of_nomination - COALESCE(submitted_bc_pnp_application, sent_employer_documents_to_hmbc, sent_first_steps_document, hired_at))
-        END) AS received_confirmation_of_nomination,
-        (CASE WHEN sent_second_steps_document IS NOT null THEN
-          (sent_second_steps_document - COALESCE(received_confirmation_of_nomination, submitted_bc_pnp_application, sent_employer_documents_to_hmbc, sent_first_steps_document, hired_at))
-        END) AS sent_second_steps_document,
-        (CASE WHEN submitted_work_permit_application IS NOT null THEN
-          (submitted_work_permit_application - COALESCE(sent_second_steps_document, received_confirmation_of_nomination, submitted_bc_pnp_application, sent_employer_documents_to_hmbc, sent_first_steps_document, hired_at))
-        END) AS submitted_work_permit_application,
-        (CASE WHEN immigration_completed IS NOT null THEN
-          (immigration_completed - COALESCE(submitted_work_permit_application, sent_second_steps_document, received_confirmation_of_nomination, submitted_bc_pnp_application, sent_employer_documents_to_hmbc, sent_first_steps_document, hired_at))
-        END) AS immigration_completed
-      FROM hired_withdrawn_applicant_milestone
-      WHERE immigration_completed IS NOT NULL
-    `);
-
-    const linearImmDurations = immigrationDurations.filter(d => !Object.values(d).some(v => v < 0));
+    // excludes applicants with a negative duration caused by nonlinear milestones
+    const linearDurations = durations.filter(d => !Object.values(d).some(v => v < 0));
 
     // if stage or milestone is empty string, it would be formatted as 0 in the spreadsheet.
-    return [
-      ...LICENSE_RECRUITMENT_DURATIONS.map(({ stage = ' ', milestone = ' ', field }) => {
-        return { stage, milestone, ...this.getMilestoneDurationStats(field, linearLicRecDurations) };
-      }),
-      ...IMMIGRATION_DURATIONS.map(({ stage = ' ', milestone = ' ', field }) => {
-        return { stage, milestone, ...this.getMilestoneDurationStats(field, linearImmDurations) };
-      }),
-    ];
+    return MILESTONE_DURATION_ENTRIES.map(({ stage = ' ', milestone = ' ', field }) => {
+      return {
+        stage,
+        milestone,
+        ...this.getDurationStats(linearDurations.map((entry: any) => entry[field])),
+      };
+    });
   }
 
   /**

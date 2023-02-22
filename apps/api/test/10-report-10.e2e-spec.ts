@@ -34,7 +34,8 @@ describe('Report 10 - Average Amount of Time with Each Milestone in Stakeholder 
   const submittedDocs = [21, 31, 43, 54, 65];
   // duration from SUBMITTED_DOCUMENTS to JOB_OFFER_ACCEPTED
   const hired = [3, 5, 8, 13, 21];
-
+  // overall duration
+  const immigration = [120, 131, 142, 153, 164];
 
   beforeAll(async () => {
     const module = await Test.createTestingModule({
@@ -78,11 +79,13 @@ describe('Report 10 - Average Amount of Time with Each Milestone in Stakeholder 
     const appliedToNNASDate = addDays(applicant.registration_date, appliedToNNAS[0]);
     const submittedDocDate = addDays(appliedToNNASDate, submittedDocs[0]);
     const hiredDate = addDays(submittedDocDate, hired[0]);
+    const immigratedDate = addDays(applicant.registration_date, immigration[0]);
     await hire(id, Authorities.VIHA.id, hiredDate);
 
     // add milestones
     await addMilestone(id, '', await getStatus(STATUS.APPLIED_TO_NNAS, appliedToNNASDate));
     await addMilestone(id, '', await getStatus(STATUS.SUBMITTED_DOCUMENTS, submittedDocDate));
+    await addMilestone(id, '', await getStatus(STATUS.RECEIVED_PR, immigratedDate));
 
     let report = await getReport(to);
 
@@ -117,11 +120,13 @@ describe('Report 10 - Average Amount of Time with Each Milestone in Stakeholder 
       const appliedToNNASDate = addDays(applicant.registration_date, appliedToNNAS[i]);
       const submittedDocDate = addDays(appliedToNNASDate, submittedDocs[i]);
       const hiredDate = addDays(submittedDocDate, hired[i]);
+      const immigratedDate = addDays(applicant.registration_date, immigration[i]);
       await hire(id, 'VIHA', hiredDate);
 
       // add milestones
       await addMilestone(id, '', await getStatus(STATUS.APPLIED_TO_NNAS, appliedToNNASDate));
       await addMilestone(id, '', await getStatus(STATUS.SUBMITTED_DOCUMENTS, submittedDocDate));
+      await addMilestone(id, '', await getStatus(STATUS.RECEIVED_WORK_PERMIT, immigratedDate));
     }
 
     report = await getReport(to);
@@ -155,6 +160,7 @@ describe('Report 10 - Average Amount of Time with Each Milestone in Stakeholder 
 
     await addMilestone(id, '', await getStatus(STATUS.APPLIED_TO_NNAS, '2022-06-01'));
     await addMilestone(id, '', await getStatus(STATUS.SUBMITTED_DOCUMENTS, '2022-07-01'));
+    await addMilestone(id, '', await getStatus(STATUS.RECEIVED_PR, '2022-08-01'));
 
     const newReport = await getReport(to);
     expect(JSON.stringify(report)).toBe(JSON.stringify(newReport));

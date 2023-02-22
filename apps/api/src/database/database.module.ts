@@ -21,8 +21,8 @@ import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConne
 import config from '../ormconfig';
 import { RoleEntity } from '../employee/entity/role.entity';
 import { AccessEntity } from '../employee/entity/acl.entity';
-import { HiredWithdrawnApplicantMilestoneEntity } from '../report/entity/hired-withdrawn-applicant-milestone.entity';
-import { HiredWithdrawnApplicantEntity } from '../report/entity/hired-withdrawn-applicant.entity';
+import { HiredApplicantMilestoneEntity } from '../report/entity/hired-applicant-milestone.entity';
+import { HiredApplicantEntity } from '../report/entity/hired-applicant.entity';
 import { MilestoneDurationEntity } from '../report/entity/milestone-duration.entity';
 
 const getEnvironmentSpecificConfig = (env?: string) => {
@@ -43,8 +43,8 @@ const getEnvironmentSpecificConfig = (env?: string) => {
         entities: [
           AccessEntity,
           EmployeeEntity,
-          HiredWithdrawnApplicantEntity,
-          HiredWithdrawnApplicantMilestoneEntity,
+          HiredApplicantEntity,
+          HiredApplicantMilestoneEntity,
           FormEntity,
           IENApplicant,
           IENApplicantAudit,
