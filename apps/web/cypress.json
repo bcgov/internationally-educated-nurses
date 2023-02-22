@@ -1,6 +1,6 @@
 {
   "projectId": "zad925",
-  "baseUrl": "http://localhost:3000",
+  "baseUrl": "http://127.0.0.1:3000",
   "env": {
     "FAIL_FAST_STRATEGY": "run",
     "FAIL_FAST_ENABLED": true
