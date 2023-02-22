@@ -15,6 +15,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         name: checkout
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
       - uses: actions/cache@v2
         name: Cache yarn
         with:
