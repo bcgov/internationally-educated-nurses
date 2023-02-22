@@ -8,8 +8,8 @@ export class HiredWithdrawnApplicantEntity {
   id!: string;
 
   @ViewColumn()
-  hired_date!: Date;
+  hired_at!: Date;
 
   @ViewColumn()
-  withdraw_date!: Date;
+  withdrew_at!: Date;
 }
