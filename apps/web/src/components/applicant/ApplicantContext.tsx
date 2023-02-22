@@ -6,13 +6,12 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { useRouter } from 'next/router';
-
 import { ApplicantRO, ApplicantStatusAuditRO, ApplicantJobRO, isHired } from '@ien/common';
 import { getApplicant } from '@services';
 import { Spinner } from '../Spinner';
+import { useRouter } from 'next/router';
 import { useAuthContext } from '../AuthContexts';
-// DO NOT MERGE
+
 export const ApplicantContext = createContext<{
   applicant: ApplicantRO;
   milestones: ApplicantStatusAuditRO[];
