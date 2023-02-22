@@ -8,10 +8,10 @@ export class HiredWithdrawnApplicantMilestoneEntity {
   id!: string;
 
   @ViewColumn()
-  hired_date!: Date;
+  hired_at!: Date;
 
   @ViewColumn()
-  withdraw_date!: Date;
+  withdrew_at!: Date;
 
   @ViewColumn()
   nnas!: Date;
@@ -59,9 +59,6 @@ export class HiredWithdrawnApplicantMilestoneEntity {
   reference_check!: Date;
 
   @ViewColumn()
-  competition_outcome!: Date;
-
-  @ViewColumn()
   immigration!: Date;
 
   @ViewColumn()
@@ -81,15 +78,6 @@ export class HiredWithdrawnApplicantMilestoneEntity {
 
   @ViewColumn()
   submitted_work_permit_application!: Date;
-
-  @ViewColumn()
-  received_work_permit_approval_letter!: Date;
-
-  @ViewColumn()
-  received_work_permit!: Date;
-
-  @ViewColumn()
-  received_pr!: Date;
 
   @ViewColumn()
   immigration_completed!: Date;
