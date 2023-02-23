@@ -253,7 +253,12 @@ export class ReportUtilService {
     At the start of the query, we have identified stages in licensing stage(which contains a single or group of milestones).
     Let's find each of the rows separatly from the "report" result and UNION them ALL to generate report format.
   */
-  licensingStageApplicantsQuery(statuses: Record<string, string>, from: string, to: string) {
+  licensingStageApplicantsQuery(
+    statuses: Record<string, string>,
+    from: string,
+    to: string,
+    getNewProcessApplicants = false,
+  ) {
     return `
       WITH active_applicants AS (
         SELECT
@@ -311,7 +316,7 @@ export class ReportUtilService {
             THEN 1
             ELSE 0 
           END as hired_or_withdrawn
-          FROM public.ien_applicants as applicants
+          FROM public.ien_applicants as applicants WHERE applicants.new_bccnm_process = ${getNewProcessApplicants}
         ) as t1
         WHERE t1.hired_or_withdrawn = 0
       ),
@@ -339,7 +344,7 @@ export class ReportUtilService {
       report AS (
         SELECT * FROM period_data WHERE status_id IS NOT NULL
       )
-
+      
       SELECT 'Applied to NNAS' as status, count(*) as applicants
       FROM report WHERE status_id IN (
         '${statuses[STATUS.APPLIED_TO_NNAS]}',
@@ -367,7 +372,7 @@ export class ReportUtilService {
         '${statuses[STATUS.REFERRED_TO_ADDITIONAL_EDUCTION]}',
         '${statuses[STATUS.COMPLETED_ADDITIONAL_EDUCATION]}'
       ) UNION ALL
-      
+
       SELECT 'NCLEX - Written' as status, count(*)
       FROM report WHERE status_id = '${statuses[STATUS.NCLEX_WRITTEN]}' UNION ALL
       
@@ -406,7 +411,7 @@ export class ReportUtilService {
       
       SELECT 'Applicant ready for job search' as status, count(*)
       FROM report WHERE status_id = '${statuses[STATUS.READY_FOR_JOB_SEARCH]}' UNION ALL
-       
+      
       SELECT 'Applicant Referred to FNHA' as status, count(*)
       FROM report WHERE status_id = '${statuses[STATUS.REFERRED_TO_FNHA]}' UNION ALL
         
@@ -414,8 +419,8 @@ export class ReportUtilService {
       FROM report WHERE status_id = '${statuses[STATUS.REFERRED_TO_FHA]}' UNION ALL
         
       SELECT 'Applicant Referred to IHA' as status, count(*)
-       FROM report WHERE status_id = '${statuses[STATUS.REFERRED_TO_IHA]}' UNION ALL
-         
+      FROM report WHERE status_id = '${statuses[STATUS.REFERRED_TO_IHA]}' UNION ALL
+        
       SELECT 'Applicant Referred to NHA' as status, count(*)
       FROM report WHERE status_id = '${statuses[STATUS.REFERRED_TO_NHA]}' UNION ALL
         
