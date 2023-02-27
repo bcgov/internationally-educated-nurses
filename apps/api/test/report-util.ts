@@ -12,7 +12,7 @@ import { getRepository } from 'typeorm';
 import { IENApplicantStatusAudit } from '../src/applicant/entity/ienapplicant-status-audit.entity';
 import { IENApplicantStatus } from '../src/applicant/entity/ienapplicant-status.entity';
 import { IENHaPcn } from '../src/applicant/entity/ienhapcn.entity';
-import { ReportTestStatus } from './fixture/reports';
+import { ReportFourItem } from './fixture/reports';
 
 interface EducationOptions {
   count?: number;
@@ -104,13 +104,13 @@ export const getIndexOfStatus = (arr: unknown[], compareTo: string) => {
   return arr.findIndex((v: any) => v.status === compareTo);
 };
 
-export const getStatusId = async (status: STATUS | ReportTestStatus): Promise<string> => {
+export const getStatusId = async (status: STATUS): Promise<string> => {
   const result = await getRepository(IENApplicantStatus).findOne({ status });
   return result?.id || '';
 };
 
 export const getStatus = async (
-  status: STATUS | ReportTestStatus,
+  status: STATUS,
   start?: string,
 ): Promise<IENApplicantAddStatusDTO> => {
   return {
@@ -137,4 +137,11 @@ export const getHaId = async (ha: keyof typeof Authorities): Promise<string> => 
  */
 export const addDays = (date: string, days: number) => {
   return dayjs(date).add(days, 'days').format('YYYY-MM-DD');
+};
+
+ // Find the number of applicants for the given status
+ export const reportFourNumberOfApplicants = (body: ReportFourItem[], applicantStatus: string | STATUS) => {
+  return body.find((e: { status: string }) => {
+    return e.status === applicantStatus;
+  })?.applicants;
 };

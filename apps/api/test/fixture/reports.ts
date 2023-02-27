@@ -31,58 +31,14 @@ export const addMilestone = {
 
 // Report 4 data
 
-export const statusNames = [
-  'BCCNM Full Licence LPN',
-  'BCCNM Full Licence RN',
-  'BCCNM Provisional Licence LPN',
-  'BCCNM Provisional Licence RN',
-];
-export const jobInput: IENApplicantJobCreateUpdateDTO = {
-  ha_pcn: '6ad69443-e3a8-3cbc-8cc9-3a05e5b771e4',
-  job_id: '148593',
-  recruiter_name: 'Test 4',
-};
-
-export type ReportTestStatus = LICENSE_STATUS | BCCNM_STATUS;
-
-export enum LICENSE_STATUS {
-  APPLIED_TO_NNAS = 'Applied to NNAS',
-  APPLIED_TO_BCCNM = 'Applied to BCCNM',
-  COMPLETED_LANGUAGE_REQUIREMENT = 'Completed English Language Requirement',
-  REFERRED_TO_NCAS = 'Referred to NCAS',
-  COMPLETED_NCAS = 'Completed NCAS',
-  COMPLETED_ADDITIONAL_EDUCATION = 'Completed Additional Education',
-  NCLEX_WRITTEN = 'NCLEX – Written',
-  NCLEX_PASSED = 'NCLEX – Passed',
-  REX_PN_WRITTEN = 'REx-PN - Written',
-  REX_PN_PASSED = 'REx-PN - Passed',
-  BCCNM_FULL_LICENCE_LPN = 'BCCNM Full Licence LPN',
-  BCCNM_FULL_LICENSE_RN = 'BCCNM Full Licence RN',
-  BCCNM_PROVISIONAL_LICENSE_LPN = 'BCCNM Provisional Licence LPN',
-  BCCNM_PROVISIONAL_LICENSE_RN = 'BCCNM Provisional Licence RN',
-  REFERRED_TO_REGISTRATION_EXAM = 'Referred to Registration Exam',
-  REGISTERED_AS_AN_HCA = 'Registered as an HCA',
-  REGISTRATION_JOURNEY_COMPLETED = 'Registration Journey Complete',
-  WITHDREW_FROM_PROGRAM = 'Withdrew from IEN program',
-  READY_FOR_JOB_SEARCH = 'Applicant Ready for Job Search',
-  REFERRED_TO_FNHA = 'Applicant Referred to FNHA',
-  REFERRED_TO_FHA = 'Applicant Referred to FHA',
-  REFERRED_TO_IHA = 'Applicant Referred to IHA',
-  REFERRED_TO_NHA = 'Applicant Referred to NHA',
-  REFERRED_TO_PHC = 'Applicant Referred to PHC',
-  REFERRED_TO_PHSA = 'Applicant Referred to PHSA',
-  REFERRED_TO_VCHA = 'Applicant Referred to VCHA',
-  REFERRED_TO_VIHA = 'Applicant Referred to VIHA',
-}
-
-export enum BCCNM_STATUS {
-  BCCNM_FULL_LICENCE_LPN = 'BCCNM Full Licence LPN',
-  BCCNM_FULL_LICENSE_RN = 'BCCNM Full Licence RN',
-  BCCNM_PROVISIONAL_LICENSE_LPN = 'BCCNM Provisional Licence LPN',
-  BCCNM_PROVISIONAL_LICENSE_RN = 'BCCNM Provisional Licence RN',
-}
-
-export interface Report4Item {
+export const haPcnArray = [
+  '6ad69443-e3a8-3cbc-8cc9-3a05e5b771e4',
+  '0388f125-e89f-2df7-24a0-3a05e5c0956d',
+  '1adc5904-17a8-b4ca-55c5-3a05e5b6797f',
+  '28f4b8fd-588b-c170-3434-3a05e5b88823',
+  '5c81ed72-6285-7f28-faf0-3a05e5b8024f'
+]
+export interface ReportFourItem {
   status: string | STATUS;
   applicants: string;
 }
