@@ -139,8 +139,11 @@ export const addDays = (date: string, days: number) => {
   return dayjs(date).add(days, 'days').format('YYYY-MM-DD');
 };
 
- // Find the number of applicants for the given status
- export const reportFourNumberOfApplicants = (body: ReportFourItem[], applicantStatus: string | STATUS) => {
+// Find the number of applicants for the given status
+export const reportFourNumberOfApplicants = (
+  body: ReportFourItem[],
+  applicantStatus: string | STATUS,
+) => {
   return body.find((e: { status: string }) => {
     return e.status === applicantStatus;
   })?.applicants;

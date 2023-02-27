@@ -7,14 +7,14 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { URLS } from './constants';
 import { canActivate } from './override-guard';
 import { getApplicant, getStatus, reportFourNumberOfApplicants } from './report-util';
-import {  haPcnArray } from './fixture/reports';
-import { STATUS, LIC_REG_STAGE, BCCNM_LICENSE} from '@ien/common';
+import { haPcnArray } from './fixture/reports';
+import { STATUS, LIC_REG_STAGE, BCCNM_LICENSE } from '@ien/common';
 import {
   addApplicant,
   addMilestone,
   setApp,
   addJob,
-  deleteApplicantStatus
+  deleteApplicantStatus,
 } from './report-request-util';
 
 describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
@@ -53,7 +53,7 @@ describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
 
     // What the report is expected to look like. Used for comparison at the end of the test
     const expectedResult = before.map((item: { applicants: string; status: string }) => {
-      const stat = item.status
+      const stat = item.status;
       let result = parseInt(item.applicants) + 1;
       // Accounts for other two BCCNM Licenses
       if (stat === 'Granted provisional licensure' || stat === 'Granted full licensure') {
@@ -65,28 +65,28 @@ describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
       }
       // NCAS count increases with COMPLETED_CBA and COMPLETED_SLA
       // NNAS count increases with RECEIVED_NNAS_REPORT and SUBMITTED_DOCUMENTS
-      else if(stat === STATUS.REFERRED_TO_NCAS || stat === STATUS.APPLIED_TO_NNAS) {
+      else if (stat === STATUS.REFERRED_TO_NCAS || stat === STATUS.APPLIED_TO_NNAS) {
         result += 2;
       }
       // Referred to Additional Education makes this report count increase
-      else if(stat === STATUS.COMPLETED_ADDITIONAL_EDUCATION) {
-        result++
+      else if (stat === STATUS.COMPLETED_ADDITIONAL_EDUCATION) {
+        result++;
       }
       return {
         ...item,
         applicants: result.toString(),
       };
     });
-  
+
     // Add applicants and give milestones/status
     for (const status of LIC_REG_STAGE) {
       // Job id only needed for WITHDREW_FROM_PROGRAM
-      let jobId = "";
+      let jobId = '';
       const applicant = await addApplicant(getApplicant());
       applicantIds.push(applicant.id);
-    
-      if(status === STATUS.WITHDREW_FROM_PROGRAM) {
-        const {id} = await addJob(applicant.id, {
+
+      if (status === STATUS.WITHDREW_FROM_PROGRAM) {
+        const { id } = await addJob(applicant.id, {
           ha_pcn: haPcnArray[0],
           job_id: '148593',
           recruiter_name: 'Test 4',
@@ -103,11 +103,10 @@ describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
     // Resetting milestones to original
     for (let i = 0; i <= LIC_REG_STAGE.length - 1; i++) {
       await deleteApplicantStatus(applicantIds[i], statusIds[i]);
-    } 
-
+    }
   });
 
-   it('Applicants with "Withdrew from IEN program" status does not appear on report', async () => {
+  it('Applicants with "Withdrew from IEN program" status does not appear on report', async () => {
     // The report output includes "Withdrew from IEN program" row, which should not increase with WITHDREW_FROM_PROGRAM milestone
     const { body: before } = await request(app.getHttpServer()).get(URLS.REPORT4);
 
@@ -172,15 +171,15 @@ describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
     }
   });
 
-  it("NCAS value increases on report for each status Completed CBA or Completed SLA", async () => {
+  it('NCAS value increases on report for each status Completed CBA or Completed SLA', async () => {
     const { body: before } = await request(app.getHttpServer()).get(URLS.REPORT4);
 
     //Expect the NCAS value to increase by 2
     const expectedResult = before.map((item: { applicants: string; status: string }) => {
-      const stat = item.status
+      const stat = item.status;
       let result = parseInt(item.applicants);
-      if(stat === STATUS.REFERRED_TO_NCAS) {
-        result+= 2;
+      if (stat === STATUS.REFERRED_TO_NCAS) {
+        result += 2;
       }
       return {
         ...item,
@@ -199,8 +198,16 @@ describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
       recruiter_name: 'Test2',
     });
 
-    const milestone1 = await addMilestone(applicantIds[3], job1.id, await getStatus(STATUS.COMPLETED_CBA)); 
-    const milestone2 = await addMilestone(applicantIds[4], job2.id, await getStatus(STATUS.COMPLETED_SLA)); 
+    const milestone1 = await addMilestone(
+      applicantIds[3],
+      job1.id,
+      await getStatus(STATUS.COMPLETED_CBA),
+    );
+    const milestone2 = await addMilestone(
+      applicantIds[4],
+      job2.id,
+      await getStatus(STATUS.COMPLETED_SLA),
+    );
 
     const { body: after } = await request(app.getHttpServer()).get(URLS.REPORT4);
 
@@ -210,15 +217,15 @@ describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
     expect(expectedResult).toStrictEqual(after);
   });
 
-  it("NNAS value increases on report for each status Received NNAS Report or Submitted documents", async () => {
+  it('NNAS value increases on report for each status Received NNAS Report or Submitted documents', async () => {
     const { body: before } = await request(app.getHttpServer()).get(URLS.REPORT4);
 
     // Expect the NNAS value to increase by 2
     const expectedResult = before.map((item: { applicants: string; status: string }) => {
-      const stat = item.status
+      const stat = item.status;
       let result = parseInt(item.applicants);
-      if(stat === STATUS.APPLIED_TO_NNAS) {
-        result+= 2;
+      if (stat === STATUS.APPLIED_TO_NNAS) {
+        result += 2;
       }
       return {
         ...item,
@@ -237,8 +244,16 @@ describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
       recruiter_name: 'Test4',
     });
 
-    const milestone1 = await addMilestone(applicantIds[5], job1.id, await getStatus(STATUS.RECEIVED_NNAS_REPORT)); 
-    const milestone2 = await addMilestone(applicantIds[6], job2.id, await getStatus(STATUS.SUBMITTED_DOCUMENTS)); 
+    const milestone1 = await addMilestone(
+      applicantIds[5],
+      job1.id,
+      await getStatus(STATUS.RECEIVED_NNAS_REPORT),
+    );
+    const milestone2 = await addMilestone(
+      applicantIds[6],
+      job2.id,
+      await getStatus(STATUS.SUBMITTED_DOCUMENTS),
+    );
 
     const { body: after } = await request(app.getHttpServer()).get(URLS.REPORT4);
 
@@ -246,5 +261,5 @@ describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
 
     await deleteApplicantStatus(applicantIds[3], milestone1.id);
     await deleteApplicantStatus(applicantIds[4], milestone2.id);
-  })
+  });
 });

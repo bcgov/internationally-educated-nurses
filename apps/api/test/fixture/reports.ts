@@ -36,8 +36,8 @@ export const haPcnArray = [
   '0388f125-e89f-2df7-24a0-3a05e5c0956d',
   '1adc5904-17a8-b4ca-55c5-3a05e5b6797f',
   '28f4b8fd-588b-c170-3434-3a05e5b88823',
-  '5c81ed72-6285-7f28-faf0-3a05e5b8024f'
-]
+  '5c81ed72-6285-7f28-faf0-3a05e5b8024f',
+];
 export interface ReportFourItem {
   status: string | STATUS;
   applicants: string;
