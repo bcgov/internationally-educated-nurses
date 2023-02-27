@@ -213,13 +213,13 @@ const reportCreators: ReportCreator[] = [
   {
     name: 'Report 4',
     description: 'Number of Internationally Educated Nurse Registrants in the Licensing Stage',
-    header: ['', 'IEN Registrants'],
+    header: ['', 'IEN Registrants - Old', 'IEN Registrants - New'],
     rowProcessor: (data: Record<string, string | number>[]) => {
       const rows = data.map(Object.values);
       rows.splice(rows.length - 2, 0, []);
       return rows;
     },
-    colWidths: [40, 20],
+    colWidths: [40, 30, 30],
   },
   {
     name: 'Report 5',

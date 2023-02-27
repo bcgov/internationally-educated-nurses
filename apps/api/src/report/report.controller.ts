@@ -1,13 +1,10 @@
 import { Controller, Get, Inject, Logger, Query, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { Access, ReportPeriodDTO } from '@ien/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { AppLogger } from 'src/common/logger.service';
 import { AllowAccess } from 'src/common/decorators';
 import { ReportService } from './report.service';
-import { IENApplicantStatus } from '../applicant/entity/ienapplicant-status.entity';
 
 @Controller('reports')
 @ApiTags('IEN Reports')
@@ -16,8 +13,6 @@ export class ReportController {
   constructor(
     @Inject(Logger) private readonly logger: AppLogger,
     @Inject(ReportService) private readonly reportService: ReportService,
-    @InjectRepository(IENApplicantStatus)
-    private readonly ienapplicantStatusRepository: Repository<IENApplicantStatus>,
   ) {}
 
   @Get('/applicant')
