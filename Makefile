@@ -302,7 +302,7 @@ sync-app:
 
 upload-sync-api:
 	aws s3 sync ./terraform/build/api s3://$(API_SRC_BUCKET)
-	aws s3 cp ./terraform/build/api.zip s3://${API_SRC_BUCKET}/api-lambda-s3 --region $(AWS_REGION)
+	aws s3 cp ./terraform/build/api.zip s3://$(API_SRC_BUCKET)/api-lambda-s3 --region $(AWS_REGION)
 
 deploy-app:
 	aws --region $(AWS_REGION) cloudfront create-invalidation --distribution-id $(CLOUDFRONT_ID) --paths "/*"
