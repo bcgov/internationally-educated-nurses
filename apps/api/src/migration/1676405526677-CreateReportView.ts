@@ -18,7 +18,8 @@ export class CreateReportView1676405526677 implements MigrationInterface {
           min(ia.registration_date) AS registered_at,
           max(a.hired_at) AS hired_at,
           max(a.withdrew_at) AS withdrew_at,
-          ihp.title AS ha
+          ihp.title AS ha,
+          a.job_id
         FROM (
           (
             SELECT
@@ -47,7 +48,7 @@ export class CreateReportView1676405526677 implements MigrationInterface {
         LEFT JOIN ien_applicants ia ON a.id = ia.id
         LEFT JOIN ien_applicant_jobs iaj ON iaj.id = a.job_id
         LEFT JOIN ien_ha_pcn ihp ON ihp.id = iaj.ha_pcn_id
-        GROUP BY a.id, ihp.title
+        GROUP BY a.id, ihp.title, a.job_id
       );
     `);
     await queryRunner.query(`
@@ -166,7 +167,7 @@ export class CreateReportView1676405526677 implements MigrationInterface {
           (
             SELECT min(start_date)
             FROM public.ien_applicant_status_audit asa
-            WHERE asa.applicant_id = hwa.id AND asa.status_id IN (
+            WHERE asa.applicant_id = hwa.id AND asa.job_id = hwa.job_id AND asa.status_id IN (
               '${STATUS_ID[STATUS.PRE_SCREEN_PASSED]}',
               '${STATUS_ID[STATUS.PRE_SCREEN_NOT_PASSED]}'
             )
@@ -175,7 +176,7 @@ export class CreateReportView1676405526677 implements MigrationInterface {
           (
             SELECT min(start_date)
             FROM public.ien_applicant_status_audit asa
-            WHERE asa.applicant_id = hwa.id AND asa.status_id IN (
+            WHERE asa.applicant_id = hwa.id AND asa.job_id = hwa.job_id AND asa.status_id IN (
               '${STATUS_ID[STATUS.INTERVIEW_PASSED]}',
               '${STATUS_ID[STATUS.INTERVIEW_NOT_PASSED]}'
             )
@@ -184,7 +185,7 @@ export class CreateReportView1676405526677 implements MigrationInterface {
           (
             SELECT min(start_date)
             FROM public.ien_applicant_status_audit asa
-            WHERE asa.applicant_id = hwa.id AND asa.status_id IN (
+            WHERE asa.applicant_id = hwa.id AND asa.job_id = hwa.job_id AND asa.status_id IN (
               '${STATUS_ID[STATUS.REFERENCE_CHECK_PASSED]}',
               '${STATUS_ID[STATUS.REFERENCE_CHECK_NOT_PASSED]}'
             )
@@ -193,7 +194,7 @@ export class CreateReportView1676405526677 implements MigrationInterface {
           (
             SELECT min(start_date)
             FROM public.ien_applicant_status_audit asa
-            WHERE asa.applicant_id = hwa.id AND asa.status_id IN (
+            WHERE asa.applicant_id = hwa.id AND asa.job_id = hwa.job_id AND asa.status_id IN (
               '${STATUS_ID[STATUS.JOB_OFFER_ACCEPTED]}',
               '${STATUS_ID[STATUS.JOB_OFFER_NOT_ACCEPTED]}',
               '${STATUS_ID[STATUS.JOB_COMPETITION_CANCELLED]}',
