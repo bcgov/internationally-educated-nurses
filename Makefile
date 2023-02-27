@@ -300,8 +300,7 @@ runs:
 sync-app:
 	aws s3 sync ./terraform/build/app s3://$(APP_SRC_BUCKET) --delete
 
-upload-sync-api:
-	aws s3 sync ./terraform/build/api s3://$(API_SRC_BUCKET)
+upload-api-zip:
 	aws s3 cp ./terraform/build/api.zip s3://$(API_SRC_BUCKET)/api-lambda-s3 --region $(AWS_REGION)
 
 deploy-app:
@@ -313,7 +312,7 @@ deploy-api:
 	aws lambda update-function-code --function-name ien-$(ENV_NAME)-syncdata --zip-file fileb://./terraform/build/api.zip --region $(AWS_REGION) > /dev/null
 	aws lambda update-function-code --function-name ien-$(ENV_NAME)-notifylambda --zip-file fileb://./terraform/build/api.zip --region $(AWS_REGION) > /dev/null
 
-deploy-all: sync-app upload-sync-api deploy-api
+deploy-all: sync-app upload-api-zip deploy-api
 	@echo "Deploying Webapp and API"
 
 backup-db:
