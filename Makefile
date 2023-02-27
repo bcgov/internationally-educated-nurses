@@ -299,18 +299,21 @@ runs:
 
 sync-app:
 	aws s3 sync ./terraform/build/app s3://$(APP_SRC_BUCKET) --delete
-	aws s3 sync ./terraform/build/api s3://$(API_SRC_BUCKET) --delete
+
+upload-sync-api:
+	aws s3 sync ./terraform/build/api s3://$(API_SRC_BUCKET)
+	aws s3 cp ./terraform/build/api.zip s3://${API_SRC_BUCKET}/api-lambda-s3 --region $(AWS_REGION)
 
 deploy-app:
 	aws --region $(AWS_REGION) cloudfront create-invalidation --distribution-id $(CLOUDFRONT_ID) --paths "/*"
 
 # Full redirection to /dev/null is required to not leak env variables
 deploy-api:
-	aws lambda update-function-code --function-name ien-$(ENV_NAME)-api --zip-file fileb://./terraform/build/api.zip --region $(AWS_REGION) > /dev/null
+	aws lambda update-function-code --function-name ien-$(ENV_NAME)-api --s3-bucket ${api_sources_bucket} --s3-key "api-lambda-s3" --region $(AWS_REGION) > /dev/null
 	aws lambda update-function-code --function-name ien-$(ENV_NAME)-syncdata --zip-file fileb://./terraform/build/api.zip --region $(AWS_REGION) > /dev/null
 	aws lambda update-function-code --function-name ien-$(ENV_NAME)-notifylambda --zip-file fileb://./terraform/build/api.zip --region $(AWS_REGION) > /dev/null
 
-deploy-all: sync-app deploy-api
+deploy-all: sync-app upload-sync-api deploy-api
 	@echo "Deploying Webapp and API"
 
 backup-db:
