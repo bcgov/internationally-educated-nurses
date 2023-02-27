@@ -39,6 +39,7 @@ LOCAL_API_CONTAINER_NAME = $(PROJECT)_api
 export AWS_REGION ?= ca-central-1
 NAMESPACE = $(PROJECT)-$(ENV_NAME)
 APP_SRC_BUCKET = $(NAMESPACE)-app
+API_SRC_BUCKET = $(NAMESPACE)-api
 
 # Terraform variables
 TERRAFORM_DIR = terraform
@@ -74,6 +75,7 @@ project_code = "$(PROJECT)"
 api_artifact = "build/api.zip"
 app_sources = "build/app"
 app_sources_bucket = "$(APP_SRC_BUCKET)"
+api_sources_bucket = "$(API_SRC_BUCKET)"
 domain = "$(DOMAIN)"
 db_username = "$(POSTGRES_USERNAME)"
 ches_client_id = "$(CHES_CLIENT_ID)"
@@ -297,6 +299,7 @@ runs:
 
 sync-app:
 	aws s3 sync ./terraform/build/app s3://$(APP_SRC_BUCKET) --delete
+	aws s3 sync ./terraform/build/api s3://$(API_SRC_BUCKET) --delete
 
 deploy-app:
 	aws --region $(AWS_REGION) cloudfront create-invalidation --distribution-id $(CLOUDFRONT_ID) --paths "/*"
