@@ -1,4 +1,3 @@
-import { IENApplicantJobCreateUpdateDTO } from '@ien/common';
 import { STATUS } from '@ien/common/src/enum';
 import { randomUUID } from 'crypto';
 
@@ -30,15 +29,8 @@ export const addMilestone = {
 };
 
 // Report 4 data
-
-export const haPcnArray = [
-  '6ad69443-e3a8-3cbc-8cc9-3a05e5b771e4',
-  '0388f125-e89f-2df7-24a0-3a05e5c0956d',
-  '1adc5904-17a8-b4ca-55c5-3a05e5b6797f',
-  '28f4b8fd-588b-c170-3434-3a05e5b88823',
-  '5c81ed72-6285-7f28-faf0-3a05e5b8024f',
-];
 export interface ReportFourItem {
   status: string | STATUS;
-  applicants: string;
+  oldProcessApplicants: string;
+  newProcessApplicants: string;
 }

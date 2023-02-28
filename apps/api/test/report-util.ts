@@ -100,8 +100,8 @@ export const getMilestone = (options: IENApplicantAddStatusDTO): IENApplicantAdd
   };
 };
 
-export const getIndexOfStatus = (arr: unknown[], compareTo: string) => {
-  return arr.findIndex((v: any) => v.status === compareTo);
+export const getIndexOfStatus = (arr: { status: string | STATUS }[], compareTo: string) => {
+  return arr.findIndex(v => v.status === compareTo);
 };
 
 export const getStatusId = async (status: STATUS): Promise<string> => {
@@ -139,12 +139,58 @@ export const addDays = (date: string, days: number) => {
   return dayjs(date).add(days, 'days').format('YYYY-MM-DD');
 };
 
-// Find the number of applicants for the given status
+/**
+ * Find the number of applicants for report 4 with the given status
+ * @param body
+ * @param applicantStatus number of days to be added
+ * @param isNewProcess look for new process if true, old otherwise
+ * @return number of applicants
+ */
 export const reportFourNumberOfApplicants = (
   body: ReportFourItem[],
   applicantStatus: string | STATUS,
+  isNewProcess: boolean,
 ) => {
+  const process = isNewProcess ? 'newProcessApplicants' : 'oldProcessApplicants';
   return body.find((e: { status: string }) => {
     return e.status === applicantStatus;
-  })?.applicants;
+  })?.[process];
+};
+
+/**
+ * Gives same results as adding all milestones to different applicants
+ * @param body report 4 initial values
+ * @param isNewProcess look for new process if true, old otherwise
+ * @return expected result for adding every licensing milestone
+ */
+export const reportFourExpectedResult = (body: ReportFourItem[], isNewProcess: boolean) => {
+  const process = isNewProcess ? 'newProcessApplicants' : 'oldProcessApplicants';
+
+  return body.map(
+    (item: { status: string; oldProcessApplicants: string; newProcessApplicants: string }) => {
+      const stat = item.status;
+      let result = parseInt(item[process]) + 1;
+      // Accounts for other two BCCNM Licenses
+      if (stat === 'Granted provisional licensure' || stat === 'Granted full licensure') {
+        result++;
+      }
+      // Withdraw status should not be incremented in report ouput
+      else if (stat === STATUS.WITHDREW_FROM_PROGRAM) {
+        result--;
+      }
+      // NCAS count increases with COMPLETED_CBA and COMPLETED_SLA
+      // NNAS count increases with RECEIVED_NNAS_REPORT and SUBMITTED_DOCUMENTS
+      else if (stat === STATUS.REFERRED_TO_NCAS || stat === STATUS.APPLIED_TO_NNAS) {
+        result += 2;
+      }
+      // Referred to Additional Education makes this report count increase
+      else if (stat === STATUS.COMPLETED_ADDITIONAL_EDUCATION) {
+        result++;
+      }
+      return {
+        ...item,
+        [process]: result.toString(),
+      };
+    },
+  );
 };
