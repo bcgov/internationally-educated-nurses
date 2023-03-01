@@ -1,5 +1,5 @@
 import { Inject, Logger } from '@nestjs/common';
-import { floor, mean, median, min, mode } from 'mathjs';
+import { mean, median, min, mode, round } from 'mathjs';
 import { getManager, Repository, In, getRepository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import dayjs from 'dayjs';
@@ -306,7 +306,8 @@ export class ReportService {
         qb => {
           return qb
             .from(MilestoneDurationEntity, 'd')
-            .where(`d.hired_at <= :to AND d.immigrated_at <= :to`, { to });
+            .where(`d.hired_at <= :to AND d.immigrated_at <= :to`, { to })
+            .andWhere(`LEAST(d.pre_screen, interview, reference_check, hired) > 0`);
         },
         'md',
         'ha.title = md.ha',
@@ -344,7 +345,7 @@ export class ReportService {
   private getDurationStats(durations: number[]) {
     const data = durations.filter(v => v !== null && v >= 0);
     return {
-      Mean: data.length ? floor(mean(data), 2) : '',
+      Mean: data.length ? round(mean(data), 2) : '',
       Mode: data.length ? min(mode(data)) : '',
       Median: data.length ? median(data) : '',
     };
