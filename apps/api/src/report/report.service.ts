@@ -306,7 +306,8 @@ export class ReportService {
         qb => {
           return qb
             .from(MilestoneDurationEntity, 'd')
-            .where(`d.hired_at <= :to AND d.immigrated_at <= :to`, { to });
+            .where(`d.hired_at <= :to AND d.immigrated_at <= :to`, { to })
+            .andWhere(`LEAST(d.pre_screen, interview, reference_check, hired) > 0`);
         },
         'md',
         'ha.title = md.ha',
