@@ -87,7 +87,6 @@ export class ExternalAPIController {
     try {
       return await this.externalAPIService.saveApplicant(from, to);
     } catch (e) {
-      console.log(e);
       this.logger.error(e);
       if (e instanceof NotFoundException) {
         throw e;
