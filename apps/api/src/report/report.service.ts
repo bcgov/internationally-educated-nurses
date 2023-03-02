@@ -189,7 +189,9 @@ export class ReportService {
     const { from, to } = this.captureFromTo(f, t);
     this.logger.log(`getLicenseApplicants: Apply date filter from (${from}) and to (${to})`);
     const entityManager = getManager();
-    const data = await entityManager.query( this.reportUtilService.licenseApplicantsQuery(statuses, from, to););
+    const data = await entityManager.query(
+      this.reportUtilService.licenseApplicantsQuery(statuses, from, to),
+    );
     this.logger.log(
       `getLicenseApplicants: query completed a total of ${data.length} record returns`,
     );

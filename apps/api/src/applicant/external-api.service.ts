@@ -34,8 +34,6 @@ import { IENJobTitle } from './entity/ienjobtitles.entity';
 import { IENApplicantStatus } from './entity/ienapplicant-status.entity';
 import { ApplicantSyncRO } from './ro/sync.ro';
 import { isNewBCCNMProcess } from 'src/common/util';
-import math from 'mathjs';
-const fs = require('fs');
 
 @Injectable()
 export class ExternalAPIService {
