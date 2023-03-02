@@ -1,4 +1,3 @@
-import { STATUS } from '@ien/common/src/enum';
 import { randomUUID } from 'crypto';
 
 export const validApplicantForReport = {
@@ -27,10 +26,3 @@ export const addMilestone = {
   notes: 'Test Note 1',
   reason: '',
 };
-
-// Report 4 data
-export interface ReportFourItem {
-  status: string | STATUS;
-  oldProcessApplicants: string;
-  newProcessApplicants: string;
-}

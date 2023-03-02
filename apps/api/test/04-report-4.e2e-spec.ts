@@ -13,14 +13,7 @@ import {
   reportFourExpectedResult,
 } from './report-util';
 import { STATUS, LIC_REG_STAGE, BCCNM_LICENSE } from '@ien/common';
-import {
-  addApplicant,
-  addMilestone,
-  setApp,
-  addJob,
-  deleteApplicantStatus,
-  getHAs,
-} from './report-request-util';
+import { addApplicant, addMilestone, setApp, addJob, getHAs } from './report-request-util';
 
 describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
   // Tracks applicants id's and to later delete status/milestones
@@ -41,8 +34,8 @@ describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
     await app.init();
 
     setApp(app);
-    const { id } = await getHAs();
-    haPcn = id;
+    let temp = await getHAs();
+    haPcn = temp[0].id;
   });
 
   afterAll(async () => {
@@ -56,15 +49,15 @@ describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
 
   it('Add applicants and give each a different status/milestone (old process)', async () => {
     const { body: before } = await request(app.getHttpServer()).get(URLS.REPORT4);
+
     // What the report is expected to look like. Only looks at old process
     const expectedResult = reportFourExpectedResult(before, false);
 
     // Add applicants and give milestones/status
     for (const status of LIC_REG_STAGE) {
-      // Job id only needed for WITHDREW_FROM_PROGRAM
       const applicant = await addApplicant(getApplicant({ between: ['2022-05-29', '2022-06-19'] }));
       applicantIdsOldProcess.push(applicant.id);
-      const milestone = await addMilestone(applicant.id, '', await getStatus(status));
+      await addMilestone(applicant.id, '', await getStatus(status));
     }
 
     const { body: after } = await request(app.getHttpServer()).get(URLS.REPORT4);
@@ -74,16 +67,16 @@ describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
 
   it('New applicant process values does not affect older values', async () => {
     const { body: before } = await request(app.getHttpServer()).get(URLS.REPORT4);
+
     // What the report should look like using new process. Should not change already expected
     // values from previous test
     const expectedResult = reportFourExpectedResult(before, true);
 
     // Add applicants and give milestones/status
     for (const status of LIC_REG_STAGE) {
-      // Job id only needed for WITHDREW_FROM_PROGRAM
-      const applicant = await addApplicant(getApplicant({ between: ['2023-01-31', '2023-02-25'] }));
+      const applicant = await addApplicant(getApplicant({ between: ['2023-02-01', '2023-02-25'] }));
       applicantIdsNewProcess.push(applicant.id);
-      const milestone = await addMilestone(applicant.id, '', await getStatus(status));
+      await addMilestone(applicant.id, '', await getStatus(status));
     }
 
     const { body: after } = await request(app.getHttpServer()).get(URLS.REPORT4);
@@ -102,7 +95,7 @@ describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
       false,
     );
 
-    const milestone = await addMilestone(
+    await addMilestone(
       applicantIdsOldProcess[0],
       '',
       await getStatus(STATUS.WITHDREW_FROM_PROGRAM),
@@ -134,7 +127,7 @@ describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
     const { body: after } = await request(app.getHttpServer()).get(URLS.REPORT4);
     const licenseAfter = reportFourNumberOfApplicants(after, STATUS.BCCNM_FULL_LICENCE_LPN, false);
 
-    expect(licenseAfter).toBe((parseInt(licenseBefore!) + 1).toString());
+    expect(licenseAfter).toBe((+licenseBefore! + 1).toString());
   });
 
   it('BCCNM applicant given hired milestone decreases BCCNM value', async () => {
@@ -156,19 +149,18 @@ describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
 
     const licenseAfter = reportFourNumberOfApplicants(after, STATUS.BCCNM_FULL_LICENCE_LPN, false);
     // When the applicant gets hired they should be subtracted from the report value
-    expect(licenseAfter).toBe((parseInt(licenseBefore!) - 1).toString());
+    expect(licenseAfter).toBe((+licenseBefore! - 1).toString());
   });
 
   it('Applicant with all 4 licenses and check granted licensure', async () => {
     const { body: before } = await request(app.getHttpServer()).get(URLS.REPORT4);
 
-    for (const stat of BCCNM_LICENSE) {
-      const licenseBefore = reportFourNumberOfApplicants(before, stat, false);
-      const milestone = await addMilestone(applicantIdsOldProcess[2], '', await getStatus(stat));
+    for (const status of BCCNM_LICENSE) {
+      const licenseBefore = reportFourNumberOfApplicants(before, status, false);
+      await addMilestone(applicantIdsOldProcess[2], '', await getStatus(status));
       const { body: afterLicense } = await request(app.getHttpServer()).get(URLS.REPORT4);
-      const licenseAfter = reportFourNumberOfApplicants(afterLicense, stat, false);
-      expect(licenseAfter).toBe((parseInt(licenseBefore!) + 1).toString());
-      await deleteApplicantStatus(applicantIdsOldProcess[2], milestone.id);
+      const licenseAfter = reportFourNumberOfApplicants(afterLicense, status, false);
+      expect(licenseAfter).toBe((+licenseBefore! + 1).toString());
     }
   });
 
@@ -182,7 +174,7 @@ describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
     const { body: after } = await request(app.getHttpServer()).get(URLS.REPORT4);
     const ncasAfter = reportFourNumberOfApplicants(after, STATUS.REFERRED_TO_NCAS, false);
 
-    expect(ncasBefore).toStrictEqual((parseInt(ncasAfter!) - 2).toString());
+    expect(ncasBefore).toStrictEqual((+ncasAfter! - 2).toString());
   });
 
   it('NNAS report value increases for each status Received NNAS Report or Submitted documents', async () => {
@@ -195,6 +187,6 @@ describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
     const { body: after } = await request(app.getHttpServer()).get(URLS.REPORT4);
     const nnasAfter = reportFourNumberOfApplicants(after, STATUS.APPLIED_TO_NNAS, false);
 
-    expect(nnasBefore).toStrictEqual((parseInt(nnasAfter!) - 2).toString());
+    expect(nnasBefore).toStrictEqual((+nnasAfter! - 2).toString());
   });
 });

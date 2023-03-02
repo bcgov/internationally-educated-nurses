@@ -12,7 +12,7 @@ import { getRepository } from 'typeorm';
 import { IENApplicantStatusAudit } from '../src/applicant/entity/ienapplicant-status-audit.entity';
 import { IENApplicantStatus } from '../src/applicant/entity/ienapplicant-status.entity';
 import { IENHaPcn } from '../src/applicant/entity/ienhapcn.entity';
-import { ReportFourItem } from './fixture/reports';
+import { ReportFourItem } from './report-types';
 
 interface EducationOptions {
   count?: number;
@@ -152,7 +152,7 @@ export const reportFourNumberOfApplicants = (
   isNewProcess: boolean,
 ) => {
   const process = isNewProcess ? 'newProcessApplicants' : 'oldProcessApplicants';
-  return body.find((e: { status: string }) => {
+  return body.find(e => {
     return e.status === applicantStatus;
   })?.[process];
 };
@@ -166,31 +166,29 @@ export const reportFourNumberOfApplicants = (
 export const reportFourExpectedResult = (body: ReportFourItem[], isNewProcess: boolean) => {
   const process = isNewProcess ? 'newProcessApplicants' : 'oldProcessApplicants';
 
-  return body.map(
-    (item: { status: string; oldProcessApplicants: string; newProcessApplicants: string }) => {
-      const stat = item.status;
-      let result = parseInt(item[process]) + 1;
-      // Accounts for other two BCCNM Licenses
-      if (stat === 'Granted provisional licensure' || stat === 'Granted full licensure') {
-        result++;
-      }
-      // Withdraw status should not be incremented in report ouput
-      else if (stat === STATUS.WITHDREW_FROM_PROGRAM) {
-        result--;
-      }
-      // NCAS count increases with COMPLETED_CBA and COMPLETED_SLA
-      // NNAS count increases with RECEIVED_NNAS_REPORT and SUBMITTED_DOCUMENTS
-      else if (stat === STATUS.REFERRED_TO_NCAS || stat === STATUS.APPLIED_TO_NNAS) {
-        result += 2;
-      }
-      // Referred to Additional Education makes this report count increase
-      else if (stat === STATUS.COMPLETED_ADDITIONAL_EDUCATION) {
-        result++;
-      }
-      return {
-        ...item,
-        [process]: result.toString(),
-      };
-    },
-  );
+  return body.map(item => {
+    const stat = item.status;
+    let result = parseInt(item[process]) + 1;
+    // Accounts for other two BCCNM Licenses
+    if (stat === 'Granted provisional licensure' || stat === 'Granted full licensure') {
+      result++;
+    }
+    // Withdraw status should not be incremented in report ouput
+    else if (stat === STATUS.WITHDREW_FROM_PROGRAM) {
+      result--;
+    }
+    // NCAS count increases with COMPLETED_CBA and COMPLETED_SLA
+    // NNAS count increases with RECEIVED_NNAS_REPORT and SUBMITTED_DOCUMENTS
+    else if (stat === STATUS.REFERRED_TO_NCAS || stat === STATUS.APPLIED_TO_NNAS) {
+      result += 2;
+    }
+    // Referred to Additional Education makes this report count increase
+    else if (stat === STATUS.COMPLETED_ADDITIONAL_EDUCATION) {
+      result++;
+    }
+    return {
+      ...item,
+      [process]: result.toString(),
+    };
+  });
 };
