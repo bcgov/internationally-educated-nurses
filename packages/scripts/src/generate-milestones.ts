@@ -5,7 +5,10 @@ import dayjs from 'dayjs';
 import { config } from 'dotenv';
 import _ from 'lodash';
 import {
+  ApplicantJobRO,
+  ApplicantRO,
   BCCNM_NCAS_STAGE,
+  IENApplicantAddStatusDTO,
   IENApplicantJobCreateUpdateDTO,
   IENHaPcnRO,
   IMMIGRATION_STAGE,
@@ -14,9 +17,6 @@ import {
   RECRUITMENT_STAGE,
   STATUS,
 } from '@ien/common';
-import { IENApplicantAddStatusAPIDTO } from '../../../apps/api/src/applicant/dto';
-import { IENApplicant } from '../../../apps/api/src/applicant/entity/ienapplicant.entity';
-import { IENApplicantJob } from '../../../apps/api/src/applicant/entity/ienjob.entity';
 
 config({ path: '../../.env' });
 let start = new Date();
@@ -44,11 +44,11 @@ const getToken = async (): Promise<void> => {
 };
 
 const getApplicants = async () => {
-  const resp = await axios.get('/ien?from=2022-01-01');
+  const resp = await axios.get('/ien');
   return resp.data.data;
 };
 
-const getApplicant = async (id: string): Promise<IENApplicant> => {
+const getApplicant = async (id: string): Promise<ApplicantRO> => {
   const resp = await axios.get(`/ien/${id}?relation=audit`);
   return resp?.data?.data;
 };
@@ -64,12 +64,12 @@ const getNewStartDate = (start: Date) => {
 };
 
 const addMilestone = async (
-  applicant: IENApplicant,
+  applicant: ApplicantRO,
   statusId: string,
   previous: any,
-  job?: IENApplicantJob,
+  job?: ApplicantJobRO,
 ) => {
-  const milestone: IENApplicantAddStatusAPIDTO = {
+  const milestone: IENApplicantAddStatusDTO = {
     status: statusId,
     start_date: getNewStartDate(
       previous?.start_date || applicant.registration_date || new Date('2021-03-15'),
@@ -85,7 +85,7 @@ const getAuthorities = async (): Promise<IENHaPcnRO[]> => {
   return resp?.data?.data;
 };
 
-const createJob = async (applicant: IENApplicant): Promise<IENApplicantJob> => {
+const createJob = async (applicant: any): Promise<ApplicantJobRO> => {
   const authorities = await getAuthorities();
   const ha = authorities[_.random(0, authorities.length - 1)];
   const job: IENApplicantJobCreateUpdateDTO = {
@@ -108,7 +108,7 @@ const generateMilestones = async (id: string, statuses: Record<string, string>) 
     IMMIGRATION_STAGE,
   ];
 
-  if (applicant.jobs.length) {
+  if (applicant.jobs?.length) {
     console.log(`skip applicant ${applicant.id} with a job`);
     return;
   }
@@ -118,7 +118,7 @@ const generateMilestones = async (id: string, statuses: Record<string, string>) 
   for (let s = 0; s < stages.length; s++) {
     for (let i = 0; i < stages[s].length; i++) {
       const status = stages[s][i];
-      const milestone = applicant.applicant_status_audit.find(s => s.status.status === status);
+      const milestone = applicant.applicant_status_audit?.find(s => s.status.status === status);
       if (milestone) {
         previous = { start_date: milestone.start_date, status: milestone.status.id };
         continue;
