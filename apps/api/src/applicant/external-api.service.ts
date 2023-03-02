@@ -34,6 +34,8 @@ import { IENJobTitle } from './entity/ienjobtitles.entity';
 import { IENApplicantStatus } from './entity/ienapplicant-status.entity';
 import { ApplicantSyncRO } from './ro/sync.ro';
 import { isNewBCCNMProcess } from 'src/common/util';
+import math from 'mathjs';
+const fs = require('fs');
 
 @Injectable()
 export class ExternalAPIService {
@@ -393,6 +395,23 @@ export class ExternalAPIService {
     this.logger.log(`milestones deleted: ${removedCount}`, 'ATS-SYNC');
   }
 
+  async testScript(){
+    const fullData = fs.readFileSync('milestones.txt',
+    {encoding:'utf8', flag:'r'});
+    const jsonData = JSON.parse(fullData);
+    console.log(jsonData[0]);
+    await getManager().transaction(async manager => {
+      const result = await manager
+      .createQueryBuilder()
+      .insert()
+      .into(IENApplicantStatusAudit)
+    .values(jsonData)
+    .orIgnore()
+    .execute();
+    console.log(result);
+    });
+  }
+
   /**
    * Clean raw data and save applicant info into 'ien_applicant' table.
    * @param data Raw Applicant data
@@ -441,6 +460,7 @@ export class ExternalAPIService {
       this.logger.log(`No applicants received today`);
     }
   }
+
 
   /**
    * Map raw data with existing applicant schema
