@@ -152,7 +152,7 @@ export class ReportService {
   async getLicensingStageApplicants(statuses: Record<string, string>, f: string, t: string) {
     const { from, to } = this.captureFromTo(f, t);
     this.logger.log(`getLicensingStageApplicants: Apply date filter from (${from}) and to (${to})`);
-    const query =       this.reportUtilService.licensingStageApplicantsQuery(statuses, from, to);
+    const query = this.reportUtilService.licensingStageApplicantsQuery(statuses, from, to);
     console.log(query);
     const entityManager = getManager();
     const oldProcess = await entityManager.query(
@@ -191,11 +191,9 @@ export class ReportService {
     const { from, to } = this.captureFromTo(f, t);
     this.logger.log(`getLicenseApplicants: Apply date filter from (${from}) and to (${to})`);
     const entityManager = getManager();
-    const query =       this.reportUtilService.licenseApplicantsQuery(statuses, from, to)
+    const query = this.reportUtilService.licenseApplicantsQuery(statuses, from, to);
     console.log(query);
-    const data = await entityManager.query(
-      query
-    );
+    const data = await entityManager.query(query);
     this.logger.log(
       `getLicenseApplicants: query completed a total of ${data.length} record returns`,
     );

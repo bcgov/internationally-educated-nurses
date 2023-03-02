@@ -395,20 +395,19 @@ export class ExternalAPIService {
     this.logger.log(`milestones deleted: ${removedCount}`, 'ATS-SYNC');
   }
 
-  async testScript(){
-    const fullData = fs.readFileSync('milestones.txt',
-    {encoding:'utf8', flag:'r'});
+  async testScript() {
+    const fullData = fs.readFileSync('milestones.txt', { encoding: 'utf8', flag: 'r' });
     const jsonData = JSON.parse(fullData);
     console.log(jsonData[0]);
     await getManager().transaction(async manager => {
       const result = await manager
-      .createQueryBuilder()
-      .insert()
-      .into(IENApplicantStatusAudit)
-    .values(jsonData)
-    .orIgnore()
-    .execute();
-    console.log(result);
+        .createQueryBuilder()
+        .insert()
+        .into(IENApplicantStatusAudit)
+        .values(jsonData)
+        .orIgnore()
+        .execute();
+      console.log(result);
     });
   }
 
@@ -460,7 +459,6 @@ export class ExternalAPIService {
       this.logger.log(`No applicants received today`);
     }
   }
-
 
   /**
    * Map raw data with existing applicant schema

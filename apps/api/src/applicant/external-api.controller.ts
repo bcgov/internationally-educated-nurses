@@ -102,8 +102,6 @@ export class ExternalAPIController {
     }
   }
 
-  
-
   @ApiOperation({
     summary: `Fetch when was last successful Applicants sync ran`,
   })
