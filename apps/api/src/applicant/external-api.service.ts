@@ -567,7 +567,7 @@ export class ExternalAPIService {
     allowedMilestones: string[],
     m: {
       id: string;
-      start_date: string;
+      start_date?: string;
       created_date: string;
       note: any;
       added_by: number;
