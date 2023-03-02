@@ -78,33 +78,7 @@ export class ExternalAPIController {
     example: '2022-02-01',
   })
   @HttpCode(HttpStatus.OK)
-  // @UseGuards(AuthGuard)
-  @Get('/test')
-  async testScript(){
-    await this.externalAPIService.testScript();
-  }
-
-  @ApiOperation({
-    summary: `Fetch and Save applicant data`,
-  })
-  @UseInterceptors(ClassSerializerInterceptor)
-  @ApiResponse({ status: HttpStatus.OK, type: SyncApplicantsResultDTO })
-  @ApiParam({
-    name: 'from',
-    type: Date,
-    description: 'Start date: default is the last sync date or yesterday',
-    required: false,
-    example: '2022-01-01',
-  })
-  @ApiParam({
-    name: 'to',
-    type: Date,
-    description: 'End date: default is today',
-    required: false,
-    example: '2022-02-01',
-  })
-  @HttpCode(HttpStatus.OK)
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Get('/save-applicant')
   async saveApplicant(
     @Query('from') from: string,
