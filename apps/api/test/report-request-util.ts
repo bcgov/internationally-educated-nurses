@@ -2,13 +2,21 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { faker } from '@faker-js/faker';
 import {
+  ApplicantRO,
   Authorities,
   IENApplicantAddStatusDTO,
   IENApplicantCreateUpdateDTO,
   IENApplicantJobCreateUpdateDTO,
   STATUS,
 } from '@ien/common';
-import { getHaId, getJob, getMilestone, getStatus } from './report-util';
+import {
+  ApplicantOptions,
+  getApplicant,
+  getHaId,
+  getJob,
+  getMilestone,
+  getStatus,
+} from './report-util';
 import { IENHaPcn } from 'src/applicant/entity/ienhapcn.entity';
 
 let app: INestApplication;
@@ -29,7 +37,9 @@ export const getHAs = async () => {
 };
 
 // add new applicant
-export const addApplicant = async (applicant: IENApplicantCreateUpdateDTO) => {
+export const addApplicant = async (
+  applicant: IENApplicantCreateUpdateDTO,
+): Promise<ApplicantRO> => {
   const { body } = await request(app.getHttpServer()).post('/ien').send(applicant);
   return body;
 };
@@ -68,4 +78,18 @@ export const hire = async (id: string, ha: keyof typeof Authorities, start: stri
   await addMilestone(id, job.id, await getStatus(STATUS.JOB_OFFER_ACCEPTED, start));
 
   return job;
+};
+
+/**
+ * Create a batch of applicants
+ *
+ * @param numberOfApplicants
+ * @param options
+ */
+export const generateApplicants = (
+  numberOfApplicants: number,
+  options?: ApplicantOptions,
+): Promise<ApplicantRO[]> => {
+  const applicants = Array.from({ length: numberOfApplicants }, () => getApplicant(options));
+  return Promise.all(applicants.map(a => addApplicant(a)));
 };
