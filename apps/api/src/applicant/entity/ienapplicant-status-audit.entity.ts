@@ -35,7 +35,7 @@ export class IENApplicantStatusAudit {
   applicant!: IENApplicant;
 
   @Column('date', { nullable: true })
-  start_date!: Date;
+  start_date?: Date;
 
   @Column('varchar', { nullable: true })
   notes?: string;
