@@ -46,16 +46,16 @@ describe('Report 9 - Average Amount of Time with Each Stakeholder Group', () => 
 
   // durations
   const durations = generateDurations(numberOfApplicants, Object.values(STATUS));
-  let nnas = NNAS_STAGE.map(status => durations[status])
+  const nnas = NNAS_STAGE.map(status => durations[status])
     .filter(v => v)
     .reduce((a, c) => c.map((v, i) => v + (a[i] || 0)), []);
-  let bccnmNcas = BCCNM_NCAS_STAGE.map(status => durations[status])
+  const bccnmNcas = BCCNM_NCAS_STAGE.map(status => durations[status])
     .filter(v => v)
     .reduce((a, c) => c.map((v, i) => v + (a[i] || 0)), []);
-  let recruitments = RECRUITMENT_STAGE.map(status => durations[status])
+  const recruitments = RECRUITMENT_STAGE.map(status => durations[status])
     .filter(v => v)
     .reduce((a, c) => c.map((v, i) => v + (a[i] || 0)), []);
-  let immigrations = IMMIGRATION_STAGE.map(status => durations[status])
+  const immigrations = IMMIGRATION_STAGE.map(status => durations[status])
     .filter(v => v)
     .reduce((a, c) => c.map((v, i) => v + (a[i] || 0)), []);
 
