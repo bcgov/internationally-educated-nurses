@@ -8,7 +8,7 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { URLS } from './constants';
 import { canActivate } from './override-guard';
 import { addApplicant, addJob, addMilestone, getHAs, setApp } from './report-request-util';
-import { STATUS } from '@ien/common';
+import { ApplicantRO, STATUS } from '@ien/common';
 import { getApplicant, getIndexOfStatus, getStatusId } from './report-util';
 
 describe('Report 7 - Registrants in Immigration Stage', () => {
@@ -58,7 +58,7 @@ describe('Report 7 - Registrants in Immigration Stage', () => {
     for (let i = 0; i < HA.length; i++) {
       const applicant = getApplicant();
       applicant.registration_date = '2022-06-01';
-      const { id } = await addApplicant(applicant);
+      const { id } = (await addApplicant(applicant)) as ApplicantRO;
       applicantId = id;
 
       const job = await addJob(id, { ha_pcn: HA[i].id, job_id: i.toString(), recruiter_name: '' });
@@ -118,7 +118,7 @@ describe('Report 7 - Registrants in Immigration Stage', () => {
 
     const applicant = getApplicant();
     applicant.registration_date = '2022-06-01';
-    const { id } = await addApplicant(applicant);
+    const { id } = (await addApplicant(applicant)) as ApplicantRO;
     applicantId = id;
 
     const job = await addJob(id, { ha_pcn: HA[0].id, job_id: '246', recruiter_name: '' });

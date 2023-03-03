@@ -2,7 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import dayjs from 'dayjs';
 import { mean, median, min, mode, round } from 'mathjs';
-import { Authorities, STATUS } from '@ien/common';
+import { ApplicantRO, Authorities, STATUS } from '@ien/common';
 import { AppModule } from '../src/app.module';
 import { AuthGuard } from '../src/auth/auth.guard';
 import { ReportController } from '../src/report/report.controller';
@@ -73,7 +73,7 @@ describe('Report 10 - Average Amount of Time with Each Milestone in Stakeholder 
 
   it('validates mean, median, and mode for a single milestone type', async () => {
     const applicant = getApplicant({ between });
-    const { id } = await addApplicant(applicant);
+    const { id } = (await addApplicant(applicant)) as ApplicantRO;
 
     // hire applicant
     const appliedToNNASDate = addDays(applicant.registration_date, appliedToNNAS[0]);
@@ -114,7 +114,7 @@ describe('Report 10 - Average Amount of Time with Each Milestone in Stakeholder 
   it('validates mean, median, and mode for full NNAS stage', async () => {
     for (let i = 1; i < appliedToNNAS.length; i++) {
       const applicant = getApplicant({ between });
-      const { id } = await addApplicant(applicant);
+      const { id } = (await addApplicant(applicant)) as ApplicantRO;
 
       // hire applicant
       const appliedToNNASDate = addDays(applicant.registration_date, appliedToNNAS[i]);
@@ -153,7 +153,7 @@ describe('Report 10 - Average Amount of Time with Each Milestone in Stakeholder 
 
   it('ignores applicant hired outside of the reporting period', async () => {
     const applicant = getApplicant({ between });
-    const { id } = await addApplicant(applicant);
+    const { id } = (await addApplicant(applicant)) as ApplicantRO;
 
     // hire later than the end of reporting period
     await hire(id, 'VIHA', addDays(to, 10));

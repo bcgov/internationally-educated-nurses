@@ -1,4 +1,4 @@
-import { IENApplicantCreateUpdateDTO } from '@ien/common';
+import { ApplicantRO, IENApplicantCreateUpdateDTO } from '@ien/common';
 import { IENApplicant } from '../src/applicant/entity/ienapplicant.entity';
 import { AuthGuard } from '../src/auth/auth.guard';
 
@@ -25,7 +25,7 @@ describe('ApplicantController (e2e)', () => {
   let ienHaPcnRepository: Repository<IENHaPcn>;
   let ienUsersRepository: Repository<IENUsers>;
   let applicantDto: IENApplicantCreateUpdateDTO;
-  let applicant: IENApplicant;
+  let applicant: ApplicantRO;
   let applicantCount: number;
 
   beforeAll(async () => {
@@ -67,18 +67,18 @@ describe('ApplicantController (e2e)', () => {
 
   it('Add Applicant /ien (POST)', async () => {
     applicantDto = getApplicant();
-    const { id } = await addApplicant(applicantDto);
+    const { id } = (await addApplicant(applicantDto)) as ApplicantRO;
     expect(id).toBeDefined();
   });
 
   it('Duplicate applicant /ien (POST)', async () => {
-    const { message } = await addApplicant(applicantDto);
+    const { message } = (await addApplicant(applicantDto)) as Error;
     expect(message).toContain('already');
   });
 
   it('Add second Applicant /ien (POST) ', async () => {
     const second = getApplicant();
-    applicant = await addApplicant(second);
+    applicant = (await addApplicant(second)) as ApplicantRO;
     expect(applicant.id).toBeDefined();
   });
 
