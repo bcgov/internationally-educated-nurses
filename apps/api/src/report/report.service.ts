@@ -5,7 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import dayjs from 'dayjs';
 import _ from 'lodash';
 import { IENHaPcn } from '../applicant/entity/ienhapcn.entity';
-import { MILESTONE_DURATION_ENTRIES } from './constants';
+import { DURATION_STAGES } from './constants';
 import { MilestoneDurationEntity } from './entity/milestone-duration.entity';
 import { ReportUtilService } from './report.util.service';
 import { AppLogger } from 'src/common/logger.service';
@@ -316,34 +316,40 @@ export class ReportService {
       .getRawMany();
 
     const data = [
-      { title: 'NNAS', HA: ' ', ...this.getDurationStats(linearDurations.map(d => d.nnas)) },
+      {
+        title: 'NNAS',
+        HA: ' ',
+        ...this.getDurationStats(linearDurations.map(d => d.nnas).filter(v => v !== null)),
+      },
       {
         title: 'BCCNM & NCAS',
         HA: ' ',
-        ...this.getDurationStats(linearDurations.map(d => d.bccnm_ncas)),
+        ...this.getDurationStats(linearDurations.map(d => d.bccnm_ncas).filter(v => v !== null)),
       },
       ...durationByHAs.map(ha => ({ title: ' ', ...ha })),
       {
         title: 'Immigration',
         HA: ' ',
-        ...this.getDurationStats(linearDurations.map(d => d.immigration)),
+        ...this.getDurationStats(linearDurations.map(d => d.immigration).filter(v => v !== null)),
       },
       {
         title: 'Overall',
         HA: ' ',
-        ...this.getDurationStats(linearDurations.map(d => d.overall)),
+        ...this.getDurationStats(linearDurations.map(d => d.overall).filter(v => v !== null)),
       },
       {
         title: 'Average time to hire',
         HA: ' ',
-        ...this.getDurationStats(linearDurations.map(d => d.to_hire)),
+        ...this.getDurationStats(linearDurations.map(d => d.to_hire).filter(v => v !== null)),
       },
     ];
     return data;
   }
 
   private getDurationStats(durations: number[]) {
-    const data = durations.filter(v => v !== null && v >= 0);
+    // do not change the number of items by filtering.
+    // it'll cause stage duration not to match the sum of its milestones.
+    const data = durations.map(v => v || 0);
     return {
       Mean: data.length ? round(mean(data), 2) : '',
       Mode: data.length ? min(mode(data)) : '',
@@ -371,14 +377,24 @@ export class ReportService {
     // excludes applicants with a negative duration caused by nonlinear milestones
     const linearDurations = durations.filter(d => !Object.values(d).some(v => v < 0));
 
-    // if stage or milestone is empty string, it would be formatted as 0 in the spreadsheet.
-    return MILESTONE_DURATION_ENTRIES.map(({ stage = ' ', milestone = ' ', field }) => {
-      return {
-        stage,
-        milestone,
-        ...this.getDurationStats(linearDurations.map((entry: any) => entry[field])),
-      };
-    });
+    return _.flatten(
+      DURATION_STAGES.map(stageFields => {
+        const stageMilestone = stageFields[0];
+        // take entries with the stage duration is not null so that the same number of samples could be used to
+        // calculate the mean value for the stage and its milestones
+        const validDurations = linearDurations.filter(
+          (entry: any) => entry[stageMilestone.field] !== null,
+        );
+        // if stage or milestone is empty string, it would be formatted as 0 in the spreadsheet.
+        return stageFields.map(({ stage = ' ', milestone = ' ', field }) => {
+          return {
+            stage,
+            milestone,
+            ...this.getDurationStats(validDurations.map((entry: any) => entry[field])),
+          };
+        });
+      }),
+    );
   }
 
   /**
