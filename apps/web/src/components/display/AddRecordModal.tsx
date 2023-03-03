@@ -174,6 +174,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
                       <ReactSelect<RecordTypeOptions<string>>
                         inputId={field.name}
                         value={jobTitle?.data?.find(s => s.id == field.value)}
+                        isClearable
                         onBlur={field.onBlur}
                         onChange={value => form.setFieldValue(field.name, `${value?.id}`)}
                         options={jobTitle?.data}

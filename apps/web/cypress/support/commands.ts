@@ -98,8 +98,8 @@ Cypress.Commands.add('editJob', (job: IENApplicantJobCreateUpdateDTO) => {
   cy.get('#ha_pcn').clear().type(`${job.ha_pcn}{enter}`);
   cy.get('#job_id').click().clear().type(`${job.job_id}`);
   cy.get('#job_title').click(); // it gets 'dom element not found error' without this repeated clicks
-  cy.get('#job_title').click();
-  cy.get('#job_title').click().clear().type(`${job.job_title}{enter}`);
+  cy.get('#job_title').click().clear();
+  cy.get('#job_title').click().type(`${job.job_title}{enter}`);
   cy.get('#job_location').click().type('{backspace}');
   cy.get('#job_location').click().type(`${job.job_location}{enter}`);
   cy.get('#job_post_date').click().clear();
