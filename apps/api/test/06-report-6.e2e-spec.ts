@@ -2,7 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 
-import { STATUS } from '@ien/common';
+import { ApplicantRO, STATUS } from '@ien/common';
 import { AppModule } from 'src/app.module';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { URLS } from './constants';
@@ -62,7 +62,7 @@ describe('Report 6 - Registrants in Recruitment Stage', () => {
     for (let i = 0; i < HA.length; i++) {
       const applicant = getApplicant();
       applicant.registration_date = '2022-06-01';
-      const { id } = await addApplicant(applicant);
+      const { id } = (await addApplicant(applicant)) as ApplicantRO;
       applicantId = id;
 
       const job = await addJob(id, { ha_pcn: HA[i].id, job_id: i.toString(), recruiter_name: '' });

@@ -81,7 +81,7 @@ describe('Report 9 - Average Amount of Time with Each Stakeholder Group', () => 
 
   // create applicants and all major milestones
   const seedApplicants = async () => {
-    applicants = await generateApplicants(numberOfApplicants, { between });
+    applicants = (await generateApplicants(numberOfApplicants, { between })) as ApplicantRO[];
 
     for (let i = 0; i < numberOfApplicants; i++) {
       const applicant = applicants[i];

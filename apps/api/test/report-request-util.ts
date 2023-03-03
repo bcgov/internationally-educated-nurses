@@ -39,7 +39,7 @@ export const getHAs = async () => {
 // add new applicant
 export const addApplicant = async (
   applicant: IENApplicantCreateUpdateDTO,
-): Promise<ApplicantRO> => {
+): Promise<ApplicantRO | Error> => {
   const { body } = await request(app.getHttpServer()).post('/ien').send(applicant);
   return body;
 };
@@ -89,7 +89,7 @@ export const hire = async (id: string, ha: keyof typeof Authorities, start: stri
 export const generateApplicants = (
   numberOfApplicants: number,
   options?: ApplicantOptions,
-): Promise<ApplicantRO[]> => {
+): Promise<(ApplicantRO | Error)[]> => {
   const applicants = Array.from({ length: numberOfApplicants }, () => getApplicant(options));
   return Promise.all(applicants.map(a => addApplicant(a)));
 };
