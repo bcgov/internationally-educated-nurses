@@ -10,7 +10,7 @@ import { canActivate } from './override-guard';
 import { IENHaPcn } from 'src/applicant/entity/ienhapcn.entity';
 import { addApplicant, addMilestone, getHAs, hire, setApp } from './report-request-util';
 import { getApplicant, getStatusId } from './report-util';
-import { STATUS } from '@ien/common';
+import { ApplicantRO, STATUS } from '@ien/common';
 
 describe('Report 8 - Registrants Working in BC', () => {
   let app: INestApplication;
@@ -49,7 +49,7 @@ describe('Report 8 - Registrants Working in BC', () => {
 
     const applicant = getApplicant();
     applicant.registration_date = '2022-06-01';
-    const { id } = await addApplicant(applicant);
+    const { id } = (await addApplicant(applicant)) as ApplicantRO;
 
     await hire(id, 'FNHA', dayjs().format('YYYY-MM-DD'));
 
@@ -61,12 +61,12 @@ describe('Report 8 - Registrants Working in BC', () => {
     const after = await getReport8();
 
     // HA count
-    expect(Number(after[0]['current_fiscal'])).toBe(Number(before[0]['current_fiscal'] + 1));
+    expect(Number(after[0]['current_fiscal'])).toBe(Number(before[0]['current_fiscal']) + 1);
     // total count
     expect(Number(after[HA.length]['current_fiscal'])).toBe(
-      Number(before[HA.length]['current_fiscal'] + 1),
+      Number(before[HA.length]['current_fiscal']) + 1,
     );
-    expect(Number(after[HA.length]['total'])).toBe(Number(before[HA.length]['total'] + 1));
+    expect(Number(after[HA.length]['total'])).toBe(Number(before[HA.length]['total']) + 1);
   });
 
   it('Add status to current period', async () => {
@@ -74,7 +74,7 @@ describe('Report 8 - Registrants Working in BC', () => {
 
     const applicant = getApplicant();
     applicant.registration_date = '2022-06-01';
-    const { id } = await addApplicant(applicant);
+    const { id } = (await addApplicant(applicant)) as ApplicantRO;
     applicantId = id;
 
     await hire(id, 'FHA', dayjs().format('YYYY-MM-DD'));
@@ -116,7 +116,7 @@ describe('Report 8 - Registrants Working in BC', () => {
 
     const applicant = getApplicant();
     applicant.registration_date = '2020-06-01';
-    const { id } = await addApplicant(applicant);
+    const { id } = (await addApplicant(applicant)) as ApplicantRO;
 
     await hire(id, 'VCHA', dayjs().format('YYYY-MM-DD'));
 

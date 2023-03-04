@@ -296,7 +296,7 @@ export class ReportService {
     const durationByHAs = await getManager()
       .createQueryBuilder(IENHaPcn, 'ha')
       .select('ha.title', 'HA')
-      .addSelect(`COALESCE(ROUND(AVG(md.recruitment), 2), 0)`, 'Mean')
+      .addSelect(`CAST(COALESCE(ROUND(AVG(md.recruitment), 2), 0) AS FLOAT)`, 'Mean')
       .addSelect(`COALESCE(MODE() WITHIN GROUP (ORDER BY md.recruitment), 0)`, 'Mode')
       .addSelect(
         `COALESCE(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY md.recruitment), 0)`,
