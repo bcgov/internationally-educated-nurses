@@ -1,14 +1,15 @@
 import { faker } from '@faker-js/faker';
 import dayjs from 'dayjs';
-import {
-  IENApplicantCreateUpdateDTO,
-  NursingEducationDTO,
-  IENApplicantJobCreateUpdateDTO,
-  IENApplicantAddStatusDTO,
-  STATUS,
-  Authorities,
-} from '@ien/common';
+import _ from 'lodash';
 import { getRepository } from 'typeorm';
+import {
+  Authorities,
+  IENApplicantAddStatusDTO,
+  IENApplicantCreateUpdateDTO,
+  IENApplicantJobCreateUpdateDTO,
+  NursingEducationDTO,
+  STATUS,
+} from '@ien/common';
 import { IENApplicantStatusAudit } from '../src/applicant/entity/ienapplicant-status-audit.entity';
 import { IENApplicantStatus } from '../src/applicant/entity/ienapplicant-status.entity';
 import { IENHaPcn } from '../src/applicant/entity/ienhapcn.entity';
@@ -21,7 +22,7 @@ interface EducationOptions {
   year?: number;
 }
 
-interface ApplicantOptions {
+export interface ApplicantOptions {
   between?: [string, string];
 }
 
@@ -135,7 +136,7 @@ export const getHaId = async (ha: keyof typeof Authorities): Promise<string> => 
  * @param days number of days to be added
  * @return date in the format of 'YYYY-MM-DD'
  */
-export const addDays = (date: string, days: number) => {
+export const addDays = (date: string | Date, days: number) => {
   return dayjs(date).add(days, 'days').format('YYYY-MM-DD');
 };
 
@@ -191,4 +192,39 @@ export const reportFourExpectedResult = (body: ReportFourItem[], isNewProcess: b
       [process]: result.toString(),
     };
   });
+export const generateDurations = (
+  numberOfApplicants: number,
+  milestones: STATUS[],
+  max = 10,
+): Record<STATUS, number[]> => {
+  const excludedMilestones = [
+    STATUS.REFERRED_TO_FNHA,
+    STATUS.REFERRED_TO_FHA,
+    STATUS.REFERRED_TO_IHA,
+    STATUS.REFERRED_TO_NHA,
+    STATUS.REFERRED_TO_PHC,
+    STATUS.REFERRED_TO_PHSA,
+    STATUS.REFERRED_TO_VCHA,
+    STATUS.REFERRED_TO_VIHA,
+    STATUS.PRE_SCREEN_NOT_PASSED,
+    STATUS.INTERVIEW_NOT_PASSED,
+    STATUS.REFERENCE_CHECK_NOT_PASSED,
+    STATUS.WITHDREW_FROM_PROGRAM,
+    STATUS.WITHDREW_FROM_COMPETITION,
+    STATUS.HA_NOT_INTERESTED,
+    STATUS.NO_POSITION_AVAILABLE,
+    STATUS.JOB_COMPETITION_CANCELLED,
+    STATUS.JOB_OFFER_NOT_ACCEPTED,
+    STATUS.WITHDREW_FROM_COMPETITION,
+    STATUS.RECEIVED_WORK_PERMIT,
+    STATUS.RECEIVED_WORK_PERMIT_APPROVAL_LETTER,
+  ];
+  return milestones
+    .filter(m => !excludedMilestones.includes(m))
+    .reduce((a, c) => {
+      return {
+        ...a,
+        [c]: Array.from({ length: numberOfApplicants }, () => _.random(1, max)),
+      };
+    }, {} as Record<STATUS, number[]>);
 };

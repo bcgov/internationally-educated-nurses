@@ -106,10 +106,11 @@ export class ExternalAPIService {
           return {
             user_id: item.id.toLowerCase(),
             name: item.name,
-            email: item?.email,
+            email: item.email,
           };
         });
-        const result = await manager.upsert(IENUsers, listUsers, ['user_id']);
+        const result = await manager.upsert(IENUsers, listUsers, ['email']);
+
         this.logger.log(`${result.raw.length}/${listUsers.length} users updated`, 'ATS');
       }
     } catch (e) {
@@ -194,10 +195,6 @@ export class ExternalAPIService {
           `/applicants/ien?next=${per_page}&offset=${offset}&from=${from_date}&to=${to_date}`,
         ),
       );
-      this.logger.log(
-        `/applicants/ien?next=${per_page}&offset=${offset}&from=${from_date}&to=${to_date}`,
-        'ATS-SYNC',
-      );
       offset += per_page;
     }
     return pages;
@@ -232,7 +229,6 @@ export class ExternalAPIService {
       let temp: any[] = [];
       await Promise.all(pages).then(res => {
         res.forEach(r => {
-          this.logger.log(`${temp.length}, ${Array.isArray(r) ? r.length : 0}`, 'ATS-SYNC');
           temp = temp.concat(r);
         });
       });
@@ -567,7 +563,7 @@ export class ExternalAPIService {
     allowedMilestones: string[],
     m: {
       id: string;
-      start_date: string;
+      start_date?: string;
       created_date: string;
       note: any;
       added_by: number;

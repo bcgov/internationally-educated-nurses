@@ -1,0 +1,18 @@
+{
+  "name": "@ien/scripts",
+  "scripts": {
+    "generate-report-data": "ts-node src/generate-milestones.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@faker-js/faker": "7.5.0",
+    "@ien/common": "1.0.1",
+    "axios": "0.24.0",
+    "dotenv": "10.0.0",
+    "node-fetch": "3.3.0",
+    "typescript": "4.3.5"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.1"
+  }
+}

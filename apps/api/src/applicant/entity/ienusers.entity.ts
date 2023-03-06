@@ -14,7 +14,6 @@ export class IENUsers {
   email?: string;
 
   // description: User's unique id from authentication system
-  @Index({ unique: true })
   @Column('varchar', { nullable: true })
   user_id?: string;
 

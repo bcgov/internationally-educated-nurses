@@ -58,7 +58,6 @@ export class ExternalAPIController {
       }
     }
   }
-
   @ApiOperation({
     summary: `Fetch and Save applicant data`,
   })

@@ -1,4 +1,4 @@
-import { STATUS } from '@ien/common';
+import { ApplicantRO, STATUS } from '@ien/common';
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
@@ -19,9 +19,9 @@ interface LicenseStat {
 
 describe('Report 5 (e2e)', () => {
   let app: INestApplication;
-  let applicantOne: IENApplicant;
-  let applicantTwo: IENApplicant;
-  let applicantThree: IENApplicant;
+  let applicantOne: ApplicantRO;
+  let applicantTwo: ApplicantRO;
+  let applicantThree: ApplicantRO;
 
   let lastMilestone: IENApplicantStatusAudit;
   let report: LicenseStat[];
@@ -57,7 +57,7 @@ describe('Report 5 (e2e)', () => {
   });
 
   it('Report 5 Summary (after adding 1 Full Licence RN) - GET', async () => {
-    applicantOne = await addApplicant(getApplicant());
+    applicantOne = (await addApplicant(getApplicant())) as ApplicantRO;
     expect(applicantOne.id).toBeDefined();
 
     await addMilestone(applicantOne.id, '', await getStatus(STATUS.BCCNM_FULL_LICENSE_RN));
@@ -72,7 +72,7 @@ describe('Report 5 (e2e)', () => {
   });
 
   it('Report 5 Summary (after adding 1 Provisional Licence LPN) - GET', async () => {
-    applicantTwo = await addApplicant(getApplicant());
+    applicantTwo = (await addApplicant(getApplicant())) as ApplicantRO;
     expect(applicantTwo.id).toBeDefined();
 
     await addMilestone(applicantTwo.id, '', await getStatus(STATUS.BCCNM_PROVISIONAL_LICENSE_LPN));
@@ -87,7 +87,7 @@ describe('Report 5 (e2e)', () => {
   });
 
   it('Report 5 Summary (after adding 1 Provisional Licence RN) - GET', async () => {
-    applicantThree = await addApplicant(getApplicant());
+    applicantThree = (await addApplicant(getApplicant())) as ApplicantRO;
     expect(applicantThree.id).toBeDefined();
 
     lastMilestone = await addMilestone(
