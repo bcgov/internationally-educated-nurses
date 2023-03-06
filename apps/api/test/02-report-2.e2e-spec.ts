@@ -27,6 +27,7 @@ describe('Report 2 - Country of Education', () => {
 
     const { body: report } = await request(app.getHttpServer()).get(URLS.REPORT1);
     periods = report;
+    console.log(periods);
   });
 
   afterAll(async () => {
@@ -61,7 +62,8 @@ describe('Report 2 - Country of Education', () => {
     const country = applicant.nursing_educations[0].country as keyof typeof COUNTRY_OF_EDUCATIONS;
     const countBefore = periodBefore[COUNTRY_OF_EDUCATIONS[country]];
     const countAfter = periodAfter[COUNTRY_OF_EDUCATIONS[country]];
-
+    console.log(countBefore);
+    console.log(countAfter);
     expect(countAfter - countBefore).toBe(expectedDifference);
   };
 
@@ -75,7 +77,15 @@ describe('Report 2 - Country of Education', () => {
 
   it('Add applicant with education to the last period', async () => {
     const { from, to } = periods[periods.length - 1];
-    const applicant = getApplicant({ between: [from, to] });
+    let applicant: IENApplicantCreateUpdateDTO;
+    console.log('From:' + from + ' To:' + to);
+    if (from === to) {
+      applicant = getApplicant();
+      applicant.registration_date = from;
+    } else {
+      applicant = getApplicant({ between: [from, to] });
+    }
+    console.log(applicant);
     applicant.nursing_educations.push(getEducation());
     await testAddEducation(applicant, from, to);
   });

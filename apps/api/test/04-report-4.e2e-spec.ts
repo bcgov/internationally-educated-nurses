@@ -12,7 +12,7 @@ import {
   reportFourNumberOfApplicants,
   reportFourExpectedResult,
 } from './report-util';
-import { STATUS, LIC_REG_STAGE, BCCNM_LICENSE } from '@ien/common';
+import { STATUS, LIC_REG_STAGE, BCCNM_LICENSE, ApplicantRO } from '@ien/common';
 import { addApplicant, addMilestone, setApp, addJob, getHAs } from './report-request-util';
 
 describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
@@ -55,7 +55,9 @@ describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
 
     // Add applicants and give milestones/status
     for (const status of LIC_REG_STAGE) {
-      const applicant = await addApplicant(getApplicant({ between: ['2022-05-29', '2022-06-19'] }));
+      const applicant = (await addApplicant(
+        getApplicant({ between: ['2022-05-29', '2022-06-19'] }),
+      )) as ApplicantRO;
       applicantIdsOldProcess.push(applicant.id);
       await addMilestone(applicant.id, '', await getStatus(status));
     }
@@ -74,7 +76,9 @@ describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
 
     // Add applicants and give milestones/status
     for (const status of LIC_REG_STAGE) {
-      const applicant = await addApplicant(getApplicant({ between: ['2023-02-01', '2023-02-25'] }));
+      const applicant = (await addApplicant(
+        getApplicant({ between: ['2023-02-01', '2023-02-25'] }),
+      )) as ApplicantRO;
       applicantIdsNewProcess.push(applicant.id);
       await addMilestone(applicant.id, '', await getStatus(status));
     }

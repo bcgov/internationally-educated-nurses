@@ -192,6 +192,8 @@ export const reportFourExpectedResult = (body: ReportFourItem[], isNewProcess: b
       [process]: result.toString(),
     };
   });
+};
+
 export const generateDurations = (
   numberOfApplicants: number,
   milestones: STATUS[],
