@@ -75,7 +75,13 @@ describe('Report 2 - Country of Education', () => {
 
   it('Add applicant with education to the last period', async () => {
     const { from, to } = periods[periods.length - 1];
-    const applicant = getApplicant({ between: [from, to] });
+    let applicant: IENApplicantCreateUpdateDTO;
+    if (from === to) {
+      applicant = getApplicant();
+      applicant.registration_date = from;
+    } else {
+      applicant = getApplicant({ between: [from, to] });
+    }
     applicant.nursing_educations.push(getEducation());
     await testAddEducation(applicant, from, to);
   });

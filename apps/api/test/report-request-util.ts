@@ -44,6 +44,12 @@ export const addApplicant = async (
   return body;
 };
 
+// delete status on applicant
+export const deleteApplicantStatus = async (applicantId: string, applicantStatusId: string) => {
+  const deleteApplicantStatusURL = `/ien/${applicantId}/status/${applicantStatusId}`;
+  await request(app.getHttpServer()).delete(deleteApplicantStatusURL);
+};
+
 // add a job
 export const addJob = async (id: string, j: IENApplicantJobCreateUpdateDTO) => {
   const addJobUrl = `/ien/${id}/job`;
