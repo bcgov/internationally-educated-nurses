@@ -2,11 +2,14 @@ import { STATUS } from '@ien/common';
 import { DurationEntry } from '../types';
 
 // helper to generate report 10 stats
-export const MILESTONE_DURATION_ENTRIES: DurationEntry[] = [
+export const NNAS_DURATION_ENTRIES: DurationEntry[] = [
   { stage: 'NNAS', field: 'nnas' },
   { milestone: STATUS.APPLIED_TO_NNAS, field: 'applied_to_nnas' },
   { milestone: STATUS.SUBMITTED_DOCUMENTS, field: 'submitted_documents' },
   { milestone: STATUS.RECEIVED_NNAS_REPORT, field: 'received_nnas_report' },
+];
+
+export const BCCNM_NCAS_DURATION_ENTRIES: DurationEntry[] = [
   { stage: 'BCCNM & NCAS', field: 'bccnm_ncas' },
   { milestone: STATUS.APPLIED_TO_BCCNM, field: 'applied_to_bccnm' },
   { milestone: STATUS.COMPLETED_LANGUAGE_REQUIREMENT, field: 'completed_language_requirement' },
@@ -14,11 +17,17 @@ export const MILESTONE_DURATION_ENTRIES: DurationEntry[] = [
   { milestone: STATUS.COMPLETED_CBA, field: 'completed_cba' },
   { milestone: STATUS.COMPLETED_SLA, field: 'completed_sla' },
   { milestone: STATUS.COMPLETED_NCAS, field: 'completed_ncas' },
+];
+
+export const RECRUITMENT_DURATION_ENTRIES: DurationEntry[] = [
   { stage: 'Recruitment', field: 'recruitment' },
   { milestone: 'Completed pre-screen (includes both outcomes)', field: 'pre_screen' },
   { milestone: 'Completed interview (includes both outcomes)', field: 'interview' },
   { milestone: 'Completed reference check (includes both outcomes)', field: 'reference_check' },
   { milestone: 'Hired', field: 'hired' },
+];
+
+export const IMMIGRATION_DURATION_ENTRIES: DurationEntry[] = [
   { stage: 'Immigration', field: 'immigration' },
   { milestone: STATUS.SENT_FIRST_STEPS_DOCUMENT, field: 'sent_first_steps_document' },
   {
@@ -36,4 +45,11 @@ export const MILESTONE_DURATION_ENTRIES: DurationEntry[] = [
     field: 'submitted_work_permit_application',
   },
   { milestone: 'Immigration Completed', field: 'immigration_completed' },
+];
+
+export const DURATION_STAGES: DurationEntry[][] = [
+  NNAS_DURATION_ENTRIES,
+  BCCNM_NCAS_DURATION_ENTRIES,
+  RECRUITMENT_DURATION_ENTRIES,
+  IMMIGRATION_DURATION_ENTRIES,
 ];
