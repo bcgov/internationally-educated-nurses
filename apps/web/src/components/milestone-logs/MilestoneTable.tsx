@@ -109,6 +109,7 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
 
   const getDuration = (milestone: ApplicantStatusAuditRO): string => {
     const start = milestone.start_date;
+    if (!start) return '-';
 
     const end = getNextMilestone(milestone)?.start_date;
 
