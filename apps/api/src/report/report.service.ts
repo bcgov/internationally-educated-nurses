@@ -160,22 +160,6 @@ export class ReportService {
       this.reportUtilService.licensingStageApplicantsQuery(statuses, from, to),
     );
 
-    /*  const newProcess = await entityManager.query(
-      this.reportUtilService.licensingStageApplicantsQuery(statuses, from, to, true),
-    ); */
-
-    // combine old data with new data
-    /*  const data = oldProcess.map((o: { status: string; applicants: string }) => {
-      const newProcessApplicants = newProcess.find(
-        (n: { status: string }) => n.status === o.status,
-      );
-      return {
-        status: o.status,
-        oldProcessApplicants: o.applicants,
-        newProcessApplicants: newProcessApplicants.applicants,
-      };
-    }); */
-
     this.logger.log(
       `getLicensingStageApplicants: query completed a total of ${oldProcess.length} old process and new process record returns`,
     );

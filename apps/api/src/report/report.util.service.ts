@@ -243,12 +243,7 @@ export class ReportUtilService {
     At the start of the query, we have identified stages in licensing stage(which contains a single or group of milestones).
     Let's find each of the rows separatly from the "report" result and UNION them ALL to generate report format.
   */
-  licensingStageApplicantsQuery(
-    statuses: Record<string, string>,
-    from: string,
-    to: string,
-    //getNewProcessApplicants = false,
-  ) {
+  licensingStageApplicantsQuery(statuses: Record<string, string>, from: string, to: string) {
     return `
       WITH active_applicants AS (
         SELECT
