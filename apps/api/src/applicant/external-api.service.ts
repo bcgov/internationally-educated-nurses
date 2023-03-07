@@ -533,12 +533,11 @@ export class ExternalAPIService {
    * @returns object that use in upsert milestone/status
    */
   async mapMilestones(data: any, mappedApplicantList: string[]) {
-    const { users } = await this.getApplicantMasterData();
-    const savedApplicants = await this.ienapplicantRepository.findByIds(mappedApplicantList);
-    const milestones: any = [];
-    if (savedApplicants.length <= 0) {
+    if (!mappedApplicantList.length) {
       return [];
     }
+    const { users } = await this.getApplicantMasterData();
+    const milestones: any = [];
     const allowedMilestones: string[] = await this.allowedMilestones();
     let total = 0;
     data.forEach(
