@@ -247,7 +247,7 @@ export class ReportUtilService {
     statuses: Record<string, string>,
     from: string,
     to: string,
-    getNewProcessApplicants = false,
+    //getNewProcessApplicants = false,
   ) {
     return `
       WITH active_applicants AS (
