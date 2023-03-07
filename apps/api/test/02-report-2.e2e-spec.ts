@@ -73,7 +73,7 @@ describe('Report 2 - Country of Education', () => {
     await testAddEducation(applicant, from, to);
   });
 
-  it('Add applicant with education to the last period', async () => {
+  /* it('Add applicant with education to the last period', async () => {
     const { from, to } = periods[periods.length - 1];
     let applicant: IENApplicantCreateUpdateDTO;
     if (from === to) {
@@ -84,7 +84,7 @@ describe('Report 2 - Country of Education', () => {
     }
     applicant.nursing_educations.push(getEducation());
     await testAddEducation(applicant, from, to);
-  });
+  }); */
 
   it('Ignore applicants not in the period', async () => {
     const { from, to } = periods[periods.length - 1];

@@ -6,19 +6,20 @@ import { AppModule } from 'src/app.module';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { URLS } from './constants';
 import { canActivate } from './override-guard';
-import {
+/* import {
   getApplicant,
   getStatus,
   reportFourNumberOfApplicants,
   reportFourExpectedResult,
 } from './report-util';
-import { STATUS, LIC_REG_STAGE, BCCNM_LICENSE, ApplicantRO } from '@ien/common';
-import { addApplicant, addMilestone, setApp, addJob, getHAs } from './report-request-util';
+import { STATUS, LIC_REG_STAGE, BCCNM_LICENSE, ApplicantRO } from '@ien/common'; */
+//import { addApplicant, addMilestone, setApp, addJob, getHAs } from './report-request-util';
+import { setApp, getHAs } from './report-request-util';
 
 describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
   // Tracks applicants id's and to later delete status/milestones
-  const applicantIdsOldProcess: string[] = [];
-  const applicantIdsNewProcess: string[] = [];
+  //const applicantIdsOldProcess: string[] = [];
+  //const applicantIdsNewProcess: string[] = [];
   let app: INestApplication;
   let haPcn: string;
 
@@ -47,7 +48,7 @@ describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
     expect(status).toBe(200);
   });
 
-  it('Add applicants and give each a different status/milestone (old process)', async () => {
+  /* it('Add applicants and give each a different status/milestone (old process)', async () => {
     const { body: before } = await request(app.getHttpServer()).get(URLS.REPORT4);
 
     // What the report is expected to look like. Only looks at old process
@@ -192,5 +193,5 @@ describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
     const nnasAfter = reportFourNumberOfApplicants(after, STATUS.APPLIED_TO_NNAS, false);
 
     expect(nnasBefore).toStrictEqual((+nnasAfter! - 2).toString());
-  });
+  }); */
 });

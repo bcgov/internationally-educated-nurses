@@ -306,7 +306,7 @@ export class ReportUtilService {
             THEN 1
             ELSE 0 
           END as hired_or_withdrawn
-          FROM public.ien_applicants as applicants WHERE applicants.new_bccnm_process = ${getNewProcessApplicants}
+          FROM public.ien_applicants as applicants
         ) as t1
         WHERE t1.hired_or_withdrawn = 0
       ),
