@@ -330,15 +330,40 @@ export const createApplicantDataExtractWorkbook = async (
   }
 };
 
+const REPORT_URLS = [
+  'registered',
+  'education-country',
+  'hired-withdrawn-active',
+  'licensing-stage',
+  'license',
+  'recruitment',
+  'immigration',
+  'ha-current-period-fiscal',
+  'average-time-with-stakeholder-group',
+  'average-time-of-milestones',
+];
+
+const fetchReports = async (filter: PeriodFilter) => {
+  const params = convertToParams(filter);
+  const reports = [];
+  for (let i = 0; i < REPORT_URLS.length; i++) {
+    const report = await axios.get(`/reports/applicant/${REPORT_URLS[i]}?${params}`);
+    reports.push(report);
+  }
+  return reports
+    .map(r => r.data?.data)
+    .reduce((a, c, index) => {
+      return { ...a, [`report${index + 1}`]: c };
+    }, {});
+};
+
 export const createReportWorkbook = async (filter: PeriodFilter): Promise<WorkBook | null> => {
   const workbook = utils.book_new();
 
   utils.book_append_sheet(workbook, getSummarySheet(filter), 'Summary');
 
   try {
-    const { data } = await axios.get(`/reports/applicant?${convertToParams(filter)}`);
-
-    const reports = data.data;
+    const reports = await fetchReports(filter);
 
     const sheets: { name: string; sheet: WorkSheet }[] = reportCreators.map(creator => {
       const { name, generator } = creator;

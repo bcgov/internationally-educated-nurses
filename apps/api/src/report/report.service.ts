@@ -343,6 +343,9 @@ export class ReportService {
         ...this.getDurationStats(linearDurations.map(d => d.to_hire).filter(v => v !== null)),
       },
     ];
+    this.logger.log(
+      `getAverageTimeWithEachStakeholderGroup: query completed a total of ${data.length} record returns`,
+    );
     return data;
   }
 
@@ -377,7 +380,7 @@ export class ReportService {
     // excludes applicants with a negative duration caused by nonlinear milestones
     const linearDurations = durations.filter(d => !Object.values(d).some(v => v < 0));
 
-    return _.flatten(
+    const data = _.flatten(
       DURATION_STAGES.map(stageFields => {
         const stageMilestone = stageFields[0];
         // take entries with the stage duration is not null so that the same number of samples could be used to
@@ -395,6 +398,11 @@ export class ReportService {
         });
       }),
     );
+
+    this.logger.log(
+      `getAverageTimeOfMilestones: query completed a total of ${data.length} record returns`,
+    );
+    return data;
   }
 
   /**
@@ -439,7 +447,14 @@ export class ReportService {
       this.getAverageTimeWithEachStakeholderGroup(statuses, to).then(report9 => ({ report9 })),
       this.getAverageTimeOfMilestones(to).then(report10 => ({ report10 })),
     ];
-    const report = await Promise.all(promises);
+    const report = await Promise.all(
+      promises.map(async (p, index) => {
+        const start = Date.now();
+        const data = await p;
+        this.logger.log(`Report ${index + 1} took ${(Date.now() - start) / 1000} seconds`);
+        return data;
+      }),
+    );
     return report.reduce((a, c) => _.assign(a, c), {});
   }
 }
