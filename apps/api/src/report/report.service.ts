@@ -4,6 +4,7 @@ import { getManager, Repository, In, getRepository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import dayjs from 'dayjs';
 import _ from 'lodash';
+
 import { IENHaPcn } from '../applicant/entity/ienhapcn.entity';
 import { DURATION_STAGES } from './constants';
 import { MilestoneDurationEntity } from './entity/milestone-duration.entity';
@@ -12,6 +13,7 @@ import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.entity';
 import { startDateOfFiscal } from 'src/common/util';
 import { ReportPeriodDTO, StatusCategory } from '@ien/common';
+import { ReportCacheEntity } from './entity/report-cache.entity';
 
 export const PERIOD_START_DATE = '2022-05-02';
 
@@ -148,40 +150,83 @@ export class ReportService {
 
   /**
    * Report 4
+   * @param period report period to select
    * @param f Duration start date YYYY-MM-DD
    * @param t Duration end date YYYY-MM-DD
    * @returns
    */
-  async getLicensingStageApplicants(statuses: Record<string, string>, f: string, t: string) {
-    const { from, to } = this.captureFromTo(f, t);
-    this.logger.log(`getLicensingStageApplicants: Apply date filter from (${from}) and to (${to})`);
-    const entityManager = getManager();
-    const oldProcess = await entityManager.query(
-      this.reportUtilService.licensingStageApplicantsQuery(statuses, from, to),
-    );
+  async getLicensingStageApplicants(period: number) {
+    const report_number = 4;
+    const report = await getRepository(ReportCacheEntity)
+      .createQueryBuilder('rce')
+      .where('rce.report_period = :period', { period })
+      .andWhere('rce.report_number = :report_number', { report_number })
+      .orderBy('rce.created_date', 'DESC')
+      .getOne();
 
-    const newProcess = await entityManager.query(
-      this.reportUtilService.licensingStageApplicantsQuery(statuses, from, to, true),
-    );
+    if (!report) {
+      return [];
+    }
 
-    // combine old data with new data
-    const data = oldProcess.map((o: { status: string; applicants: string }) => {
-      const newProcessApplicants = newProcess.find(
-        (n: { status: string }) => n.status === o.status,
-      );
-      return {
-        status: o.status,
-        oldProcessApplicants: o.applicants,
-        newProcessApplicants: newProcessApplicants.applicants,
-      };
-    });
+    const data = JSON.parse(report?.report_data);
 
-    this.logger.log(
-      `getLicensingStageApplicants: query completed a total of ${oldProcess.length} old process and ${newProcess.length} new process record returns`,
-    );
     return data;
   }
 
+  /**
+   * Cache Report 4
+   * function for cachereportfour lambda handler
+   * saves report data to report_cache table
+   */
+  async saveReportFourCache() {
+    const statuses = await this.getStatusMap();
+    const periods = await this.getRegisteredApplicantList('', '');
+
+    const entityManager = getManager();
+
+    Promise.all(
+      periods.map(async p => {
+        const { from, to } = this.captureFromTo(p.from, p.to);
+
+        this.logger.log(
+          `getLicensingStageApplicants: Apply date filter from (${from}) and to (${to})`,
+        );
+
+        const oldProcess = await entityManager.query(
+          this.reportUtilService.licensingStageApplicantsQuery(statuses, from, to),
+        );
+
+        const newProcess = await entityManager.query(
+          this.reportUtilService.licensingStageApplicantsQuery(statuses, from, to, true),
+        );
+
+        // combine old data with new data
+        const data = oldProcess.map((o: { status: string; applicants: string }) => {
+          const newProcessApplicants = newProcess.find(
+            (n: { status: string }) => n.status === o.status,
+          );
+          return {
+            status: o.status,
+            oldProcessApplicants: o.applicants,
+            newProcessApplicants: newProcessApplicants.applicants,
+          };
+        });
+
+        this.logger.log(
+          `getLicensingStageApplicants: query completed a total of ${oldProcess.length} old process and ${newProcess.length} new process record returns`,
+        );
+
+        const cacheData: Partial<ReportCacheEntity> = {
+          report_number: 4,
+          report_period: p.period,
+          report_data: JSON.stringify(data),
+        };
+
+        const cache = getRepository(ReportCacheEntity).create(cacheData);
+        getRepository(ReportCacheEntity).save(cache);
+      }),
+    );
+  }
   /**
    * Report 5
    * @param f Duration start date YYYY-MM-DD
@@ -433,13 +478,13 @@ export class ReportService {
     return data;
   }
 
-  async getReport(from: string, to: string): Promise<object> {
+  async getReport(from: string, to: string, period: number): Promise<object> {
     const statuses = await this.getStatusMap();
     const promises: Promise<object>[] = [
       this.getRegisteredApplicantList(from, to).then(report1 => ({ report1 })),
       this.getCountryWiseApplicantList(from, to).then(report2 => ({ report2 })),
       this.getHiredWithdrawnActiveApplicants(statuses, from, to).then(report3 => ({ report3 })),
-      this.getLicensingStageApplicants(statuses, from, to).then(report4 => ({ report4 })),
+      this.getLicensingStageApplicants(period).then(report4 => ({ report4 })),
       this.getLicenseApplicants(statuses, from, to).then(report5 => ({ report5 })),
       this.getRecruitmentApplicants(statuses, from, to).then(report6 => ({ report6 })),
       this.getImmigrationApplicants(statuses, from, to).then(report7 => ({ report7 })),

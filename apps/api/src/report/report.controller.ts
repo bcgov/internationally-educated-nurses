@@ -17,8 +17,12 @@ export class ReportController {
 
   @Get('/applicant')
   @AllowAccess(Access.REPORTING)
-  async getReport(@Query('from') from: string, @Query('to') to: string): Promise<object> {
-    return this.reportService.getReport(from, to);
+  async getReport(
+    @Query('from') from: string,
+    @Query('to') to: string,
+    @Query('period') period: number,
+  ): Promise<object> {
+    return this.reportService.getReport(from, to, period);
   }
 
   @ApiOperation({ summary: 'Report 1: List report periods within the given time range' })
@@ -55,12 +59,8 @@ export class ReportController {
   @ApiOperation({ summary: 'Report 4: licensing stage applicants' })
   @Get('/applicant/licensing-stage')
   @AllowAccess(Access.REPORTING)
-  async getLicensingStageApplicants(
-    @Query('from') from: string,
-    @Query('to') to: string,
-  ): Promise<object[]> {
-    const statuses = await this.reportService.getStatusMap();
-    return this.reportService.getLicensingStageApplicants(statuses, from, to);
+  async getLicensingStageApplicants(@Query('period') period: number): Promise<object[]> {
+    return this.reportService.getLicensingStageApplicants(period);
   }
 
   @ApiOperation({ summary: 'Report 5: Applicants eligible for job search' })
