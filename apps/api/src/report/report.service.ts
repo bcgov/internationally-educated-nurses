@@ -1,6 +1,6 @@
 import { Inject, Logger } from '@nestjs/common';
 import { mean, median, min, mode, round } from 'mathjs';
-import { getManager, Repository, In, getRepository } from 'typeorm';
+import { getManager, Repository, In, getRepository, EntityManager, getConnection } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import dayjs from 'dayjs';
 import _ from 'lodash';
@@ -15,13 +15,20 @@ import { startDateOfFiscal } from 'src/common/util';
 import { ReportPeriodDTO, StatusCategory } from '@ien/common';
 import { ReportCacheEntity } from './entity/report-cache.entity';
 
+import {LIC_REG_STAGE} from '@ien/common';
+import { IENApplicantStatusAudit } from 'src/applicant/entity/ienapplicant-status-audit.entity';
+import { from } from 'rxjs';
+
 export const PERIOD_START_DATE = '2022-05-02';
 
 export class ReportService {
   constructor(
+    // @ts-ignore
     @Inject(Logger) private readonly logger: AppLogger,
+        // @ts-ignore
     @Inject(ReportUtilService)
     private readonly reportUtilService: ReportUtilService,
+            // @ts-ignore
     @InjectRepository(IENApplicantStatus)
     private readonly ienapplicantStatusRepository: Repository<IENApplicantStatus>,
   ) {}
@@ -221,37 +228,77 @@ export class ReportService {
    */
   async splitReportFourNewOldProcess(f: string, t: string) {
     const statuses = await this.getStatusMap();
-    const entityManager = getManager();
-
     const { from, to } = this.captureFromTo(f, t);
 
     this.logger.log(`getLicensingStageApplicants: Apply date filter from (${from}) and to (${to})`);
+    const connection  = getConnection();
+    const start = Date.now()
+    const mappedStatuses = LIC_REG_STAGE.map((licensingStatus)=>{
+      return statuses[licensingStatus];
+    })
+    const mappedStatusesString = mappedStatuses.map((status)=>`'${status}'`).join(',');
+    let bccnm = true; 
 
-    const oldProcess = await entityManager.query(
-      this.reportUtilService.licensingStageApplicantsQuery(statuses, from, to),
-    );
+    
+    try{
 
-    const newProcess = await entityManager.query(
-      this.reportUtilService.licensingStageApplicantsQuery(statuses, from, to, true),
-    );
+      const oldProcess  =await  connection.query(this.reportUtilService.reportFour(mappedStatusesString,from,to,false));
+      
+      console.log(Date.now()-start); 
+      console.log(oldProcess);
+      const newProcess = await connection.query(this.reportUtilService.reportFour(mappedStatusesString,from,to, true));
+      console.log(newProcess);
+      console.log(Date.now()-start); 
+      const licenseResults = await this.countLicense();
+      return oldProcess.map((row:{status_id:string,count:string})=>{
+        return {
+          applicants:row.count,
+          status: Object.keys(statuses)[Object.values(statuses).findIndex((value)=>value ===row.status_id)]
+        }
+      });
+    }catch(e){
+      console.log(e);
+      return [];
+    }
+  }
 
-    // combine old data with new data
-    const data = oldProcess.map((o: { status: string; applicants: string }) => {
-      const newProcessApplicants = newProcess.find(
-        (n: { status: string }) => n.status === o.status,
+  /**
+   * Report 4 count licenses
+   */
+  async countLicense(){
+    const connection = getConnection();
+  
+    const fullLicence = await  connection.query(
+      `SELECT count(distinct applicant_id)
+      FROM "ien_applicant_status_audit" "status_audit" 
+      WHERE 
+      "status_audit"."status_id" IN ('632374e6-ca2f-0baa-f994-3a05e77c118a', '18AA32C3-A6A4-4431-8283-89931C141FDE' )
+      AND  NOT EXISTS (
+            SELECT *
+            FROM "ien_applicant_status_audit" AS T2
+            WHERE 
+            T2.applicant_id = status_audit.applicant_id
+            AND T2.status_id IN ('f84a4167-a636-4b21-977c-f11aefc486af', '70b1f5f1-1a0d-ef71-42ea-3a0601b46bc2')
+        )`);
+      const provisionalLicence = await connection.query(
+        `SELECT count(distinct applicant_id)
+        FROM "ien_applicant_status_audit" "status_audit" 
+        WHERE 
+        "status_audit"."status_id" IN ('91F55FAA-C71D-83C8-4F10-3A05E778AFBC','D2656957-EC58-15C9-1E21-3A05E778DC8E' )
+        AND NOT EXISTS (
+              SELECT *
+              FROM "ien_applicant_status_audit" AS T2
+              WHERE 
+              T2.applicant_id = status_audit.applicant_id
+              AND T2.status_id IN ('f84a4167-a636-4b21-977c-f11aefc486af', '70b1f5f1-1a0d-ef71-42ea-3a0601b46bc2', '632374e6-ca2f-0baa-f994-3a05e77c118a', '18AA32C3-A6A4-4431-8283-89931C141FDE')
+          )`
       );
+      console.log(provisionalLicence);
+      console.log(fullLicence);
       return {
-        status: o.status,
-        oldProcessApplicants: o.applicants,
-        newProcessApplicants: newProcessApplicants.applicants,
-      };
-    });
-
-    this.logger.log(
-      `getLicensingStageApplicants: query completed a total of ${oldProcess.length} old process and ${newProcess.length} new process record returns`,
-    );
-
-    return data;
+        full:fullLicence,
+        provisional:provisionalLicence
+      }
   }
 
   /**

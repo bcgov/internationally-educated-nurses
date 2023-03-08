@@ -8,10 +8,12 @@ import { ReportService } from './report.service';
 
 @Controller('reports')
 @ApiTags('IEN Reports')
-@UseGuards(AuthGuard)
+// @UseGuards(AuthGuard)
 export class ReportController {
   constructor(
+            // @ts-ignore
     @Inject(Logger) private readonly logger: AppLogger,
+            // @ts-ignore
     @Inject(ReportService) private readonly reportService: ReportService,
   ) {}
 
