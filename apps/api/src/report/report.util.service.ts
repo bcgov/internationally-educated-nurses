@@ -215,6 +215,14 @@ export class ReportUtilService {
       FROM report WHERE registration_date::date >= '${from}';
     `;
   }
+  /**
+   *
+   * @param mappedStatusesString
+   * @param from start
+   * @param to end
+   * @param BCCNM_NEW_PROCESS
+   * @returns Query string
+   */
   reportFour(
     mappedStatusesString: string,
     from: string,
@@ -252,25 +260,40 @@ export class ReportUtilService {
     GROUP BY status_audit.status_id;
   `;
   }
+  /**
+   * Counts the number of applicants with a partial license (RN or LPN)
+   * Exclude applicants who have withdrawn from the program or been hired, or who have a full license
+   * @param BCCNM_NEW_PROCESS
+   * @returns A query string
+   */
   partialLicenceQuery(BCCNM_NEW_PROCESS: boolean) {
     return `
-    SELECT count(distinct status_audit.applicant_id)
-    FROM "ien_applicant_status_audit" "status_audit" 
-    LEFT JOIN 
-    ien_applicants applicant ON applicant.id = status_audit.applicant_id 
-    WHERE 
-    applicant.new_bccnm_process IS NOT NULL AND applicant.new_bccnm_process = ${
-      BCCNM_NEW_PROCESS ? 'TRUE' : 'FALSE'
-    } AND
-    "status_audit"."status_id" IN ('91F55FAA-C71D-83C8-4F10-3A05E778AFBC','D2656957-EC58-15C9-1E21-3A05E778DC8E' )
-    AND NOT EXISTS (
+      SELECT 
+        count(distinct status_audit.applicant_id)
+      FROM 
+        "ien_applicant_status_audit" "status_audit" 
+      LEFT JOIN 
+        ien_applicants applicant ON applicant.id = status_audit.applicant_id 
+      WHERE 
+        applicant.new_bccnm_process IS NOT NULL AND applicant.new_bccnm_process = ${
+          BCCNM_NEW_PROCESS ? 'TRUE' : 'FALSE'
+        } AND
+        "status_audit"."status_id" IN ('91F55FAA-C71D-83C8-4F10-3A05E778AFBC','D2656957-EC58-15C9-1E21-3A05E778DC8E' )
+        AND NOT EXISTS (
           SELECT *
-          FROM "ien_applicant_status_audit" AS T2
+          FROM 
+            "ien_applicant_status_audit" AS T2
           WHERE 
-          T2.applicant_id = status_audit.applicant_id
-          AND T2.status_id IN ('f84a4167-a636-4b21-977c-f11aefc486af', '70b1f5f1-1a0d-ef71-42ea-3a0601b46bc2', '632374e6-ca2f-0baa-f994-3a05e77c118a', '18AA32C3-A6A4-4431-8283-89931C141FDE')
-      )`;
+            T2.applicant_id = status_audit.applicant_id
+            AND T2.status_id IN ('f84a4167-a636-4b21-977c-f11aefc486af', '70b1f5f1-1a0d-ef71-42ea-3a0601b46bc2', '632374e6-ca2f-0baa-f994-3a05e77c118a', '18AA32C3-A6A4-4431-8283-89931C141FDE')
+        )`;
   }
+  /**
+   * Counts the number of applicants with a full license (RN or LPN)
+   * Exclude applicants who have withdrawn from the program or been hired
+   * @param BCCNM_NEW_PROCESS
+   * @returns query string
+   */
   fullLicenceQuery(BCCNM_NEW_PROCESS: boolean) {
     return `
     SELECT count(distinct status_audit.applicant_id)
@@ -318,6 +341,7 @@ export class ReportUtilService {
     At the start of the query, we have identified stages in licensing stage(which contains a single or group of milestones).
     Let's find each of the rows separatly from the "report" result and UNION them ALL to generate report format.
   */
+  // TODO: Remove
   licensingStageApplicantsQuery(
     statuses: Record<string, string>,
     from: string,
