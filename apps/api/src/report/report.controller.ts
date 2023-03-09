@@ -63,11 +63,11 @@ export class ReportController {
     @Query('period') period: number,
     @Query('from') from: string,
     @Query('to') to: string,
-    @Query('testReport') testReport = false,
+    @Query('no-cache') noCache = false,
   ): Promise<object[]> {
-    // cached data relies on cron job set to run at 12AM PST
-    // testReport param is used to invalidate the cache and use current data for testing
-    if (testReport || !period) {
+    // cached data relies on cron job set to run at 1AM PST
+    // no-cache param is used to invalidate the cache and use current data for testing
+    if (noCache || !period) {
       return this.reportService.splitReportFourNewOldProcess(from, to);
     }
     return this.reportService.getLicensingStageApplicants(period, from, to);

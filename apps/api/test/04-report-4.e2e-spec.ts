@@ -62,7 +62,7 @@ describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
 
     const { body: report } = await request(app.getHttpServer()).get(URLS.REPORT1);
 
-    // hard set period ot be current period moving forward
+    // hard set period to be current period moving forward
     lastPeriod = report.length - 1;
     periods = [{ from: report[lastPeriod].from, to: report[lastPeriod].to }];
     url = URLS.REPORT4 + `?period=${lastPeriod + 1}`;
