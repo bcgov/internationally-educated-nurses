@@ -59,8 +59,18 @@ export class ReportController {
   @ApiOperation({ summary: 'Report 4: licensing stage applicants' })
   @Get('/applicant/licensing-stage')
   @AllowAccess(Access.REPORTING)
-  async getLicensingStageApplicants(@Query('period') period: number): Promise<object[]> {
-    return this.reportService.getLicensingStageApplicants(period);
+  async getLicensingStageApplicants(
+    @Query('period') period: number,
+    @Query('from') from: string,
+    @Query('to') to: string,
+    @Query('testReport') testReport = false,
+  ): Promise<object[]> {
+    // cached data relies on cron job set to run at 12AM PST
+    // testReport param is used to invalidate the cache and use current data for testing
+    if (testReport || !period) {
+      return this.reportService.splitReportFourNewOldProcess(from, to);
+    }
+    return this.reportService.getLicensingStageApplicants(period, from, to);
   }
 
   @ApiOperation({ summary: 'Report 5: Applicants eligible for job search' })

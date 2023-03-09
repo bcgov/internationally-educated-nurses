@@ -17,12 +17,10 @@ export const handler: Handler = async (event, context: Context) => {
   appLogger.log({ event });
   appLogger.log({ context });
   try {
-    if (event.hasOwnProperty('path')) {
-      if (event.path === 'cache-report-four') {
-        appLogger.log('Start caching report 4...');
+    if (event.path === 'cache-report-four') {
+      appLogger.log('Start caching report 4...');
 
-        await reportService.saveReportFourCache();
-      }
+      await reportService.saveReportFourCache();
     }
   } catch (e) {
     appLogger.error(e);

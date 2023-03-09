@@ -155,7 +155,7 @@ export class ReportService {
    * @param t Duration end date YYYY-MM-DD
    * @returns
    */
-  async getLicensingStageApplicants(period: number) {
+  async getLicensingStageApplicants(period: number, from: string, to: string) {
     const report_number = 4;
     const report = await getRepository(ReportCacheEntity)
       .createQueryBuilder('rce')
@@ -165,7 +165,7 @@ export class ReportService {
       .getOne();
 
     if (!report) {
-      return [];
+      return this.splitReportFourNewOldProcess(from, to);
     }
 
     const data = JSON.parse(report?.report_data);
@@ -178,19 +178,13 @@ export class ReportService {
    * function for cachereportfour lambda handler
    * saves report data to report_cache table
    */
-  async saveReportFourCache(p?: { from: string; to: string }[]) {
-    const periods = p ?? (await this.getRegisteredApplicantList('', ''));
+  async saveReportFourCache(pe?: { from: string; to: string }[]) {
+    const periods = pe ?? (await this.getRegisteredApplicantList('', ''));
 
     Promise.all(
       periods.map(async p => {
-        const { from, to } = this.captureFromTo(p.from, p.to);
-
-        this.logger.log(
-          `getLicensingStageApplicants: Apply date filter from (${from}) and to (${to})`,
-        );
-
         // split applicants into new and old process fields
-        const data = await this.splitReportFourNewOldProcess(from, to);
+        const data = await this.splitReportFourNewOldProcess(p.from);
 
         // find existing report if it exists
         const reportRow = await getRepository(ReportCacheEntity).findOne({
@@ -220,16 +214,20 @@ export class ReportService {
    * @param t Duration end date YYYY-MM-DD
    * @returns
    */
-  async splitReportFourNewOldProcess(f: string, t: string) {
+  async splitReportFourNewOldProcess(f: string, t?: string) {
     const statuses = await this.getStatusMap();
     const entityManager = getManager();
 
+    const { from, to } = this.captureFromTo(f, t || '');
+
+    this.logger.log(`getLicensingStageApplicants: Apply date filter from (${from}) and to (${to})`);
+
     const oldProcess = await entityManager.query(
-      this.reportUtilService.licensingStageApplicantsQuery(statuses, f, t),
+      this.reportUtilService.licensingStageApplicantsQuery(statuses, from, to),
     );
 
     const newProcess = await entityManager.query(
-      this.reportUtilService.licensingStageApplicantsQuery(statuses, f, t, true),
+      this.reportUtilService.licensingStageApplicantsQuery(statuses, from, to, true),
     );
 
     // combine old data with new data
@@ -508,7 +506,7 @@ export class ReportService {
       this.getRegisteredApplicantList(from, to).then(report1 => ({ report1 })),
       this.getCountryWiseApplicantList(from, to).then(report2 => ({ report2 })),
       this.getHiredWithdrawnActiveApplicants(statuses, from, to).then(report3 => ({ report3 })),
-      this.getLicensingStageApplicants(period).then(report4 => ({ report4 })),
+      this.getLicensingStageApplicants(period, from, to).then(report4 => ({ report4 })),
       this.getLicenseApplicants(statuses, from, to).then(report5 => ({ report5 })),
       this.getRecruitmentApplicants(statuses, from, to).then(report6 => ({ report6 })),
       this.getImmigrationApplicants(statuses, from, to).then(report7 => ({ report7 })),
