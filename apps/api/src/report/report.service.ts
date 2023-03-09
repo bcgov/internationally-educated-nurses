@@ -178,11 +178,8 @@ export class ReportService {
    * function for cachereportfour lambda handler
    * saves report data to report_cache table
    */
-  async saveReportFourCache() {
-    const statuses = await this.getStatusMap();
-    const periods = await this.getRegisteredApplicantList('', '');
-
-    const entityManager = getManager();
+  async saveReportFourCache(p?: { from: string; to: string }[]) {
+    const periods = p ?? (await this.getRegisteredApplicantList('', ''));
 
     Promise.all(
       periods.map(async p => {
@@ -192,41 +189,68 @@ export class ReportService {
           `getLicensingStageApplicants: Apply date filter from (${from}) and to (${to})`,
         );
 
-        const oldProcess = await entityManager.query(
-          this.reportUtilService.licensingStageApplicantsQuery(statuses, from, to),
-        );
+        // split applicants into new and old process fields
+        const data = await this.splitReportFourNewOldProcess(from, to);
 
-        const newProcess = await entityManager.query(
-          this.reportUtilService.licensingStageApplicantsQuery(statuses, from, to, true),
-        );
-
-        // combine old data with new data
-        const data = oldProcess.map((o: { status: string; applicants: string }) => {
-          const newProcessApplicants = newProcess.find(
-            (n: { status: string }) => n.status === o.status,
-          );
-          return {
-            status: o.status,
-            oldProcessApplicants: o.applicants,
-            newProcessApplicants: newProcessApplicants.applicants,
-          };
+        // find existing report if it exists
+        const reportRow = await getRepository(ReportCacheEntity).findOne({
+          select: ['id'],
+          where: {
+            report_number: 4,
+            report_period: p.period,
+          },
         });
 
-        this.logger.log(
-          `getLicensingStageApplicants: query completed a total of ${oldProcess.length} old process and ${newProcess.length} new process record returns`,
-        );
-
         const cacheData: Partial<ReportCacheEntity> = {
+          id: reportRow?.id,
           report_number: 4,
           report_period: p.period,
           report_data: JSON.stringify(data),
+          updated_date: new Date(),
         };
 
-        const cache = getRepository(ReportCacheEntity).create(cacheData);
-        getRepository(ReportCacheEntity).save(cache);
+        getRepository(ReportCacheEntity).upsert(cacheData, ['id']);
       }),
     );
   }
+
+  /**
+   * Splits process into new and old for report 4
+   * @param f Duration start date YYYY-MM-DD
+   * @param t Duration end date YYYY-MM-DD
+   * @returns
+   */
+  async splitReportFourNewOldProcess(f: string, t: string) {
+    const statuses = await this.getStatusMap();
+    const entityManager = getManager();
+
+    const oldProcess = await entityManager.query(
+      this.reportUtilService.licensingStageApplicantsQuery(statuses, f, t),
+    );
+
+    const newProcess = await entityManager.query(
+      this.reportUtilService.licensingStageApplicantsQuery(statuses, f, t, true),
+    );
+
+    // combine old data with new data
+    const data = oldProcess.map((o: { status: string; applicants: string }) => {
+      const newProcessApplicants = newProcess.find(
+        (n: { status: string }) => n.status === o.status,
+      );
+      return {
+        status: o.status,
+        oldProcessApplicants: o.applicants,
+        newProcessApplicants: newProcessApplicants.applicants,
+      };
+    });
+
+    this.logger.log(
+      `getLicensingStageApplicants: query completed a total of ${oldProcess.length} old process and ${newProcess.length} new process record returns`,
+    );
+
+    return data;
+  }
+
   /**
    * Report 5
    * @param f Duration start date YYYY-MM-DD

@@ -18,6 +18,14 @@ import {
   getStatus,
 } from './report-util';
 import { IENHaPcn } from 'src/applicant/entity/ienhapcn.entity';
+import { ReportService } from 'src/report/report.service';
+
+interface AddMilestoneAndSplitProcess {
+  applicantId: string;
+  status: STATUS;
+  period: { from: string; to: string };
+  jobId?: string;
+}
 
 let app: INestApplication;
 
@@ -98,4 +106,21 @@ export const generateApplicants = (
 ): Promise<(ApplicantRO | Error)[]> => {
   const applicants = Array.from({ length: numberOfApplicants }, () => getApplicant(options));
   return Promise.all(applicants.map(a => addApplicant(a)));
+};
+
+/**
+ * adds milestones and splits them into new/ old process
+ * @param s: ReportService
+ * @param data: AddMilestoneAndSplitProcess
+ */
+export const addMilestoneAndSplitProcess = async (
+  s: ReportService,
+  data: AddMilestoneAndSplitProcess,
+) => {
+  const { applicantId, status, period, jobId } = data;
+
+  await addMilestone(applicantId, jobId || '', await getStatus(status));
+  const cachedReport = await s.splitReportFourNewOldProcess(period.from, period.to);
+
+  return cachedReport;
 };

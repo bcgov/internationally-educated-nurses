@@ -24,6 +24,7 @@ import { AccessEntity } from '../employee/entity/acl.entity';
 import { HiredApplicantMilestoneEntity } from '../report/entity/hired-applicant-milestone.entity';
 import { HiredApplicantEntity } from '../report/entity/hired-applicant.entity';
 import { MilestoneDurationEntity } from '../report/entity/milestone-duration.entity';
+import { ReportCacheEntity } from 'src/report/entity/report-cache.entity';
 
 const getEnvironmentSpecificConfig = (env?: string) => {
   switch (env) {
@@ -60,6 +61,7 @@ const getEnvironmentSpecificConfig = (env?: string) => {
           MilestoneDurationEntity,
           RoleEntity,
           SyncApplicantsAudit,
+          ReportCacheEntity,
         ],
         migrations: ['dist/migration/*.js'],
         logging: ['error', 'warn', 'migration'] as LoggerOptions,
