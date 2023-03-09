@@ -184,7 +184,7 @@ export class ReportService {
     Promise.all(
       periods.map(async p => {
         // split applicants into new and old process fields
-        const data = await this.splitReportFourNewOldProcess(p.from);
+        const data = await this.splitReportFourNewOldProcess('', p.to);
 
         // find existing report if it exists
         const reportRow = await getRepository(ReportCacheEntity).findOne({
@@ -214,11 +214,11 @@ export class ReportService {
    * @param t Duration end date YYYY-MM-DD
    * @returns
    */
-  async splitReportFourNewOldProcess(f: string, t?: string) {
+  async splitReportFourNewOldProcess(f: string, t: string) {
     const statuses = await this.getStatusMap();
     const entityManager = getManager();
 
-    const { from, to } = this.captureFromTo(f, t || '');
+    const { from, to } = this.captureFromTo(f, t);
 
     this.logger.log(`getLicensingStageApplicants: Apply date filter from (${from}) and to (${to})`);
 

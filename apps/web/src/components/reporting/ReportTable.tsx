@@ -43,11 +43,10 @@ export const ReportTable = () => {
     setPeriods(sorted);
   };
 
-  const download = async (index: number) => {
-    const period: Period = scopedPeriods[index];
+  const download = async (period: Period) => {
     const from = order === 'ASC' ? periods[0].from : periods[periods.length - 1].from;
     const to = dayjs(period.to).format('YYYY-MM-DD');
-    const workbook = await createReportWorkbook({ from, to, period: index + 1 });
+    const workbook = await createReportWorkbook({ from, to, period: period.period });
     if (workbook) {
       writeFile(workbook, `${REPORT_PREFIX}-${period.period}.xlsx`);
     }
@@ -81,7 +80,7 @@ export const ReportTable = () => {
 
   const downloadReport = async (index: number) => {
     setDownloadIndex(index);
-    await download(index);
+    await download(scopedPeriods[index]);
     setDownloadIndex(-1);
   };
 
