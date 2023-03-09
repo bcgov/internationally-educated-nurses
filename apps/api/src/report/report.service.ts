@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 import _ from 'lodash';
 
 import { IENHaPcn } from '../applicant/entity/ienhapcn.entity';
-import { DURATION_STAGES,REPORT_FOUR_STEPS } from './constants';
+import { DURATION_STAGES, REPORT_FOUR_STEPS } from './constants';
 import { MilestoneDurationEntity } from './entity/milestone-duration.entity';
 import { ReportUtilService } from './report.util.service';
 import { AppLogger } from 'src/common/logger.service';
@@ -224,108 +224,126 @@ export class ReportService {
     const { from, to } = this.captureFromTo(f, t);
 
     this.logger.log(`getLicensingStageApplicants: Apply date filter from (${from}) and to (${to})`);
-    const connection  = getConnection();
-    const start = Date.now()
-    const mappedStatuses = LIC_REG_STAGE.map((licensingStatus)=>{
+    const connection = getConnection();
+    const start = Date.now();
+    const mappedStatuses = LIC_REG_STAGE.map(licensingStatus => {
       return statuses[licensingStatus];
-    })
-    const mappedStatusesString = mappedStatuses.map((status)=>`'${status}'`).join(',');
-    try{
-      const oldProcess  =await  connection.query(this.reportUtilService.reportFour(mappedStatusesString,from,to,false));
-      const newProcess = await connection.query(this.reportUtilService.reportFour(mappedStatusesString,from,to, true));
+    });
+    const mappedStatusesString = mappedStatuses.map(status => `'${status}'`).join(',');
+    try {
+      const oldProcess = await connection.query(
+        this.reportUtilService.reportFour(mappedStatusesString, from, to, false),
+      );
+      const newProcess = await connection.query(
+        this.reportUtilService.reportFour(mappedStatusesString, from, to, true),
+      );
       const licenseResults = await this.countLicense(connection);
-      return this.mapReportFourResults(statuses,oldProcess,newProcess,licenseResults)
-    }catch(e){
-      console.log(e);
+      return this.mapReportFourResults(statuses, oldProcess, newProcess, licenseResults);
+    } catch (e) {
+      this.logger.error(e);
       return [];
     }
   }
-  mapReportFourResults(statuses: Record<string, string>,oldProcess:{status_id:string,count:string}[],newProcess:{status_id:string,count:string}[],licenceResults:any){
-    let report = REPORT_FOUR_STEPS.map((step:string)=>{
-      switch(step){
+  mapReportFourResults(
+    statuses: Record<string, string>,
+    oldProcess: { status_id: string; count: string }[],
+    newProcess: { status_id: string; count: string }[],
+    licenceResults: any,
+  ) {
+    let report = REPORT_FOUR_STEPS.map((step: string) => {
+      switch (step) {
         case 'Granted full licensure':
           return {
-            status:step, 
-            oldProcessApplicants: licenceResults.oldFullLicence[0]?.count || "0",
-            newProcessApplicants: licenceResults.newFullLicence[0]?.count || "0"
-          }
+            status: step,
+            oldProcessApplicants: licenceResults.oldFullLicence[0]?.count || '0',
+            newProcessApplicants: licenceResults.newFullLicence[0]?.count || '0',
+          };
 
         case 'Granted provisional licensure':
           return {
-            status:step, 
-            oldProcessApplicants: licenceResults.oldProvisionalLicence[0]?.count || "0",
-            newProcessApplicants: licenceResults.newProvisionalLicence[0]?.count || "0"
-          }
+            status: step,
+            oldProcessApplicants: licenceResults.oldProvisionalLicence[0]?.count || '0',
+            newProcessApplicants: licenceResults.newProvisionalLicence[0]?.count || '0',
+          };
         case 'Applied to NNAS':
           return {
-            status:step,
-            oldProcessApplicants:this.findAndSumStatusCounts(oldProcess,[
+            status: step,
+            oldProcessApplicants: this.findAndSumStatusCounts(oldProcess, [
               statuses[STATUS.APPLIED_TO_NNAS],
               statuses[STATUS.SUBMITTED_DOCUMENTS],
-              statuses[STATUS.RECEIVED_NNAS_REPORT]
+              statuses[STATUS.RECEIVED_NNAS_REPORT],
             ]),
-            newProcessApplicants:this.findAndSumStatusCounts(newProcess,[
+            newProcessApplicants: this.findAndSumStatusCounts(newProcess, [
               statuses[STATUS.APPLIED_TO_NNAS],
               statuses[STATUS.SUBMITTED_DOCUMENTS],
-              statuses[STATUS.RECEIVED_NNAS_REPORT]
-            ])
-          }
-        
-        case 'Completed Additional Education': 
-        return {
-          status:step,
-          oldProcessApplicants:this.findAndSumStatusCounts(oldProcess,[
-            statuses[STATUS.REFERRED_TO_ADDITIONAL_EDUCTION],
-            statuses[STATUS.COMPLETED_ADDITIONAL_EDUCATION]
-          ]),
-          newProcessApplicants:this.findAndSumStatusCounts(newProcess,[
-            statuses[STATUS.REFERRED_TO_ADDITIONAL_EDUCTION],
-            statuses[STATUS.COMPLETED_ADDITIONAL_EDUCATION]
-          ])
-        }
+              statuses[STATUS.RECEIVED_NNAS_REPORT],
+            ]),
+          };
+
+        case 'Completed Additional Education':
+          return {
+            status: step,
+            oldProcessApplicants: this.findAndSumStatusCounts(oldProcess, [
+              statuses[STATUS.REFERRED_TO_ADDITIONAL_EDUCTION],
+              statuses[STATUS.COMPLETED_ADDITIONAL_EDUCATION],
+            ]),
+            newProcessApplicants: this.findAndSumStatusCounts(newProcess, [
+              statuses[STATUS.REFERRED_TO_ADDITIONAL_EDUCTION],
+              statuses[STATUS.COMPLETED_ADDITIONAL_EDUCATION],
+            ]),
+          };
 
         case 'Referred to NCAS':
           return {
-            status:step,
-            oldProcessApplicants:this.findAndSumStatusCounts(oldProcess,[
+            status: step,
+            oldProcessApplicants: this.findAndSumStatusCounts(oldProcess, [
               statuses[STATUS.REFERRED_TO_NCAS],
               statuses[STATUS.COMPLETED_CBA],
               statuses[STATUS.COMPLETED_SLA],
             ]),
-            newProcessApplicants:this.findAndSumStatusCounts(newProcess,[
+            newProcessApplicants: this.findAndSumStatusCounts(newProcess, [
               statuses[STATUS.REFERRED_TO_NCAS],
               statuses[STATUS.COMPLETED_CBA],
               statuses[STATUS.COMPLETED_SLA],
-            ])
-          }
+            ]),
+          };
         default:
-          return{
-            status:step,
-            oldProcessApplicants: (oldProcess.find((value)=>value.status_id === statuses[step]))?.count || "0",
-            newProcessApplicants: (newProcess.find((value)=>value.status_id === statuses[step]))?.count || "0"
-          } 
+          return {
+            status: step,
+            oldProcessApplicants:
+              oldProcess.find(value => value.status_id === statuses[step])?.count || '0',
+            newProcessApplicants:
+              newProcess.find(value => value.status_id === statuses[step])?.count || '0',
+          };
       }
-    })
+    });
     return report;
   }
-  findAndSumStatusCounts(list:{status_id:string,count:string}[],acceptedIds:string[]){
-    let count = 0; 
-    acceptedIds.map((id)=>{
-      count +=parseInt((list.find((row:{status_id:string,count:string})=> row.status_id === id)?.count || "0"));
-    })
+  findAndSumStatusCounts(list: { status_id: string; count: string }[], acceptedIds: string[]) {
+    let count = 0;
+    acceptedIds.map(id => {
+      count += parseInt(
+        list.find((row: { status_id: string; count: string }) => row.status_id === id)?.count ||
+          '0',
+      );
+    });
     return count.toString();
   }
 
   /**
    * Report 4 count licenses
    */
-  async countLicense(connection:Connection ){
-      return {
-        oldFullLicence:await connection.query(this.reportUtilService.fullLicenceQuery(false)),
-        oldProvisionalLicence:await connection.query(this.reportUtilService.partialLicenceQuery(false)),
-        newFullLicence:await connection.query(this.reportUtilService.fullLicenceQuery(true)),
-        newProvisionalLicence:await connection.query(this.reportUtilService.partialLicenceQuery(true))
-      }
+  async countLicense(connection: Connection) {
+    return {
+      oldFullLicence: await connection.query(this.reportUtilService.fullLicenceQuery(false)),
+      oldProvisionalLicence: await connection.query(
+        this.reportUtilService.partialLicenceQuery(false),
+      ),
+      newFullLicence: await connection.query(this.reportUtilService.fullLicenceQuery(true)),
+      newProvisionalLicence: await connection.query(
+        this.reportUtilService.partialLicenceQuery(true),
+      ),
+    };
   }
 
   /**
