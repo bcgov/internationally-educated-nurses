@@ -1,12 +1,12 @@
 import { Inject, Logger } from '@nestjs/common';
 import { mean, median, min, mode, round } from 'mathjs';
-import { getManager, Repository, In, getRepository, EntityManager, getConnection, Connection } from 'typeorm';
+import { getManager, Repository, In, getRepository, getConnection, Connection } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import dayjs from 'dayjs';
 import _ from 'lodash';
 
 import { IENHaPcn } from '../applicant/entity/ienhapcn.entity';
-import { DURATION_STAGES } from './constants';
+import { DURATION_STAGES,REPORT_FOUR_STEPS } from './constants';
 import { MilestoneDurationEntity } from './entity/milestone-duration.entity';
 import { ReportUtilService } from './report.util.service';
 import { AppLogger } from 'src/common/logger.service';
@@ -14,8 +14,6 @@ import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.ent
 import { startDateOfFiscal } from 'src/common/util';
 import { ReportCacheEntity } from './entity/report-cache.entity';
 import { ReportPeriodDTO, STATUS, StatusCategory ,LIC_REG_STAGE} from '@ien/common';
-
-import { REPORT_FOUR_STEPS } from './constants/report-four-format';
 
 export const PERIOD_START_DATE = '2022-05-02';
 
