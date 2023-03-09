@@ -50,7 +50,7 @@ resource "aws_lambda_function" "SyncApplicants" {
 # Scheduler to sync master tables
 resource "aws_cloudwatch_event_rule" "hmbc_to_ien_masters" {
   name                = local.sync_master_data_scheduler
-  description         = "7:00AM UTC - 11:00AM PST On the 15th of every month"
+  description         = "7:00AM UTC - 11:00PM PST On the 15th of every month"
   schedule_expression = "cron(0 7 * * ? *)"
 }
 resource "aws_cloudwatch_event_target" "hmbc_to_ien_masters" {
