@@ -19,12 +19,9 @@ export const PERIOD_START_DATE = '2022-05-02';
 
 export class ReportService {
   constructor(
-    // @ts-ignore
     @Inject(Logger) private readonly logger: AppLogger,
-        // @ts-ignore
     @Inject(ReportUtilService)
     private readonly reportUtilService: ReportUtilService,
-            // @ts-ignore
     @InjectRepository(IENApplicantStatus)
     private readonly ienapplicantStatusRepository: Repository<IENApplicantStatus>,
   ) {}
@@ -235,12 +232,8 @@ export class ReportService {
     const mappedStatusesString = mappedStatuses.map((status)=>`'${status}'`).join(',');
     try{
       const oldProcess  =await  connection.query(this.reportUtilService.reportFour(mappedStatusesString,from,to,false));
-      console.log(Date.now()-start); 
       const newProcess = await connection.query(this.reportUtilService.reportFour(mappedStatusesString,from,to, true));
-      console.log(Date.now()-start); 
       const licenseResults = await this.countLicense(connection);
-      console.log(Date.now()-start); 
-      console.log(licenseResults);
       return this.mapReportFourResults(statuses,oldProcess,newProcess,licenseResults)
     }catch(e){
       console.log(e);

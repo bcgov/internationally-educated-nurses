@@ -314,7 +314,7 @@ export class ReportUtilService {
     to: string,
     getNewProcessApplicants = false,
   ) {
-    const queryString = `
+    return `
       WITH active_applicants AS (
         SELECT
           t1.*,
@@ -496,7 +496,6 @@ export class ReportUtilService {
       SELECT 'Granted provisional licensure' as status, count(*)
       FROM report WHERE (prov_rn + prov_lpn) > 0 and (full_rn + full_lpn) = 0;
       `;
-      return queryString; 
   }
 
   licenseApplicantsQuery(statuses: Record<string, string>, from: string, to: string) {
