@@ -225,7 +225,6 @@ export class ReportService {
 
     this.logger.log(`getLicensingStageApplicants: Apply date filter from (${from}) and to (${to})`);
     const connection = getConnection();
-    const start = Date.now();
     const mappedStatuses = LIC_REG_STAGE.map(licensingStatus => {
       return statuses[licensingStatus];
     });
@@ -321,7 +320,7 @@ export class ReportService {
   }
   findAndSumStatusCounts(list: { status_id: string; count: string }[], acceptedIds: string[]) {
     let count = 0;
-    acceptedIds.map(id => {
+    acceptedIds.forEach(id => {
       count += parseInt(
         list.find((row: { status_id: string; count: string }) => row.status_id === id)?.count ||
           '0',
