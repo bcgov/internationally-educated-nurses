@@ -1,6 +1,6 @@
 import { Inject, Logger } from '@nestjs/common';
 import { mean, median, min, mode, round } from 'mathjs';
-import { getManager, Repository, In, getRepository, EntityManager, getConnection } from 'typeorm';
+import { getManager, Repository, In, getRepository, EntityManager, getConnection, Connection } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import dayjs from 'dayjs';
 import _ from 'lodash';
@@ -12,12 +12,10 @@ import { ReportUtilService } from './report.util.service';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.entity';
 import { startDateOfFiscal } from 'src/common/util';
-import { ReportPeriodDTO, StatusCategory } from '@ien/common';
 import { ReportCacheEntity } from './entity/report-cache.entity';
+import { ReportPeriodDTO, STATUS, StatusCategory ,LIC_REG_STAGE} from '@ien/common';
 
-import {LIC_REG_STAGE} from '@ien/common';
-import { IENApplicantStatusAudit } from 'src/applicant/entity/ienapplicant-status-audit.entity';
-import { from } from 'rxjs';
+import { REPORT_FOUR_STEPS } from './constants/report-four-format';
 
 export const PERIOD_START_DATE = '2022-05-02';
 
@@ -237,67 +235,105 @@ export class ReportService {
       return statuses[licensingStatus];
     })
     const mappedStatusesString = mappedStatuses.map((status)=>`'${status}'`).join(',');
-    let bccnm = true; 
-
-    
     try{
-
       const oldProcess  =await  connection.query(this.reportUtilService.reportFour(mappedStatusesString,from,to,false));
-      
       console.log(Date.now()-start); 
-      console.log(oldProcess);
       const newProcess = await connection.query(this.reportUtilService.reportFour(mappedStatusesString,from,to, true));
-      console.log(newProcess);
       console.log(Date.now()-start); 
-      const licenseResults = await this.countLicense();
-      return oldProcess.map((row:{status_id:string,count:string})=>{
-        return {
-          applicants:row.count,
-          status: Object.keys(statuses)[Object.values(statuses).findIndex((value)=>value ===row.status_id)]
-        }
-      });
+      const licenseResults = await this.countLicense(connection);
+      console.log(Date.now()-start); 
+      console.log(licenseResults);
+      return this.mapReportFourResults(statuses,oldProcess,newProcess,licenseResults)
     }catch(e){
       console.log(e);
       return [];
     }
   }
+  mapReportFourResults(statuses: Record<string, string>,oldProcess:{status_id:string,count:string}[],newProcess:{status_id:string,count:string}[],licenceResults:any){
+    let report = REPORT_FOUR_STEPS.map((step:string)=>{
+      switch(step){
+        case 'Granted full licensure':
+          return {
+            status:step, 
+            oldProcessApplicants: licenceResults.oldFullLicence[0]?.count || "0",
+            newProcessApplicants: licenceResults.newFullLicence[0]?.count || "0"
+          }
+
+        case 'Granted provisional licensure':
+          return {
+            status:step, 
+            oldProcessApplicants: licenceResults.oldProvisionalLicence[0]?.count || "0",
+            newProcessApplicants: licenceResults.newProvisionalLicence[0]?.count || "0"
+          }
+        case 'Applied to NNAS':
+          return {
+            status:step,
+            oldProcessApplicants:this.findAndSumStatusCounts(oldProcess,[
+              statuses[STATUS.APPLIED_TO_NNAS],
+              statuses[STATUS.SUBMITTED_DOCUMENTS],
+              statuses[STATUS.RECEIVED_NNAS_REPORT]
+            ]),
+            newProcessApplicants:this.findAndSumStatusCounts(newProcess,[
+              statuses[STATUS.APPLIED_TO_NNAS],
+              statuses[STATUS.SUBMITTED_DOCUMENTS],
+              statuses[STATUS.RECEIVED_NNAS_REPORT]
+            ])
+          }
+        
+        case 'Completed Additional Education': 
+        return {
+          status:step,
+          oldProcessApplicants:this.findAndSumStatusCounts(oldProcess,[
+            statuses[STATUS.REFERRED_TO_ADDITIONAL_EDUCTION],
+            statuses[STATUS.COMPLETED_ADDITIONAL_EDUCATION]
+          ]),
+          newProcessApplicants:this.findAndSumStatusCounts(newProcess,[
+            statuses[STATUS.REFERRED_TO_ADDITIONAL_EDUCTION],
+            statuses[STATUS.COMPLETED_ADDITIONAL_EDUCATION]
+          ])
+        }
+
+        case 'Referred to NCAS':
+          return {
+            status:step,
+            oldProcessApplicants:this.findAndSumStatusCounts(oldProcess,[
+              statuses[STATUS.REFERRED_TO_NCAS],
+              statuses[STATUS.COMPLETED_CBA],
+              statuses[STATUS.COMPLETED_SLA],
+            ]),
+            newProcessApplicants:this.findAndSumStatusCounts(newProcess,[
+              statuses[STATUS.REFERRED_TO_NCAS],
+              statuses[STATUS.COMPLETED_CBA],
+              statuses[STATUS.COMPLETED_SLA],
+            ])
+          }
+        default:
+          return{
+            status:step,
+            oldProcessApplicants: (oldProcess.find((value)=>value.status_id === statuses[step]))?.count || "0",
+            newProcessApplicants: (newProcess.find((value)=>value.status_id === statuses[step]))?.count || "0"
+          } 
+      }
+    })
+    return report;
+  }
+  findAndSumStatusCounts(list:{status_id:string,count:string}[],acceptedIds:string[]){
+    let count = 0; 
+    acceptedIds.map((id)=>{
+      count +=parseInt((list.find((row:{status_id:string,count:string})=> row.status_id === id)?.count || "0"));
+    })
+    return count.toString();
+  }
 
   /**
    * Report 4 count licenses
    */
-  async countLicense(){
-    const connection = getConnection();
-  
-    const fullLicence = await  connection.query(
-      `SELECT count(distinct applicant_id)
-      FROM "ien_applicant_status_audit" "status_audit" 
-      WHERE 
-      "status_audit"."status_id" IN ('632374e6-ca2f-0baa-f994-3a05e77c118a', '18AA32C3-A6A4-4431-8283-89931C141FDE' )
-      AND  NOT EXISTS (
-            SELECT *
-            FROM "ien_applicant_status_audit" AS T2
-            WHERE 
-            T2.applicant_id = status_audit.applicant_id
-            AND T2.status_id IN ('f84a4167-a636-4b21-977c-f11aefc486af', '70b1f5f1-1a0d-ef71-42ea-3a0601b46bc2')
-        )`);
-      const provisionalLicence = await connection.query(
-        `SELECT count(distinct applicant_id)
-        FROM "ien_applicant_status_audit" "status_audit" 
-        WHERE 
-        "status_audit"."status_id" IN ('91F55FAA-C71D-83C8-4F10-3A05E778AFBC','D2656957-EC58-15C9-1E21-3A05E778DC8E' )
-        AND NOT EXISTS (
-              SELECT *
-              FROM "ien_applicant_status_audit" AS T2
-              WHERE 
-              T2.applicant_id = status_audit.applicant_id
-              AND T2.status_id IN ('f84a4167-a636-4b21-977c-f11aefc486af', '70b1f5f1-1a0d-ef71-42ea-3a0601b46bc2', '632374e6-ca2f-0baa-f994-3a05e77c118a', '18AA32C3-A6A4-4431-8283-89931C141FDE')
-          )`
-      );
-      console.log(provisionalLicence);
-      console.log(fullLicence);
+  async countLicense(connection:Connection ){
       return {
-        full:fullLicence,
-        provisional:provisionalLicence
+        oldFullLicence:await connection.query(this.reportUtilService.fullLicenceQuery(false)),
+        oldProvisionalLicence:await connection.query(this.reportUtilService.partialLicenceQuery(false)),
+        newFullLicence:await connection.query(this.reportUtilService.fullLicenceQuery(true)),
+        newProvisionalLicence:await connection.query(this.reportUtilService.partialLicenceQuery(true))
       }
   }
 
