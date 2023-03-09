@@ -178,7 +178,7 @@ export class ReportService {
    * function for cachereportfour lambda handler
    * saves report data to report_cache table
    */
-  async saveReportFourCache(pe?: { from: string; to: string }[]) {
+  async updateReportCache(pe?: { from: string; to: string }[]) {
     const periods = pe ?? (await this.getRegisteredApplicantList('', ''));
 
     Promise.all(

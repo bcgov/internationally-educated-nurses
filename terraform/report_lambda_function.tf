@@ -1,11 +1,11 @@
-resource "aws_lambda_function" "CacheReportFour" {
-  description      = "Trigger Caching of Report 4"
-  function_name    = local.cache_report_four_lambda_name
+resource "aws_lambda_function" "CacheReports" {
+  description      = "Trigger Caching of Reports"
+  function_name    = local.cache_reports_lambda_name
   role             = aws_iam_role.lambda.arn
   runtime          = "nodejs14.x"
   filename         = "./build/empty_lambda.zip"
   source_code_hash = filebase64sha256("./build/empty_lambda.zip")
-  handler          = "api/cachereportfour.handler"
+  handler          = "api/cachereports.handler"
   memory_size      = var.function_memory_mb
   timeout          = 300
 
@@ -43,22 +43,22 @@ resource "aws_lambda_function" "CacheReportFour" {
   }
 }
 
-resource "aws_cloudwatch_event_rule" "cache_report_four" {
-  name                = local.cache_report_four_lambda_name
-  description         = "7:00AM UTC - 12:00AM PST Every day"
-  schedule_expression = "cron(0 7 * * ? *)"
+resource "aws_cloudwatch_event_rule" "cache_reports" {
+  name                = local.cache_reports_lambda_name
+  description         = "9:00AM UTC - 2:00AM PST Every day"
+  schedule_expression = "cron(0 9 * * ? *)"
 }
 
-resource "aws_cloudwatch_event_target" "cache_report_four" {
-  rule  = aws_cloudwatch_event_rule.cache_report_four.name
-  arn   = aws_lambda_function.CacheReportFour.arn
-  input = "{\"path\": \"cache-report-four\"}"
+resource "aws_cloudwatch_event_target" "cache_reports" {
+  rule  = aws_cloudwatch_event_rule.cache_reports.name
+  arn   = aws_lambda_function.CacheReports.arn
+  input = "{\"path\": \"cache-reports\"}"
 }
 
-resource "aws_lambda_permission" "cache_report_four" {
+resource "aws_lambda_permission" "cache_reports" {
   statement_id  = "AllowExecutionFromCloudWatch_Morning"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.CacheReportFour.function_name
+  function_name = aws_lambda_function.CacheReports.function_name
   principal     = "events.amazonaws.com"
-  source_arn    = aws_cloudwatch_event_rule.cache_report_four.arn
+  source_arn    = aws_cloudwatch_event_rule.cache_reports.arn
 }
