@@ -152,9 +152,11 @@ export const reportFourNumberOfApplicants = (
   isNewProcess: boolean,
 ) => {
   const process = isNewProcess ? 'newProcessApplicants' : 'oldProcessApplicants';
-  return (body.find(e => {
-    return e.status === applicantStatus;
-  })?.[process]) || 0;
+  return (
+    body.find(e => {
+      return e.status === applicantStatus;
+    })?.[process] || 0
+  );
 };
 
 /**

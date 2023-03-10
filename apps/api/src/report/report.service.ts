@@ -237,9 +237,20 @@ export class ReportService {
         this.reportUtilService.reportFour(mappedStatusesString, from, to, true),
       );
       const licenseResults = await this.countLicense(connection);
-      const withdrawnOld = (await connection.query(this.reportUtilService.getWithdrawn(to,from,false)))[0].count || "0" ;
-      const withdrawnNew = (await connection.query(this.reportUtilService.getWithdrawn(to,from,true)))[0].count || "0";
-      return this.mapReportFourResults(statuses, oldProcess, newProcess, licenseResults,withdrawnOld,withdrawnNew);
+      const withdrawnOld =
+        (await connection.query(this.reportUtilService.getWithdrawn(to, from, false)))[0].count ||
+        '0';
+      const withdrawnNew =
+        (await connection.query(this.reportUtilService.getWithdrawn(to, from, true)))[0].count ||
+        '0';
+      return this.mapReportFourResults(
+        statuses,
+        oldProcess,
+        newProcess,
+        licenseResults,
+        withdrawnOld,
+        withdrawnNew,
+      );
     } catch (e) {
       this.logger.error(e);
       return [];
@@ -250,8 +261,8 @@ export class ReportService {
     oldProcess: { status_id: string; count: string }[],
     newProcess: { status_id: string; count: string }[],
     licenceResults: any,
-    withdrawnOld:string,
-    withdrawnNew:string, 
+    withdrawnOld: string,
+    withdrawnNew: string,
   ) {
     let report = REPORT_FOUR_STEPS.map((step: string) => {
       switch (step) {
@@ -312,10 +323,10 @@ export class ReportService {
           };
         case 'Withdrew from IEN program':
           return {
-            status:step,
-            oldProcessApplicants:withdrawnOld,
-            newProcessApplicants:withdrawnNew
-          }
+            status: step,
+            oldProcessApplicants: withdrawnOld,
+            newProcessApplicants: withdrawnNew,
+          };
         default:
           return {
             status: step,

@@ -314,7 +314,7 @@ export class ReportUtilService {
       )`;
   }
 
-  getWithdrawn(to:string,from:string,BCCNM_NEW_PROCESS:boolean){
+  getWithdrawn(to: string, from: string, BCCNM_NEW_PROCESS: boolean) {
     return `
       SELECT count(distinct status_audit.applicant_id)
       FROM "ien_applicant_status_audit" "status_audit"
@@ -327,7 +327,7 @@ export class ReportUtilService {
         }  
         AND start_date::date >= '${from}' 
         AND start_date::date <= '${to}' 
-    `
+    `;
   }
 
   /*
