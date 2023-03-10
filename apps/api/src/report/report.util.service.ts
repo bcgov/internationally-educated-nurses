@@ -314,6 +314,22 @@ export class ReportUtilService {
       )`;
   }
 
+  getWithdrawn(to:string,from:string,BCCNM_NEW_PROCESS:boolean){
+    return `
+      SELECT count(distinct status_audit.applicant_id)
+      FROM "ien_applicant_status_audit" "status_audit"
+      LEFT JOIN 
+          ien_applicants applicant ON applicant.id = status_audit.applicant_id  
+      WHERE 
+      "status_audit"."status_id" = 'f84a4167-a636-4b21-977c-f11aefc486af' 
+        AND applicant.new_bccnm_process IS NOT NULL AND applicant.new_bccnm_process = ${
+          BCCNM_NEW_PROCESS ? 'TRUE' : 'FALSE'
+        }  
+        AND start_date::date >= '${from}' 
+        AND start_date::date <= '${to}' 
+    `
+  }
+
   /*
   Report 4
   List applicants who are in licensing stage between FROM and TO date.
