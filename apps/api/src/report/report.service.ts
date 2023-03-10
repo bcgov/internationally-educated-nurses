@@ -183,12 +183,13 @@ export class ReportService {
    */
   async updateReportCache(pe?: { from: string; to: string }[]) {
     const periods = pe ?? (await this.getRegisteredApplicantList('', ''));
-
+    this.logger.log(`periods were received`);
     Promise.all(
       periods.map(async p => {
+        this.logger.log(`attempting to map period ${p.period}: ${p.to}`);
         // split applicants into new and old process fields
         const data = await this.splitReportFourNewOldProcess('', p.to);
-
+        this.logger.log(`data split for new and old was successful`);
         // find existing report if it exists
         const reportRow = await getRepository(ReportCacheEntity).findOne({
           select: ['id'],
@@ -197,7 +198,7 @@ export class ReportService {
             report_period: p.period,
           },
         });
-
+        this.logger.log(`attempt to find report row was successful`);
         const cacheData: Partial<ReportCacheEntity> = {
           id: reportRow?.id,
           report_number: 4,
@@ -205,8 +206,9 @@ export class ReportService {
           report_data: JSON.stringify(data),
           updated_date: new Date(),
         };
-
-        getRepository(ReportCacheEntity).upsert(cacheData, ['id']);
+        this.logger.log(`created cache entity from data`);
+        await getRepository(ReportCacheEntity).upsert(cacheData, ['id']);
+        this.logger.log(`upserted data into db`);
       }),
     );
   }
