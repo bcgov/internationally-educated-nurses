@@ -175,10 +175,6 @@ export const reportFourExpectedResult = (body: ReportFourItem[], isNewProcess: b
     if (stat === 'Granted provisional licensure' || stat === 'Granted full licensure') {
       result++;
     }
-    // Withdraw status should not be incremented in report ouput
-    // else if (stat === STATUS.WITHDREW_FROM_PROGRAM) {
-    //   result--;
-    // }
     // NCAS count increases with COMPLETED_CBA and COMPLETED_SLA
     // NNAS count increases with RECEIVED_NNAS_REPORT and SUBMITTED_DOCUMENTS
     else if (stat === STATUS.REFERRED_TO_NCAS || stat === STATUS.APPLIED_TO_NNAS) {

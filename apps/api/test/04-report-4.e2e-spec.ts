@@ -224,8 +224,6 @@ describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
 
       const { body: afterLicense } = await request(app.getHttpServer()).get(url);
       const licenseAfter = reportFourNumberOfApplicants(afterLicense, status, false);
-      console.log(licenseBefore);
-      console.log(licenseAfter);
       expect(licenseAfter).toBe((+licenseBefore! + 1).toString());
     }
   });
