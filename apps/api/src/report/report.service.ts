@@ -184,7 +184,7 @@ export class ReportService {
   async updateReportCache(pe?: { from: string; to: string }[]) {
     const periods = pe ?? (await this.getRegisteredApplicantList('', ''));
     this.logger.log(`periods were received`);
-    Promise.all(
+    await Promise.all(
       periods.map(async p => {
         this.logger.log(`attempting to map period ${p.period}: ${p.to}`);
         // split applicants into new and old process fields
