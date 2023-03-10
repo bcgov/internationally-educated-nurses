@@ -70,7 +70,7 @@ export class ReportController {
     if (noCache || !period) {
       return this.reportService.splitReportFourNewOldProcess(from, to);
     }
-    return this.reportService.getLicensingStageApplicants(period, from, to);
+    return this.reportService.getLicensingStageApplicants(period);
   }
 
   @ApiOperation({ summary: 'Report 5: Applicants eligible for job search' })

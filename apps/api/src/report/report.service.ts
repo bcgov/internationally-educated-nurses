@@ -151,11 +151,9 @@ export class ReportService {
   /**
    * Report 4
    * @param period report period to select
-   * @param f Duration start date YYYY-MM-DD
-   * @param t Duration end date YYYY-MM-DD
    * @returns
    */
-  async getLicensingStageApplicants(period: number, from: string, to: string) {
+  async getLicensingStageApplicants(period: number) {
     const report_number = 4;
     const report = await getRepository(ReportCacheEntity)
       .createQueryBuilder('rce')
@@ -164,8 +162,13 @@ export class ReportService {
       .orderBy('rce.created_date', 'DESC')
       .getOne();
 
+    // if no cache report is found, find the { to } date for period requested
+    // and generate a current data report
     if (!report) {
-      return this.splitReportFourNewOldProcess(from, to);
+      const periods = await this.getRegisteredApplicantList('', '');
+      const { to } = periods.find(p => p.period === period);
+
+      return this.splitReportFourNewOldProcess('', to);
     }
 
     const data = JSON.parse(report?.report_data);
@@ -506,7 +509,7 @@ export class ReportService {
       this.getRegisteredApplicantList(from, to).then(report1 => ({ report1 })),
       this.getCountryWiseApplicantList(from, to).then(report2 => ({ report2 })),
       this.getHiredWithdrawnActiveApplicants(statuses, from, to).then(report3 => ({ report3 })),
-      this.getLicensingStageApplicants(period, from, to).then(report4 => ({ report4 })),
+      this.getLicensingStageApplicants(period).then(report4 => ({ report4 })),
       this.getLicenseApplicants(statuses, from, to).then(report5 => ({ report5 })),
       this.getRecruitmentApplicants(statuses, from, to).then(report6 => ({ report6 })),
       this.getImmigrationApplicants(statuses, from, to).then(report7 => ({ report7 })),
