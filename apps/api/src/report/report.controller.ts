@@ -17,8 +17,12 @@ export class ReportController {
 
   @Get('/applicant')
   @AllowAccess(Access.REPORTING)
-  async getReport(@Query('from') from: string, @Query('to') to: string): Promise<object> {
-    return this.reportService.getReport(from, to);
+  async getReport(
+    @Query('from') from: string,
+    @Query('to') to: string,
+    @Query('period') period: number,
+  ): Promise<object> {
+    return this.reportService.getReport(from, to, period);
   }
 
   @ApiOperation({ summary: 'Report 1: List report periods within the given time range' })
@@ -56,11 +60,17 @@ export class ReportController {
   @Get('/applicant/licensing-stage')
   @AllowAccess(Access.REPORTING)
   async getLicensingStageApplicants(
+    @Query('period') period: number,
     @Query('from') from: string,
     @Query('to') to: string,
+    @Query('no-cache') noCache = false,
   ): Promise<object[]> {
-    const statuses = await this.reportService.getStatusMap();
-    return this.reportService.getLicensingStageApplicants(statuses, from, to);
+    // cached data relies on cron job set to run at 1AM PST
+    // no-cache param is used to invalidate the cache and use current data for testing
+    if (noCache || !period) {
+      return this.reportService.splitReportFourNewOldProcess(from, to);
+    }
+    return this.reportService.getLicensingStageApplicants(period);
   }
 
   @ApiOperation({ summary: 'Report 5: Applicants eligible for job search' })

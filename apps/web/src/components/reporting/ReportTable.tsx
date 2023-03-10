@@ -46,7 +46,7 @@ export const ReportTable = () => {
   const download = async (period: Period) => {
     const from = order === 'ASC' ? periods[0].from : periods[periods.length - 1].from;
     const to = dayjs(period.to).format('YYYY-MM-DD');
-    const workbook = await createReportWorkbook({ from, to });
+    const workbook = await createReportWorkbook({ from, to, period: period.period });
     if (workbook) {
       writeFile(workbook, `${REPORT_PREFIX}-${period.period}.xlsx`);
     }

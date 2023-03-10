@@ -4,6 +4,7 @@ import { getManager, Repository, In, getRepository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import dayjs from 'dayjs';
 import _ from 'lodash';
+
 import { IENHaPcn } from '../applicant/entity/ienhapcn.entity';
 import { DURATION_STAGES } from './constants';
 import { MilestoneDurationEntity } from './entity/milestone-duration.entity';
@@ -12,6 +13,7 @@ import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.entity';
 import { startDateOfFiscal } from 'src/common/util';
 import { ReportPeriodDTO, StatusCategory } from '@ien/common';
+import { ReportCacheEntity } from './entity/report-cache.entity';
 
 export const PERIOD_START_DATE = '2022-05-02';
 
@@ -148,14 +150,81 @@ export class ReportService {
 
   /**
    * Report 4
+   * @param period report period to select
+   * @returns
+   */
+  async getLicensingStageApplicants(period: number) {
+    const report_number = 4;
+    const report = await getRepository(ReportCacheEntity)
+      .createQueryBuilder('rce')
+      .where('rce.report_period = :period', { period })
+      .andWhere('rce.report_number = :report_number', { report_number })
+      .orderBy('rce.created_date', 'DESC')
+      .getOne();
+
+    // if no cache report is found, find the { to } date for period requested
+    // and generate a current data report
+    if (!report) {
+      const periods = await this.getRegisteredApplicantList('', '');
+      const { to } = periods.find(p => p.period === period);
+
+      return this.splitReportFourNewOldProcess('', to);
+    }
+
+    const data = JSON.parse(report?.report_data);
+
+    return data;
+  }
+
+  /**
+   * Cache Report 4
+   * function for cachereportfour lambda handler
+   * saves report data to report_cache table
+   */
+  async updateReportCache(pe?: { from: string; to: string }[]) {
+    const periods = pe ?? (await this.getRegisteredApplicantList('', ''));
+
+    Promise.all(
+      periods.map(async p => {
+        // split applicants into new and old process fields
+        const data = await this.splitReportFourNewOldProcess('', p.to);
+
+        // find existing report if it exists
+        const reportRow = await getRepository(ReportCacheEntity).findOne({
+          select: ['id'],
+          where: {
+            report_number: 4,
+            report_period: p.period,
+          },
+        });
+
+        const cacheData: Partial<ReportCacheEntity> = {
+          id: reportRow?.id,
+          report_number: 4,
+          report_period: p.period,
+          report_data: JSON.stringify(data),
+          updated_date: new Date(),
+        };
+
+        getRepository(ReportCacheEntity).upsert(cacheData, ['id']);
+      }),
+    );
+  }
+
+  /**
+   * Splits process into new and old for report 4
    * @param f Duration start date YYYY-MM-DD
    * @param t Duration end date YYYY-MM-DD
    * @returns
    */
-  async getLicensingStageApplicants(statuses: Record<string, string>, f: string, t: string) {
-    const { from, to } = this.captureFromTo(f, t);
-    this.logger.log(`getLicensingStageApplicants: Apply date filter from (${from}) and to (${to})`);
+  async splitReportFourNewOldProcess(f: string, t: string) {
+    const statuses = await this.getStatusMap();
     const entityManager = getManager();
+
+    const { from, to } = this.captureFromTo(f, t);
+
+    this.logger.log(`getLicensingStageApplicants: Apply date filter from (${from}) and to (${to})`);
+
     const oldProcess = await entityManager.query(
       this.reportUtilService.licensingStageApplicantsQuery(statuses, from, to),
     );
@@ -179,6 +248,7 @@ export class ReportService {
     this.logger.log(
       `getLicensingStageApplicants: query completed a total of ${oldProcess.length} old process and ${newProcess.length} new process record returns`,
     );
+
     return data;
   }
 
@@ -433,13 +503,13 @@ export class ReportService {
     return data;
   }
 
-  async getReport(from: string, to: string): Promise<object> {
+  async getReport(from: string, to: string, period: number): Promise<object> {
     const statuses = await this.getStatusMap();
     const promises: Promise<object>[] = [
       this.getRegisteredApplicantList(from, to).then(report1 => ({ report1 })),
       this.getCountryWiseApplicantList(from, to).then(report2 => ({ report2 })),
       this.getHiredWithdrawnActiveApplicants(statuses, from, to).then(report3 => ({ report3 })),
-      this.getLicensingStageApplicants(statuses, from, to).then(report4 => ({ report4 })),
+      this.getLicensingStageApplicants(period).then(report4 => ({ report4 })),
       this.getLicenseApplicants(statuses, from, to).then(report5 => ({ report5 })),
       this.getRecruitmentApplicants(statuses, from, to).then(report6 => ({ report6 })),
       this.getImmigrationApplicants(statuses, from, to).then(report7 => ({ report7 })),
