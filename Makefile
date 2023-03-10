@@ -311,6 +311,7 @@ deploy-api:
 	aws lambda update-function-code --function-name ien-$(ENV_NAME)-api --s3-bucket $(API_SRC_BUCKET) --s3-key "api-lambda-s3" --region $(AWS_REGION) > /dev/null
 	aws lambda update-function-code --function-name ien-$(ENV_NAME)-syncdata --s3-bucket $(API_SRC_BUCKET) --s3-key "api-lambda-s3" --region $(AWS_REGION) > /dev/null
 	aws lambda update-function-code --function-name ien-$(ENV_NAME)-notifylambda --s3-bucket $(API_SRC_BUCKET) --s3-key "api-lambda-s3" --region $(AWS_REGION) > /dev/null
+	aws lambda update-function-code --function-name ien-$(ENV_NAME)-cache-reports --s3-bucket $(API_SRC_BUCKET) --s3-key "api-lambda-s3" --region $(AWS_REGION) > /dev/null
 
 deploy-all: sync-app upload-api-zip deploy-api
 	@echo "Deploying Webapp and API"
