@@ -7,39 +7,37 @@ import _ from 'lodash';
 import {
   ApplicantJobRO,
   ApplicantRO,
-  BCCNM_NCAS_STAGE,
   IENApplicantAddStatusDTO,
+  IENApplicantCreateUpdateDTO,
   IENApplicantJobCreateUpdateDTO,
   IENHaPcnRO,
   IMMIGRATION_STAGE,
   LIC_REG_STAGE,
-  NNAS_STAGE,
   RECRUITMENT_STAGE,
   STATUS,
 } from '@ien/common';
 
 config({ path: '../../.env' });
+
+const MIN_DURATION = 5;
+const MAX_DURATION = 20;
+const APPLICANT_COUNT = 4000;
 let start = new Date();
 
-const AUTH_URL = 'https://keycloak.freshworks.club/auth';
-
 const getToken = async (): Promise<void> => {
-  const url = `${AUTH_URL}/realms/ien/protocol/openid-connect/token`;
-  const resp = await axios.post(
-    url,
-    {
-      grant_type: 'password',
-      client_id: 'IEN',
-      username: process.env.E2E_TEST_USERNAME,
-      password: process.env.E2E_TEST_PASSWORD,
+  const url = `${process.env.AUTH_URL}/realms/${process.env.AUTH_REALM}/protocol/openid-connect/token`;
+  const data = new URLSearchParams({
+    grant_type: 'password',
+    client_id: process.env.AUTH_CLIENTID ?? '',
+    username: process.env.E2E_TEST_USERNAME ?? '',
+    password: process.env.E2E_TEST_PASSWORD ?? '',
+  }).toString();
+  const resp = await axios.post(url, data, {
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/x-www-form-urlencoded',
     },
-    {
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-    },
-  );
+  });
   return resp.data.access_token;
 };
 
@@ -59,7 +57,7 @@ const getMilestones = async () => {
 };
 
 const getNewStartDate = (start: Date) => {
-  const duration = _.random(1, 10);
+  const duration = _.random(MIN_DURATION, MAX_DURATION);
   return dayjs(start).add(duration, 'days').format('YYYY-MM-DD');
 };
 
@@ -69,15 +67,24 @@ const addMilestone = async (
   previous: any,
   job?: ApplicantJobRO,
 ) => {
+  const start_date = getNewStartDate(
+    previous?.start_date || applicant.registration_date || new Date('2021-03-15'),
+  );
+
+  // do not add future milestones.
+  if (dayjs().isBefore(start_date)) return null;
+
   const milestone: IENApplicantAddStatusDTO = {
     status: statusId,
-    start_date: getNewStartDate(
-      previous?.start_date || applicant.registration_date || new Date('2021-03-15'),
-    ),
+    start_date,
   };
   if (job) milestone.job_id = job.id;
-  await axios.post(`/ien/${applicant.id}/status`, milestone);
-  return milestone;
+  try {
+    await axios.post(`/ien/${applicant.id}/status`, milestone);
+    return milestone;
+  } catch (e) {
+    return null;
+  }
 };
 
 const getAuthorities = async (): Promise<IENHaPcnRO[]> => {
@@ -100,24 +107,27 @@ const createJob = async (applicant: any): Promise<ApplicantJobRO> => {
 const generateMilestones = async (id: string, statuses: Record<string, string>) => {
   const applicant = await getApplicant(id);
   let previous = undefined;
-  const stages = [
-    LIC_REG_STAGE,
-    NNAS_STAGE,
-    BCCNM_NCAS_STAGE,
-    RECRUITMENT_STAGE,
-    IMMIGRATION_STAGE,
-  ];
+  const stages = [LIC_REG_STAGE, RECRUITMENT_STAGE, IMMIGRATION_STAGE];
 
   if (applicant.jobs?.length) {
     console.log(`skip applicant ${applicant.id} with a job`);
-    return;
+    return 0;
   }
 
-  const job = await createJob(applicant);
+  // limit number of milestones to distribute applicants over different stages evenly,
+  const maxNumOfMilestones = _.random(1, _.sum(stages.map(s => s.length)));
+  let count = 0;
 
-  for (let s = 0; s < stages.length; s++) {
-    for (let i = 0; i < stages[s].length; i++) {
-      const status = stages[s][i];
+  for (let sIndex = 0; sIndex < stages.length; sIndex++) {
+    let job: ApplicantJobRO | null = null;
+    if (stages[sIndex][0] === STATUS.REFERRAL_ACKNOWLEDGED) {
+      job = await createJob(applicant);
+    }
+    // randomly skip a milestone
+    for (let mIndex = _.random(1, 2); mIndex < stages[sIndex].length; mIndex += _.random(1, 2)) {
+      if (count >= maxNumOfMilestones) return count;
+
+      const status = stages[sIndex][mIndex];
       const milestone = applicant.applicant_status_audit?.find(s => s.status.status === status);
       if (milestone) {
         previous = { start_date: milestone.start_date, status: milestone.status.id };
@@ -127,12 +137,19 @@ const generateMilestones = async (id: string, statuses: Record<string, string>) 
         applicant,
         statuses[status],
         previous,
-        stages[s] === RECRUITMENT_STAGE ? job : undefined,
+        stages[sIndex] === RECRUITMENT_STAGE && job ? job : undefined,
       );
 
-      if (status === STATUS.JOB_OFFER_ACCEPTED) break;
+      if (!previous) {
+        return count;
+      }
+      count += 1;
+
+      // do not add other later recruitment milestones
+      if (status === STATUS.JOB_OFFER_ACCEPTED || status === STATUS.JOB_OFFER_NOT_ACCEPTED) break;
     }
   }
+  return count;
 };
 
 const setToken = async () => {
@@ -148,23 +165,73 @@ const checkToken = async (start: Date) => {
   }
 };
 
+const COUNTRY_OF_EDUCATIONS = {
+  us: 'us',
+  uk: 'uk',
+  ie: 'ireland',
+  in: 'india',
+  au: 'australia',
+  ph: 'philippines',
+  ng: 'nigeria',
+  jm: 'jamaica',
+  ke: 'kenya',
+  ca: 'canada',
+  'n/a': 'n/a',
+};
+
+const getNewApplicant = (from: string, to: string): IENApplicantCreateUpdateDTO => {
+  const first_name = faker.name.firstName();
+  const last_name = faker.name.lastName();
+  const registration = faker.date.between(from, to);
+  return {
+    applicant_id: faker.datatype.uuid(),
+    first_name,
+    last_name,
+    email_address: faker.internet.email(first_name, last_name),
+    phone_number: faker.phone.number('###-###-####'),
+    registration_date: dayjs(registration).format('YYYY-MM-DD'),
+    nursing_educations: [],
+    country_of_citizenship: [faker.helpers.arrayElement(Object.keys(COUNTRY_OF_EDUCATIONS))],
+    country_of_residence: faker.helpers.arrayElement(Object.keys(COUNTRY_OF_EDUCATIONS)),
+    pr_status: 'No status',
+    is_open: true,
+  };
+};
+
+const addApplicant = async (from: string, to: string): Promise<ApplicantRO> => {
+  const applicant = getNewApplicant(from, to);
+  const { data } = await axios.post<{ data: ApplicantRO }>(`/ien`, applicant);
+  return data?.data;
+};
+
 axios.defaults.baseURL = 'http://localhost:4000/api/v1';
 
 setToken()
   .then(async () => {
-    const [applicants, count] = await getApplicants();
+    const [applicants, initialCount] = await getApplicants();
+
+    console.log(`${initialCount} applicants found`);
+
+    while (applicants.length < APPLICANT_COUNT) {
+      const applicant = await addApplicant('2021-01-01', '2022-01-01');
+      applicants.push(applicant);
+    }
+    const count = applicants.length;
+
+    console.log(`${count - initialCount} applicants added`);
+
+    const applicantsWithoutMilestones = applicants.filter((a: any) => !a.status);
+
+    console.log(`${applicantsWithoutMilestones.length} applicants have no milestone.`);
+
     const statuses = await getMilestones();
-    for (let i = 0; i < count; i++) {
+    for (let i = 0; i < applicantsWithoutMilestones.length; i++) {
       await checkToken(start);
 
-      const applicant = applicants[i];
-      if (dayjs(applicant.registration_date).isAfter('2022-06-01')) {
-        console.log(`skip applicant registered at ${applicant.registration_date}`);
-        continue;
-      }
+      const applicant = applicantsWithoutMilestones[i];
 
-      await generateMilestones(applicant.id, statuses);
-      console.log(`${i}/${count} applicant processed <- ${applicant.id}`);
+      const numOfMilestones = await generateMilestones(applicant.id, statuses);
+      console.log(`${i}/${count} applicant: ${numOfMilestones} milestones <- ${applicant.id}`);
     }
   })
   .catch(e => {
