@@ -213,7 +213,7 @@ setToken()
     console.log(`${initialCount} applicants found`);
 
     while (applicants.length < APPLICANT_COUNT) {
-      const applicant = await addApplicant('2021-01-01', '2022-01-01');
+      const applicant = await addApplicant('2021-01-01', dayjs().format('YYYY-MM-DD'));
       applicants.push(applicant);
     }
     const count = applicants.length;
