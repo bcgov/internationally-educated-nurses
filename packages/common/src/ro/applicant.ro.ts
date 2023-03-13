@@ -11,7 +11,7 @@ import {
 export interface ApplicantRO {
   id: string;
   name: string;
-  applicant_id?: string;
+  ats1_id?: string;
   email_address?: string;
   phone_number?: string;
   registration_date?: Date;

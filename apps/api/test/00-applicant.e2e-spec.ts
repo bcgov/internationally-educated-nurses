@@ -226,7 +226,7 @@ describe('ApplicantController (e2e)', () => {
       .expect(res => {
         const { body } = res;
         expect(body.jobs.length).toBe(1);
-        expect(body.applicant_id).toBe(`${applicant.applicant_id}`);
+        expect(body.id).toBe(`${applicant.id}`);
       })
       .expect(200)
       .end(done);

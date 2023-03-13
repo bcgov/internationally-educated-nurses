@@ -40,8 +40,8 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
   const { authUser } = useAuthContext();
 
   const getApplicantId = (applicant: ApplicantRO): string => {
-    const { id, applicant_id } = applicant;
-    return `${applicant_id || id}`.substring(0, 8);
+    const { id, ats1_id } = applicant;
+    return `${ats1_id || id}`.substring(0, 8);
   };
 
   return (

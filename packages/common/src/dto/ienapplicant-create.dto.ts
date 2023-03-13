@@ -26,7 +26,7 @@ export class IENApplicantCreateUpdateDTO {
   last_name!: string;
 
   @IsOptional()
-  applicant_id?: string;
+  ats1_id?: string;
 
   @IsEmail({}, { message: 'Must be a valid Email' })
   @Length(1, 256)
