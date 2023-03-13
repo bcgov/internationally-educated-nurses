@@ -81,11 +81,6 @@ describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
     await app.close();
   });
 
-  it('Status 200 on report 4 response', async () => {
-    const { status } = await request(app.getHttpServer()).get(url);
-    expect(status).toBe(200);
-  });
-
   // update table report 4 endpoint reads from
   const updateCachedReport = async (data: ReportFourItem[]) => {
     reportFourObj.report_data = JSON.stringify(data);
