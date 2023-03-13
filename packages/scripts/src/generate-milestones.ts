@@ -184,7 +184,7 @@ const getNewApplicant = (from: string, to: string): IENApplicantCreateUpdateDTO 
   const last_name = faker.name.lastName();
   const registration = faker.date.between(from, to);
   return {
-    applicant_id: faker.datatype.uuid(),
+    ats1_id: faker.datatype.uuid(),
     first_name,
     last_name,
     email_address: faker.internet.email(first_name, last_name),
