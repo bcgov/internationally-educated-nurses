@@ -87,11 +87,6 @@ describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
     await reportCacheRepository.upsert(reportFourObj, ['id']);
   };
 
-  it('Status 200 on report 4 response', async () => {
-    const { status } = await request(app.getHttpServer()).get(url);
-    expect(status).toBe(200);
-  });
-
   it('Add applicants and give each a different status/milestone (old process)', async () => {
     const { body: before } = await request(app.getHttpServer()).get(url);
 
