@@ -33,7 +33,7 @@ export class IENApplicantCreateUpdateAPIDTO extends IENApplicantCreateUpdateDTO 
     default: '',
   })
   @IsOptional()
-  applicant_id?: string;
+  ats1_id?: string;
 
   @ApiProperty({
     description: 'Applicant email address',

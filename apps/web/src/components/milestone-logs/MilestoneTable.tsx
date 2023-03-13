@@ -119,8 +119,8 @@ export const MilestoneTable = ({ category }: MilestoneTableProps) => {
   };
 
   const canAddEditNonRecruitmentMilestone = () => {
-    // success: no applicant_id(not from ATS), ha id exists, applicant is part of same ha as logged-in user
-    return !applicant.applicant_id && authUser?.ha_pcn_id && !editing;
+    // success: no ats1_id(not from ATS), ha id exists, applicant is part of same ha as logged-in user
+    return !applicant.ats1_id && authUser?.ha_pcn_id && !editing;
   };
 
   return (

@@ -491,7 +491,7 @@ export class ExternalAPIService {
 
         return {
           id: a.applicant_id.toLowerCase(),
-          applicant_id: a.ats1_id.toString(),
+          ats1_id: a.ats1_id.toString(),
           name: `${a.first_name} ${a.last_name}`,
           email_address: a.email_address,
           phone_number: a.phone_number,

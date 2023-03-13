@@ -36,7 +36,7 @@ export class IENApplicant {
 
   @Index({ unique: true })
   @Column('varchar', { nullable: true })
-  applicant_id?: string;
+  ats1_id?: string;
 
   @Column('varchar', { nullable: true })
   email_address?: string;
@@ -119,7 +119,7 @@ export class IENApplicant {
     return {
       id: this.id,
       name: this.name,
-      applicant_id: this.applicant_id,
+      ats1_id: this.ats1_id,
       email_address: this.email_address,
       phone_number: this.phone_number,
       registration_date: this.registration_date,
