@@ -450,6 +450,7 @@ export class ExternalAPIService {
         assigned_to: { id: string; name: string }[] | undefined;
         registration_date: string;
         applicant_id: string;
+        ats1_id: number;
         first_name: string;
         last_name: string;
         email_address: string;
@@ -490,6 +491,7 @@ export class ExternalAPIService {
 
         return {
           id: a.applicant_id.toLowerCase(),
+          applicant_id: a.ats1_id.toString(),
           name: `${a.first_name} ${a.last_name}`,
           email_address: a.email_address,
           phone_number: a.phone_number,

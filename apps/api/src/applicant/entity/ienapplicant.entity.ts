@@ -35,7 +35,7 @@ export class IENApplicant {
   name!: string;
 
   @Index({ unique: true })
-  @Column('uuid', { nullable: true })
+  @Column('varchar', { nullable: true })
   applicant_id?: string;
 
   @Column('varchar', { nullable: true })
