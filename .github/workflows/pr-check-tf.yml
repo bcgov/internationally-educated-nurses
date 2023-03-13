@@ -15,7 +15,7 @@ jobs:
     env:
       CLOUDFRONT_ID: '${{ secrets.CLOUDFRONT_ID }}'
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         name: checkout
 
       - uses: hashicorp/setup-terraform@v1
