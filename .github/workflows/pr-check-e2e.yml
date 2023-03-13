@@ -19,7 +19,7 @@ jobs:
         name: Setup node
         with:
           node-version: 16
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         name: Cache yarn
         with:
           path: ./.yarn/cache

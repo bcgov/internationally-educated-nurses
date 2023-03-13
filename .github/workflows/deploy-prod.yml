@@ -28,7 +28,7 @@ jobs:
       # - name: Setup Infra
       #   run: make plan # Change to apply after verification
 
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         name: Cache yarn
         with:
           path: ./.yarn/cache
