@@ -19,7 +19,7 @@ jobs:
         name: checkout
 
       - name: ZAP Scan
-        uses: zaproxy/action-full-scan@v0.3.0
+        uses: zaproxy/action-full-scan@v0.4.0
         with:
           target: https://d309kopm8ags5f.cloudfront.net
           cmd_options: '-I'

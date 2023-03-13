@@ -137,6 +137,26 @@ describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
     expect(after).toStrictEqual(expectedResult);
   });
 
+  it('Applicants with "Withdrew from IEN program" status does not appear on report', async () => {
+    // The report output includes "Withdrew from IEN program" row,
+    // which should not increase with WITHDREW_FROM_PROGRAM milestone
+    const { body: before } = await request(app.getHttpServer()).get(url);
+
+    const updatedReport = await addMilestoneAndSplitProcess(reportService, {
+      applicantId: applicantIdsOldProcess[0],
+      status: STATUS.WITHDREW_FROM_PROGRAM,
+      period: periods[0],
+    });
+    await updateCachedReport(updatedReport);
+
+    const { body: after } = await request(app.getHttpServer()).get(url);
+
+    const beforeWithdrawnRow = getIndexOfStatus(before, STATUS.WITHDREW_FROM_PROGRAM);
+    const afterWithdrawnRow = getIndexOfStatus(after, STATUS.WITHDREW_FROM_PROGRAM);
+
+    expect(before[beforeWithdrawnRow]).toStrictEqual(after[afterWithdrawnRow]);
+  });
+
   it('Applicant given BCCNM full license status should increase count on report', async () => {
     const { body: before } = await request(app.getHttpServer()).get(url);
     const licenseBefore = reportFourNumberOfApplicants(
