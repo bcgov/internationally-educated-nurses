@@ -1,10 +1,10 @@
 name: ZAP Scan
 on:
-  push:
-    branches:
-      - main
-    tags:
-      - security
+  pull_request:
+    paths:
+      - 'apps/api/**'
+      - 'apps/web/**'
+      - 'packages/common/**'
 
 jobs:
   deploy:
@@ -17,7 +17,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         name: checkout
-
+        with:
+          node-version: 16
       - name: ZAP Scan
         uses: zaproxy/action-full-scan@v0.4.0
         with:
