@@ -17,6 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         name: checkout
+      - uses: actions/setup-node@v3
         with:
           node-version: 16
       - name: ZAP Scan
