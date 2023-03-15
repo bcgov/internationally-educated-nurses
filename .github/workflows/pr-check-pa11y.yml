@@ -13,10 +13,10 @@ jobs:
     environment:
       name: dev
     steps:
-      - uses: actions/checkout@v3
-        name: checkout
-      - uses: actions/setup-node@v3
-        name: Setup node
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: setup node v16
+        uses: actions/setup-node@v3
         with:
           node-version: 16
       - uses: actions/cache@v3
