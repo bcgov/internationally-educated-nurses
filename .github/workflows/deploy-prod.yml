@@ -1,10 +1,8 @@
 name: PROD - Deploy Apps
 on:
-  pull_request:
-    paths:
-      - 'apps/api/**'
-      - 'apps/web/**'
-      - 'packages/common/**'
+  push:
+    tags:
+      - prod
 env:
   TF_VERSION: 1.1.1
   ENV_NAME: prod

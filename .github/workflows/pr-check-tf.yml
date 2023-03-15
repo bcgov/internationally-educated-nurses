@@ -2,9 +2,7 @@ name: Terraform PR Checks
 on:
   pull_request:
     paths:
-      - 'apps/api/**'
-      - 'apps/web/**'
-      - 'packages/common/**'
+      - 'terraform/**'
 env:
   TF_VERSION: 1.1.1
 

@@ -2,7 +2,6 @@ name: Web PR Checks
 on:
   pull_request:
     paths:
-      - 'apps/api/**'
       - 'apps/web/**'
       - 'packages/common/**'
 
