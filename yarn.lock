@@ -144,7 +144,7 @@ __metadata:
     convert-source-map: ^1.7.0
     debug: ^4.1.0
     gensync: ^1.0.0-beta.2
-    json5: ^2.1.2
+    json5: ^2.2.2
     semver: ^6.3.0
     source-map: ^0.5.0
   checksum: 3206e077e76db189726c4da19a5296eae11c6c1f5abea7013e74f18708bb91616914717ff8d8ca466cc0ba9d2d2147e9a84c3c357b9ad4cba601da14107838ed
@@ -1593,7 +1593,7 @@ __metadata:
   peerDependencies:
     cache-manager: "*"
     class-transformer: "*"
-    class-validator: "*"
+    class-validator: ^0.14.0
     reflect-metadata: ^0.1.12
     rxjs: ^7.1.0
   peerDependenciesMeta:
@@ -1642,7 +1642,7 @@ __metadata:
   peerDependencies:
     "@nestjs/common": ^7.0.8 || ^8.0.0
     class-transformer: ^0.2.0 || ^0.3.0 || ^0.4.0
-    class-validator: ^0.11.1 || ^0.12.0 || ^0.13.0
+    class-validator: ^0.14.0
     reflect-metadata: ^0.1.12
   checksum: 64e4bb9313a0d71c9535a36679e3c0d3590a8cfd3cd0897175213131afa9bb4b47f547607955f0e3578f26c509e755d7adc898bfcf47bb90117688b5d9b333fb
   languageName: node
@@ -2630,13 +2630,6 @@ __metadata:
   dependencies:
     "@types/jest": "*"
   checksum: e08715a565cc189112a6611485d779a0f1ceb546a9d4601b21aacff7596d7acf8b7c702e4c5f825677431ff601df3e635887dc8a5735da1a263cc857eb7c3833
-  languageName: node
-  linkType: hard
-
-"@types/validator@npm:^13.7.0":
-  version: 13.7.2
-  resolution: "@types/validator@npm:13.7.2"
-  checksum: e679261dd5392adfeb9b20ba2eaf7d668049ad03b24409a6921bb6a3ee4c3135d46cc536a0eafbbda7f642b196696a6e3e1e615b2d1194330d49b22f1f0acb59
   languageName: node
   linkType: hard
 
@@ -4540,7 +4533,7 @@ __metadata:
   resolution: "class-transformer-validator@npm:0.9.1"
   peerDependencies:
     class-transformer: ">=0.2.3"
-    class-validator: ">=0.12.0"
+    class-validator: ">=0.14.0"
   checksum: e1f90a6513c90c72ad444c24d63aa4141a16e7bd4e4b3290cb9e7a7bbb8c577367defd5dda8781f17fbf8e0b467b2882d5d5824930c5863f1803968d9a21e942
   languageName: node
   linkType: hard
@@ -4577,12 +4570,12 @@ __metadata:
   dependencies:
     class-transformer: ^0.3.1
     class-transformer-validator: ^0.9.0
-    class-validator: ^0.12.2
+    class-validator: ^0.14.0
   checksum: d19643f5f25577b21c405a345e3722cc56fed8e5874045dd108af252c080ae163afbaebb8800d1115f7ee2f653d8c1b9c46d3f79ec2c87d71a366a120bd1e519
   languageName: node
   linkType: hard
 
-"class-validator@npm:0.14.0":
+"class-validator@npm:0.14.0, class-validator@npm:^0.14.0":
   version: 0.14.0
   resolution: "class-validator@npm:0.14.0"
   dependencies:
@@ -4590,18 +4583,6 @@ __metadata:
     libphonenumber-js: ^1.10.14
     validator: ^13.7.0
   checksum: f62e4a0ad24cee68f4b2bc70d32b96de90cb598f96bde362b4dbf4234151af8eb6ae225458312a38fc49fa3959844cf61c60e731a8205e9a570454cff8de2710
-  languageName: node
-  linkType: hard
-
-"class-validator@npm:^0.12.2":
-  version: 0.12.2
-  resolution: "class-validator@npm:0.12.2"
-  dependencies:
-    "@types/validator": ^13.7.0
-    google-libphonenumber: ^3.2.8
-    tslib: ">=1.9.0"
-    validator: ^13.7.0
-  checksum: 37a806f62794d0c473045b8a77bc48892e87a959d57588b52774385058a862e77952c3af4c02d61db5fd863ff08d19935b1bdd38851028e1460bb94eb97ffec7
   languageName: node
   linkType: hard
 
@@ -7571,13 +7552,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"google-libphonenumber@npm:^3.2.8":
-  version: 3.2.25
-  resolution: "google-libphonenumber@npm:3.2.25"
-  checksum: 1834cdd88a8f54e37005ef4cff095cd79f8c821ec7fa4d09d865a5917043aaac55de85756ad5345fef9addbada390f9c57f15d730833fedc1a1932d73e1e68b8
-  languageName: node
-  linkType: hard
-
 "got@npm:^9.6.0":
   version: 11.8.5
   resolution: "got@npm:11.8.5"
@@ -9938,7 +9912,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"json5@npm:2.x, json5@npm:^2.1.2, json5@npm:^2.2.0":
+"json5@npm:2.x, json5@npm:^2.2.0":
   version: 2.2.0
   resolution: "json5@npm:2.2.0"
   dependencies:
@@ -9957,6 +9931,15 @@ __metadata:
   bin:
     json5: lib/cli.js
   checksum: e76ea23dbb8fc1348c143da628134a98adf4c5a4e8ea2adaa74a80c455fc2cdf0e2e13e6398ef819bfe92306b610ebb2002668ed9fc1af386d593691ef346fc3
+  languageName: node
+  linkType: hard
+
+"json5@npm:^2.2.2":
+  version: 2.2.3
+  resolution: "json5@npm:2.2.3"
+  bin:
+    json5: lib/cli.js
+  checksum: 2a7436a93393830bce797d4626275152e37e877b265e94ca69c99e3d20c2b9dab021279146a39cdb700e71b2dd32a4cebd1514cd57cee102b1af906ce5040349
   languageName: node
   linkType: hard
 
@@ -14955,7 +14938,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:2.3.1, tslib@npm:>=1.9.0, tslib@npm:^2.0.3, tslib@npm:^2.1.0, tslib@npm:^2.2.0":
+"tslib@npm:2.3.1, tslib@npm:^2.0.3, tslib@npm:^2.1.0, tslib@npm:^2.2.0":
   version: 2.3.1
   resolution: "tslib@npm:2.3.1"
   checksum: de17a98d4614481f7fcb5cd53ffc1aaf8654313be0291e1bfaee4b4bb31a20494b7d218ff2e15017883e8ea9626599b3b0e0229c18383ba9dce89da2adf15cb9
