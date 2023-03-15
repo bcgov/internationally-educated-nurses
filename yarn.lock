@@ -12173,7 +12173,7 @@ __metadata:
     semver: ^7.3.7
   peerDependencies:
     postcss: ^7.0.0 || ^8.0.1
-    webpack: ^5.0.0
+    webpack: ^5.76.0
   checksum: 2a3cbcaaade598d4919824d384ae34ffbfc14a9c8db6cc3b154582356f4f44a1c9af9e731b81cf1947b089accf7d0ab7a0c51c717946985f89aa1708d2b4304d
   languageName: node
   linkType: hard
@@ -14426,7 +14426,7 @@ __metadata:
     source-map: ^0.6.1
     terser: ^5.7.2
   peerDependencies:
-    webpack: ^5.1.0
+    webpack: ^5.76.0
   peerDependenciesMeta:
     "@swc/core":
       optional: true
@@ -14784,7 +14784,7 @@ __metadata:
     semver: ^7.3.4
   peerDependencies:
     typescript: "*"
-    webpack: ^5.0.0
+    webpack: ^5.76.0
   checksum: 6f44795ae464aa464eb3311adfc202ad0908f620c7fd4053311c8aa35708aede39682fa2f957ddf4a6075d7a0e88086b6e42eee5a87e944883aa189e2cf014a8
   languageName: node
   linkType: hard
