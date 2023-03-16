@@ -13,7 +13,7 @@ import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.entity';
 import { startDateOfFiscal } from 'src/common/util';
 import { ReportCacheEntity } from './entity/report-cache.entity';
-import { ReportPeriodDTO, STATUS, StatusCategory, LIC_REG_STAGE } from '@ien/common';
+import { ReportPeriodDTO, STATUS, StatusCategory } from '@ien/common';
 
 export const PERIOD_START_DATE = '2022-05-02';
 
