@@ -223,42 +223,23 @@ export class ReportUtilService {
    * @param BCCNM_NEW_PROCESS
    * @returns Query string
    */
-  reportFour(
-    mappedStatusesString: string,
-    from: string,
-    to: string,
-    BCCNM_NEW_PROCESS: boolean,
-  ): string {
+  reportFour(from: string, to: string, BCCNM_NEW_PROCESS: boolean): string {
     return `
-    SELECT 
-      "status_audit"."status_id", count(status_audit.status_id)
-    FROM 
-      "ien_applicant_status_audit" "status_audit" 
-    LEFT JOIN 
-      ien_applicants applicant ON applicant.id = status_audit.applicant_id 
-    WHERE 
-      applicant.new_bccnm_process IS NOT NULL AND applicant.new_bccnm_process = ${
-        BCCNM_NEW_PROCESS ? 'TRUE' : 'FALSE'
-      } 
-      AND 
-        "status_audit"."status_id" IN 
-        (${mappedStatusesString}) 
-      AND start_date IS NOT NULL 
-      AND start_date::date >= '${from}' 
-      AND start_date::date <= '${to}' AND 
-      NOT EXISTS (
-        SELECT *
-        FROM "ien_applicant_status_audit" AS T2
-        WHERE 
-          T2.applicant_id = status_audit.applicant_id
+      SELECT 
+        COUNT(DISTINCT applicant),applicant.status_id 
+        FROM ien_applicants applicant
+        INNER JOIN ien_applicant_status ias ON ias.id = applicant.status_id
+        INNER JOIN ien_applicant_status_audit status_audit 
+          ON applicant.id = status_audit.applicant_id 
+          AND applicant.status_id = status_audit.status_id
+        WHERE
+          applicant.new_bccnm_process = ${BCCNM_NEW_PROCESS ? 'TRUE' : 'FALSE'}
+          AND
+            ias.category = 'IEN Licensing/Registration Process'
           AND 
-            (
-              T2.start_date > status_audit.start_date 
-              OR T2.status_id IN ('f84a4167-a636-4b21-977c-f11aefc486af', '70b1f5f1-1a0d-ef71-42ea-3a0601b46bc2')
-            )
-      )
-    GROUP BY status_audit.status_id;
-  `;
+              start_date::date >= '${from}' 
+              AND start_date::date <= '${to}'
+        GROUP BY applicant.status_id`;
   }
   /**
    * Counts the number of applicants with a partial license (RN or LPN)

@@ -225,17 +225,9 @@ export class ReportService {
 
     this.logger.log(`getLicensingStageApplicants: Apply date filter from (${from}) and to (${to})`);
     const connection = getConnection();
-    const mappedStatuses = LIC_REG_STAGE.map(licensingStatus => {
-      return statuses[licensingStatus];
-    });
-    const mappedStatusesString = mappedStatuses.map(status => `'${status}'`).join(',');
     try {
-      const oldProcess = await connection.query(
-        this.reportUtilService.reportFour(mappedStatusesString, from, to, false),
-      );
-      const newProcess = await connection.query(
-        this.reportUtilService.reportFour(mappedStatusesString, from, to, true),
-      );
+      const oldProcess = await connection.query(this.reportUtilService.reportFour(from, to, false));
+      const newProcess = await connection.query(this.reportUtilService.reportFour(from, to, true));
       const licenseResults = await this.countLicense(connection);
       const withdrawnOld =
         (await connection.query(this.reportUtilService.getWithdrawn(to, from, false)))[0].count ||
@@ -264,7 +256,7 @@ export class ReportService {
     withdrawnOld: string,
     withdrawnNew: string,
   ) {
-    let report = REPORT_FOUR_STEPS.map((step: string) => {
+    return REPORT_FOUR_STEPS.map((step: STATUS | string) => {
       switch (step) {
         case 'Granted full licensure':
           return {
@@ -279,7 +271,7 @@ export class ReportService {
             oldProcessApplicants: licenceResults.oldProvisionalLicence[0]?.count || '0',
             newProcessApplicants: licenceResults.newProvisionalLicence[0]?.count || '0',
           };
-        case 'Applied to NNAS':
+        case STATUS.APPLIED_TO_NNAS:
           return {
             status: step,
             oldProcessApplicants: this.findAndSumStatusCounts(oldProcess, [
@@ -294,7 +286,7 @@ export class ReportService {
             ]),
           };
 
-        case 'Completed Additional Education':
+        case STATUS.COMPLETED_ADDITIONAL_EDUCATION:
           return {
             status: step,
             oldProcessApplicants: this.findAndSumStatusCounts(oldProcess, [
@@ -307,7 +299,7 @@ export class ReportService {
             ]),
           };
 
-        case 'Referred to NCAS':
+        case STATUS.REFERRED_TO_NCAS:
           return {
             status: step,
             oldProcessApplicants: this.findAndSumStatusCounts(oldProcess, [
@@ -321,7 +313,7 @@ export class ReportService {
               statuses[STATUS.COMPLETED_SLA],
             ]),
           };
-        case 'Withdrew from IEN program':
+        case STATUS.WITHDREW_FROM_PROGRAM:
           return {
             status: step,
             oldProcessApplicants: withdrawnOld,
@@ -337,7 +329,6 @@ export class ReportService {
           };
       }
     });
-    return report;
   }
   findAndSumStatusCounts(list: { status_id: string; count: string }[], acceptedIds: string[]) {
     let count = 0;
