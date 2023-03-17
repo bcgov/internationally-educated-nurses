@@ -15,11 +15,14 @@ jobs:
       name: dev
 
     steps:
-      - uses: actions/checkout@v2
-        name: checkout
-
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: setup node v16
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
       - name: ZAP Scan
-        uses: zaproxy/action-full-scan@v0.3.0
+        uses: zaproxy/action-full-scan@v0.4.0
         with:
           target: https://d309kopm8ags5f.cloudfront.net
           cmd_options: '-I'
