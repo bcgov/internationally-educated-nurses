@@ -802,7 +802,7 @@ __metadata:
     ignore: ^4.0.6
     import-fresh: ^3.2.1
     js-yaml: ^3.13.1
-    minimatch: ^5.1.6
+    minimatch: ^3.1.2
     strip-json-comments: ^3.1.1
   checksum: 03a7704150b868c318aab6a94d87a33d30dc2ec579d27374575014f06237ba1370ae11178db772f985ef680d469dc237e7b16a1c5d8edaaeb8c3733e7a95a6d3
   languageName: node
@@ -819,7 +819,7 @@ __metadata:
     ignore: ^4.0.6
     import-fresh: ^3.2.1
     js-yaml: ^4.1.0
-    minimatch: ^5.1.6
+    minimatch: ^3.1.2
     strip-json-comments: ^3.1.1
   checksum: b35b50d7b65bd8acd92a05b6fb15ac62c0cefa40dfef0324ca5bf8632bf3679bab6e173c53b3ad1e1d837701cecdbd9c144b35f46588cdf4e046a9caa272488d
   languageName: node
@@ -908,7 +908,7 @@ __metadata:
   dependencies:
     "@humanwhocodes/object-schema": ^1.2.0
     debug: ^4.1.1
-    minimatch: ^5.1.6
+    minimatch: ^3.1.2
   checksum: 44ee6a9f05d93dd9d5935a006b17572328ba9caff8002442f601736cbda79c580cc0f5a49ce9eb88fbacc5c3a6b62098357c2e95326cd17bb9f1a6c61d6e95e7
   languageName: node
   linkType: hard
@@ -919,7 +919,7 @@ __metadata:
   dependencies:
     "@humanwhocodes/object-schema": ^1.2.0
     debug: ^4.1.1
-    minimatch: ^5.1.6
+    minimatch: ^3.1.2
   checksum: 1025b07514b7bfd10a05e8b6cb5e6520878e9c8836b3dd0569fc07df29a09e428c2df1e0760b1d461da8ed6f81ca83ecb02e24198f80b0a177a2acbf532e267c
   languageName: node
   linkType: hard
@@ -2454,10 +2454,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/minimatch@npm:^5.1.2":
-  version: 5.1.2
-  resolution: "@types/minimatch@npm:5.1.2"
-  checksum: 0391a282860c7cb6fe262c12b99564732401bdaa5e395bee9ca323c312c1a0f45efbf34dce974682036e857db59a5c9b1da522f3d6055aeead7097264c8705a8
+"@types/minimatch@npm:^3.0.3":
+  version: 3.0.5
+  resolution: "@types/minimatch@npm:3.0.5"
+  checksum: c41d136f67231c3131cf1d4ca0b06687f4a322918a3a5adddc87ce90ed9dbd175a3610adee36b106ae68c0b92c637c35e02b58c8a56c424f71d30993ea220b92
   languageName: node
   linkType: hard
 
@@ -6297,7 +6297,7 @@ __metadata:
     has: ^1.0.3
     is-core-module: ^2.8.0
     is-glob: ^4.0.3
-    minimatch: ^5.1.6
+    minimatch: ^3.1.2
     object.values: ^1.1.5
     resolve: ^1.20.0
     tsconfig-paths: ^3.11.0
@@ -6335,7 +6335,7 @@ __metadata:
     has: ^1.0.3
     jsx-ast-utils: ^3.2.1
     language-tags: ^1.0.5
-    minimatch: ^5.1.6
+    minimatch: ^3.1.2
   peerDependencies:
     eslint: ^3 || ^4 || ^5 || ^6 || ^7 || ^8
   checksum: 311ab993ed982d0cc7cb0ba02fbc4b36c4a94e9434f31e97f13c4d67e8ecb8aec36baecfd759ff70498846e7e11d7a197eb04c39ad64934baf3354712fd0bc9d
@@ -6360,7 +6360,7 @@ __metadata:
     doctrine: ^2.1.0
     estraverse: ^5.3.0
     jsx-ast-utils: ^2.4.1 || ^3.0.0
-    minimatch: ^5.1.6
+    minimatch: ^3.1.2
     object.entries: ^1.1.5
     object.fromentries: ^2.0.5
     object.hasown: ^1.1.0
@@ -6480,7 +6480,7 @@ __metadata:
     json-stable-stringify-without-jsonify: ^1.0.1
     levn: ^0.4.1
     lodash.merge: ^4.6.2
-    minimatch: ^5.1.6
+    minimatch: ^3.1.2
     natural-compare: ^1.4.0
     optionator: ^0.9.1
     progress: ^2.0.0
@@ -6529,7 +6529,7 @@ __metadata:
     json-stable-stringify-without-jsonify: ^1.0.1
     levn: ^0.4.1
     lodash.merge: ^4.6.2
-    minimatch: ^5.1.6
+    minimatch: ^3.1.2
     natural-compare: ^1.4.0
     optionator: ^0.9.1
     progress: ^2.0.0
@@ -7242,7 +7242,7 @@ __metadata:
     fs-extra: ^9.0.0
     glob: ^7.1.6
     memfs: ^3.1.2
-    minimatch: ^5.1.6
+    minimatch: ^3.1.2
     schema-utils: 2.7.0
     semver: ^7.3.2
     tapable: ^1.0.0
@@ -7594,7 +7594,7 @@ __metadata:
     fs.realpath: ^1.0.0
     inflight: ^1.0.4
     inherits: 2
-    minimatch: ^5.1.6
+    minimatch: ^3.1.2
     once: ^1.3.0
     path-is-absolute: ^1.0.0
   checksum: b61f48973bbdcf5159997b0874a2165db572b368b931135832599875919c237fc05c12984e38fe828e69aa8a921eb0e8a4997266211c517c9cfaae8a93988bb8
@@ -7608,7 +7608,7 @@ __metadata:
     fs.realpath: ^1.0.0
     inflight: ^1.0.4
     inherits: 2
-    minimatch: ^5.1.6
+    minimatch: ^3.1.2
     once: ^1.3.0
     path-is-absolute: ^1.0.0
   checksum: 78a8ea942331f08ed2e055cb5b9e40fe6f46f579d7fd3d694f3412fe5db23223d29b7fee1575440202e9a7ff9a72ab106a39fee39934c7bedafe5e5f8ae20134
@@ -10873,12 +10873,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"minimatch@npm:^5.1.6":
-  version: 5.1.6
-  resolution: "minimatch@npm:5.1.6"
+"minimatch@npm:^3.1.2":
+  version: 3.1.2
+  resolution: "minimatch@npm:3.1.2"
   dependencies:
     brace-expansion: ^1.1.7
-  checksum: 7564208ef81d7065a370f788d337cd80a689e981042cb9a1d0e6580b6c6a8c9279eba80010516e258835a988363f99f54a6f711a315089b8b42694f5da9d0d77
+  checksum: c154e566406683e7bcb746e000b84d74465b3a832c45d59912b9b55cd50dee66e5c4b1e5566dba26154040e51672f9aa450a9aef0c97cfc7336b78b7afb9540a
   languageName: node
   linkType: hard
 
@@ -11064,11 +11064,11 @@ __metadata:
   version: 4.0.0
   resolution: "multimatch@npm:4.0.0"
   dependencies:
-    "@types/minimatch": ^5.1.2
+    "@types/minimatch": ^3.0.3
     array-differ: ^3.0.0
     array-union: ^2.1.0
     arrify: ^2.0.1
-    minimatch: ^5.1.6
+    minimatch: ^3.1.2
   checksum: bdb6a98dad4e919d9a1a2a0db872f44fa2337315f2fd5827d91ae005cf22f4425782bdfa97c10b80d567f0cb3c226c31f4e85f8f6a4a4be4facf9af0de1bb0c2
   languageName: node
   linkType: hard
@@ -11360,7 +11360,7 @@ __metadata:
     chokidar: ^3.5.2
     debug: ^3.2.7
     ignore-by-default: ^1.0.1
-    minimatch: ^5.1.6
+    minimatch: ^3.1.2
     pstree.remy: ^1.1.8
     semver: ^5.7.1
     supports-color: ^5.5.0
@@ -11445,7 +11445,7 @@ __metadata:
     chalk: ^2.4.1
     cross-spawn: ^6.0.5
     memorystream: ^0.3.1
-    minimatch: ^5.1.6
+    minimatch: ^3.1.2
     pidtree: ^0.3.0
     read-pkg: ^3.0.0
     shell-quote: ^1.6.1
@@ -14604,7 +14604,7 @@ __metadata:
   dependencies:
     "@istanbuljs/schema": ^0.1.2
     glob: ^7.1.4
-    minimatch: ^5.1.6
+    minimatch: ^3.1.2
   checksum: 3b34a3d77165a2cb82b34014b3aba93b1c4637a5011807557dc2f3da826c59975a5ccad765721c4648b39817e3472789f9b0fa98fc854c5c1c7a1e632aacdc28
   languageName: node
   linkType: hard
@@ -16073,7 +16073,7 @@ __metadata:
     glob: ^7.1.2
     jest-changed-files: ^24.9.0
     lodash: ^4.17.4
-    minimatch: ^5.1.6
+    minimatch: ^3.1.2
     split: ^1.0.1
     throat: ^4.1.0
     yargs: ^13.0.0
