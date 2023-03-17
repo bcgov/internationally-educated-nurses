@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   test-db:
-    image: postgres:13-alpine
+    image: postgres:14-alpine
     container_name: ${PROJECT}_test_db
     ports:
       - '5433:5432'
