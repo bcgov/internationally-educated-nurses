@@ -154,7 +154,7 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
               <div className='mb-1 col-span-2'>
                 <Field
                   name='pr_status'
-                  label='Permanent Resident Status'
+                  label='Immigration Status'
                   component={({ field, form }: FieldProps) => (
                     <ReactSelect<RecordTypeOptions<number>>
                       inputId={field.name}

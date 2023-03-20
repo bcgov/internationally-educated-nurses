@@ -48,7 +48,7 @@ export const ApplicantProfile = () => {
             title='Country of Residence'
             text={convertCountryCode(applicant?.country_of_residence?.toUpperCase())}
           />
-          <DetailsItem title='Permanent Resident Status' text={applicant?.pr_status} />
+          <DetailsItem title='Immigration Status' text={applicant?.pr_status} />
           <DetailsItem
             title='Nursing Education'
             text={
