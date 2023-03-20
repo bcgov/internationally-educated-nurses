@@ -952,7 +952,7 @@ __metadata:
     "@nestjs/platform-express": 9.3.9
     "@nestjs/schematics": 8.0.0
     "@nestjs/swagger": 5.1.5
-    "@nestjs/testing": 8.0.0
+    "@nestjs/testing": 9.3.9
     "@nestjs/typeorm": 8.0.2
     "@types/aws-lambda": 8.10.84
     "@types/express": 4.17.13
@@ -1624,10 +1624,10 @@ __metadata:
     tslib: 2.5.0
     uid: 2.0.1
   peerDependencies:
-    "@nestjs/common": ^9.0.0
-    "@nestjs/microservices": ^9.0.0
-    "@nestjs/platform-express": ^9.0.0
-    "@nestjs/websockets": ^9.0.0
+    "@nestjs/common": ^9.3.9
+    "@nestjs/microservices": ^9.3.9
+    "@nestjs/platform-express": ^9.3.9
+    "@nestjs/websockets": ^9.3.9
     reflect-metadata: ^0.1.12
     rxjs: ^7.1.0
   peerDependenciesMeta:
@@ -1721,23 +1721,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/testing@npm:8.0.0":
-  version: 8.0.0
-  resolution: "@nestjs/testing@npm:8.0.0"
+"@nestjs/testing@npm:9.3.9":
+  version: 9.3.9
+  resolution: "@nestjs/testing@npm:9.3.9"
   dependencies:
     optional: 0.1.4
     tslib: 2.3.0
   peerDependencies:
     "@nestjs/common": ^9.3.9
     "@nestjs/core": ^9.3.9
-    "@nestjs/microservices": ^8.0.0
+    "@nestjs/microservices": ^9.3.9
     "@nestjs/platform-express": ^9.3.9
   peerDependenciesMeta:
     "@nestjs/microservices":
       optional: true
     "@nestjs/platform-express":
       optional: true
-  checksum: ec4d99f582b24907fa9cc67a2f71f8957506e7d5e9d8cea15d08de01592c083a5eb9a34a19975e6a8fd77e5a170fcf38c5ad3d8de6c8b3caf066412320a30c9b
+  checksum: cd9003323e59440445df8f1d47a1c268aae871e3df6fb6fbcc7ab40afcd7c99286f968e9305403bc636e119a9ed1e70139e2486d1423ca456c7175abeab1b56a
   languageName: node
   linkType: hard
 
