@@ -2234,7 +2234,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/cookiejar@npm:*":
+"@types/cookiejar@npm:2.1.2":
   version: 2.1.2
   resolution: "@types/cookiejar@npm:2.1.2"
   checksum: f6e1903454007f86edd6c3520cbb4d553e1d4e17eaf1f77f6f75e3270f48cc828d74397a113a36942f5fe52f9fa71067bcfa738f53ad468fcca0bc52cb1cbd28
@@ -2614,7 +2614,7 @@ __metadata:
   version: 4.1.13
   resolution: "@types/superagent@npm:4.1.13"
   dependencies:
-    "@types/cookiejar": "*"
+    "@types/cookiejar": 2.1.2
     "@types/node": "*"
   checksum: dffbfd1d3e5b9ed3f44d00e388ce9617407f5a3333241ffcfcf9056b446643794e62a09b817df83611e2f6e8a5bf6a50ba6cfe5abb1afb0f2c4771cdf5b68136
   languageName: node
@@ -5119,10 +5119,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cookiejar@npm:^2.1.2":
-  version: 2.1.3
-  resolution: "cookiejar@npm:2.1.3"
-  checksum: 88259983ebc52ceb23cdacfa48762b6a518a57872eff1c7ed01d214fff5cf492e2660d7d5c04700a28f1787a76811df39e8639f8e17670b3cf94ecd86e161f07
+"cookiejar@npm:^2.1.4":
+  version: 2.1.4
+  resolution: "cookiejar@npm:2.1.4"
+  checksum: c4442111963077dc0e5672359956d6556a195d31cbb35b528356ce5f184922b99ac48245ac05ed86cf993f7df157c56da10ab3efdadfed79778a0d9b1b092d5b
   languageName: node
   linkType: hard
 
@@ -14304,7 +14304,7 @@ __metadata:
   resolution: "superagent@npm:6.1.0"
   dependencies:
     component-emitter: ^1.3.0
-    cookiejar: ^2.1.2
+    cookiejar: ^2.1.4
     debug: ^4.1.1
     fast-safe-stringify: ^2.0.7
     form-data: ^3.0.0
