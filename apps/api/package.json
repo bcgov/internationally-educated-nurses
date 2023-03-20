@@ -34,6 +34,7 @@
     "@types/jsonwebtoken": ">=9.0.0",
     "@vendia/serverless-express": "4.3.11",
     "aws-sdk": "2.1017.0",
+    "axios": "0.24.0",
     "class-transformer": "0.5.1",
     "csv-stringify": "6.0.4",
     "dotenv": "10.0.0",
