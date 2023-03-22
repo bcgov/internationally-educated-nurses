@@ -26,6 +26,8 @@ interface StageStat {
   Mean: number;
   Median: number;
   Mode: number;
+  count?: number;
+  values?: number[];
 }
 
 describe('Report 9 - Average Amount of Time with Each Stakeholder Group', () => {
@@ -52,7 +54,11 @@ describe('Report 9 - Average Amount of Time with Each Stakeholder Group', () => 
   const bccnmNcas = BCCNM_NCAS_STAGE.map(status => durations[status])
     .filter(v => v)
     .reduce((a, c) => c.map((v, i) => v + (a[i] || 0)), []);
-  const recruitments = RECRUITMENT_STAGE.map(status => durations[status])
+
+  const index = RECRUITMENT_STAGE.findIndex(s => s === STATUS.JOB_OFFER_ACCEPTED);
+  const jobStage = RECRUITMENT_STAGE.slice(0, index + 1);
+  const recruitments = jobStage
+    .map(status => durations[status])
     .filter(v => v)
     .reduce((a, c) => c.map((v, i) => v + (a[i] || 0)), []);
   const immigrations = IMMIGRATION_STAGE.map(status => durations[status])
@@ -98,6 +104,7 @@ describe('Report 9 - Average Amount of Time with Each Stakeholder Group', () => 
       const generateStageMilestones = async (stage: STATUS[]) => {
         for (let j = 0; j < stage.length; j++) {
           const status = stage[j];
+
           if (!durations[status]) continue;
           const duration = durations[status][i];
           // hire applicant
@@ -105,19 +112,20 @@ describe('Report 9 - Average Amount of Time with Each Stakeholder Group', () => 
           const jobId = RECRUITMENT_STAGE.includes(status) ? job.id : '';
           await addMilestone(id, jobId, await getStatus(status, startDate));
           preStartDate = startDate;
+          if (status === STATUS.JOB_OFFER_ACCEPTED) break;
         }
       };
 
       await generateStageMilestones(NNAS_STAGE);
       await generateStageMilestones(BCCNM_NCAS_STAGE);
-      await generateStageMilestones(RECRUITMENT_STAGE);
+      await generateStageMilestones(jobStage);
       await generateStageMilestones(IMMIGRATION_STAGE);
     }
   };
 
   const getReport = async (to?: string): Promise<StageStat[]> => {
     const toDate = to || dayjs().format('YYYY-MM-DD');
-    return (await controller.getAverageTimeWithEachStakeholderGroup(toDate)) as StageStat[];
+    return (await controller.getAverageTimeWithEachStakeholderGroup(toDate, true)) as StageStat[];
   };
 
   it('validates a report with no milestones', async () => {

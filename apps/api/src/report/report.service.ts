@@ -5,15 +5,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import dayjs from 'dayjs';
 import _ from 'lodash';
 
-import { IENHaPcn } from '../applicant/entity/ienhapcn.entity';
 import { DURATION_STAGES, REPORT_FOUR_STEPS } from './constants';
-import { MilestoneDurationEntity } from './entity/milestone-duration.entity';
 import { ReportUtilService } from './report.util.service';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.entity';
 import { startDateOfFiscal } from 'src/common/util';
 import { ReportCacheEntity } from './entity/report-cache.entity';
-import { ReportPeriodDTO, STATUS, StatusCategory } from '@ien/common';
+import { Authorities, ReportPeriodDTO, STATUS, StatusCategory } from '@ien/common';
+import { DurationEntry, DurationSummary, MilestoneTableEntry } from './types';
 
 export const PERIOD_START_DATE = '2022-05-02';
 
@@ -51,6 +50,41 @@ export class ReportService {
   }
 
   /**
+   * Report 1
+   * @param f Duration start date YYYY-MM-DD
+   * @param t Duration end date YYYY-MM-DD
+   * @returns
+   */
+  async getRegisteredApplicantList(f: string, t: string) {
+    const { from, to } = this.captureFromTo(f, t);
+    this.logger.log(
+      `Report 1: Number of applicants: Apply date filter from (${from}) and to (${to})`,
+      'REPORT',
+    );
+    const entityManager = getManager();
+    const data = await entityManager.query(this.reportUtilService.applicantCountQuery(from, to));
+    this.logger.log(
+      `Report 1 - Number of applicants: query completed a total of ${data.length} record returns`,
+      'REPORT',
+    );
+    const defaultData = {
+      applicants: 0,
+    };
+    const result = this.reportUtilService._addMissingPeriodWithDefaultData(
+      defaultData,
+      data,
+      from,
+      to,
+    );
+    this.logger.log(
+      `Report 1 - Number of applicants: After adding missing periods, a total of ${result.length} record returns`,
+      'REPORT',
+    );
+    this.reportUtilService._updateLastPeriodToDate(result, to, 0);
+    return result;
+  }
+
+  /**
    * Report 2
    * @param f Duration start date YYYY-MM-DD
    * @param t Duration end date YYYY-MM-DD
@@ -58,13 +92,19 @@ export class ReportService {
    */
   async getCountryWiseApplicantList(f: string, t: string) {
     const { from, to } = this.captureFromTo(f, t);
-    this.logger.log(`getCountryWiseApplicantList: Apply date filter from (${from}) and to (${to})`);
+    this.logger.log(
+      `Report 2 - Applicants by education country: Apply date filter from (${from}) and to (${to})`,
+      'REPORT',
+    );
     const entityManager = getManager();
     const data = await entityManager.query(
       this.reportUtilService.countryWiseApplicantQuery(from, to),
     );
     this.logger.log(
-      `getCountryWiseApplicantList: query completed a total of ${data.length - 1} record returns`,
+      `Report 2 - Applicants by education country: query completed a total of ${
+        data.length - 1
+      } record returns`,
+      'REPORT',
     );
     const defaultData = {
       us: 0,
@@ -89,41 +129,12 @@ export class ReportService {
     );
     // We have an additional row that holds the total count, so substracting it to get the final number of periods.
     this.logger.log(
-      `getCountryWiseApplicantList: After adding missing periods, a total of ${
+      `Report 2 - Applicants by education country:: After adding missing periods, a total of ${
         result.length - 1
       } record returns`,
+      'REPORT',
     );
     this.reportUtilService._updateLastPeriodToDate(result, to, 1);
-    return result;
-  }
-
-  /**
-   * Report 1
-   * @param f Duration start date YYYY-MM-DD
-   * @param t Duration end date YYYY-MM-DD
-   * @returns
-   */
-  async getRegisteredApplicantList(f: string, t: string) {
-    const { from, to } = this.captureFromTo(f, t);
-    this.logger.log(`getRegisteredApplicantList: Apply date filter from (${from}) and to (${to})`);
-    const entityManager = getManager();
-    const data = await entityManager.query(this.reportUtilService.applicantCountQuery(from, to));
-    this.logger.log(
-      `getRegisteredApplicantList: query completed a total of ${data.length} record returns`,
-    );
-    const defaultData = {
-      applicants: 0,
-    };
-    const result = this.reportUtilService._addMissingPeriodWithDefaultData(
-      defaultData,
-      data,
-      from,
-      to,
-    );
-    this.logger.log(
-      `getRegisteredApplicantList: After adding missing periods, a total of ${result.length} record returns`,
-    );
-    this.reportUtilService._updateLastPeriodToDate(result, to, 0);
     return result;
   }
 
@@ -136,14 +147,16 @@ export class ReportService {
   async getHiredWithdrawnActiveApplicants(statuses: Record<string, string>, f: string, t: string) {
     const { from, to } = this.captureFromTo(f, t);
     this.logger.log(
-      `getHiredWithdrawnActiveCount: Apply date filter from (${from}) and to (${to})`,
+      `Report 3 - Active/Hired/Withdrawn: Apply date filter from (${from}) and to (${to})`,
+      'REPORT',
     );
     const entityManager = getManager();
     const data = await entityManager.query(
       this.reportUtilService.hiredActiveWithdrawnApplicantCountQuery(statuses, from, to),
     );
     this.logger.log(
-      `getHiredWithdrawnActiveCount: query completed a total of ${data.length} record returns`,
+      `Report 3 - Active/Hired/Withdrawn: query completed a total of ${data.length} record returns`,
+      'REPORT',
     );
     return data;
   }
@@ -154,6 +167,8 @@ export class ReportService {
    * @returns
    */
   async getLicensingStageApplicants(period: number) {
+    this.logger.log(`Report 4: Applicants in licensing stage: try cache for period ${period}`, 'REPORT');
+
     const report_number = 4;
     const report = await getRepository(ReportCacheEntity)
       .createQueryBuilder('rce')
@@ -172,7 +187,7 @@ export class ReportService {
     }
 
     const data = JSON.parse(report?.report_data);
-
+    this.logger.log(`Report 4: Applicants in licensing stage: returns cache for period ${period}`, 'REPORT');
     return data;
   }
 
@@ -220,10 +235,16 @@ export class ReportService {
    * @returns
    */
   async splitReportFourNewOldProcess(f: string, t: string) {
+
+
     const statuses = await this.getStatusMap();
     const { from, to } = this.captureFromTo(f, t);
 
-    this.logger.log(`getLicensingStageApplicants: Apply date filter from (${from}) and to (${to})`);
+    this.logger.log(
+      `Report 4: Applicants in licensing stage: apply date filter from (${from}) and to (${to})`,
+      'REPORT',
+    );
+
     const connection = getConnection();
     try {
       const oldProcess = await connection.query(this.reportUtilService.reportFour(from, to, false));
@@ -235,7 +256,7 @@ export class ReportService {
       const withdrawnNew =
         (await connection.query(this.reportUtilService.getWithdrawn(to, from, true)))[0].count ||
         '0';
-      return this.mapReportFourResults(
+      const data = this.mapReportFourResults(
         statuses,
         oldProcess,
         newProcess,
@@ -243,11 +264,18 @@ export class ReportService {
         withdrawnOld,
         withdrawnNew,
       );
+
+      this.logger.log(
+        `Report 4 - Applicants in licensing stage: a total of ${oldProcess.length} old process and ${newProcess.length} new process record returns`,
+        'REPORT',
+      );
+      return data;
     } catch (e) {
       this.logger.error(e);
       return [];
     }
   }
+  
   mapReportFourResults(
     statuses: Record<string, string>,
     oldProcess: { status_id: string; count: string }[],
@@ -370,13 +398,17 @@ export class ReportService {
    */
   async getLicenseApplicants(statuses: Record<string, string>, f: string, t: string) {
     const { from, to } = this.captureFromTo(f, t);
-    this.logger.log(`getLicenseApplicants: Apply date filter from (${from}) and to (${to})`);
+    this.logger.log(
+      `Report 5: Number of applicants with license: Apply date filter from (${from}) and to (${to})`,
+      'REPORT',
+    );
     const entityManager = getManager();
     const data = await entityManager.query(
       this.reportUtilService.licenseApplicantsQuery(statuses, from, to),
     );
     this.logger.log(
-      `getLicenseApplicants: query completed a total of ${data.length} record returns`,
+      `Report 5 - Number of applicants with license: query completed a total of ${data.length} record returns`,
+      'REPORT',
     );
     return data;
   }
@@ -389,13 +421,17 @@ export class ReportService {
    */
   async getRecruitmentApplicants(statuses: Record<string, string>, f: string, t: string) {
     const { from, to } = this.captureFromTo(f, t);
-    this.logger.log(`getRecruitmentApplicants: Apply date filter from (${from}) and to (${to})`);
+    this.logger.log(
+      `Report 6: Applicants by HA in recruitment stage: Apply date filter from (${from}) and to (${to})`,
+      'REPORT',
+    );
     const entityManager = getManager();
     const data = await entityManager.query(
       this.reportUtilService.applicantsInRecruitmentQuery(statuses, to),
     );
     this.logger.log(
-      `getRecruitmentApplicants: query completed a total of ${data.length} record returns`,
+      `Report 6 - Applicants by HA in recruitment stage: query completed a total of ${data.length} record returns`,
+      'REPORT',
     );
     return data;
   }
@@ -408,13 +444,17 @@ export class ReportService {
    */
   async getImmigrationApplicants(statuses: Record<string, string>, f: string, t: string) {
     const { from, to } = this.captureFromTo(f, t);
-    this.logger.log(`getImmigrationApplicants: Apply date filter from (${from}) and to (${to})`);
+    this.logger.log(
+      `Report 7: Applicant by HA in immigration stage: Apply date filter from (${from}) and to (${to})`,
+      'REPORT',
+    );
     const entityManager = getManager();
     const data = await entityManager.query(
       this.reportUtilService.applicantsInImmigrationQuery(statuses, to),
     );
     this.logger.log(
-      `getImmigrationApplicants: query completed a total of ${data.length} record returns`,
+      `Report 7 - Applicant by HA in immigration stage: query completed a total of ${data.length} record returns`,
+      'REPORT',
     );
     return data;
   }
@@ -432,7 +472,8 @@ export class ReportService {
     const currentPeriodStart = this.getStartOfLastPeriod(from, to);
     const fiscalStart = startDateOfFiscal(range.to);
     this.logger.log(
-      `getApplicantHAForCurrentPeriodFiscal: current period and Fiscal(start from ${from} till ${to} date)`,
+      `Report 8 - Applicants by HA For Current Period/Fiscal: current period and Fiscal(start from ${from} till ${to} date)`,
+      'REPORT',
     );
 
     const entityManager = getManager();
@@ -445,9 +486,59 @@ export class ReportService {
       ),
     );
     this.logger.log(
-      `getApplicantHAForCurrentPeriodFiscal: query completed a total of ${data.length} record returns`,
+      `Report 8 - Applicants by HA For Current Period/Fiscal: query completed a total of ${data.length} record returns`,
+      'REPORT',
     );
     return data;
+  }
+
+  /**
+   * Get mean, median, mode values of applicants for each stage and milestone
+   *
+   * @param stage
+   * @param durations
+   * @param verbose
+   */
+  getStageDurationStats(stage: DurationEntry[], durations: DurationSummary[], verbose = false) {
+    const applicants = durations.filter(d => d[stage[0].stage as keyof DurationSummary]);
+
+    const employerDurations: Record<string, number[]> = {};
+
+    if (stage[0].stage === 'Recruitment') {
+      // get each HA's list of recruitment time
+      durations.forEach(d => {
+        if (d.ha && d.Recruitment) {
+          if (!employerDurations[d.ha]) employerDurations[d.ha] = [];
+          employerDurations[d.ha].push(d.Recruitment);
+        }
+      });
+
+      return Object.values(Authorities)
+        .filter(ha => ![Authorities.MOH, Authorities.HMBC].includes(ha))
+        .map(ha => ha.name)
+        .sort()
+        .map(ha => {
+          const values = employerDurations[ha] || [];
+          const row = {
+            title: ' ',
+            HA: ha,
+            ...this.getDurationStats(values),
+          };
+          if (verbose) Object.assign(row, { count: values.length, values });
+          return row;
+        });
+    }
+
+    // report 9 needs stage stats only
+    const stageName = stage[0].stage as keyof DurationSummary;
+    const values = applicants.map(d => (d[stageName] as number) || 0);
+    const row = {
+      title: stageName,
+      HA: ' ',
+      ...this.getDurationStats(values),
+    };
+    if (verbose) Object.assign(row, { count: values.length, values });
+    return row;
   }
 
   /**
@@ -455,81 +546,94 @@ export class ReportService {
    * Get average time spent on the stages, NNAS, BCCNM & NCAS, Recruitment by Health Authorities, and Immigration
    * including overall time from the start to immigration completion and average time to hire.
    *
-   * NOTE: Counting only hired applicants completed immigration
+   * - Each stage counts applicants who completed the stage.
    *
-   * @param t end date of report, YYYY-MM-DD
+   * NNAS
+   * BCCNM & NCAS
+   * Employer
+   *    First Nations Health Authority
+   *    Fraser Health Authority
+   *    Interior Health Authority
+   *    Northern Health Authority
+   *    Providence Health Care Society
+   *    Provincial Health Services Authority
+   *    Vancouver Coastal Health Authority
+   *    Vancouver Island Health Authority
+   * Immigration
+   * Overall
+   * Average time to hire
+   *
+   * @param end date of report, YYYY-MM-DD
+   * @param verbose if true, include the list of values used to calculate mean, mode, and median.
    */
-  async getAverageTimeWithEachStakeholderGroup(statuses: Record<string, string>, t: string) {
-    const { to } = this.captureFromTo('', t);
-    this.logger.log(`getAverageTimeWithEachStakeholderGroup: apply filter till ${to} date)`);
-
-    // to get durations of NNAS, BCCNM & NCAS, Immigration, Overall, and Average time to hire
-    const durations = await getRepository(MilestoneDurationEntity)
-      .createQueryBuilder()
-      .where(`hired_at <= :to AND immigrated_at  <= :to`, { to })
-      .getMany();
-
-    // excludes applicants with a negative duration caused by nonlinear milestones
-    const linearDurations = durations.filter(d => !Object.values(d).some(v => v < 0));
-
-    // to get duration of recruitment by Health Authorities
-    const durationByHAs = await getManager()
-      .createQueryBuilder(IENHaPcn, 'ha')
-      .select('ha.title', 'HA')
-      .addSelect(`CAST(COALESCE(ROUND(AVG(md.recruitment), 2), 0) AS FLOAT)`, 'Mean')
-      .addSelect(`COALESCE(MODE() WITHIN GROUP (ORDER BY md.recruitment), 0)`, 'Mode')
-      .addSelect(
-        `COALESCE(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY md.recruitment), 0)`,
-        'Median',
-      )
-      .leftJoin(
-        qb => {
-          return qb
-            .from(MilestoneDurationEntity, 'd')
-            .where(`d.hired_at <= :to AND d.immigrated_at <= :to`, { to })
-            .andWhere(`LEAST(d.pre_screen, interview, reference_check, hired) > 0`);
-        },
-        'md',
-        'ha.title = md.ha',
-      )
-      .groupBy('ha.id')
-      .getRawMany();
-
-    const data = [
-      {
-        title: 'NNAS',
-        HA: ' ',
-        ...this.getDurationStats(linearDurations.map(d => d.nnas).filter(v => v !== null)),
-      },
-      {
-        title: 'BCCNM & NCAS',
-        HA: ' ',
-        ...this.getDurationStats(linearDurations.map(d => d.bccnm_ncas).filter(v => v !== null)),
-      },
-      ...durationByHAs.map(ha => ({ title: ' ', ...ha })),
-      {
-        title: 'Immigration',
-        HA: ' ',
-        ...this.getDurationStats(linearDurations.map(d => d.immigration).filter(v => v !== null)),
-      },
-      {
-        title: 'Overall',
-        HA: ' ',
-        ...this.getDurationStats(linearDurations.map(d => d.overall).filter(v => v !== null)),
-      },
-      {
-        title: 'Average time to hire',
-        HA: ' ',
-        ...this.getDurationStats(linearDurations.map(d => d.to_hire).filter(v => v !== null)),
-      },
-    ];
+  async getReport9(end: string, verbose = false): Promise<object[]> {
+    const { to } = this.captureFromTo('', end);
     this.logger.log(
-      `getAverageTimeWithEachStakeholderGroup: query completed a total of ${data.length} record returns`,
+      `Report 9 - Average time with each health authority: apply filter till ${to} date)`,
+      'REPORT',
+    );
+    const table = await this.reportUtilService.getMilestoneTable(to);
+
+    // set health authorities who hired applicants
+    const idHaMap = await this.reportUtilService.getHiredApplicantHAs();
+    for (const [id, ha] of Object.entries(idHaMap)) {
+      if (table[id]) table[id].ha = ha;
+    }
+
+    // calculate durations and summaries
+    const durations = Object.values(table)
+      .map(this.reportUtilService.getDurationTableEntry)
+      .map(this.reportUtilService.getDurationSummary);
+
+    // generate final report form
+    const data = _.flatten(
+      DURATION_STAGES.map(stage => {
+        return this.getStageDurationStats(stage, durations, verbose);
+      }),
+    ).filter(v => !!v);
+
+    // COUNT ONLY APPLICANTS COMPLETED ALL STAGES
+    const overallDurations = durations
+      .filter(d => d.Immigration && d.Recruitment)
+      .map(
+        d => (d.NNAS ?? 0) + (d['BCCNM & NCAS'] ?? 0) + (d.Recruitment ?? 0) + (d.Immigration ?? 0),
+      )
+      .sort((a, b) => a - b);
+
+    const overall = {
+      title: 'Overall',
+      HA: ' ',
+      ...this.getDurationStats(overallDurations),
+    };
+
+    if (verbose) {
+      Object.assign(overall, { count: overallDurations.length, values: overallDurations });
+    }
+    data.push(overall);
+
+    // Time from the start of their journey to employment
+    const timeToHireDurations = durations
+      .filter(d => d.Recruitment)
+      .map(d => (d.NNAS ?? 0) + (d['BCCNM & NCAS'] ?? 0) + (d.Recruitment ?? 0))
+      .sort((a, b) => a - b);
+    const timeToHire = {
+      title: 'Average time to hire',
+      HA: ' ',
+      ...this.getDurationStats(timeToHireDurations),
+    };
+    if (verbose) {
+      Object.assign(timeToHire, { count: timeToHireDurations.length, values: timeToHireDurations });
+    }
+    data.push(timeToHire);
+
+    this.logger.log(
+      `Report 9 - Average time with each health authority: returns ${data.length} records`,
+      'REPORT',
     );
     return data;
   }
 
-  private getDurationStats(durations: number[]) {
+  private getDurationStats(durations: number[] = []) {
     // do not change the number of items by filtering.
     // it'll cause stage duration not to match the sum of its milestones.
     const data = durations.map(v => v || 0);
@@ -541,46 +645,83 @@ export class ReportService {
   }
 
   /**
-   * Report 10
-   * Get average time spent on each stage and milestone
+   * Report 10 - Average time spent on each stage and their major milestones
    *
-   * NOTE: Counting only hired applicants completed immigration
+   * NNAS
+   *    Applied to NNAS
+   *    Submitted Documents (NNAS Application in Review)
+   *    Received NNAS Report
+   * BCCNM & NCAS
+   *    Applied to BCCNM
+   *    Completed English Language Requirement
+   *    Referred to NCAS
+   *    Completed Computer-Based Assessment (CBA)
+   *    Completed Simulation Lab Assessment (SLA)
+   *    Completed NCAS
+   * Recruitment
+   *    Completed pre-screen (includes both outcomes)
+   *    Completed interview (includes both outcomes)
+   *    Completed reference check (includes both outcomes)
+   *    Hired
+   * Immigration
+   *    Sent First Steps document to candidate
+   *    Sent employer documents to HMBC
+   *    Submitted application to BC PNP
+   *    Received Confirmation of Nomination
+   *    Sent Second Steps document to candidate
+   *    Submitted Work Permit Application
+   *    Immigration Completed
    *
-   * @param t end date of report, YYYY-MM-DD
+   * - Each stage counts applicants who completed the stage.
+   *
+   * @param end date of report, YYYY-MM-DD
+   * @param verbose if true, include the list of values used to calculate mean, mode, and median.
    */
-  async getAverageTimeOfMilestones(t: string) {
-    const { to } = this.captureFromTo('', t);
-    this.logger.log(`getAverageTimeOfMilestones: apply filter till ${to} date)`);
+  async getReport10(toDate: string, verbose = false): Promise<DurationEntry[]> {
+    // get all applicants milestones
+    const { to } = this.captureFromTo('', toDate);
+    this.logger.log(
+      `Report 10 - Average time with each milestone: apply filter till ${to} date)`,
+      'REPORT',
+    );
+    const table = await this.reportUtilService.getMilestoneTable(to);
 
-    const durations = await getRepository(MilestoneDurationEntity)
-      .createQueryBuilder()
-      .where(`hired_at <= :to AND immigrated_at  <= :to`, { to })
-      .getMany();
+    // get hired applicants job milestones
+    const jobMilestones: MilestoneTableEntry[] =
+      await this.reportUtilService.getRecruitmentMilestoneTable(to);
+    jobMilestones.forEach(m => {
+      const applicant = table[m.id];
+      // use milestones of the accepted job
+      Object.assign(applicant, m);
+    });
 
-    // excludes applicants with a negative duration caused by nonlinear milestones
-    const linearDurations = durations.filter(d => !Object.values(d).some(v => v < 0));
+    const durations = Object.values(table)
+      .map(this.reportUtilService.getDurationTableEntry)
+      .map(this.reportUtilService.getDurationSummary);
 
     const data = _.flatten(
-      DURATION_STAGES.map(stageFields => {
-        const stageMilestone = stageFields[0];
-        // take entries with the stage duration is not null so that the same number of samples could be used to
-        // calculate the mean value for the stage and its milestones
-        const validDurations = linearDurations.filter(
-          (entry: any) => entry[stageMilestone.field] !== null,
-        );
-        // if stage or milestone is empty string, it would be formatted as 0 in the spreadsheet.
-        return stageFields.map(({ stage = ' ', milestone = ' ', field }) => {
-          return {
-            stage,
-            milestone,
-            ...this.getDurationStats(validDurations.map((entry: any) => entry[field])),
+      DURATION_STAGES.map(stage => {
+        const applicants = durations.filter(d => d[stage[0].stage as keyof DurationSummary]);
+        return stage.map(({ stage, milestone }) => {
+          const field = (stage || milestone) as keyof DurationSummary;
+          const values = applicants.map(d => (d[field] as number) || 0).sort((a, b) => a - b);
+          const stat: object = {
+            stage: stage || ' ',
+            milestone: milestone || ' ',
+            ...this.getDurationStats(values),
           };
+
+          // for stage row, add sample values and count
+          if (verbose) {
+            Object.assign(stat, { count: values.length, values });
+          }
+          return stat;
         });
       }),
     );
-
     this.logger.log(
-      `getAverageTimeOfMilestones: query completed a total of ${data.length} record returns`,
+      `Report 10 - Average time with each milestone: returns ${data.length} records`,
+      'REPORT',
     );
     return data;
   }
@@ -624,8 +765,8 @@ export class ReportService {
       this.getRecruitmentApplicants(statuses, from, to).then(report6 => ({ report6 })),
       this.getImmigrationApplicants(statuses, from, to).then(report7 => ({ report7 })),
       this.getApplicantHAForCurrentPeriodFiscal(statuses, from, to).then(report8 => ({ report8 })),
-      this.getAverageTimeWithEachStakeholderGroup(statuses, to).then(report9 => ({ report9 })),
-      this.getAverageTimeOfMilestones(to).then(report10 => ({ report10 })),
+      this.getReport9(to).then(report9 => ({ report9 })),
+      this.getReport10(to).then(report10 => ({ report10 })),
     ];
     const report = await Promise.all(
       promises.map(async (p, index) => {

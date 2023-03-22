@@ -124,7 +124,7 @@ const generateMilestones = async (id: string, statuses: Record<string, string>) 
       job = await createJob(applicant);
     }
     // randomly skip a milestone
-    for (let mIndex = _.random(1, 2); mIndex < stages[sIndex].length; mIndex += _.random(1, 2)) {
+    for (let mIndex = _.random(0, 2); mIndex < stages[sIndex].length; mIndex += _.random(1, 2)) {
       if (count >= maxNumOfMilestones) return count;
 
       const status = stages[sIndex][mIndex];
@@ -213,8 +213,10 @@ setToken()
     console.log(`${initialCount} applicants found`);
 
     while (applicants.length < APPLICANT_COUNT) {
-      const applicant = await addApplicant('2021-01-01', dayjs().format('YYYY-MM-DD'));
-      applicants.push(applicant);
+      try {
+        const applicant = await addApplicant('2021-01-01', dayjs().format('YYYY-MM-DD'));
+        applicants.push(applicant);
+      } catch (e) {}
     }
     const count = applicants.length;
 
@@ -231,7 +233,11 @@ setToken()
       const applicant = applicantsWithoutMilestones[i];
 
       const numOfMilestones = await generateMilestones(applicant.id, statuses);
-      console.log(`${i}/${count} applicant: ${numOfMilestones} milestones <- ${applicant.id}`);
+      console.log(
+        `${i + 1}/${
+          applicantsWithoutMilestones.length
+        } applicant: ${numOfMilestones} milestones <- ${applicant.id}`,
+      );
     }
   })
   .catch(e => {

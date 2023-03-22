@@ -32,7 +32,9 @@ describe('Report 10 - Average Amount of Time with Each Milestone in Stakeholder 
   const appliedToNNAS = [6, 8, 9, 11, 11];
   // duration APPLIED_TO_NNAS to SUBMITTED_DOCUMENTS
   const submittedDocs = [21, 31, 43, 54, 65];
-  // duration from SUBMITTED_DOCUMENTS to JOB_OFFER_ACCEPTED
+  // duration from SUBMITTED_DOCUMENTS to RECEIVED_NNAS_REPORT
+  const recReport = [5, 3, 9, 4, 7];
+  // duration from RECEIVED_NNAS_REPORT to JOB_OFFER_ACCEPTED
   const hired = [3, 5, 8, 13, 21];
   // overall duration
   const immigration = [120, 131, 142, 153, 164];
@@ -78,13 +80,16 @@ describe('Report 10 - Average Amount of Time with Each Milestone in Stakeholder 
     // hire applicant
     const appliedToNNASDate = addDays(applicant.registration_date, appliedToNNAS[0]);
     const submittedDocDate = addDays(appliedToNNASDate, submittedDocs[0]);
+    const recReportDate = addDays(submittedDocDate, recReport[0]);
     const hiredDate = addDays(submittedDocDate, hired[0]);
     const immigratedDate = addDays(applicant.registration_date, immigration[0]);
     await hire(id, Authorities.VIHA.id, hiredDate);
 
     // add milestones
     await addMilestone(id, '', await getStatus(STATUS.APPLIED_TO_NNAS, appliedToNNASDate));
+    // to complete NNAS stage
     await addMilestone(id, '', await getStatus(STATUS.SUBMITTED_DOCUMENTS, submittedDocDate));
+    await addMilestone(id, '', await getStatus(STATUS.RECEIVED_NNAS_REPORT, recReportDate));
     await addMilestone(id, '', await getStatus(STATUS.RECEIVED_PR, immigratedDate));
 
     let report = await getReport(to);
@@ -105,7 +110,7 @@ describe('Report 10 - Average Amount of Time with Each Milestone in Stakeholder 
 
     // check NNAS stats
     ({ Mean, Mode, Median } = report.find(s => s.stage === 'NNAS') || {});
-    duration = appliedToNNAS[0] + submittedDocs[0] + hired[0];
+    duration = appliedToNNAS[0] + submittedDocs[0] + recReport[0];
     expect(Mean).toBe(duration);
     expect(Mode).toBe(duration);
     expect(Median).toBe(duration);
@@ -119,6 +124,7 @@ describe('Report 10 - Average Amount of Time with Each Milestone in Stakeholder 
       // hire applicant
       const appliedToNNASDate = addDays(applicant.registration_date, appliedToNNAS[i]);
       const submittedDocDate = addDays(appliedToNNASDate, submittedDocs[i]);
+      const recReportDate = addDays(submittedDocDate, recReport[i]);
       const hiredDate = addDays(submittedDocDate, hired[i]);
       const immigratedDate = addDays(applicant.registration_date, immigration[i]);
       await hire(id, 'VIHA', hiredDate);
@@ -126,6 +132,7 @@ describe('Report 10 - Average Amount of Time with Each Milestone in Stakeholder 
       // add milestones
       await addMilestone(id, '', await getStatus(STATUS.APPLIED_TO_NNAS, appliedToNNASDate));
       await addMilestone(id, '', await getStatus(STATUS.SUBMITTED_DOCUMENTS, submittedDocDate));
+      await addMilestone(id, '', await getStatus(STATUS.RECEIVED_NNAS_REPORT, recReportDate));
       await addMilestone(id, '', await getStatus(STATUS.RECEIVED_WORK_PERMIT, immigratedDate));
     }
 
@@ -145,7 +152,7 @@ describe('Report 10 - Average Amount of Time with Each Milestone in Stakeholder 
 
     // check NNAS stats
     ({ Mean, Mode, Median } = report.find(s => s.stage === 'NNAS') || {});
-    const nnasDurations = appliedToNNAS.map((n, i) => n + submittedDocs[i] + hired[i]);
+    const nnasDurations = appliedToNNAS.map((n, i) => n + submittedDocs[i] + recReport[i]);
     expect(Mean).toBe(round(mean(nnasDurations), 2));
     expect(Mode).toBe(min(mode(nnasDurations)));
     expect(Median).toBe(median(nnasDurations));
