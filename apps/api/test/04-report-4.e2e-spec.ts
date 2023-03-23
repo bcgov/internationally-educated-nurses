@@ -39,7 +39,7 @@ describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
   let reportService: ReportService;
 
   let periods: { from: string; to: string }[];
-  let haPcn: string;
+  let haPCN: string;
   let url = '';
   let lastPeriod = 0;
 
@@ -56,7 +56,7 @@ describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
 
     setApp(app);
     let temp = await getHAs();
-    haPcn = temp[0].id;
+    haPCN = temp[0].id;
 
     reportService = moduleFixture.get<ReportService>(ReportService);
 
@@ -187,7 +187,7 @@ describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
       false,
     );
     const { id } = await addJob(applicantIdsOldProcess[1], {
-      ha_pcn: haPcn,
+      ha_pcn: haPCN,
       job_id: '46897',
       recruiter_name: 'Tester',
     });
