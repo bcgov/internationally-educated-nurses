@@ -343,95 +343,72 @@ export class ReportUtilService {
     `;
   }
 
-  licenseApplicantsQuery(statuses: Record<string, string>, from: string, to: string) {
-    return `
-       WITH active_applicants AS (
+  /**
+   * For each license type, get the number of applicants who
+   * - got a license during the period
+   * - not withdrew and not hired during the period
+   *
+   * - Provisional LPN, RN
+   * - Full LPN, RN
+   * - HCA
+   * @param from start date of period
+   * @param to end date of period
+   */
+  async getNumberOfApplicantsByLicense(from: string, to: string) {
+    const sql = `
+    SELECT
+      count(*) FILTER(WHERE plpn IS NOT NULL) AS "${STATUS.BCCNM_PROVISIONAL_LICENSE_LPN}",
+      count(*) FILTER(WHERE prn IS NOT NULL) AS "${STATUS.BCCNM_PROVISIONAL_LICENSE_RN}",
+      count(*) FILTER(WHERE lpn IS NOT NULL) AS "${STATUS.BCCNM_FULL_LICENCE_LPN}",
+      count(*) FILTER(WHERE rn IS NOT NULL) AS "${STATUS.BCCNM_FULL_LICENSE_RN}",
+      count(*) FILTER(WHERE hca IS NOT NULL) AS "${STATUS.REGISTERED_AS_AN_HCA}"
+    FROM
+      crosstab(
+      $source$
         SELECT
-          t1.*
-        FROM (
-          SELECT 
-          applicants.id,
-          CASE 
-            WHEN 
-              COALESCE(
-                (
-                  SELECT ien_status.status_id 
-                  FROM public.ien_applicant_status_audit ien_status
-                  LEFT JOIN public.ien_applicant_status status ON status.id = ien_status.status_id
-                  WHERE
-                    ien_status.applicant_id = applicants.id AND ien_status.start_date::date <= '${to}' AND
-                    status.category IN ('${StatusCategory.LICENSING_REGISTRATION}', '${
-      StatusCategory.RECRUITMENT
-    }')
-                  ORDER BY ien_status.start_date DESC, ien_status.updated_date DESC
-                  LIMIT 1
-                ),
-                '${this.nil_uuid}'
-              ) IN ('${statuses[STATUS.WITHDREW_FROM_PROGRAM]}', '${
-      statuses[STATUS.JOB_OFFER_ACCEPTED]
-    }') 
-            THEN 0
-            ELSE 1 
-          END as active
-          FROM public.ien_applicants as applicants
-        ) as t1
-      ), full_lpn AS (
-        SELECT DISTINCT iasa.applicant_id
-        FROM public.ien_applicant_status_audit iasa 
-        INNER JOIN active_applicants aa ON aa.id = iasa.applicant_id
-        WHERE 
-          iasa.status_id = '${statuses[STATUS.BCCNM_FULL_LICENCE_LPN]}' AND
-          iasa.start_date <= '${to}' AND
-          iasa.start_date >= '${from}' AND
-          aa.active = 1
-      ),
-      full_rn AS (
-        SELECT DISTINCT iasa.applicant_id
-        FROM public.ien_applicant_status_audit iasa
-        INNER JOIN active_applicants aa ON aa.id = iasa.applicant_id
-        WHERE 
-          iasa.status_id = '${statuses[STATUS.BCCNM_FULL_LICENSE_RN]}' AND
-          iasa.start_date <= '${to}' AND
-          iasa.start_date >= '${from}' AND
-          aa.active = 1
-      ),
-      provisional_lpn AS (
-        SELECT DISTINCT iasa.applicant_id
-        FROM public.ien_applicant_status_audit iasa
-        INNER JOIN active_applicants aa ON aa.id = iasa.applicant_id
-        WHERE 
-          iasa.status_id = '${statuses[STATUS.BCCNM_PROVISIONAL_LICENSE_LPN]}' AND
-          iasa.start_date <= '${to}' AND
-          iasa.start_date >= '${from}' AND
-          aa.active = 1
-      ),
-      provisional_rn AS (
-        SELECT DISTINCT iasa.applicant_id
-        FROM public.ien_applicant_status_audit iasa
-        INNER JOIN active_applicants aa ON aa.id = iasa.applicant_id
-        WHERE 
-          iasa.status_id = '${statuses[STATUS.BCCNM_PROVISIONAL_LICENSE_RN]}' AND
-          iasa.start_date <= '${to}' AND
-          iasa.start_date >= '${from}' AND
-          aa.active = 1
-      ),
-      hca AS (
-        SELECT DISTINCT iasa.applicant_id
-        FROM public.ien_applicant_status_audit iasa
-        INNER JOIN active_applicants aa ON aa.id = iasa.applicant_id
-        WHERE 
-          iasa.status_id = '${statuses[STATUS.REGISTERED_AS_AN_HCA]}' AND
-          iasa.start_date <= '${to}' AND
-          iasa.start_date >= '${from}' AND
-          aa.active = 1
-      )
-      
-      SELECT 'BCCNM Provisional Licence LPN' AS status, count(*) AS applicant_count FROM provisional_lpn UNION ALL
-      SELECT 'BCCNM Provisional Licence RN' AS status, count(*) AS applicant_count FROM provisional_rn UNION ALL 
-      SELECT 'BCCNM Full Licence LPN' AS status, count(*) AS applicant_count FROM full_lpn UNION ALL
-      SELECT 'BCCNM Full Licence RN' AS status, count(*) AS applicant_count FROM full_rn UNION ALL
-      SELECT 'Registered as an HCA' AS status, count(*) AS applicant_count FROM hca ; 
-    `;
+          iasa.applicant_id,
+          ias2.status,
+          min(iasa.start_date) start_date
+        FROM
+          ien_applicant_status_audit iasa
+        LEFT JOIN ien_applicant_status ias2 ON
+          ias2.id = iasa.status_id
+        WHERE
+              iasa.start_date IS NOT NULL
+          AND
+              iasa.start_date <= '${to}'
+          AND
+              iasa.start_date >= '${from}'
+        GROUP BY
+          iasa.applicant_id, ias2.status
+        ORDER BY
+          iasa.applicant_id, ias2.status
+      $source$,
+      $category$
+        VALUES 
+          ('${STATUS.BCCNM_PROVISIONAL_LICENSE_LPN}'),
+          ('${STATUS.BCCNM_PROVISIONAL_LICENSE_RN}'),
+          ('${STATUS.BCCNM_FULL_LICENCE_LPN}'),
+          ('${STATUS.BCCNM_FULL_LICENSE_RN}'),
+          ('${STATUS.REGISTERED_AS_AN_HCA}'),
+          ('${STATUS.JOB_OFFER_ACCEPTED}'),
+          ('${STATUS.WITHDREW_FROM_PROGRAM}')
+      $category$
+    )
+    AS ct(
+      id uuid,
+      plpn date,
+      prn date,
+      lpn date,
+      rn date,
+      hca date,
+      hired date,
+      withdrew date
+    )
+    WHERE 
+      hired IS NULL AND withdrew IS NULL 
+  `;
+    return await getConnection().createQueryRunner().query(sql);
   }
 
   applicantsInRecruitmentQuery(statuses: Record<string, string>, to: string) {

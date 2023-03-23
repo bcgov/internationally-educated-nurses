@@ -406,10 +406,13 @@ export class ReportService {
       `Report 5: Number of applicants with license: Apply date filter from (${from}) and to (${to})`,
       'REPORT',
     );
-    const entityManager = getManager();
-    const data = await entityManager.query(
-      this.reportUtilService.licenseApplicantsQuery(statuses, from, to),
-    );
+
+    let data = await this.reportUtilService.getNumberOfApplicantsByLicense(from, to);
+    data = Object.entries(data[0]).map(([status, applicant_count]) => ({
+      status,
+      applicant_count,
+    }));
+
     this.logger.log(
       `Report 5 - Number of applicants with license: query completed a total of ${data.length} record returns`,
       'REPORT',
