@@ -400,16 +400,19 @@ export class ReportService {
    * @param t Duration end date YYYY-MM-DD
    * @returns
    */
-  async getLicenseApplicants(statuses: Record<string, string>, f: string, t: string) {
+  async getLicenseApplicants(f: string, t: string) {
     const { from, to } = this.captureFromTo(f, t);
     this.logger.log(
       `Report 5: Number of applicants with license: Apply date filter from (${from}) and to (${to})`,
       'REPORT',
     );
-    const entityManager = getManager();
-    const data = await entityManager.query(
-      this.reportUtilService.licenseApplicantsQuery(statuses, from, to),
-    );
+
+    let data = await this.reportUtilService.getNumberOfApplicantsByLicense(from, to);
+    data = Object.entries(data[0]).map(([status, applicant_count]) => ({
+      status,
+      applicant_count,
+    }));
+
     this.logger.log(
       `Report 5 - Number of applicants with license: query completed a total of ${data.length} record returns`,
       'REPORT',
@@ -504,11 +507,13 @@ export class ReportService {
    * @param verbose
    */
   getStageDurationStats(stage: DurationEntry[], durations: DurationSummary[], verbose = false) {
-    const applicants = durations.filter(d => d[stage[0].stage as keyof DurationSummary]);
+    const stageName = stage[0].stage as keyof DurationSummary;
+
+    const applicants = durations.filter(d => d[stageName]);
 
     const employerDurations: Record<string, number[]> = {};
 
-    if (stage[0].stage === 'Recruitment') {
+    if (stageName === 'Recruitment') {
       // get each HA's list of recruitment time
       durations.forEach(d => {
         if (d.ha && d.Recruitment) {
@@ -534,7 +539,6 @@ export class ReportService {
     }
 
     // report 9 needs stage stats only
-    const stageName = stage[0].stage as keyof DurationSummary;
     const values = applicants.map(d => (d[stageName] as number) || 0);
     const row = {
       title: stageName,
@@ -765,7 +769,7 @@ export class ReportService {
       this.getCountryWiseApplicantList(from, to).then(report2 => ({ report2 })),
       this.getHiredWithdrawnActiveApplicants(statuses, from, to).then(report3 => ({ report3 })),
       this.getLicensingStageApplicants(period).then(report4 => ({ report4 })),
-      this.getLicenseApplicants(statuses, from, to).then(report5 => ({ report5 })),
+      this.getLicenseApplicants(from, to).then(report5 => ({ report5 })),
       this.getRecruitmentApplicants(statuses, from, to).then(report6 => ({ report6 })),
       this.getImmigrationApplicants(statuses, from, to).then(report7 => ({ report7 })),
       this.getApplicantHAForCurrentPeriodFiscal(statuses, from, to).then(report8 => ({ report8 })),
