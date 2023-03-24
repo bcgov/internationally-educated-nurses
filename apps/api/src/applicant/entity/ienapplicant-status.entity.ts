@@ -8,7 +8,6 @@ export class IENApplicantStatus {
   @PrimaryColumn({
     type: 'uuid',
     nullable: false,
-    unique: true,
   })
   id!: string;
 
