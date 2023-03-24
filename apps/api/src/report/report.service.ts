@@ -167,7 +167,10 @@ export class ReportService {
    * @returns
    */
   async getLicensingStageApplicants(period: number) {
-    this.logger.log(`Report 4: Applicants in licensing stage: try cache for period ${period}`, 'REPORT');
+    this.logger.log(
+      `Report 4: Applicants in licensing stage: try cache for period ${period}`,
+      'REPORT',
+    );
 
     const report_number = 4;
     const report = await getRepository(ReportCacheEntity)
@@ -187,7 +190,10 @@ export class ReportService {
     }
 
     const data = JSON.parse(report?.report_data);
-    this.logger.log(`Report 4: Applicants in licensing stage: returns cache for period ${period}`, 'REPORT');
+    this.logger.log(
+      `Report 4: Applicants in licensing stage: returns cache for period ${period}`,
+      'REPORT',
+    );
     return data;
   }
 
@@ -235,8 +241,6 @@ export class ReportService {
    * @returns
    */
   async splitReportFourNewOldProcess(f: string, t: string) {
-
-
     const statuses = await this.getStatusMap();
     const { from, to } = this.captureFromTo(f, t);
 
@@ -275,7 +279,7 @@ export class ReportService {
       return [];
     }
   }
-  
+
   mapReportFourResults(
     statuses: Record<string, string>,
     oldProcess: { status_id: string; count: string }[],
