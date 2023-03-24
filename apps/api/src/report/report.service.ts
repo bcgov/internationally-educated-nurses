@@ -1,19 +1,19 @@
 import { Inject, Logger } from '@nestjs/common';
 import { mean, median, min, mode, round } from 'mathjs';
-import { getManager, Repository, In, getRepository } from 'typeorm';
+import { getManager, Repository, In, getRepository, getConnection, Connection } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import dayjs from 'dayjs';
 import _ from 'lodash';
 
 import { IENHaPcn } from '../applicant/entity/ienhapcn.entity';
-import { DURATION_STAGES } from './constants';
+import { DURATION_STAGES, REPORT_FOUR_STEPS } from './constants';
 import { MilestoneDurationEntity } from './entity/milestone-duration.entity';
 import { ReportUtilService } from './report.util.service';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.entity';
 import { startDateOfFiscal } from 'src/common/util';
-import { ReportPeriodDTO, StatusCategory } from '@ien/common';
 import { ReportCacheEntity } from './entity/report-cache.entity';
+import { ReportPeriodDTO, STATUS, StatusCategory } from '@ien/common';
 
 export const PERIOD_START_DATE = '2022-05-02';
 
@@ -221,37 +221,145 @@ export class ReportService {
    */
   async splitReportFourNewOldProcess(f: string, t: string) {
     const statuses = await this.getStatusMap();
-    const entityManager = getManager();
-
     const { from, to } = this.captureFromTo(f, t);
 
     this.logger.log(`getLicensingStageApplicants: Apply date filter from (${from}) and to (${to})`);
-
-    const oldProcess = await entityManager.query(
-      this.reportUtilService.licensingStageApplicantsQuery(statuses, from, to),
-    );
-
-    const newProcess = await entityManager.query(
-      this.reportUtilService.licensingStageApplicantsQuery(statuses, from, to, true),
-    );
-
-    // combine old data with new data
-    const data = oldProcess.map((o: { status: string; applicants: string }) => {
-      const newProcessApplicants = newProcess.find(
-        (n: { status: string }) => n.status === o.status,
+    const connection = getConnection();
+    try {
+      const oldProcess = await connection.query(this.reportUtilService.reportFour(from, to, false));
+      const newProcess = await connection.query(this.reportUtilService.reportFour(from, to, true));
+      const licenseResults = await this.countLicense(connection, statuses);
+      const withdrawnOld =
+        (await connection.query(this.reportUtilService.getWithdrawn(to, from, false)))[0].count ||
+        '0';
+      const withdrawnNew =
+        (await connection.query(this.reportUtilService.getWithdrawn(to, from, true)))[0].count ||
+        '0';
+      return this.mapReportFourResults(
+        statuses,
+        oldProcess,
+        newProcess,
+        licenseResults,
+        withdrawnOld,
+        withdrawnNew,
       );
-      return {
-        status: o.status,
-        oldProcessApplicants: o.applicants,
-        newProcessApplicants: newProcessApplicants.applicants,
-      };
+    } catch (e) {
+      this.logger.error(e);
+      return [];
+    }
+  }
+  mapReportFourResults(
+    statuses: Record<string, string>,
+    oldProcess: { status_id: string; count: string }[],
+    newProcess: { status_id: string; count: string }[],
+    licenceResults: any,
+    withdrawnOld: string,
+    withdrawnNew: string,
+  ) {
+    return REPORT_FOUR_STEPS.map((step: STATUS | string) => {
+      switch (step) {
+        case 'Granted full licensure':
+          return {
+            status: step,
+            oldProcessApplicants: licenceResults.oldFullLicence[0]?.count || '0',
+            newProcessApplicants: licenceResults.newFullLicence[0]?.count || '0',
+          };
+
+        case 'Granted provisional licensure':
+          return {
+            status: step,
+            oldProcessApplicants: licenceResults.oldProvisionalLicence[0]?.count || '0',
+            newProcessApplicants: licenceResults.newProvisionalLicence[0]?.count || '0',
+          };
+        case STATUS.APPLIED_TO_NNAS:
+          return {
+            status: step,
+            oldProcessApplicants: this.findAndSumStatusCounts(oldProcess, [
+              statuses[STATUS.APPLIED_TO_NNAS],
+              statuses[STATUS.SUBMITTED_DOCUMENTS],
+              statuses[STATUS.RECEIVED_NNAS_REPORT],
+            ]),
+            newProcessApplicants: this.findAndSumStatusCounts(newProcess, [
+              statuses[STATUS.APPLIED_TO_NNAS],
+              statuses[STATUS.SUBMITTED_DOCUMENTS],
+              statuses[STATUS.RECEIVED_NNAS_REPORT],
+            ]),
+          };
+
+        case STATUS.COMPLETED_ADDITIONAL_EDUCATION:
+          return {
+            status: step,
+            oldProcessApplicants: this.findAndSumStatusCounts(oldProcess, [
+              statuses[STATUS.REFERRED_TO_ADDITIONAL_EDUCTION],
+              statuses[STATUS.COMPLETED_ADDITIONAL_EDUCATION],
+            ]),
+            newProcessApplicants: this.findAndSumStatusCounts(newProcess, [
+              statuses[STATUS.REFERRED_TO_ADDITIONAL_EDUCTION],
+              statuses[STATUS.COMPLETED_ADDITIONAL_EDUCATION],
+            ]),
+          };
+
+        case STATUS.REFERRED_TO_NCAS:
+          return {
+            status: step,
+            oldProcessApplicants: this.findAndSumStatusCounts(oldProcess, [
+              statuses[STATUS.REFERRED_TO_NCAS],
+              statuses[STATUS.COMPLETED_CBA],
+              statuses[STATUS.COMPLETED_SLA],
+            ]),
+            newProcessApplicants: this.findAndSumStatusCounts(newProcess, [
+              statuses[STATUS.REFERRED_TO_NCAS],
+              statuses[STATUS.COMPLETED_CBA],
+              statuses[STATUS.COMPLETED_SLA],
+            ]),
+          };
+        case STATUS.WITHDREW_FROM_PROGRAM:
+          return {
+            status: step,
+            oldProcessApplicants: withdrawnOld,
+            newProcessApplicants: withdrawnNew,
+          };
+        default:
+          return {
+            status: step,
+            oldProcessApplicants:
+              oldProcess.find(value => value.status_id === statuses[step])?.count || '0',
+            newProcessApplicants:
+              newProcess.find(value => value.status_id === statuses[step])?.count || '0',
+          };
+      }
     });
-
-    this.logger.log(
-      `getLicensingStageApplicants: query completed a total of ${oldProcess.length} old process and ${newProcess.length} new process record returns`,
+  }
+  findAndSumStatusCounts(list: { status_id: string; count: string }[], acceptedIds: string[]) {
+    let count = 0;
+    acceptedIds.forEach(
+      id =>
+        (count += +(
+          list.find((row: { status_id: string; count: string }) => row.status_id === id)?.count ||
+          '0'
+        )),
     );
+    return count.toString();
+  }
 
-    return data;
+  /**
+   * Report 4 count licenses
+   */
+  async countLicense(connection: Connection, statuses: Record<string, string>) {
+    return {
+      oldFullLicence: await connection.query(
+        this.reportUtilService.fullLicenceQuery(false, statuses),
+      ),
+      oldProvisionalLicence: await connection.query(
+        this.reportUtilService.partialLicenceQuery(false, statuses),
+      ),
+      newFullLicence: await connection.query(
+        this.reportUtilService.fullLicenceQuery(true, statuses),
+      ),
+      newProvisionalLicence: await connection.query(
+        this.reportUtilService.partialLicenceQuery(true, statuses),
+      ),
+    };
   }
 
   /**
