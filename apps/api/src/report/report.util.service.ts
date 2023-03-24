@@ -233,9 +233,9 @@ export class ReportUtilService {
           ON applicant.id = status_audit.applicant_id 
           AND applicant.status_id = status_audit.status_id
         WHERE
-          applicant.new_bccnm_process = ${BCCNM_NEW_PROCESS ? 'TRUE' : 'FALSE'}
+          applicant.new_bccnm_process = ${BCCNM_NEW_PROCESS}
           AND
-            ias.category = 'IEN Licensing/Registration Process'
+            ias.category = '${StatusCategory.LICENSING_REGISTRATION}'
           AND 
               start_date::date >= '${from}' 
               AND start_date::date <= '${to}'
@@ -247,7 +247,7 @@ export class ReportUtilService {
    * @param BCCNM_NEW_PROCESS
    * @returns A query string
    */
-  partialLicenceQuery(BCCNM_NEW_PROCESS: boolean) {
+  partialLicenceQuery(BCCNM_NEW_PROCESS: boolean, statuses: Record<string, string>) {
     return `
       SELECT 
         count(distinct status_audit.applicant_id)
@@ -256,17 +256,25 @@ export class ReportUtilService {
       LEFT JOIN 
         ien_applicants applicant ON applicant.id = status_audit.applicant_id 
       WHERE 
-        applicant.new_bccnm_process IS NOT NULL AND applicant.new_bccnm_process = ${
-          BCCNM_NEW_PROCESS ? 'TRUE' : 'FALSE'
-        } AND
-        "status_audit"."status_id" IN ('91F55FAA-C71D-83C8-4F10-3A05E778AFBC','D2656957-EC58-15C9-1E21-3A05E778DC8E' )
+        applicant.new_bccnm_process IS NOT NULL 
+        AND applicant.new_bccnm_process = ${BCCNM_NEW_PROCESS} 
+        AND "status_audit"."status_id" 
+        IN (
+          '${statuses[STATUS.BCCNM_PROVISIONAL_LICENSE_LPN]}',
+          '${statuses[STATUS.BCCNM_PROVISIONAL_LICENSE_RN]}' 
+          )
         AND NOT EXISTS (
           SELECT *
           FROM 
             "ien_applicant_status_audit" AS T2
           WHERE 
             T2.applicant_id = status_audit.applicant_id
-            AND T2.status_id IN ('f84a4167-a636-4b21-977c-f11aefc486af', '70b1f5f1-1a0d-ef71-42ea-3a0601b46bc2', '632374e6-ca2f-0baa-f994-3a05e77c118a', '18AA32C3-A6A4-4431-8283-89931C141FDE')
+            AND T2.status_id IN (
+              '${statuses[STATUS.WITHDREW_FROM_PROGRAM]}', 
+              '${statuses[STATUS.JOB_OFFER_ACCEPTED]}', 
+              '${statuses[STATUS.BCCNM_FULL_LICENCE_LPN]}', 
+              '${statuses[STATUS.BCCNM_FULL_LICENSE_RN]}' 
+            )
         )`;
   }
   /**
@@ -275,258 +283,50 @@ export class ReportUtilService {
    * @param BCCNM_NEW_PROCESS
    * @returns query string
    */
-  fullLicenceQuery(BCCNM_NEW_PROCESS: boolean) {
+  fullLicenceQuery(BCCNM_NEW_PROCESS: boolean, statuses: Record<string, string>) {
     return `
-    SELECT count(distinct status_audit.applicant_id)
-    FROM "ien_applicant_status_audit" "status_audit"
-    LEFT JOIN 
-    ien_applicants applicant ON applicant.id = status_audit.applicant_id  
-    WHERE 
-    applicant.new_bccnm_process IS NOT NULL AND applicant.new_bccnm_process = ${
-      BCCNM_NEW_PROCESS ? 'TRUE' : 'FALSE'
-    } AND
-    "status_audit"."status_id" IN ('632374e6-ca2f-0baa-f994-3a05e77c118a', '18AA32C3-A6A4-4431-8283-89931C141FDE' )
-    AND  NOT EXISTS (
+      SELECT 
+        count(distinct status_audit.applicant_id)
+      FROM 
+        "ien_applicant_status_audit" "status_audit"
+      LEFT JOIN 
+        ien_applicants applicant ON applicant.id = status_audit.applicant_id  
+      WHERE 
+        applicant.new_bccnm_process IS NOT NULL 
+        AND applicant.new_bccnm_process = ${BCCNM_NEW_PROCESS} 
+        AND "status_audit"."status_id" 
+        IN (
+          '${statuses[STATUS.BCCNM_FULL_LICENCE_LPN]}', 
+          '${statuses[STATUS.BCCNM_FULL_LICENSE_RN]}' 
+        )
+        AND NOT EXISTS (
           SELECT *
-          FROM "ien_applicant_status_audit" AS T2
+          FROM 
+            "ien_applicant_status_audit" AS T2
           WHERE 
-          T2.applicant_id = status_audit.applicant_id
-          AND T2.status_id IN ('f84a4167-a636-4b21-977c-f11aefc486af', '70b1f5f1-1a0d-ef71-42ea-3a0601b46bc2')
-      )`;
+            T2.applicant_id = status_audit.applicant_id
+            AND T2.status_id IN (
+              '${statuses[STATUS.WITHDREW_FROM_PROGRAM]}', 
+              '${statuses[STATUS.JOB_OFFER_ACCEPTED]}'
+            )
+        )`;
   }
 
   getWithdrawn(to: string, from: string, BCCNM_NEW_PROCESS: boolean) {
     return `
-      SELECT count(distinct status_audit.applicant_id)
-      FROM "ien_applicant_status_audit" "status_audit"
+      SELECT 
+        count(distinct status_audit.applicant_id)
+      FROM 
+        "ien_applicant_status_audit" "status_audit"
       LEFT JOIN 
           ien_applicants applicant ON applicant.id = status_audit.applicant_id  
       WHERE 
-      "status_audit"."status_id" = 'f84a4167-a636-4b21-977c-f11aefc486af' 
-        AND applicant.new_bccnm_process IS NOT NULL AND applicant.new_bccnm_process = ${
-          BCCNM_NEW_PROCESS ? 'TRUE' : 'FALSE'
-        }  
+        "status_audit"."status_id" = 'f84a4167-a636-4b21-977c-f11aefc486af' 
+        AND applicant.new_bccnm_process IS NOT NULL 
+        AND applicant.new_bccnm_process = ${BCCNM_NEW_PROCESS}  
         AND start_date::date >= '${from}' 
         AND start_date::date <= '${to}' 
     `;
-  }
-
-  /*
-  Report 4
-  List applicants who are in licensing stage between FROM and TO date.
-  Here Granted full/provisional licensure count contain applicants who get a license during or before the given period.
-  If issued license before given period and applicant still active during the period, we will count in full/provisional licensure row.
-
-  SQL query explains:
-  active_applicants:
-    Let's find active applicants first.
-    Let's find the applicant's latest status from the (INTAKE, , and 10003) category(Ignoring immigration category).
-      If the applicant withdrawal then-latest status must be withdrawn,
-      If the applicant is hired then-latest status must be hired only(from 10001, 10002, and 10003 categories)
-      has_license: during this process, we are capturing provisional/full license detail too
-    From the final result lets filter only active applicants (t1.hired_or_withdrawn = 0)
-  period_data:
-    Let's find the latest status of the "licensing" category
-    We know all the active applicants, Let's find the latest status for the given duration(FROM and TO date).
-    "active_applicants LEFT JOIN licensing_latest_status during FROM and TO date"
-    We have a total count as active applicants, LEFT JOIN helps to distribute that to each licensing milestone.
-  report:
-    has_license <> 0 OR status_id <> 0
-    It means each applicant should have a license or any of the licensing milestones to count in this report.
-  
-  UNION ALL
-    At the start of the query, we have identified stages in licensing stage(which contains a single or group of milestones).
-    Let's find each of the rows separatly from the "report" result and UNION them ALL to generate report format.
-  */
-  // TODO: Remove
-  licensingStageApplicantsQuery(
-    statuses: Record<string, string>,
-    from: string,
-    to: string,
-    getNewProcessApplicants = false,
-  ) {
-    return `
-      WITH active_applicants AS (
-        SELECT
-          t1.*,
-          (
-            SELECT count(*)
-            FROM public.ien_applicant_status_audit sa 
-            WHERE sa.applicant_id=t1.id AND sa.status_id = '${
-              statuses[STATUS.BCCNM_FULL_LICENCE_LPN]
-            }'
-          ) AS full_lpn,
-          (
-            SELECT count(*)
-            FROM public.ien_applicant_status_audit sa 
-            WHERE sa.applicant_id=t1.id AND sa.status_id = '${
-              statuses[STATUS.BCCNM_FULL_LICENSE_RN]
-            }'
-          ) AS full_rn,
-          (
-            SELECT count(*)
-            FROM public.ien_applicant_status_audit sa 
-            WHERE sa.applicant_id=t1.id AND sa.status_id = '${
-              statuses[STATUS.BCCNM_PROVISIONAL_LICENSE_LPN]
-            }'
-          ) AS prov_lpn,
-          (
-            SELECT count(*)
-            FROM public.ien_applicant_status_audit sa 
-            WHERE sa.applicant_id=t1.id AND sa.status_id = '${
-              statuses[STATUS.BCCNM_PROVISIONAL_LICENSE_RN]
-            }'
-          ) AS prov_rn
-        FROM (
-          SELECT 
-          applicants.id,
-          CASE 
-            WHEN 
-              COALESCE(
-                (
-                  SELECT ien_status.status_id 
-                  FROM public.ien_applicant_status_audit ien_status
-                  LEFT JOIN public.ien_applicant_status status ON status.id = ien_status.status_id
-                  WHERE
-                    ien_status.applicant_id = applicants.id AND ien_status.start_date::date <= '${to}' AND
-                    status.category IN ('${StatusCategory.LICENSING_REGISTRATION}', '${
-      StatusCategory.RECRUITMENT
-    }')
-                  ORDER BY ien_status.start_date DESC, ien_status.updated_date DESC
-                  LIMIT 1
-                ),
-                '${this.nil_uuid}'
-              ) IN ('${statuses[STATUS.WITHDREW_FROM_PROGRAM]}', '${
-      statuses[STATUS.JOB_OFFER_ACCEPTED]
-    }') 
-            THEN 1
-            ELSE 0 
-          END as hired_or_withdrawn
-          FROM public.ien_applicants as applicants WHERE applicants.new_bccnm_process = ${getNewProcessApplicants}
-        ) as t1
-        WHERE t1.hired_or_withdrawn = 0
-      ),
-      period_data AS (
-        SELECT
-          aa.*,
-          b.applicant_id,
-          b.status_id as status_id
-        FROM active_applicants aa
-        LEFT JOIN LATERAL (
-          SELECT 
-            status_audit.applicant_id,
-            status_audit.status_id
-          FROM public.ien_applicant_status_audit status_audit
-          LEFT JOIN public.ien_applicant_status status ON status.id = status_audit.status_id
-          WHERE 
-            start_date::date >= '${from}' AND
-            start_date::date <= '${to}' AND
-            aa.id = status_audit.applicant_id AND
-            status.category = '${StatusCategory.LICENSING_REGISTRATION}'
-          ORDER BY start_date desc, updated_date desc
-          limit 1
-        ) b ON aa.id=b.applicant_id
-      ),
-      report AS (
-        SELECT * FROM period_data WHERE status_id IS NOT NULL
-      )
-      
-      SELECT 'Applied to NNAS' as status, count(*) as applicants
-      FROM report WHERE status_id IN (
-        '${statuses[STATUS.APPLIED_TO_NNAS]}',
-        '${statuses[STATUS.SUBMITTED_DOCUMENTS]}',
-        '${statuses[STATUS.RECEIVED_NNAS_REPORT]}'
-      ) UNION ALL
-      SELECT 'Applied to BCCNM' as status, count(*)
-      FROM report WHERE status_id = '${statuses[STATUS.APPLIED_TO_BCCNM]}' UNION ALL
-      
-      SELECT 'Completed English Language Requirement' as status, count(*)
-      FROM report WHERE status_id = '${statuses[STATUS.COMPLETED_LANGUAGE_REQUIREMENT]}' UNION ALL
-      
-      SELECT 'Referred to NCAS' as status, count(*)
-      FROM report WHERE status_id IN (
-        '${statuses[STATUS.REFERRED_TO_NCAS]}',
-        '${statuses[STATUS.COMPLETED_CBA]}',
-        '${statuses[STATUS.COMPLETED_SLA]}'
-      ) UNION ALL
-      
-      SELECT 'Completed NCAS' as status, count(*)
-      FROM report WHERE status_id = '${statuses[STATUS.COMPLETED_NCAS]}' UNION ALL
-      
-      SELECT 'Completed Additional Education' as status, count(*)
-      FROM report WHERE status_id IN (
-        '${statuses[STATUS.REFERRED_TO_ADDITIONAL_EDUCTION]}',
-        '${statuses[STATUS.COMPLETED_ADDITIONAL_EDUCATION]}'
-      ) UNION ALL
-
-      SELECT 'NCLEX - Written' as status, count(*)
-      FROM report WHERE status_id = '${statuses[STATUS.NCLEX_WRITTEN]}' UNION ALL
-      
-      SELECT 'NCLEX - Passed' as status, count(*)
-      FROM report WHERE status_id = '${statuses[STATUS.NCLEX_PASSED]}' UNION ALL
-      
-      SELECT 'REx-PN – Written' as status, count(*)
-      FROM report WHERE status_id = '${statuses[STATUS.REX_PN_WRITTEN]}' UNION ALL
-      
-      SELECT 'REx-PN – Passed' as status, count(*)
-      FROM report WHERE status_id = '${statuses[STATUS.REX_PN_PASSED]}' UNION ALL
-      
-      SELECT 'BCCNM Full Licence LPN' as status, count(*)
-      FROM report WHERE status_id = '${statuses[STATUS.BCCNM_FULL_LICENCE_LPN]}' UNION ALL
-      
-      SELECT 'BCCNM Full Licence RN' as status, count(*)
-      FROM report WHERE status_id = '${statuses[STATUS.BCCNM_FULL_LICENSE_RN]}' UNION ALL
-      
-      SELECT 'BCCNM Provisional Licence LPN' as status, count(*)
-      FROM report WHERE status_id = '${statuses[STATUS.BCCNM_PROVISIONAL_LICENSE_LPN]}' UNION ALL
-      
-      SELECT 'BCCNM Provisional Licence RN' as status, count(*)
-      FROM report WHERE status_id = '${statuses[STATUS.BCCNM_PROVISIONAL_LICENSE_RN]}' UNION ALL
-      
-      SELECT 'Referred for registration exam' as status, count(*)
-      FROM report WHERE status_id = '${statuses[STATUS.REFERRED_TO_REGISTRATION_EXAM]}' UNION ALL
-      
-      SELECT 'Registered as an HCA' as status, count(*)
-      FROM report WHERE status_id = '${statuses[STATUS.REGISTERED_AS_AN_HCA]}' UNION ALL
-      
-      SELECT 'Registration Journey Complete' as status, count(*)
-      FROM report WHERE status_id = '${statuses[STATUS.REGISTRATION_JOURNEY_COMPLETED]}' UNION ALL
-      
-      SELECT 'Withdrew from IEN program' as status, count(*)
-      FROM report WHERE status_id = '${statuses[STATUS.WITHDREW_FROM_PROGRAM]}' UNION ALL
-      
-      SELECT 'Applicant ready for job search' as status, count(*)
-      FROM report WHERE status_id = '${statuses[STATUS.READY_FOR_JOB_SEARCH]}' UNION ALL
-      
-      SELECT 'Applicant Referred to FNHA' as status, count(*)
-      FROM report WHERE status_id = '${statuses[STATUS.REFERRED_TO_FNHA]}' UNION ALL
-        
-      SELECT 'Applicant Referred to FHA' as status, count(*)
-      FROM report WHERE status_id = '${statuses[STATUS.REFERRED_TO_FHA]}' UNION ALL
-        
-      SELECT 'Applicant Referred to IHA' as status, count(*)
-      FROM report WHERE status_id = '${statuses[STATUS.REFERRED_TO_IHA]}' UNION ALL
-        
-      SELECT 'Applicant Referred to NHA' as status, count(*)
-      FROM report WHERE status_id = '${statuses[STATUS.REFERRED_TO_NHA]}' UNION ALL
-        
-      SELECT 'Applicant Referred to PHC' as status, count(*)
-      FROM report WHERE status_id = '${statuses[STATUS.REFERRED_TO_PHC]}' UNION ALL
-        
-      SELECT 'Applicant Referred to PHSA' as status, count(*)
-      FROM report WHERE status_id = '${statuses[STATUS.REFERRED_TO_PHSA]}' UNION ALL
-        
-      SELECT 'Applicant Referred to VCHA' as status, count(*)
-      FROM report WHERE status_id = '${statuses[STATUS.REFERRED_TO_VCHA]}' UNION ALL
-        
-      SELECT 'Applicant Referred to VIHA' as status, count(*)
-      FROM report WHERE status_id = '${statuses[STATUS.REFERRED_TO_VIHA]}' UNION ALL
-             
-      SELECT 'Granted full licensure' as status, count(*)
-      FROM report WHERE (full_rn + full_lpn) > 0 UNION ALL
-      SELECT 'Granted provisional licensure' as status, count(*)
-      FROM report WHERE (prov_rn + prov_lpn) > 0 and (full_rn + full_lpn) = 0;
-      `;
   }
 
   licenseApplicantsQuery(statuses: Record<string, string>, from: string, to: string) {

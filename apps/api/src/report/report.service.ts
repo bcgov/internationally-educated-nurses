@@ -228,7 +228,7 @@ export class ReportService {
     try {
       const oldProcess = await connection.query(this.reportUtilService.reportFour(from, to, false));
       const newProcess = await connection.query(this.reportUtilService.reportFour(from, to, true));
-      const licenseResults = await this.countLicense(connection);
+      const licenseResults = await this.countLicense(connection, statuses);
       const withdrawnOld =
         (await connection.query(this.reportUtilService.getWithdrawn(to, from, false)))[0].count ||
         '0';
@@ -332,27 +332,32 @@ export class ReportService {
   }
   findAndSumStatusCounts(list: { status_id: string; count: string }[], acceptedIds: string[]) {
     let count = 0;
-    acceptedIds.forEach(id => {
-      count += parseInt(
-        list.find((row: { status_id: string; count: string }) => row.status_id === id)?.count ||
-          '0',
-      );
-    });
+    acceptedIds.forEach(
+      id =>
+        (count += +(
+          list.find((row: { status_id: string; count: string }) => row.status_id === id)?.count ||
+          '0'
+        )),
+    );
     return count.toString();
   }
 
   /**
    * Report 4 count licenses
    */
-  async countLicense(connection: Connection) {
+  async countLicense(connection: Connection, statuses: Record<string, string>) {
     return {
-      oldFullLicence: await connection.query(this.reportUtilService.fullLicenceQuery(false)),
-      oldProvisionalLicence: await connection.query(
-        this.reportUtilService.partialLicenceQuery(false),
+      oldFullLicence: await connection.query(
+        this.reportUtilService.fullLicenceQuery(false, statuses),
       ),
-      newFullLicence: await connection.query(this.reportUtilService.fullLicenceQuery(true)),
+      oldProvisionalLicence: await connection.query(
+        this.reportUtilService.partialLicenceQuery(false, statuses),
+      ),
+      newFullLicence: await connection.query(
+        this.reportUtilService.fullLicenceQuery(true, statuses),
+      ),
       newProvisionalLicence: await connection.query(
-        this.reportUtilService.partialLicenceQuery(true),
+        this.reportUtilService.partialLicenceQuery(true, statuses),
       ),
     };
   }
