@@ -21,9 +21,6 @@ import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConne
 import config from '../ormconfig';
 import { RoleEntity } from '../employee/entity/role.entity';
 import { AccessEntity } from '../employee/entity/acl.entity';
-import { HiredApplicantMilestoneEntity } from '../report/entity/hired-applicant-milestone.entity';
-import { HiredApplicantEntity } from '../report/entity/hired-applicant.entity';
-import { MilestoneDurationEntity } from '../report/entity/milestone-duration.entity';
 import { ReportCacheEntity } from 'src/report/entity/report-cache.entity';
 
 const getEnvironmentSpecificConfig = (env?: string) => {
@@ -44,8 +41,6 @@ const getEnvironmentSpecificConfig = (env?: string) => {
         entities: [
           AccessEntity,
           EmployeeEntity,
-          HiredApplicantEntity,
-          HiredApplicantMilestoneEntity,
           FormEntity,
           IENApplicant,
           IENApplicantAudit,
@@ -58,7 +53,6 @@ const getEnvironmentSpecificConfig = (env?: string) => {
           IENJobTitle,
           IENStatusReason,
           IENUsers,
-          MilestoneDurationEntity,
           RoleEntity,
           SyncApplicantsAudit,
           ReportCacheEntity,

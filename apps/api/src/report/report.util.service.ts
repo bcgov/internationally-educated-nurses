@@ -1,10 +1,24 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
+import _ from 'lodash';
+import { getConnection } from 'typeorm';
 
-import { STATUS, StatusCategory } from '@ien/common';
+import {
+  BCCNM_NCAS_STAGE,
+  IMMIGRATION_COMPLETE,
+  IMMIGRATION_STAGE,
+  NNAS_STAGE,
+  RECRUITMENT_STAGE,
+  STATUS,
+  StatusCategory,
+} from '@ien/common';
 import { isValidDateFormat } from 'src/common/util';
 import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.entity';
+import { IENApplicantStatusAudit } from '../applicant/entity/ienapplicant-status-audit.entity';
+import { IENHaPcn } from '../applicant/entity/ienhapcn.entity';
+import { IENApplicantJob } from '../applicant/entity/ienjob.entity';
 import { PERIOD_START_DATE } from './report.service';
+import { DurationSummary, DurationTableEntry, MilestoneTableEntry } from './types';
 
 @Injectable()
 export class ReportUtilService {
@@ -781,7 +795,7 @@ export class ReportUtilService {
     `;
   }
 
-  _isValidDateValue(date: string) {
+  _isValidDateValue(date?: string) {
     if (date && !isValidDateFormat(date)) {
       throw new BadRequestException(
         `${date} is not a validate date, Please provide date in YYYY-MM-DD format.`,
@@ -841,5 +855,216 @@ export class ReportUtilService {
         result[result.length - (1 + additionalRow)].to = dayjs(to).format('YYYY-MM-DD');
       }
     }
+  }
+
+  /**
+   * Get the summary of durations for the report from milestone/duration table
+   *
+   * @param d table of durations
+   */
+  getDurationSummary(d: DurationTableEntry): DurationSummary {
+    const summary = { ha: d.ha } as DurationSummary;
+
+    if (d[STATUS.RECEIVED_NNAS_REPORT]) {
+      summary.NNAS = _.sum(NNAS_STAGE.map(m => d[m] || 0));
+      Object.assign(summary, _.pick(d, NNAS_STAGE));
+    }
+
+    if (d[STATUS.COMPLETED_NCAS]) {
+      summary['BCCNM & NCAS'] = _.sum(BCCNM_NCAS_STAGE.map(m => d[m] || 0));
+      Object.assign(summary, _.pick(d, BCCNM_NCAS_STAGE));
+    }
+
+    if (d[STATUS.JOB_OFFER_ACCEPTED]) {
+      const referralAck = d[STATUS.REFERRAL_ACKNOWLEDGED] ?? 0;
+      const preScreen = (d[STATUS.PRE_SCREEN_PASSED] ?? 0) + (d[STATUS.PRE_SCREEN_NOT_PASSED] ?? 0);
+      const interview = (d[STATUS.INTERVIEW_PASSED] ?? 0) + (d[STATUS.INTERVIEW_NOT_PASSED] ?? 0);
+      const refCheck =
+        (d[STATUS.REFERENCE_CHECK_PASSED] ?? 0) + (d[STATUS.REFERENCE_CHECK_NOT_PASSED] ?? 0);
+      const hired = d[STATUS.JOB_OFFER_ACCEPTED] ?? 0;
+      summary['Completed pre-screen (includes both outcomes)'] = referralAck + preScreen;
+      summary['Completed interview (includes both outcomes)'] = interview;
+      summary['Completed reference check (includes both outcomes)'] = refCheck;
+      summary['Hired'] = hired;
+      summary.Recruitment = referralAck + preScreen + interview + refCheck + hired;
+    }
+
+    const immigrationCompletion = IMMIGRATION_COMPLETE.find(m => d[m]);
+    if (immigrationCompletion) {
+      const incompleteMilestones = _.difference(IMMIGRATION_STAGE, IMMIGRATION_COMPLETE);
+      Object.assign(summary, _.pick(d, incompleteMilestones));
+      summary['Immigration Completed'] = d[immigrationCompletion];
+      summary.Immigration =
+        _.sum(incompleteMilestones.map(m => d[m])) + (d[immigrationCompletion] ?? 0);
+    }
+    return summary;
+  }
+
+  /**
+   * Get an applicant's milestone-duration table from milestone-start_date table
+   *
+   * - Linear process
+   *   Set the duration of a later milestone with the earlier start_date to 0 process.
+   * - The first start_date is registration_date or the first milestone's.
+   * - Duration means how much time an applicant took to reach the milestone.
+   *
+   * @param milestones table
+   */
+  getDurationTableEntry(milestones: MilestoneTableEntry): DurationTableEntry {
+    const durations = { id: milestones.id, ha: milestones.ha } as DurationTableEntry;
+
+    const stages = [NNAS_STAGE, BCCNM_NCAS_STAGE, RECRUITMENT_STAGE, IMMIGRATION_STAGE];
+
+    let current = null;
+    for (const stage of stages) {
+      for (const status of stage) {
+        const start_date = milestones[status];
+
+        if (!start_date) continue;
+
+        const previous = current || milestones.registration_date;
+        if (dayjs(start_date).isBefore(previous)) {
+          // ignore negative duration
+          durations[status] = 0;
+          if (!current) current = start_date;
+        } else {
+          durations[status] = dayjs(start_date).diff(previous, 'days');
+          current = start_date;
+        }
+      }
+    }
+    return durations;
+  }
+
+  /**
+   * Get a table of applicants and health_authority who hired them.
+   */
+  async getHiredApplicantHAs(): Promise<Record<string, string>> {
+    const idHaMap = await getConnection()
+      .createQueryBuilder(IENApplicantStatusAudit, 'audit')
+      .select('audit.applicant_id', 'id')
+      .addSelect('ha.title', 'ha')
+      .leftJoin(IENApplicantJob, 'job', 'job.id = audit.job_id')
+      .leftJoin(IENApplicantStatus, 'status', 'status.id = audit.status_id')
+      .leftJoin(IENHaPcn, 'ha', 'ha.id = job.ha_pcn_id')
+      .where('audit.job_id is not null')
+      .andWhere(`status.status = '${STATUS.JOB_OFFER_ACCEPTED}'`)
+      .orderBy('audit.applicant_id')
+      .addOrderBy('audit.start_date', 'DESC')
+      .execute();
+    return _.chain(idHaMap).keyBy('id').mapValues('ha').value();
+  }
+
+  /**
+   * Get milestone/start_date table with health authority for all applicants.
+   *
+   * - Source query should be ordered by applicant's id and status
+   *    to set a milestone not found or with null start_date to null.
+   *
+   * and status
+   *
+   * @param to date
+   */
+  async getMilestoneTable(to: string): Promise<Record<string, MilestoneTableEntry>> {
+    const categories = Object.values(STATUS)
+      .map(s => `('${s}')`)
+      .join(',');
+    const columns = Object.values(STATUS)
+      .map(s => `"${s}" date`)
+      .join(',');
+    const sql = `
+      with milestones as (
+        select *
+        from crosstab(
+            $source$
+            select 
+            iasa.applicant_id id,
+            ias.status status,
+            min(iasa.start_date) start_date
+            from ien_applicant_status_audit iasa
+            left join ien_applicant_status ias on ias.id = iasa.status_id 
+            where 
+                iasa.start_date is not null and
+                iasa.start_date < '${to}'
+            group by iasa.applicant_id, ias.status
+            order by iasa.applicant_id, ias.status
+            $source$,
+            $category$
+            values ${categories}
+            $category$
+        )
+        as ct(
+            "id" uuid,
+            ${columns}
+        )
+      )
+      select 
+        m.*,
+        ia.registration_date
+      from milestones m
+      left join ien_applicants ia on ia.id = m.id
+    `;
+    const milestones = await getConnection().createQueryRunner().query(sql);
+    return _.keyBy(milestones, 'id');
+  }
+
+  /**
+   * Get recruitment milestone/start_date table with health authority for all applicants.
+   *
+   * - When an applicant applied to more than one authority, milestones of the authority hired the applicant are
+   * counted.
+   * - Source query should be ordered by applicant's id and status
+   *    to set a milestone not found or with null start_date to null.
+   * and status
+   *
+   * @param to date
+   */
+  async getRecruitmentMilestoneTable(to: string): Promise<MilestoneTableEntry[]> {
+    const categories = RECRUITMENT_STAGE.map(s => `('${s}')`).join(',');
+    const columns = RECRUITMENT_STAGE.map(s => `"${s}" date`).join(',');
+    const sql = `
+      with milestones as (
+        select *
+        from crosstab(
+            $source$
+            select 
+            iasa.applicant_id,
+            ias2.status,
+            min(iasa.start_date) start_date
+            from ien_applicant_status_audit iasa 
+            left join (
+                select distinct on (iasa2.applicant_id)
+                iasa2.applicant_id,
+                iasa2.job_id
+                from ien_applicant_status_audit iasa2 
+                left join ien_applicant_status ias on ias.id = iasa2.status_id 
+                where ias.status = 'Job Offer Accepted'
+                order by iasa2.applicant_id, iasa2.start_date desc
+            ) h on h.applicant_id = iasa.applicant_id 
+            left join ien_applicant_status ias2 on ias2.id = iasa.status_id 
+            where 
+                ias2.category = 'IEN Recruitment Process' and
+                h.job_id = iasa.job_id and 
+                iasa.start_date is not null and 
+                iasa.start_date < '${to}'
+            group by iasa.applicant_id, ias2.status  
+            order by iasa.applicant_id, ias2.status
+            $source$,
+            $category$
+            values ${categories}
+            $category$
+        )
+        as ct(
+            "id" uuid,
+            ${columns}
+        )
+      )
+      select 
+        m.*,
+        ia.registration_date
+      from milestones m
+      left join ien_applicants ia on ia.id = m.id
+    `;
+    return await getConnection().createQueryRunner().query(sql);
   }
 }

@@ -124,9 +124,11 @@ export class ReportController {
   })
   @Get('/applicant/average-time-with-stakeholder-group')
   @AllowAccess(Access.REPORTING)
-  async getAverageTimeWithEachStakeholderGroup(@Query('to') to: string): Promise<object[]> {
-    const statuses = await this.reportService.getStatusMap();
-    return this.reportService.getAverageTimeWithEachStakeholderGroup(statuses, to);
+  async getAverageTimeWithEachStakeholderGroup(
+    @Query('to') to: string,
+    @Query('verbose') verbose?: boolean,
+  ): Promise<object[]> {
+    return await this.reportService.getReport9(to, verbose);
   }
 
   @ApiOperation({
@@ -134,8 +136,11 @@ export class ReportController {
   })
   @Get('/applicant/average-time-of-milestones')
   @AllowAccess(Access.REPORTING)
-  async getAverageTimeOfMilestones(@Query('to') to: string): Promise<object[]> {
-    return this.reportService.getAverageTimeOfMilestones(to);
+  async getAverageTimeOfMilestones(
+    @Query('to') to: string,
+    @Query('verbose') verbose?: boolean,
+  ): Promise<object[]> {
+    return this.reportService.getReport10(to, verbose);
   }
 
   /** Additional report other than standard 9 reports */
