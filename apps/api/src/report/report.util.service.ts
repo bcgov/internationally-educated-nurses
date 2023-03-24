@@ -374,11 +374,9 @@ export class ReportUtilService {
         LEFT JOIN ien_applicant_status ias2 ON
           ias2.id = iasa.status_id
         WHERE
-              iasa.start_date IS NOT NULL
-          AND
-              iasa.start_date <= '${to}'
-          AND
-              iasa.start_date >= '${from}'
+          iasa.start_date IS NOT NULL AND
+          iasa.start_date <= '${to}' AND
+          iasa.start_date >= '${from}'
         GROUP BY
           iasa.applicant_id, ias2.status
         ORDER BY
@@ -837,7 +835,7 @@ export class ReportUtilService {
   /**
    * Get the summary of durations for the report from milestone/duration table
    *
-   * @param d table of durations
+   * @param d milestone durations of an applicant
    */
   getDurationSummary(d: DurationTableEntry): DurationSummary {
     const summary = { ha: d.ha } as DurationSummary;
@@ -853,17 +851,17 @@ export class ReportUtilService {
     }
 
     if (d[STATUS.JOB_OFFER_ACCEPTED]) {
-      const referralAck = d[STATUS.REFERRAL_ACKNOWLEDGED] ?? 0;
+      const referralAcknowledged = d[STATUS.REFERRAL_ACKNOWLEDGED] ?? 0;
       const preScreen = (d[STATUS.PRE_SCREEN_PASSED] ?? 0) + (d[STATUS.PRE_SCREEN_NOT_PASSED] ?? 0);
       const interview = (d[STATUS.INTERVIEW_PASSED] ?? 0) + (d[STATUS.INTERVIEW_NOT_PASSED] ?? 0);
       const refCheck =
         (d[STATUS.REFERENCE_CHECK_PASSED] ?? 0) + (d[STATUS.REFERENCE_CHECK_NOT_PASSED] ?? 0);
       const hired = d[STATUS.JOB_OFFER_ACCEPTED] ?? 0;
-      summary['Completed pre-screen (includes both outcomes)'] = referralAck + preScreen;
+      summary['Completed pre-screen (includes both outcomes)'] = referralAcknowledged + preScreen;
       summary['Completed interview (includes both outcomes)'] = interview;
       summary['Completed reference check (includes both outcomes)'] = refCheck;
       summary['Hired'] = hired;
-      summary.Recruitment = referralAck + preScreen + interview + refCheck + hired;
+      summary.Recruitment = referralAcknowledged + preScreen + interview + refCheck + hired;
     }
 
     const immigrationCompletion = IMMIGRATION_COMPLETE.find(m => d[m]);

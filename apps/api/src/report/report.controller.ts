@@ -80,8 +80,7 @@ export class ReportController {
     @Query('from') from: string,
     @Query('to') to: string,
   ): Promise<object[]> {
-    const statuses = await this.reportService.getStatusMap();
-    return this.reportService.getLicenseApplicants(statuses, from, to);
+    return this.reportService.getLicenseApplicants(from, to);
   }
 
   @ApiOperation({ summary: 'Report 6: Applicants in Recruitment stage' })
