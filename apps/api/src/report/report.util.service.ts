@@ -915,24 +915,21 @@ export class ReportUtilService {
 
     const stages = [NNAS_STAGE, BCCNM_NCAS_STAGE, RECRUITMENT_STAGE, IMMIGRATION_STAGE];
 
-    let previous = null;
-    for (let stageIndex = 0; stageIndex < stages.length; stageIndex++) {
-      for (let index = 0; index < stages[stageIndex].length; index++) {
-        const status = stages[stageIndex][index];
-        const start_date = milestones[status] || null;
+    let current = null;
+    for (const stage of stages) {
+      for (const status of stage) {
+        const start_date = milestones[status];
 
         if (!start_date) continue;
 
-        if (dayjs(start_date).isBefore(previous || milestones.registration_date)) {
+        const previous = current || milestones.registration_date;
+        if (dayjs(start_date).isBefore(previous)) {
           // ignore negative duration
           durations[status] = 0;
-          if (!previous) previous = start_date;
+          if (!current) current = start_date;
         } else {
-          durations[status] = dayjs(start_date).diff(
-            previous || milestones.registration_date,
-            'days',
-          );
-          previous = start_date;
+          durations[status] = dayjs(start_date).diff(previous, 'days');
+          current = start_date;
         }
       }
     }
