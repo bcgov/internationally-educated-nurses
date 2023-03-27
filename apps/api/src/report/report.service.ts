@@ -1,6 +1,6 @@
 import { Inject, Logger } from '@nestjs/common';
 import { mean, median, min, mode, round } from 'mathjs';
-import { getManager, Repository, In, getRepository, getConnection, Connection } from 'typeorm';
+import { getManager, Repository, In, getRepository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import dayjs from 'dayjs';
 import _ from 'lodash';
@@ -249,17 +249,17 @@ export class ReportService {
       'REPORT',
     );
 
-    const connection = getConnection();
+    const manager = getManager();
     try {
-      const oldProcess = await connection.query(this.reportUtilService.reportFour(from, to, false));
-      const newProcess = await connection.query(this.reportUtilService.reportFour(from, to, true));
-      const licenseResults = await this.countLicense(connection, statuses);
-      const withdrawnOld =
-        (await connection.query(this.reportUtilService.getWithdrawn(to, from, false)))[0].count ||
-        '0';
-      const withdrawnNew =
-        (await connection.query(this.reportUtilService.getWithdrawn(to, from, true)))[0].count ||
-        '0';
+      const oldProcess = await manager.query(this.reportUtilService.reportFour(from, to, false));
+      const newProcess = await manager.query(this.reportUtilService.reportFour(from, to, true));
+      const licenseResults = await this.countLicense(statuses);
+      const withdrawnOld = (
+        await manager.query(this.reportUtilService.getWithdrawn(to, from, false))
+      )[0].count;
+      const withdrawnNew = (
+        await manager.query(this.reportUtilService.getWithdrawn(to, from, true))
+      )[0].count;
       const data = this.mapReportFourResults(
         statuses,
         oldProcess,
@@ -377,18 +377,18 @@ export class ReportService {
   /**
    * Report 4 count licenses
    */
-  async countLicense(connection: Connection, statuses: Record<string, string>) {
+  async countLicense(statuses: Record<string, string>) {
     return {
-      oldFullLicence: await connection.query(
+      oldFullLicence: await getManager().query(
         this.reportUtilService.fullLicenceQuery(false, statuses),
       ),
-      oldProvisionalLicence: await connection.query(
+      oldProvisionalLicence: await getManager().query(
         this.reportUtilService.partialLicenceQuery(false, statuses),
       ),
-      newFullLicence: await connection.query(
+      newFullLicence: await getManager().query(
         this.reportUtilService.fullLicenceQuery(true, statuses),
       ),
-      newProvisionalLicence: await connection.query(
+      newProvisionalLicence: await getManager().query(
         this.reportUtilService.partialLicenceQuery(true, statuses),
       ),
     };

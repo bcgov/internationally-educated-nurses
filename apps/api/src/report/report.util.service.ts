@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 import _ from 'lodash';
-import { getConnection } from 'typeorm';
+import { getManager } from 'typeorm';
 
 import {
   BCCNM_NCAS_STAGE,
@@ -406,7 +406,7 @@ export class ReportUtilService {
     WHERE 
       hired IS NULL AND withdrew IS NULL 
   `;
-    return await getConnection().createQueryRunner().query(sql);
+    return await getManager().query(sql);
   }
 
   applicantsInRecruitmentQuery(statuses: Record<string, string>, to: string) {
@@ -915,7 +915,7 @@ export class ReportUtilService {
    * Get a table of applicants and health_authority who hired them.
    */
   async getHiredApplicantHAs(): Promise<Record<string, string>> {
-    const idHaMap = await getConnection()
+    const idHaMap = await getManager()
       .createQueryBuilder(IENApplicantStatusAudit, 'audit')
       .select('audit.applicant_id', 'id')
       .addSelect('ha.title', 'ha')
@@ -979,7 +979,7 @@ export class ReportUtilService {
       from milestones m
       left join ien_applicants ia on ia.id = m.id
     `;
-    const milestones = await getConnection().createQueryRunner().query(sql);
+    const milestones = await getManager().query(sql);
     return _.keyBy(milestones, 'id');
   }
 
@@ -1040,6 +1040,6 @@ export class ReportUtilService {
       from milestones m
       left join ien_applicants ia on ia.id = m.id
     `;
-    return await getConnection().createQueryRunner().query(sql);
+    return await getManager().query(sql);
   }
 }
