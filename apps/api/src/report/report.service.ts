@@ -509,14 +509,14 @@ export class ReportService {
   getStageDurationStats(stage: DurationEntry[], durations: DurationSummary[], verbose = false) {
     const stageName = stage[0].stage as keyof DurationSummary;
 
-    const applicants = durations.filter(d => d[stageName]);
+    const applicants = durations.filter(d => d[stageName] !== undefined);
 
     const employerDurations: Record<string, number[]> = {};
 
     if (stageName === 'Recruitment') {
       // get each HA's list of recruitment time
       durations.forEach(d => {
-        if (d.ha && d.Recruitment) {
+        if (d.ha && d.Recruitment !== undefined) {
           if (!employerDurations[d.ha]) employerDurations[d.ha] = [];
           employerDurations[d.ha].push(d.Recruitment);
         }
@@ -602,7 +602,7 @@ export class ReportService {
 
     // COUNT ONLY APPLICANTS COMPLETED ALL STAGES
     const overallDurations = durations
-      .filter(d => d.Immigration && d.Recruitment)
+      .filter(d => d.Immigration !== undefined && d.Recruitment !== undefined)
       .map(
         d => (d.NNAS ?? 0) + (d['BCCNM & NCAS'] ?? 0) + (d.Recruitment ?? 0) + (d.Immigration ?? 0),
       )
@@ -621,7 +621,7 @@ export class ReportService {
 
     // Time from the start of their journey to employment
     const timeToHireDurations = durations
-      .filter(d => d.Recruitment)
+      .filter(d => d.Recruitment !== undefined)
       .map(d => (d.NNAS ?? 0) + (d['BCCNM & NCAS'] ?? 0) + (d.Recruitment ?? 0))
       .sort((a, b) => a - b);
     const timeToHire = {
@@ -709,7 +709,9 @@ export class ReportService {
 
     const data = _.flatten(
       DURATION_STAGES.map(stage => {
-        const applicants = durations.filter(d => d[stage[0].stage as keyof DurationSummary]);
+        const applicants = durations.filter(
+          d => d[stage[0].stage as keyof DurationSummary] !== undefined,
+        );
         return stage.map(({ stage, milestone }) => {
           const field = (stage || milestone) as keyof DurationSummary;
           const values = applicants.map(d => (d[field] as number) || 0).sort((a, b) => a - b);
