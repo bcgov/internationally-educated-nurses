@@ -840,7 +840,7 @@ export class ReportUtilService {
   getDurationSummary(d: DurationTableEntry): DurationSummary {
     const summary = { ha: d.ha } as DurationSummary;
 
-    if (d[STATUS.RECEIVED_NNAS_REPORT]) {
+    if (d[STATUS.RECEIVED_NNAS_REPORT] !== undefined) {
       summary.NNAS = _.sum(NNAS_STAGE.map(m => d[m] || 0));
       Object.assign(summary, _.pick(d, NNAS_STAGE));
     }

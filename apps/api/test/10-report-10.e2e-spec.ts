@@ -166,8 +166,8 @@ describe('Report 10 - Average Amount of Time with Each Milestone in Stakeholder 
     await hire(id, 'VIHA', addDays(to, 10));
 
     await addMilestone(id, '', await getStatus(STATUS.APPLIED_TO_NNAS, '2022-06-01'));
-    await addMilestone(id, '', await getStatus(STATUS.SUBMITTED_DOCUMENTS, '2022-07-01'));
-    await addMilestone(id, '', await getStatus(STATUS.RECEIVED_PR, '2022-08-01'));
+    await addMilestone(id, '', await getStatus(STATUS.SUBMITTED_DOCUMENTS, '2023-01-01'));
+    await addMilestone(id, '', await getStatus(STATUS.RECEIVED_PR, '2023-01-10'));
 
     const newReport = await getReport(to);
     expect(JSON.stringify(report)).toBe(JSON.stringify(newReport));
