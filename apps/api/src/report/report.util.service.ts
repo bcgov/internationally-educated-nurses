@@ -7,6 +7,7 @@ import {
   BCCNM_NCAS_STAGE,
   IMMIGRATION_COMPLETE,
   IMMIGRATION_STAGE,
+  LIC_REG_STAGE,
   NNAS_STAGE,
   RECRUITMENT_STAGE,
   STATUS,
@@ -22,8 +23,6 @@ import { DurationSummary, DurationTableEntry, MilestoneTableEntry } from './type
 
 @Injectable()
 export class ReportUtilService {
-  nil_uuid = '00000000-0000-0000-0000-000000000000';
-
   applicantCountQuery(from: string, to: string) {
     return `
         with ien_applicants as (
@@ -888,7 +887,7 @@ export class ReportUtilService {
   getDurationTableEntry(milestones: MilestoneTableEntry): DurationTableEntry {
     const durations = { id: milestones.id, ha: milestones.ha } as DurationTableEntry;
 
-    const stages = [NNAS_STAGE, BCCNM_NCAS_STAGE, RECRUITMENT_STAGE, IMMIGRATION_STAGE];
+    const stages = [LIC_REG_STAGE, RECRUITMENT_STAGE, IMMIGRATION_STAGE];
 
     let current = null;
     for (const stage of stages) {
