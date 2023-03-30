@@ -960,7 +960,7 @@ export class ReportUtilService {
             left join ien_applicant_status ias on ias.id = iasa.status_id 
             where 
                 iasa.start_date is not null and
-                iasa.start_date < '${to}'
+                iasa.start_date <= '${to}'
             group by iasa.applicant_id, ias.status
             order by iasa.applicant_id, ias.status
             $source$,
@@ -1021,7 +1021,7 @@ export class ReportUtilService {
                 ias2.category = 'IEN Recruitment Process' and
                 h.job_id = iasa.job_id and 
                 iasa.start_date is not null and 
-                iasa.start_date < '${to}'
+                iasa.start_date <= '${to}'
             group by iasa.applicant_id, ias2.status  
             order by iasa.applicant_id, ias2.status
             $source$,
