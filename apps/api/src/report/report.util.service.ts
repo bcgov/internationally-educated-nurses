@@ -7,6 +7,7 @@ import {
   BCCNM_NCAS_STAGE,
   IMMIGRATION_COMPLETE,
   IMMIGRATION_STAGE,
+  LIC_REG_STAGE,
   NNAS_STAGE,
   RECRUITMENT_STAGE,
   STATUS,
@@ -22,8 +23,6 @@ import { DurationSummary, DurationTableEntry, MilestoneTableEntry } from './type
 
 @Injectable()
 export class ReportUtilService {
-  nil_uuid = '00000000-0000-0000-0000-000000000000';
-
   applicantCountQuery(from: string, to: string) {
     return `
         with ien_applicants as (
@@ -845,18 +844,18 @@ export class ReportUtilService {
       Object.assign(summary, _.pick(d, NNAS_STAGE));
     }
 
-    if (d[STATUS.COMPLETED_NCAS]) {
+    if (d[STATUS.COMPLETED_NCAS] !== undefined) {
       summary['BCCNM & NCAS'] = _.sum(BCCNM_NCAS_STAGE.map(m => d[m] || 0));
       Object.assign(summary, _.pick(d, BCCNM_NCAS_STAGE));
     }
 
-    if (d[STATUS.JOB_OFFER_ACCEPTED]) {
+    const hired = d[STATUS.JOB_OFFER_ACCEPTED];
+    if (hired !== undefined) {
       const referralAcknowledged = d[STATUS.REFERRAL_ACKNOWLEDGED] ?? 0;
       const preScreen = (d[STATUS.PRE_SCREEN_PASSED] ?? 0) + (d[STATUS.PRE_SCREEN_NOT_PASSED] ?? 0);
       const interview = (d[STATUS.INTERVIEW_PASSED] ?? 0) + (d[STATUS.INTERVIEW_NOT_PASSED] ?? 0);
       const refCheck =
         (d[STATUS.REFERENCE_CHECK_PASSED] ?? 0) + (d[STATUS.REFERENCE_CHECK_NOT_PASSED] ?? 0);
-      const hired = d[STATUS.JOB_OFFER_ACCEPTED] ?? 0;
       summary['Completed pre-screen (includes both outcomes)'] = referralAcknowledged + preScreen;
       summary['Completed interview (includes both outcomes)'] = interview;
       summary['Completed reference check (includes both outcomes)'] = refCheck;
@@ -864,13 +863,13 @@ export class ReportUtilService {
       summary.Recruitment = referralAcknowledged + preScreen + interview + refCheck + hired;
     }
 
-    const immigrationCompletion = IMMIGRATION_COMPLETE.find(m => d[m]);
+    const immigrationCompletion = IMMIGRATION_COMPLETE.find(m => d[m] !== undefined);
     if (immigrationCompletion) {
       const incompleteMilestones = _.difference(IMMIGRATION_STAGE, IMMIGRATION_COMPLETE);
       Object.assign(summary, _.pick(d, incompleteMilestones));
-      summary['Immigration Completed'] = d[immigrationCompletion];
+      summary['Immigration Completed'] = d[immigrationCompletion] ?? 0;
       summary.Immigration =
-        _.sum(incompleteMilestones.map(m => d[m])) + (d[immigrationCompletion] ?? 0);
+        _.sum(incompleteMilestones.map(m => d[m] ?? 0)) + summary['Immigration Completed'];
     }
     return summary;
   }
@@ -888,7 +887,7 @@ export class ReportUtilService {
   getDurationTableEntry(milestones: MilestoneTableEntry): DurationTableEntry {
     const durations = { id: milestones.id, ha: milestones.ha } as DurationTableEntry;
 
-    const stages = [NNAS_STAGE, BCCNM_NCAS_STAGE, RECRUITMENT_STAGE, IMMIGRATION_STAGE];
+    const stages = [LIC_REG_STAGE, RECRUITMENT_STAGE, IMMIGRATION_STAGE];
 
     let current = null;
     for (const stage of stages) {

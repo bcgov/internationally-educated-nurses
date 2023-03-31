@@ -645,10 +645,11 @@ export class ReportService {
     // do not change the number of items by filtering.
     // it'll cause stage duration not to match the sum of its milestones.
     const data = durations.map(v => v || 0);
+    // property order decides column order in the spreadsheet.
     return {
       Mean: data.length ? round(mean(data), 2) : '',
-      Mode: data.length ? min(mode(data)) : '',
       Median: data.length ? median(data) : '',
+      Mode: data.length ? min(mode(data)) : '',
     };
   }
 
