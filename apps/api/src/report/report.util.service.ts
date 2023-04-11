@@ -324,8 +324,14 @@ export class ReportUtilService {
             )
         )`;
   }
-  
-  getApplicantsWithStatus(statuses:string[], exclude:string[], BCCNM_NEW_PROCESS:boolean,to:string,from:string){
+
+  getApplicantsWithStatus(
+    statuses: string[],
+    exclude: string[],
+    BCCNM_NEW_PROCESS: boolean,
+    to: string,
+    from: string,
+  ) {
     const exclusion_query = ` AND NOT EXISTS (
       SELECT *
       FROM 
@@ -333,12 +339,11 @@ export class ReportUtilService {
       WHERE 
         T2.applicant_id = status_audit.applicant_id
         AND T2.status_id IN (
-          \'${exclude.join('\',\'')}\'
+          \'${exclude.join("','")}\'
         )
     )`;
 
-
-    let query =  `SELECT 
+    let query = `SELECT 
           count(distinct status_audit.applicant_id), status_audit.status_id
         FROM 
           "ien_applicant_status_audit" "status_audit"
@@ -349,14 +354,14 @@ export class ReportUtilService {
           AND applicant.new_bccnm_process = ${BCCNM_NEW_PROCESS} 
           AND "status_audit"."status_id" 
           IN (
-            \'${statuses.join('\',\'')}\'
+            \'${statuses.join("','")}\'
           )
           AND start_date::date >= '${from}' 
           AND start_date::date <= '${to}' 
-          ${exclude.length ? exclusion_query :''}
-        GROUP BY status_audit.status_id`
+          ${exclude.length ? exclusion_query : ''}
+        GROUP BY status_audit.status_id`;
 
-      return query;
+    return query;
   }
 
   getWithdrawn(to: string, from: string, BCCNM_NEW_PROCESS: boolean) {
