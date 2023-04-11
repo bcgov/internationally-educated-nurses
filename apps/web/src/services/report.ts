@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 
 import { Period, PeriodFilter } from '@ien/common';
 import { convertToParams, notifyError } from '../utils';
+import applicants from 'src/pages/applicants';
 
 const bold = { bold: true };
 const fgColor = { rgb: 'e6f2ff' };
@@ -224,8 +225,8 @@ const reportCreators: ReportCreator[] = [
   {
     name: 'Report 5',
     description: 'Number of Internationally Educated Nurse Registrants Eligible for Job Search',
-    header: ['', 'applicants'],
-    colWidths: [40, 20],
+    header: ['', 'applicants - old', 'applicants - new'],
+    colWidths: [40, 30, 30],
   },
   {
     name: 'Report 6',

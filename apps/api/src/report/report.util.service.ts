@@ -324,6 +324,40 @@ export class ReportUtilService {
             )
         )`;
   }
+  
+  getApplicantsWithStatus(statuses:string[], exclude:string[], BCCNM_NEW_PROCESS:boolean,to:string,from:string){
+    const exclusion_query = ` AND NOT EXISTS (
+      SELECT *
+      FROM 
+        "ien_applicant_status_audit" AS T2
+      WHERE 
+        T2.applicant_id = status_audit.applicant_id
+        AND T2.status_id IN (
+          \'${exclude.join('\',\'')}\'
+        )
+    )`;
+
+
+    let query =  `SELECT 
+          count(distinct status_audit.applicant_id), status_audit.status_id
+        FROM 
+          "ien_applicant_status_audit" "status_audit"
+        LEFT JOIN 
+          ien_applicants applicant ON applicant.id = status_audit.applicant_id  
+        WHERE 
+          applicant.new_bccnm_process IS NOT NULL 
+          AND applicant.new_bccnm_process = ${BCCNM_NEW_PROCESS} 
+          AND "status_audit"."status_id" 
+          IN (
+            \'${statuses.join('\',\'')}\'
+          )
+          AND start_date::date >= '${from}' 
+          AND start_date::date <= '${to}' 
+          ${exclude.length ? exclusion_query :''}
+        GROUP BY status_audit.status_id`
+
+      return query;
+  }
 
   getWithdrawn(to: string, from: string, BCCNM_NEW_PROCESS: boolean) {
     return `
@@ -340,72 +374,6 @@ export class ReportUtilService {
         AND start_date::date >= '${from}' 
         AND start_date::date <= '${to}' 
     `;
-  }
-
-  /**
-   * For each license type, get the number of applicants who
-   * - got a license during the period
-   * - not withdrew and not hired during the period
-   *
-   * - Provisional LPN, RN
-   * - Full LPN, RN
-   * - HCA
-   * @param from start date of period
-   * @param to end date of period
-   */
-  async getNumberOfApplicantsByLicense(from: string, to: string) {
-    const sql = `
-    SELECT
-      count(*) FILTER(WHERE plpn IS NOT NULL) AS "${STATUS.BCCNM_PROVISIONAL_LICENSE_LPN}",
-      count(*) FILTER(WHERE prn IS NOT NULL) AS "${STATUS.BCCNM_PROVISIONAL_LICENSE_RN}",
-      count(*) FILTER(WHERE lpn IS NOT NULL) AS "${STATUS.BCCNM_FULL_LICENCE_LPN}",
-      count(*) FILTER(WHERE rn IS NOT NULL) AS "${STATUS.BCCNM_FULL_LICENSE_RN}",
-      count(*) FILTER(WHERE hca IS NOT NULL) AS "${STATUS.REGISTERED_AS_AN_HCA}"
-    FROM
-      crosstab(
-      $source$
-        SELECT
-          iasa.applicant_id,
-          ias2.status,
-          min(iasa.start_date) start_date
-        FROM
-          ien_applicant_status_audit iasa
-        LEFT JOIN ien_applicant_status ias2 ON
-          ias2.id = iasa.status_id
-        WHERE
-          iasa.start_date IS NOT NULL AND
-          iasa.start_date <= '${to}' AND
-          iasa.start_date >= '${from}'
-        GROUP BY
-          iasa.applicant_id, ias2.status
-        ORDER BY
-          iasa.applicant_id, ias2.status
-      $source$,
-      $category$
-        VALUES 
-          ('${STATUS.BCCNM_PROVISIONAL_LICENSE_LPN}'),
-          ('${STATUS.BCCNM_PROVISIONAL_LICENSE_RN}'),
-          ('${STATUS.BCCNM_FULL_LICENCE_LPN}'),
-          ('${STATUS.BCCNM_FULL_LICENSE_RN}'),
-          ('${STATUS.REGISTERED_AS_AN_HCA}'),
-          ('${STATUS.JOB_OFFER_ACCEPTED}'),
-          ('${STATUS.WITHDREW_FROM_PROGRAM}')
-      $category$
-    )
-    AS ct(
-      id uuid,
-      plpn date,
-      prn date,
-      lpn date,
-      rn date,
-      hca date,
-      hired date,
-      withdrew date
-    )
-    WHERE 
-      hired IS NULL AND withdrew IS NULL 
-  `;
-    return await getManager().query(sql);
   }
 
   applicantsInRecruitmentQuery(statuses: Record<string, string>, to: string) {
