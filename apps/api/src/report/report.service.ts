@@ -409,23 +409,29 @@ export class ReportService {
       statuses[STATUS.BCCNM_PROVISIONAL_LICENSE_RN],
       statuses[STATUS.BCCNM_PROVISIONAL_LICENSE_LPN],
     ]
-    
-    return await Promise.all(
+    this.logger.log(
+      `Report 5: Number of applicants with license: Apply date filter from (${f}) and to (${t})`,
+      'REPORT',
+    );
+    const result =  await Promise.all(
       licence_statuses.map(async (status:string,index:number)=>{
-        console.log(status,index);
        let old_status:[{status?:string, count?:string}] = await this.ienapplicantStatusRepository.query(
           this.reportUtilService.getApplicantsWithStatus([status],index > 2 ? [licence_statuses[0],licence_statuses[1]] : [],false,t,f)
         )
         let new_status:[{status?:string, count?:string}]  = await this.ienapplicantStatusRepository.query(
           this.reportUtilService.getApplicantsWithStatus([status],index > 2 ? [licence_statuses[0],licence_statuses[1]] : [],true,t,f)
         )
-        console.log(old_status,new_status)
         return {
           status:Object.keys(statuses).find((key:string)=> status === statuses[key]),
           old_status : old_status[0]?.count || '0',
           new_status : new_status[0]?.count || '0'
         }
     }));
+    this.logger.log(
+      `Report 5 - Number of applicants with license: query completed`,
+      'REPORT',
+    );
+    return result;
   }
 
   /**
