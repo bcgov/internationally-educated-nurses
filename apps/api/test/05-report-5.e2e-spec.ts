@@ -14,7 +14,8 @@ import { getApplicant, getStatus } from './report-util';
 
 interface LicenseStat {
   status: string;
-  applicant_count: string;
+  old_status:string;
+  new_status:string;
 }
 
 describe('Report 5 (e2e)', () => {
@@ -66,7 +67,7 @@ describe('Report 5 (e2e)', () => {
       .get(URLS.REPORT5)
       .expect(res => {
         const newReport: LicenseStat[] = res.body;
-        expect(+newReport[3].applicant_count - +report[3].applicant_count).toBe(1);
+        expect(+newReport[0]?.old_status - +report[0].old_status).toBe(1);
       })
       .expect(200);
   });
@@ -81,7 +82,7 @@ describe('Report 5 (e2e)', () => {
       .get(URLS.REPORT5)
       .expect(res => {
         const newReport: LicenseStat[] = res.body;
-        expect(+newReport[0].applicant_count - +report[0].applicant_count).toBe(1);
+        expect(+newReport[4].old_status - +report[4].old_status).toBe(1);
       })
       .expect(200);
   });
@@ -100,7 +101,7 @@ describe('Report 5 (e2e)', () => {
       .get(URLS.REPORT5)
       .expect(res => {
         const newReport: LicenseStat[] = res.body;
-        expect(+newReport[1].applicant_count - +report[1].applicant_count).toBe(1);
+        expect(+newReport[3].old_status - +report[3].old_status).toBe(1);
       })
       .expect(200);
   });
@@ -114,7 +115,7 @@ describe('Report 5 (e2e)', () => {
       .get(URLS.REPORT5)
       .expect(res => {
         const newReport: LicenseStat[] = res.body;
-        expect(newReport[1].applicant_count).toBe(report[1].applicant_count);
+        expect(newReport[3].new_status).toBe(report[3].new_status);
       })
       .expect(200);
   });

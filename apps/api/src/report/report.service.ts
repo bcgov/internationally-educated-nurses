@@ -401,6 +401,7 @@ export class ReportService {
    * @returns
    */
   async getLicenseApplicants(f: string, t: string) {
+    const { from, to } = this.captureFromTo(f, t);
     const statuses = await this.getStatusMap();
     const licence_statuses = [
       statuses[STATUS.BCCNM_FULL_LICENSE_RN],
@@ -415,24 +416,24 @@ export class ReportService {
     );
     const result = await Promise.all(
       licence_statuses.map(async (status: string, index: number) => {
-        let old_status: [{ status?: string; count?: string }] =
+        const old_status: [{ status?: string; count?: string }] =
           await this.ienapplicantStatusRepository.query(
             this.reportUtilService.getApplicantsWithStatus(
-              [status],
+              status,
               index > 2 ? [licence_statuses[0], licence_statuses[1]] : [],
               false,
               t,
               f,
             ),
           );
-        let new_status: [{ status?: string; count?: string }] =
+        const new_status: [{ status?: string; count?: string }] =
           await this.ienapplicantStatusRepository.query(
             this.reportUtilService.getApplicantsWithStatus(
-              [status],
+              status,
               index > 2 ? [licence_statuses[0], licence_statuses[1]] : [],
               true,
-              t,
-              f,
+              to,
+              from,
             ),
           );
         return {

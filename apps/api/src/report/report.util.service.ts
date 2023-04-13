@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import _ from 'lodash';
 import { getManager } from 'typeorm';
 
@@ -326,7 +326,7 @@ export class ReportUtilService {
   }
 
   getApplicantsWithStatus(
-    statuses: string[],
+    status: string,
     exclude: string[],
     BCCNM_NEW_PROCESS: boolean,
     to: string,
@@ -339,7 +339,7 @@ export class ReportUtilService {
       WHERE 
         T2.applicant_id = status_audit.applicant_id
         AND T2.status_id IN (
-          \'${exclude.join("','")}\'
+          '${exclude.join("','")}'
         )
     )`;
 
@@ -352,12 +352,9 @@ export class ReportUtilService {
         WHERE 
           applicant.new_bccnm_process IS NOT NULL 
           AND applicant.new_bccnm_process = ${BCCNM_NEW_PROCESS} 
-          AND "status_audit"."status_id" 
-          IN (
-            \'${statuses.join("','")}\'
-          )
-          AND start_date::date >= '${from}' 
-          AND start_date::date <= '${to}' 
+          AND "status_audit"."status_id" = '${status}'
+          AND start_date::date >= '${from || '2022-05-22'}' 
+          AND start_date::date <= '${to || dayjs().format('YYYY-MM-DD')}' 
           ${exclude.length ? exclusion_query : ''}
         GROUP BY status_audit.status_id`;
 
