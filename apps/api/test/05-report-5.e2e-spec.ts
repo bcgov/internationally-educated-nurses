@@ -14,8 +14,8 @@ import { getApplicant, getStatus } from './report-util';
 
 interface LicenseStat {
   status: string;
-  old_status:string;
-  new_status:string;
+  old_status: string;
+  new_status: string;
 }
 
 describe('Report 5 (e2e)', () => {
