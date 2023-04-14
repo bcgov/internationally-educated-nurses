@@ -101,6 +101,7 @@ describe('Report 5 (e2e)', () => {
       .get(URLS.REPORT5)
       .expect(res => {
         const newReport: LicenseStat[] = res.body;
+        console.log(newReport,report);
         expect(+newReport[3].old_status - +report[3].old_status).toBe(1);
       })
       .expect(200);
