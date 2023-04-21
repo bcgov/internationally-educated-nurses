@@ -18,8 +18,8 @@ describe('Report 8 - Registrants Working in BC', () => {
   let HA: IENHaPcn[] = [];
 
   const lastYear = dayjs().year() - 1;
-  const currentYearFiscal = dayjs(`${dayjs().year()}-04-01`).format('YYYY-MM-DD')
-  const lastYearFiscal = dayjs(`${lastYear}-04-01`).format('YYYY-MM-DD')
+  const currentYearFiscal = dayjs(`${dayjs().year()}-04-01`).format('YYYY-MM-DD');
+  const lastYearFiscal = dayjs(`${lastYear}-04-01`).format('YYYY-MM-DD');
   const fiscalDate = dayjs().month() >= 3 ? currentYearFiscal : lastYearFiscal;
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -47,7 +47,6 @@ describe('Report 8 - Registrants Working in BC', () => {
 
   it('Add status to fiscal year', async () => {
     const before = await getReport8();
-    console.log(fiscalDate);
     const applicant = getApplicant();
     applicant.registration_date = '2022-06-01';
     const { id } = (await addApplicant(applicant)) as ApplicantRO;
