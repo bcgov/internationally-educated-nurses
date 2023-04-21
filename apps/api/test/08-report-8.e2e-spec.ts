@@ -18,7 +18,7 @@ describe('Report 8 - Registrants Working in BC', () => {
   let HA: IENHaPcn[] = [];
 
   const lastYear = dayjs().year() - 1;
-  const fiscalDate = dayjs(`${lastYear}-06-06`).format('YYYY-MM-DD');
+  const fiscalDate = dayjs(`${lastYear}-04-01`).format('YYYY-MM-DD');
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
