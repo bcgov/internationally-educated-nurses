@@ -33,7 +33,7 @@ export const Authorities: Record<string, Authority> = {
   FHA: {
     id: 'FHA',
     name: 'Fraser Health Authority',
-    domains: ['fraserhealth.org'],
+    domains: ['fraserhealth.ca'],
   },
   IHA: {
     id: 'IHA',
