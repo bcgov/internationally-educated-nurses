@@ -34,6 +34,12 @@ export const getApplicantDataExtract = async (filter?: PeriodFilter) => {
   return data?.data;
 };
 
+export const getMilestoneDataExtract = async (filter?: PeriodFilter) => {
+  const url = `/reports/applicant/extract-milestones?${convertToParams(filter)}`;
+  const { data } = await axios.get(url);
+  return data?.data;
+};
+
 export const getReportByEOI = async (filter?: PeriodFilter) => {
   try {
     const url = `/reports/applicant/registered?${convertToParams(filter)}`;
