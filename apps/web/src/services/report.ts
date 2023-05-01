@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 import { utils, WorkBook, WorkSheet } from 'xlsx-js-style';
 import { toast } from 'react-toastify';
 
-import { Period, PeriodFilter } from '@ien/common';
+import { MILESTONES, Period, PeriodFilter } from '@ien/common';
 import { convertToParams, notifyError } from '../utils';
 
 const bold = { bold: true };
@@ -304,8 +304,20 @@ const getSummarySheet = (filter: PeriodFilter): WorkSheet => {
 };
 
 export const getApplicantDataExtractSheet = (applicants: object[]): WorkSheet => {
+  // reorder columns
+  const columns = [
+    'Applicant ID',
+    'Registration Date',
+    'Assigned to',
+    'Country of Residence',
+    'PR Status',
+    'Nursing Education',
+    'Country of Citizenship',
+    ...MILESTONES,
+  ];
+
   // create sheet from applicant data
-  return utils.json_to_sheet(applicants);
+  return utils.json_to_sheet(applicants.map(a => _.pick(a, columns)));
 };
 
 export const createApplicantDataExtractWorkbook = async (

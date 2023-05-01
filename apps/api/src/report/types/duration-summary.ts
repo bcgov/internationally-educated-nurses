@@ -13,8 +13,8 @@ export class DurationSummary {
   [STATUS.RECEIVED_NNAS_REPORT]?: number;
 
   'BCCNM & NCAS': number;
-  [STATUS.APPLIED_TO_BCCNM]?: number;
   [STATUS.COMPLETED_LANGUAGE_REQUIREMENT]?: number;
+  [STATUS.APPLIED_TO_BCCNM]?: number;
   [STATUS.REFERRED_TO_NCAS]?: number;
   [STATUS.COMPLETED_CBA]?: number;
   [STATUS.COMPLETED_SLA]?: number;
@@ -34,5 +34,6 @@ export class DurationSummary {
   [STATUS.RECEIVED_CONFIRMATION_OF_NOMINATION]?: number;
   [STATUS.SENT_SECOND_STEPS_DOCUMENT]?: number;
   [STATUS.SUBMITTED_WORK_PERMIT_APPLICATION]?: number;
+  [STATUS.SUBMITTED_PR_APPLICATION]?: number;
   'Immigration Completed'?: number;
 }
