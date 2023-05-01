@@ -742,6 +742,11 @@ export class ReportService {
    * @param dates start and end date for data extract YYYY-MM-DD
    * @returns
    */
+  /**
+   *
+   * @param dates start and end date for data extract YYYY-MM-DD
+   * @returns
+   */
   async extractApplicantsData(dates: ReportPeriodDTO) {
     const { from, to } = dates;
     this.logger.log(`extractApplicantsData: Apply date filter from (${from}) and to (${to})`);
@@ -761,6 +766,20 @@ export class ReportService {
     );
     this.logger.log(
       `extractApplicantsData: query completed a total of ${data.length} record returns`,
+    );
+    return data;
+  }
+
+  /**
+   *
+   * @param dates start and end date for data extract YYYY-MM-DD
+   * @returns
+   */
+  async extractMilestoneData(dates?: ReportPeriodDTO) {
+    const { from, to } = dates || {from:'2001-01-01', to:dayjs().toISOString()};
+    const entityManager = getManager();
+    const data = await entityManager.query(
+      this.reportUtilService.extractApplicantMilestoneQuery(from, to),
     );
     return data;
   }
