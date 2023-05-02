@@ -87,7 +87,7 @@ const applyNumberFormat = (sheet: WorkSheet, rows: any[][]): void => {
 
 const formatTotal = (dataRows: any[][], header: string[]) => {
   return dataRows.map((row, rowIndex) => {
-    if (rowIndex === dataRows.length - 1 && row[0]?.match(/^total/i)) {
+    if (rowIndex === dataRows.length - 1 && /^total/i.exec(row[0])) {
       //format total row
       return row.map((v, colIndex) => {
         if (colIndex === 0)
@@ -267,7 +267,7 @@ const reportCreators: ReportCreator[] = [
       const currentPeriod = Object.keys(data[0])
         .find(v => v.includes('current_period'))
         ?.split(' ')[1];
-      const [from, to] = currentPeriod?.split('~') || [];
+      const [from, to] = currentPeriod?.split('~') ?? [];
       return currentPeriod ? ['Current Period*', getTimeRange({ from, to })] : [];
     },
   },

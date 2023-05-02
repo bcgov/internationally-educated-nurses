@@ -355,9 +355,9 @@ export class ReportService {
           return {
             status: step,
             oldProcessApplicants:
-              oldProcess.find(value => value.status_id === statuses[step])?.count || '0',
+              oldProcess.find(value => value.status_id === statuses[step])?.count ?? '0',
             newProcessApplicants:
-              newProcess.find(value => value.status_id === statuses[step])?.count || '0',
+              newProcess.find(value => value.status_id === statuses[step])?.count ?? '0',
           };
       }
     });
@@ -367,7 +367,7 @@ export class ReportService {
     acceptedIds.forEach(
       id =>
         (count += +(
-          list.find((row: { status_id: string; count: string }) => row.status_id === id)?.count ||
+          list.find((row: { status_id: string; count: string }) => row.status_id === id)?.count ??
           '0'
         )),
     );
@@ -525,7 +525,7 @@ export class ReportService {
       return Object.values(Authorities)
         .filter(ha => ![Authorities.MOH, Authorities.HMBC].includes(ha))
         .map(ha => ha.name)
-        .sort()
+        .sort((a, b) => (a > b ? 1 : -1))
         .map(ha => {
           const values = employerDurations[ha] || [];
           const row = {
@@ -714,11 +714,11 @@ export class ReportService {
           d => d[stage[0].stage as keyof DurationSummary] !== undefined,
         );
         return stage.map(({ stage, milestone }) => {
-          const field = (stage || milestone) as keyof DurationSummary;
+          const field = (stage ?? milestone) as keyof DurationSummary;
           const values = applicants.map(d => (d[field] as number) || 0).sort((a, b) => a - b);
           const stat: object = {
-            stage: stage || ' ',
-            milestone: milestone || ' ',
+            stage: stage ?? ' ',
+            milestone: milestone ?? ' ',
             ...this.getDurationStats(values),
           };
 
