@@ -769,7 +769,6 @@ export class ReportUtilService {
     `;
   }
 
-
   extractApplicantMilestoneQuery(from: string, to: string) {
     return `
     select milestone.applicant_id, 
@@ -794,7 +793,7 @@ export class ReportUtilService {
     WHERE milestone.start_date::date >= '${from}' 
       AND milestone.start_date::date <= '${to}'
       ORDER BY milestone.applicant_id
-    `
+    `;
   }
 
   _isValidDateValue(date?: string) {

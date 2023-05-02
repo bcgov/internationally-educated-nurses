@@ -156,6 +156,6 @@ export class ReportController {
     @Query('from') from: string,
     @Query('to') to: string,
   ): Promise<object[]> {
-    return await this.reportService.extractMilestoneData({to,from});
+    return await this.reportService.extractMilestoneData({ to, from });
   }
 }
