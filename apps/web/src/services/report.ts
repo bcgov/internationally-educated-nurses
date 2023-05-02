@@ -101,7 +101,7 @@ const formatTotal = (dataRows: any[][], header: string[]) => {
     }
     return row.map((v, colIndex) => {
       // format total column
-      if (header[colIndex]?.match(/^total/i)) {
+      if (header[colIndex]?.search(/total/i) === 0) {
         return { v, t: 'n', s: headerStyle };
       }
       return v;

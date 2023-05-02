@@ -294,6 +294,7 @@ export class ReportUtilService {
    * Counts the number of applicants with a full license (RN or LPN)
    * Exclude applicants who have withdrawn from the program or been hired
    * @param BCCNM_NEW_PROCESS
+   * @param statuses
    * @returns query string
    */
   fullLicenceQuery(BCCNM_NEW_PROCESS: boolean, statuses: Record<string, string>) {
