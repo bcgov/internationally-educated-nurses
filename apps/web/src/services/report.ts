@@ -310,26 +310,9 @@ const getSummarySheet = (filter: PeriodFilter): WorkSheet => {
   return sheet;
 };
 
-export const getApplicantDataExtractSheet = (applicants: object[]): WorkSheet => {
-  // reorder columns
-  const columns = [
-    'Applicant ID',
-    'Registration Date',
-    'Assigned to',
-    'Country of Residence',
-    'PR Status',
-    'Nursing Education',
-    'Country of Citizenship',
-    ...MILESTONES,
-  ];
-
-  // create sheet from applicant data
-  return utils.json_to_sheet(applicants.map(a => _.pick(a, columns)));
-};
-
-const createDataExtractWoorkbook = (data: object[], sheetName: string): WorkBook => {
+const createDataExtractWorkBook = (data: object[], sheetName: string): WorkBook => {
   const workbook = utils.book_new();
-  utils.book_append_sheet(workbook, getApplicantDataExtractSheet(data), sheetName);
+  utils.book_append_sheet(workbook, utils.json_to_sheet(data), sheetName);
 
   const legend = Object.keys(isoCountries).map(code => ({
     Code: code,
@@ -349,7 +332,20 @@ export const createApplicantDataExtractWorkbook = async (
       toast.error('There is no Applicant data to extract during this time period');
       return null;
     }
-    return createDataExtractWoorkbook(applicants, 'Rows as Users');
+
+    const columns = [
+      'Applicant ID',
+      'Registration Date',
+      'Assigned to',
+      'Country of Residence',
+      'PR Status',
+      'Nursing Education',
+      'Country of Citizenship',
+      ...MILESTONES,
+    ];
+
+    const data = applicants.map((a: object) => _.pick(a, columns));
+    return createDataExtractWorkBook(data, 'Rows as Users');
   } catch (e) {
     if (e instanceof Error) {
       toast.error(e.message);
@@ -367,7 +363,7 @@ export const createMilestoneDataExtractWorkbook = async (
       toast.error('There is no milestone data to extract during this time period');
       return null;
     }
-    return createDataExtractWoorkbook(milestones, 'Rows as Milestones');
+    return createDataExtractWorkBook(milestones, 'Rows as Milestones');
   } catch (e) {
     if (e instanceof Error) {
       toast.error(e.message);
