@@ -355,9 +355,9 @@ export class ReportService {
           return {
             status: step,
             oldProcessApplicants:
-              oldProcess.find(value => value.status_id === statuses[step])?.count || '0',
+              oldProcess.find(value => value.status_id === statuses[step])?.count ?? '0',
             newProcessApplicants:
-              newProcess.find(value => value.status_id === statuses[step])?.count || '0',
+              newProcess.find(value => value.status_id === statuses[step])?.count ?? '0',
           };
       }
     });
@@ -367,7 +367,7 @@ export class ReportService {
     acceptedIds.forEach(
       id =>
         (count += +(
-          list.find((row: { status_id: string; count: string }) => row.status_id === id)?.count ||
+          list.find((row: { status_id: string; count: string }) => row.status_id === id)?.count ??
           '0'
         )),
     );
@@ -499,6 +499,33 @@ export class ReportService {
     return data;
   }
 
+  getDurationsByHA(durations: DurationSummary[], verbose: boolean) {
+    const employerDurations: Record<string, number[]> = {};
+
+    // get each HA's list of recruitment time
+    durations.forEach(d => {
+      if (d.ha && d.Recruitment !== undefined) {
+        if (!employerDurations[d.ha]) employerDurations[d.ha] = [];
+        employerDurations[d.ha].push(d.Recruitment);
+      }
+    });
+
+    return Object.values(Authorities)
+      .filter(ha => ![Authorities.MOH, Authorities.HMBC].includes(ha))
+      .map(ha => ha.name)
+      .sort((a, b) => (a > b ? 1 : -1))
+      .map(ha => {
+        const values = employerDurations[ha] || [];
+        const row = {
+          title: ' ',
+          HA: ha,
+          ...this.getDurationStats(values),
+        };
+        if (verbose) Object.assign(row, { count: values.length, values });
+        return row;
+      });
+  }
+
   /**
    * Get mean, median, mode values of applicants for each stage and milestone
    *
@@ -509,37 +536,14 @@ export class ReportService {
   getStageDurationStats(stage: DurationEntry[], durations: DurationSummary[], verbose = false) {
     const stageName = stage[0].stage as keyof DurationSummary;
 
-    const applicants = durations.filter(d => d[stageName] !== undefined);
-
-    const employerDurations: Record<string, number[]> = {};
-
     if (stageName === 'Recruitment') {
-      // get each HA's list of recruitment time
-      durations.forEach(d => {
-        if (d.ha && d.Recruitment !== undefined) {
-          if (!employerDurations[d.ha]) employerDurations[d.ha] = [];
-          employerDurations[d.ha].push(d.Recruitment);
-        }
-      });
-
-      return Object.values(Authorities)
-        .filter(ha => ![Authorities.MOH, Authorities.HMBC].includes(ha))
-        .map(ha => ha.name)
-        .sort()
-        .map(ha => {
-          const values = employerDurations[ha] || [];
-          const row = {
-            title: ' ',
-            HA: ha,
-            ...this.getDurationStats(values),
-          };
-          if (verbose) Object.assign(row, { count: values.length, values });
-          return row;
-        });
+      return this.getDurationsByHA(durations, verbose);
     }
 
     // report 9 needs stage stats only
+    const applicants = durations.filter(d => d[stageName] !== undefined);
     const values = applicants.map(d => (d[stageName] as number) || 0);
+
     const row = {
       title: stageName,
       HA: ' ',
@@ -714,11 +718,11 @@ export class ReportService {
           d => d[stage[0].stage as keyof DurationSummary] !== undefined,
         );
         return stage.map(({ stage, milestone }) => {
-          const field = (stage || milestone) as keyof DurationSummary;
+          const field = (stage ?? milestone) as keyof DurationSummary;
           const values = applicants.map(d => (d[field] as number) || 0).sort((a, b) => a - b);
           const stat: object = {
-            stage: stage || ' ',
-            milestone: milestone || ' ',
+            stage: stage ?? ' ',
+            milestone: milestone ?? ' ',
             ...this.getDurationStats(values),
           };
 
@@ -761,6 +765,20 @@ export class ReportService {
     );
     this.logger.log(
       `extractApplicantsData: query completed a total of ${data.length} record returns`,
+    );
+    return data;
+  }
+
+  /**
+   *
+   * @param dates start and end date for data extract YYYY-MM-DD
+   * @returns
+   */
+  async extractMilestoneData(dates?: ReportPeriodDTO) {
+    const { from, to } = dates || { from: '2001-01-01', to: dayjs().format('YYYY-MM-DD') };
+    const entityManager = getManager();
+    const data = await entityManager.query(
+      this.reportUtilService.extractApplicantMilestoneQuery(from, to),
     );
     return data;
   }

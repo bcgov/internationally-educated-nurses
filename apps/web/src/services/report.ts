@@ -34,6 +34,12 @@ export const getApplicantDataExtract = async (filter?: PeriodFilter) => {
   return data?.data;
 };
 
+export const getMilestoneDataExtract = async (filter?: PeriodFilter) => {
+  const url = `/reports/applicant/extract-milestones?${convertToParams(filter)}`;
+  const { data } = await axios.get(url);
+  return data?.data;
+};
+
 export const getReportByEOI = async (filter?: PeriodFilter) => {
   try {
     const url = `/reports/applicant/registered?${convertToParams(filter)}`;
@@ -81,7 +87,7 @@ const applyNumberFormat = (sheet: WorkSheet, rows: any[][]): void => {
 
 const formatTotal = (dataRows: any[][], header: string[]) => {
   return dataRows.map((row, rowIndex) => {
-    if (rowIndex === dataRows.length - 1 && row[0]?.match(/^total/i)) {
+    if (rowIndex === dataRows.length - 1 && /^total/i.exec(row[0])) {
       //format total row
       return row.map((v, colIndex) => {
         if (colIndex === 0)
@@ -95,7 +101,7 @@ const formatTotal = (dataRows: any[][], header: string[]) => {
     }
     return row.map((v, colIndex) => {
       // format total column
-      if (header[colIndex]?.match(/^total/i)) {
+      if (header[colIndex]?.search(/total/i) === 0) {
         return { v, t: 'n', s: headerStyle };
       }
       return v;
@@ -261,7 +267,7 @@ const reportCreators: ReportCreator[] = [
       const currentPeriod = Object.keys(data[0])
         .find(v => v.includes('current_period'))
         ?.split(' ')[1];
-      const [from, to] = currentPeriod?.split('~') || [];
+      const [from, to] = currentPeriod?.split('~') ?? [];
       return currentPeriod ? ['Current Period*', getTimeRange({ from, to })] : [];
     },
   },

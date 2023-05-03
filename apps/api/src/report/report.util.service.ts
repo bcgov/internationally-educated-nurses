@@ -294,6 +294,7 @@ export class ReportUtilService {
    * Counts the number of applicants with a full license (RN or LPN)
    * Exclude applicants who have withdrawn from the program or been hired
    * @param BCCNM_NEW_PROCESS
+   * @param statuses
    * @returns query string
    */
   fullLicenceQuery(BCCNM_NEW_PROCESS: boolean, statuses: Record<string, string>) {
@@ -766,6 +767,33 @@ export class ReportUtilService {
       ) as x("applicant_id" uuid, ${milestone_ids.join(',')}) ON x.applicant_id=a.id
     WHERE a.registration_date::date >= '${from}' AND a.registration_date::date <= '${to}'
     ORDER BY a.registration_date DESC
+    `;
+  }
+
+  extractApplicantMilestoneQuery(from: string, to: string) {
+    return `
+    select milestone.applicant_id, 
+      applicant.registration_date, 
+      applicant.assigned_to,
+      applicant.country_of_residence,
+      applicant.pr_status,
+      CAST (applicant.nursing_educations as text),
+      CAST (applicant.country_of_citizenship as text),
+      ien_ha_pcn.abbreviation,
+      ien_applicant_status.status,
+      milestone.start_date
+    FROM ien_applicant_status_audit milestone 
+      LEFT JOIN ien_applicants applicant 
+        ON milestone.applicant_id = applicant.id
+      LEFT JOIN ien_applicant_status 
+        ON ien_applicant_status.id = applicant.status_id
+      LEFT JOIN ien_applicant_jobs job 
+        ON job.id = milestone.job_id
+      LEFT JOIN ien_ha_pcn 
+        ON job.ha_pcn_id = ien_ha_pcn.id
+    WHERE milestone.start_date::date >= '${from}' 
+      AND milestone.start_date::date <= '${to}'
+      ORDER BY milestone.applicant_id
     `;
   }
 

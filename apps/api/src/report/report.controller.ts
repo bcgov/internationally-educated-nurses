@@ -149,4 +149,13 @@ export class ReportController {
   async extractApplicantsData(@Query() dates: ReportPeriodDTO): Promise<object[]> {
     return this.reportService.extractApplicantsData(dates);
   }
+  @ApiOperation({ summary: 'Extract milestones' })
+  @Get('/applicant/extract-milestones')
+  @AllowAccess(Access.DATA_EXTRACT)
+  async extractMilestoneData(
+    @Query('from') from: string,
+    @Query('to') to: string,
+  ): Promise<object[]> {
+    return await this.reportService.extractMilestoneData({ to, from });
+  }
 }
