@@ -204,6 +204,9 @@ test-e2e:
 	@make stop-test-db
 	@echo "++\n*****"
 
+open-cypress:
+	@yarn workspace @ien/web open:cypress
+
 test-pa11y:
 	@make start-test-db
 	@yarn build

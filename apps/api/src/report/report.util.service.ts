@@ -772,21 +772,21 @@ export class ReportUtilService {
 
   extractApplicantMilestoneQuery(from: string, to: string) {
     return `
-    select milestone.applicant_id, 
-      applicant.registration_date, 
-      applicant.assigned_to,
-      applicant.country_of_residence,
-      applicant.pr_status,
-      CAST (applicant.nursing_educations as text),
-      CAST (applicant.country_of_citizenship as text),
-      ien_ha_pcn.abbreviation,
-      ien_applicant_status.status,
-      milestone.start_date
+    select milestone.applicant_id "Applicant ID", 
+      applicant.registration_date "Registration Date", 
+      applicant.assigned_to "Assigned to",
+      applicant.country_of_residence "Country of Residence",
+      applicant.pr_status "PR Status",
+      CAST (applicant.nursing_educations as text) "Nursing Education",
+      CAST (applicant.country_of_citizenship as text) "Country of Citizenship",
+      ien_ha_pcn.abbreviation "Health Authority",
+      ien_applicant_status.status "Milestone",
+      milestone.start_date "Start Date"
     FROM ien_applicant_status_audit milestone 
       LEFT JOIN ien_applicants applicant 
         ON milestone.applicant_id = applicant.id
       LEFT JOIN ien_applicant_status 
-        ON ien_applicant_status.id = applicant.status_id
+        ON ien_applicant_status.id = milestone.status_id
       LEFT JOIN ien_applicant_jobs job 
         ON job.id = milestone.job_id
       LEFT JOIN ien_ha_pcn 

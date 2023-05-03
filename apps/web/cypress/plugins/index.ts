@@ -53,24 +53,14 @@ module.exports = (on: any, config: any) => {
         });
       return true;
     },
-    checkDataExtract: (): boolean => {
-      const files = fs.readdirSync(config.downloadsFolder);
-      if (!files?.length) {
-        throw Error('no files downloaded.');
-      }
+    checkDataExtract({ fileName, sheetNames }: { fileName: string; sheetNames: string[] }) {
+      const wb = readFile(path.join(config.downloadsFolder, fileName));
 
-      files
-        .filter(f => f.includes('ien-applicant-data-extract'))
-        .forEach(name => {
-          if (!name.endsWith('.xlsx')) return;
-
-          const wb = readFile(path.join(config.downloadsFolder, name));
-
-          const sheetName = 'IEN Applicant Data Extract';
-          if (!wb.Sheets[sheetName]) {
-            throw Error(`${name} doesn't have ${sheetName} sheet`);
-          }
-        });
+      sheetNames.forEach(sheetName => {
+        if (!wb.Sheets[sheetName]) {
+          throw Error(`${name} doesn't have ${sheetName} sheet`);
+        }
+      });
       return true;
     },
     isFileExist,

@@ -1,16 +1,26 @@
+import React, { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import { Formik, Form as FormikForm, FormikHelpers } from 'formik';
-import { writeFileXLSX } from 'xlsx-js-style';
+import { WorkBook, writeFileXLSX } from 'xlsx-js-style';
 import createValidator from 'class-validator-formik';
+import ReactSelect from 'react-select';
 
-import { Button } from '@components';
-import { PeriodFilter, ReportPeriodDTO } from '@ien/common';
-import { createApplicantDataExtractWorkbook } from '@services';
+import { Button, getSelectStyleOverride, Label } from '@components';
+import { Authorities, PeriodFilter, ReportPeriodDTO } from '@ien/common';
+import {
+  createApplicantDataExtractWorkbook,
+  createMilestoneDataExtractWorkbook,
+  SelectOption,
+} from '@services';
+import { useAuthContext } from '../AuthContexts';
 import { DatePickerField } from '../form/DatePickerField';
-import React from 'react';
 
-const REPORT_PREFIX = 'ien-applicant-data-extract';
 const MIN_DATE = 'January 1, 2001';
+
+const DataTypeOptions: SelectOption<string>[] = [
+  { value: 'applicants', label: 'Applicants' },
+  { value: 'milestones', label: 'Milestones' },
+];
 
 const initialValues: PeriodFilter = {
   from: '',
@@ -18,17 +28,25 @@ const initialValues: PeriodFilter = {
 };
 
 export const DataExtractReport = () => {
+  const { authUser } = useAuthContext();
+
+  const [dataType, setDataType] = useState(DataTypeOptions[0].value);
+
   const dataExtractSchema = createValidator(ReportPeriodDTO);
 
   const download = async (values: PeriodFilter, helpers?: FormikHelpers<PeriodFilter>) => {
-    const { from, to } = values;
-    const workbook = await createApplicantDataExtractWorkbook({
-      from,
-      to,
-    });
+    let workbook: WorkBook | null;
+
+    if (dataType === 'applicants') {
+      workbook = await createApplicantDataExtractWorkbook(values);
+    } else {
+      workbook = await createMilestoneDataExtractWorkbook(values);
+    }
 
     if (workbook) {
-      writeFileXLSX(workbook, `${REPORT_PREFIX}-${values.from}-${values.to}.xlsx`);
+      const prefix = `ien-${dataType}-data-extract`;
+      const period = `${values.from}-${values.to}`;
+      writeFileXLSX(workbook, `${prefix}_${period}.xlsx`);
     }
 
     helpers && helpers.resetForm();
@@ -54,6 +72,15 @@ export const DataExtractReport = () => {
     }
   };
 
+  useEffect(
+    function initializeDataOption() {
+      if (authUser && authUser.organization === Authorities.MOH.name) {
+        setDataType(DataTypeOptions[1].value);
+      }
+    },
+    [authUser],
+  );
+
   return (
     <div className='h-32'>
       <div className='text-bcBluePrimary text-lg font-bold mb-4'>Data Extract</div>
@@ -71,7 +98,7 @@ export const DataExtractReport = () => {
                   validate={(val: string) => validateDate(val, values.to)}
                 />
               </span>
-              <span className='pr-3 w-full'>
+              <span className='w-full'>
                 <DatePickerField
                   name='to'
                   label='End Date'
@@ -81,6 +108,19 @@ export const DataExtractReport = () => {
                   validate={(val: string) => validateDate(val)}
                 />
               </span>
+              <div className='mx-8 w-2/5'>
+                <div className='mb-2'>
+                  <Label htmlFor='data-extract-type'>Data Type</Label>
+                </div>
+                <ReactSelect<SelectOption<string>>
+                  id='data-extract-type'
+                  options={DataTypeOptions}
+                  onChange={v => setDataType(v?.value ?? '')}
+                  value={DataTypeOptions.find(v => v.value === dataType)}
+                  styles={getSelectStyleOverride()}
+                  className='placeholder-bcGray'
+                />
+              </div>
               <span className='pr-3 mt-8'>
                 <Button
                   className='w-full px-8'
