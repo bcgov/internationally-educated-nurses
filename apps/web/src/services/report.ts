@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 
 import { MILESTONES, Period, PeriodFilter } from '@ien/common';
 import { convertToParams, notifyError } from '../utils';
+import { isoCountries } from './constants';
 
 const bold = { bold: true };
 const fgColor = { rgb: 'e6f2ff' };
@@ -326,6 +327,18 @@ export const getApplicantDataExtractSheet = (applicants: object[]): WorkSheet =>
   return utils.json_to_sheet(applicants.map(a => _.pick(a, columns)));
 };
 
+const createDataExtractWoorkbook = (data: object[], sheetName: string): WorkBook => {
+  const workbook = utils.book_new();
+  utils.book_append_sheet(workbook, getApplicantDataExtractSheet(data), sheetName);
+
+  const legend = Object.keys(isoCountries).map(code => ({
+    Code: code,
+    Country: isoCountries[code as keyof typeof isoCountries].name,
+  }));
+  utils.book_append_sheet(workbook, utils.json_to_sheet(legend), 'Legend');
+  return workbook;
+};
+
 export const createApplicantDataExtractWorkbook = async (
   filter: PeriodFilter,
 ): Promise<WorkBook | null> => {
@@ -336,14 +349,29 @@ export const createApplicantDataExtractWorkbook = async (
       toast.error('There is no Applicant data to extract during this time period');
       return null;
     }
-    const workbook = utils.book_new();
-    utils.book_append_sheet(
-      workbook,
-      getApplicantDataExtractSheet(applicants),
-      'IEN Applicant Data Extract',
-    );
-    return workbook;
-  } catch {
+    return createDataExtractWoorkbook(applicants, 'Rows as Users');
+  } catch (e) {
+    if (e instanceof Error) {
+      toast.error(e.message);
+    }
+    return null;
+  }
+};
+
+export const createMilestoneDataExtractWorkbook = async (
+  filter: PeriodFilter,
+): Promise<WorkBook | null> => {
+  try {
+    const milestones = await getMilestoneDataExtract(filter);
+    if (!milestones || milestones.length === 0) {
+      toast.error('There is no milestone data to extract during this time period');
+      return null;
+    }
+    return createDataExtractWoorkbook(milestones, 'Rows as Milestones');
+  } catch (e) {
+    if (e instanceof Error) {
+      toast.error(e.message);
+    }
     return null;
   }
 };
