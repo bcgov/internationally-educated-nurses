@@ -5,4 +5,5 @@ export enum Access {
   APPLICANT_READ = 'applicant-read',
   APPLICANT_WRITE = 'applicant-write',
   DATA_EXTRACT = 'data-extract',
+  ADMIN = 'admin',
 }

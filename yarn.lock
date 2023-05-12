@@ -958,6 +958,7 @@ __metadata:
     "@types/express": 4.17.13
     "@types/js-yaml": 4.0.5
     "@types/jsonwebtoken": ">=9.0.0"
+    "@types/multer": ^1.4.7
     "@types/node": 16.0.0
     "@types/supertest": 2.0.11
     "@vendia/serverless-express": 4.3.11
@@ -2459,6 +2460,15 @@ __metadata:
   version: 3.0.5
   resolution: "@types/minimatch@npm:3.0.5"
   checksum: c41d136f67231c3131cf1d4ca0b06687f4a322918a3a5adddc87ce90ed9dbd175a3610adee36b106ae68c0b92c637c35e02b58c8a56c424f71d30993ea220b92
+  languageName: node
+  linkType: hard
+
+"@types/multer@npm:^1.4.7":
+  version: 1.4.7
+  resolution: "@types/multer@npm:1.4.7"
+  dependencies:
+    "@types/express": "*"
+  checksum: 680cb0710aa25264d20cdcdaf34c212b636b55ea141310f06c25354ab1401193c7aa6839f9d22abf64a223fab1f2b8287f2512b0bef7e1628c4e9ffe54b4aeb2
   languageName: node
   linkType: hard
 

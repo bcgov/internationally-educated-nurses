@@ -28,7 +28,7 @@ export class AppLogger implements LoggerService {
     this.logger.log(message, context);
   }
 
-  async error(e: unknown, context?: string) {
+  error(e: unknown, context?: string) {
     const error = e as Error & { response?: Error };
     let message: string | object = error.message;
 
@@ -49,8 +49,10 @@ export class AppLogger implements LoggerService {
     if (error.response?.message) {
       message = error.response?.message;
     }
+
     const env = process.env.TARGET_ENV || 'N/A';
-    await sendToSQS({ message, stack: error.stack, context, env });
+    sendToSQS({ message, stack: error.stack, context, env });
+
     this.logger.error(message, error.stack, context);
   }
 

@@ -9,9 +9,18 @@ import { EmployeeModule } from './employee/employee.module';
 import { AuthModule } from './auth/auth.module';
 import { ReportModule } from './report/report.module';
 import { LoggerMiddleware } from './logger.middleware';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
-  imports: [DatabaseModule, FormModule, ApplicantModule, EmployeeModule, AuthModule, ReportModule],
+  imports: [
+    DatabaseModule,
+    FormModule,
+    ApplicantModule,
+    EmployeeModule,
+    AuthModule,
+    ReportModule,
+    AdminModule,
+  ],
   controllers: [AppController],
   providers: [AppService, AppLogger],
 })
