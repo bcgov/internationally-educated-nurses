@@ -1,21 +1,14 @@
 import React from 'react';
-import { useDropzone } from 'react-dropzone';
+import { DropzoneOptions, useDropzone } from 'react-dropzone';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCloudUploadAlt } from '@fortawesome/free-solid-svg-icons';
-import { onDropType } from '@services';
 
-export const Dropzone: React.FC<{ onDrop: onDropType }> = ({ onDrop }) => {
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+export const Dropzone = (props: DropzoneOptions) => {
+  const { getRootProps, getInputProps, isDragActive } = useDropzone(props);
 
   return (
     <div {...getRootProps()} className='w-full'>
-      <input
-        className='w-full'
-        {...getInputProps({
-          accept: '.csv',
-          multiple: false,
-        })}
-      />
+      <input className='w-full' {...getInputProps()} />
       {
         <div
           className={`w-full h-32 border-dashed border-2 rounded-sm border-bcBlueLink flex flex-col items-center justify-center ${

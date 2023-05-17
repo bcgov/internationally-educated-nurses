@@ -92,7 +92,7 @@ const UploadPage: React.FC<UploadPageProps> = ({ closeModal }) => {
         <Modal.Description>
           <span className='block'>(Must be a csv file)</span>
         </Modal.Description>
-        <Dropzone onDrop={handleOnDrop} />
+        <Dropzone onDrop={handleOnDrop} accept='.csv' />
         {file ? (
           <div className='flex justify-between items-center bg-gray-200 p-3'>
             <p>

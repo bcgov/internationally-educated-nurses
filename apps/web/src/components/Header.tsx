@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 
 import logo from '@assets/img/bc_logo.png';
 import { UserDropdown } from './UserDropdown';
+import { HeaderHelper } from './admin/HeaderHelper';
 
 export const Header: React.FC = () => {
   const router = useRouter();
@@ -33,7 +34,10 @@ export const Header: React.FC = () => {
               </h1>
             </div>
           </div>
-          <UserDropdown />
+          <div className='flex flex-row'>
+            <UserDropdown />
+            <HeaderHelper />
+          </div>
         </div>
       </div>
     </header>

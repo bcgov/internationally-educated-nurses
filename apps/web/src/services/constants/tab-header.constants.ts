@@ -25,4 +25,10 @@ export const menuBarTabs = [
     paths: ['/user-management'],
     acl: [Access.USER_READ],
   },
+  {
+    title: 'Admin Maintenance',
+    defaultPath: '/admin',
+    paths: ['/admin'],
+    acl: [Access.ADMIN],
+  },
 ];
