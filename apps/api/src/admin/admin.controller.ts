@@ -16,7 +16,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/auth.guard';
 import { AppLogger } from '../common/logger.service';
 import { AdminService } from './admin.service';
@@ -55,6 +55,7 @@ export class AdminController {
     status: HttpStatus.CREATED,
     type: UploadRO,
   })
+  @ApiConsumes('multipart/form-data')
   @AllowAccess(Access.ADMIN)
   @Post('/user-guides')
   @UseInterceptors(FileInterceptor('file'))

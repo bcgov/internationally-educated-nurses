@@ -4,9 +4,9 @@ import { ApiModelProperty } from '@nestjs/swagger/dist/decorators/api-model-prop
 export class UploadDTO {
   @ApiModelProperty({
     description: 'a user guide of pdf format',
+    type: 'file',
   })
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  file!: any;
+  file!: Express.Multer.File;
 
   @ApiModelProperty({
     description: 'key name for the AWS S3 object',
