@@ -1,27 +1,12 @@
-import { useEffect, useState } from 'react';
-import { Access, UserGuide } from '@ien/common';
+import { useState } from 'react';
+import { Access } from '@ien/common';
 import { buttonBase, buttonColor } from '@components';
 import { UserGuideList } from '../components/admin/UserGuideList';
 import withAuth from '../components/Keycloak';
 import { UserGuideUploader } from '../components/admin/UserGuideUploader';
-import { getUserGuides } from '../services/admin';
-import { toast } from 'react-toastify';
 
 const AdminPage = () => {
-  const [uploadDialogVisible, setUploadDialogVisible] = useState(false);
-  const [files, setFiles] = useState<UserGuide[]>([]);
-
-  const getFiles = () => {
-    getUserGuides()
-      .then(setFiles)
-      .catch(e => toast.error(e.message));
-  };
-  const closeUploader = (refresh: boolean) => {
-    setUploadDialogVisible(false);
-    if (refresh) getFiles();
-  };
-
-  useEffect(getFiles, []);
+  const [uploaderOpen, setUploaderOpen] = useState(false);
 
   return (
     <div className='container w-full mx-6 xl:w-xl mb-4'>
@@ -31,14 +16,14 @@ const AdminPage = () => {
           <h2 className='font-bold text-lg text-bcBluePrimary my-4'>User Guides</h2>
           <button
             className={`px-4 ${buttonColor.outline} ${buttonBase} border-bcGray text-bcGray`}
-            onClick={() => setUploadDialogVisible(true)}
+            onClick={() => setUploaderOpen(true)}
           >
             Upload
           </button>
         </div>
-        <UserGuideList files={files} />
+        <UserGuideList />
       </div>
-      <UserGuideUploader onClose={closeUploader} open={uploadDialogVisible} />
+      <UserGuideUploader onClose={() => setUploaderOpen(false)} open={uploaderOpen} />
     </div>
   );
 };

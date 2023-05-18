@@ -6,13 +6,15 @@ import { Button } from '@components';
 import { Modal } from '../Modal';
 import { Dropzone } from '../Dropzone';
 import { uploadUserGuide } from '../../services/admin';
+import { useSWRConfig } from 'swr';
 
 interface UserGuideUploaderProps {
-  onClose: (refresh: boolean) => void;
+  onClose: () => void;
   open: boolean;
 }
 
 export const UserGuideUploader = ({ onClose, open }: UserGuideUploaderProps) => {
+  const { mutate } = useSWRConfig();
   const [file, setFile] = useState<File | null>();
 
   const handleOnDrop = (files: File[]) => {
@@ -23,20 +25,22 @@ export const UserGuideUploader = ({ onClose, open }: UserGuideUploaderProps) => 
     }
   };
 
+  const close = () => {
+    setFile(null);
+    onClose();
+  };
+
   const uploadFile = async () => {
     if (file) {
       const data = new FormData();
       data.append('name', file.name);
       data.append('file', file);
-      await uploadUserGuide(data);
-      setFile(null);
-      onClose(true);
-    }
-  };
 
-  const cancel = () => {
-    setFile(null);
-    onClose(false);
+      await uploadUserGuide(data);
+      mutate('/admin/user-guides').catch(e => toast.error(e.message));
+
+      close();
+    }
   };
 
   return (
@@ -64,7 +68,7 @@ export const UserGuideUploader = ({ onClose, open }: UserGuideUploaderProps) => 
         ) : null}
       </div>
       <div className='w-full flex justify-between pt-2 p-3 border'>
-        <Button onClick={cancel} variant='outline' type='button'>
+        <Button onClick={close} variant='outline' type='button'>
           Cancel
         </Button>
         <Button onClick={uploadFile} variant='primary' type='button' disabled={!file}>

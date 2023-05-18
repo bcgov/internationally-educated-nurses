@@ -1,10 +1,5 @@
 import axios from 'axios';
 
-export const getUserGuides = async () => {
-  const { data } = await axios.get('/admin/user-guides');
-  return data?.data || [];
-};
-
 export const downloadGuide = async (name: string) => {
   const response = await axios.get(`/admin/user-guides/${name}`, { responseType: 'blob' });
   return window.URL.createObjectURL(response.data);

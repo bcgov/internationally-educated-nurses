@@ -1,12 +1,14 @@
-import { UserGuide } from '@ien/common';
 import { UserGuideRow } from './UserGuideRow';
+import useSWR from 'swr';
+import { fetcher } from '../../utils';
+import { UserGuide } from '@ien/common';
 
-interface UserGuideListProps {
-  files: UserGuide[];
-}
+export const UserGuideList = () => {
+  const { data } = useSWR<{ data: UserGuide[] }>('/admin/user-guides', fetcher);
 
-export const UserGuideList = ({ files }: UserGuideListProps) => {
-  if (!files.length) {
+  const files = data?.data?.sort((a, b) => (a.lastModified < b.lastModified ? 1 : -1));
+
+  if (!files?.length) {
     return <div className='w-full text-center'>No files found!</div>;
   }
 
