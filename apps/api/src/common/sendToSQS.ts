@@ -4,7 +4,7 @@ AWS.config.update({ region: process.env.AWS_S3_REGION });
 const SQS = new AWS.SQS({ apiVersion: '2012-11-05' });
 const sqsQueueUrl = process.env.SQS_QUEUE_URL;
 
-export default async function sendToSQS(data: unknown): Promise<void> {
+export default function sendToSQS(data: unknown) {
   if (sqsQueueUrl) {
     try {
       Logger.log('SQS function triggered');
@@ -13,7 +13,7 @@ export default async function sendToSQS(data: unknown): Promise<void> {
         QueueUrl: sqsQueueUrl,
       };
       Logger.log('Sending message', 'sendToSQS');
-      await SQS.sendMessage(params)
+      SQS.sendMessage(params)
         .promise()
         .then(res =>
           Logger.log(`Successfully added message to queue ${res.MessageId}`, 'sendToSQS'),

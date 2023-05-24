@@ -19,6 +19,7 @@ export class ReportCacheEntity {
   report_period!: number;
 
   @Column('jsonb', { nullable: false })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   report_data!: any;
 
   @CreateDateColumn()

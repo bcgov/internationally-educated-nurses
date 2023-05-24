@@ -4,7 +4,6 @@ export * from './user-management';
 export * from './file-upload';
 export * from './master-lists';
 export * from './date-utils';
-export * from './event-emitter';
 export * from './auth-checks';
 
 // constants

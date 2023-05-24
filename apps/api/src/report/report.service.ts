@@ -284,6 +284,7 @@ export class ReportService {
     statuses: Record<string, string>,
     oldProcess: { status_id: string; count: string }[],
     newProcess: { status_id: string; count: string }[],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     licenceResults: any,
     withdrawnOld: string,
     withdrawnNew: string,
