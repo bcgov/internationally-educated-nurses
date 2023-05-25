@@ -17,4 +17,9 @@ export class UserGuideRO implements UserGuide {
     description: 'file size in bytes',
   })
   size!: number;
+
+  @ApiModelProperty({
+    description: 'file version',
+  })
+  version!: string;
 }

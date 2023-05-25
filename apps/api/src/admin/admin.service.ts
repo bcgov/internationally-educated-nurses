@@ -17,43 +17,88 @@ export class AdminService {
   }
 
   async getUserGuides(): Promise<UserGuide[]> {
-    return await new Promise((resolve, reject) => {
-      this.s3.listObjects((e, data) => {
-        if (e) {
-          this.logger.error(e, 'S3');
-          reject(e);
-        } else {
-          const files =
-            data.Contents?.map(({ Key, LastModified, Size }) => {
-              return { name: Key, lastModified: LastModified, size: Size };
-            }) ?? [];
-          resolve(files as UserGuide[]);
-        }
-      });
-    });
+    try {
+      const result = await this.s3.listObjects().promise();
+
+      return (
+        result.Contents?.map(o => {
+          return { name: o.Key, lastModified: o.LastModified, size: o.Size } as UserGuide;
+        }) ?? []
+      );
+    } catch (e) {
+      this.logger.error(e, 'S3');
+      throw e;
+    }
   }
 
   async uploadUserGuide(name: string, file: Express.Multer.File): Promise<string> {
-    return new Promise((resolve, reject) => {
-      this.s3.upload(
-        {
-          Bucket: BUCKET_NAME,
-          Key: name,
-          Body: file.buffer,
-        },
-        (e, data) => {
-          if (e) {
-            this.logger.error(e, 'S3');
-            reject(e);
-          } else {
-            resolve(data.Location);
-          }
-        },
-      );
-    });
+    try {
+      const params = { Bucket: BUCKET_NAME, Key: name, Body: file.buffer };
+      const result = await this.s3.upload(params).promise();
+      return result.Location;
+    } catch (e) {
+      this.logger.error(e, 'S3');
+      throw e;
+    }
   }
 
-  getUserGuideStream(key: string) {
-    return this.s3.getObject({ Bucket: BUCKET_NAME, Key: key }).createReadStream();
+  getUserGuideStream(key: string, version?: string) {
+    const queryParams: AWS.S3.GetObjectRequest = { Bucket: BUCKET_NAME, Key: key };
+    if (version) queryParams.VersionId = version;
+
+    return this.s3.getObject(queryParams).createReadStream();
+  }
+
+  async getVersions(key: string): Promise<UserGuide[]> {
+    try {
+      const queryParams: AWS.S3.ListObjectVersionsRequest = { Bucket: BUCKET_NAME, Prefix: key };
+
+      const version = await this.s3.listObjectVersions(queryParams).promise();
+
+      return (
+        version.Versions?.filter(v => v.Key === key).map(
+          v =>
+            ({
+              name: v.Key,
+              size: v.Size,
+              lastModified: v.LastModified,
+              version: v.VersionId,
+            } as UserGuide),
+        ) || []
+      );
+    } catch (e) {
+      this.logger.error(e, 'S3');
+      throw e;
+    }
+  }
+
+  async deleteUserGuide(key: string, version?: string) {
+    try {
+      const params: AWS.S3.DeleteObjectRequest = {
+        Bucket: BUCKET_NAME,
+        Key: key,
+      };
+      if (version) params.VersionId = version;
+
+      await this.s3.deleteObject(params).promise();
+    } catch (e) {
+      this.logger.error(e, 'S3');
+      throw e;
+    }
+  }
+
+  async restoreUserGuide(key: string, version: string) {
+    try {
+      const params: AWS.S3.CopyObjectRequest = {
+        Bucket: BUCKET_NAME,
+        CopySource: encodeURI(`/${BUCKET_NAME}/${key}?versionId=${version}`),
+        Key: key,
+      };
+      await this.s3.copyObject(params).promise();
+      await this.deleteUserGuide(key, version);
+    } catch (e) {
+      this.logger.error(e, 'S3');
+      throw e;
+    }
   }
 }
