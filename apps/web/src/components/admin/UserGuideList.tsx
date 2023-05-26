@@ -3,7 +3,11 @@ import useSWR from 'swr';
 import { fetcher } from '../../utils';
 import { UserGuide } from '@ien/common';
 
-export const UserGuideList = () => {
+interface UserGuideListProps {
+  showVersions?: boolean;
+}
+
+export const UserGuideList = ({ showVersions = true }: UserGuideListProps) => {
   const { data } = useSWR<{ data: UserGuide[] }>('/admin/user-guides', fetcher);
 
   const files = data?.data?.sort((a, b) => (a.lastModified < b.lastModified ? 1 : -1));
@@ -15,7 +19,7 @@ export const UserGuideList = () => {
   return (
     <div>
       {files?.map(file => (
-        <UserGuideRow key={file.name} file={file} />
+        <UserGuideRow key={file.name} file={file} showVersions={showVersions} />
       ))}
     </div>
   );

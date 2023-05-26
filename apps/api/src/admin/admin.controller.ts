@@ -3,13 +3,16 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Header,
   HttpStatus,
   Inject,
   Logger,
   Param,
+  Patch,
   Post,
+  Query,
   Res,
   StreamableFile,
   UploadedFile,
@@ -25,6 +28,7 @@ import { Access } from '@ien/common';
 import { AllowAccess } from '../common/decorators';
 import { UploadRO } from './ro/upload.ro';
 import { UploadDTO } from './dto/upload.dto';
+import { EmptyResponse } from '../common/ro/empty-response.ro';
 
 @Controller('admin')
 @ApiTags('IEN Admin')
@@ -72,9 +76,50 @@ export class AdminController {
   })
   @Get('/user-guides/:name')
   @Header('Content-Type', 'application/pdf')
-  async getUserGuide(@Param('name') name: string, @Res() res: ServerResponse) {
+  async getUserGuide(
+    @Param('name') name: string,
+    @Query('version') version: string,
+    @Res() res: ServerResponse,
+  ) {
     res.setHeader('Content-Disposition', `attachment; filename=${name}`);
-    const stream = this.service.getUserGuideStream(name);
+    const stream = this.service.getUserGuideStream(name, version);
     stream.pipe(res);
+  }
+
+  @ApiOperation({
+    summary: 'Get file versions',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: UserGuideRO,
+    isArray: true,
+  })
+  @Get('/user-guides/:name/versions')
+  async getUserGuideVersions(@Param('name') name: string) {
+    return this.service.getVersions(name);
+  }
+
+  @ApiOperation({
+    summary: 'Delete a file or its specific version',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: EmptyResponse,
+  })
+  @Delete('/user-guides/:name')
+  async deleteUserGuide(@Param('name') name: string, @Query('version') version?: string) {
+    return this.service.deleteUserGuide(name, version);
+  }
+
+  @ApiOperation({
+    summary: 'Restore a file to a specific version',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: EmptyResponse,
+  })
+  @Patch('/user-guides/:name')
+  async restoreUserGuide(@Param('name') name: string, @Query('version') version: string) {
+    return this.service.restoreUserGuide(name, version);
   }
 }

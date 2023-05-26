@@ -6,6 +6,7 @@ interface DisclosureProps {
   content: React.ReactNode;
   shouldExpand?: boolean;
   bgClass?: string;
+  onChange?: (open: boolean) => void;
 }
 
 export const Disclosure: React.FC<DisclosureProps> = ({
@@ -13,11 +14,12 @@ export const Disclosure: React.FC<DisclosureProps> = ({
   content,
   shouldExpand,
   bgClass = '',
+  onChange,
 }) => {
   return (
     <HeadlessDisclosure defaultOpen={shouldExpand}>
       {({ open }) => (
-        <div className='border border-gray-200 rounded'>
+        <div className='border border-gray-200 rounded' onClick={() => onChange?.(!open)}>
           <HeadlessDisclosure.Button
             className={`${bgClass} rounded-b-none flex justify-between w-full py-2`}
           >

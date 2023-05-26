@@ -31,7 +31,7 @@ export const HeaderHelper = () => {
           User Guides
         </Modal.Title>
         <div className='px-4 py-8'>
-          <UserGuideList />
+          <UserGuideList showVersions={false} />
         </div>
       </Modal>
     </>
