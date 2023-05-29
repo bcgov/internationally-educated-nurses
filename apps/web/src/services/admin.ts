@@ -3,11 +3,9 @@ import { UserGuide } from '@ien/common';
 
 export const downloadUserGuide = async (name: string, version?: string) => {
   const query = version ? new URLSearchParams({ version }).toString() : '';
-  const response = await axios.get(`/admin/user-guides/${name}?${query}`, {
-    responseType: 'blob',
-    headers: { 'Accept-Encoding': 'identity' },
-  });
-  // eslint-disable-next-line no-console
+
+  const response = await axios.get(`/admin/user-guides/${name}?${query}`, { responseType: 'blob' });
+
   return window.URL.createObjectURL(response.data);
 };
 

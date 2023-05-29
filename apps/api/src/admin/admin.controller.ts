@@ -76,6 +76,7 @@ export class AdminController {
   })
   @Get('/user-guides/:name')
   @Header('Content-Type', 'application/pdf')
+  @Header('Content-Encoding', '')
   async getUserGuide(
     @Param('name') name: string,
     @Query('version') version: string,
