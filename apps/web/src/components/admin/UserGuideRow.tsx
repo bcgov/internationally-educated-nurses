@@ -7,7 +7,7 @@ import { UserGuide } from '@ien/common';
 import { Disclosure } from '@components';
 import {
   deleteUserGuide,
-  downloadUserGuide,
+  getSignedUrlOfUserGuide,
   getUserGuideVersions,
   restoreUserGuide,
 } from '../../services/admin';
@@ -33,13 +33,8 @@ export const UserGuideRow = ({ file, showVersions }: UserGuideProps) => {
   const openFile = (name: string, version?: string) => {
     setSelectedVersion(version);
     setLoading(true);
-    downloadUserGuide(file.name, version)
-      .then(url => {
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = name;
-        link.click();
-      })
+    getSignedUrlOfUserGuide(name, version)
+      .then(window.open)
       .finally(() => setLoading(false));
   };
 

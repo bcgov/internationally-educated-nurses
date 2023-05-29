@@ -1,5 +1,6 @@
 import { UserGuide } from '@ien/common';
 import { ApiModelProperty } from '@nestjs/swagger/dist/decorators/api-model-property.decorator';
+import { SuccessResponse } from '../../common/ro/success-response.ro';
 
 export class UserGuideRO implements UserGuide {
   @ApiModelProperty({
@@ -22,4 +23,13 @@ export class UserGuideRO implements UserGuide {
     description: 'file version',
   })
   version!: string;
+}
+
+export class UserGuideResponse implements SuccessResponse {
+  @ApiModelProperty({
+    description: 'Response data',
+    type: UserGuideRO,
+    isArray: true,
+  })
+  data!: UserGuideRO[];
 }
