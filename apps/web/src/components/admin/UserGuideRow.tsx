@@ -7,7 +7,7 @@ import { UserGuide } from '@ien/common';
 import { Disclosure } from '@components';
 import {
   deleteUserGuide,
-  downloadUserGuide,
+  getSignedUrlOfUserGuide,
   getUserGuideVersions,
   restoreUserGuide,
 } from '../../services/admin';
@@ -33,7 +33,7 @@ export const UserGuideRow = ({ file, showVersions }: UserGuideProps) => {
   const openFile = (name: string, version?: string) => {
     setSelectedVersion(version);
     setLoading(true);
-    downloadUserGuide(file.name, version)
+    getSignedUrlOfUserGuide(name, version)
       .then(window.open)
       .finally(() => setLoading(false));
   };
@@ -91,7 +91,7 @@ export const UserGuideRow = ({ file, showVersions }: UserGuideProps) => {
         >
           {version ? getSizeWithUnit(size) : name}
         </div>
-        {(index > 0 || (versions && versions?.length > 1)) && (
+        {!(index === 0 && versions?.length === 1) && (
           <FontAwesomeIcon
             icon={faTrash}
             className='h-4 ml-5 my-auto cursor-pointer text-bcGray'
@@ -135,7 +135,7 @@ export const UserGuideRow = ({ file, showVersions }: UserGuideProps) => {
           buttonText={
             <div className='w-full flex flex-row p-2 text-left'>{getUserGuideRow(file)}</div>
           }
-          content={getVersionList()}
+          content={<div className='pl-8'>{getVersionList()}</div>}
           onChange={getVersions}
         />
       ) : (

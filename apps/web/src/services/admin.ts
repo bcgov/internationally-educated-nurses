@@ -1,14 +1,14 @@
 import axios from 'axios';
 import { UserGuide } from '@ien/common';
 
-export const downloadUserGuide = async (name: string, version?: string) => {
+export const getSignedUrlOfUserGuide = async (name: string, version?: string) => {
   const query = version ? new URLSearchParams({ version }).toString() : '';
-  const response = await axios.get(`/admin/user-guides/${name}?${query}`, { responseType: 'blob' });
-  return window.URL.createObjectURL(response.data);
+  const { data } = await axios.get<{ data: string }>(`/admin/user-guides/${name}?${query}`);
+  return data.data;
 };
 
 export const uploadUserGuide = async (payload: FormData) => {
-  const { data } = await axios.post(`/admin/user-guides`, payload, {
+  const { data } = await axios.post<{ data: UserGuide }>(`/admin/user-guides`, payload, {
     headers: { 'Content-Type': 'multipart/form-data' },
   });
   return data.data;

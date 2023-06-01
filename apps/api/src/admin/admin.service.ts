@@ -1,5 +1,5 @@
 import AWS from 'aws-sdk';
-import { Inject, Logger } from '@nestjs/common';
+import { Inject, InternalServerErrorException, Logger } from '@nestjs/common';
 import { AppLogger } from '../common/logger.service';
 import { UserGuide } from '@ien/common';
 
@@ -27,7 +27,7 @@ export class AdminService {
       );
     } catch (e) {
       this.logger.error(e, 'S3');
-      throw e;
+      throw new InternalServerErrorException('failed to get the list of user guides');
     }
   }
 
@@ -38,15 +38,18 @@ export class AdminService {
       return result.Location;
     } catch (e) {
       this.logger.error(e, 'S3');
-      throw e;
+      throw new InternalServerErrorException('failed to upload a user guide');
     }
   }
 
-  getUserGuideStream(key: string, version?: string) {
-    const queryParams: AWS.S3.GetObjectRequest = { Bucket: BUCKET_NAME, Key: key };
-    if (version) queryParams.VersionId = version;
-
-    return this.s3.getObject(queryParams).createReadStream();
+  async getSignedUrl(key: string, version?: string) {
+    try {
+      const params = { Bucket: BUCKET_NAME, Key: key, VersionId: version, Expires: 60 };
+      return await this.s3.getSignedUrlPromise('getObject', params);
+    } catch (e) {
+      this.logger.error(e, 'S3');
+      throw new InternalServerErrorException('failed to get the signed url of a user guide');
+    }
   }
 
   async getVersions(key: string): Promise<UserGuide[]> {
@@ -68,7 +71,7 @@ export class AdminService {
       );
     } catch (e) {
       this.logger.error(e, 'S3');
-      throw e;
+      throw new InternalServerErrorException('failed to get versions of a user guide');
     }
   }
 
@@ -83,7 +86,7 @@ export class AdminService {
       await this.s3.deleteObject(params).promise();
     } catch (e) {
       this.logger.error(e, 'S3');
-      throw e;
+      throw new InternalServerErrorException('failed to delete a user guide');
     }
   }
 
@@ -98,7 +101,7 @@ export class AdminService {
       await this.deleteUserGuide(key, version);
     } catch (e) {
       this.logger.error(e, 'S3');
-      throw e;
+      throw new InternalServerErrorException('failed to restore a user guide');
     }
   }
 }

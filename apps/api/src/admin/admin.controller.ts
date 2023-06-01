@@ -1,11 +1,9 @@
-import { ServerResponse } from 'http';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
   Body,
   Controller,
   Delete,
   Get,
-  Header,
   HttpStatus,
   Inject,
   Logger,
@@ -13,8 +11,6 @@ import {
   Patch,
   Post,
   Query,
-  Res,
-  StreamableFile,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -23,10 +19,9 @@ import { ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger
 import { AuthGuard } from '../auth/auth.guard';
 import { AppLogger } from '../common/logger.service';
 import { AdminService } from './admin.service';
-import { UserGuideRO } from './ro/user-guide.ro';
+import { SignedUrlResponse, UploadResponse, UserGuideResponse } from './ro';
 import { Access } from '@ien/common';
 import { AllowAccess } from '../common/decorators';
-import { UploadRO } from './ro/upload.ro';
 import { UploadDTO } from './dto/upload.dto';
 import { EmptyResponse } from '../common/ro/empty-response.ro';
 
@@ -44,8 +39,7 @@ export class AdminController {
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    type: UserGuideRO,
-    isArray: true,
+    type: UserGuideResponse,
   })
   @Get('/user-guides')
   async getUserGuides() {
@@ -57,7 +51,7 @@ export class AdminController {
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    type: UploadRO,
+    type: UploadResponse,
   })
   @ApiConsumes('multipart/form-data')
   @AllowAccess(Access.ADMIN)
@@ -68,22 +62,18 @@ export class AdminController {
   }
 
   @ApiOperation({
-    summary: 'Download a user guide',
+    summary: 'Get pre-signed url of a user guide',
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    type: StreamableFile,
+    type: SignedUrlResponse,
   })
   @Get('/user-guides/:name')
-  @Header('Content-Type', 'application/pdf')
-  async getUserGuide(
+  async getSignedUrl(
     @Param('name') name: string,
-    @Query('version') version: string,
-    @Res() res: ServerResponse,
-  ) {
-    res.setHeader('Content-Disposition', `attachment; filename=${name}`);
-    const stream = this.service.getUserGuideStream(name, version);
-    stream.pipe(res);
+    @Query('version') version?: string,
+  ): Promise<string> {
+    return this.service.getSignedUrl(name, version);
   }
 
   @ApiOperation({
@@ -91,8 +81,7 @@ export class AdminController {
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    type: UserGuideRO,
-    isArray: true,
+    type: UserGuideResponse,
   })
   @Get('/user-guides/:name/versions')
   async getUserGuideVersions(@Param('name') name: string) {
