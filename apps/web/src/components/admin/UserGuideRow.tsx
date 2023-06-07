@@ -91,7 +91,7 @@ export const UserGuideRow = ({ file, showVersions }: UserGuideProps) => {
         >
           {version ? getSizeWithUnit(size) : name}
         </div>
-        {!(index === 0 && versions?.length === 1) && (
+        {showVersions && !(index === 0 && versions?.length === 1) && (
           <FontAwesomeIcon
             icon={faTrash}
             className='h-4 ml-5 my-auto cursor-pointer text-bcGray'

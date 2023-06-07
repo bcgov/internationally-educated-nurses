@@ -3,7 +3,7 @@ import { Inject, InternalServerErrorException, Logger } from '@nestjs/common';
 import { AppLogger } from '../common/logger.service';
 import { UserGuide } from '@ien/common';
 
-const BUCKET_NAME = process.env.BUCKET_NAME ?? 'ien-dev-docs';
+const BUCKET_NAME = process.env.DOCS_BUCKET ?? 'ien-dev-docs';
 
 export class AdminService {
   private s3: AWS.S3;
