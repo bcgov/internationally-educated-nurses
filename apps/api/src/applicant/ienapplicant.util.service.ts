@@ -107,8 +107,8 @@ export class IENApplicantUtilService {
   }
 
   /**
-   * Retrive status object for given status ID
-   * @param status
+   * Retrieve status object for given status ID
+   * @param id
    * @returns Status Object or NotFoundException
    */
   async getStatusById(id: string): Promise<IENApplicantStatus> {
@@ -118,6 +118,19 @@ export class IENApplicantUtilService {
     }
 
     return statusObj;
+  }
+
+  /**
+   * Retrieve status object for given status name
+   * @param status
+   * @returns Status Object or NotFoundException
+   */
+  async getStatusByName(status: string): Promise<IENApplicantStatus> {
+    const result = await this.ienMasterService.ienApplicantStatusRepository.findOne({ status });
+    if (!result) {
+      throw new NotFoundException(`Status with given value "${status}" not found`);
+    }
+    return result;
   }
 
   /**

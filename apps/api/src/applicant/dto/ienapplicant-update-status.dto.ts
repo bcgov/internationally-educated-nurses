@@ -1,6 +1,6 @@
-import { IENApplicantUpdateStatusDTO, STATUS } from '@ien/common';
+import { IenType, IENApplicantUpdateStatusDTO, STATUS } from '@ien/common';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsDateString, IsOptional, IsString, ValidateIf } from 'class-validator';
+import { IsDateString, IsEnum, IsOptional, IsString, ValidateIf } from 'class-validator';
 
 export class IENApplicantUpdateStatusAPIDTO extends IENApplicantUpdateStatusDTO {
   @ApiPropertyOptional({ description: 'Applicant active or last updated status', default: '3' })
@@ -50,12 +50,17 @@ export class IENApplicantUpdateStatusAPIDTO extends IENApplicantUpdateStatusDTO 
     format: 'date',
     pattern: 'YYYY-MM-DD',
   })
-  @ValidateIf(
-    s =>
-      s.status === `${STATUS.WITHDREW_FROM_COMPETITION}` ||
-      s.status === `${STATUS.WITHDREW_FROM_PROGRAM}`,
-  )
+  @ValidateIf(s => s.status === STATUS.JOB_OFFER_ACCEPTED)
   @IsDateString()
   @IsOptional()
   effective_date?: string;
+
+  @ApiPropertyOptional({
+    description: 'IEN type as HCA, LPN, RN',
+    type: 'string',
+  })
+  @ValidateIf(s => s.status === STATUS.JOB_OFFER_ACCEPTED)
+  @IsEnum(IenType)
+  @IsOptional()
+  type?: IenType;
 }

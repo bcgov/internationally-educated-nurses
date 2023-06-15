@@ -206,8 +206,9 @@ export class IENApplicantService {
 
   /**
    * Update status and audit it
+   * @param user
    * @param id applicant IEN ID
-   * @param applicantUpdate updated fields only status and related field
+   * @param milestone
    * @returns
    */
   async addApplicantStatus(
@@ -224,18 +225,18 @@ export class IENApplicantService {
     }
 
     /** Only allowing recruitment related milestones here */
-    const status_obj = await this.ienapplicantUtilService.getStatusById(status);
-    if (!status_obj) {
+    const statusDef = await this.ienapplicantUtilService.getStatusByName(status);
+    if (!statusDef) {
       throw new BadRequestException(`Invalid milestone: id(${status})`);
     }
 
-    if (!isAdmin(user) && status_obj.category != StatusCategory.RECRUITMENT) {
+    if (!isAdmin(user) && statusDef.category != StatusCategory.RECRUITMENT) {
       throw new BadRequestException(
         `Only recruitment-related milestones/statuses are allowed here`,
       );
     }
 
-    data.status = status_obj;
+    data.status = statusDef;
 
     const job = await this.ienapplicantUtilService.getJob(job_id);
     if (job && id !== job?.applicant.id) {
@@ -247,13 +248,11 @@ export class IENApplicantService {
     }
 
     if (user?.user_id) {
-      const added_by_data = await this.ienUsersRepository.findOne(user.user_id);
-      data.added_by = added_by_data;
+      data.added_by = await this.ienUsersRepository.findOne(user.user_id);
     }
 
     if (reason) {
-      const statusReason = await this.ienapplicantUtilService.getStatusReason(reason);
-      data.reason = statusReason;
+      data.reason = await this.ienapplicantUtilService.getStatusReason(reason);
     }
 
     data.reason_other = reason_other;
@@ -263,6 +262,7 @@ export class IENApplicantService {
     data.effective_date = effective_date ? dayjs(effective_date).toDate() : undefined;
 
     data.notes = notes;
+    data.type = milestone.type;
 
     let status_audit = null;
 
@@ -286,8 +286,9 @@ export class IENApplicantService {
 
   /**
    * Update applicant status record
-   * @param status_id Applicant Audit status
-   * @param applicantUpdate Status update data
+   * @param user
+   * @param status_id
+   * @param milestone
    * @returns
    */
   async updateApplicantStatus(
@@ -295,56 +296,56 @@ export class IENApplicantService {
     status_id: string,
     milestone: IENApplicantUpdateStatusAPIDTO,
   ): Promise<IENApplicantStatusAudit | any> {
-    const status_audit = await this.ienapplicantStatusAuditRepository.findOne(status_id, {
+    const audit = await this.ienapplicantStatusAuditRepository.findOne(status_id, {
       relations: ['applicant', 'added_by', 'status', 'job'],
     });
-    if (!status_audit) {
+    if (!audit) {
       throw new NotFoundException('Provided status/milestone record not found');
     }
-    const { status, start_date, effective_date, notes, reason } = milestone;
+    const { status, start_date, effective_date, notes, reason, type } = milestone;
     if (user?.user_id) {
       const updated_by_data = await this.ienUsersRepository.findOne(user.user_id);
       if (updated_by_data) {
-        status_audit.updated_by = updated_by_data;
+        audit.updated_by = updated_by_data;
       }
     }
 
     if (reason) {
-      const statusReason = await this.ienapplicantUtilService.getStatusReason(reason);
-      status_audit.reason = statusReason;
+      audit.reason = await this.ienapplicantUtilService.getStatusReason(reason);
     }
 
     if (status) {
-      const status_obj = await this.ienapplicantUtilService.getStatusById(status);
-      status_audit.status = status_obj;
+      audit.status = await this.ienapplicantUtilService.getStatusByName(status);
     }
 
     if (start_date) {
-      status_audit.start_date = dayjs(start_date).toDate();
+      audit.start_date = dayjs(start_date).toDate();
     }
 
     if (effective_date) {
-      status_audit.effective_date = dayjs(effective_date).toDate();
+      audit.effective_date = dayjs(effective_date).toDate();
     }
 
     if (notes !== undefined) {
-      status_audit.notes = notes;
+      audit.notes = notes;
     }
 
+    audit.type = type;
+
     await getManager().transaction(async manager => {
-      await manager.save<IENApplicantStatusAudit>(status_audit);
-      await manager.update<IENApplicant>(IENApplicant, status_audit.applicant.id, {
+      await manager.save<IENApplicantStatusAudit>(audit);
+      await manager.update<IENApplicant>(IENApplicant, audit.applicant.id, {
         updated_date: new Date(),
       });
 
       // Let's check and updated the latest status on applicant
       await this.ienapplicantUtilService.updateLatestStatusOnApplicant(
-        [status_audit.applicant.id],
+        [audit.applicant.id],
         manager,
       );
     });
 
-    return status_audit;
+    return audit;
   }
 
   /**
@@ -380,6 +381,7 @@ export class IENApplicantService {
 
   /**
    * Add Job record for an applicant
+   * @param user
    * @param id Applicant Id
    * @param jobData
    * @returns
@@ -396,8 +398,7 @@ export class IENApplicantService {
     job.applicant = applicant;
 
     if (user?.user_id) {
-      const added_by_data = await this.ienUsersRepository.findOne(user.user_id);
-      job.added_by = added_by_data;
+      job.added_by = await this.ienUsersRepository.findOne(user.user_id);
     }
 
     return this.saveApplicantJob(job, jobData);
