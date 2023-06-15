@@ -154,6 +154,9 @@ Cypress.Commands.add('addMilestone', (milestone: any) => {
   if (milestone.effective_date) {
     cy.get('#effective_date').focus().click().type(`${milestone.effective_date}{enter}`);
   }
+  if (milestone.type) {
+    cy.get('[type=radio]').check(milestone.type);
+  }
   cy.contains('button', 'Save Milestone').click();
   cy.contains(milestone.outcome);
   cy.contains(`${milestone.notes}`);
@@ -225,12 +228,12 @@ Cypress.Commands.add('addApplicant', (applicant: IENApplicantCreateUpdateDTO) =>
   cy.get('#pr_status').click().type(`${applicant.pr_status}{enter}`);
   applicant.nursing_educations.forEach((education, index) => {
     cy.get(`#nursing_educations\\[${index}\\]\\.name`).click().type(`${education.name}{enter}`);
-    cy.get(`#nursing_educations\\[${index}\\]\\.year`).type(education.year);
+    cy.get(`#nursing_educations\\[${index}\\]\\.year`).type(`${education.year}`);
     cy.get(`#nursing_educations\\[${index}\\]\\.country`).click();
     cy.get(`#nursing_educations\\[${index}\\]\\.country`)
       .click()
       .type(`${education.country}{enter}`);
-    cy.get(`#nursing_educations\\[${index}\\]\\.num_years`).type(education.num_years);
+    cy.get(`#nursing_educations\\[${index}\\]\\.num_years`).type(`${education.num_years}`);
     cy.get('button[data-cy="add-education"]').click();
     cy.contains(`${education.name} - ${education.year}`);
   });
