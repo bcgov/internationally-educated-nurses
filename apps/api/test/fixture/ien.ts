@@ -1,3 +1,4 @@
+import { STATUS } from '@ien/common';
 import { randomUUID } from 'crypto';
 
 export const validApplicant = {
@@ -16,8 +17,6 @@ export const addJob = {
   job_id: 'JOB11',
 };
 
-export const testMilestone = { id: '8a9b0d13-f5d7-4be3-8d38-11e5459f9e9a' };
-
 export const invalidMilestoneToUpdate = { id: '08ff7e3f-3148-43d3-9740-5a255aa0d5ff' };
 
 export const seedHa = {
@@ -27,7 +26,7 @@ export const seedHa = {
 };
 
 export const addMilestone = {
-  status: testMilestone.id,
+  status: STATUS.APPLIED_TO_BCCNM,
   job_id: '08ff7e3f-3148-43d3-9740-6a255aa0d5ff',
   start_date: new Date().toISOString().slice(0, 10),
   notes: 'Test Note',

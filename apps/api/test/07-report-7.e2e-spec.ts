@@ -9,7 +9,7 @@ import { URLS } from './constants';
 import { canActivate } from './override-guard';
 import { addApplicant, addJob, addMilestone, getHAs, setApp } from './report-request-util';
 import { ApplicantRO, STATUS } from '@ien/common';
-import { getApplicant, getIndexOfStatus, getStatusId } from './report-util';
+import { getApplicant, getIndexOfStatus } from './report-util';
 
 describe('Report 7 - Registrants in Immigration Stage', () => {
   let app: INestApplication;
@@ -66,11 +66,11 @@ describe('Report 7 - Registrants in Immigration Stage', () => {
 
       // add hired milestone - should only count hired applicants
       await addMilestone(id, jobTempId, {
-        status: await getStatusId(STATUS.JOB_OFFER_ACCEPTED),
+        status: STATUS.JOB_OFFER_ACCEPTED,
       });
 
       const status = await addMilestone(id, '', {
-        status: await getStatusId(STATUS.SENT_FIRST_STEPS_DOCUMENT),
+        status: STATUS.SENT_FIRST_STEPS_DOCUMENT,
       });
       applicantStatusId = status.id;
     }
@@ -88,7 +88,7 @@ describe('Report 7 - Registrants in Immigration Stage', () => {
     const before = await getReport7();
 
     const status = await addMilestone(applicantId, jobTempId, {
-      status: await getStatusId(STATUS.RECEIVED_WORK_PERMIT_APPROVAL_LETTER),
+      status: STATUS.RECEIVED_WORK_PERMIT_APPROVAL_LETTER,
     });
     applicantStatusId = status.id;
 
@@ -125,7 +125,7 @@ describe('Report 7 - Registrants in Immigration Stage', () => {
     jobTempId = job.id;
 
     await addMilestone(id, '', {
-      status: await getStatusId(STATUS.RECEIVED_WORK_PERMIT_APPROVAL_LETTER),
+      status: STATUS.RECEIVED_WORK_PERMIT_APPROVAL_LETTER,
     });
 
     const after = await getReport7();

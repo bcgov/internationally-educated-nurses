@@ -1,18 +1,13 @@
-import { IENApplicantCreateUpdateDTO } from '@ien/common';
+import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import request from 'supertest';
 
+import { IENApplicantCreateUpdateDTO, STATUS } from '@ien/common';
 import { AppModule } from 'src/app.module';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { URLS } from './constants';
+import { addMilestone, withdrewReason } from './fixture/reports';
 import { canActivate } from './override-guard';
-import {
-  acceptedOffer,
-  addMilestone,
-  withdrewFromCompetition,
-  withdrewReason,
-} from './fixture/reports';
 import { getApplicant, getJob } from './report-util';
 
 describe('Report 3 - Applicant by Status', () => {
@@ -112,7 +107,7 @@ describe('Report 3 - Applicant by Status', () => {
 
     const addStatusUrl = `/ien/${id}/status`;
     addMilestone.job_id = jobTempId;
-    addMilestone.status = withdrewFromCompetition.id;
+    addMilestone.status = STATUS.WITHDREW_FROM_COMPETITION;
     addMilestone.reason = withdrewReason.id;
     await request(app.getHttpServer()).post(addStatusUrl).send(addMilestone).expect(201);
 
@@ -136,7 +131,7 @@ describe('Report 3 - Applicant by Status', () => {
 
     const addStatusUrl = `/ien/${id}/status`;
     addMilestone.job_id = jobTempId;
-    addMilestone.status = acceptedOffer.id;
+    addMilestone.status = STATUS.JOB_OFFER_ACCEPTED;
     const { body } = await request(app.getHttpServer()).post(addStatusUrl).send(addMilestone);
     applicantId = id;
     applicantStatusId = body.id;
