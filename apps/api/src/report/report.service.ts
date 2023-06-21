@@ -11,7 +11,7 @@ import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.entity';
 import { startDateOfFiscal } from 'src/common/util';
 import { ReportCacheEntity } from './entity/report-cache.entity';
-import { Authorities, ReportPeriodDTO, STATUS, StatusCategory } from '@ien/common';
+import { Authorities, IenType, ReportPeriodDTO, STATUS, StatusCategory } from '@ien/common';
 import { DurationEntry, DurationSummary, MilestoneTableEntry } from './types';
 
 export const PERIOD_START_DATE = '2022-05-02';
@@ -743,6 +743,27 @@ export class ReportService {
   }
 
   /**
+   * Get IEN's type(RN, LPN, HCA) from the latest 'Job Offer Accepted' milestone
+   *
+   * @param from
+   * @param to
+   */
+  async getIenTypes(from: string, to: string): Promise<{ id: string; type: IenType }[]> {
+    return await getManager().query(`
+      SELECT DISTINCT ON (a.id)
+        a.id,
+        s.type
+      FROM ien_applicants a
+      LEFT JOIN ien_applicant_status_audit s ON a.id = s.applicant_id
+      WHERE
+        s.type IS NOT NULL AND
+        s.start_date >= '${from}' AND
+        s.start_date <= '${to}'
+      ORDER BY a.id, s.start_date desc
+    `);
+  }
+
+  /**
    *
    * @param dates start and end date for data extract YYYY-MM-DD
    * @returns
@@ -764,6 +785,15 @@ export class ReportService {
     const data = await entityManager.query(
       this.reportUtilService.extractApplicantsDataQuery(from, to, milestones),
     );
+
+    // set IEN type
+    const types = await this.getIenTypes(from, to);
+    types.forEach(({ id, type }) => {
+      const row = data.find((r: any) => r['Applicant ID'] === id);
+      if (row) row.Type = type;
+    });
+    if (data[0] && !data[0].Type) data[0].Type = ''; // for type not to be the last column
+
     this.logger.log(
       `extractApplicantsData: query completed a total of ${data.length} record returns`,
     );
