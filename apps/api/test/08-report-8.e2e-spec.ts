@@ -9,7 +9,7 @@ import { URLS } from './constants';
 import { canActivate } from './override-guard';
 import { IENHaPcn } from 'src/applicant/entity/ienhapcn.entity';
 import { addApplicant, addMilestone, getHAs, hire, setApp } from './report-request-util';
-import { getApplicant, getStatusId } from './report-util';
+import { getApplicant } from './report-util';
 import { ApplicantRO, STATUS } from '@ien/common';
 
 describe('Report 8 - Registrants Working in BC', () => {
@@ -54,7 +54,7 @@ describe('Report 8 - Registrants Working in BC', () => {
     await hire(id, 'FNHA', dayjs().format('YYYY-MM-DD'));
 
     await addMilestone(id, '', {
-      status: await getStatusId(STATUS.RECEIVED_WORK_PERMIT),
+      status: STATUS.RECEIVED_WORK_PERMIT,
       start_date: fiscalDate,
     });
 
@@ -80,7 +80,7 @@ describe('Report 8 - Registrants Working in BC', () => {
     await hire(id, 'FHA', dayjs().format('YYYY-MM-DD'));
 
     await addMilestone(id, '', {
-      status: await getStatusId(STATUS.RECEIVED_WORK_PERMIT),
+      status: STATUS.RECEIVED_WORK_PERMIT,
       start_date: dayjs().format('YYYY-MM-DD'),
     });
     const after = await getReport8();
@@ -99,7 +99,7 @@ describe('Report 8 - Registrants Working in BC', () => {
     await hire(applicantId, 'IHA', dayjs().format('YYYY-MM-DD'));
 
     await addMilestone(applicantId, '', {
-      status: await getStatusId(STATUS.RECEIVED_WORK_PERMIT),
+      status: STATUS.RECEIVED_WORK_PERMIT,
       start_date: fiscalDate,
     });
     const after = await getReport8();
@@ -121,7 +121,7 @@ describe('Report 8 - Registrants Working in BC', () => {
     await hire(id, 'VCHA', dayjs().format('YYYY-MM-DD'));
 
     await addMilestone(id, '', {
-      status: await getStatusId(STATUS.RECEIVED_WORK_PERMIT),
+      status: STATUS.RECEIVED_WORK_PERMIT,
       start_date: '2021-01-01',
     });
     const after = await getReport8();

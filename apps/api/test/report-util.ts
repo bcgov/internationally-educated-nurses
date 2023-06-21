@@ -2,16 +2,17 @@ import { faker } from '@faker-js/faker';
 import dayjs from 'dayjs';
 import _ from 'lodash';
 import { getRepository } from 'typeorm';
+
 import {
   Authorities,
   IENApplicantAddStatusDTO,
   IENApplicantCreateUpdateDTO,
   IENApplicantJobCreateUpdateDTO,
+  IenType,
   NursingEducationDTO,
   STATUS,
 } from '@ien/common';
 import { IENApplicantStatusAudit } from '../src/applicant/entity/ienapplicant-status-audit.entity';
-import { IENApplicantStatus } from '../src/applicant/entity/ienapplicant-status.entity';
 import { IENHaPcn } from '../src/applicant/entity/ienhapcn.entity';
 import { ReportFourItem } from './report-types';
 
@@ -93,20 +94,20 @@ export const getJob = (options: IENApplicantJobCreateUpdateDTO): IENApplicantJob
 
 export const getMilestone = (options: IENApplicantAddStatusDTO): IENApplicantAddStatusDTO => {
   const { status, job_id, start_date } = options || {};
-  return {
-    status: status,
-    job_id: job_id,
-    start_date: start_date || new Date().toISOString().slice(0, 10),
+  const milestone: IENApplicantAddStatusDTO = {
+    status,
+    job_id,
+    start_date: start_date || dayjs().format('YYYY-MM-DD'),
   };
+  if (status === STATUS.JOB_OFFER_ACCEPTED) {
+    milestone.type = IenType.RN;
+    milestone.effective_date = dayjs(milestone.start_date).add(10, 'days').format('YYYY-MM-DD');
+  }
+  return milestone;
 };
 
 export const getIndexOfStatus = (arr: { status: string | STATUS }[], compareTo: string) => {
   return arr.findIndex(v => v.status === compareTo);
-};
-
-export const getStatusId = async (status: STATUS): Promise<string> => {
-  const result = await getRepository(IENApplicantStatus).findOne({ status });
-  return result?.id || '';
 };
 
 export const getStatus = async (
@@ -114,7 +115,7 @@ export const getStatus = async (
   start?: string,
 ): Promise<IENApplicantAddStatusDTO> => {
   return {
-    status: await getStatusId(status),
+    status,
     start_date: start || dayjs().format('YYYY-MM-DD'),
   };
 };
@@ -217,6 +218,7 @@ export const generateDurations = (
     STATUS.WITHDREW_FROM_COMPETITION,
     STATUS.RECEIVED_WORK_PERMIT,
     STATUS.RECEIVED_WORK_PERMIT_APPROVAL_LETTER,
+    STATUS.SUBMITTED_PR_APPLICATION,
   ];
   return milestones
     .filter(m => !excludedMilestones.includes(m))

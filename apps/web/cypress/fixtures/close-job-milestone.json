@@ -17,6 +17,7 @@
     "outcome": "Job Offer Accepted",
     "start_date": "2020-08-01",
     "notes": "close milestone by accepting offer",
-    "effective_date": "2020-09-01"
+    "effective_date": "2020-09-01",
+    "type": "RN"
   }
 }

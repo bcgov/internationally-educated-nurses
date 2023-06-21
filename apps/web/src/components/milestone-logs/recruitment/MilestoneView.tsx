@@ -46,12 +46,19 @@ export const MilestoneView = ({ milestone, children }: MilestoneViewProps) => {
           )}
           {children}
         </div>
-        <span
-          className='text-sm text-bcBlueLink font-bold break-words block py-1'
-          style={{ fontStyle: 'italic' }}
-        >
-          {getOutcomeText(milestone.status.status)}
-        </span>
+        <div>
+          {milestone.type && (
+            <span className='border border-gray-200 bg-bcGreenHiredText text-white rounded text-xs px-2 py-0.5 mr-2'>
+              {milestone.type}
+            </span>
+          )}
+          <span
+            className='text-sm text-bcBlueLink font-bold break-words py-1'
+            style={{ fontStyle: 'italic' }}
+          >
+            {getOutcomeText(milestone.status.status)}
+          </span>
+        </div>
         <span className='text-sm text-black break-words'>
           {milestone.notes || 'No Notes Added'}
         </span>

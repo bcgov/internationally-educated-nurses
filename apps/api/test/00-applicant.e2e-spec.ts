@@ -1,5 +1,4 @@
 import { ApplicantRO, IENApplicantCreateUpdateDTO } from '@ien/common';
-import { IENApplicant } from '../src/applicant/entity/ienapplicant.entity';
 import { AuthGuard } from '../src/auth/auth.guard';
 
 require('../env');

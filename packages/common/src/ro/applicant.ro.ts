@@ -7,6 +7,7 @@ import {
   IENStatusReasonRO,
   IENUserRO,
 } from './ien.ro';
+import { IenType } from '../enum';
 
 export interface ApplicantRO {
   id: string;
@@ -64,6 +65,7 @@ export interface ApplicantStatusAuditRO {
   reason?: IENStatusReasonRO;
   reason_other?: string;
   effective_date?: string;
+  type?: IenType;
 }
 
 export interface ApplicantAuditRO {

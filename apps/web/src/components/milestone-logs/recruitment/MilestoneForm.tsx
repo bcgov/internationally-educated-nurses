@@ -6,6 +6,7 @@ import dayjs from 'dayjs';
 import {
   ApplicantJobRO,
   ApplicantStatusAuditRO,
+  IenTypes,
   IENApplicantAddStatusDTO,
   IENApplicantUpdateStatusDTO,
   IENStatusReasonRO,
@@ -27,6 +28,7 @@ import {
   getSelectStyleOverride,
   HorizontalLine,
   Input,
+  Radio,
   Textarea,
 } from '@components';
 import addIcon from '@assets/img/add.svg';
@@ -37,14 +39,16 @@ type ReasonOption = StyleOption & IENStatusReasonRO;
 type MilestoneFormValues = IENApplicantAddStatusDTO | IENApplicantUpdateStatusDTO;
 
 export const getInitialMilestoneFormValues = <T extends MilestoneFormValues>(
+  milestones?: MilestoneType[],
   status?: ApplicantStatusAuditRO,
 ): T =>
   ({
-    status: `${status?.status?.id || ''}`,
+    status: milestones?.find(m => m.id === status?.status?.id)?.status,
     start_date: `${status?.start_date || ''}`,
     notes: `${status?.notes || ''}`,
     reason: `${status?.reason?.id || ''}`,
     effective_date: `${status?.effective_date || ''}`,
+    type: status?.type,
   } as T);
 
 interface MilestoneFormProps<T extends MilestoneFormValues> {
@@ -70,7 +74,7 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
   const milestoneValidator = createValidator(IENApplicantAddStatusDTO);
 
   const submit = async (values: T, helpers: FormikHelpers<T>) => {
-    if (milestones.find(m => m.id === values.status)?.status !== `${STATUS.JOB_OFFER_ACCEPTED}`) {
+    if (values.status !== STATUS.JOB_OFFER_ACCEPTED) {
       values.effective_date = undefined;
     }
 
@@ -139,7 +143,7 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
     <div className='border border-gray-200 rounded bg-gray-200 my-3 px-3 pb-4'>
       <div className='w-full pt-4'>
         <Formik<T>
-          initialValues={getInitialMilestoneFormValues<T>(milestone)}
+          initialValues={getInitialMilestoneFormValues<T>(milestones, milestone)}
           onSubmit={submit}
           validate={milestoneValidator}
         >
@@ -171,11 +175,11 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
                           value={
                             outcomeGroup?.value === `${STATUS.REFERRAL_ACKNOWLEDGED}`
                               ? undefined
-                              : outcomeOptions?.find(s => s.id == field.value)
+                              : outcomeOptions?.find(s => s.status == field.value)
                           }
                           onBlur={field.onBlur}
                           onChange={value => {
-                            form.setFieldValue(field.name, `${value?.id}`);
+                            form.setFieldValue(field.name, `${value?.status}`);
                             setOutcome(milestones.find(m => m.id === value?.id));
                             if (outcome?.status !== `${STATUS.WITHDREW_FROM_COMPETITION}`) {
                               form.setFieldValue('reason', '');
@@ -183,7 +187,7 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
                           }}
                           options={outcomeOptions?.map(s => ({
                             ...s,
-                            isDisabled: s.id == field.value,
+                            isDisabled: s.status == field.value,
                           }))}
                           getOptionLabel={option => option.status}
                           styles={getSelectStyleOverride<MilestoneType>('bg-white')}
@@ -192,7 +196,7 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
                       )}
                     />
                   </div>
-                  {outcome?.status === `${STATUS.WITHDREW_FROM_COMPETITION}` ? (
+                  {outcome?.status === `${STATUS.WITHDREW_FROM_COMPETITION}` && (
                     <div>
                       <Field
                         name='reason'
@@ -228,12 +232,24 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
                         </div>
                       </div>
                     </div>
-                  ) : null}
+                  )}
                 </div>
               </div>
-              <div className='py-5'>
-                <HorizontalLine />
-              </div>
+              {outcome?.status === STATUS.JOB_OFFER_ACCEPTED && (
+                <div>
+                  <Radio
+                    name='type'
+                    legend='Type'
+                    options={IenTypes.map(t => ({ value: t, label: t }))}
+                    horizontal
+                  />
+                </div>
+              )}
+              {outcome?.status === `${STATUS.WITHDREW_FROM_COMPETITION}` && (
+                <div className='py-4'>
+                  <HorizontalLine />
+                </div>
+              )}
               <div className='grid grid-cols-12 gap-y-2 mb-4'>
                 <div className='col-span-6'>
                   <DatePickerField
@@ -246,7 +262,7 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
                   />
                 </div>
                 {/* Candidate accepted job offer conditional */}
-                {outcome?.status === `${STATUS.JOB_OFFER_ACCEPTED}` ? (
+                {outcome?.status === `${STATUS.JOB_OFFER_ACCEPTED}` && (
                   <div className='col-span-6 ml-3'>
                     <DatePickerField
                       name='effective_date'
@@ -255,7 +271,7 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
                       bgColour='bg-white'
                     />
                   </div>
-                ) : null}
+                )}
                 <div className='col-span-12 mt-4'>
                   <Textarea name='notes' label='Notes' placeholder='Type note here...' />
                 </div>

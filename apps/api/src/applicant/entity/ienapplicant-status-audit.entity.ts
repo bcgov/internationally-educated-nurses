@@ -13,6 +13,7 @@ import { IENApplicant } from './ienapplicant.entity';
 import { IENApplicantJob } from './ienjob.entity';
 import { IENStatusReason } from './ienstatus-reason.entity';
 import { IENUsers } from './ienusers.entity';
+import { IenType } from '@ien/common';
 
 @Entity('ien_applicant_status_audit')
 @Index('unique_applicant_status_date', ['applicant', 'status', 'start_date'], { unique: true })
@@ -63,4 +64,7 @@ export class IENApplicantStatusAudit {
 
   @UpdateDateColumn()
   updated_date!: Date;
+
+  @Column('varchar', { nullable: true })
+  type?: IenType;
 }

@@ -19,9 +19,12 @@ export interface RadioType extends React.FC<RadioProps> {
 }
 
 export const Radio: RadioType = ({ legend, name, options, horizontal }) => {
+  const { values } = useFormikContext<Record<string, string>>();
+  const { [name]: value } = values;
+
   return (
     <fieldset className='flex flex-col gap-4'>
-      <legend className='text-bcBlack font-bold mb-4'>{legend}</legend>
+      <legend className='text-bcGray font-bold mb-2'>{legend}</legend>
       <div
         className={classnames(
           'flex',
@@ -39,6 +42,7 @@ export const Radio: RadioType = ({ legend, name, options, horizontal }) => {
               name={name}
               value={option.value}
               className='mr-2 h-5 w-5 min-w-5 cursor-pointer'
+              checked={option.value === value}
             />
             {option.label}
           </label>
