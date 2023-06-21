@@ -341,6 +341,7 @@ export const createApplicantDataExtractWorkbook = async (
       'PR Status',
       'Nursing Education',
       'Country of Citizenship',
+      'Type',
       ...MILESTONES,
     ];
 
