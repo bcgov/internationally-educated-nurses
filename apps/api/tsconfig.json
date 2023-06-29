@@ -3,7 +3,8 @@
   "compilerOptions": {
     "outDir": "./dist",
     "baseUrl": "./",
-    "allowJs": true
+    "allowJs": true,
+    "preserveSymlinks": true
   },
   "paths": {
     "src": "./src"

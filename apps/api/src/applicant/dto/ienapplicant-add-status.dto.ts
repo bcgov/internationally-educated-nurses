@@ -54,11 +54,7 @@ export class IENApplicantAddStatusAPIDTO extends IENApplicantAddStatusDTO {
     format: 'date',
     pattern: 'YYYY-MM-DD',
   })
-  @ValidateIf(
-    s =>
-      s.status === `${STATUS.WITHDREW_FROM_COMPETITION}` ||
-      s.status === `${STATUS.WITHDREW_FROM_PROGRAM}`,
-  )
+  @ValidateIf(s => s.status === STATUS.JOB_OFFER_ACCEPTED)
   @IsDateString()
   @IsOptional()
   effective_date?: string;
