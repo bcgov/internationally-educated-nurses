@@ -1,6 +1,6 @@
-import { IenType, IENApplicantUpdateStatusDTO, STATUS } from '@ien/common';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsDateString, IsEnum, IsOptional, IsString, ValidateIf } from 'class-validator';
+import { IenType, IENApplicantUpdateStatusDTO, STATUS } from '@ien/common';
 
 export class IENApplicantUpdateStatusAPIDTO extends IENApplicantUpdateStatusDTO {
   @ApiPropertyOptional({ description: 'Applicant active or last updated status', default: '3' })
