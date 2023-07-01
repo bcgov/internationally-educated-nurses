@@ -1,5 +1,5 @@
 /// <reference types="cypress" />
-/// <reference path="../../support/index.ts"/>
+/// <reference path="../../support/e2e.ts"/>
 
 describe('Read-only access to Applicant', () => {
   it('hides add/edit buttons for users with read-only access to applicants', () => {

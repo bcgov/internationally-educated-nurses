@@ -1,13 +1,21 @@
 import { PropsWithChildren, ReactNode } from 'react';
-import { Access, hasAccess } from '@ien/common';
+import { Access, Authority, hasAccess } from '@ien/common';
 import { useAuthContext } from '../AuthContexts';
 
 type AclMaskProps = PropsWithChildren<ReactNode> & {
   acl: Access[];
+  authorities?: Authority[];
   fallback?: ReactNode | (() => ReactNode);
 };
 
-export const AclMask = ({ acl, children }: AclMaskProps) => {
+export const AclMask = ({ acl, children, fallback, authorities }: AclMaskProps) => {
   const { authUser } = useAuthContext();
-  return authUser && hasAccess(authUser.roles, acl) ? <>{children}</> : <></>;
+  if (
+    authUser &&
+    hasAccess(authUser.roles, acl) &&
+    (!authorities || authorities.some(a => authUser.organization === a.name))
+  ) {
+    return <>{children}</>;
+  }
+  return <>{fallback}</>;
 };

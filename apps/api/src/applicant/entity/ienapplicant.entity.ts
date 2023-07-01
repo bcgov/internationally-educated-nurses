@@ -12,6 +12,8 @@ import {
   OneToMany,
   AfterLoad,
   BeforeInsert,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 
 import { IENApplicantAudit } from './ienapplicant-audit.entity';
@@ -20,6 +22,7 @@ import { IENApplicantStatus } from './ienapplicant-status.entity';
 import { IENApplicantJob } from './ienjob.entity';
 import { IENUsers } from './ienusers.entity';
 import { ApplicantRO, IENUserRO, NursingEducationDTO } from '@ien/common';
+import { EmployeeEntity } from '../../employee/entity/employee.entity';
 
 @Entity('ien_applicants')
 export class IENApplicant {
@@ -102,6 +105,14 @@ export class IENApplicant {
   @OneToMany(() => IENApplicantAudit, applicant_audit => applicant_audit.applicant)
   applicant_audit?: IENApplicantAudit[];
 
+  @ManyToMany(() => EmployeeEntity, { eager: true })
+  @JoinTable({
+    name: 'ien_applicants_recruiters_employee',
+    joinColumn: { name: 'applicant_id' },
+    inverseJoinColumn: { name: 'employee_id' },
+  })
+  recruiters?: EmployeeEntity[];
+
   @Column({ default: true })
   is_active!: boolean;
 
@@ -145,6 +156,7 @@ export class IENApplicant {
       applicant_status_audit: this.applicant_status_audit as any,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       applicant_audit: this.applicant_audit as any,
+      recruiters: this.recruiters?.map(employee => employee.toResponseObject()),
       is_active: this.is_active,
       created_date: this.created_date,
       updated_date: this.updated_date,

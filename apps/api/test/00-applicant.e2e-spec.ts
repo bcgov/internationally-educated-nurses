@@ -248,7 +248,6 @@ describe('ApplicantController (e2e)', () => {
       .expect(res => {
         const { body } = res;
         expect(body.job_id).toBe(addJob.job_id);
-        expect(body.recruiter_name).toBe(addJob.recruiter_name);
         expect(body.status_audit.length).toBe(1);
       })
       .expect(200)

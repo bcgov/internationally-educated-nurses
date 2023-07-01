@@ -13,7 +13,6 @@ export const applicant = { id: validApplicant.applicant_id };
 
 export const addJob = {
   ha_pcn: '6ad69443-e3a8-3cbc-8cc9-3a05e5b771e4',
-  recruiter_name: 'HA Name',
   job_id: 'JOB11',
 };
 

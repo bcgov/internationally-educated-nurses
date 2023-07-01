@@ -247,6 +247,15 @@ export class IENApplicantController {
   }
 
   @ApiOperation({
+    summary: 'Assign applicant to me(logged-in user)',
+  })
+  @Post('/:id/assign')
+  @AllowAccess(Access.APPLICANT_WRITE)
+  async assignApplicant(@Req() { user }: RequestObj, @Param('id') id: string): Promise<void> {
+    await this.ienapplicantService.assignApplicant(id, user);
+  }
+
+  @ApiOperation({
     summary: 'Add applicant job record',
   })
   @UseInterceptors(ClassSerializerInterceptor)

@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Employee } from '@ien/common';
+import { Employee, EmployeeRO } from '@ien/common';
 import { RoleEntity } from './role.entity';
 
 @Entity('employee')
@@ -39,4 +39,19 @@ export class EmployeeEntity implements Employee {
 
   @Column('date', { nullable: true })
   revoked_access_date!: Date | null;
+
+  toResponseObject(): EmployeeRO {
+    return {
+      created_date: this.created_date,
+      email: this.email,
+      id: this.id,
+      keycloakId: this.keycloakId,
+      name: this.name,
+      organization: this.organization,
+      roles: this.roles,
+      updated_date: this.updated_date,
+      revoked_access_date: this.revoked_access_date,
+      user_id: '',
+    };
+  }
 }

@@ -197,3 +197,13 @@ export const useGetLastSyncTime = () => {
 
   return sync?.data;
 };
+
+export const assignApplicant = async (applicantId: string): Promise<boolean> => {
+  try {
+    await axios.post(`/ien/${applicantId}/assign`);
+    return true;
+  } catch (e) {
+    notifyError(e as AxiosError);
+    return false;
+  }
+};

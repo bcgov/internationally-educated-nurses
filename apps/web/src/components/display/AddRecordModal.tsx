@@ -103,7 +103,6 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
     job_id: `${job?.job_id || ''}`,
     job_title: `${job?.job_title?.id || ''}`,
     job_location: job?.job_location ? job?.job_location.map(j => j.id) : [],
-    recruiter_name: job?.recruiter_name || '',
     job_post_date: `${job?.job_post_date || ''}`,
   };
 
@@ -216,9 +215,6 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
                       />
                     )}
                   />
-                </div>
-                <div className='mb-3 col-span-2'>
-                  <Field name='recruiter_name' label='HA Recruiter Name' type='text' />
                 </div>
                 <div className='mb-3 col-span-2'>
                   <DatePickerField

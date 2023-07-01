@@ -9,7 +9,7 @@ import {
 import { useRouter } from 'next/router';
 
 import { ApplicantRO, ApplicantStatusAuditRO, ApplicantJobRO, isHired } from '@ien/common';
-import { getApplicant } from '@services';
+import { assignApplicant, getApplicant } from '@services';
 import { Spinner } from '../Spinner';
 import { useAuthContext } from '../AuthContexts';
 
@@ -19,9 +19,11 @@ export const ApplicantContext = createContext<{
   hiredHa: string | undefined;
   updateJob: (job: ApplicantJobRO) => void;
   fetchApplicant: () => void;
+  assignToMe: () => void;
 }>({
   updateJob: () => void 0,
   fetchApplicant: () => void 0,
+  assignToMe: () => void 0,
   applicant: {} as ApplicantRO,
   milestones: [],
   hiredHa: undefined,
@@ -94,6 +96,12 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
     setLoading(false);
   };
 
+  const assignToMe = async () => {
+    if (await assignApplicant(id)) {
+      fetchApplicant();
+    }
+  };
+
   useEffect(() => {
     fetchApplicant();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -105,6 +113,7 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
     hiredHa,
     updateJob,
     fetchApplicant,
+    assignToMe,
   };
   return (
     <ApplicantContext.Provider value={value}>

@@ -61,7 +61,7 @@ describe('Report 7 - Registrants in Immigration Stage', () => {
       const { id } = (await addApplicant(applicant)) as ApplicantRO;
       applicantId = id;
 
-      const job = await addJob(id, { ha_pcn: HA[i].id, job_id: i.toString(), recruiter_name: '' });
+      const job = await addJob(id, { ha_pcn: HA[i].id, job_id: i.toString() });
       jobTempId = job.id;
 
       // add hired milestone - should only count hired applicants
@@ -121,7 +121,7 @@ describe('Report 7 - Registrants in Immigration Stage', () => {
     const { id } = (await addApplicant(applicant)) as ApplicantRO;
     applicantId = id;
 
-    const job = await addJob(id, { ha_pcn: HA[0].id, job_id: '246', recruiter_name: '' });
+    const job = await addJob(id, { ha_pcn: HA[0].id, job_id: '246' });
     jobTempId = job.id;
 
     await addMilestone(id, '', {

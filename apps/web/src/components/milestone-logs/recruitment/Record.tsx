@@ -37,7 +37,7 @@ export const Record: React.FC<RecordProps> = ({ job, expandRecord, jobIndex }) =
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [editing, setEditing] = useState<ApplicantStatusAuditRO | null>(null); // milestone being edited
 
-  const { ha_pcn, job_id, job_location, job_post_date, job_title, recruiter_name, added_by } = job;
+  const { ha_pcn, job_id, job_location, job_post_date, job_title, added_by } = job;
 
   const { authUser } = useAuthContext();
 
@@ -164,8 +164,6 @@ export const Record: React.FC<RecordProps> = ({ job, expandRecord, jobIndex }) =
             <div className='flex justify-between'>
               <span className='text-sm text-black '>
                 {job_title?.title ? job_title?.title : 'N/A'}
-                &nbsp;|&nbsp;Recruiter Name:&nbsp;
-                {job.recruiter_name}
               </span>
               <span className='text-xs text-black mr-3 capitalize'>
                 {milestones && milestones.length > 0 && getMilestoneDuration()}
@@ -188,8 +186,6 @@ export const Record: React.FC<RecordProps> = ({ job, expandRecord, jobIndex }) =
                     : 'N/A'
                 }
               />
-
-              <DetailsItem title='Recruiter Name' text={recruiter_name} />
               <DetailsItem
                 title='Date Job Was First Posted'
                 text={job_post_date ? formatDate(job_post_date) : 'N/A'}

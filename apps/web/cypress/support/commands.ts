@@ -1,3 +1,5 @@
+/// <reference types="cypress" />
+
 import dayjs from 'dayjs';
 import {
   ApplicantRO,
@@ -90,7 +92,6 @@ Cypress.Commands.add('addJob', (job: IENApplicantJobCreateUpdateDTO) => {
   cy.get('#job_title').click().type(`${job.job_title}{enter}`);
   cy.get('#job_location').click().type(`${job.job_location}{enter}`);
   cy.get('#job_post_date').click().type(`${job.job_post_date}`);
-  cy.get('#recruiter_name').type(`${job.recruiter_name}`);
   cy.contains('button', 'Create').click();
 });
 
@@ -104,7 +105,6 @@ Cypress.Commands.add('editJob', (job: IENApplicantJobCreateUpdateDTO) => {
   cy.get('#job_location').click().type(`${job.job_location}{enter}`);
   cy.get('#job_post_date').click().clear();
   cy.get('#job_post_date').click().clear().type(`${job.job_post_date}`);
-  cy.get('#recruiter_name').clear().type(`${job.recruiter_name}`);
 
   cy.contains('button', 'Update').click();
 
@@ -119,7 +119,6 @@ Cypress.Commands.add('addDuplicateJob', (job: IENApplicantJobCreateUpdateDTO) =>
   cy.contains('button', 'Add Record').click();
   cy.get('#ha_pcn').click().type(`${job.ha_pcn}{enter}`);
   cy.get('#job_id').type(`${job.job_id}`);
-  cy.get('#recruiter_name').type(`${job.recruiter_name}`);
   cy.contains('button', 'Create').click();
 
   cy.contains(/^There is a job record with the same health authority and job id.$/);

@@ -97,7 +97,6 @@ const createJob = async (applicant: any): Promise<ApplicantJobRO> => {
   const ha = authorities[_.random(0, authorities.length - 1)];
   const job: IENApplicantJobCreateUpdateDTO = {
     ha_pcn: ha.id,
-    recruiter_name: faker.name.fullName(),
     job_post_date: dayjs(applicant.registration_date).add(2, 'months').format('YYYY-MM-DD'),
   };
   const resp = await axios.post(`/ien/${applicant.id}/job`, job);
