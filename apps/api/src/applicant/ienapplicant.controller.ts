@@ -148,6 +148,34 @@ export class IENApplicantController {
   }
 
   @ApiOperation({
+    summary: 'Update applicant active/ inactive flag',
+  })
+  @UseInterceptors(ClassSerializerInterceptor)
+  @AllowAccess(Access.APPLICANT_WRITE)
+  @Patch('/:id/active')
+  async updateApplicantActiveFlag(
+    @Param('id') id: string,
+    @Body() body: { activeFlag: boolean },
+  ): Promise<ApplicantRO | undefined> {
+    try {
+      const { activeFlag } = body;
+      return await this.ienapplicantService.updateApplicantActiveFlag(id, activeFlag);
+    } catch (e) {
+      this.logger.error(e);
+      if (e instanceof NotFoundException) {
+        throw e;
+      } else if (e instanceof QueryFailedError) {
+        throw new BadRequestException(e);
+      } else {
+        // statements to handle any unspecified exceptions
+        throw new InternalServerErrorException(
+          'An unknown error occured while updating applicant active flag',
+        );
+      }
+    }
+  }
+
+  @ApiOperation({
     summary: 'Add applicant milestone/status',
   })
   @UseInterceptors(ClassSerializerInterceptor)

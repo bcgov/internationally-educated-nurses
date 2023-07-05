@@ -42,7 +42,11 @@ export const UserDetails = ({ user, updateUser }: UserDetailsProps) => {
               <span className='mr-2 text-sm'>
                 {user.revoked_access_date ? 'Grant access' : 'Remove access'}
               </span>
-              <ToggleSwitch checked={!!user.revoked_access_date} onChange={changeAccess} />
+              <ToggleSwitch
+                checked={!!user.revoked_access_date}
+                screenReaderText='Enable notifications'
+                onChange={changeAccess}
+              />
             </div>
           </DetailsItem>
         </div>

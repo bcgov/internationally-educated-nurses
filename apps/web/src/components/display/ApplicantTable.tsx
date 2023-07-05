@@ -44,6 +44,13 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
     return `${ats1_id || id}`.substring(0, 8);
   };
 
+  const rowClass = (status: string | undefined, activeFlag: boolean) => {
+    if (!activeFlag) {
+      return `text-gray-400 even:bg-bcLightGray`;
+    }
+    return isHmbc(authUser) && isHired(status) ? 'bg-bcGreenHiredContainer' : 'even:bg-bcLightGray';
+  };
+
   return (
     <div className='overflow-x-auto'>
       <table className='text-left w-full table-fixed'>
@@ -72,11 +79,10 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
             applicants.map((app: ApplicantRO, index) => (
               <tr
                 key={app.id}
-                className={`text-left shadow-xs whitespace-nowrap ${
-                  isHmbc(authUser) && isHired(app.status?.status)
-                    ? 'bg-bcGreenHiredContainer'
-                    : 'even:bg-bcLightGray'
-                } text-sm`}
+                className={`text-left shadow-xs whitespace-nowrap ${rowClass(
+                  app.status?.status,
+                  app.is_active,
+                )} text-sm`}
               >
                 <td className='pl-6'>{getApplicantId(app)}</td>
                 <td className='px-6 py-5 truncate'>{app.name}</td>

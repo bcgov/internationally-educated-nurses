@@ -155,6 +155,22 @@ export class IENApplicantService {
   }
 
   /**
+   * Update active flag for applicant
+   * @param id applicant IEN ID
+   * @param activeFlag active flag
+   * @returns
+   */
+  async updateApplicantActiveFlag(id: string, activeFlag: boolean): Promise<IENApplicant | any> {
+    await getManager().transaction(async manager => {
+      await manager.update<IENApplicant>(IENApplicant, id, {
+        is_active: activeFlag,
+      });
+    });
+
+    return this.getApplicantById(id);
+  }
+
+  /**
    * It updated applicant info in syatem, It won't update status detail
    * @param id applicant IEN ID
    * @param applicantUpdate updated fields

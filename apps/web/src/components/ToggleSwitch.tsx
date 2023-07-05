@@ -2,10 +2,11 @@ import { Switch } from '@headlessui/react';
 
 interface ToggleSwitchProps {
   checked: boolean;
+  screenReaderText: string;
   onChange: (checked: boolean) => void;
 }
 
-export const ToggleSwitch = ({ checked, onChange }: ToggleSwitchProps) => {
+export const ToggleSwitch = ({ checked, screenReaderText, onChange }: ToggleSwitchProps) => {
   return (
     <Switch
       checked={checked}
@@ -14,7 +15,7 @@ export const ToggleSwitch = ({ checked, onChange }: ToggleSwitchProps) => {
         checked ? 'bg-bcBlueIndicator border-bcBlueBorder' : 'bg-white border-bcGrayDisabled'
       } relative inline-flex h-6 w-10 border items-center rounded-full`}
     >
-      <span className='sr-only'>Enable notifications</span>
+      <span className='sr-only'>{screenReaderText}</span>
       <span
         className={`${
           checked ? 'translate-x-5 bg-white' : 'translate-x-1 bg-bcGrayDisabled'
