@@ -65,17 +65,6 @@ export const updateApplicant = async (id: string, applicant: IENApplicantCreateU
   return axios.patch(`/ien/${id}`, applicant);
 };
 
-export const updateApplicantActiveFlag = async (id: string, activeFlag: boolean) => {
-  try {
-    const {
-      data: { data },
-    } = await axios.patch(`/ien/${id}/active`, { activeFlag });
-    return data;
-  } catch (e) {
-    notifyError(e as AxiosError);
-  }
-};
-
 export const getJobRecord = async (job_id: number): Promise<ApplicantJobRO | undefined> => {
   try {
     const {

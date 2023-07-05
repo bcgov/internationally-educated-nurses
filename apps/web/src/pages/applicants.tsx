@@ -19,7 +19,6 @@ import { useAuthContext } from '../components/AuthContexts';
 interface SearchOptions {
   name?: string;
   status?: string;
-  activeOnly?: boolean;
   sortKey?: string;
   order?: 'ASC' | 'DESC';
   limit?: number;
@@ -35,7 +34,6 @@ const Applicants = () => {
   const { authUser } = useAuthContext();
   const [applicants, setApplicants] = useState<ApplicantRO[]>([]);
   const [loading, setLoading] = useState(false);
-  const [activeOnly, setActiveOnly] = useState<boolean>(false);
   const router = useRouter();
 
   // search options
@@ -78,7 +76,7 @@ const Applicants = () => {
 
   useEffect(() => {
     const skip = (pageIndex - 1) * limit;
-    const options: SearchOptions = { name, sortKey, order, limit, skip, activeOnly };
+    const options: SearchOptions = { name, sortKey, order, limit, skip };
     if (status && status !== 'ALL') options.status = `${status}`;
     setLoading(true);
     searchApplicants(options).then(({ data, count }) => {
@@ -89,7 +87,7 @@ const Applicants = () => {
       setApplicants(data);
       setLoading(false);
     });
-  }, [name, status, sortKey, order, pageIndex, limit, activeOnly]);
+  }, [name, status, sortKey, order, pageIndex, limit]);
 
   const viewDetail = (id: string) => router.push(`/details?id=${id}`);
 
@@ -130,27 +128,9 @@ const Applicants = () => {
     changeRoute(name, index ? index : StatusCategory.ALL);
   };
 
-  const handleCheckChange = () => {
-    setActiveOnly(prev => !prev);
-  };
-
   return (
     <div className='container w-full mx-6 xl:w-xl mb-4'>
-      <div className='flex items-center justify-between'>
-        <h1 className='font-bold text-4xl py-6'>Manage Applicants</h1>
-        <span className='flex items-center mt-auto mb-2'>
-          <input
-            value={`${activeOnly}`}
-            id='active-only'
-            type='checkbox'
-            className='h-4 w-4 rounded-full ml-6 mr-2'
-            onChange={() => handleCheckChange()}
-          />
-          <label htmlFor='active-only' className='cursor-pointer'>
-            Hide Inactive Applicants
-          </label>
-        </span>
-      </div>
+      <h1 className='font-bold text-4xl py-6'>Manage Applicants</h1>
       <Search
         onChange={handleKeywordChange}
         keyword={name}

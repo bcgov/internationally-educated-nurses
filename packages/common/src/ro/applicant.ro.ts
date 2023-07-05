@@ -32,7 +32,6 @@ export interface ApplicantRO {
   jobs?: ApplicantJobRO[] | null;
   applicant_status_audit?: ApplicantStatusAuditRO[] | null;
   applicant_audit?: ApplicantAuditRO[] | null;
-  is_active: boolean;
   created_date?: Date;
   updated_date?: Date;
 }
