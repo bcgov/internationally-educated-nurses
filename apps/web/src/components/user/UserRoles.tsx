@@ -36,7 +36,11 @@ export const UserRoles = ({ user, updateUser }: UserRolesProps) => {
           <div>{role.name}</div>
           <div className='text-bcGray'>{role.description}</div>
         </div>
-        <ToggleSwitch checked={hasRole(role)} onChange={enabled => changeRole(role, enabled)} />
+        <ToggleSwitch
+          checked={hasRole(role)}
+          screenReaderText='Enable notifications'
+          onChange={enabled => changeRole(role, enabled)}
+        />
       </div>
     );
   };

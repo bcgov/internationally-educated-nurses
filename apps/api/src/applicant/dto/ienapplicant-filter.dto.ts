@@ -25,6 +25,13 @@ export class IENApplicantFilterAPIDTO extends IENApplicantFilterDTO {
   name?: string;
 
   @ApiPropertyOptional({
+    description: 'Used to filter active and inactive applicants',
+  })
+  @IsOptional()
+  @IsString()
+  activeOnly?: boolean;
+
+  @ApiPropertyOptional({
     description: 'Field name to sort results',
   })
   @IsOptional()

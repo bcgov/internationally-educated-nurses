@@ -66,7 +66,7 @@ export class IENApplicantUtilService {
     filter: IENApplicantFilterAPIDTO,
     ha_pcn_id: string | undefined | null,
   ) {
-    const { status, name, sortKey, order, limit, skip } = filter;
+    const { status, name, sortKey, order, limit, skip, activeOnly } = filter;
     const builder = this.ienapplicantRepository.createQueryBuilder('applicant');
 
     builder.leftJoinAndSelect('applicant.status', 'latest_status');
@@ -84,6 +84,10 @@ export class IENApplicantUtilService {
     }
     if (name) {
       builder.andWhere(this._nameSearchQuery(name));
+    }
+
+    if (activeOnly) {
+      builder.andWhere(`applicant.is_active = :isActive`, { isActive: true });
     }
 
     return builder

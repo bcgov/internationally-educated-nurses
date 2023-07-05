@@ -102,6 +102,9 @@ export class IENApplicant {
   @OneToMany(() => IENApplicantAudit, applicant_audit => applicant_audit.applicant)
   applicant_audit?: IENApplicantAudit[];
 
+  @Column({ default: true })
+  is_active!: boolean;
+
   @CreateDateColumn()
   @Exclude()
   created_date!: Date;
@@ -142,6 +145,7 @@ export class IENApplicant {
       applicant_status_audit: this.applicant_status_audit as any,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       applicant_audit: this.applicant_audit as any,
+      is_active: this.is_active,
       created_date: this.created_date,
       updated_date: this.updated_date,
     };
