@@ -64,3 +64,14 @@ export const RegionalHealthAuthorities: Authority[] = [
   Authorities.VCHA,
   Authorities.VIHA,
 ];
+
+/**
+ * IEN can be referred to these HAs.
+ * See 'Applicant Referred to ...' milestones
+ */
+export const HealthAuthorities = [
+  ...RegionalHealthAuthorities,
+  Authorities.FNHA,
+  Authorities.PHC,
+  Authorities.PHSA,
+];

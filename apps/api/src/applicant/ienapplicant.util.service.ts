@@ -59,6 +59,7 @@ export class IENApplicantUtilService {
   /**
    * Build a query using given filters
    * @param filter
+   * @param ha_pcn_id
    * @returns promise of find()
    */
 
@@ -74,8 +75,25 @@ export class IENApplicantUtilService {
       const haPcn = await this.getHaPcn(ha_pcn_id);
       builder
         .innerJoin('ien_applicant_status_audit', 'audit', 'applicant.id = audit.applicant_id')
-        .innerJoin('ien_applicant_status', 'status', 'status.id = audit.status_id')
-        .andWhere(`status.status = 'Applicant Referred to ${haPcn.abbreviation}'`);
+        .innerJoin('ien_applicant_status', 'status', 'status.id = audit.status_id');
+
+      if (filter.recruiter) {
+        builder.innerJoinAndSelect(
+          'applicant.recruiters',
+          'recruiter',
+          'recruiter.id = :employee_id',
+          { employee_id: filter.recruiter },
+        );
+        // .andWhere('recruiter.employee_id = :employee_id', { employee_id: filter.recruiter });
+      } else {
+        builder.leftJoinAndSelect(
+          'applicant.recruiters',
+          'recruiter',
+          'recruiter.organization = :organization',
+          { organization: haPcn.title },
+        );
+      }
+      builder.andWhere(`status.status = 'Applicant Referred to ${haPcn.abbreviation}'`);
     } else if (status) {
       const status_list = await this.fetchChildStatusList(status);
       if (status_list.length > 0) {
@@ -90,11 +108,12 @@ export class IENApplicantUtilService {
       builder.andWhere(`applicant.is_active = :isActive`, { isActive: true });
     }
 
-    return builder
-      .orderBy(`applicant.${sortKey || 'updated_date'}`, order || 'DESC')
-      .skip(skip)
-      .take(limit)
-      .getManyAndCount();
+    if (sortKey === 'recruiter') {
+      builder.orderBy(`recruiter.name`, order || 'DESC');
+    } else {
+      builder.orderBy(`applicant.${sortKey || 'updated_date'}`, order || 'DESC');
+    }
+    return builder.skip(skip).take(limit).getManyAndCount();
   }
 
   /** fetch all status if parent status passed */

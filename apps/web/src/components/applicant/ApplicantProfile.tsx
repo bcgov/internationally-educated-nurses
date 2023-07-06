@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Access, Authorities, formatDate, RegionalHealthAuthorities } from '@ien/common';
+import { Access, formatDate, HealthAuthorities } from '@ien/common';
 import { AclMask, DetailsItem } from '@components';
 import { updateApplicantActiveFlag } from '@services';
 import { useApplicantContext } from './ApplicantContext';
@@ -76,11 +76,11 @@ export const ApplicantProfile = () => {
             }
           />
           <DetailsItem title='Assigned To'>
-            <div>
+            <div className='pt-2'>
               <span className='border border-gray-200 bg-bcGrayLabel text-white rounded text-xs px-2 py-0.5 mr-1'>
                 HMBC
               </span>
-              <span>
+              <span className='ml-2'>
                 {applicant?.assigned_to
                   ? Object.values(applicant?.assigned_to)
                       .map((a: { name: string }) => a.name)
@@ -88,15 +88,7 @@ export const ApplicantProfile = () => {
                   : 'NA'}
               </span>
             </div>
-            <AclMask
-              acl={[Access.APPLICANT_WRITE]}
-              authorities={[
-                ...RegionalHealthAuthorities,
-                Authorities.FNHA,
-                Authorities.PHC,
-                Authorities.PHSA,
-              ]}
-            >
+            <AclMask acl={[Access.APPLICANT_WRITE]} authorities={HealthAuthorities}>
               <RecruiterAssignment applicant={applicant} />
             </AclMask>
           </DetailsItem>
