@@ -23,6 +23,7 @@ import { IENApplicantJob } from './ienjob.entity';
 import { IENUsers } from './ienusers.entity';
 import { ApplicantRO, IENUserRO, NursingEducationDTO } from '@ien/common';
 import { EmployeeEntity } from '../../employee/entity/employee.entity';
+import { IENApplicantActiveFlag } from './ienapplicant-active-flag.entity';
 
 @Entity('ien_applicants')
 export class IENApplicant {
@@ -113,8 +114,8 @@ export class IENApplicant {
   })
   recruiters?: EmployeeEntity[];
 
-  @Column({ default: true })
-  is_active!: boolean;
+  @OneToMany(() => IENApplicantActiveFlag, flag => flag.applicant, { eager: true })
+  active_flags!: IENApplicantActiveFlag[];
 
   @CreateDateColumn()
   @Exclude()
@@ -147,6 +148,10 @@ export class IENApplicant {
       status: this.status?.toResponseObject(),
       additional_data: this.additional_data,
       is_open: this.is_open,
+      active_flags:
+        this.active_flags && this.active_flags?.length > 0
+          ? this.active_flags[0].toResponseObject()
+          : null,
       new_bccnm_process: this.new_bccnm_process,
       added_by: this.added_by,
       updated_by: this.updated_by,
@@ -157,7 +162,6 @@ export class IENApplicant {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       applicant_audit: this.applicant_audit as any,
       recruiters: this.recruiters?.map(employee => employee.toResponseObject()),
-      is_active: this.is_active,
       created_date: this.created_date,
       updated_date: this.updated_date,
     };

@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import dayjs from 'dayjs';
 import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { FindManyOptions, getManager, In, IsNull, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -19,9 +20,9 @@ import {
   IENApplicantJobQueryDTO,
   IENApplicantUpdateStatusAPIDTO,
 } from './dto';
-import dayjs from 'dayjs';
 import { IENHaPcn } from './entity/ienhapcn.entity';
 import { IENApplicantRecruiter } from './entity/ienapplicant-employee.entity';
+import { IENApplicantActiveFlag } from './entity/ienapplicant-active-flag.entity';
 
 @Injectable()
 export class IENApplicantService {
@@ -167,11 +168,30 @@ export class IENApplicantService {
    * @param activeFlag active flag
    * @returns
    */
-  async updateApplicantActiveFlag(id: string, activeFlag: boolean): Promise<IENApplicant | any> {
+  async updateApplicantActiveFlag(
+    user: EmployeeRO,
+    id: string,
+    activeFlag: boolean,
+  ): Promise<IENApplicant | any> {
+    if (!user.ha_pcn_id) {
+      throw new BadRequestException(`User doesn't belong to a health authority`);
+    }
+
     await getManager().transaction(async manager => {
-      await manager.update<IENApplicant>(IENApplicant, id, {
-        is_active: activeFlag,
+      const activeFlagToUpdate = await manager.findOne(IENApplicantActiveFlag, {
+        where: {
+          applicant_id: id,
+          ha_id: user.ha_pcn_id,
+        },
       });
+
+      if (activeFlagToUpdate) {
+        activeFlagToUpdate.is_active = activeFlag;
+        await manager.update<IENApplicant>(IENApplicant, id, {
+          updated_date: new Date(),
+        });
+        await manager.save(activeFlagToUpdate);
+      }
     });
 
     return this.getApplicantById(id);

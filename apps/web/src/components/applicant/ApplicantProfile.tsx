@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Access, formatDate, HealthAuthorities } from '@ien/common';
 import { AclMask, DetailsItem } from '@components';
 import { updateApplicantActiveFlag } from '@services';
@@ -8,10 +8,12 @@ import { DetailsHeader } from '../DetailsHeader';
 import { OfferAcceptedBanner } from './OfferAcceptedBanner';
 import { RecruiterAssignment } from './RecruiterAssignment';
 import { ToggleSwitch } from '../ToggleSwitch';
+import { useAuthContext } from '../AuthContexts';
 
 export const ApplicantProfile = () => {
+  const { authUser } = useAuthContext();
   const { applicant, fetchApplicant } = useApplicantContext();
-  const [activeToggle, setActiveToggle] = useState(applicant?.is_active);
+  const [activeToggle, setActiveToggle] = useState(true);
 
   const handleChange = async (flag: boolean) => {
     const updatedApplicant = await updateApplicantActiveFlag(applicant.id, flag);
@@ -21,6 +23,15 @@ export const ApplicantProfile = () => {
     }
     setActiveToggle(flag);
   };
+
+  useEffect(() => {
+    const { active_flags } = applicant;
+    if (active_flags) {
+      if (active_flags.ha_id === authUser?.ha_pcn_id) {
+        setActiveToggle(active_flags.is_active);
+      }
+    }
+  }, [applicant, authUser]);
 
   return (
     <>
@@ -33,12 +44,12 @@ export const ApplicantProfile = () => {
         </p>
         <div className='text-bcGray text-sm pt-1 pb-4 flex items-center' data-cy='active-toggle'>
           <span className='mr-2 font-bold' data-cy='active-text'>
-            {applicant?.is_active ? 'Active' : 'Inactive'}
+            {activeToggle ? 'Active' : 'Inactive'}
           </span>
           <ToggleSwitch
             checked={activeToggle}
             screenReaderText='Applicant Active/ Inactive Flag'
-            onChange={() => handleChange(!applicant?.is_active)}
+            onChange={() => handleChange(!activeToggle)}
           />
         </div>
       </div>

@@ -69,13 +69,21 @@ export class IENApplicantUtilService {
   ) {
     const { status, name, recruiter, sortKey, order, limit, skip, activeOnly } = filter;
     const builder = this.ienapplicantRepository.createQueryBuilder('applicant');
-
     builder.leftJoinAndSelect('applicant.status', 'latest_status');
     if (ha_pcn_id) {
       const haPcn = await this.getHaPcn(ha_pcn_id);
       builder
         .innerJoin('ien_applicant_status_audit', 'audit', 'applicant.id = audit.applicant_id')
-        .innerJoin('ien_applicant_status', 'status', 'status.id = audit.status_id');
+        .innerJoin('ien_applicant_status', 'status', 'status.id = audit.status_id')
+        .innerJoinAndSelect(
+          'applicant.active_flags',
+          'active_flag',
+          `active_flag.applicant_id = applicant.id AND active_flag.ha_id = '${ha_pcn_id}'`,
+        );
+
+      if (activeOnly) {
+        builder.andWhere(`active_flag.is_active = :isActive`, { isActive: true });
+      }
 
       if (recruiter) {
         builder.innerJoinAndSelect(
@@ -101,10 +109,6 @@ export class IENApplicantUtilService {
     }
     if (name) {
       builder.andWhere(this._nameSearchQuery(name));
-    }
-
-    if (activeOnly) {
-      builder.andWhere(`applicant.is_active = :isActive`, { isActive: true });
     }
 
     if (sortKey === 'recruiter') {

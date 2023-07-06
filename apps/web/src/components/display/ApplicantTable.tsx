@@ -1,7 +1,14 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { AclMask, buttonBase, buttonColor } from '@components';
-import { ApplicantRO, formatDate, isHmbc, isHired, HealthAuthorities } from '@ien/common';
+import {
+  ApplicantRO,
+  formatDate,
+  isHmbc,
+  isHired,
+  HealthAuthorities,
+  ApplicantActiveFlagRO,
+} from '@ien/common';
 import hiredCheckmarkIcon from '@assets/img/hired_checkmark.svg';
 import { Spinner } from '../Spinner';
 import { SortButton } from '../SortButton';
@@ -44,8 +51,8 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
     return `${ats1_id || id}`.substring(0, 8);
   };
 
-  const rowClass = (status: string | undefined, activeFlag: boolean) => {
-    if (!activeFlag) {
+  const rowClass = (status: string | undefined, flag?: ApplicantActiveFlagRO | null) => {
+    if (flag && !flag.is_active) {
       return `text-gray-400 even:bg-bcLightGray`;
     }
     return isHmbc(authUser) && isHired(status) ? 'bg-bcGreenHiredContainer' : 'even:bg-bcLightGray';
@@ -86,7 +93,7 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
                 key={app.id}
                 className={`text-left shadow-xs whitespace-nowrap ${rowClass(
                   app.status?.status,
-                  app.is_active,
+                  app.active_flags,
                 )} text-sm`}
               >
                 <td className='pl-6'>{getApplicantId(app)}</td>

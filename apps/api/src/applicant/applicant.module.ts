@@ -24,6 +24,7 @@ import { AuthModule } from 'src/auth/auth.module';
 import { EmployeeModule } from 'src/employee/employee.module';
 import { SyncApplicantsAudit } from './entity/sync-applicants-audit.entity';
 import { IENApplicantRecruiter } from './entity/ienapplicant-employee.entity';
+import { IENApplicantActiveFlag } from './entity/ienapplicant-active-flag.entity';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { IENApplicantRecruiter } from './entity/ienapplicant-employee.entity';
       IENApplicantStatus,
       IENApplicantStatusAudit,
       IENApplicantRecruiter,
+      IENApplicantActiveFlag,
       IENHaPcn,
       IENUsers,
       IENEducation,

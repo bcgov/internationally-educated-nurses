@@ -154,12 +154,13 @@ export class IENApplicantController {
   @AllowAccess(Access.APPLICANT_WRITE)
   @Patch('/:id/active')
   async updateApplicantActiveFlag(
+    @Req() { user }: RequestObj,
     @Param('id') id: string,
     @Body() body: { activeFlag: boolean },
   ): Promise<ApplicantRO | undefined> {
     try {
       const { activeFlag } = body;
-      return await this.ienapplicantService.updateApplicantActiveFlag(id, activeFlag);
+      return await this.ienapplicantService.updateApplicantActiveFlag(user, id, activeFlag);
     } catch (e) {
       this.logger.error(e);
       if (e instanceof NotFoundException) {
