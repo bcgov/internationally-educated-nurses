@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from 'react';
 
-import { Access, ApplicantRO, StatusCategory } from '@ien/common';
+import { Access, ApplicantRO, HealthAuthorities, StatusCategory } from '@ien/common';
 import { getApplicants, milestoneTabs } from '@services';
 import { Search } from '../components/Search';
 import { StatusCategoryTab } from '../components/display/StatusCategoryTab';
@@ -15,12 +15,14 @@ import {
   AclMask,
 } from '@components';
 import { useAuthContext } from '../components/AuthContexts';
+import { ToggleSwitch } from '../components/ToggleSwitch';
 
 interface SearchOptions {
   name?: string;
   status?: string;
   activeOnly?: boolean;
   sortKey?: string;
+  recruiter?: string;
   order?: 'ASC' | 'DESC';
   limit?: number;
   skip?: number;
@@ -36,6 +38,7 @@ const Applicants = () => {
   const [applicants, setApplicants] = useState<ApplicantRO[]>([]);
   const [loading, setLoading] = useState(false);
   const [activeOnly, setActiveOnly] = useState<boolean>(false);
+  const [myApplicantsOnly, setMyApplicantsOnly] = useState(false);
   const router = useRouter();
 
   // search options
@@ -55,6 +58,9 @@ const Applicants = () => {
   const searchApplicants = async (
     options: SearchOptions,
   ): Promise<{ data: ApplicantRO[]; count: number }> => {
+    if (myApplicantsOnly) {
+      options.recruiter = authUser?.id;
+    }
     if (timer.current) {
       clearTimeout(timer.current);
     }
@@ -73,7 +79,8 @@ const Applicants = () => {
   };
 
   const searchByName = async (searchName: string, searchLimit: number) => {
-    return searchApplicants({ name: searchName, limit: searchLimit }).then(({ data }) => data);
+    const options: SearchOptions = { name: searchName, limit: searchLimit };
+    return searchApplicants(options).then(({ data }) => data);
   };
 
   useEffect(() => {
@@ -89,7 +96,7 @@ const Applicants = () => {
       setApplicants(data);
       setLoading(false);
     });
-  }, [name, status, sortKey, order, pageIndex, limit, activeOnly]);
+  }, [name, status, sortKey, order, pageIndex, limit, activeOnly, myApplicantsOnly]);
 
   const viewDetail = (id: string) => router.push(`/details?id=${id}`);
 
@@ -168,7 +175,15 @@ const Applicants = () => {
             onTabClick={value => handleTabChange(value)}
           />
         )}
-        <div className='text-bcGray px-4 mb-4'>{`Showing ${applicants.length} results`}</div>
+        <div className='flex flex-row justify-between'>
+          <div className='text-bcGray px-4 mb-4'>{`Showing ${applicants.length} results`}</div>
+          <AclMask authorities={HealthAuthorities}>
+            <div className='pr-12' data-cy='my-applicants-only'>
+              <span className='mr-2 text-bcGray'>Only show my applicants</span>
+              <ToggleSwitch checked={myApplicantsOnly} onChange={setMyApplicantsOnly} />
+            </div>
+          </AclMask>
+        </div>
         <div className='flex justify-between items-center'>
           {HA_CAN_ADD_APPLICANT && (
             <AclMask acl={[Access.APPLICANT_WRITE]}>

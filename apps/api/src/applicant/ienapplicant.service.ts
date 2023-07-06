@@ -49,6 +49,7 @@ export class IENApplicantService {
   /**
    * List and filter applicants
    * @param filter accept filter for name, HA and status, and options for pagination
+   * @param user
    * @returns
    */
   async getApplicants(
