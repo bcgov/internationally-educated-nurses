@@ -46,11 +46,14 @@ export const ApplicantProfile = () => {
           <span className='mr-2 font-bold' data-cy='active-text'>
             {activeToggle ? 'Active' : 'Inactive'}
           </span>
-          <ToggleSwitch
-            checked={activeToggle}
-            screenReaderText='Applicant Active/ Inactive Flag'
-            onChange={() => handleChange(!activeToggle)}
-          />
+          {/* placeholder in prep to use AclMask */}
+          {applicant?.active_flags && (
+            <ToggleSwitch
+              checked={activeToggle}
+              screenReaderText='Applicant Active/ Inactive Flag'
+              onChange={() => handleChange(!activeToggle)}
+            />
+          )}
         </div>
       </div>
       {/* Offer Accepted Banner */}
