@@ -64,9 +64,10 @@ export class IENApplicantService {
    * Retrieve applicant details, with audit and detail relational data
    * @param id
    * @param data Pass additinal relation, like audit,applicantaudit
+   * @param user logged in user
    * @returns
    */
-  async getApplicantById(id: string, data: any = null): Promise<IENApplicant> {
+  async getApplicantById(id: string, data: any = null, user?: EmployeeRO): Promise<IENApplicant> {
     let applicant;
     let relations = this.applicantRelations.status;
     let is_status_audit = false;
@@ -83,6 +84,14 @@ export class IENApplicantService {
         });
       }
       applicant = await this.ienapplicantRepository.findOne(id, { relations });
+
+      // grab only relevant flag depending on logged in user's health authority
+      if (user?.ha_pcn_id && applicant) {
+        const singleFlag = applicant.active_flags.filter(flag => flag.ha_id === user.ha_pcn_id);
+        if (singleFlag) {
+          applicant.active_flags = singleFlag || [];
+        }
+      }
     } catch (e) {
       this.logger.error(e);
       throw new BadRequestException(e);

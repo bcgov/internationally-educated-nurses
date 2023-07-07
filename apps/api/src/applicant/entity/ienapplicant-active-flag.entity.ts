@@ -1,5 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 import { IENApplicant } from './ienapplicant.entity';
+import { ApplicantActiveFlagRO } from '@ien/common';
 
 @Entity('ien_applicants_active_flag')
 export class IENApplicantActiveFlag {
@@ -16,7 +17,7 @@ export class IENApplicantActiveFlag {
   @JoinColumn({ name: 'applicant_id' })
   applicant!: IENApplicant;
 
-  toResponseObject(): any {
+  toResponseObject(): ApplicantActiveFlagRO {
     return {
       applicant_id: this.applicant_id,
       ha_id: this.ha_id,

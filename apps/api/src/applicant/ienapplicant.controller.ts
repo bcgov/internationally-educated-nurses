@@ -78,11 +78,14 @@ export class IENApplicantController {
   @AllowAccess(Access.APPLICANT_READ)
   @Get('/:id')
   async getApplicant(
+    @Req() req: RequestObj,
     @Param('id') id: string,
     @Query() relation: IENApplicantFilterByIdAPIDTO,
   ): Promise<ApplicantRO> {
     try {
-      return (await this.ienapplicantService.getApplicantById(id, relation)).toResponseObject();
+      return (
+        await this.ienapplicantService.getApplicantById(id, relation, req.user)
+      ).toResponseObject();
     } catch (e) {
       if (e instanceof NotFoundException) {
         throw e;
