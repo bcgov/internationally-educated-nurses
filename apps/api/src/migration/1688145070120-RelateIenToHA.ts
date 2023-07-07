@@ -13,8 +13,6 @@ export class RelateIenToHA1688145070120 implements MigrationInterface {
         FOREIGN KEY("ha_id") REFERENCES "ien_ha_pcn"("id") ON DELETE CASCADE,
         FOREIGN KEY("employee_id") REFERENCES "employee"("id") ON DELETE CASCADE
       );
-      DROP TABLE IF EXISTS "ien_applicants_assignments_employee";
-      DROP TABLE IF EXISTS "ien_applicants_assignments_employee";
     `);
   }
 

@@ -180,7 +180,11 @@ const Applicants = () => {
           <AclMask authorities={HealthAuthorities}>
             <div className='pr-12' data-cy='my-applicants-only'>
               <span className='mr-2 text-bcGray'>Only show my applicants</span>
-              <ToggleSwitch checked={myApplicantsOnly} onChange={setMyApplicantsOnly} />
+              <ToggleSwitch
+                checked={myApplicantsOnly}
+                screenReaderText='Only show my applicants'
+                onChange={setMyApplicantsOnly}
+              />
             </div>
           </AclMask>
         </div>

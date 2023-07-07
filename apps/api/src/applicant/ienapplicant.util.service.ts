@@ -67,7 +67,7 @@ export class IENApplicantUtilService {
     filter: IENApplicantFilterAPIDTO,
     ha_pcn_id: string | undefined | null,
   ) {
-    const { status, name, sortKey, order, limit, skip, activeOnly } = filter;
+    const { status, name, recruiter, sortKey, order, limit, skip, activeOnly } = filter;
     const builder = this.ienapplicantRepository.createQueryBuilder('applicant');
 
     builder.leftJoinAndSelect('applicant.status', 'latest_status');
@@ -77,14 +77,13 @@ export class IENApplicantUtilService {
         .innerJoin('ien_applicant_status_audit', 'audit', 'applicant.id = audit.applicant_id')
         .innerJoin('ien_applicant_status', 'status', 'status.id = audit.status_id');
 
-      if (filter.recruiter) {
+      if (recruiter) {
         builder.innerJoinAndSelect(
           'applicant.recruiters',
           'recruiter',
           'recruiter.id = :employee_id',
-          { employee_id: filter.recruiter },
+          { employee_id: recruiter },
         );
-        // .andWhere('recruiter.employee_id = :employee_id', { employee_id: filter.recruiter });
       } else {
         builder.leftJoinAndSelect(
           'applicant.recruiters',
