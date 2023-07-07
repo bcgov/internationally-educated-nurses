@@ -109,9 +109,9 @@ export class IENApplicantUtilService {
     }
 
     if (sortKey === 'recruiter') {
-      builder.orderBy(`recruiter.name`, order || 'DESC');
+      builder.orderBy(`recruiter.name`, order ?? 'DESC');
     } else {
-      builder.orderBy(`applicant.${sortKey || 'updated_date'}`, order || 'DESC');
+      builder.orderBy(`applicant.${sortKey ?? 'updated_date'}`, order ?? 'DESC');
     }
     return builder.skip(skip).take(limit).getManyAndCount();
   }
