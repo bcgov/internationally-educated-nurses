@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-<<<<<<< HEAD
 import { AclMask, buttonBase, buttonColor } from '@components';
 import {
   ApplicantRO,
@@ -10,10 +9,6 @@ import {
   HealthAuthorities,
   ApplicantActiveFlagRO,
 } from '@ien/common';
-=======
-import { buttonBase, buttonColor } from '@components';
-import { ApplicantRO, formatDate, isHmbc, isHired, ApplicantActiveFlagRO } from '@ien/common';
->>>>>>> 99eb7da (fix PR errors, add RO, change response from array to single obj)
 import hiredCheckmarkIcon from '@assets/img/hired_checkmark.svg';
 import { Spinner } from '../Spinner';
 import { SortButton } from '../SortButton';
