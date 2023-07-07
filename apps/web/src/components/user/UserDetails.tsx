@@ -44,7 +44,7 @@ export const UserDetails = ({ user, updateUser }: UserDetailsProps) => {
               </span>
               <ToggleSwitch
                 checked={!!user.revoked_access_date}
-                screenReaderText='Enable notifications'
+                screenReaderText={user.revoked_access_date ? 'Grant access' : 'Remove access'}
                 onChange={changeAccess}
               />
             </div>
