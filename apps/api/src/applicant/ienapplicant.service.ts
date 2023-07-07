@@ -87,7 +87,7 @@ export class IENApplicantService {
 
       // grab only relevant flag depending on logged in user's health authority
       if (user?.ha_pcn_id && applicant) {
-        const singleFlag = applicant.active_flags.filter(flag => flag.ha_id === user.ha_pcn_id);
+        const singleFlag = applicant.active_flags?.filter(flag => flag.ha_id === user.ha_pcn_id);
         if (singleFlag) {
           applicant.active_flags = singleFlag || [];
         }

@@ -115,7 +115,7 @@ export class IENApplicant {
   recruiters?: EmployeeEntity[];
 
   @OneToMany(() => IENApplicantActiveFlag, flag => flag.applicant, { eager: true })
-  active_flags!: IENApplicantActiveFlag[];
+  active_flags?: IENApplicantActiveFlag[];
 
   @CreateDateColumn()
   @Exclude()
