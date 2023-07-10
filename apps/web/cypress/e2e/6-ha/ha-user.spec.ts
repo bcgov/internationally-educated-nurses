@@ -15,10 +15,10 @@ describe('Health Authority', () => {
     });
   });
 
-  it(' filters out applicant of other authorities', () => {
+  it(' filters out applicants of other authorities', () => {
     cy.login('ien_fha');
     cy.visit('/');
-    cy.searchApplicants('Trudie', false); // Trudie Grimes belongs to Northern Health Authority
+    cy.searchApplicants('Rousseau', false); // Trudie Grimes belongs to Northern Health Authority
   });
 
   it('allows users in the same authority to view applicants', () => {

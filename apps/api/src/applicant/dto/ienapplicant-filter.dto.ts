@@ -32,6 +32,13 @@ export class IENApplicantFilterAPIDTO extends IENApplicantFilterDTO {
   activeOnly?: boolean;
 
   @ApiPropertyOptional({
+    description: 'ID of recruiter employee',
+  })
+  @IsOptional()
+  @IsString()
+  recruiter?: string;
+
+  @ApiPropertyOptional({
     description: 'Field name to sort results',
   })
   @IsOptional()

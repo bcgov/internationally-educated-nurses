@@ -38,7 +38,7 @@ export const UserRoles = ({ user, updateUser }: UserRolesProps) => {
         </div>
         <ToggleSwitch
           checked={hasRole(role)}
-          screenReaderText='Enable notifications'
+          screenReaderText={`${hasRole(role) ? 'Remove' : 'Assign'} ${role.name} role`}
           onChange={enabled => changeRole(role, enabled)}
         />
       </div>

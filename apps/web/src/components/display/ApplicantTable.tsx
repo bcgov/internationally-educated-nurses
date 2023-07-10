@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { buttonBase, buttonColor } from '@components';
-import { ApplicantRO, formatDate, isHmbc, isHired } from '@ien/common';
+import { AclMask, buttonBase, buttonColor } from '@components';
+import { ApplicantRO, formatDate, isHmbc, isHired, HealthAuthorities } from '@ien/common';
 import hiredCheckmarkIcon from '@assets/img/hired_checkmark.svg';
 import { Spinner } from '../Spinner';
 import { SortButton } from '../SortButton';
@@ -70,6 +70,11 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
             <th className='px-6' scope='col'>
               Assigned to
             </th>
+            <AclMask authorities={HealthAuthorities}>
+              <th className='px-6' scope='col'>
+                <SortButton label='Recruiter' sortKey='recruiter' onChange={onSortChange} />
+              </th>
+            </AclMask>
             <th className='w-32' scope='col'></th>
           </tr>
         </thead>
@@ -92,6 +97,11 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
                 <td className='px-6 truncate'>
                   {app.assigned_to?.map(({ name }) => name).join(', ')}
                 </td>
+                <AclMask authorities={HealthAuthorities}>
+                  <td className='px-6' scope='col'>
+                    {app.recruiters?.find(r => r?.organization === authUser?.organization)?.name}
+                  </td>
+                </AclMask>
                 <td className='px-6 text-right'>
                   <Link
                     href={{
