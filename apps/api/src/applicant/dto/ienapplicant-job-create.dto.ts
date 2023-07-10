@@ -1,13 +1,6 @@
 import { IENApplicantJobCreateUpdateDTO } from '@ien/common';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import {
-  IsDateString,
-  IsOptional,
-  IsString,
-  Length,
-  IsNotEmpty,
-  ValidateIf,
-} from 'class-validator';
+import { IsDateString, IsOptional, IsString, IsNotEmpty, ValidateIf } from 'class-validator';
 
 export class IENApplicantJobCreateUpdateAPIDTO extends IENApplicantJobCreateUpdateDTO {
   @ApiProperty({ description: "Job's HA/PCN", example: '1' })
@@ -31,12 +24,6 @@ export class IENApplicantJobCreateUpdateAPIDTO extends IENApplicantJobCreateUpda
   @ApiProperty({ description: 'Job location Id', example: '[1, 2]' })
   @IsOptional()
   job_location?: number[];
-
-  @ApiPropertyOptional({ description: 'recruiter name', example: 'Mark Brown' })
-  @IsString()
-  @IsOptional()
-  @Length(1, 255, { message: 'Recruiter Name must be between 1 and 255 characters' })
-  recruiter_name!: string;
 
   @ApiPropertyOptional({
     description: 'Date job was first posted',

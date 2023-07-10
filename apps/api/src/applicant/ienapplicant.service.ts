@@ -20,6 +20,8 @@ import {
   IENApplicantUpdateStatusAPIDTO,
 } from './dto';
 import dayjs from 'dayjs';
+import { IENHaPcn } from './entity/ienhapcn.entity';
+import { IENApplicantRecruiter } from './entity/ienapplicant-employee.entity';
 
 @Injectable()
 export class IENApplicantService {
@@ -36,6 +38,10 @@ export class IENApplicantService {
     private readonly ienapplicantJobRepository: Repository<IENApplicantJob>,
     @InjectRepository(IENApplicantStatusAudit)
     private readonly ienapplicantStatusAuditRepository: Repository<IENApplicantStatusAudit>,
+    @InjectRepository(IENHaPcn)
+    private readonly haPcnRepository: Repository<IENHaPcn>,
+    @InjectRepository(IENApplicantRecruiter)
+    private readonly recruiterRepository: Repository<IENApplicantRecruiter>,
   ) {
     this.applicantRelations = CommonData;
   }
@@ -443,9 +449,6 @@ export class IENApplicantService {
     if (data.job_post_date) {
       job.job_post_date = data.job_post_date as any;
     }
-    if (data.recruiter_name) {
-      job.recruiter_name = data.recruiter_name;
-    }
     await this.saveApplicantJob(job, jobData);
     return this.getApplicantJob(job_id);
   }
@@ -534,5 +537,33 @@ export class IENApplicantService {
       relations: this.applicantRelations.applicant_job,
     };
     return this.ienapplicantJobRepository.findAndCount(query);
+  }
+
+  async assignApplicant(id: string, employee: EmployeeRO) {
+    const applicant = await this.ienapplicantRepository.findOne(id);
+
+    const found = applicant?.recruiters?.some(e => e.id === employee.id);
+    if (found) return;
+
+    const haPcn = await this.haPcnRepository.findOne({ title: employee.organization });
+    if (!haPcn) {
+      throw new BadRequestException(`User doesn't belong to a health authority`);
+    }
+
+    let recruiterAssignment = await this.recruiterRepository.findOne({
+      applicant_id: id,
+      ha_id: haPcn.id,
+    });
+
+    if (!recruiterAssignment) {
+      recruiterAssignment = await this.recruiterRepository.create({
+        applicant_id: id,
+        ha_id: haPcn.id,
+        employee_id: employee.id,
+      });
+    } else {
+      recruiterAssignment.employee_id = employee.id;
+    }
+    return await this.recruiterRepository.save(recruiterAssignment);
   }
 }

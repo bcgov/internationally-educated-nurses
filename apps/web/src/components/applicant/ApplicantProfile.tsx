@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { formatDate } from '@ien/common';
-import { DetailsItem } from '@components';
+import { Access, Authorities, formatDate, RegionalHealthAuthorities } from '@ien/common';
+import { AclMask, DetailsItem } from '@components';
 import { updateApplicantActiveFlag } from '@services';
 import { useApplicantContext } from './ApplicantContext';
 import { convertCountryCode } from '../../services/convert-country-code';
 import { DetailsHeader } from '../DetailsHeader';
 import { OfferAcceptedBanner } from './OfferAcceptedBanner';
+import { RecruiterAssignment } from './RecruiterAssignment';
 import { ToggleSwitch } from '../ToggleSwitch';
 
 export const ApplicantProfile = () => {
@@ -51,16 +52,6 @@ export const ApplicantProfile = () => {
           <DetailsItem title='Phone Number' text={applicant?.phone_number} />
           <DetailsItem title='Registration date' text={formatDate(applicant?.registration_date)} />
           <DetailsItem
-            title='Assigned To'
-            text={
-              applicant?.assigned_to
-                ? Object.values(applicant?.assigned_to)
-                    .map((a: { name: string }) => a.name)
-                    .join(', ')
-                : 'NA'
-            }
-          />
-          <DetailsItem
             title='Country of Citizenship'
             text={
               applicant?.country_of_citizenship &&
@@ -84,6 +75,31 @@ export const ApplicantProfile = () => {
                 .join(', ')
             }
           />
+          <DetailsItem title='Assigned To'>
+            <div>
+              <span className='border border-gray-200 bg-bcGrayLabel text-white rounded text-xs px-2 py-0.5 mr-1'>
+                HMBC
+              </span>
+              <span>
+                {applicant?.assigned_to
+                  ? Object.values(applicant?.assigned_to)
+                      .map((a: { name: string }) => a.name)
+                      .join(', ')
+                  : 'NA'}
+              </span>
+            </div>
+            <AclMask
+              acl={[Access.APPLICANT_WRITE]}
+              authorities={[
+                ...RegionalHealthAuthorities,
+                Authorities.FNHA,
+                Authorities.PHC,
+                Authorities.PHSA,
+              ]}
+            >
+              <RecruiterAssignment applicant={applicant} />
+            </AclMask>
+          </DetailsItem>
         </div>
       </div>
     </>

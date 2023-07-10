@@ -1,5 +1,5 @@
 /// <reference types="cypress" />
-/// <reference path="../../support/index.ts"/>
+/// <reference path="../../support/e2e.ts"/>
 
 import { ApplicantRO, IENApplicantJobCreateUpdateDTO } from '@ien/common';
 import dayjs from 'dayjs';

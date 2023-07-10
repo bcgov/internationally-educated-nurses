@@ -1,5 +1,5 @@
 /// <reference types="cypress" />
-/// <reference path="../../support/index.ts"/>
+/// <reference path="../../support/e2e.ts"/>
 
 describe('Users - search / filter', () => {
   beforeEach(() => {

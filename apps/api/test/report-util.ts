@@ -82,10 +82,9 @@ export const getEducation = (options?: EducationOptions): NursingEducationDTO =>
 };
 
 export const getJob = (options: IENApplicantJobCreateUpdateDTO): IENApplicantJobCreateUpdateDTO => {
-  const { ha_pcn, recruiter_name, job_id } = options || {};
+  const { ha_pcn, job_id } = options || {};
   return {
     ha_pcn: ha_pcn,
-    recruiter_name: recruiter_name || faker.name.fullName(),
     job_id:
       job_id + faker.animal.bear() + faker.animal.insect() ||
       faker.animal.cow() + faker.animal.rodent(),

@@ -22,6 +22,7 @@ import config from '../ormconfig';
 import { RoleEntity } from '../employee/entity/role.entity';
 import { AccessEntity } from '../employee/entity/acl.entity';
 import { ReportCacheEntity } from 'src/report/entity/report-cache.entity';
+import { IENApplicantRecruiter } from '../applicant/entity/ienapplicant-employee.entity';
 
 const getEnvironmentSpecificConfig = (env?: string) => {
   switch (env) {
@@ -53,6 +54,7 @@ const getEnvironmentSpecificConfig = (env?: string) => {
           IENJobTitle,
           IENStatusReason,
           IENUsers,
+          IENApplicantRecruiter,
           RoleEntity,
           SyncApplicantsAudit,
           ReportCacheEntity,

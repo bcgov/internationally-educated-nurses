@@ -55,9 +55,6 @@ export const DeleteJobModal: React.FC<DeleteJobProps> = (props: DeleteJobProps) 
                 ))
               : 'N/A'}
           </span>
-          <span className='font-bold col-span-2'>Recruiter Name: </span>
-          <span className='col-span-4'>{job.recruiter_name}</span>
-
           <span className='font-bold col-span-2'>
             Milestones({(job.status_audit && job.status_audit.length) || '0'}):
           </span>

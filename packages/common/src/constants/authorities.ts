@@ -60,7 +60,7 @@ export const Authorities: Record<string, Authority> = {
 export const RegionalHealthAuthorities: Authority[] = [
   Authorities.FHA,
   Authorities.IHA,
-  Authorities.VIHA,
   Authorities.NHA,
   Authorities.VCHA,
+  Authorities.VIHA,
 ];

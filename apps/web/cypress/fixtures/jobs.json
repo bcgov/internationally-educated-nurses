@@ -41,16 +41,14 @@
     "job_id": "1234567897",
     "job_title": "Education",
     "job_location": "Cranbrook",
-    "job_post_date": "2019-07-02",
-    "recruiter_name": "Recruit7"
+    "job_post_date": "2019-07-02"
   },
   "update": {
     "ha_pcn": "Interior Health Authority",
     "job_id": "9234567891",
     "job_title": "Clinical Educator",
     "job_location": "Creston",
-    "job_post_date": "2018-01-02",
-    "recruiter_name": "Recruit11"
+    "job_post_date": "2018-01-02"
   },
   "jobs": [
     {
@@ -58,48 +56,42 @@
       "job_id": "1234567891",
       "job_title": "Medicine/Surgery",
       "job_location": "100 Mile House",
-      "job_post_date": "2018-01-01",
-      "recruiter_name": "Recruit1"
+      "job_post_date": "2018-01-01"
     },
     {
       "ha_pcn": "Vancouver Coastal Health Authority",
       "job_id": "1234567892",
       "job_title": "Wound Care",
       "job_location": "Abbotsford",
-      "job_post_date": "2019-02-02",
-      "recruiter_name": "Recruit2"
+      "job_post_date": "2019-02-02"
     },
     {
       "ha_pcn": "Northern Health Authority",
       "job_id": "1234567895",
       "job_title": "Clinical Educator",
       "job_location": "Armstrong-Spallumcheen",
-      "job_post_date": "2019-05-02",
-      "recruiter_name": "Recruit5"
+      "job_post_date": "2019-05-02"
     },
     {
       "ha_pcn": "Fraser Health Authority",
       "job_id": "1234567893",
       "job_title": "Community Health",
       "job_location": "Agassiz-Harrison",
-      "job_post_date": "2019-03-02",
-      "recruiter_name": "Recruit3"
+      "job_post_date": "2019-03-02"
     },
     {
       "ha_pcn": "Interior Health Authority",
       "job_id": "1234567894",
       "job_title": "Recovery",
       "job_location": "Alberni-Clayoquot",
-      "job_post_date": "2019-04-02",
-      "recruiter_name": "Recruit4"
+      "job_post_date": "2019-04-02"
     },
     {
       "ha_pcn": "Provincial Health Services Authority",
       "job_id": "1234567896",
       "job_title": "Aboriginal Health Nursing",
       "job_location": "Arrow Lakes",
-      "job_post_date": "2019-06-02",
-      "recruiter_name": "Recruit6"
+      "job_post_date": "2019-06-02"
     }
   ]
 }

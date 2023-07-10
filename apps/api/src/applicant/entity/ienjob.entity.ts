@@ -38,9 +38,6 @@ export class IENApplicantJob {
   @JoinTable()
   job_location?: IENJobLocation[] | null;
 
-  @Column('varchar', { nullable: true })
-  recruiter_name!: string;
-
   @Column('date', { nullable: true })
   job_post_date?: Date;
 
@@ -74,7 +71,6 @@ export class IENApplicantJob {
       job_id: this.job_id,
       job_title: this.job_title,
       job_location: this.job_location,
-      recruiter_name: this.recruiter_name,
       job_post_date: this.job_post_date,
       added_by: this.added_by,
       applicant: this.applicant?.toResponseObject(),

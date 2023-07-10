@@ -557,9 +557,3 @@ INSERT INTO public.ien_job_locations(title) VALUES ('Yale');
 INSERT INTO public.ien_job_locations(title) VALUES ('Ymir');
 INSERT INTO public.ien_job_locations(title) VALUES ('Zeballos');
 
-
--- applicant job
-
--- INSERT INTO public.ien_applicant_jobs(
---	job_id, recruiter_name, job_post_date, ha_pcn_id, job_title_id, job_location_id, added_by_id, applicant_id)
---	VALUES ('ABC1234', 'Chadi', '2021-12-15', 1, 1, 1, 1, 'e5b74e64-be37-4191-b45d-a5ac87a101bc');

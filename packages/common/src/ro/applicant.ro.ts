@@ -8,6 +8,7 @@ import {
   IENUserRO,
 } from './ien.ro';
 import { IenType } from '../enum';
+import { EmployeeRO } from './employee.ro';
 
 export interface ApplicantRO {
   id: string;
@@ -32,6 +33,7 @@ export interface ApplicantRO {
   jobs?: ApplicantJobRO[] | null;
   applicant_status_audit?: ApplicantStatusAuditRO[] | null;
   applicant_audit?: ApplicantAuditRO[] | null;
+  recruiters?: EmployeeRO[] | null;
   is_active: boolean;
   created_date?: Date;
   updated_date?: Date;
@@ -43,7 +45,6 @@ export interface ApplicantJobRO {
   job_id?: string;
   job_title?: IENJobTitleRO | null;
   job_location?: IENJobLocationRO[] | null;
-  recruiter_name: string;
   job_post_date?: Date;
   added_by?: IENUserRO | null;
   applicant?: ApplicantRO | null;
