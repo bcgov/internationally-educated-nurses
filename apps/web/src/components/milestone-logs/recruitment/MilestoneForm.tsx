@@ -42,14 +42,14 @@ export const getInitialMilestoneFormValues = <T extends MilestoneFormValues>(
   milestones?: MilestoneType[],
   status?: ApplicantStatusAuditRO,
 ): T =>
-  ({
-    status: milestones?.find(m => m.id === status?.status?.id)?.status,
-    start_date: `${status?.start_date || ''}`,
-    notes: `${status?.notes || ''}`,
-    reason: `${status?.reason?.id || ''}`,
-    effective_date: `${status?.effective_date || ''}`,
-    type: status?.type,
-  } as T);
+({
+  status: milestones?.find(m => m.id === status?.status?.id)?.status,
+  start_date: `${status?.start_date || ''}`,
+  notes: `${status?.notes || ''}`,
+  reason: `${status?.reason?.id || ''}`,
+  effective_date: `${status?.effective_date || ''}`,
+  type: status?.type,
+} as T);
 
 interface MilestoneFormProps<T extends MilestoneFormValues> {
   job?: ApplicantJobRO;
@@ -97,10 +97,11 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
 
   const handleOutcomeType = (group: string, { setFieldValue, setFieldTouched }: FormikProps<T>) => {
     const outcomeGroup = Object.values(OutcomeGroups).find(({ value }) => value === group);
-
+    console.log(outcomeGroup);
     if (outcomeGroup?.value === `${STATUS.REFERRAL_ACKNOWLEDGED}`) {
       const milestoneId = milestones.find(s => s.status == outcomeGroup?.value);
-      setFieldValue('status', milestoneId?.id);
+
+      setFieldValue('status', milestoneId?.status);
     } else {
       setFieldValue('status', '');
     }
