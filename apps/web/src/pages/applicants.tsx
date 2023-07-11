@@ -145,18 +145,20 @@ const Applicants = () => {
     <div className='container w-full mx-6 xl:w-xl mb-4'>
       <div className='flex items-center justify-between'>
         <h1 className='font-bold text-4xl py-6'>Manage Applicants</h1>
-        <span className='flex items-center mt-auto mb-2'>
-          <input
-            value={`${activeOnly}`}
-            id='active-only'
-            type='checkbox'
-            className='h-4 w-4 rounded-full ml-6 mr-2'
-            onChange={() => handleCheckChange()}
-          />
-          <label htmlFor='active-only' className='cursor-pointer'>
-            Hide Inactive Applicants
-          </label>
-        </span>
+        <AclMask authorities={HealthAuthorities}>
+          <span className='flex items-center mt-auto mb-2'>
+            <input
+              value={`${activeOnly}`}
+              id='active-only'
+              type='checkbox'
+              className='h-4 w-4 rounded-full ml-6 mr-2'
+              onChange={() => handleCheckChange()}
+            />
+            <label htmlFor='active-only' className='cursor-pointer'>
+              Hide Inactive Applicants
+            </label>
+          </span>
+        </AclMask>
       </div>
       <Search
         onChange={handleKeywordChange}

@@ -42,19 +42,18 @@ export const ApplicantProfile = () => {
         <p className='text-bcGray text-sm pt-1 pb-4'>
           Last Updated: {formatDate(applicant?.updated_date)}
         </p>
-        <div className='text-bcGray text-sm pt-1 pb-4 flex items-center' data-cy='active-toggle'>
-          <span className='mr-2 font-bold' data-cy='active-text'>
-            {activeToggle ? 'Active' : 'Inactive'}
-          </span>
-          {/* placeholder in prep to use AclMask */}
-          {applicant?.active_flags && (
+        <AclMask authorities={HealthAuthorities}>
+          <div className='text-bcGray text-sm pt-1 pb-4 flex items-center' data-cy='active-toggle'>
+            <span className='mr-2 font-bold' data-cy='active-text'>
+              {activeToggle ? 'Active' : 'Inactive'}
+            </span>
             <ToggleSwitch
               checked={activeToggle}
               screenReaderText='Applicant Active/ Inactive Flag'
               onChange={() => handleChange(!activeToggle)}
             />
-          )}
-        </div>
+          </div>
+        </AclMask>
       </div>
       {/* Offer Accepted Banner */}
       <OfferAcceptedBanner />
