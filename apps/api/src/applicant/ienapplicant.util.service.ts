@@ -75,7 +75,7 @@ export class IENApplicantUtilService {
       builder
         .innerJoin('ien_applicant_status_audit', 'audit', 'applicant.id = audit.applicant_id')
         .innerJoin('ien_applicant_status', 'status', 'status.id = audit.status_id')
-        .innerJoinAndSelect(
+        .leftJoinAndSelect(
           'applicant.active_flags',
           'active_flag',
           `active_flag.applicant_id = applicant.id AND active_flag.ha_id = '${ha_pcn_id}'`,
