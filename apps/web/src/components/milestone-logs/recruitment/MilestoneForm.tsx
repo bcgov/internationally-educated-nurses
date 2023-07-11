@@ -97,7 +97,7 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
 
   const handleOutcomeType = (group: string, { setFieldValue, setFieldTouched }: FormikProps<T>) => {
     const outcomeGroup = Object.values(OutcomeGroups).find(({ value }) => value === group);
-    console.log(outcomeGroup);
+    
     if (outcomeGroup?.value === `${STATUS.REFERRAL_ACKNOWLEDGED}`) {
       const milestoneId = milestones.find(s => s.status == outcomeGroup?.value);
 
