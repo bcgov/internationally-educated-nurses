@@ -100,7 +100,8 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
 
     if (outcomeGroup?.value === `${STATUS.REFERRAL_ACKNOWLEDGED}`) {
       const milestoneId = milestones.find(s => s.status == outcomeGroup?.value);
-      setFieldValue('status', milestoneId?.id);
+
+      setFieldValue('status', milestoneId?.status);
     } else {
       setFieldValue('status', '');
     }
