@@ -153,6 +153,7 @@ const Applicants = () => {
               type='checkbox'
               className='h-4 w-4 rounded-full ml-6 mr-2'
               onChange={() => handleCheckChange()}
+              data-cy='hide-inactive-applicants'
             />
             <label htmlFor='active-only' className='cursor-pointer'>
               Hide Inactive Applicants
