@@ -6,7 +6,6 @@ import request from 'supertest';
 import { AppModule } from 'src/app.module';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { IENApplicantStatusAudit } from '../src/applicant/entity/ienapplicant-status-audit.entity';
-import { IENApplicant } from '../src/applicant/entity/ienapplicant.entity';
 import { URLS } from './constants';
 import { canActivate } from './override-guard';
 import { addApplicant, addMilestone, setApp } from './report-request-util';

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
-import { Formik, Form as FormikForm, FormikHelpers } from 'formik';
+import { Formik, Form as FormikForm } from 'formik';
 import { WorkBook, writeFileXLSX } from 'xlsx-js-style';
 import createValidator from 'class-validator-formik';
 import ReactSelect from 'react-select';
@@ -34,7 +34,7 @@ export const DataExtractReport = () => {
 
   const dataExtractSchema = createValidator(ReportPeriodDTO);
 
-  const download = async (values: PeriodFilter, helpers?: FormikHelpers<PeriodFilter>) => {
+  const download = async (values: PeriodFilter) => {
     let workbook: WorkBook | null;
 
     if (dataType === 'applicants') {
@@ -48,8 +48,6 @@ export const DataExtractReport = () => {
       const period = `${values.from}-${values.to}`;
       writeFileXLSX(workbook, `${prefix}_${period}.xlsx`);
     }
-
-    helpers && helpers.resetForm();
   };
 
   const getMaxDate = () => {

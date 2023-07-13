@@ -4,6 +4,8 @@ import { getManager, Repository, In, getRepository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import dayjs from 'dayjs';
 import _ from 'lodash';
+import { IENApplicantStatusAudit } from '../applicant/entity/ienapplicant-status-audit.entity';
+import { IENApplicant } from '../applicant/entity/ienapplicant.entity';
 
 import { DURATION_STAGES, REPORT_FOUR_STEPS } from './constants';
 import { ReportUtilService } from './report.util.service';
@@ -11,7 +13,16 @@ import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.entity';
 import { startDateOfFiscal } from 'src/common/util';
 import { ReportCacheEntity } from './entity/report-cache.entity';
-import { Authorities, IenType, ReportPeriodDTO, STATUS, StatusCategory } from '@ien/common';
+import {
+  Authorities,
+  ExtractApplicantHeader,
+  getIenTypeByLicense,
+  IenType,
+  ReportPeriodDTO,
+  STATUS,
+  StatusCategory,
+  STREAM_TYPE_MILESTONES,
+} from '@ien/common';
 import { DurationEntry, DurationSummary, MilestoneTableEntry } from './types';
 
 export const PERIOD_START_DATE = '2022-05-02';
@@ -23,6 +34,8 @@ export class ReportService {
     private readonly reportUtilService: ReportUtilService,
     @InjectRepository(IENApplicantStatus)
     private readonly ienapplicantStatusRepository: Repository<IENApplicantStatus>,
+    @InjectRepository(IENApplicant)
+    private readonly ienRepository: Repository<IENApplicant>,
   ) {}
 
   captureFromTo(from: string, to: string) {
@@ -748,19 +761,54 @@ export class ReportService {
    * @param from
    * @param to
    */
-  async getIenTypes(from: string, to: string): Promise<{ id: string; type: IenType }[]> {
-    return await getManager().query(`
-      SELECT DISTINCT ON (a.id)
-        a.id,
-        s.type
-      FROM ien_applicants a
-      LEFT JOIN ien_applicant_status_audit s ON a.id = s.applicant_id
-      WHERE
-        s.type IS NOT NULL AND
-        s.start_date >= '${from}' AND
-        s.start_date <= '${to}'
-      ORDER BY a.id, s.start_date desc
-    `);
+  async getIenTypes(from: string, to: string): Promise<Record<string, IenType>> {
+    const types = await this.ienRepository
+      .createQueryBuilder('ien')
+      .leftJoin(IENApplicantStatusAudit, 'milestone', 'milestone.applicant_id = ien.id')
+      .select(['ien.id AS id', 'milestone.type AS type'])
+      .distinctOn(['ien.id'])
+      .where('milestone.type IS NOT NULL')
+      .andWhere('milestone.start_date >= :from', { from })
+      .andWhere('milestone.start_date <= :to', { to })
+      .orderBy('ien.id')
+      .addOrderBy('milestone.start_date', 'DESC')
+      .getRawMany();
+
+    return _.chain(types).keyBy('id').mapValues('type').value();
+  }
+
+  /**
+   * Infer IEN type from license milestones
+   *
+   * @param from
+   * @param to
+   * @param ids list of ien applicant's id
+   */
+  async inferIenTypes(
+    from: string,
+    to: string,
+    ids: string[],
+  ): Promise<Record<string, IenType | ''>> {
+    const licenseStatuses = STREAM_TYPE_MILESTONES;
+
+    const types = await this.ienRepository
+      .createQueryBuilder('ien')
+      .leftJoin(IENApplicantStatusAudit, 'milestone', 'milestone.applicant_id = ien.id')
+      .leftJoin(IENApplicantStatus, 'status', 'status.id = milestone.status_id')
+      .select(['ien.id AS id', 'status.status AS status'])
+      .distinctOn(['ien.id'])
+      .where('ien.id IN(:...ids)', { ids })
+      .andWhere('milestone.start_date >= :from', { from })
+      .andWhere('milestone.start_date <= :to', { to })
+      .andWhere('status.status IN(:...licenseStatuses)', { licenseStatuses })
+      .orderBy('ien.id')
+      .addOrderBy('milestone.start_date', 'DESC')
+      .getRawMany();
+
+    return _.chain(types)
+      .keyBy('id')
+      .mapValues(o => getIenTypeByLicense(o.status))
+      .value();
   }
 
   /**
@@ -787,12 +835,30 @@ export class ReportService {
     );
 
     // set IEN type
-    const types = await this.getIenTypes(from, to);
-    types.forEach(({ id, type }) => {
-      const row = data.find((r: any) => r['Applicant ID'] === id);
-      if (row) row.Type = type;
+    const typesObj = await this.getIenTypes(from, to);
+    const ienOfNoTypes: string[] = [];
+    data.forEach((row: Record<string, string>) => {
+      const id = row['Applicant ID'];
+      const type = typesObj[id];
+      if (type) {
+        row.Type = type;
+      } else if (row[STATUS.JOB_OFFER_ACCEPTED]) {
+        ienOfNoTypes.push(id);
+      }
     });
-    if (data[0] && !data[0].Type) data[0].Type = ''; // for type not to be the last column
+
+    // set inferred ien types
+    const inferredTypeObj = await this.inferIenTypes(from, to, ienOfNoTypes);
+    data.forEach((row: Record<ExtractApplicantHeader, string>) => {
+      const id = row['Applicant ID'];
+      if (!row.Type) {
+        row['Inferred Type'] = inferredTypeObj[id];
+      }
+    });
+
+    // for type not to be the last column
+    if (data[0] && !data[0].Type) data[0].Type = '';
+    if (data[0] && !data[0]['Inferred Type']) data[0]['Inferred Type'] = '';
 
     this.logger.log(
       `extractApplicantsData: query completed a total of ${data.length} record returns`,

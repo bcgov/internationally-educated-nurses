@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 import { utils, WorkBook, WorkSheet } from 'xlsx-js-style';
 import { toast } from 'react-toastify';
 
-import { MILESTONES, Period, PeriodFilter } from '@ien/common';
+import { EXTRACT_APPLICANT_HEADERS, Period, PeriodFilter } from '@ien/common';
 import { convertToParams, notifyError } from '../utils';
 import { isoCountries } from './constants';
 
@@ -333,19 +333,7 @@ export const createApplicantDataExtractWorkbook = async (
       return null;
     }
 
-    const columns = [
-      'Applicant ID',
-      'Registration Date',
-      'Assigned to',
-      'Country of Residence',
-      'PR Status',
-      'Nursing Education',
-      'Country of Citizenship',
-      'Type',
-      ...MILESTONES,
-    ];
-
-    const data = applicants.map((a: object) => _.pick(a, columns));
+    const data = applicants.map((a: object) => _.pick(a, EXTRACT_APPLICANT_HEADERS));
     return createDataExtractWorkBook(data, 'Rows as Users');
   } catch (e) {
     if (e instanceof Error) {
