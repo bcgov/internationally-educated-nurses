@@ -1,4 +1,4 @@
-export const CommonData = {
+export const RELATIONS: Record<string, string[]> = {
   status: ['status', 'added_by', 'updated_by'],
   audit: [
     'jobs',

@@ -8,7 +8,6 @@ import { IENApplicant } from './entity/ienapplicant.entity';
 import { IENApplicantFilterAPIDTO } from './dto/ienapplicant-filter.dto';
 import { IENApplicantAudit } from './entity/ienapplicant-audit.entity';
 import { IENApplicantStatusAudit } from './entity/ienapplicant-status-audit.entity';
-import { CommonData } from 'src/common/common.data';
 import { IENApplicantJob } from './entity/ienjob.entity';
 import { IENHaPcn } from './entity/ienhapcn.entity';
 import { IENUsers } from './entity/ienusers.entity';
@@ -19,7 +18,6 @@ import { IENMasterService } from './ien-master.service';
 
 @Injectable()
 export class IENApplicantUtilService {
-  applicantRelations;
   constructor(
     @Inject(Logger) private readonly logger: AppLogger,
     @Inject(IENMasterService)
@@ -32,9 +30,7 @@ export class IENApplicantUtilService {
     private readonly ienapplicantStatusAuditRepository: Repository<IENApplicantStatusAudit>,
     @InjectRepository(IENApplicantJob)
     private readonly ienapplicantJobRepository: Repository<IENApplicantJob>,
-  ) {
-    this.applicantRelations = CommonData;
-  }
+  ) {}
 
   _nameSearchQuery(keyword: string) {
     let keywords = keyword.split(' ');

@@ -160,7 +160,7 @@ export class IENApplicantController {
     @Req() { user }: RequestObj,
     @Param('id') id: string,
     @Body() body: { activeFlag: boolean },
-  ): Promise<ApplicantRO | undefined> {
+  ): Promise<ApplicantRO> {
     try {
       const { activeFlag } = body;
       return await this.ienapplicantService.updateApplicantActiveFlag(user, id, activeFlag);
