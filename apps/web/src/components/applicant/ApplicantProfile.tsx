@@ -21,7 +21,6 @@ export const ApplicantProfile = () => {
     if (updatedApplicant) {
       fetchApplicant();
     }
-    setActiveToggle(flag);
   };
 
   useEffect(() => {

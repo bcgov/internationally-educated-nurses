@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { In, Repository, getManager, EntityManager } from 'typeorm';
+import { In, Repository, getManager, EntityManager, Brackets } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantStatus } from './entity/ienapplicant-status.entity';
@@ -78,7 +78,13 @@ export class IENApplicantUtilService {
         );
 
       if (activeOnly) {
-        builder.andWhere(`active_flag.is_active = :isActive`, { isActive: true });
+        builder.andWhere(
+          new Brackets(qb => {
+            qb.where('active_flag.is_active IS NULL').orWhere(`active_flag.is_active = :isActive`, {
+              isActive: true,
+            });
+          }),
+        );
       }
 
       if (recruiter) {

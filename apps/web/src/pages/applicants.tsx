@@ -141,14 +141,13 @@ const Applicants = () => {
 
   const handleTabChange = (index: string) => {
     setPageIndex(1);
-    changeRoute(name, index ? index : StatusCategory.ALL);
+    changeRoute(name, index ?? StatusCategory.ALL);
   };
 
   return (
     <div className='container w-full mx-6 xl:w-xl mb-4'>
       <div className='flex items-center justify-between'>
         <h1 className='font-bold text-4xl py-6'>Manage Applicants</h1>
-        <AclMask authorities={HealthAuthorities}></AclMask>
       </div>
       <Search
         onChange={handleKeywordChange}
@@ -163,7 +162,7 @@ const Applicants = () => {
         ) : (
           <StatusCategoryTab
             tabs={[{ title: 'All', value: StatusCategory.ALL }, ...milestoneTabs]}
-            categoryIndex={status ? status : StatusCategory.ALL}
+            categoryIndex={status ?? StatusCategory.ALL}
             onTabClick={value => handleTabChange(value)}
           />
         )}

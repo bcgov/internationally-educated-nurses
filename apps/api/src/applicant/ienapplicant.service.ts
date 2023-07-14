@@ -60,7 +60,7 @@ export class IENApplicantService {
   /**
    * Retrieve applicant details, with audit and detail relational data
    * @param id
-   * @param data Pass additinal relation, like audit,applicantaudit
+   * @param data Pass additional relation, like audit, applicantaudit
    * @param user logged in user
    * @returns
    */
@@ -180,20 +180,26 @@ export class IENApplicantService {
     }
 
     await getManager().transaction(async manager => {
-      const activeFlagToUpdate = await manager.findOne(IENApplicantActiveFlag, {
+      let record = await manager.findOne(IENApplicantActiveFlag, {
         where: {
           applicant_id: id,
           ha_id: user.ha_pcn_id,
         },
       });
 
-      if (activeFlagToUpdate) {
-        activeFlagToUpdate.is_active = activeFlag;
+      if (record) {
+        record.is_active = activeFlag;
         await manager.update<IENApplicant>(IENApplicant, id, {
           updated_date: new Date(),
         });
-        await manager.save(activeFlagToUpdate);
+      } else {
+        record = manager.create(IENApplicantActiveFlag, {
+          applicant_id: id,
+          ha_id: user.ha_pcn_id as string,
+          is_active: activeFlag,
+        });
       }
+      await manager.save(IENApplicantActiveFlag, record);
     });
 
     const applicant = await this.getApplicantById(id);
