@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { FindManyOptions, getManager, In, IsNull, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ApplicantRO, EmployeeRO, isAdmin, StatusCategory } from '@ien/common';
+import { ApplicantRO, EmployeeRO, HealthAuthorities, isAdmin, StatusCategory } from '@ien/common';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicant } from './entity/ienapplicant.entity';
 import { IENUsers } from './entity/ienusers.entity';
@@ -85,10 +85,11 @@ export class IENApplicantService {
     }
 
     // grab only relevant flag depending on logged-in user's health authority
-    if (user?.ha_pcn_id) {
-      const singleFlag = applicant.active_flags?.filter(flag => flag.ha_id === user.ha_pcn_id);
-      applicant.active_flags = singleFlag || [];
+    if (HealthAuthorities.some(ha => ha.name === user?.organization)) {
+      applicant.active_flags =
+        applicant.active_flags?.filter(flag => flag.ha_id === user?.ha_pcn_id) || [];
     }
+
     if (is_status_audit) {
       applicant.applicant_status_audit = await this.ienapplicantStatusAuditRepository.find({
         where: { applicant, job: IsNull() },
@@ -101,6 +102,7 @@ export class IENApplicantService {
   /**
    * Add new applicant
    * @param addApplicant Add Applicant DTO
+   * @param user
    * @returns Created Applicant details
    */
   async addApplicant(

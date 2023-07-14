@@ -31,11 +31,11 @@ describe('Applicants - Active/ Inactive', () => {
   it(`hide/ unhide inactive applicants`, () => {
     cy.login(fhaUser1);
     cy.visit('/');
-    cy.get('tbody > tr').should('have.length', 2);
-    cy.get('[data-cy="hide-inactive-applicants"]').check();
     cy.get('tbody > tr').should('have.length', 1);
-    cy.get('[data-cy="hide-inactive-applicants"]').uncheck();
+    cy.get('[data-cy="hide-inactive-applicants"]').find('button').click();
     cy.get('tbody > tr').should('have.length', 2);
+    cy.get('[data-cy="hide-inactive-applicants"]').find('button').click();
+    cy.get('tbody > tr').should('have.length', 1);
   });
 
   it(`make inactive applicant active`, () => {

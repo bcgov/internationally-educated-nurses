@@ -148,10 +148,7 @@ export class IENApplicant {
       status: this.status?.toResponseObject(),
       additional_data: this.additional_data,
       is_open: this.is_open,
-      active_flags:
-        this.active_flags && this.active_flags?.length > 0
-          ? this.active_flags[0].toResponseObject()
-          : null,
+      active_flags: this.active_flags?.map(o => o.toResponseObject()),
       new_bccnm_process: this.new_bccnm_process,
       added_by: this.added_by,
       updated_by: this.updated_by,

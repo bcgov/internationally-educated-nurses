@@ -34,7 +34,7 @@ export interface ApplicantRO {
   applicant_status_audit?: ApplicantStatusAuditRO[] | null;
   applicant_audit?: ApplicantAuditRO[] | null;
   recruiters?: EmployeeRO[] | null;
-  active_flags: ApplicantActiveFlagRO | null;
+  active_flags?: ApplicantActiveFlagRO[];
   created_date?: Date;
   updated_date?: Date;
 }

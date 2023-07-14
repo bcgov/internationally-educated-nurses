@@ -163,6 +163,7 @@ export class IENApplicantUtilService {
    *
    * @param applicant Applicant Object
    * @param added_by Passing it separately, In case of update we have to use updated_by field in place of added_by
+   * @param manager
    */
   async saveApplicantAudit(applicant: IENApplicant, added_by: IENUsers, manager: EntityManager) {
     const dataToSave: object = applicant;

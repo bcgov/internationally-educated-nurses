@@ -25,12 +25,8 @@ export const ApplicantProfile = () => {
   };
 
   useEffect(() => {
-    const { active_flags } = applicant;
-    if (active_flags) {
-      if (active_flags.ha_id === authUser?.ha_pcn_id) {
-        setActiveToggle(active_flags.is_active);
-      }
-    }
+    const activeFlag = applicant.active_flags?.find(o => o.ha_id === authUser?.ha_pcn_id);
+    setActiveToggle(activeFlag?.is_active ?? true);
   }, [applicant, authUser]);
 
   return (

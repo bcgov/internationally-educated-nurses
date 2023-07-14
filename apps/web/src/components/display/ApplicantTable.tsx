@@ -1,14 +1,8 @@
+import classNames from 'classnames';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { AclMask, buttonBase, buttonColor } from '@components';
-import {
-  ApplicantRO,
-  formatDate,
-  isHmbc,
-  isHired,
-  HealthAuthorities,
-  ApplicantActiveFlagRO,
-} from '@ien/common';
+import { ApplicantRO, formatDate, isHmbc, isHired, HealthAuthorities } from '@ien/common';
 import hiredCheckmarkIcon from '@assets/img/hired_checkmark.svg';
 import { Spinner } from '../Spinner';
 import { SortButton } from '../SortButton';
@@ -45,17 +39,28 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
   const router = useRouter();
 
   const { authUser } = useAuthContext();
+  const isHAUser = HealthAuthorities.some(a => a.name === authUser?.organization);
 
   const getApplicantId = (applicant: ApplicantRO): string => {
     const { id, ats1_id } = applicant;
     return `${ats1_id || id}`.substring(0, 8);
   };
 
-  const rowClass = (status: string | undefined, flag?: ApplicantActiveFlagRO | null) => {
-    if (flag && !flag.is_active) {
-      return `text-gray-400 even:bg-bcLightGray`;
+  const rowClass = (applicant: ApplicantRO) => {
+    const status = applicant.status?.status;
+    const classes = ['text-left', 'shadow-xs', 'whitespace-nowrap', 'text-sm'];
+    const inactive = applicant.active_flags?.some(
+      flag => flag.ha_id === authUser?.ha_pcn_id && !flag.is_active,
+    );
+    if (isHAUser && inactive) {
+      classes.push('text-gray-400', 'even:bg-bcLightGray');
     }
-    return isHmbc(authUser) && isHired(status) ? 'bg-bcGreenHiredContainer' : 'even:bg-bcLightGray';
+    if (isHmbc(authUser) && isHired(status)) {
+      classes.push('bg-bcGreenHiredContainer');
+    } else {
+      classes.push('even:bg-bcLightGray');
+    }
+    return classNames(classes);
   };
 
   return (
@@ -89,13 +94,7 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
           {applicants &&
             !loading &&
             applicants.map((app: ApplicantRO, index) => (
-              <tr
-                key={app.id}
-                className={`text-left shadow-xs whitespace-nowrap ${rowClass(
-                  app.status?.status,
-                  app.active_flags,
-                )} text-sm`}
-              >
+              <tr key={app.id} className={rowClass(app)}>
                 <td className='pl-6'>{getApplicantId(app)}</td>
                 <td className='px-6 py-5 truncate'>{app.name}</td>
                 {isHmbc(authUser) && milestoneText(app)}

@@ -37,7 +37,7 @@ const Applicants = () => {
   const { authUser } = useAuthContext();
   const [applicants, setApplicants] = useState<ApplicantRO[]>([]);
   const [loading, setLoading] = useState(false);
-  const [activeOnly, setActiveOnly] = useState<boolean>(false);
+  const [activeOnly, setActiveOnly] = useState<boolean>(true);
   const [myApplicantsOnly, setMyApplicantsOnly] = useState(false);
   const router = useRouter();
 
@@ -85,7 +85,14 @@ const Applicants = () => {
 
   useEffect(() => {
     const skip = (pageIndex - 1) * limit;
-    const options: SearchOptions = { name, sortKey, order, limit, skip, activeOnly };
+    const options: SearchOptions = {
+      name,
+      sortKey,
+      order,
+      limit,
+      skip,
+      activeOnly,
+    };
     if (status && status !== 'ALL') options.status = `${status}`;
     setLoading(true);
     searchApplicants(options).then(({ data, count }) => {
@@ -137,29 +144,11 @@ const Applicants = () => {
     changeRoute(name, index ? index : StatusCategory.ALL);
   };
 
-  const handleCheckChange = () => {
-    setActiveOnly(prev => !prev);
-  };
-
   return (
     <div className='container w-full mx-6 xl:w-xl mb-4'>
       <div className='flex items-center justify-between'>
         <h1 className='font-bold text-4xl py-6'>Manage Applicants</h1>
-        <AclMask authorities={HealthAuthorities}>
-          <span className='flex items-center mt-auto mb-2'>
-            <input
-              value={`${activeOnly}`}
-              id='active-only'
-              type='checkbox'
-              className='h-4 w-4 rounded-full ml-6 mr-2'
-              onChange={() => handleCheckChange()}
-              data-cy='hide-inactive-applicants'
-            />
-            <label htmlFor='active-only' className='cursor-pointer'>
-              Hide Inactive Applicants
-            </label>
-          </span>
-        </AclMask>
+        <AclMask authorities={HealthAuthorities}></AclMask>
       </div>
       <Search
         onChange={handleKeywordChange}
@@ -181,13 +170,23 @@ const Applicants = () => {
         <div className='flex flex-row justify-between'>
           <div className='text-bcGray px-4 mb-4'>{`Showing ${applicants.length} results`}</div>
           <AclMask authorities={HealthAuthorities}>
-            <div className='pr-12' data-cy='my-applicants-only'>
-              <span className='mr-2 text-bcGray'>Only show my applicants</span>
-              <ToggleSwitch
-                checked={myApplicantsOnly}
-                screenReaderText='Only show my applicants'
-                onChange={setMyApplicantsOnly}
-              />
+            <div className='flex flex-row'>
+              <div className='flex content-center' data-cy='my-applicants-only'>
+                <span className='mr-2 text-bcGray'>Only show my applicants</span>
+                <ToggleSwitch
+                  checked={myApplicantsOnly}
+                  screenReaderText='Only show my applicants'
+                  onChange={setMyApplicantsOnly}
+                />
+              </div>
+              <div className='flex content-center px-4' data-cy='hide-inactive-applicants'>
+                <span className='mr-2 text-bcGray'>Hide inactive applicants</span>
+                <ToggleSwitch
+                  checked={activeOnly}
+                  screenReaderText='Only show my applicants'
+                  onChange={setActiveOnly}
+                />
+              </div>
             </div>
           </AclMask>
         </div>
