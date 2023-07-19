@@ -1,14 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import dayjs from 'dayjs';
 import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { FindManyOptions, getManager, In, IsNull, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EmployeeRO, isAdmin, StatusCategory } from '@ien/common';
+import { ApplicantRO, EmployeeRO, HealthAuthorities, isAdmin, StatusCategory } from '@ien/common';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicant } from './entity/ienapplicant.entity';
 import { IENUsers } from './entity/ienusers.entity';
 import { IENApplicantFilterAPIDTO } from './dto/ienapplicant-filter.dto';
 import { IENApplicantUtilService } from './ienapplicant.util.service';
-import { CommonData } from 'src/common/common.data';
+import { RELATIONS } from 'src/common/relations';
 import { IENApplicantJob } from './entity/ienjob.entity';
 import { IENApplicantStatusAudit } from './entity/ienapplicant-status-audit.entity';
 import { IENJobLocation } from './entity/ienjoblocation.entity';
@@ -19,13 +20,12 @@ import {
   IENApplicantJobQueryDTO,
   IENApplicantUpdateStatusAPIDTO,
 } from './dto';
-import dayjs from 'dayjs';
 import { IENHaPcn } from './entity/ienhapcn.entity';
 import { IENApplicantRecruiter } from './entity/ienapplicant-employee.entity';
+import { IENApplicantActiveFlag } from './entity/ienapplicant-active-flag.entity';
 
 @Injectable()
 export class IENApplicantService {
-  applicantRelations: any;
   constructor(
     @Inject(Logger) private readonly logger: AppLogger,
     @InjectRepository(IENApplicant)
@@ -42,9 +42,7 @@ export class IENApplicantService {
     private readonly haPcnRepository: Repository<IENHaPcn>,
     @InjectRepository(IENApplicantRecruiter)
     private readonly recruiterRepository: Repository<IENApplicantRecruiter>,
-  ) {
-    this.applicantRelations = CommonData;
-  }
+  ) {}
 
   /**
    * List and filter applicants
@@ -62,33 +60,36 @@ export class IENApplicantService {
   /**
    * Retrieve applicant details, with audit and detail relational data
    * @param id
-   * @param data Pass additinal relation, like audit,applicantaudit
+   * @param data Pass additional relation, like audit, applicantaudit
+   * @param user logged in user
    * @returns
    */
-  async getApplicantById(id: string, data: any = null): Promise<IENApplicant> {
-    let applicant;
-    let relations = this.applicantRelations.status;
+  async getApplicantById(id: string, data: any = null, user?: EmployeeRO): Promise<IENApplicant> {
+    let relations = RELATIONS.status;
     let is_status_audit = false;
-    try {
-      if (data && data.relation && data.relation !== '') {
-        const relations_array = data.relation.split(',');
-        relations_array.forEach((rel: string) => {
-          if (rel in this.applicantRelations && rel.trim() != '') {
-            relations = relations.concat(this.applicantRelations[rel]);
-            if (rel === 'audit') {
-              is_status_audit = true;
-            }
+    if (data?.relation) {
+      const relations_array = data.relation.split(',').map((o: string) => o.trim());
+      relations_array.forEach((rel: string) => {
+        if (rel in RELATIONS) {
+          relations = relations.concat(RELATIONS[rel]);
+          if (rel === 'audit') {
+            is_status_audit = true;
           }
-        });
-      }
-      applicant = await this.ienapplicantRepository.findOne(id, { relations });
-    } catch (e) {
-      this.logger.error(e);
-      throw new BadRequestException(e);
+        }
+      });
     }
+    const applicant = await this.ienapplicantRepository.findOne(id, { relations });
+
     if (!applicant) {
       throw new NotFoundException(`Applicant with id '${id}' not found`);
     }
+
+    // grab only relevant flag depending on logged-in user's health authority
+    if (HealthAuthorities.some(ha => ha.name === user?.organization)) {
+      applicant.active_flags =
+        applicant.active_flags?.filter(flag => flag.ha_id === user?.ha_pcn_id) || [];
+    }
+
     if (is_status_audit) {
       applicant.applicant_status_audit = await this.ienapplicantStatusAuditRepository.find({
         where: { applicant, job: IsNull() },
@@ -101,6 +102,7 @@ export class IENApplicantService {
   /**
    * Add new applicant
    * @param addApplicant Add Applicant DTO
+   * @param user
    * @returns Created Applicant details
    */
   async addApplicant(
@@ -163,18 +165,45 @@ export class IENApplicantService {
 
   /**
    * Update active flag for applicant
+   * @param user
    * @param id applicant IEN ID
    * @param activeFlag active flag
    * @returns
    */
-  async updateApplicantActiveFlag(id: string, activeFlag: boolean): Promise<IENApplicant | any> {
+  async updateApplicantActiveFlag(
+    user: EmployeeRO,
+    id: string,
+    activeFlag: boolean,
+  ): Promise<ApplicantRO> {
+    if (!user.ha_pcn_id) {
+      throw new BadRequestException(`User doesn't belong to a health authority`);
+    }
+
     await getManager().transaction(async manager => {
-      await manager.update<IENApplicant>(IENApplicant, id, {
-        is_active: activeFlag,
+      let record = await manager.findOne(IENApplicantActiveFlag, {
+        where: {
+          applicant_id: id,
+          ha_id: user.ha_pcn_id,
+        },
       });
+
+      if (record) {
+        record.is_active = activeFlag;
+        await manager.update<IENApplicant>(IENApplicant, id, {
+          updated_date: new Date(),
+        });
+      } else {
+        record = manager.create(IENApplicantActiveFlag, {
+          applicant_id: id,
+          ha_id: user.ha_pcn_id as string,
+          is_active: activeFlag,
+        });
+      }
+      await manager.save(IENApplicantActiveFlag, record);
     });
 
-    return this.getApplicantById(id);
+    const applicant = await this.getApplicantById(id);
+    return applicant.toResponseObject();
   }
 
   /**
@@ -480,7 +509,7 @@ export class IENApplicantService {
 
   async getApplicantJob(job_id: string | number): Promise<IENApplicantJob | undefined> {
     return this.ienapplicantJobRepository.findOne(job_id, {
-      relations: this.applicantRelations.applicant_job,
+      relations: RELATIONS.applicant_job,
     });
   }
 
@@ -535,7 +564,7 @@ export class IENApplicantService {
       },
       skip,
       take: limit,
-      relations: this.applicantRelations.applicant_job,
+      relations: RELATIONS.applicant_job,
     };
     return this.ienapplicantJobRepository.findAndCount(query);
   }

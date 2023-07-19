@@ -34,7 +34,7 @@ export interface ApplicantRO {
   applicant_status_audit?: ApplicantStatusAuditRO[] | null;
   applicant_audit?: ApplicantAuditRO[] | null;
   recruiters?: EmployeeRO[] | null;
-  is_active: boolean;
+  active_flags?: ApplicantActiveFlagRO[];
   created_date?: Date;
   updated_date?: Date;
 }
@@ -76,4 +76,9 @@ export interface ApplicantAuditRO {
   data: JSON;
   created_date?: Date;
   added_by?: IENUserRO | null;
+}
+export interface ApplicantActiveFlagRO {
+  applicant_id: string;
+  ha_id: string;
+  is_active: boolean;
 }

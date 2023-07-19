@@ -78,11 +78,14 @@ export class IENApplicantController {
   @AllowAccess(Access.APPLICANT_READ)
   @Get('/:id')
   async getApplicant(
+    @Req() req: RequestObj,
     @Param('id') id: string,
     @Query() relation: IENApplicantFilterByIdAPIDTO,
   ): Promise<ApplicantRO> {
     try {
-      return (await this.ienapplicantService.getApplicantById(id, relation)).toResponseObject();
+      return (
+        await this.ienapplicantService.getApplicantById(id, relation, req.user)
+      ).toResponseObject();
     } catch (e) {
       if (e instanceof NotFoundException) {
         throw e;
@@ -154,12 +157,13 @@ export class IENApplicantController {
   @AllowAccess(Access.APPLICANT_WRITE)
   @Patch('/:id/active')
   async updateApplicantActiveFlag(
+    @Req() { user }: RequestObj,
     @Param('id') id: string,
     @Body() body: { activeFlag: boolean },
-  ): Promise<ApplicantRO | undefined> {
+  ): Promise<ApplicantRO> {
     try {
       const { activeFlag } = body;
-      return await this.ienapplicantService.updateApplicantActiveFlag(id, activeFlag);
+      return await this.ienapplicantService.updateApplicantActiveFlag(user, id, activeFlag);
     } catch (e) {
       this.logger.error(e);
       if (e instanceof NotFoundException) {

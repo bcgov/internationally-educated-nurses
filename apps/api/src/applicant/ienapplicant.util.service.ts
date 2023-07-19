@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { In, Repository, getManager, EntityManager } from 'typeorm';
+import { In, Repository, getManager, EntityManager, Brackets } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantStatus } from './entity/ienapplicant-status.entity';
@@ -8,7 +8,6 @@ import { IENApplicant } from './entity/ienapplicant.entity';
 import { IENApplicantFilterAPIDTO } from './dto/ienapplicant-filter.dto';
 import { IENApplicantAudit } from './entity/ienapplicant-audit.entity';
 import { IENApplicantStatusAudit } from './entity/ienapplicant-status-audit.entity';
-import { CommonData } from 'src/common/common.data';
 import { IENApplicantJob } from './entity/ienjob.entity';
 import { IENHaPcn } from './entity/ienhapcn.entity';
 import { IENUsers } from './entity/ienusers.entity';
@@ -19,7 +18,6 @@ import { IENMasterService } from './ien-master.service';
 
 @Injectable()
 export class IENApplicantUtilService {
-  applicantRelations;
   constructor(
     @Inject(Logger) private readonly logger: AppLogger,
     @Inject(IENMasterService)
@@ -32,9 +30,7 @@ export class IENApplicantUtilService {
     private readonly ienapplicantStatusAuditRepository: Repository<IENApplicantStatusAudit>,
     @InjectRepository(IENApplicantJob)
     private readonly ienapplicantJobRepository: Repository<IENApplicantJob>,
-  ) {
-    this.applicantRelations = CommonData;
-  }
+  ) {}
 
   _nameSearchQuery(keyword: string) {
     let keywords = keyword.split(' ');
@@ -69,13 +65,27 @@ export class IENApplicantUtilService {
   ) {
     const { status, name, recruiter, sortKey, order, limit, skip, activeOnly } = filter;
     const builder = this.ienapplicantRepository.createQueryBuilder('applicant');
-
     builder.leftJoinAndSelect('applicant.status', 'latest_status');
     if (ha_pcn_id) {
       const haPcn = await this.getHaPcn(ha_pcn_id);
       builder
         .innerJoin('ien_applicant_status_audit', 'audit', 'applicant.id = audit.applicant_id')
-        .innerJoin('ien_applicant_status', 'status', 'status.id = audit.status_id');
+        .innerJoin('ien_applicant_status', 'status', 'status.id = audit.status_id')
+        .leftJoinAndSelect(
+          'applicant.active_flags',
+          'active_flag',
+          `active_flag.applicant_id = applicant.id AND active_flag.ha_id = '${ha_pcn_id}'`,
+        );
+
+      if (activeOnly) {
+        builder.andWhere(
+          new Brackets(qb => {
+            qb.where('active_flag.is_active IS NULL').orWhere(`active_flag.is_active = :isActive`, {
+              isActive: true,
+            });
+          }),
+        );
+      }
 
       if (recruiter) {
         builder.innerJoinAndSelect(
@@ -101,10 +111,6 @@ export class IENApplicantUtilService {
     }
     if (name) {
       builder.andWhere(this._nameSearchQuery(name));
-    }
-
-    if (activeOnly) {
-      builder.andWhere(`applicant.is_active = :isActive`, { isActive: true });
     }
 
     if (sortKey === 'recruiter') {
@@ -163,6 +169,7 @@ export class IENApplicantUtilService {
    *
    * @param applicant Applicant Object
    * @param added_by Passing it separately, In case of update we have to use updated_by field in place of added_by
+   * @param manager
    */
   async saveApplicantAudit(applicant: IENApplicant, added_by: IENUsers, manager: EntityManager) {
     const dataToSave: object = applicant;
