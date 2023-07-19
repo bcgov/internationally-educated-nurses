@@ -40,7 +40,7 @@ export const ApplicantProfile = () => {
         <AclMask authorities={HealthAuthorities}>
           <div className='text-bcGray text-sm pt-1 pb-4 flex items-center' data-cy='active-toggle'>
             <span className='mr-2 font-bold' data-cy='active-text'>
-              {activeToggle ? 'Active' : 'Inactive'}
+              {activeToggle ? 'Applicant is Visible' : 'Applicant is Hidden'}
             </span>
             <ToggleSwitch
               checked={activeToggle}
