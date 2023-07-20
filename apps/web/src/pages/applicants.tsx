@@ -20,7 +20,7 @@ import { ToggleSwitch } from '../components/ToggleSwitch';
 interface SearchOptions {
   name?: string;
   status?: string;
-  activeOnly?: boolean;
+  showHiddenApplicants?: boolean;
   sortKey?: string;
   recruiter?: string;
   order?: 'ASC' | 'DESC';
@@ -37,7 +37,7 @@ const Applicants = () => {
   const { authUser } = useAuthContext();
   const [applicants, setApplicants] = useState<ApplicantRO[]>([]);
   const [loading, setLoading] = useState(false);
-  const [activeOnly, setActiveOnly] = useState<boolean>(true);
+  const [showHiddenApplicants, setShowHiddenApplicants] = useState<boolean>(false);
   const [myApplicantsOnly, setMyApplicantsOnly] = useState(false);
   const router = useRouter();
 
@@ -91,7 +91,7 @@ const Applicants = () => {
       order,
       limit,
       skip,
-      activeOnly,
+      showHiddenApplicants,
     };
     if (status && status !== 'ALL') options.status = `${status}`;
     setLoading(true);
@@ -103,7 +103,7 @@ const Applicants = () => {
       setApplicants(data);
       setLoading(false);
     });
-  }, [name, status, sortKey, order, pageIndex, limit, activeOnly, myApplicantsOnly]);
+  }, [name, status, sortKey, order, pageIndex, limit, showHiddenApplicants, myApplicantsOnly]);
 
   const viewDetail = (id: string) => router.push(`/details?id=${id}`);
 
@@ -179,11 +179,11 @@ const Applicants = () => {
                 />
               </div>
               <div className='flex content-center px-4' data-cy='hide-inactive-applicants'>
-                <span className='mr-2 text-bcGray'>Hide inactive applicants</span>
+                <span className='mr-2 text-bcGray'>Show hidden applicants</span>
                 <ToggleSwitch
-                  checked={activeOnly}
+                  checked={showHiddenApplicants}
                   screenReaderText='Only show my applicants'
-                  onChange={setActiveOnly}
+                  onChange={setShowHiddenApplicants}
                 />
               </div>
             </div>

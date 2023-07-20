@@ -12,20 +12,20 @@ describe('Applicants - Active/ Inactive', () => {
   const fhaUser1 = 'ien_fha';
   const vihaUser = 'ien_viha';
 
-  it(`make active applicant inactive`, () => {
+  it(`make active applicant hidden`, () => {
     cy.login(fhaUser1);
     cy.visit('/');
     cy.visitDetails(applicant1);
-    cy.get('[data-cy=active-text]').should('have.text', 'Active');
+    cy.get('[data-cy=active-text]').should('have.text', 'Applicant is Visible');
     cy.get('[data-cy=active-toggle]').find('button').click();
-    cy.get('[data-cy=active-text]').should('have.text', 'Inactive');
+    cy.get('[data-cy=active-text]').should('have.text', 'Applicant is Hidden');
   });
 
   it(`inactive applicant in one HA should not affect active applicant in another HA`, () => {
     cy.login(vihaUser);
     cy.visit('/');
     cy.visitDetails(applicant1);
-    cy.get('[data-cy=active-text]').should('have.text', 'Active');
+    cy.get('[data-cy=active-text]').should('have.text', 'Applicant is Visible');
   });
 
   it(`hide/ unhide inactive applicants`, () => {
@@ -42,8 +42,8 @@ describe('Applicants - Active/ Inactive', () => {
     cy.login(fhaUser1);
     cy.visit('/');
     cy.visitDetails(applicant1);
-    cy.get('[data-cy=active-text]').should('have.text', 'Inactive');
+    cy.get('[data-cy=active-text]').should('have.text', 'Applicant is Hidden');
     cy.get('[data-cy=active-toggle]').find('button').click();
-    cy.get('[data-cy=active-text]').should('have.text', 'Active');
+    cy.get('[data-cy=active-text]').should('have.text', 'Applicant is Visible');
   });
 });
