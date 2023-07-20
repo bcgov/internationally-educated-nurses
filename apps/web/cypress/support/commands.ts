@@ -119,6 +119,9 @@ Cypress.Commands.add('addDuplicateJob', (job: IENApplicantJobCreateUpdateDTO) =>
   cy.contains('button', 'Add Record').click();
   cy.get('#ha_pcn').click().type(`${job.ha_pcn}{enter}`);
   cy.get('#job_id').type(`${job.job_id}`);
+  cy.get('#job_location').click();
+  cy.get('#job_location').type('{backspace}');
+  cy.get('#job_location').type(`${job.job_location}{enter}`);
   cy.contains('button', 'Create').click();
 
   cy.contains(/^There is a job record with the same health authority and job id.$/);

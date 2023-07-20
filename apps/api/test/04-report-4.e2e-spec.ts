@@ -189,6 +189,7 @@ describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
     const { id } = await addJob(applicantIdsOldProcess[1], {
       ha_pcn: haPCN,
       job_id: '46897',
+      job_location: [1],
     });
 
     const updatedReport = await addMilestoneAndSplitProcess(reportService, {

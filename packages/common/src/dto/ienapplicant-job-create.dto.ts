@@ -1,4 +1,5 @@
 import {
+  ArrayMinSize,
   IsArray,
   IsDateString,
   IsNotEmpty,
@@ -21,8 +22,8 @@ export class IENApplicantJobCreateUpdateDTO {
   job_title?: string;
 
   @IsArray()
-  @IsOptional()
-  job_location?: number[];
+  @ArrayMinSize(1, { message: 'At least one community is required' })
+  job_location!: number[];
 
   @ValidateIf(d => d.job_post_date !== '')
   @IsDateString()

@@ -1,6 +1,14 @@
 import { IENApplicantJobCreateUpdateDTO } from '@ien/common';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsDateString, IsOptional, IsString, IsNotEmpty, ValidateIf } from 'class-validator';
+import {
+  IsDateString,
+  IsOptional,
+  IsString,
+  IsNotEmpty,
+  ValidateIf,
+  ArrayMinSize,
+  IsArray,
+} from 'class-validator';
 
 export class IENApplicantJobCreateUpdateAPIDTO extends IENApplicantJobCreateUpdateDTO {
   @ApiProperty({ description: "Job's HA/PCN", example: '1' })
@@ -22,8 +30,9 @@ export class IENApplicantJobCreateUpdateAPIDTO extends IENApplicantJobCreateUpda
   job_title?: string;
 
   @ApiProperty({ description: 'Job location Id', example: '[1, 2]' })
-  @IsOptional()
-  job_location?: number[];
+  @IsArray()
+  @ArrayMinSize(1, { message: 'At least one community is required' })
+  job_location!: number[];
 
   @ApiPropertyOptional({
     description: 'Date job was first posted',

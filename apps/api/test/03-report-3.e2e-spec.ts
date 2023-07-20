@@ -19,6 +19,7 @@ describe('Report 3 - Applicant by Status', () => {
   const job = getJob({
     ha_pcn: '6ad69443-e3a8-3cbc-8cc9-3a05e5b771e4',
     job_id: 'JOBR3',
+    job_location: [1],
   });
 
   beforeAll(async () => {
