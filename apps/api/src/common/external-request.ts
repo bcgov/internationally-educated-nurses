@@ -26,26 +26,26 @@ export class ExternalRequest {
   }
 
   async getHa() {
-    return this.getData(`/health-authorities/ien`);
+    return this.getData(`/health-authorities`);
   }
 
   async getStaff() {
     const header = {
       ApiKey: process.env.HMBC_ATS_AUTH_KEY,
     };
-    return this.getData(`/applicants/staff/ien`, header);
+    return this.getData(`/staff`, header);
   }
 
   async getReason() {
-    return this.getData(`/withdrawal-reasons/ien`);
+    return this.getData(`/withdrawal-reasons`);
   }
 
   async getDepartment() {
-    return this.getData(`/specialty-departments/ien`);
+    return this.getData(`/specialty-departments`);
   }
 
   async getMilestone() {
-    return this.getData(`/milestones/ien`);
+    return this.getData(`/milestones`);
   }
 
   async getApplicants(url: string) {
