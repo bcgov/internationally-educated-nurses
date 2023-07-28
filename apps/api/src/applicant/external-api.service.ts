@@ -192,7 +192,7 @@ export class ExternalAPIService {
     for (let i = 0; i < parallel_requests; i++) {
       pages.push(
         this.external_request.getApplicants(
-          `/applicants/ien?next=${per_page}&offset=${offset}&from=${from_date}&to=${to_date}`,
+          `/applicants?next=${per_page}&offset=${offset}&from=${from_date}&to=${to_date}`,
         ),
       );
       offset += per_page;
