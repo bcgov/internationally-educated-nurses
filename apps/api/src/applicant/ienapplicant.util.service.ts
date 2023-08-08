@@ -274,7 +274,7 @@ export class IENApplicantUtilService {
     return job_location;
   }
 
-  async getJobLocations(ids: string[] | number[]): Promise<IENJobLocation[] | []> {
+  async getJobLocations(ids: number[]): Promise<IENJobLocation[] | []> {
     return this.ienMasterService.ienJobLocationRepository.findByIds(ids);
   }
 

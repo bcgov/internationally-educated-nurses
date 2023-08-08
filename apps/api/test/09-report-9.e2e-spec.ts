@@ -98,6 +98,7 @@ describe('Report 9 - Average Amount of Time with Each Stakeholder Group', () => 
       ).format('YYYY-MM-DD');
       const job = await addJob(id, {
         ha_pcn: await getHaId(ha),
+        job_location: [1],
       });
 
       const generateStageMilestones = async (stage: STATUS[]) => {

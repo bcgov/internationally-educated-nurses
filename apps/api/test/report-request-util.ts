@@ -63,6 +63,7 @@ export const addJob = async (id: string, j: IENApplicantJobCreateUpdateDTO) => {
   const job = getJob({
     ha_pcn: j.ha_pcn,
     job_id: j.job_id || '',
+    job_location: [1],
   });
   const { body } = await request(app.getHttpServer()).post(addJobUrl).send(job);
 
@@ -84,7 +85,7 @@ export const addMilestone = async (id: string, job_id: string, s: IENApplicantAd
 
 export const hire = async (id: string, ha: keyof typeof Authorities, start: string) => {
   const ha_pcn = await getHaId(ha);
-  const job = await addJob(id, { ha_pcn });
+  const job = await addJob(id, { ha_pcn, job_location: [1] });
 
   // add hired milestone - should only count hired applicants
   await addMilestone(id, job.id, await getStatus(STATUS.JOB_OFFER_ACCEPTED, start));

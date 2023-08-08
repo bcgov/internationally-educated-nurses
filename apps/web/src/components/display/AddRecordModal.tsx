@@ -102,7 +102,7 @@ export const AddRecordModal: React.FC<AddRecordProps> = (props: AddRecordProps) 
     ha_pcn: `${job?.ha_pcn?.id || authUser?.ha_pcn_id || ''}`,
     job_id: `${job?.job_id || ''}`,
     job_title: `${job?.job_title?.id || ''}`,
-    job_location: job?.job_location ? job?.job_location.map(j => j.id) : [],
+    job_location: job?.job_location?.map(j => j.id) ?? [],
     job_post_date: `${job?.job_post_date || ''}`,
   };
 

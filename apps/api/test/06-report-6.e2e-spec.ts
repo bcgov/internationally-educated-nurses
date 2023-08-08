@@ -65,7 +65,7 @@ describe('Report 6 - Registrants in Recruitment Stage', () => {
       const { id } = (await addApplicant(applicant)) as ApplicantRO;
       applicantId = id;
 
-      const job = await addJob(id, { ha_pcn: HA[i].id, job_id: i.toString() });
+      const job = await addJob(id, { ha_pcn: HA[i].id, job_id: i.toString(), job_location: [1] });
       jobTempId = job.id;
 
       await addMilestone(id, jobTempId, {
@@ -89,6 +89,7 @@ describe('Report 6 - Registrants in Recruitment Stage', () => {
     const job = await addJob(applicantId, {
       ha_pcn: HA[phsaIndex].id,
       job_id: 'TwoStatusApp',
+      job_location: [1],
     });
     jobTempId = job.id;
 

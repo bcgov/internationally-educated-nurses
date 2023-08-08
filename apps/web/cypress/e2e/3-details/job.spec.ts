@@ -30,6 +30,16 @@ describe('Details - Job', () => {
     cy.contains(`${7} items`);
   });
 
+  it('validates if communities are mandatory', () => {
+    cy.contains('button', 'Add Record').click();
+    cy.get('#ha_pcn').click().type(`${newJob.ha_pcn}{enter}`);
+    cy.get('#job_id').type(`${newJob.job_id}`);
+    cy.contains('button', 'Create').click();
+
+    cy.contains('At least one community is required');
+    cy.contains('button', 'Cancel').click();
+  });
+
   it('rejects duplicate job record', () => {
     cy.addDuplicateJob(newJob);
   });

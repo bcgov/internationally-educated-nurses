@@ -11,6 +11,7 @@ import {
   IENApplicantCreateUpdateDTO,
   IENApplicantJobCreateUpdateDTO,
   IENHaPcnRO,
+  IENJobLocationRO,
   IMMIGRATION_STAGE,
   LIC_REG_STAGE,
   RECRUITMENT_STAGE,
@@ -22,6 +23,7 @@ config({ path: '../../.env' });
 const MIN_DURATION = 5;
 const MAX_DURATION = 20;
 const APPLICANT_COUNT = 4000;
+let communities: IENJobLocationRO[];
 let start = new Date();
 
 const getToken = async (): Promise<void> => {
@@ -61,6 +63,11 @@ const getNewStartDate = (start: Date) => {
   return dayjs(start).add(duration, 'days').format('YYYY-MM-DD');
 };
 
+const getCommunities = async () => {
+  const resp = await axios.get('/ienmaster/job-locations');
+  return resp?.data?.data;
+};
+
 const addMilestone = async (
   applicant: ApplicantRO,
   statusId: string,
@@ -92,12 +99,13 @@ const getAuthorities = async (): Promise<IENHaPcnRO[]> => {
   return resp?.data?.data;
 };
 
-const createJob = async (applicant: any): Promise<ApplicantJobRO> => {
+const createJob = async (applicant: ApplicantRO, locationId: number): Promise<ApplicantJobRO> => {
   const authorities = await getAuthorities();
   const ha = authorities[_.random(0, authorities.length - 1)];
   const job: IENApplicantJobCreateUpdateDTO = {
     ha_pcn: ha.id,
     job_post_date: dayjs(applicant.registration_date).add(2, 'months').format('YYYY-MM-DD'),
+    job_location: [locationId],
   };
   const resp = await axios.post(`/ien/${applicant.id}/job`, job);
   return resp?.data?.data;
@@ -120,7 +128,8 @@ const generateMilestones = async (id: string, statuses: Record<string, string>) 
   for (let sIndex = 0; sIndex < stages.length; sIndex++) {
     let job: ApplicantJobRO | null = null;
     if (stages[sIndex][0] === STATUS.REFERRAL_ACKNOWLEDGED) {
-      job = await createJob(applicant);
+      const community = communities[_.random(0, communities.length - 1)];
+      job = await createJob(applicant, community.id);
     }
     // randomly skip a milestone
     for (let mIndex = _.random(0, 2); mIndex < stages[sIndex].length; mIndex += _.random(1, 2)) {
@@ -207,6 +216,7 @@ axios.defaults.baseURL = 'http://localhost:4000/api/v1';
 
 setToken()
   .then(async () => {
+    communities = await getCommunities();
     const [applicants, initialCount] = await getApplicants();
 
     console.log(`${initialCount} applicants found`);
