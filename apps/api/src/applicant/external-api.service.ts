@@ -56,24 +56,27 @@ export class ExternalAPIService {
   /**
    * Save all data for master tables.
    */
-  async saveData() {
+  async saveData(): Promise<void> {
     if (!process.env.HMBC_ATS_AUTH_KEY || !process.env.HMBC_ATS_BASE_URL) {
       throw new InternalServerErrorException('ATS endpoint is not set.');
     }
-    this.logger.log(`Using ATS : ${process.env.HMBC_ATS_BASE_URL}`);
+    this.logger.log(`Using ATS : ${process.env.HMBC_ATS_BASE_URL}`, 'ATS-SYNC');
 
-    await getManager().transaction(async manager => {
-      const ha = this.saveHa(manager);
-      const users = this.saveUsers(manager);
-      const reasons = this.saveReasons(manager);
-      const departments = this.saveDepartments(manager);
-      const milestones = this.saveMilestones(manager);
+    const manager = getManager();
+    await manager.queryRunner?.startTransaction();
 
-      await Promise.all([ha, users, reasons, departments, milestones]).then(res => {
-        this.logger.log(`Response: ${res}`);
-        this.logger.log(`Master tables imported at ${new Date()}`);
-      });
-    });
+    try {
+      await this.saveHa(manager);
+      await this.saveUsers(manager);
+      await this.saveReasons(manager);
+      await this.saveMilestones(manager);
+
+      await manager.queryRunner?.commitTransaction();
+      this.logger.log(`Master tables imported at ${new Date()}`, 'ATS-SYNC');
+    } catch (e) {
+      await manager.queryRunner?.rollbackTransaction();
+      throw e;
+    }
   }
 
   /**
@@ -81,16 +84,11 @@ export class ExternalAPIService {
    * and Save in ien_ha_pcn table in database for applicant reference.
    */
   async saveHa(manager: EntityManager): Promise<void> {
-    try {
-      const data = await this.external_request.getHa();
-      if (Array.isArray(data)) {
-        const listHa = data.map(item => ({ ...item, title: item.name }));
-        const result = await manager.upsert(IENHaPcn, listHa, ['id']);
-        this.logger.log(`${result.raw.length}/${listHa.length} authorities updated`, 'ATS');
-      }
-    } catch (e) {
-      this.logger.log(e);
-      this.logger.log(`Error in saveHa(): ${e}`, 'ATS');
+    const data = await this.external_request.getHa();
+    if (Array.isArray(data)) {
+      const listHa = data.map(item => ({ ...item, title: item.name }));
+      const result = await manager.upsert(IENHaPcn, listHa, ['id']);
+      this.logger.log(`${result.raw.length}/${listHa.length} authorities updated`, 'ATS-SYNC');
     }
   }
 
@@ -99,22 +97,18 @@ export class ExternalAPIService {
    * and Save in ien_users table in database for applicant reference.
    */
   async saveUsers(manager: EntityManager): Promise<void> {
-    try {
-      const data = await this.external_request.getStaff();
-      if (Array.isArray(data)) {
-        const listUsers = data.map(item => {
-          return {
-            user_id: item.id.toLowerCase(),
-            name: item.name,
-            email: item.email,
-          };
-        });
-        const result = await manager.upsert(IENUsers, listUsers, ['email']);
+    const data = await this.external_request.getStaff();
+    if (Array.isArray(data)) {
+      const listUsers = data.map(item => {
+        return {
+          user_id: item.id.toLowerCase(),
+          name: item.name,
+          email: item.email,
+        };
+      });
+      const result = await manager.upsert(IENUsers, listUsers, ['email']);
 
-        this.logger.log(`${result.raw.length}/${listUsers.length} users updated`, 'ATS');
-      }
-    } catch (e) {
-      this.logger.log(`Error in saveUsers(): ${e}`, 'ATS');
+      this.logger.log(`${result.raw.length}/${listUsers.length} users updated`, 'ATS-SYNC');
     }
   }
 
@@ -123,36 +117,30 @@ export class ExternalAPIService {
    * and Save in ien_status_reasons table in database for milestone/status reference.
    */
   async saveReasons(manager: EntityManager): Promise<void> {
-    try {
-      const data = await this.external_request.getReason();
-      if (Array.isArray(data)) {
-        const result = await manager.upsert(IENStatusReason, data, ['id']);
-        this.logger.log(`${result.raw.length}/${data.length} reasons updated`, 'ATS');
-      }
-    } catch (e) {
-      this.logger.log(`Error in saveReasons(): ${e}`, 'ATS');
+    const data = await this.external_request.getReason();
+    if (Array.isArray(data)) {
+      const result = await manager.upsert(IENStatusReason, data, ['id']);
+      this.logger.log(`${result.raw.length}/${data.length} reasons updated`, 'ATS-SYNC');
     }
   }
 
   /**
+   * @deprecated ATS doesn't support /specialty-departments
+   *
    * Collect Job-competition department data from <domain>/department Url.
    * and Save in ien_job_titles table in database for department reference.
    */
   async saveDepartments(manager: EntityManager): Promise<void> {
-    try {
-      const data = await this.external_request.getDepartment();
-      if (Array.isArray(data)) {
-        const departments = data.map(item => {
-          return {
-            id: item.id,
-            title: item.name,
-          };
-        });
-        const result = await manager.upsert(IENJobTitle, departments, ['id']);
-        this.logger.log(`${result.raw.length}/${departments.length} departments updated`, 'ATS');
-      }
-    } catch (e) {
-      this.logger.log(`Error in saveDepartments(): ${e}`, 'ATS');
+    const data = await this.external_request.getDepartment();
+    if (Array.isArray(data)) {
+      const departments = data.map(item => {
+        return {
+          id: item.id,
+          title: item.name,
+        };
+      });
+      const result = await manager.upsert(IENJobTitle, departments, ['id']);
+      this.logger.log(`${result.raw.length}/${departments.length} departments updated`, 'ATS-SYNC');
     }
   }
 
@@ -161,20 +149,16 @@ export class ExternalAPIService {
    * and upsert it.
    */
   async saveMilestones(manager: EntityManager): Promise<void> {
-    try {
-      const data: { id: string; name: string; category: string; 'process-related': boolean } =
-        await this.external_request.getMilestone();
+    const data: { id: string; name: string; category: string; 'process-related': boolean } =
+      await this.external_request.getMilestone();
 
-      if (Array.isArray(data)) {
-        const result = await manager.upsert(
-          IENApplicantStatus,
-          data.map(row => ({ ...row, status: row.name })), // name -> status
-          ['id'],
-        );
-        this.logger.log(`${result.raw.length}/${data.length} milestones updated`, 'ATS');
-      }
-    } catch (e) {
-      this.logger.log(`Error in saveMilestones(): ${e}`, 'ATS');
+    if (Array.isArray(data)) {
+      const result = await manager.upsert(
+        IENApplicantStatus,
+        data.map(row => ({ ...row, status: row.name })), // name -> status
+        ['id'],
+      );
+      this.logger.log(`${result.raw.length}/${data.length} milestones updated`, 'ATS-SYNC');
     }
   }
 
@@ -275,6 +259,7 @@ export class ExternalAPIService {
     }
 
     const audit = await this.saveSyncApplicantsAudit();
+
     try {
       const applicants = await this.fetchApplicantsFromATS(from_date, to_date);
 
@@ -283,7 +268,6 @@ export class ExternalAPIService {
         await this.removeMilestonesNotOnATS(applicants, manager);
         await this.saveSyncApplicantsAudit(audit.id, true, undefined, manager);
       });
-
       return {
         from: from_date,
         to: to_date,
@@ -291,7 +275,7 @@ export class ExternalAPIService {
       };
     } catch (e: any) {
       await this.saveSyncApplicantsAudit(audit.id, false, { message: e.message, stack: e.stack });
-      this.logger.error(e);
+      throw e;
     }
   }
 

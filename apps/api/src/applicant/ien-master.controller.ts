@@ -44,7 +44,9 @@ export class IENMasterController {
       });
     } catch (e) {
       this.logger.error(e);
-      throw new InternalServerErrorException('An unknown error occured retriving applicant status');
+      throw new InternalServerErrorException(
+        'An unknown error occurred retrieving applicant status',
+      );
     }
   }
 
@@ -61,7 +63,7 @@ export class IENMasterController {
     } catch (e) {
       this.logger.error(e);
       throw new InternalServerErrorException(
-        'An unknown error occured retriving applicant HA/PCN Comm',
+        'An unknown error occurred retrieving applicant HA/PCN Comm',
       );
     }
   }
@@ -78,7 +80,9 @@ export class IENMasterController {
       return await this.ienmasterService.getUsers();
     } catch (e) {
       this.logger.error(e);
-      throw new InternalServerErrorException('An unknown error occured retriving available users');
+      throw new InternalServerErrorException(
+        'An unknown error occurred retrieving available users',
+      );
     }
   }
 
@@ -94,7 +98,7 @@ export class IENMasterController {
       return await this.ienmasterService.getEducation();
     } catch (e) {
       this.logger.error(e);
-      throw new InternalServerErrorException('An unknown error occured retriving education list');
+      throw new InternalServerErrorException('An unknown error occurred retrieving education list');
     }
   }
 
@@ -110,7 +114,7 @@ export class IENMasterController {
       return await this.ienmasterService.getJobTitles();
     } catch (e) {
       this.logger.error(e);
-      throw new InternalServerErrorException('An unknown error occured retriving Job Titles');
+      throw new InternalServerErrorException('An unknown error occurred retrieving Job Titles');
     }
   }
 
@@ -126,7 +130,7 @@ export class IENMasterController {
       return await this.ienmasterService.getJobLocations();
     } catch (e) {
       this.logger.error(e);
-      throw new InternalServerErrorException('An unknown error occured retriving Job Locations');
+      throw new InternalServerErrorException('An unknown error occurred retrieving Job Locations');
     }
   }
 
@@ -143,7 +147,7 @@ export class IENMasterController {
     } catch (e) {
       this.logger.error(e);
       throw new InternalServerErrorException(
-        'An unknown error occured retriving Milestone/Status reasons',
+        'An unknown error occurred retrieving Milestone/Status reasons',
       );
     }
   }

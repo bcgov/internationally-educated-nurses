@@ -14,15 +14,10 @@ export class ExternalRequest {
   }
 
   async getData(url: string, header = {}) {
-    return this.api_instance
-      .get(`${url}`, { headers: header })
-      .then((response: AxiosResponse) => {
-        if (response.status !== 200) throw new BadRequestException(response);
-        return response.data;
-      })
-      .catch(e => {
-        throw new BadRequestException(e.response);
-      });
+    return this.api_instance.get(`${url}`, { headers: header }).then((response: AxiosResponse) => {
+      if (response.status !== 200) throw new BadRequestException(response);
+      return response.data;
+    });
   }
 
   async getHa() {
@@ -40,6 +35,9 @@ export class ExternalRequest {
     return this.getData(`/withdrawal-reasons`);
   }
 
+  /**
+   * @deprecated
+   */
   async getDepartment() {
     return this.getData(`/specialty-departments`);
   }

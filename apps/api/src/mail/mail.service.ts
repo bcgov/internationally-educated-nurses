@@ -1,17 +1,22 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import * as path from 'path';
 import axios from 'axios';
 import * as fs from 'fs';
 import { stringify } from 'qs';
 import * as handlebars from 'handlebars';
+import aws from 'aws-sdk';
+import { SendEmailRequest } from 'aws-sdk/clients/ses';
 
 import { Mailable } from './mailables/mail-base.mailable';
 import { MailOptions } from './mail-options.interface';
 import { ChesResponse } from './types/ches-response';
+import { AppLogger } from '../common/logger.service';
 
 @Injectable()
 export class MailService {
-  constructor() {
+  ses = process.env.AWS_S3_REGION ? new aws.SES({ region: process.env.AWS_S3_REGION }) : null;
+
+  constructor(@Inject(Logger) private readonly logger: AppLogger) {
     try {
       const templatePath = path.resolve(`${__dirname}/templates/partials/layout.hbs`);
       const templateContent = fs.readFileSync(templatePath, 'utf-8');
@@ -99,5 +104,33 @@ export class MailService {
       ...mailOptions,
       body,
     } as MailOptions);
+  }
+
+  public async sendMailWithSES(mailOptions: MailOptions) {
+    if (!this.ses) return;
+    const { to, from, body, subject } = mailOptions;
+    const params: SendEmailRequest = {
+      Destination: {
+        ToAddresses: [...to],
+      },
+      Message: {
+        Body: {
+          Html: {
+            Charset: 'UTF-8',
+            Data: body,
+          },
+        },
+        Subject: {
+          Charset: 'UTF-8',
+          Data: subject,
+        },
+      },
+      Source: from,
+    };
+    try {
+      return this.ses.sendEmail(params).promise();
+    } catch (e) {
+      this.logger.log(e.message);
+    }
   }
 }

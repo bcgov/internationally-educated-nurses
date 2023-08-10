@@ -48,6 +48,7 @@ export class EmployeeController {
 
   /**
    * Query employees.
+   * @param req
    * @param filter
    */
   @UseGuards(AuthGuard)
@@ -60,7 +61,7 @@ export class EmployeeController {
       return await this.employeeService.getEmployeeList(filter, req.user);
     } catch (e) {
       this.logger.error(e);
-      throw new InternalServerErrorException('An unknown error occured retrieving employees');
+      throw new InternalServerErrorException('An unknown error occurred retrieving employees');
     }
   }
 

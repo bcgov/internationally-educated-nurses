@@ -29,6 +29,9 @@ data "aws_ssm_parameter" "teams_alerts_webhook_url" {
   name = "/${var.project_code}/${var.target_env}/teams/alerts_webhook_url"
 }
 
+data "aws_ssm_parameter" "mail_recipients" {
+  name = "/${var.project_code}/${var.target_env}/mail_recipients"
+}
 # data "aws_ssm_parameter" "ches_client_secret" {
 #   name = "/${var.project_code}/${var.target_env}/ches/client_secret"
 # }
