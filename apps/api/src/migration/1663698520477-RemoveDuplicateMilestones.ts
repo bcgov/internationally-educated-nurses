@@ -34,22 +34,9 @@ export class RemoveDuplicateMilestones1663698520477 implements MigrationInterfac
       .from('ien_applicant_status')
       .where({ id: In(status_id_list) })
       .execute();
-    try {
-      await queryRunner.manager
-        .createQueryBuilder()
-        .insert()
-        .into('ien_applicant_status')
-        .values({
-          id: '3fd4f2b0-5151-d7c8-6bbc-3a0601b5e1b0',
-          status: 'Candidate Withdrew from Competition',
-          category: 'IEN Recruitment Process',
-        })
-        .execute();
-    } catch (E) {
-      await queryRunner.query(`
+    await queryRunner.query(`
       INSERT INTO "ien_applicant_status"("id", "status", "category", "version") VALUES ('3fd4f2b0-5151-d7c8-6bbc-3a0601b5e1ba','Candidate Withdrew from Competition','IEN Recruitment Process')
       `);
-    }
   }
 
   public async down(): Promise<void> {
