@@ -13,5 +13,14 @@ export class RenameWithdrawStatus1692040928087 implements MigrationInterface {
       .execute();
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {}
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.connection
+      .createQueryBuilder()
+      .update(IENApplicantStatus)
+      .set({
+        status: 'Withdrew from IEN program',
+      })
+      .where({ id: 'F84A4167-A636-4B21-977C-F11AEFC486AF' })
+      .execute();
+  }
 }
