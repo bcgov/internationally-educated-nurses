@@ -35,7 +35,7 @@ export class RemoveDuplicateMilestones1663698520477 implements MigrationInterfac
       .where({ id: In(status_id_list) })
       .execute();
     await queryRunner.query(`
-      INSERT INTO "ien_applicant_status"("id", "status", "category", "version") VALUES ('3fd4f2b0-5151-d7c8-6bbc-3a0601b5e1ba','Candidate Withdrew from Competition','IEN Recruitment Process')
+      INSERT INTO "ien_applicant_status"("id", "status", "category") VALUES ('3fd4f2b0-5151-d7c8-6bbc-3a0601b5e1ba','Candidate Withdrew from Competition','IEN Recruitment Process')
       `);
   }
 
