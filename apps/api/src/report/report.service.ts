@@ -779,7 +779,7 @@ export class ReportService {
           StatusCategory.LICENSING_REGISTRATION,
           StatusCategory.BC_PNP,
         ]),
-        version:'2'
+        version: '2',
       },
     });
     const entityManager = getManager();

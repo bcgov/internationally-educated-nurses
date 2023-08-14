@@ -17,8 +17,8 @@ export class IENApplicantStatus {
   @Column({ type: 'varchar', length: 256, nullable: true })
   category?: string;
 
-  @Column({ type:'varchar', length:4, default:'2'})
-  version!:'1'|'2';
+  @Column({ type: 'varchar', length: 4, default: '2' })
+  version!: '1' | '2';
 
   // only use for relation reference, We will not attach it in services
   @OneToMany(() => IENApplicant, applicant => applicant.status)

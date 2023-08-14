@@ -129,12 +129,11 @@ export type MilestoneDurationTableEntry<T> = {
 
   [STATUS.SIGNED_ROS]?: T;
 
-  [STATUS.EARN_AND_LEARN_LPN]?: T; 
-  
+  [STATUS.EARN_AND_LEARN_LPN]?: T;
+
   [STATUS.EARN_AND_LEARN_HCA]?: T;
 
   [STATUS.LEARN_ONLY]?: T;
 
   [STATUS.DIRECT_TO_REGISTRATION]?: T;
-
 };
