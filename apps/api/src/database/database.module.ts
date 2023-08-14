@@ -1,6 +1,9 @@
 import { Module, Logger } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
+import { LoggerOptions } from 'typeorm';
+import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
+import config from '../ormconfig';
 import { IENApplicantAudit } from 'src/applicant/entity/ienapplicant-audit.entity';
 import { IENApplicantStatusAudit } from 'src/applicant/entity/ienapplicant-status-audit.entity';
 import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.entity';
@@ -15,10 +18,6 @@ import { IENUsers } from 'src/applicant/entity/ienusers.entity';
 import { SyncApplicantsAudit } from 'src/applicant/entity/sync-applicants-audit.entity';
 import { EmployeeEntity } from 'src/employee/entity/employee.entity';
 import { FormEntity } from 'src/form/entity/form.entity';
-import { LoggerOptions } from 'typeorm';
-import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
-
-import config from '../ormconfig';
 import { RoleEntity } from '../employee/entity/role.entity';
 import { AccessEntity } from '../employee/entity/acl.entity';
 import { ReportCacheEntity } from 'src/report/entity/report-cache.entity';
@@ -62,6 +61,13 @@ const getEnvironmentSpecificConfig = (env?: string) => {
           ReportCacheEntity,
         ],
         migrations: ['dist/migration/*.js'],
+        logging: ['error', 'warn', 'migration'] as LoggerOptions,
+      };
+    case 'script':
+      // when running function for lambda locally using ts-node
+      return {
+        entities: ['src/**/*.entity.ts'],
+        migrations: ['src/migration/*.ts'],
         logging: ['error', 'warn', 'migration'] as LoggerOptions,
       };
     default:

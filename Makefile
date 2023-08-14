@@ -11,7 +11,6 @@ export PROJECT := ien
 export ENV_NAME ?= dev
 export POSTGRES_USERNAME ?= freshworks
 export CHES_CLIENT_ID ?= IEN_SERVICE_CLIENT
-export MAIL_FROM ?= IENDoNotReply@gov.bc.ca
 
 # Integration testing variables
 export TEST_POSTGRES_HOST ?= localhost
@@ -69,6 +68,8 @@ NEXT_PUBLIC_AUTH_URL = https://common-logon-test.hlth.gov.bc.ca/auth
 BASTION_INSTANCE_ID = $(BASTION_INSTANCE_ID_TEST)
 DB_HOST = $(DB_HOST_TEST)
 endif
+
+export MAIL_FROM = IENDoNotReply@$(DOMAIN)
 
 define TFVARS_DATA
 target_env = "$(ENV_NAME)"
@@ -227,6 +228,11 @@ generate-accessibility-results:
 	@yarn workspace @ien/accessibility generate-accessibility-results
 	@echo "++\n*****"
 
+sync-master:
+	@yarn workspace @ien/api syncdata master
+
+sync-applicant:
+	@yarn workspace @ien/api syncdata applicant
 # ===================================
 # Build application stack
 # ===================================

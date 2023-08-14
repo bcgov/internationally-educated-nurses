@@ -65,7 +65,7 @@ export class IENApplicantController {
       return [data?.map(applicant => applicant.toResponseObject()), count];
     } catch (e) {
       this.logger.error(e);
-      throw new InternalServerErrorException('An unknown error occured retriving applicants');
+      throw new InternalServerErrorException('An unknown error occurred retrieving applicants');
     }
   }
 
@@ -145,7 +145,7 @@ export class IENApplicantController {
         throw new BadRequestException(e);
       } else {
         // statements to handle any unspecified exceptions
-        throw new InternalServerErrorException('An unknown error occured while adding applicant');
+        throw new InternalServerErrorException('An unknown error occurred while adding applicant');
       }
     }
   }
@@ -173,7 +173,7 @@ export class IENApplicantController {
       } else {
         // statements to handle any unspecified exceptions
         throw new InternalServerErrorException(
-          'An unknown error occured while updating applicant active flag',
+          'An unknown error occurred while updating applicant active flag',
         );
       }
     }
@@ -286,7 +286,7 @@ export class IENApplicantController {
       } else {
         // statements to handle any unspecified exceptions
         throw new InternalServerErrorException(
-          'An unknown error occured while adding applicant job',
+          'An unknown error occurred while adding applicant job',
         );
       }
     }
@@ -329,7 +329,7 @@ export class IENApplicantController {
       } else {
         // statements to handle any unspecified exceptions
         throw new InternalServerErrorException(
-          'An unknown error occured while adding applicant job',
+          'An unknown error occurred while adding applicant job',
         );
       }
     }
@@ -380,7 +380,7 @@ export class IENApplicantController {
         throw new BadRequestException(e);
       } else {
         // statements to handle any unspecified exceptions
-        throw new InternalServerErrorException('An unknown error occured while fetching ');
+        throw new InternalServerErrorException('An unknown error occurred while fetching ');
       }
     }
   }

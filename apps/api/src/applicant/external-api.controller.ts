@@ -95,7 +95,7 @@ export class ExternalAPIController {
       } else {
         // statements to handle any unspecified exceptions
         throw new InternalServerErrorException(
-          'An unknown error occured while Saving Applicant data',
+          'An unknown error occurred while Saving Applicant data',
         );
       }
     }
