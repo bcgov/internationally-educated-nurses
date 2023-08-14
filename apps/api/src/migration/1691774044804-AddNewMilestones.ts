@@ -1,6 +1,6 @@
 import { StatusCategory } from "@ien/common"
 import { IENApplicantStatus } from "src/applicant/entity/ienapplicant-status.entity"
-import { MigrationInterface, QueryRunner, TableColumn } from "typeorm"
+import { MigrationInterface, QueryRunner } from "typeorm"
 
 export class AddNewMilestones1691774044804 implements MigrationInterface {
 
