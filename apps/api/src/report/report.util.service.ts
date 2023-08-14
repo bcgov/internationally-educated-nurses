@@ -794,6 +794,7 @@ export class ReportUtilService {
         ON job.ha_pcn_id = ien_ha_pcn.id
     WHERE milestone.start_date::date >= '${from}' 
       AND milestone.start_date::date <= '${to}'
+      AND ien_applicant_status.version = '2'
       ORDER BY milestone.applicant_id
     `;
   }

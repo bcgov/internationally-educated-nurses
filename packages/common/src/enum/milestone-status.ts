@@ -17,8 +17,10 @@ export enum STATUS {
   REX_PN_PASSED = 'REx-PN - Passed',
   BCCNM_PROVISIONAL_LICENSE_LPN = 'BCCNM Provisional Licence LPN',
   BCCNM_PROVISIONAL_LICENSE_RN = 'BCCNM Provisional Licence RN',
+  BCCNM_PROVISIONAL_LICENSE_RPN = 'BCCNM Provisional Licence RPN',
   BCCNM_FULL_LICENCE_LPN = 'BCCNM Full Licence LPN',
   BCCNM_FULL_LICENSE_RN = 'BCCNM Full Licence RN',
+  BCCMN_FULL_LICENSE_RPN = 'BCCNM Full Licence RPN',
   REGISTERED_AS_AN_HCA = 'Registered as an HCA',
   REGISTRATION_JOURNEY_COMPLETED = 'Registration Journey Complete',
   WITHDREW_FROM_PROGRAM = 'Withdrew from IEN program',
@@ -31,6 +33,12 @@ export enum STATUS {
   REFERRED_TO_PHSA = 'Applicant Referred to PHSA',
   REFERRED_TO_VCHA = 'Applicant Referred to VCHA',
   REFERRED_TO_VIHA = 'Applicant Referred to VIHA',
+  SIGNED_ROS = 'Signed Return of Service Agreement',
+  EARN_AND_LEARN_LPN = 'Earn and Learn – Currently working as an LPN',
+  EARN_AND_LEARN_HCA = 'Earn and Learn – Currently working as an HCA',
+  LEARN_ONLY = 'Learn only',
+  DIRECT_TO_REGISTRATION = 'Direct to Registration',
+
   // RECRUITMENT
   REFERRAL_ACKNOWLEDGED = 'Referral Acknowledged/Reviewed',
   PRE_SCREEN_PASSED = 'Candidate Passed Pre-Screen',
@@ -104,6 +112,13 @@ export const LIC_REG_STAGE = [
   STATUS.REFERRED_TO_PHSA,
   STATUS.REFERRED_TO_VCHA,
   STATUS.REFERRED_TO_VIHA,
+  STATUS.SIGNED_ROS,
+  STATUS.EARN_AND_LEARN_LPN,
+  STATUS.EARN_AND_LEARN_HCA,
+  STATUS.LEARN_ONLY,
+  STATUS.DIRECT_TO_REGISTRATION,
+  STATUS.BCCMN_FULL_LICENSE_RPN,
+  STATUS.BCCMN_FULL_LICENSE_RPN,
 ];
 
 export const NNAS_STAGE = [

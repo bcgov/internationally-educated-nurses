@@ -1,6 +1,6 @@
 import { StatusCategory } from "@ien/common"
 import { IENApplicantStatus } from "src/applicant/entity/ienapplicant-status.entity"
-import { MigrationInterface, QueryRunner } from "typeorm"
+import { MigrationInterface, QueryRunner, TableColumn } from "typeorm"
 
 export class AddNewMilestones1691774044804 implements MigrationInterface {
 
@@ -39,7 +39,7 @@ export class AddNewMilestones1691774044804 implements MigrationInterface {
         },
         {
             id:'c29bb4d6-b3ad-4fd2-a7dc-2e7d53b35139',
-            status:'Signed Return of Service Agreement',
+            status:'BCCNM Provisional Licence RPN',
             category:StatusCategory.LICENSING_REGISTRATION,
             version:'2'
         },
@@ -77,6 +77,7 @@ export class AddNewMilestones1691774044804 implements MigrationInterface {
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.dropColumn('ien_applicant_status','version')
     }
 
 }
