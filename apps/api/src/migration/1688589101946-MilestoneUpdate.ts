@@ -1,6 +1,3 @@
-import { StatusCategory } from '@ien/common';
-import { IENApplicantStatusAudit } from 'src/applicant/entity/ienapplicant-status-audit.entity';
-import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.entity';
 import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
 
 export class MilestoneUpate1688589101946 implements MigrationInterface {
