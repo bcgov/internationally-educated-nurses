@@ -1,5 +1,3 @@
-import { StatusCategory } from '@ien/common';
-import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.entity';
 import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
 
 export class MilestoneUpdate1692116845537 implements MigrationInterface {
@@ -46,20 +44,9 @@ export class MilestoneUpdate1692116845537 implements MigrationInterface {
             ('3d7e9415-9be8-480f-a3da-48c1e668ab00','Learn only','IEN Licensing/Registration Process','2'),
             ('12dbe8da-9485-43c2-b69f-e0140aa23224','Direct to Registration','IEN Licensing/Registration Process','2');
         `);
-    await queryRunner.query(`
-            UPDATE ien_applicant_status set status = 'Not Proceeding' where id = 'F84A4167-A636-4B21-977C-F11AEFC486AF'
-        `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.dropColumn('ien_applicant_status', 'version');
-    await queryRunner.connection
-      .createQueryBuilder()
-      .update(IENApplicantStatus)
-      .set({
-        status: 'Withdrew from IEN program',
-      })
-      .where({ id: 'F84A4167-A636-4B21-977C-F11AEFC486AF' })
-      .execute();
   }
 }

@@ -23,7 +23,7 @@ export enum STATUS {
   BCCMN_FULL_LICENSE_RPN = 'BCCNM Full Licence RPN',
   REGISTERED_AS_AN_HCA = 'Registered as an HCA',
   REGISTRATION_JOURNEY_COMPLETED = 'Registration Journey Complete',
-  WITHDREW_FROM_PROGRAM = 'Not Proceeding',
+  WITHDREW_FROM_PROGRAM = 'Withdrew from IEN program',
   READY_FOR_JOB_SEARCH = 'Applicant Ready for Job Search',
   REFERRED_TO_FHA = 'Applicant Referred to FHA',
   REFERRED_TO_FNHA = 'Applicant Referred to FNHA',
