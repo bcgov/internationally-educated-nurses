@@ -8,11 +8,11 @@ dotenv.config();
 const config: PostgresConnectionOptions = {
   host: process.env.POSTGRES_HOST,
   type: 'postgres',
-  port: +(process.env.PORTGRES_PORT || 5432),
+  port: +(process.env.PORTGRES_PORT || 5433),
   connectTimeoutMS: +(process.env.POSTGRES_TIMEOUT || 30000),
   username: process.env.POSTGRES_USERNAME || 'freshworks',
   password: process.env.POSTGRES_PASSWORD,
-  database: process.env.POSTGRES_DATABASE || 'ien',
+  database: process.env.POSTGRES_DATABASE || 'ien_test',
   cli: {
     migrationsDir: 'src/migration',
     entitiesDir: 'src/**/entity/*.entity.ts',
