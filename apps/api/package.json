@@ -54,7 +54,8 @@
     "rxjs": "7.2.0",
     "swagger-ui-express": "4.2.0",
     "typeorm": "0.2.41",
-    "winston": "3.3.3"
+    "winston": "3.3.3",
+    "xlsx-js-style": "1.2.0"
   },
   "devDependencies": {
     "@faker-js/faker": "7.5.0",

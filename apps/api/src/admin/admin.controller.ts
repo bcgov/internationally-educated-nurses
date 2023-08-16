@@ -19,7 +19,12 @@ import { ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger
 import { AuthGuard } from '../auth/auth.guard';
 import { AppLogger } from '../common/logger.service';
 import { AdminService } from './admin.service';
-import { SignedUrlResponse, UploadResponse, UserGuideResponse } from './ro';
+import {
+  BccnmNcasValidationResponse,
+  SignedUrlResponse,
+  UploadResponse,
+  UserGuideResponse,
+} from './ro';
 import { Access } from '@ien/common';
 import { AllowAccess } from '../common/decorators';
 import { UploadDTO } from './dto/upload.dto';
@@ -110,5 +115,20 @@ export class AdminController {
   @Patch('/user-guides/:name')
   async restoreUserGuide(@Param('name') name: string, @Query('version') version: string) {
     return this.service.restoreUserGuide(name, version);
+  }
+
+  @ApiOperation({
+    summary: 'Validate BCCNM/NCAS update data',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: BccnmNcasValidationResponse,
+  })
+  @ApiConsumes('multipart/form-data')
+  @AllowAccess(Access.ADMIN)
+  @Post('/validate-bccnm-ncas-updates')
+  @UseInterceptors(FileInterceptor('file'))
+  async validateBccnmNcasUpdates(@UploadedFile() file: Express.Multer.File) {
+    return await this.service.validateBccnmNcasUpdates(file);
   }
 }
