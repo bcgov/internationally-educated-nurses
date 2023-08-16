@@ -23,17 +23,15 @@ export class ErrorExceptionFilter implements ExceptionFilter {
    * @param exception
    */
   transformHttpException(exception: Error): FailedResponse {
-    const exceptionMessage: any = exception.message;
-
     return {
       errorType:
-        exceptionMessage?.error ||
+        exception?.name ||
         (exception as any).response?.error ||
         exception.name ||
         CommonError.INTERNAL_ERROR.errorType,
 
       errorMessage:
-        exceptionMessage?.message ||
+        exception.message ||
         (exception as any)?.response?.message ||
         exception.message ||
         CommonError.INTERNAL_ERROR.errorMessage,
