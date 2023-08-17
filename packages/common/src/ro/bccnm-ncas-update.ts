@@ -1,12 +1,16 @@
 export interface BccnmNcasUpdate {
   'HMBC Unique ID': string;
   'Date ROS Contract Signed': string;
-  'First Name': string;
-  'Last Name': string;
-  Email: string;
+  'First Name'?: string;
+  'Last Name'?: string;
+  Email?: string;
 }
 
-export interface BccnmNcasValidation extends BccnmNcasUpdate {
+export interface BccnmNcasValidation {
+  id: string;
+  dateOfRosContract: string;
   message: string;
-  valid: boolean;
+  statusId?: string;
+  name?: string;
+  valid?: boolean;
 }

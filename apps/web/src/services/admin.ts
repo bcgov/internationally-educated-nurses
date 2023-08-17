@@ -39,3 +39,7 @@ export const validateBccnmNcasUpdates = async (payload: FormData) => {
   );
   return data.data;
 };
+
+export const applyBccnmNcasUpdates = async (data: BccnmNcasValidation[]) => {
+  await axios.post(`/admin/apply-bccnm-ncas-updates`, { data });
+};

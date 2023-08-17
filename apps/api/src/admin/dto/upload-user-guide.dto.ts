@@ -1,7 +1,7 @@
 import { IsString } from 'class-validator';
 import { ApiModelProperty } from '@nestjs/swagger/dist/decorators/api-model-property.decorator';
 
-export class UploadDTO {
+export class UploadUserGuideDTO {
   @ApiModelProperty({
     description: 'a user guide of pdf format',
     type: 'file',

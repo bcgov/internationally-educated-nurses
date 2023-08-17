@@ -1,15 +1,22 @@
-import { buttonBase, buttonColor } from '@components';
 import { useState } from 'react';
+import { BccnmNcasValidation, pluralize } from '@ien/common';
+import { buttonBase, buttonColor } from '@components';
 import { BccnmNcasDataUploader } from './BccnmNcasDataUploader';
 import { BccnmNcasPreview } from './BccnmNcasPreview';
-import { BccnmNcasValidation } from '@ien/common';
+import { applyBccnmNcasUpdates } from '../../services/admin';
+import { toast } from 'react-toastify';
 
 export const BccnmNcasSection = () => {
   const [uploaderOpen, setUploaderOpen] = useState(false);
   const [data, setData] = useState<BccnmNcasValidation[]>();
 
-  const applyChanges = () => {
-    setData(undefined);
+  const applyChanges = async () => {
+    if (data?.length) {
+      const payload = data.filter(e => e.valid);
+      await applyBccnmNcasUpdates(payload);
+      toast.success(`${pluralize(payload.length, 'applicant')} updated`);
+      setData(undefined);
+    }
   };
 
   const getButtonStyle = () => {
@@ -46,7 +53,11 @@ export const BccnmNcasSection = () => {
                 Cancel
               </button>
             )}
-            <button className={getButtonStyle()} onClick={handleClick}>
+            <button
+              className={getButtonStyle()}
+              onClick={handleClick}
+              disabled={data && !data.filter(e => e.valid).length}
+            >
               {data?.length ? 'Apply' : 'Upload'}
             </button>
           </span>

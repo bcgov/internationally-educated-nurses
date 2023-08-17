@@ -3,12 +3,16 @@ import { In, Repository } from 'typeorm';
 import _ from 'lodash';
 import dayjs from 'dayjs';
 import { Inject, InternalServerErrorException, Logger } from '@nestjs/common';
-import { BccnmNcasUpdate, STATUS, UserGuide } from '@ien/common';
+import { BccnmNcasUpdate, EmployeeRO, STATUS, UserGuide } from '@ien/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { read, utils } from 'xlsx-js-style';
 import { AppLogger } from '../common/logger.service';
-import { BccnmNcasValidationRO } from './ro';
+import { BccnmNcasUpdateRO, BccnmNcasValidationRO } from './ro';
 import { IENApplicant } from '../applicant/entity/ienapplicant.entity';
+import { BccnmNcasUpdateDTO } from './dto';
+import { IENApplicantService } from '../applicant/ienapplicant.service';
+import { IENApplicantAddStatusAPIDTO } from '../applicant/dto';
+import { IENApplicantStatus } from '../applicant/entity/ienapplicant-status.entity';
 
 const BUCKET_NAME = process.env.DOCS_BUCKET ?? 'ien-dev-docs';
 
@@ -19,6 +23,10 @@ export class AdminService {
     @Inject(Logger) private readonly logger: AppLogger,
     @InjectRepository(IENApplicant)
     private readonly applicantRepository: Repository<IENApplicant>,
+    @InjectRepository(IENApplicantStatus)
+    readonly ienApplicantStatusRepository: Repository<IENApplicantStatus>,
+    @Inject(IENApplicantService)
+    private readonly applicantService: IENApplicantService,
   ) {
     this.s3 = new AWS.S3({
       params: {
@@ -118,7 +126,9 @@ export class AdminService {
 
   validateBccnmNcasUpdate(update: BccnmNcasUpdate, applicant: IENApplicant): BccnmNcasValidationRO {
     const v: BccnmNcasValidationRO = {
-      ...update,
+      id: update['HMBC Unique ID'],
+      dateOfRosContract: update['Date ROS Contract Signed'],
+      name: `${update['First Name'] ?? ''} ${update['Last Name'] ?? ''}`,
       message: '',
       valid: true,
     };
@@ -129,31 +139,29 @@ export class AdminService {
       return v;
     }
 
-    const signedAt = update['Date ROS Contract Signed'];
-    if (!signedAt) {
+    if (!v.dateOfRosContract) {
       v.valid = false;
       v.message = 'ROS contract signed date is required.';
       return v;
     }
     try {
       // convert excel date cell value as a number to string
-      v['Date ROS Contract Signed'] = dayjs((+signedAt - 25568) * 86400 * 1000).format(
+      v.dateOfRosContract = dayjs((+v.dateOfRosContract - 25568) * 86400 * 1000).format(
         'YYYY-MM-DD',
       );
     } catch {}
 
-    const ros = applicant.applicant_status_audit.find(
-      s => s.status.status === STATUS.COMPLETED_NCAS,
-    );
+    const ros = applicant.applicant_status_audit.find(s => s.status.status === STATUS.SIGNED_ROS);
     if (!ros) {
-      v.message = `Add a milestone.`;
+      v.message = 'Create';
       return v;
     }
-    if (!dayjs(ros.start_date).isSame(signedAt)) {
-      v.message = `Update 'ROS contract signed date`;
-    } else {
+    v.statusId = ros.id;
+    if (dayjs(ros.start_date).isSame(v.dateOfRosContract)) {
       v.valid = false;
       v.message = 'No changes';
+    } else {
+      v.message = 'Update';
     }
     return v;
   }
@@ -161,8 +169,8 @@ export class AdminService {
   async validateBccnmNcasUpdates(file: Express.Multer.File): Promise<BccnmNcasValidationRO[]> {
     const wb = read(file.buffer);
     const ws = wb.Sheets[wb.SheetNames[0]];
-    const rows = utils.sheet_to_json(ws, { blankrows: false });
-    const data = rows.filter((row: any) => !!row['HMBC Unique ID']) as BccnmNcasUpdate[];
+    const rows = utils.sheet_to_json<BccnmNcasUpdate>(ws, { blankrows: false });
+    const data = rows.filter(row => !!row['HMBC Unique ID']);
     const applicants = await this.applicantRepository
       .find({
         where: { id: In(data.map(e => e['HMBC Unique ID'])) },
@@ -172,5 +180,31 @@ export class AdminService {
     return data.map(e => {
       return this.validateBccnmNcasUpdate(e, applicants[e['HMBC Unique ID']]);
     });
+  }
+
+  async applyBccnmNcasUpdates(
+    user: EmployeeRO,
+    { data }: BccnmNcasUpdateDTO,
+  ): Promise<BccnmNcasUpdateRO> {
+    const response = { created: 0, updated: 0, ignored: 0 };
+    await Promise.all(
+      data.map(async update => {
+        const milestone: IENApplicantAddStatusAPIDTO = {
+          start_date: update.dateOfRosContract,
+          status: STATUS.SIGNED_ROS,
+          notes: `Updated by BCCNM/NCAS data upload at ${dayjs().format('YYYY-MM-DD HH:mm:ss')} `,
+        };
+        if (update.message === 'Create') {
+          await this.applicantService.addApplicantStatus(user, update.id, milestone);
+          response.created += 1;
+        } else if (update.message === 'Update' && update.statusId) {
+          await this.applicantService.updateApplicantStatus(user, update.statusId, milestone);
+          response.updated += 1;
+        } else {
+          response.ignored += 1;
+        }
+      }),
+    );
+    return response;
   }
 }

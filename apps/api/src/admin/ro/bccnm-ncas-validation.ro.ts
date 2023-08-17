@@ -4,34 +4,29 @@ import { BccnmNcasValidation } from '@ien/common';
 
 export class BccnmNcasValidationRO implements BccnmNcasValidation {
   @ApiModelProperty({
-    description: `IEN's unique ID from HMBC ATS`,
+    description: `Applicant's unique ID from HMBC ATS`,
   })
-  'HMBC Unique ID'!: string;
+  id!: string;
 
   @ApiModelProperty({
     description: `The date of the signature of ROS(return of service)`,
   })
-  'Date ROS Contract Signed'!: string;
+  dateOfRosContract!: string;
 
   @ApiModelProperty({
-    description: 'First Name',
+    description: 'Full name',
   })
-  ['First Name']!: string;
-
-  @ApiModelProperty({
-    description: 'Last Name',
-  })
-  ['Last Name']!: string;
-
-  @ApiModelProperty({
-    description: 'Email',
-  })
-  Email!: string;
+  name!: string;
 
   @ApiModelProperty({
     description: 'Validation result of ROS',
   })
   message!: string;
+
+  @ApiModelProperty({
+    description: 'ID of current "Signed Return of Service Agreement" milestone',
+  })
+  statusId?: string;
 
   @ApiModelProperty({
     description: '',

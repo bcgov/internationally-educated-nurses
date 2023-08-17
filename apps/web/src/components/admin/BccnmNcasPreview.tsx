@@ -39,13 +39,15 @@ export const BccnmNcasPreview = ({ data }: { data: BccnmNcasValidation[] }) => {
   };
 
   useEffect(() => {
-    const skip = pageIndex * pageSize;
+    const skip = (pageIndex - 1) * pageSize;
     setPagedData(filteredData.slice(skip, skip + pageSize));
   }, [filteredData, pageSize, pageIndex]);
 
   return (
     <>
-      <BccnmNcasUpdateFilter data={data} onChange={handleFilterChange} />
+      <div className='pb-4'>
+        <BccnmNcasUpdateFilter data={data} onChange={handleFilterChange} />
+      </div>
       <Pagination
         id='bccnm-ncas-page-top'
         pageOptions={{ pageIndex, pageSize, total: filteredData.length }}

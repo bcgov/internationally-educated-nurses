@@ -26,14 +26,12 @@ export const BccnmNcasUpdateTable = ({ data }: BccnmNcasUpdateTableProps) => {
           </tr>
         </thead>
         <tbody className='text-bcBlack text-sm'>
-          {data.map(row => (
-            <tr key={row['HMBC Unique ID']} className='h-12 even:bg-bcLightGray'>
-              <td className='px-3'>{row['HMBC Unique ID'].substring(0, 8).toUpperCase()}</td>
-              <td className='px-3'>
-                {_.capitalize(row['First Name'])} {_.capitalize(row['Last Name'])}
-              </td>
-              <td className='px-3'>{row['Date ROS Contract Signed']}</td>
-              <td className={`px-3 ${!row.valid && 'text-bcRedError'}`}>{row.message}</td>
+          {data.map(({ id, name, dateOfRosContract, message, valid }) => (
+            <tr key={id} className='h-12 even:bg-bcLightGray'>
+              <td className='px-3'>{id.substring(0, 8).toUpperCase()}</td>
+              <td className='px-3'>{_.startCase(name)}</td>
+              <td className='px-3'>{dateOfRosContract}</td>
+              <td className={`px-3 ${!valid && 'text-bcRedError'}`}>{message}</td>
             </tr>
           ))}
         </tbody>

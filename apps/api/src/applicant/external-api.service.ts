@@ -403,10 +403,7 @@ export class ExternalAPIService {
             .values(milestones)
             .orIgnore(true)
             .execute();
-          this.logger.log(
-            `milestones updated: ${result.raw.length}/${milestones.length}`,
-            'ATS-SYNC',
-          );
+          this.logger.log(`milestones updated: ${result.raw.length}/${milestones.length}`);
         } catch (e) {
           this.logger.error(e);
         }
