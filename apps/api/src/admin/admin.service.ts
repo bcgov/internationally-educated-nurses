@@ -127,7 +127,7 @@ export class AdminService {
   validateBccnmNcasUpdate(update: BccnmNcasUpdate, applicant: IENApplicant): BccnmNcasValidationRO {
     const v: BccnmNcasValidationRO = {
       id: update['HMBC Unique ID'],
-      dateOfRosContract: update['Date ROS Contract Signed'],
+      dateOfRosContract: '',
       name: `${update['First Name'] ?? ''} ${update['Last Name'] ?? ''}`,
       message: '',
       valid: true,
@@ -139,17 +139,18 @@ export class AdminService {
       return v;
     }
 
+    // convert excel date cell value as a number to string
+    const dateOfRosContract = update['Date ROS Contract Signed'];
+    if (typeof dateOfRosContract === 'number') {
+      v.dateOfRosContract = dayjs((+dateOfRosContract - 25568) * 86400 * 1000).format('YYYY-MM-DD');
+    } else {
+      v.dateOfRosContract = dateOfRosContract;
+    }
     if (!v.dateOfRosContract) {
       v.valid = false;
       v.message = 'ROS contract signed date is required.';
       return v;
     }
-    try {
-      // convert excel date cell value as a number to string
-      v.dateOfRosContract = dayjs((+v.dateOfRosContract - 25568) * 86400 * 1000).format(
-        'YYYY-MM-DD',
-      );
-    } catch {}
 
     const ros = applicant.applicant_status_audit.find(s => s.status.status === STATUS.SIGNED_ROS);
     if (!ros) {

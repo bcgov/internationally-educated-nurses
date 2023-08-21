@@ -1,6 +1,6 @@
 export interface BccnmNcasUpdate {
   'HMBC Unique ID': string;
-  'Date ROS Contract Signed': string;
+  'Date ROS Contract Signed': string | number;
   'First Name'?: string;
   'Last Name'?: string;
   Email?: string;
