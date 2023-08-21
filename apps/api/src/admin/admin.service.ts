@@ -17,7 +17,7 @@ import { IENApplicantStatus } from '../applicant/entity/ienapplicant-status.enti
 const BUCKET_NAME = process.env.DOCS_BUCKET ?? 'ien-dev-docs';
 
 export class AdminService {
-  private s3: AWS.S3;
+  private s3: AWS.S3 | null = null;
 
   constructor(
     @Inject(Logger) private readonly logger: AppLogger,
@@ -28,14 +28,19 @@ export class AdminService {
     @Inject(IENApplicantService)
     private readonly applicantService: IENApplicantService,
   ) {
-    this.s3 = new AWS.S3({
-      params: {
-        Bucket: BUCKET_NAME,
-      },
-    });
+    if (process.env.DOCS_BUCKET) {
+      this.s3 = new AWS.S3({
+        params: {
+          Bucket: BUCKET_NAME,
+        },
+      });
+    }
   }
 
   async getUserGuides(): Promise<UserGuide[]> {
+    if (!this.s3) {
+      throw new InternalServerErrorException('the feature is disabled');
+    }
     try {
       const result = await this.s3.listObjects().promise();
 
@@ -51,6 +56,9 @@ export class AdminService {
   }
 
   async uploadUserGuide(name: string, file: Express.Multer.File): Promise<string> {
+    if (!this.s3) {
+      throw new InternalServerErrorException('the feature is disabled');
+    }
     try {
       const params = { Bucket: BUCKET_NAME, Key: name, Body: file.buffer };
       const result = await this.s3.upload(params).promise();
@@ -62,6 +70,9 @@ export class AdminService {
   }
 
   async getSignedUrl(key: string, version?: string) {
+    if (!this.s3) {
+      throw new InternalServerErrorException('the feature is disabled');
+    }
     try {
       const params = { Bucket: BUCKET_NAME, Key: key, VersionId: version, Expires: 60 };
       return await this.s3.getSignedUrlPromise('getObject', params);
@@ -72,6 +83,9 @@ export class AdminService {
   }
 
   async getVersions(key: string): Promise<UserGuide[]> {
+    if (!this.s3) {
+      throw new InternalServerErrorException('the feature is disabled');
+    }
     try {
       const queryParams: AWS.S3.ListObjectVersionsRequest = { Bucket: BUCKET_NAME, Prefix: key };
 
@@ -95,6 +109,9 @@ export class AdminService {
   }
 
   async deleteUserGuide(key: string, version?: string) {
+    if (!this.s3) {
+      throw new InternalServerErrorException('the feature is disabled');
+    }
     try {
       const params: AWS.S3.DeleteObjectRequest = {
         Bucket: BUCKET_NAME,
@@ -110,6 +127,9 @@ export class AdminService {
   }
 
   async restoreUserGuide(key: string, version: string) {
+    if (!this.s3) {
+      throw new InternalServerErrorException('the feature is disabled');
+    }
     try {
       const params: AWS.S3.CopyObjectRequest = {
         Bucket: BUCKET_NAME,
@@ -127,6 +147,7 @@ export class AdminService {
   validateBccnmNcasUpdate(update: BccnmNcasUpdate, applicant: IENApplicant): BccnmNcasValidationRO {
     const v: BccnmNcasValidationRO = {
       id: update['HMBC Unique ID'],
+      applicantId: applicant?.id,
       dateOfRosContract: '',
       name: `${update['First Name'] ?? ''} ${update['Last Name'] ?? ''}`,
       message: '',
@@ -142,6 +163,7 @@ export class AdminService {
     // convert excel date cell value as a number to string
     const dateOfRosContract = update['Date ROS Contract Signed'];
     if (typeof dateOfRosContract === 'number') {
+      // 25568 -> number of days from 1990 to epoch at PST
       v.dateOfRosContract = dayjs((+dateOfRosContract - 25568) * 86400 * 1000).format('YYYY-MM-DD');
     } else {
       v.dateOfRosContract = dateOfRosContract;
@@ -174,10 +196,10 @@ export class AdminService {
     const data = rows.filter(row => !!row['HMBC Unique ID']);
     const applicants = await this.applicantRepository
       .find({
-        where: { id: In(data.map(e => e['HMBC Unique ID'])) },
+        where: { ats1_id: In(data.map(e => e['HMBC Unique ID'])) },
         relations: ['applicant_status_audit', 'applicant_status_audit.status'],
       })
-      .then(result => _.chain(result).keyBy('id').value());
+      .then(result => _.chain(result).keyBy('ats1_id').value());
     return data.map(e => {
       return this.validateBccnmNcasUpdate(e, applicants[e['HMBC Unique ID']]);
     });
@@ -196,7 +218,7 @@ export class AdminService {
           notes: `Updated by BCCNM/NCAS data upload at ${dayjs().format('YYYY-MM-DD HH:mm:ss')} `,
         };
         if (update.message === 'Create') {
-          await this.applicantService.addApplicantStatus(user, update.id, milestone);
+          await this.applicantService.addApplicantStatus(user, update.applicantId, milestone);
           response.created += 1;
         } else if (update.message === 'Update' && update.statusId) {
           await this.applicantService.updateApplicantStatus(user, update.statusId, milestone);

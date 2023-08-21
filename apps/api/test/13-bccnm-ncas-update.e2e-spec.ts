@@ -44,7 +44,7 @@ describe('BCCNM/NCAS Updates', () => {
           try {
             const applicant = (await addApplicant(dto)) as ApplicantRO;
             return {
-              'HMBC Unique ID': applicant.id,
+              'HMBC Unique ID': applicant.ats1_id,
               'Last Name': applicant.name.split(' ')[1],
               'First Name': applicant.name.split(' ')[0],
               Email: applicant.email_address,
@@ -79,6 +79,8 @@ describe('BCCNM/NCAS Updates', () => {
 
   afterAll(async () => {
     await app.close();
+    fs.unlinkSync('test/fixture/create.xlsx');
+    fs.unlinkSync('test/fixture/update.xlsx');
   });
 
   it('1 - Validates BCCNM/NCAS update data', () => {

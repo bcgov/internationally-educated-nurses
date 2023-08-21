@@ -28,7 +28,7 @@ export const BccnmNcasUpdateTable = ({ data }: BccnmNcasUpdateTableProps) => {
         <tbody className='text-bcBlack text-sm'>
           {data.map(({ id, name, dateOfRosContract, message, valid }) => (
             <tr key={id} className='h-12 even:bg-bcLightGray'>
-              <td className='px-3'>{id.substring(0, 8).toUpperCase()}</td>
+              <td className='px-3'>{id}</td>
               <td className='px-3'>{_.startCase(name)}</td>
               <td className='px-3'>{dateOfRosContract}</td>
               <td className={`px-3 ${!valid && 'text-bcRedError'}`}>{message}</td>

@@ -47,3 +47,4 @@ jobs:
           NEXT_PUBLIC_AUTH_REALM: 'ien'
           NEXT_PUBLIC_AUTH_CLIENTID: 'IEN'
           NEXT_PUBLIC_AUTH_URL: 'https://keycloak.freshworks.club/auth'
+          NEXT_PUBLIC_DISABLE_USER_GUIDE: 'true'

@@ -44,6 +44,7 @@ export const getApplicant = (options?: ApplicantOptions): IENApplicantCreateUpda
     country_of_residence: faker.helpers.arrayElement(Object.keys(COUNTRY_OF_EDUCATIONS)),
     pr_status: '',
     is_open: true,
+    ats1_id: faker.random.numeric(6),
   };
 };
 

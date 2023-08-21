@@ -8,7 +8,7 @@ export const Dropzone = (props: DropzoneOptions) => {
 
   return (
     <div {...getRootProps()} className='w-full'>
-      <input className='w-full' {...getInputProps()} />
+      <input className='w-full' {...getInputProps()} aria-label='file-upload-dropzone' />
       {
         <div
           className={`w-full h-32 border-dashed border-2 rounded-sm border-bcBlueLink flex flex-col items-center justify-center ${

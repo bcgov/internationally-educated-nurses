@@ -65,7 +65,13 @@ export const FileUploader = ({ extensions, handleClose, open, upload }: FileUplo
         <Button onClick={close} variant='outline' type='button'>
           Cancel
         </Button>
-        <Button onClick={uploadFile} variant='primary' type='button' disabled={!file}>
+        <Button
+          onClick={uploadFile}
+          variant='primary'
+          type='button'
+          disabled={!file}
+          data-cy='upload-file'
+        >
           Upload
         </Button>
       </div>

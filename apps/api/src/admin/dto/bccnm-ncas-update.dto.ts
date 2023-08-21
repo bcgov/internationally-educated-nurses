@@ -7,8 +7,13 @@ export class BccnmNcasUpdateItemDTO implements BccnmNcasValidation {
   @ApiModelProperty({
     description: `IEN's unique ID from HMBC ATS`,
   })
-  @IsUUID()
   id!: string;
+
+  @ApiModelProperty({
+    description: `IEN's unique ID from HMBC ATS`,
+  })
+  @IsUUID()
+  applicantId!: string;
 
   @ApiModelProperty({
     description: `The date of the signature of ROS(return of service)`,
