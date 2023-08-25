@@ -1,7 +1,10 @@
-import { UserGuideRow } from './UserGuideRow';
+import { useEffect, useState } from 'react';
 import useSWR from 'swr';
-import { fetcher } from '../../utils';
+import _ from 'lodash';
 import { UserGuide } from '@ien/common';
+import { UserGuideRow } from './UserGuideRow';
+import { fetcher } from '../../utils';
+import { Spinner } from '../Spinner';
 
 interface UserGuideListProps {
   showVersions?: boolean;
@@ -9,10 +12,17 @@ interface UserGuideListProps {
 
 export const UserGuideList = ({ showVersions = true }: UserGuideListProps) => {
   const { data } = useSWR<{ data: UserGuide[] }>('/admin/user-guides', fetcher);
+  const [files, setFiles] = useState<UserGuide[]>();
 
-  const files = data?.data?.sort((a, b) => (a.lastModified < b.lastModified ? 1 : -1));
+  useEffect(() => {
+    if (data?.data) {
+      setFiles(_.orderBy(data.data, 'lastModified', 'desc'));
+    }
+  }, [data]);
 
-  if (!files?.length) {
+  if (!files) {
+    return <Spinner className='h-10' relative />;
+  } else if (!files.length) {
     return <div className='w-full text-center'>No files found!</div>;
   }
 

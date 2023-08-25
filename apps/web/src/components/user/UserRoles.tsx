@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { EmployeeRO, isAdmin, Role, RoleSlug } from '@ien/common';
+import { Access, EmployeeRO, hasAccess, isAdmin, Role, RoleSlug } from '@ien/common';
 import lockIcon from '@assets/img/lock.svg';
 import { updateRoles, useRoles } from '@services';
 import { useAuthContext } from '../AuthContexts';
@@ -16,10 +16,26 @@ export const UserRoles = ({ user, updateUser }: UserRolesProps) => {
 
   const changeRole = async (role: Role, enabled: boolean) => {
     const roleIds = user.roles.map(r => r.id);
+
     if (enabled) {
       roleIds.push(role.id);
+      if (
+        role.acl?.some(a => a.slug === Access.BCCNM_NCAS) &&
+        !hasAccess(user.roles, [Access.APPLICANT_WRITE])
+      ) {
+        // bccnm-ncas comes with 'manage applicants' role
+        const manageApplicantRole = roles?.find(({ slug }) => slug === RoleSlug.ApplicantWrite);
+        if (manageApplicantRole) roleIds.push(manageApplicantRole.id);
+      }
     } else {
       _.remove(roleIds, id => id === role.id);
+      if (
+        role.acl?.some(a => a.slug === Access.APPLICANT_WRITE) &&
+        hasAccess(user.roles, [Access.BCCNM_NCAS])
+      ) {
+        const bccnmNcasRole = roles?.find(({ slug }) => slug === RoleSlug.BccnmNcas);
+        _.remove(roleIds, id => id === bccnmNcasRole?.id);
+      }
     }
     const employee = await updateRoles(user.id, roleIds);
     if (employee) updateUser(employee);

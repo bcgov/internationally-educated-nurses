@@ -29,6 +29,6 @@ export const menuBarTabs = [
     title: 'Admin Maintenance',
     defaultPath: '/admin',
     paths: ['/admin'],
-    acl: [Access.ADMIN],
+    acl: [Access.ADMIN, Access.BCCNM_NCAS],
   },
 ];
