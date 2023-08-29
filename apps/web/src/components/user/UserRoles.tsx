@@ -45,6 +45,17 @@ export const UserRoles = ({ user, updateUser }: UserRolesProps) => {
     return user.roles.some(({ slug }) => slug === role.slug);
   };
 
+  const getAvailableRoles = () => {
+    let availableRoles = (isAdmin(authUser) ? roles : authUser?.roles) ?? [];
+    availableRoles = availableRoles.filter(role => {
+      return role.slug !== RoleSlug.Admin && role.slug !== RoleSlug.DataExtract;
+    });
+    if (isAdmin(user)) {
+      return availableRoles;
+    }
+    return availableRoles.filter(role => role.slug !== RoleSlug.BccnmNcas);
+  };
+
   const getRoleSelector = (role: Role) => {
     return (
       <div key={role.name} className='flex flex-row justify-between py-4' data-cy={role.slug}>
@@ -67,11 +78,7 @@ export const UserRoles = ({ user, updateUser }: UserRolesProps) => {
         <img src={lockIcon.src} alt='history icon' />
         <h2 className='font-bold text-bcBluePrimary text-xl'>Role & Access Control</h2>
       </div>
-      {isAdmin(authUser)
-        ? roles
-            ?.filter(role => role.slug !== RoleSlug.Admin && role.slug !== RoleSlug.DataExtract)
-            .map(getRoleSelector)
-        : authUser?.roles.map(getRoleSelector)}
+      {getAvailableRoles().map(getRoleSelector)}
     </div>
   );
 };
