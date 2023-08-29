@@ -151,6 +151,7 @@ export class AdminService {
       dateOfRosContract: '',
       name: `${update['First Name'] ?? ''} ${update['Last Name'] ?? ''}`,
       message: '',
+      destination: update['Registration Designation'] ?? '',
       valid: true,
     };
 
@@ -215,7 +216,9 @@ export class AdminService {
         const milestone: IENApplicantAddStatusAPIDTO = {
           start_date: update.dateOfRosContract,
           status: STATUS.SIGNED_ROS,
-          notes: `Updated by BCCNM/NCAS data upload at ${dayjs().format('YYYY-MM-DD HH:mm:ss')} `,
+          notes: `Registration destination: ${
+            update.destination
+          }\nUpdated by BCCNM/NCAS data upload at ${dayjs().format('YYYY-MM-DD HH:mm:ss')} `,
         };
         if (update.message === 'Create') {
           await this.applicantService.addApplicantStatus(user, update.applicantId, milestone);

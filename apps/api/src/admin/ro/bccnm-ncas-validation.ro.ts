@@ -23,6 +23,11 @@ export class BccnmNcasValidationRO implements BccnmNcasValidation {
   name!: string;
 
   @ApiModelProperty({
+    description: 'Registration destination',
+  })
+  destination!: string;
+
+  @ApiModelProperty({
     description: 'Validation result of ROS',
   })
   message!: string;

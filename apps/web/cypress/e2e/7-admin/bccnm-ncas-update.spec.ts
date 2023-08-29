@@ -7,7 +7,7 @@ describe('Admin - BCCNM/NCAS Update', () => {
     cy.visit('/admin');
   });
 
-  it.skip('validates BCCNM/NCAS data', () => {
+  it('validates BCCNM/NCAS data', () => {
     // upload file
     cy.contains('button', 'Upload').click();
     cy.get('[aria-label=file-upload-dropzone]').selectFile(
@@ -34,7 +34,7 @@ describe('Admin - BCCNM/NCAS Update', () => {
     cy.contains('button', 'Upload');
   });
 
-  it.skip(`creates 'Signed Return of Service Agreement' milestones`, () => {
+  it(`creates 'Signed Return of Service Agreement' milestones`, () => {
     cy.contains('button', 'Upload').click();
     cy.get('[aria-label=file-upload-dropzone]').selectFile(
       ['cypress/fixtures/bccnm-ncas-creates.xlsx'],
