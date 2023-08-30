@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { In, Repository, getManager, EntityManager, Brackets, SelectQueryBuilder } from 'typeorm';
+import { In, Repository, getManager, EntityManager, Brackets } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantStatus } from './entity/ienapplicant-status.entity';
@@ -15,6 +15,7 @@ import { IENJobTitle } from './entity/ienjobtitles.entity';
 import { IENJobLocation } from './entity/ienjoblocation.entity';
 import { IENStatusReason } from './entity/ienstatus-reason.entity';
 import { IENMasterService } from './ien-master.service';
+import { searchNames } from '../common/search-names';
 
 @Injectable()
 export class IENApplicantUtilService {
@@ -31,37 +32,6 @@ export class IENApplicantUtilService {
     @InjectRepository(IENApplicantJob)
     private readonly ienapplicantJobRepository: Repository<IENApplicantJob>,
   ) {}
-
-  _nameSearchQuery(builder: SelectQueryBuilder<IENApplicant>, keyword: string) {
-    const keywords = keyword
-      .trim()
-      .split(' ')
-      .filter(item => item.length);
-
-    if (keywords.length === 2) {
-      const [first, last] = keywords;
-      builder.andWhere(
-        new Brackets(qb => {
-          qb.where(`applicant.name ilike :name1`, { name1: `%${first}%${last}%` });
-          qb.orWhere(`applicant.name ilike :name2`, { name2: `%${last}%${first}%` });
-        }),
-      );
-    } else if (keywords.length === 3) {
-      const [first, middle, last] = keywords;
-      builder.andWhere(
-        new Brackets(qb => {
-          qb.where(`applicant.name ilike :name1`, { name1: `%${first}%${middle}%${last}%` });
-          qb.orWhere(`applicant.name ilike :name2`, { name2: `%${first}%${last}%${middle}%` });
-          qb.orWhere(`applicant.name ilike :name3`, { name3: `%${middle}%${first}%${last}%` });
-          qb.orWhere(`applicant.name ilike :name4`, { name4: `%${middle}%${last}%${first}%` });
-          qb.orWhere(`applicant.name ilike :name5`, { name5: `%${last}%${first}%${middle}%` });
-          qb.orWhere(`applicant.name ilike :name6`, { name6: `%${last}%${middle}%${first}%` });
-        }),
-      );
-    } else {
-      builder.andWhere(`applicant.name ilike :name`, { name: `%${keyword.trim()}%` });
-    }
-  }
 
   /**
    * Build a query using given filters
@@ -121,7 +91,7 @@ export class IENApplicantUtilService {
       }
     }
     if (name) {
-      this._nameSearchQuery(builder, name);
+      searchNames(builder, 'applicant.name', name);
     }
 
     if (sortKey === 'recruiter') {
