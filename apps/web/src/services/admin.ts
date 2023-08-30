@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { UserGuide } from '@ien/common';
+import { BccnmNcasValidation, UserGuide } from '@ien/common';
 
 export const getSignedUrlOfUserGuide = async (name: string, version?: string) => {
   const query = version ? new URLSearchParams({ version }).toString() : '';
@@ -27,4 +27,19 @@ export const deleteUserGuide = async (name: string, version?: string) => {
 export const restoreUserGuide = async (name: string, version: string) => {
   const query = new URLSearchParams({ version }).toString();
   await axios.patch(`/admin/user-guides/${name}?${query}`);
+};
+
+export const validateBccnmNcasUpdates = async (payload: FormData) => {
+  const { data } = await axios.post<{ data: BccnmNcasValidation[] }>(
+    `/admin/validate-bccnm-ncas-updates`,
+    payload,
+    {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    },
+  );
+  return data.data;
+};
+
+export const applyBccnmNcasUpdates = async (data: BccnmNcasValidation[]) => {
+  await axios.post(`/admin/apply-bccnm-ncas-updates`, { data });
 };

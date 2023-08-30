@@ -10,7 +10,7 @@ import { useAuthContext } from './AuthContexts';
 import { getPath, isPending } from '@services';
 import { Access, hasAccess } from '@ien/common';
 
-const withAuth = (Component: React.FunctionComponent, acl: Access[], and = true) => {
+export const withAuth = (Component: React.FunctionComponent, acl: Access[], and = true) => {
   const Auth = (props: JSX.IntrinsicAttributes) => {
     // Login data added to props via redux-store (or use react context for example)
     const { authUser, authUserLoading } = useAuthContext();

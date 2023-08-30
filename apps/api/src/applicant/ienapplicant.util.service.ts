@@ -264,7 +264,7 @@ export class IENApplicantUtilService {
     manager?: EntityManager,
   ): Promise<void> {
     try {
-      const entityManager = manager || getManager();
+      const entityManager = manager ?? getManager();
       // update applicant with the latest status
       const idsToUpdate = `'${mappedApplicantList.join("','")}'`;
       const queryToUpdate = `

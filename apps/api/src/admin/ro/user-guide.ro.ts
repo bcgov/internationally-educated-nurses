@@ -27,7 +27,7 @@ export class UserGuideRO implements UserGuide {
 
 export class UserGuideResponse implements SuccessResponse {
   @ApiModelProperty({
-    description: 'Response data',
+    description: 'List of user guides',
     type: UserGuideRO,
     isArray: true,
   })
