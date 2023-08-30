@@ -7,6 +7,7 @@ import { EmployeeEntity } from './entity/employee.entity';
 import { IENUsers } from 'src/applicant/entity/ienusers.entity';
 import { RoleEntity } from './entity/role.entity';
 import { AppLogger } from '../common/logger.service';
+import { searchNames } from '../common/search-names';
 
 export class EmployeeService {
   constructor(
@@ -88,25 +89,13 @@ export class EmployeeService {
     }
   }
 
-  _nameSearchQuery(keyword: string) {
-    let keywords = keyword.split(' ');
-    keywords = keywords.filter(item => item.length);
-    if (keywords.length > 0) {
-      const tempConditions: string[] = [];
-      keywords.forEach(ele => {
-        tempConditions.push(`employee.name ilike '%${ele}%'`);
-      });
-      return tempConditions.join(' AND ');
-    }
-    return `employee.name ilike '%${keyword}%'`;
-  }
-
   /**
    * List and filter employees,
    * Only for administrator purposes
    * We will build UI for this when we extend our scope to provide user-management
-   * @param name optional name wise filter
    * @returns Employee/User's list
+   * @param filter
+   * @param user
    */
   async getEmployeeList(
     filter: EmployeeFilterAPIDTO,
@@ -119,7 +108,7 @@ export class EmployeeService {
     qb.where({ id: Not(user.id) });
 
     if (name) {
-      qb.andWhere(this._nameSearchQuery(name));
+      searchNames(qb, 'employee.name', name);
     }
 
     if (revokedOnly) {
