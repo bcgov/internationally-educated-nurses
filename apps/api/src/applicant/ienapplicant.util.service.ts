@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { In, Repository, getManager, EntityManager, Brackets } from 'typeorm';
+import { In, Repository, getManager, EntityManager, Brackets, SelectQueryBuilder } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantStatus } from './entity/ienapplicant-status.entity';
@@ -32,24 +32,35 @@ export class IENApplicantUtilService {
     private readonly ienapplicantJobRepository: Repository<IENApplicantJob>,
   ) {}
 
-  _nameSearchQuery(keyword: string) {
-    let keywords = keyword.split(' ');
-    keywords = keywords.filter(item => item.length);
-    if (keywords.length === 1) {
-      return `(applicant.name ilike '%${keywords[0].toLowerCase()}%')`;
-    } else if (keywords.length === 2) {
-      return `(applicant.name ilike '%${keywords[0]}%${keywords[1]}%' OR applicant.name ilike '%${keywords[1]}%${keywords[0]}%')`;
+  _nameSearchQuery(builder: SelectQueryBuilder<IENApplicant>, keyword: string) {
+    const keywords = keyword
+      .trim()
+      .split(' ')
+      .filter(item => item.length);
+
+    if (keywords.length === 2) {
+      const [first, last] = keywords;
+      builder.andWhere(
+        new Brackets(qb => {
+          qb.where(`applicant.name ilike :name1`, { name1: `%${first}%${last}%` });
+          qb.orWhere(`applicant.name ilike :name2`, { name2: `%${last}%${first}%` });
+        }),
+      );
     } else if (keywords.length === 3) {
-      const possibleShuffle = [];
-      possibleShuffle.push(`applicant.name ilike '%${keywords[0]}%${keywords[1]}%${keywords[2]}%'`);
-      possibleShuffle.push(`applicant.name ilike '%${keywords[0]}%${keywords[2]}%${keywords[1]}%'`);
-      possibleShuffle.push(`applicant.name ilike '%${keywords[1]}%${keywords[0]}%${keywords[2]}%'`);
-      possibleShuffle.push(`applicant.name ilike '%${keywords[1]}%${keywords[2]}%${keywords[0]}%'`);
-      possibleShuffle.push(`applicant.name ilike '%${keywords[2]}%${keywords[0]}%${keywords[1]}%'`);
-      possibleShuffle.push(`applicant.name ilike '%${keywords[2]}%${keywords[1]}%${keywords[0]}%'`);
-      return `( ${possibleShuffle.join(' OR ')} )`;
+      const [first, middle, last] = keywords;
+      builder.andWhere(
+        new Brackets(qb => {
+          qb.where(`applicant.name ilike :name1`, { name1: `%${first}%${middle}%${last}%` });
+          qb.orWhere(`applicant.name ilike :name2`, { name2: `%${first}%${last}%${middle}%` });
+          qb.orWhere(`applicant.name ilike :name3`, { name3: `%${middle}%${first}%${last}%` });
+          qb.orWhere(`applicant.name ilike :name4`, { name4: `%${middle}%${last}%${first}%` });
+          qb.orWhere(`applicant.name ilike :name5`, { name5: `%${last}%${first}%${middle}%` });
+          qb.orWhere(`applicant.name ilike :name6`, { name6: `%${last}%${middle}%${first}%` });
+        }),
+      );
+    } else {
+      builder.andWhere(`applicant.name ilike :name`, { name: `%${keyword.trim()}%` });
     }
-    return `applicant.name ilike '%${keyword}%'`;
   }
 
   /**
@@ -110,7 +121,7 @@ export class IENApplicantUtilService {
       }
     }
     if (name) {
-      builder.andWhere(this._nameSearchQuery(name));
+      this._nameSearchQuery(builder, name);
     }
 
     if (sortKey === 'recruiter') {
