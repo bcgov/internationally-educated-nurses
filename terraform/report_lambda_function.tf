@@ -39,6 +39,7 @@ resource "aws_lambda_function" "CacheReports" {
       POSTGRES_PASSWORD = data.aws_ssm_parameter.postgres_password.value
       POSTGRES_HOST     = aws_rds_cluster.pgsql.endpoint
       POSTGRES_DATABASE = aws_rds_cluster.pgsql.database_name
+      NO_COLOR          = "true"
     }
   }
 }

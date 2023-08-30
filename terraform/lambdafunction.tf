@@ -45,6 +45,7 @@ resource "aws_lambda_function" "SyncApplicants" {
       MAIL_FROM         = var.mail_from
       MAIL_RECIPIENTS   = data.aws_ssm_parameter.mail_recipients.value
       SQS_QUEUE_URL     = aws_sqs_queue.terraform_queue.url
+      NO_COLOR          = "true"
     }
   }
 }

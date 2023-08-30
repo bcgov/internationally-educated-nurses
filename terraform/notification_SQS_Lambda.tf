@@ -48,6 +48,7 @@ resource "aws_lambda_function" "SQSLambda" {
       BUILD_INFO               = var.build_info
       TEAMS_ALERTS_WEBHOOK_URL = data.aws_ssm_parameter.teams_alerts_webhook_url.value
       SQS_QUEUE_URL            = aws_sqs_queue.terraform_queue.url
+      NO_COLOR                 = "true"
     }
   }
 }
