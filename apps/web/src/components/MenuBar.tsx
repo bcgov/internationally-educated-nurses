@@ -10,7 +10,7 @@ export const MenuBar: React.FC = () => {
   const router = useRouter();
   const { authUser } = useAuthContext();
 
-  const active = `font-bold`;
+  const active = `font-bold underline`;
 
   if (isPending(authUser?.roles) || authUser?.revoked_access_date) return <></>;
 

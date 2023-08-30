@@ -1,3 +1,4 @@
+// the enum value maps to 'slug' column of the 'access' table
 export enum Access {
   REPORTING = 'reporting',
   USER_READ = 'user-read',
@@ -6,4 +7,5 @@ export enum Access {
   APPLICANT_WRITE = 'applicant-write',
   DATA_EXTRACT = 'data-extract',
   ADMIN = 'admin',
+  BCCNM_NCAS = 'bccnm-ncas',
 }

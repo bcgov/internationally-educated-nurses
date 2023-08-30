@@ -1,4 +1,12 @@
-import { IsArray, IsDateString, IsIn, IsUUID, ValidateIf, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsDateString,
+  IsIn,
+  IsString,
+  IsUUID,
+  ValidateIf,
+  ValidateNested,
+} from 'class-validator';
 import { ApiModelProperty } from '@nestjs/swagger/dist/decorators/api-model-property.decorator';
 import { BccnmNcasValidation } from '@ien/common';
 import { Type } from 'class-transformer';
@@ -20,6 +28,12 @@ export class BccnmNcasUpdateItemDTO implements BccnmNcasValidation {
   })
   @IsDateString()
   dateOfRosContract!: string;
+
+  @ApiModelProperty({
+    description: `Registration destination`,
+  })
+  @IsString()
+  destination?: string;
 
   @ApiModelProperty({
     description: 'ID of current "Signed Return of Service Agreement" milestone',

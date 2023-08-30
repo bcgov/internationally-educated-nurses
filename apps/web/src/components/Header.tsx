@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 
 import logo from '@assets/img/bc_logo.png';
 import { UserDropdown } from './UserDropdown';
-import { HeaderHelper } from './admin/HeaderHelper';
+import { HeaderHelper } from './admin';
 
 export const Header: React.FC = () => {
   const router = useRouter();
@@ -36,7 +36,7 @@ export const Header: React.FC = () => {
           </div>
           <div className='flex flex-row'>
             <UserDropdown />
-            <HeaderHelper />
+            {process.env.NEXT_PUBLIC_DISABLE_USER_GUIDE !== 'true' && <HeaderHelper />}
           </div>
         </div>
       </div>
