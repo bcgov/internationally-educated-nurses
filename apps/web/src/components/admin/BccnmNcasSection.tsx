@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { BccnmNcasValidation, pluralize } from '@ien/common';
-import { buttonBase, buttonColor } from '@components';
+import { buttonBase, buttonColor, Spinner } from '@components';
 import { BccnmNcasDataUploader } from './BccnmNcasDataUploader';
 import { BccnmNcasPreview } from './BccnmNcasPreview';
 import { applyBccnmNcasUpdates } from '../../services/admin';
@@ -9,12 +9,15 @@ import { toast } from 'react-toastify';
 export const BccnmNcasSection = () => {
   const [uploaderOpen, setUploaderOpen] = useState(false);
   const [data, setData] = useState<BccnmNcasValidation[]>();
+  const [loading, setLoading] = useState(false);
 
   const applyChanges = async () => {
     if (data?.length) {
       const payload = data.filter(e => e.valid);
+      setLoading(true);
       await applyBccnmNcasUpdates(payload);
       toast.success(`${pluralize(payload.length, 'applicant')} updated`);
+      setLoading(false);
       setData(undefined);
     }
   };
@@ -63,6 +66,7 @@ export const BccnmNcasSection = () => {
           </span>
         </div>
         {data && <BccnmNcasPreview data={data} />}
+        {loading && <Spinner className='h-8' />}
         <BccnmNcasDataUploader
           open={uploaderOpen}
           handleClose={() => setUploaderOpen(false)}

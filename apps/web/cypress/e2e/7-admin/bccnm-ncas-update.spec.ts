@@ -27,7 +27,7 @@ describe('Admin - BCCNM/NCAS Update', () => {
     // validate messages
     cy.get('.text-bcRedError').should('have.length', 2);
     cy.contains('td', 'Applicant not found');
-    cy.contains('td', 'is required');
+    cy.contains('td', 'No updates');
 
     // cancel
     cy.contains('button', 'Cancel').click();

@@ -1,7 +1,7 @@
 import {
   IsArray,
+  IsBoolean,
   IsDateString,
-  IsIn,
   IsString,
   IsUUID,
   ValidateIf,
@@ -27,13 +27,25 @@ export class BccnmNcasUpdateItemDTO implements BccnmNcasValidation {
     description: `The date of the signature of ROS(return of service)`,
   })
   @IsDateString()
-  dateOfRosContract!: string;
+  dateOfRosContract?: string;
 
   @ApiModelProperty({
-    description: `Registration destination`,
+    description: 'NCAS Assessment Complete',
+  })
+  @IsBoolean()
+  ncasComplete?: boolean;
+
+  @ApiModelProperty({
+    description: 'BCCNM Application Complete',
+  })
+  @IsBoolean()
+  appliedToBccnm?: boolean;
+
+  @ApiModelProperty({
+    description: `Registration Designation`,
   })
   @IsString()
-  destination?: string;
+  designation?: string;
 
   @ApiModelProperty({
     description: 'ID of current "Signed Return of Service Agreement" milestone',
@@ -41,12 +53,6 @@ export class BccnmNcasUpdateItemDTO implements BccnmNcasValidation {
   @ValidateIf(o => o.message === 'Update')
   @IsUUID()
   statusId?: string;
-
-  @ApiModelProperty({
-    description: 'Specify whether the milestone should be created or updated',
-  })
-  @IsIn(['Create', 'Update'])
-  message!: 'Create' | 'Update';
 }
 
 export class BccnmNcasUpdateDTO {
