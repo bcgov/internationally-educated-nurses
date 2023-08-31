@@ -2,11 +2,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { Access, EmployeeRO } from '@ien/common';
 import { getEmployee } from '@services';
-import { UserDetails } from '../components/user/UserDetails';
-import withAuth from '../components/Keycloak';
-import { Spinner } from '../components/Spinner';
-import { DetailsNavBar } from '../components/DetailsNavBar';
-import { UserRoles } from '../components/user/UserRoles';
+import { DetailsNavBar, Spinner, UserDetails, UserRoles, withAuth } from '@components';
 
 const User = () => {
   const router = useRouter();

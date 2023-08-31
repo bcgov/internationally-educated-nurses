@@ -28,6 +28,7 @@ export default defineConfig({
       'cypress/e2e/4-reports/*.ts',
       'cypress/e2e/5-user-management/*.ts',
       'cypress/e2e/6-ha/*.ts',
+      'cypress/e2e/7-admin/*.ts',
     ],
   },
 });

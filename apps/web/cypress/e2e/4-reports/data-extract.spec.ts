@@ -1,4 +1,5 @@
 /// <reference types="cypress" />
+/// <reference types="cy-verify-downloads" />
 /// <reference path="../../support/e2e.ts"/>
 
 import dayjs from 'dayjs';

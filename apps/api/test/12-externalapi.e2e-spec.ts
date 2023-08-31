@@ -1,11 +1,11 @@
-import { AuthGuard } from '../src/auth/auth.guard';
-
 require('../env');
+
 import request from 'supertest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { AppModule } from '../src/app.module';
 import { canActivate } from './override-guard';
+import { AuthGuard } from '../src/auth/auth.guard';
 
 describe('ExternalAPIController (e2e)', () => {
   let app: INestApplication;

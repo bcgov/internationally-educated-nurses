@@ -19,8 +19,8 @@ export class ErrorExceptionFilter implements ExceptionFilter {
   /**
    * Transform a generic thrown exception to a `FailedResponse`
    *
-   * @param exception: An exception caught by the handler
    * @returns A failed response object
+   * @param exception
    */
   transformHttpException(exception: Error): FailedResponse {
     const exceptionMessage: any = exception.message;
@@ -29,11 +29,13 @@ export class ErrorExceptionFilter implements ExceptionFilter {
       errorType:
         exceptionMessage?.error ||
         (exception as any).response?.error ||
+        exception.name ||
         CommonError.INTERNAL_ERROR.errorType,
 
       errorMessage:
         exceptionMessage?.message ||
         (exception as any)?.response?.message ||
+        exception.message ||
         CommonError.INTERNAL_ERROR.errorMessage,
 
       errorDetails: {},

@@ -273,13 +273,13 @@ export class IENApplicantService {
     const data: Partial<IENApplicantStatusAudit> = {};
 
     if (!status) {
-      throw new BadRequestException(`Invalid milestone: id(${status})`);
+      throw new BadRequestException(`Invalid milestone: ${status}`);
     }
 
     /** Only allowing recruitment related milestones here */
     const statusDef = await this.ienapplicantUtilService.getStatusByName(status);
     if (!statusDef) {
-      throw new BadRequestException(`Invalid milestone: id(${status})`);
+      throw new BadRequestException(`Invalid milestone: ${status}`);
     }
 
     if (!isAdmin(user) && statusDef.category != StatusCategory.RECRUITMENT) {
