@@ -60,13 +60,7 @@ resource "aws_lambda_function" "api" {
       SQS_QUEUE_URL     = aws_sqs_queue.terraform_queue.url
       JWT_SECRET        = data.aws_ssm_parameter.sync_jwt_secret.value
       DOCS_BUCKET       = var.docs_bucket
-      # MAIL_FROM                = var.mail_from
-      # CHES_CLIENT_ID           = var.ches_client_id
-      # CHES_CLIENT_SECRET       = data.aws_ssm_parameter.ches_client_secret.value
-      # CHES_SERVICE_HOST        = data.aws_ssm_parameter.ches_service_host.value
-      # CHES_AUTH_URL            = data.aws_ssm_parameter.ches_auth_url.value
-      # TEAMS_ALERTS_WEBHOOK_URL = data.aws_ssm_parameter.teams_alerts_webhook_url.value
-      # POSTGRES_HOST     = aws_rds_cluster.pgsql_backup.endpoint
+      NO_COLOR          = "true"
     }
   }
 }
