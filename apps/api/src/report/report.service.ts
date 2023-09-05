@@ -809,10 +809,9 @@ export class ReportService {
   async extractMilestoneData(dates?: ReportPeriodDTO) {
     const { from, to } = dates || { from: '2001-01-01', to: dayjs().format('YYYY-MM-DD') };
     const entityManager = getManager();
-    const data = await entityManager.query(
+    return await entityManager.query(
       this.reportUtilService.extractApplicantMilestoneQuery(from, to),
     );
-    return data;
   }
 
   async getReport(from: string, to: string, period: number): Promise<object> {

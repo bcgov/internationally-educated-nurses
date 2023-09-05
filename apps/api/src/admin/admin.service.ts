@@ -148,15 +148,16 @@ export class AdminService {
     const v: BccnmNcasValidationRO = {
       id: update['HMBC Unique ID'],
       applicantId: applicant?.id,
-      dateOfRosContract: '',
       name: `${update['First Name'] ?? ''} ${update['Last Name'] ?? ''}`,
-      message: '',
-      destination: update['Registration Designation'] ?? '',
-      valid: true,
+      dateOfRosContract: '',
+      designation: update['Registration Designation'] ?? '',
+      appliedToBccnm: update['BCCNM Application Complete']?.toLowerCase().trim() === 'yes',
+      ncasComplete: update['NCAS Assessment Complete']?.toLowerCase().trim() === 'yes',
+      valid: false,
+      message: 'No updates',
     };
 
     if (!applicant) {
-      v.valid = false;
       v.message = 'Applicant not found';
       return v;
     }
@@ -166,27 +167,33 @@ export class AdminService {
     if (typeof dateOfRosContract === 'number') {
       // 25568 -> number of days from 1990 to epoch at PST
       v.dateOfRosContract = dayjs((+dateOfRosContract - 25568) * 86400 * 1000).format('YYYY-MM-DD');
-    } else {
-      v.dateOfRosContract = dateOfRosContract;
-    }
-    if (!v.dateOfRosContract) {
-      v.valid = false;
-      v.message = 'ROS contract signed date is required.';
-      return v;
+    } else if (dateOfRosContract) {
+      try {
+        v.dateOfRosContract = dayjs(dateOfRosContract.trim()).format('YYYY-MM-DD');
+      } catch (e) {
+        v.message = 'Invalid date format';
+      }
     }
 
-    const ros = applicant.applicant_status_audit.find(s => s.status.status === STATUS.SIGNED_ROS);
-    if (!ros) {
-      v.message = 'Create';
-      return v;
+    if (v.dateOfRosContract) {
+      const ros = applicant.applicant_status_audit.find(s => s.status.status === STATUS.SIGNED_ROS);
+      if (!ros || !dayjs(v.dateOfRosContract).isSame(ros.start_date)) {
+        v.message = '';
+        v.statusId = ros?.id; // pass id to identify it should be updated.
+      }
     }
-    v.statusId = ros.id;
-    if (dayjs(ros.start_date).isSame(v.dateOfRosContract)) {
-      v.valid = false;
-      v.message = 'No changes';
-    } else {
-      v.message = 'Update';
+
+    v.appliedToBccnm =
+      v.appliedToBccnm &&
+      !applicant.applicant_status_audit.find(s => s.status.status === STATUS.APPLIED_TO_BCCNM);
+    v.ncasComplete =
+      v.ncasComplete &&
+      !applicant.applicant_status_audit.find(s => s.status.status === STATUS.COMPLETED_NCAS);
+
+    if (v.appliedToBccnm || v.ncasComplete || !v.message) {
+      v.valid = true;
     }
+
     return v;
   }
 
@@ -213,22 +220,48 @@ export class AdminService {
     const response = { created: 0, updated: 0, ignored: 0 };
     await Promise.all(
       data.map(async update => {
-        const milestone: IENApplicantAddStatusAPIDTO = {
+        const notes = `Updated by BCCNM/NCAS data upload at ${dayjs().format(
+          'YYYY-MM-DD HH:mm:ss',
+        )}`;
+        let created = 0,
+          updated = 0;
+
+        const rosMilestone = {
           start_date: update.dateOfRosContract,
           status: STATUS.SIGNED_ROS,
-          notes: `Registration destination: ${
-            update.destination
-          }\nUpdated by BCCNM/NCAS data upload at ${dayjs().format('YYYY-MM-DD HH:mm:ss')} `,
-        };
-        if (update.message === 'Create') {
-          await this.applicantService.addApplicantStatus(user, update.applicantId, milestone);
-          response.created += 1;
-        } else if (update.message === 'Update' && update.statusId) {
-          await this.applicantService.updateApplicantStatus(user, update.statusId, milestone);
-          response.updated += 1;
-        } else {
-          response.ignored += 1;
+          notes: `Registration designation: ${update.designation}\n${notes}`,
+        } as IENApplicantAddStatusAPIDTO;
+        if (update.statusId) {
+          await this.applicantService.updateApplicantStatus(user, update.statusId, rosMilestone);
+          updated += 1;
+        } else if (update.dateOfRosContract) {
+          await this.applicantService.addApplicantStatus(user, update.applicantId, rosMilestone);
+          created += 1;
         }
+
+        if (update.appliedToBccnm) {
+          const appliedToBccnm = {
+            start_date: dayjs().format('YYYY-MM-DD'),
+            status: STATUS.APPLIED_TO_BCCNM,
+            notes,
+          };
+          await this.applicantService.addApplicantStatus(user, update.applicantId, appliedToBccnm);
+          created += 1;
+        }
+
+        if (update.ncasComplete) {
+          const ncasComplete = {
+            start_date: dayjs().format('YYYY-MM-DD'),
+            status: STATUS.COMPLETED_NCAS,
+            notes,
+          };
+          await this.applicantService.addApplicantStatus(user, update.applicantId, ncasComplete);
+          created += 1;
+        }
+
+        response.created += created;
+        response.updated += updated;
+        response.ignored += updated + created === 0 ? 1 : 0;
       }),
     );
     return response;

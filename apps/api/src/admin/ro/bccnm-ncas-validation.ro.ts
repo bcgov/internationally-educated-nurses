@@ -23,9 +23,19 @@ export class BccnmNcasValidationRO implements BccnmNcasValidation {
   name!: string;
 
   @ApiModelProperty({
-    description: 'Registration destination',
+    description: 'NCAS Assessment Complete',
   })
-  destination!: string;
+  ncasComplete!: boolean;
+
+  @ApiModelProperty({
+    description: 'BCCNM Application Complete',
+  })
+  appliedToBccnm!: boolean;
+
+  @ApiModelProperty({
+    description: 'Registration designation',
+  })
+  designation!: string;
 
   @ApiModelProperty({
     description: 'Validation result of ROS',
