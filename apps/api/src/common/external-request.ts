@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
+import { AtsApplicant, AtsMilestone } from '@ien/common';
 
 @Injectable()
 export class ExternalRequest {
@@ -13,8 +14,8 @@ export class ExternalRequest {
     });
   }
 
-  async getData(url: string, header = {}) {
-    return this.api_instance.get(`${url}`, { headers: header }).then((response: AxiosResponse) => {
+  async getData<T>(url: string, header = {}) {
+    return this.api_instance.get<T>(`${url}`, { headers: header }).then(response => {
       if (response.status !== 200) throw new BadRequestException(response);
       return response.data;
     });
@@ -43,13 +44,13 @@ export class ExternalRequest {
   }
 
   async getMilestone() {
-    return this.getData(`/milestones`);
+    return this.getData<AtsMilestone[]>(`/milestones`);
   }
 
   async getApplicants(url: string) {
     const header = {
       ApiKey: process.env.HMBC_ATS_AUTH_KEY,
     };
-    return this.getData(url, header);
+    return this.getData<AtsApplicant[]>(url, header);
   }
 }

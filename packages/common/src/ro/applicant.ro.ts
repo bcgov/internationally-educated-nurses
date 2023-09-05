@@ -35,6 +35,7 @@ export interface ApplicantRO {
   applicant_audit?: ApplicantAuditRO[] | null;
   recruiters?: EmployeeRO[] | null;
   active_flags?: ApplicantActiveFlagRO[];
+  pathway?: PathwayRO;
   created_date?: Date;
   updated_date?: Date;
 }
@@ -81,4 +82,9 @@ export interface ApplicantActiveFlagRO {
   applicant_id: string;
   ha_id: string;
   is_active: boolean;
+}
+
+export interface PathwayRO {
+  id: string;
+  name: string;
 }

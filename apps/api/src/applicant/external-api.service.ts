@@ -18,7 +18,7 @@ import {
   EntityManager,
 } from 'typeorm';
 import dayjs from 'dayjs';
-import { Authorities, StatusCategory } from '@ien/common';
+import { AtsApplicant, Authorities, StatusCategory } from '@ien/common';
 import { ExternalRequest } from 'src/common/external-request';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicant } from './entity/ienapplicant.entity';
@@ -149,8 +149,7 @@ export class ExternalAPIService {
    * and upsert it.
    */
   async saveMilestones(manager: EntityManager): Promise<void> {
-    const data: { id: string; name: string; category: string; 'process-related': boolean } =
-      await this.external_request.getMilestone();
+    const data = await this.external_request.getMilestone();
 
     if (Array.isArray(data)) {
       const result = await manager.upsert(
@@ -191,7 +190,7 @@ export class ExternalAPIService {
     let offset = 0;
     let is_next = true;
     let pages: any = [];
-    let newData: any[] = [];
+    let newData: AtsApplicant[] = [];
 
     /**
      * Here we do not have the total page count and the total number of records that we have to fetch.
@@ -340,7 +339,7 @@ export class ExternalAPIService {
   }
 
   async removeMilestonesNotOnATS(
-    applicants: { applicant_id: string; milestones: { id: string }[] }[],
+    applicants: AtsApplicant[],
     manager: EntityManager,
   ): Promise<void> {
     let removedCount = 0;
@@ -358,7 +357,7 @@ export class ExternalAPIService {
         if (!audits.length) return;
 
         const removed = audits.filter(
-          ({ status_id }) => !a.milestones.some(m => m.id.toLowerCase() === status_id),
+          ({ status_id }) => !a.milestones?.some(m => m.id.toLowerCase() === status_id),
         );
         if (removed.length > 0) {
           const result = await manager.delete<IENApplicantStatusAudit>(
@@ -376,14 +375,10 @@ export class ExternalAPIService {
   /**
    * Clean raw data and save applicant info into 'ien_applicant' table.
    * @param data Raw Applicant data
+   * @param manager
    */
-  async createBulkApplicants(data: any, manager: EntityManager) {
-    // upsert applicant list first
-    if (!Array.isArray(data)) {
-      this.logger.error(`Applicant data error:`, data);
-      return;
-    }
-    const applicants = await this.mapApplicants(data);
+  async createBulkApplicants(data: AtsApplicant[], manager: EntityManager) {
+    const applicants: any[] = await this.mapApplicants(data);
     if (applicants.length > 0) {
       const processed_applicant = await manager.upsert(IENApplicant, applicants, ['id']);
       this.logger.log(
@@ -424,76 +419,57 @@ export class ExternalAPIService {
    * @param data raw applicant data
    * @returns object that use in upsert applicants
    */
-  async mapApplicants(data: any) {
+  async mapApplicants(data: AtsApplicant[]) {
     const { users } = await this.getApplicantMasterData();
-    return data.map(
-      (a: {
-        assigned_to: { id: string; name: string }[] | undefined;
-        registration_date: string;
-        applicant_id: string;
-        ats1_id: number;
-        first_name: string;
-        last_name: string;
-        email_address: string;
-        phone_number: string;
-        countries_of_citizenship: string[] | string;
-        country_of_residence: string;
-        new_bccnm_process: boolean;
-        bccnm_license_number: string;
-        pr_status: string;
-        nursing_educations: any;
-        notes: any;
-        created_date: string;
-        updated_date: string;
-      }) => {
-        let assigned_to = null;
+    return data.map(a => {
+      let assigned_to;
 
-        a.new_bccnm_process = isNewBCCNMProcess(a.registration_date);
+      a.new_bccnm_process = isNewBCCNMProcess(a.registration_date);
 
-        if (Array.isArray(a.assigned_to)) {
-          assigned_to = a.assigned_to.map((user: { id: string; name: string }) => {
-            user.name = users[user.id.toLowerCase()]?.name;
-            return user;
-          });
-        } else if (a.assigned_to) {
-          const user: { id: string; name: string } = a.assigned_to;
-          assigned_to = {
-            ...user,
-            name: user.id ? users[user.id?.toLowerCase()] : '',
-          };
-        }
-
-        let citizenship = null;
-        if (a.countries_of_citizenship && Array.isArray(a.countries_of_citizenship)) {
-          citizenship = a.countries_of_citizenship;
-        } else {
-          citizenship = a.countries_of_citizenship ? [a.countries_of_citizenship] : null;
-        }
-
-        return {
-          id: a.applicant_id.toLowerCase(),
-          ats1_id: a.ats1_id.toString(),
-          name: `${a.first_name} ${a.last_name}`,
-          email_address: a.email_address,
-          phone_number: a.phone_number,
-          registration_date: new Date(a.registration_date),
-          country_of_citizenship: citizenship,
-          country_of_residence: a?.country_of_residence,
-          new_bccnm_process: a?.new_bccnm_process,
-          bccnm_license_number: a?.bccnm_license_number,
-          pr_status: a?.pr_status,
-          nursing_educations: a?.nursing_educations,
-          notes: a?.notes,
-          assigned_to,
-          additional_data: {
-            first_name: a.first_name,
-            last_name: a.last_name,
-          },
-          created_date: a.created_date,
-          updated_date: a.updated_date,
+      if (Array.isArray(a.assigned_to)) {
+        assigned_to = a.assigned_to.map((user: { name: string; id: string }) => {
+          user.name = users[user.id.toLowerCase()]?.name;
+          return user;
+        });
+      } else if (a.assigned_to) {
+        const user: { id: string; name: string } = a.assigned_to;
+        assigned_to = {
+          ...user,
+          name: user.id ? users[user.id?.toLowerCase()] : '',
         };
-      },
-    );
+      }
+
+      let citizenship;
+      if (a.countries_of_citizenship && Array.isArray(a.countries_of_citizenship)) {
+        citizenship = a.countries_of_citizenship;
+      } else {
+        citizenship = a.countries_of_citizenship ? [a.countries_of_citizenship] : null;
+      }
+
+      return {
+        id: a.applicant_id.toLowerCase(),
+        ats1_id: a.ats1_id.toString(),
+        name: `${a.first_name} ${a.last_name}`,
+        email_address: a.email_address,
+        phone_number: a.phone_number,
+        registration_date: new Date(a.registration_date),
+        country_of_citizenship: citizenship,
+        country_of_residence: a?.country_of_residence,
+        new_bccnm_process: a?.new_bccnm_process,
+        bccnm_license_number: a?.bccnm_license_number,
+        pr_status: a?.pr_status,
+        nursing_educations: a?.nursing_educations,
+        notes: a?.notes,
+        assigned_to,
+        pathway: a.pathway_id,
+        additional_data: {
+          first_name: a.first_name,
+          last_name: a.last_name,
+        },
+        created_date: a.created_date,
+        updated_date: a.updated_date,
+      };
+    });
   }
 
   /**

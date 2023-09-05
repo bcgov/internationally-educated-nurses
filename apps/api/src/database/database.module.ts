@@ -23,6 +23,7 @@ import { AccessEntity } from '../employee/entity/acl.entity';
 import { ReportCacheEntity } from 'src/report/entity/report-cache.entity';
 import { IENApplicantRecruiter } from '../applicant/entity/ienapplicant-employee.entity';
 import { IENApplicantActiveFlag } from 'src/applicant/entity/ienapplicant-active-flag.entity';
+import { Pathway } from '../applicant/entity/pathway.entity';
 
 const getEnvironmentSpecificConfig = (env?: string) => {
   switch (env) {
@@ -56,6 +57,7 @@ const getEnvironmentSpecificConfig = (env?: string) => {
           IENStatusReason,
           IENUsers,
           IENApplicantRecruiter,
+          Pathway,
           RoleEntity,
           SyncApplicantsAudit,
           ReportCacheEntity,

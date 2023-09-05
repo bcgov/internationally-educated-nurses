@@ -24,6 +24,7 @@ import { IENUsers } from './ienusers.entity';
 import { ApplicantRO, IENUserRO, NursingEducationDTO } from '@ien/common';
 import { EmployeeEntity } from '../../employee/entity/employee.entity';
 import { IENApplicantActiveFlag } from './ienapplicant-active-flag.entity';
+import { Pathway } from './pathway.entity';
 
 @Entity('ien_applicants')
 export class IENApplicant {
@@ -117,6 +118,9 @@ export class IENApplicant {
   @OneToMany(() => IENApplicantActiveFlag, flag => flag.applicant, { eager: true })
   active_flags?: IENApplicantActiveFlag[];
 
+  @ManyToOne(() => Pathway, { eager: true })
+  pathway?: Pathway;
+
   @CreateDateColumn()
   @Exclude()
   created_date!: Date;
@@ -161,6 +165,7 @@ export class IENApplicant {
       recruiters: this.recruiters?.map(employee => employee.toResponseObject()),
       created_date: this.created_date,
       updated_date: this.updated_date,
+      pathway: this.pathway,
     };
   }
 }
