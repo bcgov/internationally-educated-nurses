@@ -58,7 +58,7 @@ export const ApplicantProfile = () => {
         <div className='grid grid-cols-12 gap-2 py-2'>
           <DetailsItem title='Email Address' text={applicant?.email_address} />
           <DetailsItem title='Phone Number' text={applicant?.phone_number} />
-          <DetailsItem title='Registration date' text={formatDate(applicant?.registration_date)} />
+          <DetailsItem title='Registration Date' text={formatDate(applicant?.registration_date)} />
           <DetailsItem
             title='Country of Citizenship'
             text={

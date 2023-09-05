@@ -64,7 +64,11 @@ export class IENApplicantService {
    * @param user logged in user
    * @returns
    */
-  async getApplicantById(id: string, data: any = null, user?: EmployeeRO): Promise<IENApplicant> {
+  async getApplicantById(
+    id: string,
+    data?: { relation?: string },
+    user?: EmployeeRO,
+  ): Promise<IENApplicant> {
     let relations = RELATIONS.status;
     let is_status_audit = false;
     if (data?.relation) {

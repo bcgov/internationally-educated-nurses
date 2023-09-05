@@ -1,4 +1,6 @@
 import _ from 'lodash';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { BccnmNcasValidation } from '@ien/common';
 
 interface BccnmNcasUpdateTableProps {
@@ -17,21 +19,33 @@ export const BccnmNcasUpdateTable = ({ data }: BccnmNcasUpdateTableProps) => {
             <th className='px-3' scope='col'>
               Name
             </th>
-            <th className='px-3' scope='col'>
+            <th className='px-3 overflow-hidden' scope='col'>
               ROS Contract Signed
             </th>
-            <th className='px-3' scope='col'>
+            <th className='px-3 overflow-hidden' scope='col'>
+              Applied to BCCNM
+            </th>
+            <th className='px-3 overflow-hidden' scope='col'>
+              NCAS Assessment
+            </th>
+            <th className='px-3 text-center' scope='col'>
               Message
             </th>
           </tr>
         </thead>
         <tbody className='text-bcBlack text-sm'>
-          {data.map(({ id, name, dateOfRosContract, message, valid }) => (
-            <tr key={id} className='h-12 even:bg-bcLightGray'>
-              <td className='px-3'>{id}</td>
-              <td className='px-3'>{_.startCase(name)}</td>
-              <td className='px-3'>{dateOfRosContract}</td>
-              <td className={`px-3 ${!valid && 'text-bcRedError'}`}>{message}</td>
+          {data.map(update => (
+            <tr key={update.id} className='h-12 even:bg-bcLightGray'>
+              <td className='px-3'>{update.id}</td>
+              <td className='px-3'>{_.startCase(update.name)}</td>
+              <td className='px-3'>{update.dateOfRosContract}</td>
+              <td className='px-3'>
+                {update.appliedToBccnm && <FontAwesomeIcon icon={faCheck} className='h-3' />}
+              </td>
+              <td className='px-3'>
+                {update.ncasComplete && <FontAwesomeIcon icon={faCheck} className='h-3' />}
+              </td>
+              <td className={`px-3 ${!update.valid && 'text-bcRedError'}`}>{update.message}</td>
             </tr>
           ))}
         </tbody>
