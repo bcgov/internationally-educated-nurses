@@ -179,11 +179,23 @@ web-unit-test:
 	@yarn workspace @ien/web test
 	@echo "++\n*****"
 
-start-test-db:
+start-test-env:
 	@docker-compose -f docker-compose.test.yaml up --build -d
 
-stop-test-db:
+stop-test-env:
 	@docker-compose -f docker-compose.test.yaml down
+
+start-test-db:
+	@docker-compose -f docker-compose.test.yaml up --build -d test-db
+
+stop-test-db:
+	@docker-compose -f docker-compose.test.yaml down test-db
+
+start-keycloak:
+	docker-compose -f ./docker-compose.test.yaml up -d keycloak
+
+stop-keycloak:
+	docker-compose -f ./docker-compose.test.yaml down keycloak
 
 api-integration-test:
 	@make start-test-db
@@ -194,13 +206,13 @@ api-integration-test:
 	@make stop-test-db
 
 run-test-apps:
-	@make start-test-db
+	@make start-test-env
 	@scripts/seed-test-data.sh &
 	NODE_ENV=test yarn watch
 	@echo "++\n*****"
 
 test-e2e:
-	@make start-test-db
+	@make start-test-env
 	@echo "++\n***** Running Web integration tests\n++"
 	@yarn build
 	@NODE_ENV=test yarn test:e2e
@@ -211,7 +223,7 @@ open-cypress:
 	@yarn workspace @ien/web open:cypress
 
 test-pa11y:
-	@make start-test-db
+	@make start-test-env
 	@yarn build
 	@echo "++\n***** Running front end accessibility tests\n++"
 	@NODE_ENV=test yarn test:pa11y
