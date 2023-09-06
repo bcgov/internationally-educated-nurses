@@ -1,4 +1,5 @@
 version: '3.8'
+
 services:
   test-db:
     image: postgres:14-alpine
@@ -10,3 +11,15 @@ services:
       - POSTGRES_PASSWORD=${TEST_POSTGRES_PASSWORD}
       - POSTGRES_DB=${TEST_POSTGRES_DATABASE}
     restart: always
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest # later than 22.0.1
+    container_name: ${PROJECT}-keycloak
+    environment:
+      KEYCLOAK_ADMIN: ${KC_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KC_ADMIN_PASSWORD}
+    command: 'start-dev --import-realm'
+    volumes:
+      - ./keycloak/realm-ien.json:/opt/keycloak/data/import/realm-ien.json
+    ports:
+      - '8080:8080'
