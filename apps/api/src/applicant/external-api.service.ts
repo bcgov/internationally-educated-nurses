@@ -18,6 +18,7 @@ import {
   EntityManager,
 } from 'typeorm';
 import dayjs from 'dayjs';
+import _ from 'lodash';
 import { AtsApplicant, Authorities, StatusCategory } from '@ien/common';
 import { ExternalRequest } from 'src/common/external-request';
 import { AppLogger } from 'src/common/logger.service';
@@ -37,7 +38,6 @@ import { isNewBCCNMProcess } from 'src/common/util';
 
 @Injectable()
 export class ExternalAPIService {
-  applicantRelations: any;
   constructor(
     @Inject(Logger) private readonly logger: AppLogger,
     @Inject(ExternalRequest) private readonly external_request: ExternalRequest,
@@ -318,24 +318,12 @@ export class ExternalAPIService {
    * fet user/staff and HA details to reduce database calls.
    * @returns
    */
-  async getApplicantMasterData() {
+  async getUsersMap() {
     // fetch user/staff details
-    const usersArray = await this.ienMasterService.ienUsersRepository.find({
+    const users = await this.ienMasterService.ienUsersRepository.find({
       user_id: Not(IsNull()),
     });
-    const users: any = {};
-    usersArray.forEach(user => {
-      if (user.user_id) {
-        users[user.user_id] = user;
-      }
-    });
-    // Fetch Health Authorities
-    const haArray = await this.ienMasterService.ienHaPcnRepository.find();
-    const ha: any = {};
-    haArray.forEach(ha_obj => {
-      ha[ha_obj.id] = ha_obj;
-    });
-    return { users: users, ha: ha };
+    return _.keyBy(users, 'user_id');
   }
 
   async removeMilestonesNotOnATS(
@@ -398,7 +386,10 @@ export class ExternalAPIService {
             .values(milestones)
             .orIgnore(true)
             .execute();
-          this.logger.log(`milestones updated: ${result.raw.length}/${milestones.length}`);
+          this.logger.log(
+            `milestones updated: ${result.raw.length}/${milestones.length}`,
+            'ATS-SYNC',
+          );
         } catch (e) {
           this.logger.error(e);
         }
@@ -420,9 +411,9 @@ export class ExternalAPIService {
    * @returns object that use in upsert applicants
    */
   async mapApplicants(data: AtsApplicant[]) {
-    const { users } = await this.getApplicantMasterData();
+    const users = await this.getUsersMap();
     return data.map(a => {
-      let assigned_to;
+      let assigned_to = null;
 
       a.new_bccnm_process = isNewBCCNMProcess(a.registration_date);
 
@@ -475,90 +466,83 @@ export class ExternalAPIService {
   /**
    * We need to ignore all the recruiment related milestone for now
    */
-  async allowedMilestones(): Promise<string[] | []> {
+  async allowedMilestonesMap(): Promise<_.Dictionary<IENApplicantStatus>> {
     const milestones = await this.ienMasterService.ienApplicantStatusRepository.find({
-      select: ['id'],
       where: {
         category: Not(StatusCategory.RECRUITMENT),
       },
     });
-    return milestones.map(({ id }) => id);
+    return _.keyBy(milestones, 'id');
+  }
+
+  async getReasonsMap() {
+    const reasons = await this.ienMasterService.ienStatusReasonRepository.find();
+    return _.keyBy(reasons, 'id');
   }
 
   /**
    *
-   * @param data raw applicant data
+   * @param applicants raw applicant data
    * @param mappedApplicantList applicant_id and applicant.id map
    * @returns object that use in upsert milestone/status
    */
-  async mapMilestones(data: any, mappedApplicantList: string[]) {
+  async mapMilestones(applicants: AtsApplicant[], mappedApplicantList: string[]) {
     if (!mappedApplicantList.length) {
       return [];
     }
-    const { users } = await this.getApplicantMasterData();
-    const milestones: any = [];
-    const allowedMilestones: string[] = await this.allowedMilestones();
+
+    const users = await this.getUsersMap();
+    const allowedMilestones = await this.allowedMilestonesMap();
+
     let total = 0;
-    data.forEach(
-      (item: { applicant_id: string; hasOwnProperty: (arg0: string) => any; milestones: any }) => {
-        if (item.hasOwnProperty('milestones') && Array.isArray(item.milestones)) {
-          const existingMilestones = item.milestones;
-          total += existingMilestones.length;
-          existingMilestones.forEach(m => {
-            this.mapMilestoneData(allowedMilestones, m, milestones, item.applicant_id, users);
-          });
-        }
-      },
-    );
+    let milestones = applicants.map(applicant => {
+      if (applicant.milestones?.length) {
+        total += applicant.milestones.length;
+        return this.getApplicantMilestonesFromATS(applicant, users, allowedMilestones);
+      }
+    });
+    milestones = _.flatten(milestones).filter(v => v);
+
     if (total !== milestones.length) {
       this.logger.log(`milestones rejected: ${total - milestones.length}`, 'ATS-SYNC');
     }
-    return milestones;
+
+    return _.flatten(milestones).filter(v => v);
   }
 
   /** create applicant-milestone object */
-  mapMilestoneData(
-    allowedMilestones: string[],
-    m: {
-      id: string;
-      start_date?: string;
-      created_date: string;
-      note: any;
-      added_by: number;
-      reason_id: string;
-      reason_other: string;
-      effective_date: string;
-    },
-    milestones: any[],
-    applicant_id: any,
-    users: any[],
+  getApplicantMilestonesFromATS(
+    applicant: AtsApplicant,
+    users: _.Dictionary<IENUsers>,
+    allowedMilestones: _.Dictionary<IENApplicantStatus>,
   ) {
-    if (allowedMilestones.includes(m?.id.toLowerCase())) {
-      const temp: any = {
-        status: m.id.toLowerCase(),
-        start_date: m.start_date,
-        created_date: m.created_date,
-        updated_date: m.created_date,
-        applicant: applicant_id.toLowerCase(),
-        notes: m?.note,
-        added_by: null,
-      };
-      if ('added_by' in m && m.added_by > 0 && users[m.added_by]) {
-        temp['added_by'] = users[m.added_by].id;
+    return applicant.milestones?.map(m => {
+      if (allowedMilestones[m.id.toLowerCase()]) {
+        const milestone: any = {
+          status: m.id.toLowerCase(),
+          applicant: applicant.applicant_id.toLowerCase(),
+          notes: m.note,
+          start_date: m.start_date,
+          created_date: m.created_date,
+          updated_date: m.created_date,
+        };
+        if (m.added_by && users[m.added_by]) {
+          milestone.added_by = users[m.added_by].id;
+        }
+        if (m.reason_id) {
+          milestone.reason = m.reason_id.toLowerCase();
+        }
+        if (m.reason_other) {
+          milestone.reason_other = m.reason_other;
+        }
+        if (m.effective_date) {
+          milestone.effective_date = m.effective_date;
+        }
+        return milestone;
+      } else {
+        this.logger.log(`rejected milestone: ${m.id}`, 'ATS-SYNC');
       }
-      if ('reason_id' in m) {
-        temp['reason'] = m.reason_id.toLowerCase();
-      }
-      if ('reason_other' in m) {
-        temp['reason_other'] = m.reason_other;
-      }
-      if ('effective_date' in m) {
-        temp['effective_date'] = m.effective_date;
-      }
-      milestones.push(temp);
-    } else {
-      this.logger.log(`rejected milestone: ${m.id}`, 'ATS-SYNC');
-    }
+    });
   }
 
   /**
