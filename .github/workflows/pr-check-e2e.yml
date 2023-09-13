@@ -5,6 +5,7 @@ on:
       - 'apps/api/**'
       - 'apps/web/**'
       - 'packages/common/**'
+      - '.github/workflows/pr-check-e2e.yml'
 
 jobs:
   pr-checks:
@@ -40,11 +41,11 @@ jobs:
           ENV_NAME: 'local'
           E2E_TEST_USERNAME: '${{ secrets.E2E_TEST_USERNAME}}'
           E2E_TEST_PASSWORD: '${{ secrets.E2E_TEST_PASSWORD}}'
-          AUTH_URL: 'https://keycloak.freshworks.club/auth'
+          AUTH_URL: 'http://localhost:8080'
           AUTH_REALM: 'ien'
           AUTH_CLIENTID: 'IEN'
           NEXT_PUBLIC_API_URL: 'http://localhost:4000/api/v1'
           NEXT_PUBLIC_AUTH_REALM: 'ien'
           NEXT_PUBLIC_AUTH_CLIENTID: 'IEN'
-          NEXT_PUBLIC_AUTH_URL: 'https://keycloak.freshworks.club/auth'
+          NEXT_PUBLIC_AUTH_URL: 'http://localhost:8080'
           NEXT_PUBLIC_DISABLE_USER_GUIDE: 'true'
