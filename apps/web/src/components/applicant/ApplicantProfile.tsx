@@ -100,6 +100,9 @@ export const ApplicantProfile = () => {
               <RecruiterAssignment applicant={applicant} />
             </AclMask>
           </DetailsItem>
+          {applicant.pathway && (
+            <DetailsItem title='Pathway' text={applicant?.pathway.name} span={6} />
+          )}
         </div>
       </div>
     </>
