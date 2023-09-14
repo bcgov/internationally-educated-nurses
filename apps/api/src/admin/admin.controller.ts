@@ -21,10 +21,11 @@ import { AuthGuard } from '../auth/auth.guard';
 import { AppLogger } from '../common/logger.service';
 import { AdminService } from './admin.service';
 import { UploadResponse, UserGuideResponse } from './ro';
-import { Access } from '@ien/common';
+import { Access, BccnmNcasUpdate } from '@ien/common';
 import { AllowAccess } from '../common/decorators';
 import { BccnmNcasUpdateDTO, UploadBccnmNcasDTO, UploadUserGuideDTO } from './dto';
 import { RequestObj } from '../common/interface/RequestObj';
+import { read, utils } from 'xlsx-js-style';
 
 @Controller('admin')
 @ApiTags('IEN Admin')
@@ -111,7 +112,10 @@ export class AdminController {
     @UploadedFile() file: Express.Multer.File,
     @Body() body: UploadBccnmNcasDTO, // eslint-disable-line
   ) {
-    return await this.service.validateBccnmNcasUpdates(file);
+    const wb = read(file.buffer);
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const rows = utils.sheet_to_json<BccnmNcasUpdate>(ws, { blankrows: false });
+    return await this.service.validateBccnmNcasUpdates(rows);
   }
 
   @ApiOperation({

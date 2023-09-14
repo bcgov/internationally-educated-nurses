@@ -6,7 +6,7 @@ import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { AuthGuard } from '../src/auth/auth.guard';
 import { URLS } from './constants';
-import { canActivate } from './override-guard';
+import { mockAuthGuardAsSuper } from './override-guard';
 import { COUNTRY_OF_EDUCATIONS, getApplicant, getEducation } from './report-util';
 
 describe('Report 2 - Country of Education', () => {
@@ -18,7 +18,7 @@ describe('Report 2 - Country of Education', () => {
       imports: [AppModule],
     })
       .overrideGuard(AuthGuard)
-      .useValue({ canActivate })
+      .useValue(mockAuthGuardAsSuper())
       .compile();
 
     app = module.createNestApplication();

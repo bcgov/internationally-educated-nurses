@@ -6,7 +6,7 @@ import { getRepository, Repository } from 'typeorm';
 import { AppModule } from 'src/app.module';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { URLS } from './constants';
-import { canActivate } from './override-guard';
+import { mockAuthGuardAsSuper } from './override-guard';
 import {
   getApplicant,
   getStatus,
@@ -48,7 +48,7 @@ describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
       imports: [AppModule],
     })
       .overrideGuard(AuthGuard)
-      .useValue({ canActivate })
+      .useValue(mockAuthGuardAsSuper())
       .compile();
 
     app = moduleFixture.createNestApplication();

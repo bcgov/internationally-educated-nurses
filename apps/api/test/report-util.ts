@@ -15,6 +15,7 @@ import {
 import { IENApplicantStatusAudit } from '../src/applicant/entity/ienapplicant-status-audit.entity';
 import { IENHaPcn } from '../src/applicant/entity/ienhapcn.entity';
 import { ReportFourItem } from './report-types';
+import { IENApplicantStatus } from '../src/applicant/entity/ienapplicant-status.entity';
 
 interface EducationOptions {
   count?: number;
@@ -127,6 +128,11 @@ export const clearMilestones = async () => {
 export const getHaId = async (ha: keyof typeof Authorities): Promise<string> => {
   const result = await getRepository(IENHaPcn).findOne({ abbreviation: ha });
   return result?.id || '';
+};
+
+export const getStatusId = async (status: STATUS) => {
+  const result = await getRepository(IENApplicantStatus).findOne({ status });
+  return result?.id;
 };
 
 /**

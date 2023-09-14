@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 import { AppModule } from 'src/app.module';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { URLS } from './constants';
-import { canActivate } from './override-guard';
+import { mockAuthGuardAsSuper } from './override-guard';
 import { IENHaPcn } from 'src/applicant/entity/ienhapcn.entity';
 import { addApplicant, addMilestone, getHAs, hire, setApp } from './report-request-util';
 import { getApplicant } from './report-util';
@@ -26,7 +26,7 @@ describe('Report 8 - Registrants Working in BC', () => {
       imports: [AppModule],
     })
       .overrideGuard(AuthGuard)
-      .useValue({ canActivate })
+      .useValue(mockAuthGuardAsSuper())
       .compile();
 
     app = moduleFixture.createNestApplication();

@@ -28,7 +28,6 @@ export TFCTK:=$(shell cat ~/.terraform.d/credentials.tfrc.json | jq -r '.credent
 
 # FE Env Vars
 export NEXT_PUBLIC_API_URL ?= /api/v1
-export NEXT_PUBLIC_AUTH_URL ?= https://common-logon-dev.hlth.gov.bc.ca/auth
 export NEXT_PUBLIC_AUTH_REALM ?= moh_applications
 
 # Docker container names
@@ -56,7 +55,7 @@ endif
 
 ifeq ($(ENV_NAME), dev) 
 DOMAIN=dev.ien.freshworks.club
-NEXT_PUBLIC_AUTH_URL = https://keycloak.freshworks.club/auth
+NEXT_PUBLIC_AUTH_URL ?= https://keycloak.freshworks.club/auth
 NEXT_PUBLIC_AUTH_REALM = ien
 BASTION_INSTANCE_ID = $(BASTION_INSTANCE_ID_DEV)
 DB_HOST = $(DB_HOST_DEV)
@@ -218,6 +217,9 @@ test-e2e:
 	@NODE_ENV=test yarn test:e2e
 	@make stop-test-db
 	@echo "++\n*****"
+
+cypress:
+	@yarn workspace @ien/web cypress
 
 open-cypress:
 	@yarn workspace @ien/web open:cypress
