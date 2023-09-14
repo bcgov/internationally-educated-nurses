@@ -606,7 +606,7 @@ export class ExternalAPIService {
             const milestone: any = {
               status: m.id.toLowerCase(),
               applicant: applicant.applicant_id.toLowerCase(),
-              notes: m.note,
+              notes: m.notes,
               start_date: m.start_date,
               created_date: m.created_date,
               updated_date: m.created_date,
