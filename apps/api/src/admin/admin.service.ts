@@ -5,7 +5,6 @@ import dayjs from 'dayjs';
 import { Inject, InternalServerErrorException, Logger } from '@nestjs/common';
 import { BccnmNcasUpdate, EmployeeRO, STATUS, UserGuide } from '@ien/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { read, utils } from 'xlsx-js-style';
 import { AppLogger } from '../common/logger.service';
 import { BccnmNcasUpdateRO, BccnmNcasValidationRO } from './ro';
 import { IENApplicant } from '../applicant/entity/ienapplicant.entity';
@@ -13,6 +12,7 @@ import { BccnmNcasUpdateDTO } from './dto';
 import { IENApplicantService } from '../applicant/ienapplicant.service';
 import { IENApplicantAddStatusAPIDTO } from '../applicant/dto';
 import { IENApplicantStatus } from '../applicant/entity/ienapplicant-status.entity';
+import { getDateFromCellValue } from '../common/util';
 
 const BUCKET_NAME = process.env.DOCS_BUCKET ?? 'ien-dev-docs';
 
@@ -151,11 +151,24 @@ export class AdminService {
       name: `${update['First Name'] ?? ''} ${update['Last Name'] ?? ''}`,
       dateOfRosContract: '',
       designation: update['Registration Designation'] ?? '',
-      appliedToBccnm: update['BCCNM Application Complete']?.toLowerCase().trim() === 'yes',
-      ncasComplete: update['NCAS Assessment Complete']?.toLowerCase().trim() === 'yes',
+      appliedToBccnm: undefined,
+      ncasComplete: undefined,
       valid: false,
-      message: 'No updates',
+      message: '',
     };
+
+    // bccnm/ncas completions accept 'Yes', 'No', or a date
+    try {
+      v.appliedToBccnm = getDateFromCellValue(update['BCCNM Application Complete']);
+    } catch (e) {
+      v.message = e.message;
+    }
+
+    try {
+      v.ncasComplete = getDateFromCellValue(update['NCAS Assessment Complete']);
+    } catch (e) {
+      v.message = e.message;
+    }
 
     if (!applicant) {
       v.message = 'Applicant not found';
@@ -163,51 +176,52 @@ export class AdminService {
     }
 
     // convert excel date cell value as a number to string
-    const dateOfRosContract = update['Date ROS Contract Signed'];
-    if (typeof dateOfRosContract === 'number') {
-      // 25568 -> number of days from 1990 to epoch at PST
-      v.dateOfRosContract = dayjs((+dateOfRosContract - 25568) * 86400 * 1000).format('YYYY-MM-DD');
-    } else if (dateOfRosContract) {
-      try {
-        v.dateOfRosContract = dayjs(dateOfRosContract.trim()).format('YYYY-MM-DD');
-      } catch (e) {
-        v.message = 'Invalid date format';
+    try {
+      v.dateOfRosContract = getDateFromCellValue(update['Date ROS Contract Signed']);
+      if (v.dateOfRosContract) {
+        const ros = applicant.applicant_status_audit.find(
+          s => s.status.status === STATUS.SIGNED_ROS && !s.notes?.includes('Updated by BCCNM'),
+        );
+        if (ros) {
+          v.dateOfRosContract = ''; // do not overwrite ROS milestone set by ATS
+        }
       }
+    } catch (e) {
+      v.message = e.message;
     }
 
-    if (v.dateOfRosContract) {
-      const ros = applicant.applicant_status_audit.find(s => s.status.status === STATUS.SIGNED_ROS);
-      if (!ros || !dayjs(v.dateOfRosContract).isSame(ros.start_date)) {
-        v.message = '';
-        v.statusId = ros?.id; // pass id to identify it should be updated.
-      }
-    }
-
-    v.appliedToBccnm =
+    // do not overwrite 'bccnm/ncas' completion date
+    if (
       v.appliedToBccnm &&
-      !applicant.applicant_status_audit.find(s => s.status.status === STATUS.APPLIED_TO_BCCNM);
-    v.ncasComplete =
-      v.ncasComplete &&
-      !applicant.applicant_status_audit.find(s => s.status.status === STATUS.COMPLETED_NCAS);
-
-    if (v.appliedToBccnm || v.ncasComplete || !v.message) {
-      v.valid = true;
+      applicant.applicant_status_audit.find(s => s.status.status === STATUS.APPLIED_TO_BCCNM)
+    ) {
+      v.appliedToBccnm = undefined;
     }
+    if (
+      v.ncasComplete &&
+      applicant.applicant_status_audit.find(s => s.status.status === STATUS.COMPLETED_NCAS)
+    ) {
+      v.ncasComplete = undefined;
+    }
+    if (!v.appliedToBccnm && !v.ncasComplete && !v.dateOfRosContract) {
+      v.message = 'No updates';
+    }
+
+    v.valid = !v.message;
 
     return v;
   }
 
-  async validateBccnmNcasUpdates(file: Express.Multer.File): Promise<BccnmNcasValidationRO[]> {
-    const wb = read(file.buffer);
-    const ws = wb.Sheets[wb.SheetNames[0]];
-    const rows = utils.sheet_to_json<BccnmNcasUpdate>(ws, { blankrows: false });
+  async validateBccnmNcasUpdates(rows: BccnmNcasUpdate[]): Promise<BccnmNcasValidationRO[]> {
     const data = rows.filter(row => !!row['HMBC Unique ID']);
+
     const applicants = await this.applicantRepository
       .find({
         where: { ats1_id: In(data.map(e => e['HMBC Unique ID'])) },
         relations: ['applicant_status_audit', 'applicant_status_audit.status'],
       })
       .then(result => _.chain(result).keyBy('ats1_id').value());
+
     return data.map(e => {
       return this.validateBccnmNcasUpdate(e, applicants[e['HMBC Unique ID']]);
     });
@@ -241,7 +255,7 @@ export class AdminService {
 
         if (update.appliedToBccnm) {
           const appliedToBccnm = {
-            start_date: dayjs().format('YYYY-MM-DD'),
+            start_date: update.appliedToBccnm,
             status: STATUS.APPLIED_TO_BCCNM,
             notes,
           };
@@ -251,7 +265,7 @@ export class AdminService {
 
         if (update.ncasComplete) {
           const ncasComplete = {
-            start_date: dayjs().format('YYYY-MM-DD'),
+            start_date: update.ncasComplete,
             status: STATUS.COMPLETED_NCAS,
             notes,
           };

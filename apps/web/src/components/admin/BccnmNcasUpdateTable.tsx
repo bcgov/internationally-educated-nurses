@@ -1,6 +1,4 @@
 import _ from 'lodash';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { BccnmNcasValidation } from '@ien/common';
 
 interface BccnmNcasUpdateTableProps {
@@ -39,12 +37,8 @@ export const BccnmNcasUpdateTable = ({ data }: BccnmNcasUpdateTableProps) => {
               <td className='px-3'>{update.id}</td>
               <td className='px-3'>{_.startCase(update.name)}</td>
               <td className='px-3'>{update.dateOfRosContract}</td>
-              <td className='px-3'>
-                {update.appliedToBccnm && <FontAwesomeIcon icon={faCheck} className='h-3' />}
-              </td>
-              <td className='px-3'>
-                {update.ncasComplete && <FontAwesomeIcon icon={faCheck} className='h-3' />}
-              </td>
+              <td className='px-3'>{update.appliedToBccnm}</td>
+              <td className='px-3'>{update.ncasComplete}</td>
               <td className={`px-3 ${!update.valid && 'text-bcRedError'}`}>{update.message}</td>
             </tr>
           ))}

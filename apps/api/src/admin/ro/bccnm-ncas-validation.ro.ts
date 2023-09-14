@@ -25,12 +25,12 @@ export class BccnmNcasValidationRO implements BccnmNcasValidation {
   @ApiModelProperty({
     description: 'NCAS Assessment Complete',
   })
-  ncasComplete!: boolean;
+  ncasComplete?: string;
 
   @ApiModelProperty({
     description: 'BCCNM Application Complete',
   })
-  appliedToBccnm!: boolean;
+  appliedToBccnm?: string;
 
   @ApiModelProperty({
     description: 'Registration designation',

@@ -6,9 +6,8 @@ import request from 'supertest';
 import { AppModule } from 'src/app.module';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { IENApplicantStatusAudit } from '../src/applicant/entity/ienapplicant-status-audit.entity';
-import { IENApplicant } from '../src/applicant/entity/ienapplicant.entity';
 import { URLS } from './constants';
-import { canActivate } from './override-guard';
+import { mockAuthGuardAsSuper } from './override-guard';
 import { addApplicant, addMilestone, setApp } from './report-request-util';
 import { getApplicant, getStatus } from './report-util';
 
@@ -31,7 +30,7 @@ describe('Report 5 (e2e)', () => {
       imports: [AppModule],
     })
       .overrideGuard(AuthGuard)
-      .useValue({ canActivate })
+      .useValue(mockAuthGuardAsSuper())
       .compile();
 
     app = moduleFixture.createNestApplication();

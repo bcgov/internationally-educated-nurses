@@ -7,7 +7,7 @@ import { AppModule } from 'src/app.module';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { URLS } from './constants';
 import { addMilestone, withdrewReason } from './fixture/reports';
-import { canActivate } from './override-guard';
+import { mockAuthGuardAsSuper } from './override-guard';
 import { getApplicant, getJob } from './report-util';
 
 describe('Report 3 - Applicant by Status', () => {
@@ -27,7 +27,7 @@ describe('Report 3 - Applicant by Status', () => {
       imports: [AppModule],
     })
       .overrideGuard(AuthGuard)
-      .useValue({ canActivate })
+      .useValue(mockAuthGuardAsSuper())
       .compile();
 
     app = moduleFixture.createNestApplication();

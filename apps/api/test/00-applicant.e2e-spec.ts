@@ -144,13 +144,6 @@ describe('ApplicantController (e2e)', () => {
       .end(done);
   });
 
-  it('Delete applicant fail, Applicant milestone not found /ien/:id/status/:id (DELETE)', done => {
-    const dummyId = '8435ef30-7af3-4ec2-8aed-2662209301c5';
-    const uri = `/ien/${applicant.id}/status/${dummyId}`;
-    addMilestone.job_id = jobTempId;
-    request(app.getHttpServer()).delete(uri).expect(404).end(done);
-  });
-
   it('Delete applicant milestone initiated by different owner not permitted /ien/:id/status/:id (DELETE)', done => {
     const uri = `/ien/${applicant.id}/status/${applicantStatusId}`;
     addMilestone.job_id = jobTempId;

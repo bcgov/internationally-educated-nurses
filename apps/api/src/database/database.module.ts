@@ -25,7 +25,7 @@ import { IENApplicantRecruiter } from '../applicant/entity/ienapplicant-employee
 import { IENApplicantActiveFlag } from 'src/applicant/entity/ienapplicant-active-flag.entity';
 import { Pathway } from '../applicant/entity/pathway.entity';
 
-const getEnvironmentSpecificConfig = (env?: string) => {
+const getEnvironmentSpecificConfig = (env?: string): Partial<PostgresConnectionOptions> => {
   switch (env) {
     case 'production':
       return {
@@ -64,6 +64,7 @@ const getEnvironmentSpecificConfig = (env?: string) => {
         ],
         migrations: ['dist/migration/*.js'],
         logging: ['error', 'warn', 'migration'] as LoggerOptions,
+        dropSchema: true,
       };
     case 'script':
       // when running function for lambda locally using ts-node

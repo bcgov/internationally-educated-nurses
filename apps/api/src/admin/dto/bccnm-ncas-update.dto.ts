@@ -1,7 +1,7 @@
 import {
   IsArray,
-  IsBoolean,
   IsDateString,
+  IsOptional,
   IsString,
   IsUUID,
   ValidateIf,
@@ -27,19 +27,22 @@ export class BccnmNcasUpdateItemDTO implements BccnmNcasValidation {
     description: `The date of the signature of ROS(return of service)`,
   })
   @IsDateString()
+  @IsOptional()
   dateOfRosContract?: string;
 
   @ApiModelProperty({
     description: 'NCAS Assessment Complete',
   })
-  @IsBoolean()
-  ncasComplete?: boolean;
+  @IsDateString()
+  @IsOptional()
+  ncasComplete?: string;
 
   @ApiModelProperty({
     description: 'BCCNM Application Complete',
   })
-  @IsBoolean()
-  appliedToBccnm?: boolean;
+  @IsDateString()
+  @IsOptional()
+  appliedToBccnm?: string;
 
   @ApiModelProperty({
     description: `Registration Designation`,

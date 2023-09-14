@@ -6,7 +6,7 @@ import { ApplicantRO, Authorities, STATUS } from '@ien/common';
 import { AppModule } from '../src/app.module';
 import { AuthGuard } from '../src/auth/auth.guard';
 import { ReportController } from '../src/report/report.controller';
-import { canActivate } from './override-guard';
+import { mockAuthGuardAsSuper } from './override-guard';
 import { addApplicant, addMilestone, hire, setApp } from './report-request-util';
 import { addDays, clearMilestones, getApplicant, getStatus } from './report-util';
 
@@ -44,7 +44,7 @@ describe('Report 10 - Average Amount of Time with Each Milestone in Stakeholder 
       imports: [AppModule],
     })
       .overrideGuard(AuthGuard)
-      .useValue({ canActivate })
+      .useValue(mockAuthGuardAsSuper())
       .compile();
 
     app = module.createNestApplication();
