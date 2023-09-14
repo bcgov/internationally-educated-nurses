@@ -180,10 +180,17 @@ export class AdminService {
       v.dateOfRosContract = getDateFromCellValue(update['Date ROS Contract Signed']);
       if (v.dateOfRosContract) {
         const ros = applicant.applicant_status_audit.find(
-          s => s.status.status === STATUS.SIGNED_ROS && !s.notes?.includes('Updated by BCCNM'),
+          s => s.status.status === STATUS.SIGNED_ROS,
         );
         if (ros) {
-          v.dateOfRosContract = ''; // do not overwrite ROS milestone set by ATS
+          if (
+            !ros.notes?.includes('Updated by BCCNM') ||
+            dayjs(v.dateOfRosContract).isSame(ros.start_date)
+          ) {
+            v.dateOfRosContract = ''; // do not overwrite ROS milestone set by ATS
+          } else {
+            v.statusId = ros.id;
+          }
         }
       }
     } catch (e) {
