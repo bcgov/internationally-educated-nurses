@@ -23,7 +23,7 @@ export type MilestoneDurationTableEntry<T> = {
 
   [STATUS.APPLIED_TO_BCCNM]?: T;
 
-  [STATUS.REFERRED_TO_NCAS]?: T;
+  [STATUS.APPLIED_TO_NCAS]?: T;
 
   [STATUS.COMPLETED_CBA]?: T;
 

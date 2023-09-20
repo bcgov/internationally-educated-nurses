@@ -183,7 +183,7 @@ export const reportFourExpectedResult = (body: ReportFourItem[], isNewProcess: b
     }
     // NCAS count increases with COMPLETED_CBA and COMPLETED_SLA
     // NNAS count increases with RECEIVED_NNAS_REPORT and SUBMITTED_DOCUMENTS
-    else if (stat === STATUS.REFERRED_TO_NCAS || stat === STATUS.APPLIED_TO_NNAS) {
+    else if (stat === STATUS.APPLIED_TO_NCAS || stat === STATUS.APPLIED_TO_NNAS) {
       result += 2;
     }
     // Referred to Additional Education makes this report count increase

@@ -13,7 +13,7 @@ export const BCCNM_NCAS_DURATION_ENTRIES: DurationEntry[] = [
   { stage: 'BCCNM & NCAS', field: 'bccnm_ncas' },
   { milestone: STATUS.APPLIED_TO_BCCNM, field: 'applied_to_bccnm' },
   { milestone: STATUS.COMPLETED_LANGUAGE_REQUIREMENT, field: 'completed_language_requirement' },
-  { milestone: STATUS.REFERRED_TO_NCAS, field: 'referred_to_ncas' },
+  { milestone: STATUS.APPLIED_TO_NCAS, field: 'applied_to_ncas' },
   { milestone: STATUS.COMPLETED_CBA, field: 'completed_cba' },
   { milestone: STATUS.COMPLETED_SLA, field: 'completed_sla' },
   { milestone: STATUS.COMPLETED_NCAS, field: 'completed_ncas' },
