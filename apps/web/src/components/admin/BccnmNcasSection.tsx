@@ -66,7 +66,7 @@ export const BccnmNcasSection = () => {
           </span>
         </div>
         {data && <BccnmNcasPreview data={data} />}
-        {loading && <Spinner className='h-8' />}
+        {loading && <Spinner size='2x' />}
         <BccnmNcasDataUploader
           open={uploaderOpen}
           handleClose={() => setUploaderOpen(false)}

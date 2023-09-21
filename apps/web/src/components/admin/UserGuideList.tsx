@@ -21,7 +21,7 @@ export const UserGuideList = ({ showVersions = true }: UserGuideListProps) => {
   }, [data]);
 
   if (!files) {
-    return <Spinner className='h-10' relative />;
+    return <Spinner size='2x' relative />;
   } else if (!files.length) {
     return <div className='w-full text-center'>No files found!</div>;
   }

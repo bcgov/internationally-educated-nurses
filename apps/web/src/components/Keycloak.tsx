@@ -1,26 +1,24 @@
 import React, { useEffect } from 'react';
 import { NextPage } from 'next';
-import { useKeycloak } from '@react-keycloak/ssr';
 import { useRouter } from 'next/router';
+import { useAuth } from 'react-oidc-context';
 
+import { Access, hasAccess } from '@ien/common';
+import { getPath, isPending } from '@services';
 import { Pending } from './Pending';
 import { Spinner } from './Spinner';
 import { useAuthContext } from './AuthContexts';
 
-import { getPath, isPending } from '@services';
-import { Access, hasAccess } from '@ien/common';
-
 export const withAuth = (Component: React.FunctionComponent, acl: Access[], and = true) => {
   const Auth = (props: JSX.IntrinsicAttributes) => {
-    // Login data added to props via redux-store (or use react context for example)
     const { authUser, authUserLoading } = useAuthContext();
-    const kc = useKeycloak();
+    const { isAuthenticated, isLoading } = useAuth();
 
     const router = useRouter();
 
     // eslint-disable-next-line
     useEffect(() => {
-      if (!authUser && !authUserLoading && kc.initialized && !kc?.keycloak?.authenticated) {
+      if (!authUser && !authUserLoading && !isLoading && !isAuthenticated) {
         router.replace('/login');
       }
 
@@ -29,7 +27,7 @@ export const withAuth = (Component: React.FunctionComponent, acl: Access[], and 
       }
 
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [kc?.initialized, kc?.keycloak?.authenticated, authUser, authUserLoading]);
+    }, [isLoading, isAuthenticated, authUser, authUserLoading]);
 
     // Show pending if the user hasn't been assigned a role
     if (authUser && (isPending(authUser.roles) || authUser.revoked_access_date)) {
@@ -44,12 +42,12 @@ export const withAuth = (Component: React.FunctionComponent, acl: Access[], and 
     // Handle intermediate states
     if (
       authUserLoading ||
-      !kc.initialized ||
+      isLoading ||
       !authUser ||
       !authUser.roles ||
       !hasAccess(authUser.roles, acl, and)
     ) {
-      return <Spinner className='h-10 w-10' />;
+      return <Spinner size='2x' />;
     }
 
     // Finally, if all goes well, show the page the user is requesting

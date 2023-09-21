@@ -123,7 +123,7 @@ export const ReportTable = () => {
                   <td className='px-6 text-right'>
                     {downloadIndex === index ? (
                       <div className='float-right mr-9'>
-                        <Spinner className='h-8' relative />
+                        <Spinner size='1x' relative />
                       </div>
                     ) : (
                       <button
@@ -139,7 +139,7 @@ export const ReportTable = () => {
             {loading && (
               <tr className='text-left shadow-xs whitespace-nowrap even:bg-bcLightGray text-sm'>
                 <td colSpan={5} className='h-64'>
-                  <Spinner className='h-10' relative />
+                  <Spinner size='1x' relative />
                 </td>
               </tr>
             )}
