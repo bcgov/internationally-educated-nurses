@@ -19,7 +19,7 @@ const User = () => {
   );
 
   if (!user) {
-    return <Spinner className='h-10' />;
+    return <Spinner size='2x' />;
   }
   return (
     <div className='container w-full  xl:w-xl mb-4'>

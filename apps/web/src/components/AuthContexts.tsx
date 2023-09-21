@@ -1,9 +1,8 @@
-import { useKeycloak } from '@react-keycloak/ssr';
-import { KeycloakInstance } from 'keycloak-js';
 import React, { PropsWithChildren, ReactNode, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { useAuth } from 'react-oidc-context';
 import { EmployeeRO } from '@ien/common';
 import { getEmployee } from '@services';
 import { getErrorMessage } from '../utils/get-error-message';
@@ -16,20 +15,18 @@ const AuthContext = React.createContext<{
 const AuthProvider = ({ children }: PropsWithChildren<ReactNode>) => {
   const [authUser, setAuthUser] = useState<EmployeeRO | undefined>();
   const [authUserLoading, setAuthUserLoading] = useState(false);
-  const { keycloak } = useKeycloak<KeycloakInstance>();
+  const { user, signoutSilent } = useAuth();
   const router = useRouter();
-
-  const keycloakId = keycloak?.idTokenParsed?.sub;
 
   axios.interceptors.response.use(
     res => res,
-    e => {
+    async e => {
       const message = getErrorMessage(e);
       if (message?.includes('Authentication token')) {
         try {
-          keycloak?.logout();
+          await signoutSilent();
         } catch (e) {
-          window.location.replace(`${window.location.origin}/login`);
+          window.location.replace(`${window.origin}/login`);
         }
       } else if (message) {
         toast.error(message);
@@ -47,14 +44,15 @@ const AuthProvider = ({ children }: PropsWithChildren<ReactNode>) => {
   };
 
   useEffect(() => {
-    if (keycloakId) {
+    if (user) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${user.access_token}`;
       getUser();
     } else if (authUser) {
       setAuthUser(undefined);
       router.push('/login');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [keycloakId]);
+  }, [user]);
 
   const value = { authUser, authUserLoading };
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
