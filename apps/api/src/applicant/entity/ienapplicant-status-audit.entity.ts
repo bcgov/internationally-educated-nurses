@@ -7,6 +7,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Index,
+  DeleteDateColumn,
 } from 'typeorm';
 import { IENApplicantStatus } from './ienapplicant-status.entity';
 import { IENApplicant } from './ienapplicant.entity';
@@ -59,12 +60,15 @@ export class IENApplicantStatusAudit {
   @Column('date', { nullable: true })
   effective_date?: Date;
 
+  @Column('varchar', { nullable: true })
+  type?: IenType;
+
   @CreateDateColumn()
   created_date!: Date;
 
   @UpdateDateColumn()
   updated_date!: Date;
 
-  @Column('varchar', { nullable: true })
-  type?: IenType;
+  @DeleteDateColumn()
+  deleted_date!: Date;
 }

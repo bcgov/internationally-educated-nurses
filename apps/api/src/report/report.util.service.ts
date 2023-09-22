@@ -177,6 +177,7 @@ export class ReportUtilService {
             }' AND r.name ILIKE 'withdrew from ien program')
           ) 
           AND a.start_date::date <= '${to}'
+          AND a.deleted_date IS NULL
         GROUP BY a.applicant_id
       ), reactive_applicants AS (
         SELECT wa.applicant_id, min(ien.start_date) as start_date
@@ -187,6 +188,7 @@ export class ReportUtilService {
           AND ien.start_date::date <= '${to}'
           AND ien.status_id != '${statuses[STATUS.WITHDREW_FROM_PROGRAM]}'
           AND r.name NOT ILIKE 'withdrew from ien program'
+          AND ien.deleted_date IS NULL
         GROUP BY wa.applicant_id
       ), hired_applicants AS (
         SELECT ien.applicant_id, max(ien.start_date) as start_date
@@ -195,6 +197,7 @@ export class ReportUtilService {
         WHERE ien.status_id = '${statuses[STATUS.JOB_OFFER_ACCEPTED]}' 
           AND ien.start_date::date <= '${to}' 
           AND (wa.start_date IS null OR ien.start_date >= wa.start_date)
+          AND ien.deleted_date IS NULL
         GROUP BY ien.applicant_id
       ), applicants AS (
         SELECT
@@ -376,7 +379,8 @@ export class ReportUtilService {
         WHERE
           iasa.start_date IS NOT NULL AND
           iasa.start_date <= '${to}' AND
-          iasa.start_date >= '${from}'
+          iasa.start_date >= '${from}' AND
+          iasa.deleted_date IS NULL
         GROUP BY
           iasa.applicant_id, ias2.status
         ORDER BY
@@ -422,6 +426,7 @@ export class ReportUtilService {
           LEFT JOIN public.ien_applicant_status status ON status.id=ien_status.status_id
           WHERE
             ien_status.start_date::date <= '${to}' 
+            AND ien_status.deleted_date IS NULL
             AND status.category IN ('${StatusCategory.LICENSING_REGISTRATION}', '${
       StatusCategory.RECRUITMENT
     }')
@@ -442,6 +447,7 @@ export class ReportUtilService {
             CASE WHEN wha.status_id = '${statuses[STATUS.WITHDREW_FROM_PROGRAM]}' THEN (
               SELECT iasa.start_date FROM public.ien_applicant_status_audit iasa 
               WHERE
+                iasa.deleted_date IS NULL AND
                 iasa.applicant_id = wha.applicant_id AND iasa.status_id != '${
                   statuses[STATUS.WITHDREW_FROM_PROGRAM]
                 }' AND
@@ -460,7 +466,10 @@ export class ReportUtilService {
           id,
           ha_pcn_id,
           (SELECT status_id FROM public.ien_applicant_status_audit as status 
-            WHERE status.job_id=job.id AND start_date <= '${to}'
+            WHERE
+              status.job_id=job.id AND
+              status.deleted_date IS NULL AND
+              start_date <= '${to}'
             -- put new status restriction here
             ORDER BY start_date DESC, updated_date DESC limit 1) as status_id,
           applicant_id
@@ -469,7 +478,7 @@ export class ReportUtilService {
         WHERE job.applicant_id NOT IN (SELECT applicant_id FROM find_reactive_applicants)
         UNION ALL
         -- second query contain all the hired applicants final status.
-        -- It select a job competetion in which applicant hired and drop all the other ones
+        -- It select a job competition in which applicant hired and drop all the other ones
         SELECT
           job.id,
           job.ha_pcn_id,
@@ -556,9 +565,10 @@ export class ReportUtilService {
         FROM public.ien_applicant_status_audit as sa
         JOIN public.ien_applicant_jobs job ON sa.job_id=job.id
         JOIN public.ien_ha_pcn ha ON job.ha_pcn_id=ha.id
-        WHERE sa.status_id = '${
-          statuses[STATUS.JOB_OFFER_ACCEPTED]
-        }' AND sa.start_date::date <= '${to}'
+        WHERE
+          sa.status_id = '${statuses[STATUS.JOB_OFFER_ACCEPTED]}' AND
+          sa.start_date::date <= '${to}' AND
+          sa.deleted_date IS NULL
         GROUP BY sa.applicant_id, ha.abbreviation
       ),
       ha_status AS (
@@ -582,6 +592,7 @@ export class ReportUtilService {
                   '${statuses[STATUS.RECEIVED_WORK_PERMIT]}'
                   )
                 AND sa.start_date <= '${to}'
+                AND sa.deleted_date IS NULL
               ORDER BY sa.start_date DESC, sa.updated_date DESC
               LIMIT 1
             ) as status_id

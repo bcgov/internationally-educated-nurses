@@ -24,6 +24,7 @@ import { ReportCacheEntity } from 'src/report/entity/report-cache.entity';
 import { IENApplicantRecruiter } from '../applicant/entity/ienapplicant-employee.entity';
 import { IENApplicantActiveFlag } from 'src/applicant/entity/ienapplicant-active-flag.entity';
 import { Pathway } from '../applicant/entity/pathway.entity';
+import { MilestoneAuditEntity } from '../applicant/entity/milestone-audit.entity';
 
 const getEnvironmentSpecificConfig = (env?: string) => {
   switch (env) {
@@ -61,6 +62,7 @@ const getEnvironmentSpecificConfig = (env?: string) => {
           RoleEntity,
           SyncApplicantsAudit,
           ReportCacheEntity,
+          MilestoneAuditEntity,
         ],
         migrations: ['dist/migration/*.js'],
         logging: ['error', 'warn', 'migration'] as LoggerOptions,
