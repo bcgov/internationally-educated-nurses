@@ -332,16 +332,16 @@ export class ReportService {
             ]),
           };
 
-        case STATUS.REFERRED_TO_NCAS:
+        case STATUS.APPLIED_TO_NCAS:
           return {
             status: step,
             oldProcessApplicants: this.findAndSumStatusCounts(oldProcess, [
-              statuses[STATUS.REFERRED_TO_NCAS],
+              statuses[STATUS.APPLIED_TO_NCAS],
               statuses[STATUS.COMPLETED_CBA],
               statuses[STATUS.COMPLETED_SLA],
             ]),
             newProcessApplicants: this.findAndSumStatusCounts(newProcess, [
-              statuses[STATUS.REFERRED_TO_NCAS],
+              statuses[STATUS.APPLIED_TO_NCAS],
               statuses[STATUS.COMPLETED_CBA],
               statuses[STATUS.COMPLETED_SLA],
             ]),
@@ -668,7 +668,7 @@ export class ReportService {
    * BCCNM & NCAS
    *    Applied to BCCNM
    *    Completed English Language Requirement
-   *    Referred to NCAS
+   *    Applied to NCAS
    *    Completed Computer-Based Assessment (CBA)
    *    Completed Simulation Lab Assessment (SLA)
    *    Completed NCAS

@@ -344,7 +344,7 @@ The query consists of these subqueries.
 1. Received NNAS Report
 1. Applied to BCCNM
 1. Completed English Language Requirement
-1. Referred to NCAS
+1. Applied to NCAS
 1. Completed Computer-Based Assessment (CBA)
 1. Completed Simulation Lab Assessment (SLA)
 1. Completed NCAS

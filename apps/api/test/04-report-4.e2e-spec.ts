@@ -230,7 +230,7 @@ describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
 
   it('NCAS value increases on report for each status Completed CBA or Completed SLA', async () => {
     const { body: before } = await request(app.getHttpServer()).get(url);
-    const ncasBefore = reportFourNumberOfApplicants(before, STATUS.REFERRED_TO_NCAS, false);
+    const ncasBefore = reportFourNumberOfApplicants(before, STATUS.APPLIED_TO_NCAS, false);
 
     await addMilestone(applicantIdsOldProcess[3], '', await getStatus(STATUS.COMPLETED_CBA));
     await addMilestone(applicantIdsOldProcess[4], '', await getStatus(STATUS.COMPLETED_SLA));
@@ -242,7 +242,7 @@ describe('Report 4 - Number of IEN registrants in the licensing stage', () => {
     await updateCachedReport(updatedReport);
 
     const { body: after } = await request(app.getHttpServer()).get(url);
-    const ncasAfter = reportFourNumberOfApplicants(after, STATUS.REFERRED_TO_NCAS, false);
+    const ncasAfter = reportFourNumberOfApplicants(after, STATUS.APPLIED_TO_NCAS, false);
 
     expect(ncasBefore).toStrictEqual((+ncasAfter! - 2).toString());
   });

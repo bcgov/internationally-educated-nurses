@@ -15,7 +15,7 @@ export class DurationSummary {
   'BCCNM & NCAS': number;
   [STATUS.COMPLETED_LANGUAGE_REQUIREMENT]?: number;
   [STATUS.APPLIED_TO_BCCNM]?: number;
-  [STATUS.REFERRED_TO_NCAS]?: number;
+  [STATUS.APPLIED_TO_NCAS]?: number;
   [STATUS.COMPLETED_CBA]?: number;
   [STATUS.COMPLETED_SLA]?: number;
   [STATUS.COMPLETED_NCAS]?: number;
