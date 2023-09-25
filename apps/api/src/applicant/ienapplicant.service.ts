@@ -417,9 +417,9 @@ export class IENApplicantService {
       });
 
     if (!status) {
-      throw new NotFoundException(`Applicant's selected milestone/status not found`);
+      return;
     }
-    if (user_id != status.added_by?.id) {
+    if (status.added_by && user_id != status.added_by?.id) {
       throw new BadRequestException(`Requested milestone/status was added by different user`);
     }
 

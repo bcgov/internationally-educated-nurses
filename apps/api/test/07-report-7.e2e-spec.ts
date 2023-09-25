@@ -6,7 +6,7 @@ import { AppModule } from 'src/app.module';
 import { IENHaPcn } from 'src/applicant/entity/ienhapcn.entity';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { URLS } from './constants';
-import { canActivate } from './override-guard';
+import { mockAuthGuardAsSuper } from './override-guard';
 import { addApplicant, addJob, addMilestone, getHAs, setApp } from './report-request-util';
 import { ApplicantRO, STATUS } from '@ien/common';
 import { getApplicant, getIndexOfStatus } from './report-util';
@@ -28,7 +28,7 @@ describe('Report 7 - Registrants in Immigration Stage', () => {
       imports: [AppModule],
     })
       .overrideGuard(AuthGuard)
-      .useValue({ canActivate })
+      .useValue(mockAuthGuardAsSuper())
       .compile();
 
     app = moduleFixture.createNestApplication();

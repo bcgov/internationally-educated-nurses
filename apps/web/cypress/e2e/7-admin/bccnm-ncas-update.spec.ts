@@ -58,4 +58,17 @@ describe('Admin - BCCNM/NCAS Update', () => {
     cy.contains('button', 'Apply').click();
     cy.contains('2 applicants updated');
   });
+
+  it(`ignores milestones with a same date`, () => {
+    cy.contains('button', 'Upload').click();
+    cy.get('[aria-label=file-upload-dropzone]').selectFile(
+      ['cypress/fixtures/bccnm-ncas-updates.xlsx'],
+      { force: true },
+    );
+    cy.get('[data-cy=upload-file').click();
+
+    cy.contains('All (2)');
+    cy.contains('Invalid (2)');
+    cy.contains('button', 'Apply').should('be.disabled');
+  });
 });

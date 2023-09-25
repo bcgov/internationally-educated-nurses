@@ -13,8 +13,8 @@ export interface BccnmNcasValidation {
   id: string;
   dateOfRosContract?: string;
   message?: string;
-  ncasComplete?: boolean;
-  appliedToBccnm?: boolean;
+  ncasComplete?: string;
+  appliedToBccnm?: string;
   designation?: string;
   statusId?: string;
   name?: string;

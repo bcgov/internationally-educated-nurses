@@ -14,5 +14,17 @@ export class SyncApplicantsResultDTO {
   /**
    * number of applicants fetched from ATS
    */
-  count!: number;
+  result!: {
+    applicants: {
+      total: number;
+      processed: number;
+    };
+    milestones: {
+      total: number;
+      created: number;
+      updated: number;
+      dropped: number;
+      removed: number;
+    };
+  };
 }
