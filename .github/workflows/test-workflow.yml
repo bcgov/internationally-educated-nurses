@@ -1,6 +1,6 @@
 
 
-name: TEST - Deploy Apps
+name: TESTING TF CONFIG
 on:
   workflow_dispatch:
 
