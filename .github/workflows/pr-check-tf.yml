@@ -1,63 +1,63 @@
-name: Terraform PR Checks
-on:
-  pull_request:
-    paths:
-      - 'terraform/**'
-env:
-  TF_VERSION: 1.1.1
+# name: Terraform PR Checks
+# on:
+#   pull_request:
+#     paths:
+#       - 'terraform/**'
+# env:
+#   TF_VERSION: 1.1.1
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    concurrency: ci-${{ github.ref }}-tf
-    env:
-      CLOUDFRONT_ID: '${{ secrets.CLOUDFRONT_ID }}'
-    steps:
-      - name: checkout
-        uses: actions/checkout@v3
-      - name: setup node v16
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+#     timeout-minutes: 20
+#     concurrency: ci-${{ github.ref }}-tf
+#     env:
+#       CLOUDFRONT_ID: '${{ secrets.CLOUDFRONT_ID }}'
+#     steps:
+#       - name: checkout
+#         uses: actions/checkout@v3
+#       - name: setup node v16
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: 16
 
-      - uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: ${{ env.TF_VERSION }}
-          cli_config_credentials_token: ${{ secrets.TFC_TEAM_TOKEN }}
+#       - uses: hashicorp/setup-terraform@v2
+#         with:
+#           terraform_version: ${{ env.TF_VERSION }}
+#           cli_config_credentials_token: ${{ secrets.TFC_TEAM_TOKEN }}
 
-      - name: Terraform Init
-        run: make init
+#       - name: Terraform Init
+#         run: make init
 
-      - name: Terraform Plan
-        id: plan
-        run: make plan
-        continue-on-error: true
+#       - name: Terraform Plan
+#         id: plan
+#         run: make plan
+#         continue-on-error: true
 
-      # From:
-      # https://github.com/hashicorp/setup-terraform#usage
+#       # From:
+#       # https://github.com/hashicorp/setup-terraform#usage
 
-      - name: Show Plan on PR
-        uses: actions/github-script@v6
-        if: github.rest.event_name == 'pull_request'
-        env:
-          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const output = `#### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+#       - name: Show Plan on PR
+#         uses: actions/github-script@v6
+#         if: github.rest.event_name == 'pull_request'
+#         env:
+#           PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+#         with:
+#           github-token: ${{ secrets.GITHUB_TOKEN }}
+#           script: |
+#             const output = `#### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
 
-            <details><summary>Show Plan</summary>
+#             <details><summary>Show Plan</summary>
 
-            \`\`\`\n
-            ${process.env.PLAN}
-            \`\`\`
+#             \`\`\`\n
+#             ${process.env.PLAN}
+#             \`\`\`
 
-            </details>`;
+#             </details>`;
               
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: output
-            })
+#             github.rest.issues.createComment({
+#               issue_number: context.issue.number,
+#               owner: context.repo.owner,
+#               repo: context.repo.repo,
+#               body: output
+#             })
