@@ -86,6 +86,7 @@ build_id = "$(COMMIT_SHA)"
 build_info = "$(LAST_COMMIT_MESSAGE)"
 tf_state_s3_bucket = "terraform-remote-state-${LZ2_PROJECT}-${ENV_NAME}"
 dynamodb_table = "terraform-remote-state-lock-${LZ2_PROJECT}"
+target_aws_account_id = "${AWS_ACCOUNT_ID}"
 endef
 export TFVARS_DATA
 
