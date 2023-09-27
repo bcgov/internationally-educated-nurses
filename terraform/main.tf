@@ -5,9 +5,12 @@ terraform {
       version = "3.49.0"
     }
   }
-
-  backend "remote" {
-    required_version = "0.14.7"
+  backend "s3" {
+    bucket         = "terraform-remote-state-uux0vy-test"
+    key            = ".terraform/terraform.tfstate"
+    region         = "ca-central-1"
+    dynamodb_table = "terraform-remote-state-lock-uux0vy"
+    encrypt        = true    
   }
 }
 
@@ -37,7 +40,6 @@ locals {
   sync_applicant_data_scheduler  = "${local.namespace}-hmbc-to-ien-applicants"
   notify_lambda_name  = "${local.namespace}-notifylambda"
   cache_reports_lambda_name  = "${local.namespace}-cache-reports"
-
   db_name = "${local.namespace}-db"
 
   has_domain = var.domain != ""

@@ -84,6 +84,8 @@ ches_client_id = "$(CHES_CLIENT_ID)"
 mail_from = "$(MAIL_FROM)"
 build_id = "$(COMMIT_SHA)"
 build_info = "$(LAST_COMMIT_MESSAGE)"
+tf_state_s3_bucket = "terraform-remote-state-${LZ2_PROJECT}-${ENV_NAME}"
+dynamodb_table = "terraform-remote-state-lock-${LZ2_PROJECT}"
 endef
 export TFVARS_DATA
 
@@ -296,13 +298,12 @@ build-common:
 
 write-config-tf:
 	@echo "$$TFVARS_DATA" > $(TERRAFORM_DIR)/.auto.tfvars
-	@echo "$$TF_BACKEND_CFG" > $(TERRAFORM_DIR)/backend.hcl
 
 init: write-config-tf
 	# Initializing the terraform environment
 	@terraform -chdir=$(TERRAFORM_DIR) init -input=false \
 		-reconfigure \
-		-backend-config=backend.hcl -upgrade
+		-upgrade
 
 plan: init
 	# Creating all AWS infrastructure.
