@@ -1,4 +1,5 @@
 name: Terraform PR Checks
+on:
   pull_request:
     paths:
       - 'terraform/**'
