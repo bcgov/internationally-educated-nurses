@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'terraform/**'
+      - 'Makefile'
 
 
 env:
