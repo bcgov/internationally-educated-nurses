@@ -303,6 +303,7 @@ init: write-config-tf
 	# Initializing the terraform environment
 	@terraform -chdir=$(TERRAFORM_DIR) init -input=false \
 		-reconfigure \
+		-backend-config=backend.hcl \
 		-upgrade
 
 plan: init
