@@ -84,8 +84,6 @@ ches_client_id = "$(CHES_CLIENT_ID)"
 mail_from = "$(MAIL_FROM)"
 build_id = "$(COMMIT_SHA)"
 build_info = "$(LAST_COMMIT_MESSAGE)"
-tf_state_s3_bucket = "terraform-remote-state-${LZ2_PROJECT}-${ENV_NAME}"
-dynamodb_table = "terraform-remote-state-lock-${LZ2_PROJECT}"
 target_aws_account_id = "${AWS_ACCOUNT_ID}"
 endef
 export TFVARS_DATA
@@ -96,9 +94,9 @@ LZ2_PROJECT = uux0vy
 
 # Terraform Cloud backend config variables
 define TF_BACKEND_CFG
-workspaces { name = "$(LZ2_PROJECT)-$(ENV_NAME)" }
-hostname     = "app.terraform.io"
-organization = "bcgov"
+bucket = "terraform-remote-state-${LZ2_PROJECT}-${ENV_NAME}"
+key = ".terraform/terraform.tfstate"
+dynamodb_table ="terraform-remote-state-lock-${LZ2_PROJECT}"
 endef
 export TF_BACKEND_CFG
 
@@ -299,6 +297,7 @@ build-common:
 
 write-config-tf:
 	@echo "$$TFVARS_DATA" > $(TERRAFORM_DIR)/.auto.tfvars
+	@echo "$$TF_BACKEND_CFG" > $(TERRAFORM_DIR)/backend.hcl
 
 init: write-config-tf
 	# Initializing the terraform environment

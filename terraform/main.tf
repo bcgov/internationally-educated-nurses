@@ -5,13 +5,6 @@ terraform {
       version = "3.49.0"
     }
   }
-  backend "s3" {
-    bucket         = "terraform-remote-state-uux0vy-test"
-    key            = ".terraform/terraform.tfstate"
-    region         = "ca-central-1"
-    dynamodb_table = "terraform-remote-state-lock-uux0vy"
-    encrypt        = true    
-  }
 }
 
 provider "aws" {
