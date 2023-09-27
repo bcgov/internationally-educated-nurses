@@ -1,8 +1,7 @@
-
-
-name: TESTING TF CONFIG
-on:
-  workflow_dispatch:
+name: Terraform PR Checks
+  pull_request:
+    paths:
+      - 'terraform/**'
 
 
 env:
@@ -47,5 +46,11 @@ jobs:
           role-session-name: samplerolesession
           aws-region: ca-central-1
 
+      # - uses: hashicorp/setup-terraform@v2
+      #   with:
+      #     terraform_version: ${{ env.TF_VERSION }}
+      #     cli_config_credentials_token: ${{ secrets.TFC_TEAM_TOKEN }}
+
       - name: Setup Infra
         run: make plan
+
