@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'terraform/**'
+      - 'Makefile'
 
 env:
   TF_VERSION: 1.1.1
