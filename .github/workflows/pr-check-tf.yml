@@ -50,5 +50,5 @@ jobs:
           aws-region: ca-central-1
 
       - name: Setup Infra
-        run: make plan
+        run: make apply
 
