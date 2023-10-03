@@ -29,6 +29,7 @@ export TFCTK:=$(shell cat ~/.terraform.d/credentials.tfrc.json | jq -r '.credent
 # FE Env Vars
 export NEXT_PUBLIC_API_URL ?= /api/v1
 export NEXT_PUBLIC_AUTH_REALM ?= moh_applications
+export NEXT_PUBLIC_AUTH_CLIENTID ?= IEN
 
 # Docker container names
 LOCAL_API_CONTAINER_NAME = $(PROJECT)_api
@@ -46,26 +47,25 @@ export BOOTSTRAP_ENV=terraform/bootstrap
 
 
 ifeq ($(ENV_NAME), prod)
-DOMAIN=ien.gov.bc.ca
-NEXT_PUBLIC_AUTH_URL=https://common-logon.hlth.gov.bc.ca/auth
-BASTION_INSTANCE_ID = $(BASTION_INSTANCE_ID_PROD)
-DB_HOST = $(DB_HOST_PROD)
-BASTION_INSTANCE_ID = $(BASTION_INSTANCE_ID_PROD)
+export DOMAIN=ien.gov.bc.ca
+export NEXT_PUBLIC_AUTH_URL=https://common-logon.hlth.gov.bc.ca/auth
+export BASTION_INSTANCE_ID = $(BASTION_INSTANCE_ID_PROD)
+export DB_HOST = $(DB_HOST_PROD)
+export BASTION_INSTANCE_ID = $(BASTION_INSTANCE_ID_PROD)
 endif
 
 ifeq ($(ENV_NAME), dev) 
-DOMAIN=dev.ien.freshworks.club
-NEXT_PUBLIC_AUTH_URL ?= https://keycloak.freshworks.club/auth
-NEXT_PUBLIC_AUTH_REALM = ien
-BASTION_INSTANCE_ID = $(BASTION_INSTANCE_ID_DEV)
-DB_HOST = $(DB_HOST_DEV)
+export DOMAIN=dev.ien.freshworks.club
+export NEXT_PUBLIC_AUTH_URL=https://common-logon-dev.hlth.gov.bc.ca/auth
+export BASTION_INSTANCE_ID=$(BASTION_INSTANCE_ID_DEV)
+export DB_HOST=$(DB_HOST_DEV)
 endif
 
 ifeq ($(ENV_NAME), test) 
-DOMAIN=test.ien.freshworks.club
-NEXT_PUBLIC_AUTH_URL = https://common-logon-test.hlth.gov.bc.ca/auth
-BASTION_INSTANCE_ID = $(BASTION_INSTANCE_ID_TEST)
-DB_HOST = $(DB_HOST_TEST)
+export DOMAIN=test.ien.freshworks.club
+export NEXT_PUBLIC_AUTH_URL=https://common-logon-test.hlth.gov.bc.ca/auth
+export BASTION_INSTANCE_ID=$(BASTION_INSTANCE_ID_TEST)
+export DB_HOST=$(DB_HOST_TEST)
 endif
 
 export MAIL_FROM = IENDoNotReply@$(DOMAIN)
