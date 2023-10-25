@@ -197,6 +197,9 @@ start-keycloak:
 stop-keycloak:
 	docker-compose -f ./docker-compose.test.yaml down keycloak
 
+format:
+	@yarn format:write
+
 api-integration-test:
 	@make start-test-db
 	@echo "++\n***** Running API integration tests\n++"
