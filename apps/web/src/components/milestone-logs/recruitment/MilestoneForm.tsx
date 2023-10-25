@@ -237,7 +237,7 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
                 </div>
               </div>
               {outcome?.status === STATUS.JOB_OFFER_ACCEPTED && (
-                <div>
+                <div className='mb-5'>
                   <Radio
                     name='type'
                     legend='Type'

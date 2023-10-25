@@ -23,7 +23,7 @@ export const Radio: RadioType = ({ legend, name, options, horizontal }) => {
   const { [name]: value } = values;
 
   return (
-    <fieldset className='flex flex-col gap-4'>
+    <fieldset>
       <legend className='text-bcGray font-bold mb-2'>{legend}</legend>
       <div
         className={classnames(
