@@ -748,6 +748,7 @@ export class ReportUtilService {
       `(SELECT string_agg(trim(x::text, '"'), ',')
          FROM jsonb_array_elements(a.country_of_citizenship::jsonb) AS x
        ) AS "Country of Citizenship"`,
+      'p.name AS "Pathway"',
       `(SELECT string_agg(replace(ias.status, 'Applicant Referred to', ''), ',') 
          FROM ien_applicant_status_audit sa
          INNER JOIN ien_applicant_status ias ON ias.id = sa.status_id
@@ -765,6 +766,7 @@ export class ReportUtilService {
       WHERE t.applicant_id=a.id
       GROUP by t.applicant_id)
       ) as x("applicant_id" uuid, ${milestone_ids.join(',')}) ON x.applicant_id=a.id
+    LEFT JOIN public.pathway p on a.pathway_id = p.id
     WHERE a.registration_date::date >= '${from}' AND a.registration_date::date <= '${to}'
     ORDER BY a.registration_date DESC
     `;
@@ -779,6 +781,7 @@ export class ReportUtilService {
       applicant.pr_status "PR Status",
       CAST (applicant.nursing_educations as text) "Nursing Education",
       CAST (applicant.country_of_citizenship as text) "Country of Citizenship",
+      pathway.name as "Pathway",
       ien_ha_pcn.abbreviation "Health Authority",
       ien_applicant_status.status "Milestone",
       milestone.type "Type",
@@ -799,6 +802,8 @@ export class ReportUtilService {
         ON job.id = milestone.job_id
       LEFT JOIN ien_ha_pcn 
         ON job.ha_pcn_id = ien_ha_pcn.id
+      LEFT JOIN pathway
+        ON pathway.id = applicant.pathway_id
     WHERE milestone.start_date::date >= '${from}' 
       AND milestone.start_date::date <= '${to}'
       AND ien_applicant_status.version = '2'
