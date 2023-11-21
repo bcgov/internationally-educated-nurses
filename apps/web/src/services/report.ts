@@ -4,9 +4,8 @@ import dayjs from 'dayjs';
 import { utils, WorkBook, WorkSheet } from 'xlsx-js-style';
 import { toast } from 'react-toastify';
 
-import { MILESTONES, Period, PeriodFilter } from '@ien/common';
+import { isoCountries, MILESTONES, Period, PeriodFilter } from '@ien/common';
 import { convertToParams, notifyError } from '../utils';
-import { isoCountries } from './constants';
 
 const bold = { bold: true };
 const fgColor = { rgb: 'e6f2ff' };

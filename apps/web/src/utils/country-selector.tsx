@@ -1,6 +1,7 @@
 import { FieldProps, getSelectStyleOverride, Input } from '@components';
 import ReactSelect, { MenuPlacement } from 'react-select';
-import { isoCountries, RecordTypeOptions } from '@services';
+import { isoCountries } from '@ien/common';
+import { RecordTypeOptions } from '@services';
 
 export const getCountries = (): RecordTypeOptions<number>[] => {
   return Object.keys(isoCountries).map((key: string, index: number) => ({

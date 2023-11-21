@@ -20,12 +20,13 @@ describe('Admin - BCCNM/NCAS Update', () => {
     cy.contains('button', 'Apply');
 
     // filter
-    cy.contains('All (4)');
+    cy.contains('All (5)');
     cy.contains('No changes (0)');
     cy.contains('Valid (2)');
 
     // validate messages
-    cy.get('.text-bcRedError').should('have.length', 2);
+    cy.get('.text-bcRedError').should('have.length', 3);
+    cy.contains('td', 'Invalid country code');
     cy.contains('td', 'Applicant not found');
     cy.contains('td', 'No updates');
 

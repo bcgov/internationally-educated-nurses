@@ -600,4 +600,29 @@ export class IENApplicantService {
     }
     return await this.recruiterRepository.save(recruiterAssignment);
   }
+
+  /**
+   * @param applicantId
+   * @param countryOfEducation
+   * @return -1 no change, 0 update, 1 create
+   */
+  async addEducationCountry(applicantId: string, countryOfEducation: string) {
+    const applicant = await this.getApplicantById(applicantId);
+    const nursing_educations =
+      applicant.nursing_educations?.filter(e => e.source !== 'BCCNM') ?? [];
+
+    if (
+      nursing_educations.some(e => e.country?.toLowerCase() === countryOfEducation.toLowerCase())
+    ) {
+      return -1; // no change
+    }
+
+    nursing_educations.push({
+      name: 'Diploma/Certificate of Nursing',
+      country: countryOfEducation.toLowerCase(),
+      source: 'BCCNM',
+    });
+    await this.ienapplicantRepository.update(applicantId, { nursing_educations });
+    return nursing_educations.length === applicant.nursing_educations?.length ? 0 : 1;
+  }
 }

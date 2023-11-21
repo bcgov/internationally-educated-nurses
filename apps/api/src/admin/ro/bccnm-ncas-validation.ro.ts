@@ -15,7 +15,7 @@ export class BccnmNcasValidationRO implements BccnmNcasValidation {
   @ApiModelProperty({
     description: `The date of the signature of ROS(return of service)`,
   })
-  dateOfRosContract!: string;
+  dateOfRosContract?: string;
 
   @ApiModelProperty({
     description: 'Full name',
@@ -36,6 +36,11 @@ export class BccnmNcasValidationRO implements BccnmNcasValidation {
     description: 'Registration designation',
   })
   designation!: string;
+
+  @ApiModelProperty({
+    description: `Country of Education`,
+  })
+  countryOfEducation?: string;
 
   @ApiModelProperty({
     description: 'Validation result of ROS',
