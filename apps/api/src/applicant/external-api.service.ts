@@ -35,7 +35,7 @@ import { IENHaPcn } from './entity/ienhapcn.entity';
 import { IENStatusReason } from './entity/ienstatus-reason.entity';
 import { IENJobTitle } from './entity/ienjobtitles.entity';
 import { IENApplicantStatus } from './entity/ienapplicant-status.entity';
-import { ApplicantSyncRO } from './ro/sync.ro';
+import { ApplicantSyncRO, MilestoneSync } from './ro/sync.ro';
 import { isNewBCCNMProcess } from 'src/common/util';
 
 @Injectable()
@@ -717,7 +717,34 @@ export class ExternalAPIService {
       return {
         id: result.id,
         updated_date: result.updated_date,
-        milestone_statuses: result.applicant_status_audit,
+        milestone_statuses: result.applicant_status_audit.map(m => {
+          const milestone: MilestoneSync = {
+            ..._.pick(m, ['id', 'start_date', 'created_date', 'updated_date']),
+            status: m.status.id,
+            additional_data: null,
+          };
+          if (m.job) {
+            milestone.additional_data = {
+              job: _.pick(m.job, [
+                'id',
+                'job_id',
+                'job_post_date',
+                'created_date',
+                'updated_date',
+                'ha_pcn',
+              ]),
+              reason: m.reason?.id ?? '',
+              added_by: m.added_by
+                ? _.pick(m.added_by, ['id', 'name', 'email', 'user_id'])
+                : undefined,
+              updated_by: m.updated_by
+                ? _.pick(m.added_by, ['id', 'name', 'email', 'user_id'])
+                : undefined,
+              ..._.pick(m, ['effective_date', 'reason_other', 'type', 'notes']),
+            };
+          }
+          return milestone;
+        }),
       };
     });
   }
