@@ -9,6 +9,7 @@ import { OfferAcceptedBanner } from './OfferAcceptedBanner';
 import { RecruiterAssignment } from './RecruiterAssignment';
 import { ToggleSwitch } from '../ToggleSwitch';
 import { useAuthContext } from '../AuthContexts';
+import { getApplicantEducations } from '../../utils/applicant-utils';
 
 export const ApplicantProfile = () => {
   const { authUser } = useAuthContext();
@@ -73,16 +74,7 @@ export const ApplicantProfile = () => {
             text={convertCountryCode(applicant?.country_of_residence?.toUpperCase())}
           />
           <DetailsItem title='Immigration Status' text={applicant?.pr_status} />
-          <DetailsItem
-            title='Nursing Education'
-            text={
-              applicant?.nursing_educations &&
-              applicant?.nursing_educations
-                .filter(e => e.name !== '')
-                .map(n => n.name)
-                .join(', ')
-            }
-          />
+          <DetailsItem title='Nursing Education' text={getApplicantEducations(applicant)} />
           <DetailsItem title='Assigned To'>
             <div className='pt-2'>
               <span className='border border-gray-200 bg-bcGrayLabel text-white rounded text-xs px-2 py-0.5 mr-1'>
