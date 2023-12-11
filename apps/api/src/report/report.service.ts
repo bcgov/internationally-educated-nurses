@@ -1,6 +1,6 @@
 import { Inject, Logger } from '@nestjs/common';
 import { mean, median, min, mode, round } from 'mathjs';
-import { getManager, Repository, In, getRepository } from 'typeorm';
+import { getManager, Repository, In, getRepository, Not } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import dayjs from 'dayjs';
 import _ from 'lodash';
@@ -11,7 +11,14 @@ import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantStatus } from 'src/applicant/entity/ienapplicant-status.entity';
 import { startDateOfFiscal } from 'src/common/util';
 import { ReportCacheEntity } from './entity/report-cache.entity';
-import { Authorities, IenType, ReportPeriodDTO, STATUS, StatusCategory } from '@ien/common';
+import {
+  Authorities,
+  IenType,
+  PATHWAYS,
+  ReportPeriodDTO,
+  STATUS,
+  StatusCategory,
+} from '@ien/common';
 import { DurationEntry, DurationSummary, MilestoneTableEntry } from './types';
 
 export const PERIOD_START_DATE = '2022-05-02';
@@ -779,6 +786,7 @@ export class ReportService {
           StatusCategory.LICENSING_REGISTRATION,
           StatusCategory.BC_PNP,
         ]),
+        status: Not(In(PATHWAYS)),
         version: '2',
       },
     });
