@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString, Max, Min, ValidateIf } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min, ValidateIf } from 'class-validator';
 import { NursingEducation } from '../interfaces';
 
 export class NursingEducationDTO implements NursingEducation {
@@ -19,7 +19,7 @@ export class NursingEducationDTO implements NursingEducation {
   @IsNumber()
   @IsNotEmpty({ message: 'Year is required' })
   @ValidateIf(({ name }) => !!name && name !== 'undefined')
-  year!: number;
+  year?: number;
 
   @IsString()
   @IsNotEmpty({ message: 'Country is required' })
@@ -30,5 +30,9 @@ export class NursingEducationDTO implements NursingEducation {
   @IsNumber()
   @IsNotEmpty({ message: 'Number of Years is required' })
   @ValidateIf(({ name }) => !!name && name !== 'undefined')
-  num_years!: number;
+  num_years?: number;
+
+  @IsOptional()
+  @IsString()
+  source?: string;
 }

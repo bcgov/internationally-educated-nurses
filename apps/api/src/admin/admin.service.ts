@@ -3,7 +3,7 @@ import { In, Repository } from 'typeorm';
 import _ from 'lodash';
 import dayjs from 'dayjs';
 import { Inject, InternalServerErrorException, Logger } from '@nestjs/common';
-import { BccnmNcasUpdate, EmployeeRO, STATUS, UserGuide } from '@ien/common';
+import { BccnmNcasUpdate, EmployeeRO, isoCountries, STATUS, UserGuide } from '@ien/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AppLogger } from '../common/logger.service';
 import { BccnmNcasUpdateRO, BccnmNcasValidationRO } from './ro';
@@ -153,6 +153,7 @@ export class AdminService {
       designation: update['Registration Designation'] ?? '',
       appliedToBccnm: undefined,
       ncasComplete: undefined,
+      countryOfEducation: update['Country of Education'] ?? '',
       valid: false,
       message: '',
     };
@@ -187,7 +188,7 @@ export class AdminService {
             !ros.notes?.includes('Updated by BCCNM') ||
             dayjs(v.dateOfRosContract).isSame(ros.start_date)
           ) {
-            v.dateOfRosContract = ''; // do not overwrite ROS milestone set by ATS
+            v.dateOfRosContract = undefined; // do not overwrite ROS milestone set by ATS
           } else {
             v.statusId = ros.id;
           }
@@ -204,13 +205,34 @@ export class AdminService {
     ) {
       v.appliedToBccnm = undefined;
     }
+
     if (
       v.ncasComplete &&
       applicant.applicant_status_audit.find(s => s.status.status === STATUS.COMPLETED_NCAS)
     ) {
       v.ncasComplete = undefined;
     }
-    if (!v.appliedToBccnm && !v.ncasComplete && !v.dateOfRosContract) {
+
+    if (v.countryOfEducation) {
+      if (!isoCountries[v.countryOfEducation.toUpperCase() as keyof typeof isoCountries]) {
+        v.message = `Invalid country code: ${v.countryOfEducation}`;
+        v.countryOfEducation = undefined;
+      } else if (
+        applicant.nursing_educations?.some(
+          e => e.country?.toLowerCase() === v.countryOfEducation?.toLowerCase(),
+        )
+      ) {
+        v.countryOfEducation = undefined;
+      }
+    }
+
+    if (
+      !v.appliedToBccnm &&
+      !v.ncasComplete &&
+      !v.dateOfRosContract &&
+      !v.countryOfEducation &&
+      !v.message
+    ) {
       v.message = 'No updates';
     }
 
@@ -278,6 +300,18 @@ export class AdminService {
           };
           await this.applicantService.addApplicantStatus(user, update.applicantId, ncasComplete);
           created += 1;
+        }
+
+        if (update.countryOfEducation) {
+          const result = await this.applicantService.addEducationCountry(
+            update.applicantId,
+            update.countryOfEducation,
+          );
+          if (result === 1) {
+            created += 1;
+          } else if (result === 0) {
+            updated += 1;
+          }
         }
 
         response.created += created;

@@ -54,8 +54,8 @@ export function isNewBCCNMProcess(registration_date: string | Date | undefined) 
   return dayjs(registration_date).isAfter(OLD_BCCNM_PROCESS_CUT_OFF_DATE);
 }
 
-export function getDateFromCellValue(value: number | string): string {
-  if (!value) return '';
+export function getDateFromCellValue(value: number | string): string | undefined {
+  if (!value) return;
 
   if (typeof value === 'number') {
     // 25568 -> number of days from 1990 to epoch at PST
@@ -65,7 +65,7 @@ export function getDateFromCellValue(value: number | string): string {
     return dayjs().format('YYYY-MM-DD');
   }
   if (value.trim().toLowerCase() === 'no') {
-    return '';
+    return;
   }
   if (dayjs(value).isValid()) {
     return dayjs(value).format('YYYY-MM-DD');

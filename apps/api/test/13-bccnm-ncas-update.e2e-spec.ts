@@ -47,7 +47,7 @@ describe('BCCNM/NCAS Updates', () => {
 
     const between: [string, string] = ['2020-01-01', '2021-01-01'];
     await Promise.all(
-      Array(4)
+      Array(6)
         .fill(0)
         .map(async () => {
           const dto = getApplicant({ between });
@@ -62,6 +62,7 @@ describe('BCCNM/NCAS Updates', () => {
               'NCAS Assessment Complete': 'Yes',
               'BCCNM Application Complete': 'Yes',
               'Registration Designation': 'BCCNM Provisional Licence LPN',
+              'Country of Education': 'kr',
               'Date ROS Contract Signed': dayjs(
                 faker.date.between(applicant.registration_date ?? between[0], between[1]),
               ).format('YYYY-MM-DD'),
@@ -74,10 +75,11 @@ describe('BCCNM/NCAS Updates', () => {
     );
 
     // make two rows invalid
-    dataToCreate.slice(2).forEach(v => {
+    dataToCreate.slice(4).forEach(v => {
       v['Date ROS Contract Signed'] = '';
       v['BCCNM Application Complete'] = 'No';
       v['NCAS Assessment Complete'] = '';
+      v['Country of Education'] = '';
     });
 
     dataToUpdate.push(
@@ -101,9 +103,9 @@ describe('BCCNM/NCAS Updates', () => {
   it('1 - Validates BCCNM/NCAS update data', async () => {
     const data = await app.get(AdminService).validateBccnmNcasUpdates(dataToCreate);
 
-    expect(data.length).toBe(4);
+    expect(data.length).toBe(6);
     expect(data.filter(r => r.message === 'No updates').length).toBe(2);
-    expect(data.filter(r => r.valid).length).toBe(2);
+    expect(data.filter(r => r.valid).length).toBe(4);
     expect(data.filter(r => !r.valid).length).toBe(2);
   });
 
@@ -113,7 +115,7 @@ describe('BCCNM/NCAS Updates', () => {
       .post('/admin/apply-bccnm-ncas-updates')
       .send({ data: data.filter(v => v.valid) });
     const { created, updated, ignored } = response.body;
-    expect(created).toBe(6);
+    expect(created).toBe(16);
     expect(updated).toBe(0);
     expect(ignored).toBe(0);
     await validateMilestone(
@@ -139,8 +141,8 @@ describe('BCCNM/NCAS Updates', () => {
   it('3 - Validates BCCNM/NCAS update data just with updates', async () => {
     const data = await app.get(AdminService).validateBccnmNcasUpdates(dataToUpdate);
 
-    expect(data.length).toBe(4);
+    expect(data.length).toBe(6);
     expect(data.filter(r => r.message === 'No updates').length).toBe(3);
-    expect(data.filter(r => r.valid).length).toBe(1);
+    expect(data.filter(r => r.valid).length).toBe(3);
   });
 });

@@ -40,8 +40,8 @@ export class BccnmNcasUpdateItemDTO implements BccnmNcasValidation {
   @ApiModelProperty({
     description: 'BCCNM Application Complete',
   })
-  @IsDateString()
   @IsOptional()
+  @IsDateString()
   appliedToBccnm?: string;
 
   @ApiModelProperty({
@@ -49,6 +49,12 @@ export class BccnmNcasUpdateItemDTO implements BccnmNcasValidation {
   })
   @IsString()
   designation?: string;
+
+  @ApiModelProperty({
+    description: `Country of Education`,
+  })
+  @IsString()
+  countryOfEducation?: string;
 
   @ApiModelProperty({
     description: 'ID of current "Signed Return of Service Agreement" milestone',

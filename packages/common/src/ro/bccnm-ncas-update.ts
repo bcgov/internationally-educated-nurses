@@ -6,6 +6,7 @@ export interface BccnmNcasUpdate {
   'NCAS Assessment Complete': string;
   'BCCNM Application Complete': string;
   'Registration Designation'?: string;
+  'Country of Education': string;
   Email?: string;
 }
 
@@ -16,6 +17,7 @@ export interface BccnmNcasValidation {
   ncasComplete?: string;
   appliedToBccnm?: string;
   designation?: string;
+  countryOfEducation?: string;
   statusId?: string;
   name?: string;
   valid?: boolean;
