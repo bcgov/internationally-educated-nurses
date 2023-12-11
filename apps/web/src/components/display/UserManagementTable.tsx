@@ -72,7 +72,7 @@ export const UserManagementTable = (props: UserManagementProps) => {
           {loading ? (
             <tr className='text-left shadow-xs whitespace-nowrap even:bg-bcLightGray text-sm'>
               <td colSpan={4} className='h-64'>
-                <Spinner className='h-10' relative />
+                <Spinner size='1x' relative />
               </td>
             </tr>
           ) : (

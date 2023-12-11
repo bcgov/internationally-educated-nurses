@@ -117,7 +117,7 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
   };
   return (
     <ApplicantContext.Provider value={value}>
-      {loading && !applicant.id ? <Spinner className='h-10' /> : children}
+      {loading && !applicant.id ? <Spinner size='2x' /> : children}
     </ApplicantContext.Provider>
   );
 };

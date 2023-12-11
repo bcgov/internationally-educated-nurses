@@ -1,16 +1,15 @@
-import { useAuthContext } from './AuthContexts';
-import downArrowIcon from '@assets/img/down_arrow.svg';
 import { useState } from 'react';
-import { useKeycloak } from '@react-keycloak/ssr';
-import { KeycloakInstance } from 'keycloak-js';
+import { useAuth } from 'react-oidc-context';
+import downArrowIcon from '@assets/img/down_arrow.svg';
+import { useAuthContext } from './AuthContexts';
 import { Button } from './Button';
 
 const HIDE_MENU_DELAY = 200;
 
 export const UserDropdown = () => {
   const { authUser } = useAuthContext();
-  const { keycloak } = useKeycloak<KeycloakInstance>();
 
+  const { signoutRedirect } = useAuth();
   const [showMenu, setShowMenu] = useState(false);
 
   const hideMenu = () => {
@@ -21,13 +20,12 @@ export const UserDropdown = () => {
 
   const logout = () => {
     let redirectUri = window.location.origin;
-    if (keycloak?.authServerUrl?.includes('common-logon-test')) {
+    if (process.env.NEXT_PUBLIC_AUTH_URL?.includes('common-logon-test')) {
       redirectUri = `https://logontest7.gov.bc.ca/clp-cgi/logoff.cgi?retnow=1&returl=${redirectUri}`;
-    } else if (keycloak?.authServerUrl?.includes('common-logon')) {
+    } else if (process.env.NEXT_PUBLIC_AUTH_URL?.includes('common-logon')) {
       redirectUri = `https://logon7.gov.bc.ca/clp-cgi/logoff.cgi?retnow=1&returl=${redirectUri}`;
     }
-
-    keycloak?.logout({ redirectUri });
+    signoutRedirect({ post_logout_redirect_uri: redirectUri });
   };
 
   return (

@@ -1,15 +1,13 @@
-import { SSRKeycloakProvider, SSRCookies, useKeycloak } from '@react-keycloak/ssr';
 import axios from 'axios';
 import Head from 'next/head';
 import { ToastContainer } from 'react-toastify';
 import type { AppProps } from 'next/app';
-import cookie from 'cookie';
-import { KeycloakInstance } from 'keycloak-js';
 import { CachePolicies, Provider } from 'use-http';
-import { AuthClientTokens } from '@react-keycloak/core/lib/types';
-import { PropsWithChildren, ReactNode } from 'react';
+import React, { PropsWithChildren, ReactNode, useEffect, useState } from 'react';
+import { AuthProvider as OidcAuthProvider, AuthProviderProps, useAuth } from 'react-oidc-context';
+import { User } from 'oidc-client-ts';
 
-import { Footer, Header, MenuBar } from '@components';
+import { Footer, Header, MenuBar, Spinner } from '@components';
 import { AuthProvider } from 'src/components/AuthContexts';
 import { Maintenance } from '../components/Maintenance';
 
@@ -19,36 +17,37 @@ import '../styles/globals.css';
 
 axios.defaults.baseURL = process.env.NEXT_PUBLIC_API_URL;
 
-const keycloakConfig = {
-  realm: process.env.NEXT_PUBLIC_AUTH_REALM || 'moh_applications',
-  url: process.env.NEXT_PUBLIC_AUTH_URL || 'https://common-logon-dev.hlth.gov.bc.ca/auth',
-  clientId: process.env.NEXT_PUBLIC_AUTH_CLIENTID || 'IEN',
-};
-
 function App({ Component, pageProps }: AppProps) {
-  const handleTokens = (tokens: AuthClientTokens) => {
-    axios.defaults.headers.common['Authorization'] = `Bearer ${tokens.token}`;
-  };
+  const [oidcConfig, setOidcConfig] = useState<AuthProviderProps>();
+
+  useEffect(() => {
+    setOidcConfig({
+      authority: `${process.env.NEXT_PUBLIC_AUTH_URL}/realms/${process.env.NEXT_PUBLIC_AUTH_REALM}`,
+      client_id: process.env.NEXT_PUBLIC_AUTH_CLIENTID ?? 'IEN',
+      redirect_uri: window.origin,
+      onSigninCallback: (user: User | void) => {
+        if (user) {
+          axios.defaults.headers.common['Authorization'] = `Bearer ${user.access_token}`;
+        }
+      },
+    });
+  }, []);
 
   if (process.env.NEXT_PUBLIC_MAINTENANCE) {
     return <Maintenance />;
   }
+
+  if (!oidcConfig) {
+    return <Spinner size='2x' />;
+  }
+
   return (
     <>
       <Head>
         <title>Internationally Educated Nurses</title>
         <link rel='icon' href='/assets/img/bc_favicon.ico' />
       </Head>
-      <SSRKeycloakProvider
-        keycloakConfig={keycloakConfig}
-        persistor={SSRCookies(cookie)}
-        onTokens={handleTokens}
-        initOptions={{
-          pkceMethod: 'S256',
-          checkLoginIframe: false,
-        }}
-      >
-        {' '}
+      <OidcAuthProvider {...oidcConfig}>
         <FetchWrapper>
           <AuthProvider>
             <div className='h-full flex flex-col'>
@@ -61,7 +60,7 @@ function App({ Component, pageProps }: AppProps) {
             </div>
           </AuthProvider>
         </FetchWrapper>
-      </SSRKeycloakProvider>
+      </OidcAuthProvider>
       <ToastContainer
         style={{ width: '50%' }}
         position='top-center'
@@ -76,17 +75,18 @@ function App({ Component, pageProps }: AppProps) {
 }
 
 function FetchWrapper(props: PropsWithChildren<ReactNode>) {
-  const { keycloak } = useKeycloak<KeycloakInstance>();
+  const { user } = useAuth();
+
   return (
     <Provider
       url={process.env.NEXT_PUBLIC_API_URL}
       options={{
         interceptors: {
           request: async ({ options }) => {
-            if (keycloak?.token && options.headers) {
-              (options.headers as { [key: string]: string })[
+            if (user?.access_token && options.headers) {
+              (options.headers as Record<string, string>)[
                 'Authorization'
-              ] = `Bearer ${keycloak.token}`;
+              ] = `Bearer ${user.access_token}`;
             }
             return options;
           },

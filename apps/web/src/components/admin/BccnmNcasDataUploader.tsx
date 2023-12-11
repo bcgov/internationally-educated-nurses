@@ -29,7 +29,7 @@ export const BccnmNcasDataUploader = ({
   };
 
   if (loading) {
-    return <Spinner className='h-10 w-10' />;
+    return <Spinner size='2x' />;
   }
 
   return (

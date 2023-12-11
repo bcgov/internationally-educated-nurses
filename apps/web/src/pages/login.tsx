@@ -1,32 +1,28 @@
-import { useKeycloak } from '@react-keycloak/ssr';
-import { KeycloakInstance } from 'keycloak-js';
 import { useRouter } from 'next/router';
-import { Spinner } from '../components/Spinner';
+import { useAuth } from 'react-oidc-context';
+import { Spinner } from '@components';
 
 const Login = () => {
   const { push } = useRouter();
-  const { keycloak, initialized } = useKeycloak<KeycloakInstance>();
+  const { isLoading, isAuthenticated, signinRedirect } = useAuth();
 
-  if (!initialized || keycloak?.authenticated === undefined) {
+  if (isLoading) {
     return (
       <div className='w-full h-full flex items-center justify-center'>
-        <Spinner className='h-10 w-10' />
+        <Spinner size='2x' />
       </div>
     );
-  } else if (keycloak.authenticated) {
+  } else if (isAuthenticated) {
     push('/');
     return '';
   }
 
-  function login() {
-    if (keycloak) {
-      push(keycloak?.createLoginUrl({ redirectUri: location.origin + '/' }) || '/');
-    }
+  async function login() {
+    await signinRedirect();
   }
   return (
     <div className='fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2'>
       <div className='w-full h-full flex items-center justify-center'>
-        {initialized}
         <div className='flex flex-col items-center justify-center bg-bcLightBlueBackground rounded py-6 px-24'>
           <h1 className='font-bold text-4xl mb-3'>Login</h1>
           <div className='text-center mb-7'>
