@@ -618,7 +618,7 @@ export class IENApplicantService {
     }
 
     nursing_educations.push({
-      name: 'Diploma/Certificate of Nursing',
+      name: 'Unspecified Education',
       country: countryOfEducation.toLowerCase(),
       source: 'BCCNM',
     });

@@ -57,6 +57,7 @@ export const EDUCATIONS = [
   'Master of Nursing - Nurse Practitioner',
   'PhD',
   'Combined Diploma/Degree in Midwifery & Nursing',
+  'Education'
 ] as const;
 
 export const COUNTRY_OF_EDUCATIONS = {
