@@ -124,7 +124,7 @@ INSERT INTO public.ien_education(title) VALUES ('Master of Nursing');
 INSERT INTO public.ien_education(title) VALUES ('Master of Nursing - Nurse Practitioner');
 INSERT INTO public.ien_education(title) VALUES ('PhD');
 INSERT INTO public.ien_education(title) VALUES ('Combined Diploma/Degree in Midwifery & Nursing');
-INSERT INTO public.ien_education(title) VALUES ('Unspecified Education');
+INSERT INTO public.ien_education(title) VALUES ('Education');
 
 
 
