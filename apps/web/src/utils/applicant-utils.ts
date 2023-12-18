@@ -1,5 +1,4 @@
-import { ApplicantRO } from '@ien/common';
-import { isoCountries } from '@services';
+import { ApplicantRO, isoCountries } from '@ien/common';
 
 export const getApplicantEducations = (applicant: ApplicantRO): string | undefined => {
   return applicant.nursing_educations
