@@ -8,7 +8,7 @@ export $(shell sed 's/=.*//' ./.env)
 export PROJECT := ien
 
 # Runtime and application Environments specific variable
-export ENV_NAME ?= test
+export ENV_NAME ?= dev
 export POSTGRES_USERNAME ?= freshworks
 export CHES_CLIENT_ID ?= IEN_SERVICE_CLIENT
 
