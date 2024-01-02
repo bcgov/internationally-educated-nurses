@@ -39,7 +39,7 @@ export class ExternalAPIController {
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
   @HttpCode(HttpStatus.OK)
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Get('/save')
   async saveData(): Promise<unknown> {
     try {
