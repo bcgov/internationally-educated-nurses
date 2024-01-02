@@ -93,7 +93,7 @@ export class ExternalAPIService {
       const listHa = data.map(item => ({ ...item, title: item.name }));
       const result = await manager.upsert(IENHaPcn, listHa, ['id']);
       this.logger.log(`${result?.raw?.length}/${listHa?.length} authorities updated`, 'ATS-SYNC');
-    }else{
+    } else {
       this.logger.log(`No data for Health Authorities found, skipping.`);
     }
   }
@@ -115,8 +115,8 @@ export class ExternalAPIService {
       const result = await manager.upsert(IENUsers, listUsers, ['email']);
 
       this.logger.log(`${result?.raw?.length || 0}/${data.length} users updated`, 'ATS-SYNC');
-    }else{
-      this.logger.log("No user data found, skipping.");
+    } else {
+      this.logger.log('No user data found, skipping.');
     }
   }
 
@@ -129,8 +129,8 @@ export class ExternalAPIService {
     if (data.length && Array.isArray(data)) {
       const result = await manager.upsert(IENStatusReason, data, ['id']);
       this.logger.log(`${result?.raw?.length || 0}/${data.length} reasons updated`, 'ATS-SYNC');
-    }else{
-      this.logger.log("No Reasons found, skipping.");
+    } else {
+      this.logger.log('No Reasons found, skipping.');
     }
   }
 
@@ -168,8 +168,8 @@ export class ExternalAPIService {
         ['id'],
       );
       this.logger.log(`${result?.raw?.length || 0}/${data.length} milestones updated`, 'ATS-SYNC');
-    }else{
-      this.logger.log(`No milestones found, skipping.`)
+    } else {
+      this.logger.log(`No milestones found, skipping.`);
     }
   }
 

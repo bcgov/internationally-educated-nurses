@@ -21,18 +21,18 @@ export class ExternalRequest {
     });
   }
 
-  async getHa():Promise<Array<{id:string,name:string, abbreviation:string}>> {
+  async getHa(): Promise<Array<{ id: string; name: string; abbreviation: string }>> {
     return this.getData(`/health-authorities`);
   }
 
-  async getStaff():Promise<Array<{id:string,name:string,email:string}>> {
+  async getStaff(): Promise<Array<{ id: string; name: string; email: string }>> {
     const header = {
       ApiKey: process.env.HMBC_ATS_AUTH_KEY,
     };
     return this.getData(`/staff`, header);
   }
 
-  async getReason():Promise<Array<any>>{
+  async getReason(): Promise<Array<any>> {
     return this.getData(`/withdrawal-reasons`);
   }
 
