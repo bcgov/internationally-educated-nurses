@@ -89,17 +89,12 @@ export class ExternalAPIService {
    */
   async saveHa(manager: EntityManager): Promise<void> {
     const data = await this.external_request.getHa();
-    if (Array.isArray(data)) {
+    if (data.length && Array.isArray(data)) {
       const listHa = data.map(item => ({ ...item, title: item.name }));
       const result = await manager.upsert(IENHaPcn, listHa, ['id']);
-      console.log(result)
-      console.log(listHa)
-      try{
-        this.logger.log(`${result?.raw?.length}/${listHa?.length} authorities updated`, 'ATS-SYNC');
-
-      }catch(e){
-        console.log(e);
-      }
+      this.logger.log(`${result?.raw?.length}/${listHa?.length} authorities updated`, 'ATS-SYNC');
+    }else{
+      this.logger.log(`No data for Health Authorities found, skipping.`);
     }
   }
 
@@ -109,7 +104,7 @@ export class ExternalAPIService {
    */
   async saveUsers(manager: EntityManager): Promise<void> {
     const data = await this.external_request.getStaff();
-    if (Array.isArray(data)) {
+    if (data?.length && Array.isArray(data)) {
       const listUsers = data.map(item => {
         return {
           user_id: item.id.toLowerCase(),
@@ -120,6 +115,8 @@ export class ExternalAPIService {
       const result = await manager.upsert(IENUsers, listUsers, ['email']);
 
       this.logger.log(`${result?.raw?.length || 0}/${data.length} users updated`, 'ATS-SYNC');
+    }else{
+      this.logger.log("No user data found, skipping.");
     }
   }
 
@@ -129,15 +126,9 @@ export class ExternalAPIService {
    */
   async saveReasons(manager: EntityManager): Promise<void> {
     const data = await this.external_request.getReason();
-    console.log(data);
-    if (data && Array.isArray(data)) {
+    if (data.length && Array.isArray(data)) {
       const result = await manager.upsert(IENStatusReason, data, ['id']);
-      console.log(result);
-      try{
-        this.logger.log(`${result?.raw?.length || 0}/${data.length} reasons updated`, 'ATS-SYNC');
-      }catch(e){
-        console.log(e);
-      }
+      this.logger.log(`${result?.raw?.length || 0}/${data.length} reasons updated`, 'ATS-SYNC');
     }else{
       this.logger.log("No Reasons found, skipping.");
     }
@@ -170,13 +161,15 @@ export class ExternalAPIService {
   async saveMilestones(manager: EntityManager): Promise<void> {
     const data = await this.external_request.getMilestone();
 
-    if (Array.isArray(data)) {
+    if (data.length && Array.isArray(data)) {
       const result = await manager.upsert(
         IENApplicantStatus,
         data.map(row => ({ ...row, status: row.name })), // name -> status
         ['id'],
       );
       this.logger.log(`${result?.raw?.length || 0}/${data.length} milestones updated`, 'ATS-SYNC');
+    }else{
+      this.logger.log(`No milestones found, skipping.`)
     }
   }
 
