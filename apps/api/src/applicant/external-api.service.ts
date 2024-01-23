@@ -272,7 +272,9 @@ export class ExternalAPIService {
     const audit = await this.saveSyncApplicantsAudit();
 
     try {
-      const applicants = await this.fetchApplicantsFromATS(from_date, to_date);
+      let applicants = await this.fetchApplicantsFromATS(from_date, to_date);
+
+      applicants = await this.filterContradictoryRows(applicants);
 
       const result = await getManager().transaction(async manager => {
         const result = await this.createBulkApplicants(applicants, manager);
@@ -512,7 +514,33 @@ export class ExternalAPIService {
       };
     });
   }
-
+  /**
+   * Jan 2024 - This function fixes an issue caused by the sync in production. There are at least one applicant that have an ats1_id already in use by another applicant.
+   * This is causing an
+   * @param applicants - List of incoming applicants from ATS
+   * @returns A filtered list of applicants that will not cause a violation of the unique key constraint for the ats1_id
+   */
+  async filterContradictoryRows(applicants: AtsApplicant[]) {
+    const existingApplicants: IENApplicant[] = await this.ienapplicantRepository.find({});
+    const contradictions: unknown[] = [];
+    const filteredApplicants = applicants.filter(applicant => {
+      const contradiction = existingApplicants.find(
+        existingApplicant =>
+          existingApplicant.ats1_id === applicant.ats1_id.toString() &&
+          existingApplicant.id !== applicant.applicant_id,
+      );
+      if (contradiction) {
+        contradictions.push(contradiction);
+        return false;
+      } else {
+        return true;
+      }
+    });
+    if (contradictions.length) {
+      this.logger.log(contradictions);
+    }
+    return filteredApplicants;
+  }
   /**
    * We need to ignore all the recruiment related milestone for now
    */
