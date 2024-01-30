@@ -272,9 +272,9 @@ export class IENApplicantUtilService {
         SET status_id = (
           SELECT status_id
           FROM ien_applicant_status_audit asa
-          WHERE asa.applicant_id=ien_applicants.id
+          WHERE asa.applicant_id = ien_applicants.id AND asa.start_date IS NOT NULL
           ORDER BY asa.start_date DESC, asa.updated_date
-          DESC limit 1
+          DESC LIMIT 1
         )
         WHERE ien_applicants.id IN (${idsToUpdate})`;
       const result = await entityManager.query(queryToUpdate);
