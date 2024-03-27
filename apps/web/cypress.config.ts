@@ -12,7 +12,6 @@ export default defineConfig({
   viewportWidth: 1280,
   viewportHeight: 1500,
   video: false,
-  videoUploadOnPasses: false,
   waitForAnimations: true,
   e2e: {
     // We've imported your old cypress plugins here.
