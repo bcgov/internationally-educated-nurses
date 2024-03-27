@@ -12,7 +12,6 @@ import {
   Not,
   Repository,
   FindManyOptions,
-  ObjectLiteral,
   getManager,
   EntityManager,
   In,
@@ -20,7 +19,7 @@ import {
 } from 'typeorm';
 import dayjs from 'dayjs';
 import _ from 'lodash';
-import { AtsApplicant, Authorities, STATUS, StatusCategory } from '@ien/common';
+import { AtsApplicant, STATUS, StatusCategory } from '@ien/common';
 import { ExternalRequest } from 'src/common/external-request';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicant } from './entity/ienapplicant.entity';
