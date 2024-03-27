@@ -299,7 +299,7 @@ export class ExternalAPIService {
     manager?: EntityManager,
   ): Promise<SyncApplicantsAudit> {
     if (id) {
-      const audit = await this.syncApplicantsAuditRepository.findOne({where:{id}});
+      const audit = await this.syncApplicantsAuditRepository.findOne({ where: { id } });
       if (audit) {
         audit.is_success = is_success;
         audit.additional_data = additional_data;
@@ -334,9 +334,10 @@ export class ExternalAPIService {
    */
   async getUsersMap() {
     // fetch user/staff details
-    const users = await this.ienMasterService.ienUsersRepository.find({where:{
-      user_id: Not(IsNull())
-    }
+    const users = await this.ienMasterService.ienUsersRepository.find({
+      where: {
+        user_id: Not(IsNull()),
+      },
     });
     return _.keyBy(users, 'user_id');
   }
@@ -583,9 +584,11 @@ export class ExternalAPIService {
     }
 
     // To update ROS milestones created by spreadsheet, replace IDs
-    const rosStatus = await this.ienapplicantStatusRepository.findOne({where:{
-      status: STATUS.SIGNED_ROS,
-    }});
+    const rosStatus = await this.ienapplicantStatusRepository.findOne({
+      where: {
+        status: STATUS.SIGNED_ROS,
+      },
+    });
     const rosMilestonesByATS = validMilestones.filter(m => m.status === rosStatus?.id);
     if (rosMilestonesByATS.length) {
       const rosMilestonesBySheet = await this.ienapplicantStatusAuditRepository.find({
@@ -606,9 +609,11 @@ export class ExternalAPIService {
     }
 
     // exclude bccnm/ncas completion updated by spreadsheet
-    const bccnmNcasStatuses = await this.ienapplicantStatusRepository.find({where:{
-      status: In([STATUS.APPLIED_TO_BCCNM, STATUS.COMPLETED_NCAS]),
-    }});
+    const bccnmNcasStatuses = await this.ienapplicantStatusRepository.find({
+      where: {
+        status: In([STATUS.APPLIED_TO_BCCNM, STATUS.COMPLETED_NCAS]),
+      },
+    });
     const existingBccnmNcasMilestones = await this.ienapplicantStatusAuditRepository.find({
       where: {
         applicant: In(_.uniq(validMilestones.map(m => m.applicant))),
@@ -679,7 +684,7 @@ export class ExternalAPIService {
 
     if (limit) query.take = limit;
     if (skip) query.skip = skip;
-      return this.ienMasterService.ienUsersRepository.findAndCount(query);
+    return this.ienMasterService.ienUsersRepository.findAndCount(query);
   }
 
   async getApplicants(filter: IENUserFilterAPIDTO): Promise<ApplicantSyncRO[]> {
@@ -703,16 +708,16 @@ export class ExternalAPIService {
     const ids = audits.map(audit => audit.applicant_id);
     const results = await this.ienapplicantRepository.find({
       where: {
-        id:In(ids)
+        id: In(ids),
       },
-      relations:[
+      relations: [
         'applicant_status_audit',
         'applicant_status_audit.status',
         'applicant_status_audit.job',
         'applicant_status_audit.updated_by',
         'applicant_status_audit.added_by',
-      ]
-    })
+      ],
+    });
     return results.map((result): ApplicantSyncRO => {
       return {
         id: result.id,

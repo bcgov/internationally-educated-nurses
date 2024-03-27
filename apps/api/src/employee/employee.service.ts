@@ -74,7 +74,9 @@ export class EmployeeService {
 
   async getUser(userData: Partial<EmployeeEntity>): Promise<IENUsers | undefined> {
     await this._upsertUser(userData);
-    return(await this.ienUsersRepository.findOne({where:{ email: userData.email }})) || undefined;
+    return (
+      (await this.ienUsersRepository.findOne({ where: { email: userData.email } })) || undefined
+    );
   }
 
   async _upsertUser(userData: Partial<EmployeeEntity>): Promise<void> {
@@ -156,7 +158,7 @@ export class EmployeeService {
       throw new BadRequestException(`ROLE-ADMIN is only assigned in the database.`);
     }
 
-    const employee = await this.employeeRepository.findOne({where:{id}});
+    const employee = await this.employeeRepository.findOne({ where: { id } });
     if (!employee) {
       throw new BadRequestException(`Please provide at least one Id`);
     }
@@ -171,7 +173,7 @@ export class EmployeeService {
    * @param id
    */
   async revokeAccess(id: string): Promise<EmployeeEntity> {
-    const employee = await this.employeeRepository.findOne({where:{id}});
+    const employee = await this.employeeRepository.findOne({ where: { id } });
 
     if (!employee) {
       throw new BadRequestException(`No entry found.`);
@@ -191,7 +193,7 @@ export class EmployeeService {
    * @param id
    */
   async activate(id: string): Promise<EmployeeEntity> {
-    const employee = await this.employeeRepository.findOne({where:{id}});
+    const employee = await this.employeeRepository.findOne({ where: { id } });
 
     if (!employee) {
       throw new BadRequestException(`No entry found.`);
@@ -210,7 +212,7 @@ export class EmployeeService {
   }
 
   async getEmployee(id: string): Promise<EmployeeRO | undefined> {
-    const employee = await this.employeeRepository.findOne({where:{id}});
+    const employee = await this.employeeRepository.findOne({ where: { id } });
     if (!employee) return undefined;
 
     const employeeUser = await getManager()

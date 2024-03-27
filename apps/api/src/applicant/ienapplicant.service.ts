@@ -82,7 +82,7 @@ export class IENApplicantService {
         }
       });
     }
-    const applicant = await this.ienapplicantRepository.findOne({where:{id}, relations});
+    const applicant = await this.ienapplicantRepository.findOne({ where: { id }, relations });
 
     if (!applicant) {
       throw new NotFoundException(`Applicant with id '${id}' not found`);
@@ -131,7 +131,7 @@ export class IENApplicantService {
   async createApplicantObject(addApplicant: IENApplicantCreateUpdateAPIDTO, user: EmployeeRO) {
     const { assigned_to, first_name, last_name, email_address, country_of_citizenship, ...data } =
       addApplicant;
-    const duplicate = await this.ienapplicantRepository.findOne({where:{ email_address} });
+    const duplicate = await this.ienapplicantRepository.findOne({ where: { email_address } });
     if (duplicate) {
       throw new BadRequestException('There is already an applicant with this email.');
     }
@@ -158,7 +158,9 @@ export class IENApplicantService {
     }
 
     if (user?.user_id) {
-      const added_by_data = await this.ienUsersRepository.findOne({where:{user_id:user.user_id}});
+      const added_by_data = await this.ienUsersRepository.findOne({
+        where: { user_id: user.user_id },
+      });
       if (added_by_data) {
         applicant.added_by = added_by_data;
       }
@@ -304,7 +306,7 @@ export class IENApplicantService {
     }
 
     if (user?.user_id) {
-      data.added_by = await this.ienUsersRepository.findOne({where:{user_id:user.user_id}});
+      data.added_by = await this.ienUsersRepository.findOne({ where: { user_id: user.user_id } });
     }
 
     if (reason) {
@@ -353,15 +355,17 @@ export class IENApplicantService {
     milestone: IENApplicantUpdateStatusAPIDTO,
   ): Promise<IENApplicantStatusAudit | any> {
     const audit = await this.ienapplicantStatusAuditRepository.findOne({
-      where:{id:status_id.toString()}, 
-      relations: ['applicant', 'added_by', 'status', 'job']
+      where: { id: status_id.toString() },
+      relations: ['applicant', 'added_by', 'status', 'job'],
     });
     if (!audit) {
       throw new NotFoundException('Provided status/milestone record not found');
     }
     const { status, start_date, effective_date, notes, reason, type } = milestone;
     if (user?.user_id) {
-      const updated_by_data = await this.ienUsersRepository.findOne({where:{user_id:user.user_id}});
+      const updated_by_data = await this.ienUsersRepository.findOne({
+        where: { user_id: user.user_id },
+      });
       if (updated_by_data) {
         audit.updated_by = updated_by_data;
       }
@@ -413,9 +417,10 @@ export class IENApplicantService {
    */
   async deleteApplicantStatus(user_id: string | null, status_id: string): Promise<void> {
     const status: IENApplicantStatusAudit | undefined =
-      await this.ienapplicantStatusAuditRepository.findOne({where:{status:{id:status_id}},
+      (await this.ienapplicantStatusAuditRepository.findOne({
+        where: { status: { id: status_id } },
         relations: ['applicant', 'added_by', 'status'],
-      })|| undefined;
+      })) || undefined;
 
     if (!status) {
       return;
@@ -455,9 +460,10 @@ export class IENApplicantService {
     job.applicant = applicant;
 
     if (user?.user_id) {
-      job.added_by = await this.ienUsersRepository.findOne({where:{
-        user_id:user.user_id.toString()
-        }
+      job.added_by = await this.ienUsersRepository.findOne({
+        where: {
+          user_id: user.user_id.toString(),
+        },
       });
     }
 
@@ -514,12 +520,14 @@ export class IENApplicantService {
   }
 
   async getApplicantJob(job_id: string | number): Promise<IENApplicantJob | undefined> {
-    return  (await this.ienapplicantJobRepository.findOne({
-      where:{
-        job_id:job_id.toString()
-      },
-      relations: RELATIONS.applicant_job,
-    })) || undefined;
+    return (
+      (await this.ienapplicantJobRepository.findOne({
+        where: {
+          job_id: job_id.toString(),
+        },
+        relations: RELATIONS.applicant_job,
+      })) || undefined
+    );
   }
 
   /**
@@ -579,20 +587,22 @@ export class IENApplicantService {
   }
 
   async assignApplicant(id: string, employee: EmployeeRO) {
-    const applicant = await this.ienapplicantRepository.findOne({where:{id}});
+    const applicant = await this.ienapplicantRepository.findOne({ where: { id } });
 
     const found = applicant?.recruiters?.some(e => e.id === employee.id);
     if (found) return;
 
-    const haPcn = await this.haPcnRepository.findOne({where:{ title: employee.organization }});
+    const haPcn = await this.haPcnRepository.findOne({ where: { title: employee.organization } });
     if (!haPcn) {
       throw new BadRequestException(`User doesn't belong to a health authority`);
     }
 
-    let recruiterAssignment = await this.recruiterRepository.findOne({where:{
-      applicant_id: id,
-      ha_id: haPcn.id,
-    }});
+    let recruiterAssignment = await this.recruiterRepository.findOne({
+      where: {
+        applicant_id: id,
+        ha_id: haPcn.id,
+      },
+    });
 
     if (!recruiterAssignment) {
       recruiterAssignment = await this.recruiterRepository.create({

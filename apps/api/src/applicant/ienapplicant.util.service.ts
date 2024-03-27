@@ -121,7 +121,9 @@ export class IENApplicantUtilService {
    * @returns Status Object or NotFoundException
    */
   async getStatusById(id: string): Promise<IENApplicantStatus> {
-    const statusObj = await this.ienMasterService.ienApplicantStatusRepository.findOne({where:{id:id.toString()}});
+    const statusObj = await this.ienMasterService.ienApplicantStatusRepository.findOne({
+      where: { id: id.toString() },
+    });
     if (!statusObj) {
       throw new NotFoundException(`Status with given value "${id}" not found`);
     }
@@ -135,7 +137,9 @@ export class IENApplicantUtilService {
    * @returns Status Object or NotFoundException
    */
   async getStatusByName(status: string): Promise<IENApplicantStatus> {
-    const result = await this.ienMasterService.ienApplicantStatusRepository.findOne({ where:{status} });
+    const result = await this.ienMasterService.ienApplicantStatusRepository.findOne({
+      where: { status },
+    });
     if (!result) {
       throw new NotFoundException(`Status with given value "${status}" not found`);
     }
@@ -187,7 +191,9 @@ export class IENApplicantUtilService {
   }
 
   async getHaPcn(id: string): Promise<IENHaPcn> {
-    const health_authority = await this.ienMasterService.ienHaPcnRepository.findOne({where:{id}});
+    const health_authority = await this.ienMasterService.ienHaPcnRepository.findOne({
+      where: { id },
+    });
     if (!health_authority) {
       throw new NotFoundException('Provided all or some of HA not found');
     }
@@ -223,7 +229,7 @@ export class IENApplicantUtilService {
       return null;
     }
     const job = await this.ienapplicantJobRepository.findOne({
-       where:{id:id.toString()},
+      where: { id: id.toString() },
       relations: ['applicant'],
     });
     if (!job) {
@@ -237,7 +243,9 @@ export class IENApplicantUtilService {
    * @param id
    */
   async getJobTitle(id: string | number): Promise<IENJobTitle> {
-    const job_title = await this.ienMasterService.ienJobTitleRepository.findOne({where:{id:id.toString()}});
+    const job_title = await this.ienMasterService.ienJobTitleRepository.findOne({
+      where: { id: id.toString() },
+    });
     if (!job_title) {
       throw new NotFoundException('Provided job title not found');
     }
@@ -278,7 +286,9 @@ export class IENApplicantUtilService {
   }
 
   async getStatusReason(id: string): Promise<IENStatusReason> {
-    const statusReason = await this.ienMasterService.ienStatusReasonRepository.findOne({where:{id}});
+    const statusReason = await this.ienMasterService.ienStatusReasonRepository.findOne({
+      where: { id },
+    });
     if (!statusReason) {
       throw new NotFoundException('Provided Milestone/Status reason not found');
     }
