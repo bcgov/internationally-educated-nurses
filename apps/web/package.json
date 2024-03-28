@@ -21,7 +21,7 @@
     "@ien/common": "1.0.1",
     "@types/cookie": "0.4.1",
     "@types/cookies": "0.7.7",
-    "axios": "1.6.8",
+    "axios": "0.28.0",
     "class-validator-formik": "1.0.1",
     "classnames": "2.3.1",
     "cookie": "0.4.2",
