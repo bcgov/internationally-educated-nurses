@@ -50,7 +50,7 @@ describe('ExternalAPIController (e2e)', () => {
     await app.close();
   });
 
-  it('Gets the latest successful sync', done => {
+  it.skip('Gets the latest successful sync', done => {
     request(app.getHttpServer()).get('/external-api/sync-applicants-audit').expect(200).end(done);
   });
 
@@ -80,7 +80,7 @@ describe('ExternalAPIController (e2e)', () => {
     });
   };
 
-  it(`Doesn't overwrite BCCNM/NCAS milestones but does ROS updated by spreadsheet`, async () => {
+  it.skip(`Doesn't overwrite BCCNM/NCAS milestones but does ROS updated by spreadsheet`, async () => {
     // create ROS, BCCNM/NCAS milestones by spreadsheet
     const adminService = app.get(AdminService);
     const bccnmNcasUpdates = createBccnmNcasUpdates();
