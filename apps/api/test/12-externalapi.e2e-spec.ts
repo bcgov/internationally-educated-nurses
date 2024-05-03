@@ -50,11 +50,11 @@ describe('ExternalAPIController (e2e)', () => {
     await app.close();
   });
 
-  it.skip('Gets the latest successful sync', done => {
+  it('Gets the latest successful sync', done => {
     request(app.getHttpServer()).get('/external-api/sync-applicants-audit').expect(200).end(done);
   });
 
-  it('Syncs IEN applicants with ATS', async () => {
+  it.skip('Syncs IEN applicants with ATS', async () => {
     app.get(ExternalAPIService).fetchApplicantsFromATS = jest.fn().mockReturnValue(atsApplicants);
     const resp = await request(app.getHttpServer()).get('/external-api/save-applicant');
     const { result } = resp.body as SyncApplicantsResultDTO;
