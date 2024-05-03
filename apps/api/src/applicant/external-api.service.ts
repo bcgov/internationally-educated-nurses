@@ -37,6 +37,7 @@ import { IENJobTitle } from './entity/ienjobtitles.entity';
 import { IENApplicantStatus } from './entity/ienapplicant-status.entity';
 import { ApplicantSyncRO, MilestoneSync } from './ro/sync.ro';
 import { isNewBCCNMProcess } from 'src/common/util';
+import { min } from 'mathjs';
 
 @Injectable()
 export class ExternalAPIService {
@@ -255,7 +256,7 @@ export class ExternalAPIService {
     if (!from_date) {
       // Fetch last successful run, to make sure we are not missing any data to sync due to external server failure
       const lastSync = await this.getLatestSuccessfulSync();
-      from_date = lastSync.length ? dayjs(lastSync[0].updated_date).format('YYYY-MM-DD') : '';
+      from_date = lastSync?.length ? dayjs(lastSync[0].updated_date).format('YYYY-MM-DD') : '';
     }
     if (!from_date) {
       from_date = dayjs().add(-1, 'day').format('YYYY-MM-DD'); // yesterday
@@ -357,7 +358,7 @@ export class ExternalAPIService {
             "status"."category" != 'IEN Recruitment Process';
         `);
 
-        if (!audits.length) return;
+        if (!audits?.length) return;
 
         const removed = audits.filter(
           ({ status_id }) => !a.milestones?.some(m => m.id.toLowerCase() === status_id),
@@ -384,7 +385,7 @@ export class ExternalAPIService {
   async createBulkApplicants(data: AtsApplicant[], manager: EntityManager) {
     const result = {
       applicants: {
-        total: data.length,
+        total: data?.length,
         processed: 0,
       },
       milestones: {
@@ -395,15 +396,30 @@ export class ExternalAPIService {
         removed: 0,
       },
     };
-    if (!data.length) {
+    if (!data?.length) {
       this.logger.log(`No applicants received today`);
       return result;
     }
 
     const applicants: any[] = await this.mapApplicants(data);
+    const processed_applicants_list: any[] = [];
 
-    const processed_applicant = await manager.upsert(IENApplicant, applicants, ['id']);
-    result.applicants.processed = processed_applicant.raw.length;
+    for (let i = 0; i < applicants?.length % 200; i++) {
+      const applicant_slice = applicants.slice(
+        i * 200, // Upsert applicants in chunks of 200
+        min([(i + 1) * 200, applicants.length - 1]), // Length of applicants array or the next 200 applicants, whichever is lower.
+      );
+      const applicant_upsert_results = await manager.upsert(IENApplicant, applicant_slice, ['id']);
+      result.applicants.processed += applicant_upsert_results?.raw?.length;
+      if (applicant_upsert_results.raw) {
+        applicant_upsert_results.raw.forEach((item: any) => {
+          if (!!item?.id) {
+            processed_applicants_list.push(item);
+          }
+        });
+      }
+    }
+
     this.logger.log(`applicants synced: ${result.applicants.processed}/${data.length}`, 'ATS-SYNC');
 
     // Upsert milestones
@@ -411,34 +427,47 @@ export class ExternalAPIService {
       await this.mapMilestones(data);
     if (milestonesToBeUpdated?.length) {
       try {
-        const result = await this.ienapplicantStatusAuditRepository.upsert(milestonesToBeUpdated, [
-          'id',
-        ]);
-        this.logger.log(
-          `Signed Return of Service Agreement milestones updated: ${result.raw.length}`,
-          'ATS-SYNC',
-        );
+        for (let i = 0; i < milestonesToBeUpdated.length % 200; i++) {
+          const milestone_to_be_updated_slice = milestonesToBeUpdated.slice(
+            i * 200,
+            min([(i + 1) * 200, milestonesToBeUpdated.length - 1]),
+          );
+          const result = await this.ienapplicantStatusAuditRepository.upsert(
+            milestone_to_be_updated_slice,
+            ['id'],
+          );
+          this.logger.log(
+            `Signed Return of Service Agreement milestones updated: ${result.raw.length}`,
+            'ATS-SYNC',
+          );
+        }
       } catch (e) {
         this.logger.error(e);
       }
     }
     if (milestonesToBeInserted.length) {
       try {
-        const result = await manager
-          .createQueryBuilder()
-          .insert()
-          .into(IENApplicantStatusAudit)
-          .values(milestonesToBeInserted)
-          .orIgnore(true)
-          .execute();
-        this.logger.log(`milestones updated: ${result?.raw?.length || 0}`, 'ATS-SYNC');
+        for (let i = 0; i < milestonesToBeInserted.length % 200; i++) {
+          const milestonesToBeInserted_slice = milestonesToBeInserted.slice(
+            i * 200,
+            min([(i + 1) * 200, milestonesToBeInserted.length - 1]),
+          );
+          const result = await manager
+            .createQueryBuilder()
+            .insert()
+            .into(IENApplicantStatusAudit)
+            .values(milestonesToBeInserted_slice)
+            .orIgnore(true)
+            .execute();
+          this.logger.log(`milestones updated: ${result?.raw?.length || 0}`, 'ATS-SYNC');
+        }
       } catch (e) {
         this.logger.error(e);
       }
     }
 
     // update applicant with the latest status
-    const mappedApplicantList = processed_applicant?.raw.map((item: { id: string }) => item.id);
+    const mappedApplicantList = processed_applicants_list?.map((item: { id: string }) => item.id);
     await this.ienapplicantUtilService.updateLatestStatusOnApplicant(mappedApplicantList, manager);
 
     const dropped = numOfMilestones - milestonesToBeInserted.length - milestonesToBeUpdated.length;
@@ -449,7 +478,6 @@ export class ExternalAPIService {
       dropped,
       removed: 0,
     };
-
     if (dropped) {
       this.logger.log(`milestones dropped: ${dropped}/${numOfMilestones}`, 'ATS-SYNC');
     }
@@ -537,7 +565,7 @@ export class ExternalAPIService {
       }
     });
     if (contradictions.length) {
-      this.logger.log(contradictions);
+      this.logger.log(`Found ${contradictions.length} contradictions.`);
     }
     return filteredApplicants;
   }

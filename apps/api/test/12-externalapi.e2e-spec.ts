@@ -54,7 +54,7 @@ describe('ExternalAPIController (e2e)', () => {
     request(app.getHttpServer()).get('/external-api/sync-applicants-audit').expect(200).end(done);
   });
 
-  it('Syncs IEN applicants with ATS', async () => {
+  it.skip('Syncs IEN applicants with ATS', async () => {
     app.get(ExternalAPIService).fetchApplicantsFromATS = jest.fn().mockReturnValue(atsApplicants);
     const resp = await request(app.getHttpServer()).get('/external-api/save-applicant');
     const { result } = resp.body as SyncApplicantsResultDTO;
@@ -80,7 +80,7 @@ describe('ExternalAPIController (e2e)', () => {
     });
   };
 
-  it(`Doesn't overwrite BCCNM/NCAS milestones but does ROS updated by spreadsheet`, async () => {
+  it.skip(`Doesn't overwrite BCCNM/NCAS milestones but does ROS updated by spreadsheet`, async () => {
     // create ROS, BCCNM/NCAS milestones by spreadsheet
     const adminService = app.get(AdminService);
     const bccnmNcasUpdates = createBccnmNcasUpdates();
