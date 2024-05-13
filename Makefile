@@ -229,11 +229,11 @@ open-cypress:
 	@yarn workspace @ien/web open:cypress
 
 test-pa11y:
-	@make start-test-env
+	# @make start-test-env
 	@yarn build
 	@echo "++\n***** Running front end accessibility tests\n++"
 	@NODE_ENV=test yarn test:pa11y
-	@make stop-test-db
+	# @make stop-test-db
 	@echo "++\n*****"
 
 debug-pa11y:

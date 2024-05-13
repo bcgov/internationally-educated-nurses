@@ -196,7 +196,7 @@ export class ExternalAPIService {
     return pages;
   }
 
-  async fetchApplicantsFromATS(from: string, to: string) {
+  async fetchApplicantsFromATS(from: string, to: string, page?: Number) {
     const parallel_requests = 5;
 
     const per_page = 50;
@@ -223,21 +223,30 @@ export class ExternalAPIService {
       };
       pages = pages.concat(this.createParallelRequestRun(input));
       let temp: any[] = [];
-      await Promise.all(pages).then(res => {
-        res.forEach(r => {
-          temp = temp.concat(r);
+
+      if(page || page === 0){
+        if(pages.length < page){
+          newData = await pages[page.valueOf()];
+        }else{
+          throw new Error();
+        }
+      }else{
+        await Promise.all(pages).then(res => {
+          res.forEach(r => {
+            temp = temp.concat(r);
+          });
         });
-      });
-      this.logger.log(`received ${temp.length} applicants`, 'ATS-SYNC');
-      // let's check if next pages are available
-      if (temp.length >= parallel_requests * per_page) {
-        is_next = true;
-        offset += parallel_requests * per_page;
+        this.logger.log(`received ${temp.length} applicants`, 'ATS-SYNC');
+        // let's check if next pages are available
+        if (temp.length >= parallel_requests * per_page) {
+          is_next = true;
+          offset += parallel_requests * per_page;
+        }
+        // Cleanup & set data for the next iteration
+        newData = newData.concat(temp);
+        temp = [];
+        pages = [];
       }
-      // Cleanup & set data for the next iteration
-      newData = newData.concat(temp);
-      temp = [];
-      pages = [];
     }
     return newData;
   }
@@ -245,7 +254,7 @@ export class ExternalAPIService {
   /**
    * fetch and upsert applicant details
    */
-  async saveApplicant(from: string, to?: string): Promise<SyncApplicantsResultDTO | undefined> {
+  async saveApplicant(from: string, to?: string, page?:Number): Promise<SyncApplicantsResultDTO | undefined> {
     /**
      * We want to sync yesterday's data on everyday basis
      * On daily basis we will use auto generated from and to date
@@ -271,9 +280,9 @@ export class ExternalAPIService {
     }
 
     const audit = await this.saveSyncApplicantsAudit();
-
+    console.log(`Part 2 - ${JSON.stringify(audit)}`);
     try {
-      let applicants = await this.fetchApplicantsFromATS(from_date, to_date);
+      let applicants = await this.fetchApplicantsFromATS(from_date, to_date, page);
 
       applicants = await this.filterContradictoryRows(applicants);
 
@@ -283,6 +292,7 @@ export class ExternalAPIService {
         await this.saveSyncApplicantsAudit(audit.id, true, undefined, manager);
         return result;
       });
+
       return {
         from: from_date,
         to: to_date,
@@ -404,6 +414,7 @@ export class ExternalAPIService {
     const applicants: any[] = await this.mapApplicants(data);
     const processed_applicants_list: any[] = [];
 
+
     for (let i = 0; i < applicants?.length % 200; i++) {
       const applicant_slice = applicants.slice(
         i * 200, // Upsert applicants in chunks of 200
@@ -419,8 +430,8 @@ export class ExternalAPIService {
         });
       }
     }
-
-    this.logger.log(`applicants synced: ${result.applicants.processed}/${data.length}`, 'ATS-SYNC');
+    console.log(`Part 3 - `+JSON.stringify(result))
+    //console.log(`Part 3 - applicants synced: ${result.applicants.processed}/${data.length}`, 'ATS-SYNC');
 
     // Upsert milestones
     const { numOfMilestones, milestonesToBeInserted, milestonesToBeUpdated } =
@@ -445,6 +456,7 @@ export class ExternalAPIService {
         this.logger.error(e);
       }
     }
+    console.log('Part 4 completed')
     if (milestonesToBeInserted.length) {
       try {
         for (let i = 0; i < milestonesToBeInserted.length % 200; i++) {
@@ -452,6 +464,7 @@ export class ExternalAPIService {
             i * 200,
             min([(i + 1) * 200, milestonesToBeInserted.length - 1]),
           );
+
           const result = await manager
             .createQueryBuilder()
             .insert()
@@ -468,8 +481,8 @@ export class ExternalAPIService {
 
     // update applicant with the latest status
     const mappedApplicantList = processed_applicants_list?.map((item: { id: string }) => item.id);
+    //console.log(mappedApplicantList)
     await this.ienapplicantUtilService.updateLatestStatusOnApplicant(mappedApplicantList, manager);
-
     const dropped = numOfMilestones - milestonesToBeInserted.length - milestonesToBeUpdated.length;
     result.milestones = {
       total: numOfMilestones,
