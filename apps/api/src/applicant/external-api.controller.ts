@@ -86,7 +86,7 @@ export class ExternalAPIController {
     example: '6',
   })
   @HttpCode(HttpStatus.OK)
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Get('/save-applicant')
   async saveApplicant(
     @Query('from') from: string,
@@ -94,7 +94,6 @@ export class ExternalAPIController {
     @Query('page') page:number
   ): Promise<SyncApplicantsResultDTO | undefined> {
     try {
-      console.log(from,to,page);
       return await this.externalAPIService.saveApplicant(from, to,page);
     } catch (e) {
       this.logger.error(e);
