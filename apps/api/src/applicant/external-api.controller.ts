@@ -24,6 +24,7 @@ import { IENUserFilterAPIDTO, SyncApplicantsResultDTO } from './dto';
 import { AuthGuard } from '../auth/auth.guard';
 import { JWTGuard } from 'src/auth/jwt.guard';
 import { ApplicantSyncRO } from './ro/sync.ro';
+import { number } from 'mathjs';
 
 @Controller('external-api')
 @ApiTags('External API data process')
@@ -77,15 +78,24 @@ export class ExternalAPIController {
     required: false,
     example: '2022-02-01',
   })
+  @ApiParam({
+    name: 'page',
+    type: 'number',
+    description: 'Page to fetch',
+    required: false,
+    example: '6',
+  })
   @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Get('/save-applicant')
   async saveApplicant(
     @Query('from') from: string,
     @Query('to') to: string,
+    @Query('page') page:number
   ): Promise<SyncApplicantsResultDTO | undefined> {
     try {
-      return await this.externalAPIService.saveApplicant(from, to);
+      console.log(from,to,page);
+      return await this.externalAPIService.saveApplicant(from, to,page);
     } catch (e) {
       this.logger.error(e);
       if (e instanceof NotFoundException) {
