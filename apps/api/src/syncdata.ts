@@ -27,6 +27,7 @@ export const handler: Handler = async (event, context: Context) => {
       logger.log('Start applicant data import...', 'ATS-SYNC');
       let from = undefined;
       let to = undefined;
+      let page = undefined
       const regex = new RegExp(/^\d{4}-(0[1-9]|1[012])-(0[1-9]|[12]\d|3[01])$/); //yyyy-mm-dd
       if (event.hasOwnProperty('from') && regex.test(event.from)) {
         from = event.from;
@@ -34,7 +35,10 @@ export const handler: Handler = async (event, context: Context) => {
       if (event.hasOwnProperty('to') && regex.test(event.to)) {
         to = event.to;
       }
-      await externalAPIService.saveApplicant(from, to);
+      if (event.hasOwnProperty('page')) {
+        page = event.page;
+      }
+      await externalAPIService.saveApplicant(from, to, page);
     }
   } catch (e) {
     logger.error(e, 'ATS-SYNC');

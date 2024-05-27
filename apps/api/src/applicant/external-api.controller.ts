@@ -24,7 +24,6 @@ import { IENUserFilterAPIDTO, SyncApplicantsResultDTO } from './dto';
 import { AuthGuard } from '../auth/auth.guard';
 import { JWTGuard } from 'src/auth/jwt.guard';
 import { ApplicantSyncRO } from './ro/sync.ro';
-import { number } from 'mathjs';
 
 @Controller('external-api')
 @ApiTags('External API data process')
