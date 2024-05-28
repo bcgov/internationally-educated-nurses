@@ -90,10 +90,10 @@ export class ExternalAPIController {
   async saveApplicant(
     @Query('from') from: string,
     @Query('to') to: string,
-    @Query('page') page:number
+    @Query('page') page: number,
   ): Promise<SyncApplicantsResultDTO | undefined> {
     try {
-      return await this.externalAPIService.saveApplicant(from, to,page);
+      return await this.externalAPIService.saveApplicant(from, to, page);
     } catch (e) {
       this.logger.error(e);
       if (e instanceof NotFoundException) {
