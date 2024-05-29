@@ -196,11 +196,11 @@ export class ExternalAPIService {
     return pages;
   }
 
-  async fetchApplicantsFromATS(from: string, to: string) {
+  async fetchApplicantsFromATS(from: string, to: string, page?: number) {
     const parallel_requests = 5;
 
     const per_page = 50;
-    let offset = 0;
+    let offset = page ? page * per_page : 0;
     let is_next = true;
     let pages: any = [];
     let newData: AtsApplicant[] = [];
@@ -230,7 +230,7 @@ export class ExternalAPIService {
       });
       this.logger.log(`received ${temp.length} applicants`, 'ATS-SYNC');
       // let's check if next pages are available
-      if (temp.length >= parallel_requests * per_page) {
+      if (temp.length >= parallel_requests * per_page && page !== 0 && !page) {
         is_next = true;
         offset += parallel_requests * per_page;
       }
@@ -245,7 +245,17 @@ export class ExternalAPIService {
   /**
    * fetch and upsert applicant details
    */
-  async saveApplicant(from: string, to?: string): Promise<SyncApplicantsResultDTO | undefined> {
+  async saveApplicant(
+    from: string,
+    to?: string,
+    page?: number,
+  ): Promise<SyncApplicantsResultDTO | undefined> {
+    this.logger.log(`
+    Starting Applicant Sync
+      To: ${to}
+      From: ${from}
+      Page:${page}
+    `);
     /**
      * We want to sync yesterday's data on everyday basis
      * On daily basis we will use auto generated from and to date
@@ -273,7 +283,7 @@ export class ExternalAPIService {
     const audit = await this.saveSyncApplicantsAudit();
 
     try {
-      let applicants = await this.fetchApplicantsFromATS(from_date, to_date);
+      let applicants = await this.fetchApplicantsFromATS(from_date, to_date, page);
 
       applicants = await this.filterContradictoryRows(applicants);
 

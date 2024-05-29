@@ -77,15 +77,23 @@ export class ExternalAPIController {
     required: false,
     example: '2022-02-01',
   })
+  @ApiParam({
+    name: 'page',
+    type: 'number',
+    description: 'Page to fetch',
+    required: false,
+    example: '6',
+  })
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard)
   @Get('/save-applicant')
   async saveApplicant(
     @Query('from') from: string,
     @Query('to') to: string,
+    @Query('page') page: number,
   ): Promise<SyncApplicantsResultDTO | undefined> {
     try {
-      return await this.externalAPIService.saveApplicant(from, to);
+      return await this.externalAPIService.saveApplicant(from, to, page);
     } catch (e) {
       this.logger.error(e);
       if (e instanceof NotFoundException) {
