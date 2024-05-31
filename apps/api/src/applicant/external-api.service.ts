@@ -284,7 +284,6 @@ export class ExternalAPIService {
 
     try {
       let applicants = await this.fetchApplicantsFromATS(from_date, to_date, page);
-
       applicants = await this.filterContradictoryRows(applicants);
 
       const result = await getManager().transaction(async manager => {
@@ -414,17 +413,17 @@ export class ExternalAPIService {
     const applicants: any[] = await this.mapApplicants(data);
     const processed_applicants_list: any[] = [];
 
-    for (let i = 0; i < applicants?.length % 200; i++) {
+    for (let i = 0; i <= applicants?.length / 250; i++) {
       const applicant_slice = applicants.slice(
-        i * 200, // Upsert applicants in chunks of 200
-        min([(i + 1) * 200, applicants.length - 1]), // Length of applicants array or the next 200 applicants, whichever is lower.
+        i * 250, // Upsert applicants in chunks of 250
+        min([(i + 1) * 250, applicants.length - 1]), // Length of applicants array or the next 250 applicants, whichever is lower.
       );
       const applicant_upsert_results = await manager.upsert(IENApplicant, applicant_slice, ['id']);
-      result.applicants.processed += applicant_upsert_results?.raw?.length;
-      if (applicant_upsert_results.raw) {
-        applicant_upsert_results.raw.forEach((item: any) => {
+      result.applicants.processed += applicant_upsert_results?.identifiers?.length || 0;
+      if (applicant_upsert_results.identifiers.length) {
+        applicant_upsert_results.identifiers.forEach((item:any) => {
           if (!!item?.id) {
-            processed_applicants_list.push(item);
+            processed_applicants_list.push(item.id);
           }
         });
       }
@@ -435,12 +434,13 @@ export class ExternalAPIService {
     // Upsert milestones
     const { numOfMilestones, milestonesToBeInserted, milestonesToBeUpdated } =
       await this.mapMilestones(data);
+
     if (milestonesToBeUpdated?.length) {
       try {
-        for (let i = 0; i < milestonesToBeUpdated.length % 200; i++) {
+        for (let i = 0; i <= milestonesToBeUpdated.length / 250; i++) {
           const milestone_to_be_updated_slice = milestonesToBeUpdated.slice(
-            i * 200,
-            min([(i + 1) * 200, milestonesToBeUpdated.length - 1]),
+            i * 250,
+            min([(i + 1) * 250, milestonesToBeUpdated.length - 1]),
           );
           const result = await this.ienapplicantStatusAuditRepository.upsert(
             milestone_to_be_updated_slice,
@@ -455,30 +455,32 @@ export class ExternalAPIService {
         this.logger.error(e);
       }
     }
-    if (milestonesToBeInserted.length) {
-      try {
-        for (let i = 0; i < milestonesToBeInserted.length % 200; i++) {
-          const milestonesToBeInserted_slice = milestonesToBeInserted.slice(
-            i * 200,
-            min([(i + 1) * 200, milestonesToBeInserted.length - 1]),
-          );
-          const result = await manager
-            .createQueryBuilder()
-            .insert()
-            .into(IENApplicantStatusAudit)
-            .values(milestonesToBeInserted_slice)
-            .orIgnore(true)
-            .execute();
-          this.logger.log(`milestones updated: ${result?.raw?.length || 0}`, 'ATS-SYNC');
-        }
-      } catch (e) {
-        this.logger.error(e);
-      }
-    }
 
-    // update applicant with the latest status
-    const mappedApplicantList = processed_applicants_list?.map((item: { id: string }) => item.id);
-    await this.ienapplicantUtilService.updateLatestStatusOnApplicant(mappedApplicantList, manager);
+    if (milestonesToBeInserted.length) {
+        for (let i = 0; i < milestonesToBeInserted.length / 250; i++) {
+          const milestonesToBeInserted_slice = milestonesToBeInserted.slice(
+            i * 250,
+            min([(i + 1) * 250, milestonesToBeInserted.length - 1]),
+          );
+          try{
+
+              const result = await manager
+              .createQueryBuilder()
+              .insert()
+              .into(IENApplicantStatusAudit)
+              .values(milestonesToBeInserted_slice)
+              .orIgnore(true)
+              .execute();
+            this.logger.log(`milestones updated: ${result?.raw?.length || 0}`, 'ATS-SYNC');
+        } catch (e) {
+          this.logger.error(e);
+          throw Error();
+      }
+        }
+
+
+    }
+    await this.ienapplicantUtilService.updateLatestStatusOnApplicant(processed_applicants_list, manager);
 
     const dropped = numOfMilestones - milestonesToBeInserted.length - milestonesToBeUpdated.length;
     result.milestones = {
