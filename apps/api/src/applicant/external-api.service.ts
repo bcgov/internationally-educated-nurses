@@ -421,7 +421,7 @@ export class ExternalAPIService {
       const applicant_upsert_results = await manager.upsert(IENApplicant, applicant_slice, ['id']);
       result.applicants.processed += applicant_upsert_results?.identifiers?.length || 0;
       if (applicant_upsert_results.identifiers.length) {
-        applicant_upsert_results.identifiers.forEach((item:any) => {
+        applicant_upsert_results.identifiers.forEach((item: any) => {
           if (!!item?.id) {
             processed_applicants_list.push(item.id);
           }
@@ -457,30 +457,30 @@ export class ExternalAPIService {
     }
 
     if (milestonesToBeInserted.length) {
-        for (let i = 0; i < milestonesToBeInserted.length / 250; i++) {
-          const milestonesToBeInserted_slice = milestonesToBeInserted.slice(
-            i * 250,
-            min([(i + 1) * 250, milestonesToBeInserted.length - 1]),
-          );
-          try{
-
-              const result = await manager
-              .createQueryBuilder()
-              .insert()
-              .into(IENApplicantStatusAudit)
-              .values(milestonesToBeInserted_slice)
-              .orIgnore(true)
-              .execute();
-            this.logger.log(`milestones updated: ${result?.raw?.length || 0}`, 'ATS-SYNC');
+      for (let i = 0; i < milestonesToBeInserted.length / 250; i++) {
+        const milestonesToBeInserted_slice = milestonesToBeInserted.slice(
+          i * 250,
+          min([(i + 1) * 250, milestonesToBeInserted.length - 1]),
+        );
+        try {
+          const result = await manager
+            .createQueryBuilder()
+            .insert()
+            .into(IENApplicantStatusAudit)
+            .values(milestonesToBeInserted_slice)
+            .orIgnore(true)
+            .execute();
+          this.logger.log(`milestones updated: ${result?.raw?.length || 0}`, 'ATS-SYNC');
         } catch (e) {
           this.logger.error(e);
           throw Error();
-      }
         }
-
-
+      }
     }
-    await this.ienapplicantUtilService.updateLatestStatusOnApplicant(processed_applicants_list, manager);
+    await this.ienapplicantUtilService.updateLatestStatusOnApplicant(
+      processed_applicants_list,
+      manager,
+    );
 
     const dropped = numOfMilestones - milestonesToBeInserted.length - milestonesToBeUpdated.length;
     result.milestones = {
