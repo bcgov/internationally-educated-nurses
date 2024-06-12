@@ -12,8 +12,6 @@ import {
   Not,
   Repository,
   FindManyOptions,
-  ObjectLiteral,
-  SelectQueryBuilder,
   getManager,
   EntityManager,
   In,
@@ -21,7 +19,7 @@ import {
 } from 'typeorm';
 import dayjs from 'dayjs';
 import _ from 'lodash';
-import { AtsApplicant, Authorities, STATUS, StatusCategory } from '@ien/common';
+import { AtsApplicant, STATUS, StatusCategory } from '@ien/common';
 import { ExternalRequest } from 'src/common/external-request';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicant } from './entity/ienapplicant.entity';
@@ -310,7 +308,7 @@ export class ExternalAPIService {
     manager?: EntityManager,
   ): Promise<SyncApplicantsAudit> {
     if (id) {
-      const audit = await this.syncApplicantsAuditRepository.findOne(id);
+      const audit = await this.syncApplicantsAuditRepository.findOne({ where: { id } });
       if (audit) {
         audit.is_success = is_success;
         audit.additional_data = additional_data;
@@ -346,7 +344,9 @@ export class ExternalAPIService {
   async getUsersMap() {
     // fetch user/staff details
     const users = await this.ienMasterService.ienUsersRepository.find({
-      user_id: Not(IsNull()),
+      where: {
+        user_id: Not(IsNull()),
+      },
     });
     return _.keyBy(users, 'user_id');
   }
@@ -624,13 +624,15 @@ export class ExternalAPIService {
 
     // To update ROS milestones created by spreadsheet, replace IDs
     const rosStatus = await this.ienapplicantStatusRepository.findOne({
-      status: STATUS.SIGNED_ROS,
+      where: {
+        status: STATUS.SIGNED_ROS,
+      },
     });
     const rosMilestonesByATS = validMilestones.filter(m => m.status === rosStatus?.id);
     if (rosMilestonesByATS.length) {
       const rosMilestonesBySheet = await this.ienapplicantStatusAuditRepository.find({
         where: {
-          status: rosStatus,
+          status: rosStatus || undefined,
           notes: ILike('%Updated by BCCNM/NCAS%'),
           applicant: In(_.uniq(rosMilestonesByATS.map(m => m.applicant))),
         },
@@ -647,7 +649,9 @@ export class ExternalAPIService {
 
     // exclude bccnm/ncas completion updated by spreadsheet
     const bccnmNcasStatuses = await this.ienapplicantStatusRepository.find({
-      status: In([STATUS.APPLIED_TO_BCCNM, STATUS.COMPLETED_NCAS]),
+      where: {
+        status: In([STATUS.APPLIED_TO_BCCNM, STATUS.COMPLETED_NCAS]),
+      },
     });
     const existingBccnmNcasMilestones = await this.ienapplicantStatusAuditRepository.find({
       where: {
@@ -713,48 +717,13 @@ export class ExternalAPIService {
    * @returns
    */
   async getUsers(filter: IENUserFilterAPIDTO): Promise<[data: IENUsers[], count: number]> {
-    const { from, to, organization, limit, skip } = filter;
+    const { limit, skip } = filter;
 
     const query: FindManyOptions<IENUsers> = {};
 
     if (limit) query.take = limit;
     if (skip) query.skip = skip;
-
-    if (!from && !organization) {
-      return this.ienMasterService.ienUsersRepository.findAndCount(query);
-    }
-
-    const conditions: (string | ObjectLiteral)[] = [];
-
-    if (from) {
-      const users_in_range = `created_date BETWEEN '${from}' AND '${
-        to || new Date().toISOString().slice(0, 10)
-      }'`;
-
-      conditions.push(users_in_range);
-    }
-
-    if (organization) {
-      // get email domain to check for based on acronym search param
-      const domains = Authorities[organization]?.domains;
-
-      const condition = domains?.map(n => `email LIKE '%${n}'`).join(' OR ');
-
-      condition && conditions.push(`(${condition})`);
-    }
-
-    if (conditions.length > 0) {
-      return this.ienMasterService.ienUsersRepository.findAndCount({
-        where: (qb: SelectQueryBuilder<IENUsers>) => {
-          const condition = conditions.shift();
-          if (condition) qb.where(condition);
-          conditions.forEach(c => qb.andWhere(c));
-        },
-        ...query,
-      });
-    } else {
-      return this.ienMasterService.ienUsersRepository.findAndCount(query);
-    }
+    return this.ienMasterService.ienUsersRepository.findAndCount(query);
   }
 
   async getApplicants(filter: IENUserFilterAPIDTO): Promise<ApplicantSyncRO[]> {
@@ -777,8 +746,8 @@ export class ExternalAPIService {
     }
     const ids = audits.map(audit => audit.applicant_id);
     const results = await this.ienapplicantRepository.find({
-      where: (qb: any) => {
-        qb.where(`IENApplicant.id IN (:...ids)`, { ids });
+      where: {
+        id: In(ids),
       },
       relations: [
         'applicant_status_audit',
@@ -788,7 +757,6 @@ export class ExternalAPIService {
         'applicant_status_audit.added_by',
       ],
     });
-
     return results.map((result): ApplicantSyncRO => {
       return {
         id: result.id,
