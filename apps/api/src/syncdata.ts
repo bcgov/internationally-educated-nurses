@@ -31,9 +31,13 @@ export const handler: Handler = async (event, context: Context) => {
       const regex = new RegExp(/^\d{4}-(0[1-9]|1[012])-(0[1-9]|[12]\d|3[01])$/); //yyyy-mm-dd
       if (event.hasOwnProperty('from') && regex.test(event.from)) {
         from = event.from;
+      }else{
+        from = dayjs().add(-1,'day').format('YYYY-MM-DD');
       }
       if (event.hasOwnProperty('to') && regex.test(event.to)) {
         to = event.to;
+      }else{
+        to =dayjs().format('YYYY-MM-DD')
       }
       if (event.hasOwnProperty('page')) {
         page = event.page;
