@@ -20,42 +20,44 @@ export const handler: Handler = async (event, context: Context) => {
   logger.log(context, 'ATS-SYNC');
 
   try {
-    if (event.path === 'master-data') {
-      logger.log('Start master data import...', 'ATS-SYNC');
-      await externalAPIService.saveData();
-    } else if (event.path === 'applicant-data') {
-      logger.log('Start applicant data import...', 'ATS-SYNC');
-      let from = undefined;
-      let to = undefined;
-      let page = undefined;
-      const regex = new RegExp(/^\d{4}-(0[1-9]|1[012])-(0[1-9]|[12]\d|3[01])$/); //yyyy-mm-dd
-      if (event.hasOwnProperty('from') && regex.test(event.from)) {
-        from = event.from;
-      }else{
-        from = dayjs().add(-1,'day').format('YYYY-MM-DD');
-      }
-      if (event.hasOwnProperty('to') && regex.test(event.to)) {
-        to = event.to;
-      }else{
-        to =dayjs().format('YYYY-MM-DD')
-      }
-      if (event.hasOwnProperty('page')) {
-        page = event.page;
-      }
-      await externalAPIService.saveApplicant(from, to, page);
+    switch (event.path) {
+      case 'master-data':
+        logger.log('Start master data import...', 'ATS-SYNC');
+        await externalAPIService.saveData();
+        break;
+      case 'applicant-data':
+        logger.log('Start applicant data import...', 'ATS-SYNC');
+        let from = undefined;
+        let to = undefined;
+        let page = undefined;
+        const regex = new RegExp(/^\d{4}-(0[1-9]|1[012])-(0[1-9]|[12]\d|3[01])$/); //yyyy-mm-dd
+        if (event.hasOwnProperty('from') && regex.test(event.from)) {
+          from = event.from;
+        } else {
+          from = dayjs().add(-1, 'day').format('YYYY-MM-DD');
+        }
+        if (event.hasOwnProperty('to') && regex.test(event.to)) {
+          to = event.to;
+        } else {
+          to = dayjs().format('YYYY-MM-DD');
+        }
+        if (event.hasOwnProperty('page')) {
+          page = event.page;
+        }
+        await externalAPIService.saveApplicant(from, to, page);
+        break;
     }
   } catch (e) {
     logger.error(e, 'ATS-SYNC');
-    const to = process.env.MAIL_RECIPIENTS;
-    if (to) {
-      const mailService = app.get(MailService);
-      await mailService.sendMailWithSES({
-        body: `${e.message}: ${e.stack}`,
+    const to = process.env.MAIL_RECIPIENTS || '';
+    const mailService = app.get(MailService);
+    to &&
+      (await mailService.sendMailWithSES({
+        body: `${e?.message}: ${e?.stack}`,
         from: process.env.MAIL_FROM ?? 'IENDoNotReply@ien.gov.bc.ca',
         subject: `[IEN] Syncing ${event.path} failed at ${dayjs().format('YYYY-MM-DD HH:mm:ss')}`,
         to: to.split(','),
-      });
-    }
+      }));
   }
   logger.log('...end SyncData', 'ATS-SYNC');
   await app.close();
