@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import dayjs from 'dayjs';
 import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { FindManyOptions, getManager, In, IsNull, Repository } from 'typeorm';
+import { FindManyOptions, getManager, In, IsNull, Not, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ApplicantRO, EmployeeRO, HealthAuthorities, isAdmin, StatusCategory } from '@ien/common';
 import { AppLogger } from 'src/common/logger.service';
@@ -320,24 +320,42 @@ export class IENApplicantService {
     data.notes = notes;
     data.type = milestone.type;
 
-    let status_audit = null;
-
-    await getManager().transaction(async manager => {
-      status_audit = await this.ienapplicantUtilService.addApplicantStatusAudit(
+    const deleted = await this.ienapplicantStatusAuditRepository.findOne(
+      {
         applicant,
-        data,
+        status: statusDef,
         job,
-        manager,
-      );
+        deleted_date: Not(IsNull()),
+      },
+      {
+        withDeleted: true,
+      },
+    );
+
+    return await getManager().transaction(async manager => {
+      let status_audit = null;
+      if (deleted) {
+        await this.ienapplicantStatusAuditRepository.update(deleted.id, {
+          ...data,
+          deleted_date: undefined,
+        });
+        status_audit = await this.ienapplicantStatusAuditRepository.findOne(deleted.id);
+      } else {
+        status_audit = await this.ienapplicantUtilService.addApplicantStatusAudit(
+          applicant,
+          data,
+          job,
+          manager,
+        );
+      }
 
       // Let's check and updated the latest status on applicant
       await this.ienapplicantUtilService.updateLatestStatusOnApplicant([applicant.id], manager);
-      await manager.update<IENApplicant>(IENApplicant, status_audit.applicant.id, {
+      await manager.update<IENApplicant>(IENApplicant, applicant.id, {
         updated_date: new Date(),
       });
       return status_audit;
     });
-    return status_audit;
   }
 
   /**
@@ -424,7 +442,7 @@ export class IENApplicantService {
     }
 
     await getManager().transaction(async manager => {
-      await manager.delete<IENApplicantStatusAudit>(IENApplicantStatusAudit, status_id);
+      await manager.softDelete<IENApplicantStatusAudit>(IENApplicantStatusAudit, status_id);
       await manager.update<IENApplicant>(IENApplicant, status.applicant.id, {
         updated_date: new Date(),
       });

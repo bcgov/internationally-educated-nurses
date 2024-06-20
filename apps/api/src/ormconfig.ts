@@ -19,7 +19,7 @@ const config: PostgresConnectionOptions = {
   },
   entities: ['dist/**/entity/*.entity.js'],
   migrations: ['dist/migration/*.js'],
-  subscribers: ['dist/**/*.subscribers.js'],
+  subscribers: ['dist/**/*.subscriber.js'],
   synchronize: false,
   migrationsRun: true,
   namingStrategy: new DatabaseNamingStrategy(),

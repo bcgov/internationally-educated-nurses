@@ -22,6 +22,8 @@ export const EditableMilestone = (props: EditableMilestoneProps) => {
 
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
+  if (!milestone) return null;
+
   return (
     <MilestoneView milestone={milestone}>
       <AclMask acl={[Access.APPLICANT_WRITE]}>
