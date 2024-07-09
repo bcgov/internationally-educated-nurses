@@ -66,4 +66,12 @@ function useAuthContext() {
   return context;
 }
 
-export { AuthProvider, useAuthContext };
+/**
+ * helper for check if user is HA user
+ */
+function useIsHAUser(): { isHAUser: boolean } {
+  const { authUser } = useAuthContext();
+  return { isHAUser: !!authUser?.ha_pcn_id };
+}
+
+export { AuthProvider, useAuthContext, useIsHAUser };
