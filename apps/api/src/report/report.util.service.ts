@@ -731,7 +731,12 @@ export class ReportUtilService {
     return this.getMilestoneIds(statuses, index >= 0 ? milestones.slice(index + 1) : []);
   }
 
-  extractApplicantsDataQuery(from: string, to: string, milestones: IENApplicantStatus[]) {
+  extractApplicantsDataQuery(
+    from: string,
+    to: string,
+    milestones: IENApplicantStatus[],
+    ha_pcn_id?: string | null,
+  ) {
     const milestone_ids: string[] = [];
     const milestoneList: string[] = [];
     milestones.forEach((item: { id: string; status: string }) => {
@@ -772,7 +777,7 @@ export class ReportUtilService {
     `;
   }
 
-  extractApplicantMilestoneQuery(from: string, to: string) {
+  extractApplicantMilestoneQuery(from: string, to: string, ha_pcn_id?: string | null) {
     return `
     select milestone.applicant_id "Applicant ID", 
       applicant.registration_date "Registration Date", 
@@ -807,6 +812,7 @@ export class ReportUtilService {
     WHERE milestone.start_date::date >= '${from}' 
       AND milestone.start_date::date <= '${to}'
       AND ien_applicant_status.version = '2'
+      ${!!ha_pcn_id ? `AND ien_ha_pcn.id = '${ha_pcn_id}'` : ''}
       ORDER BY milestone.applicant_id
     `;
   }

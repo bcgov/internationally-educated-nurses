@@ -1,9 +1,9 @@
 import { Controller, Get, Inject, Logger, Query, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { Access, ReportPeriodDTO } from '@ien/common';
+import { Access, ReportPeriodDTO, EmployeeRO } from '@ien/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { AppLogger } from 'src/common/logger.service';
-import { AllowAccess } from 'src/common/decorators';
+import { AllowAccess, User } from 'src/common/decorators';
 import { ReportService } from './report.service';
 
 @Controller('reports')
@@ -146,8 +146,11 @@ export class ReportController {
   @ApiOperation({ summary: 'Extract applicant details' })
   @Get('/applicant/extract-data')
   @AllowAccess(Access.DATA_EXTRACT)
-  async extractApplicantsData(@Query() dates: ReportPeriodDTO): Promise<object[]> {
-    return this.reportService.extractApplicantsData(dates);
+  async extractApplicantsData(
+    @Query() dates: ReportPeriodDTO,
+    @User() user: EmployeeRO,
+  ): Promise<object[]> {
+    return this.reportService.extractApplicantsData(dates, user?.ha_pcn_id);
   }
   @ApiOperation({ summary: 'Extract milestones' })
   @Get('/applicant/extract-milestones')
@@ -155,7 +158,8 @@ export class ReportController {
   async extractMilestoneData(
     @Query('from') from: string,
     @Query('to') to: string,
+    @User() user: EmployeeRO,
   ): Promise<object[]> {
-    return await this.reportService.extractMilestoneData({ to, from });
+    return await this.reportService.extractMilestoneData({ to, from }, user?.ha_pcn_id);
   }
 }

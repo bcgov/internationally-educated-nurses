@@ -775,7 +775,7 @@ export class ReportService {
    * @param dates start and end date for data extract YYYY-MM-DD
    * @returns
    */
-  async extractApplicantsData(dates: ReportPeriodDTO) {
+  async extractApplicantsData(dates: ReportPeriodDTO, ha_pcn_id?: string | null) {
     const { from, to } = dates;
     this.logger.log(`extractApplicantsData: Apply date filter from (${from}) and to (${to})`);
 
@@ -792,7 +792,7 @@ export class ReportService {
     });
     const entityManager = getManager();
     const data = await entityManager.query(
-      this.reportUtilService.extractApplicantsDataQuery(from, to, milestones),
+      this.reportUtilService.extractApplicantsDataQuery(from, to, milestones, ha_pcn_id),
     );
 
     // set IEN type
@@ -814,11 +814,11 @@ export class ReportService {
    * @param dates start and end date for data extract YYYY-MM-DD
    * @returns
    */
-  async extractMilestoneData(dates?: ReportPeriodDTO) {
+  async extractMilestoneData(dates?: ReportPeriodDTO, ha_pcn_id?: string | null) {
     const { from, to } = dates || { from: '2001-01-01', to: dayjs().format('YYYY-MM-DD') };
     const entityManager = getManager();
     return await entityManager.query(
-      this.reportUtilService.extractApplicantMilestoneQuery(from, to),
+      this.reportUtilService.extractApplicantMilestoneQuery(from, to, ha_pcn_id),
     );
   }
 
