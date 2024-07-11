@@ -804,7 +804,7 @@ export class ReportService {
     });
     const entityManager = getManager();
     const data = await entityManager.query(
-      this.reportUtilService.extractApplicantsDataQuery(from, to, milestones, ha_pcn_id),
+      this.reportUtilService.extractApplicantsDataQuery(from, to, milestones),
     );
 
     // set IEN type

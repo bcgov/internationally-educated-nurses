@@ -731,12 +731,7 @@ export class ReportUtilService {
     return this.getMilestoneIds(statuses, index >= 0 ? milestones.slice(index + 1) : []);
   }
 
-  extractApplicantsDataQuery(
-    from: string,
-    to: string,
-    milestones: IENApplicantStatus[],
-    ha_pcn_id?: string | null,
-  ) {
+  extractApplicantsDataQuery(from: string, to: string, milestones: IENApplicantStatus[]) {
     const milestone_ids: string[] = [];
     const milestoneList: string[] = [];
     milestones.forEach((item: { id: string; status: string }) => {
