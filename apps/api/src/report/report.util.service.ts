@@ -812,7 +812,7 @@ export class ReportUtilService {
     WHERE milestone.start_date::date >= '${from}' 
       AND milestone.start_date::date <= '${to}'
       AND ien_applicant_status.version = '2'
-      ${!!ha_pcn_id ? `AND ien_ha_pcn.id = '${ha_pcn_id}'` : ''}
+      ${ha_pcn_id ? `AND ien_ha_pcn.id = '${ha_pcn_id}'` : ''}
       ORDER BY milestone.applicant_id
     `;
   }

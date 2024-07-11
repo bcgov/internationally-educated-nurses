@@ -1,6 +1,6 @@
 import { Inject, Logger } from '@nestjs/common';
 import { mean, median, min, mode, round } from 'mathjs';
-import { getManager, Repository, In, getRepository, Not } from 'typeorm';
+import { getManager, Repository, In, getRepository, Not, ILike } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import dayjs from 'dayjs';
 import _ from 'lodash';
@@ -20,6 +20,7 @@ import {
   StatusCategory,
 } from '@ien/common';
 import { DurationEntry, DurationSummary, MilestoneTableEntry } from './types';
+import { IENHaPcn } from 'src/applicant/entity/ienhapcn.entity';
 
 export const PERIOD_START_DATE = '2022-05-02';
 
@@ -30,6 +31,8 @@ export class ReportService {
     private readonly reportUtilService: ReportUtilService,
     @InjectRepository(IENApplicantStatus)
     private readonly ienapplicantStatusRepository: Repository<IENApplicantStatus>,
+    @InjectRepository(IENHaPcn)
+    private readonly ienHaPcnRepository: Repository<IENHaPcn>,
   ) {}
 
   captureFromTo(from: string, to: string) {
@@ -776,6 +779,14 @@ export class ReportService {
    * @returns
    */
   async extractApplicantsData(dates: ReportPeriodDTO, ha_pcn_id?: string | null) {
+    let pcn: IENHaPcn | undefined;
+    if (ha_pcn_id) {
+      pcn = await this.ienHaPcnRepository.findOne(ha_pcn_id);
+      if (!pcn) {
+        throw new Error(`HA PCN not found for ${ha_pcn_id}`);
+      }
+    }
+
     const { from, to } = dates;
     this.logger.log(`extractApplicantsData: Apply date filter from (${from}) and to (${to})`);
 
@@ -788,6 +799,7 @@ export class ReportService {
         ]),
         status: Not(In(PATHWAYS)),
         version: '2',
+        ...(!pcn ? {} : { status: ILike(`%Referred to ${pcn.abbreviation}%`) }),
       },
     });
     const entityManager = getManager();
@@ -806,6 +818,7 @@ export class ReportService {
     this.logger.log(
       `extractApplicantsData: query completed a total of ${data.length} record returns`,
     );
+    // console.log(data);
     return data;
   }
 
