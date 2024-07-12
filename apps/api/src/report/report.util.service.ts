@@ -785,14 +785,15 @@ export class ReportUtilService {
       ien_ha_pcn.abbreviation "Health Authority",
       ien_applicant_status.status "Milestone",
       milestone.type "Type",
-      milestone.start_date "Start Date",
+      milestone.start_date "Start Date",      
       (
         case
         when ien_applicant_status.category = 'IEN Recruitment Process' then ''
         when position('Updated by BCCNM/NCAS' IN milestone.notes) > 0 then 'BCCNM/NCAS spreadsheet'
         else 'HMBC SYNC'
         end
-      ) as  "Source"
+      ) as  "Source",
+      reason.name "Reason"
     FROM ien_applicant_status_audit milestone 
       LEFT JOIN ien_applicants applicant 
         ON milestone.applicant_id = applicant.id
@@ -804,6 +805,8 @@ export class ReportUtilService {
         ON job.ha_pcn_id = ien_ha_pcn.id
       LEFT JOIN pathway
         ON pathway.id = applicant.pathway_id
+      LEFT JOIN ien_status_reasons reason
+        ON reason.id = milestone.reason_id
     WHERE milestone.start_date::date >= '${from}' 
       AND milestone.start_date::date <= '${to}'
       AND ien_applicant_status.version = '2'
