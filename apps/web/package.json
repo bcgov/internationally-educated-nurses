@@ -13,9 +13,9 @@
   },
   "dependencies": {
     "@babel/plugin-proposal-decorators": "7.24.7",
-    "@fortawesome/fontawesome-svg-core": "1.2.36",
-    "@fortawesome/free-solid-svg-icons": "5.15.4",
-    "@fortawesome/react-fontawesome": "0.1.16",
+    "@fortawesome/fontawesome-svg-core": "6.5.2",
+    "@fortawesome/free-solid-svg-icons": "6.5.2",
+    "@fortawesome/react-fontawesome": "0.2.2",
     "@headlessui/react": "1.4.2",
     "@ien/common": "1.0.1",
     "@types/cookie": "0.4.1",
