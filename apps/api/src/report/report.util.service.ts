@@ -785,7 +785,7 @@ export class ReportUtilService {
       ien_ha_pcn.abbreviation "Health Authority",
       ien_applicant_status.status "Milestone",
       milestone.type "Type",
-      milestone.start_date "Start Date",      
+      milestone.start_date "Start Date",
       (
         case
         when ien_applicant_status.category = 'IEN Recruitment Process' then ''
