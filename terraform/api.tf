@@ -16,7 +16,7 @@ resource "aws_lambda_function" "api" {
   description      = "API for ${local.namespace}"
   function_name    = local.api_name
   role             = aws_iam_role.lambda.arn
-  runtime          = "nodejs14.x"
+  runtime          = "nodejs18.x"
   handler          = "api/lambda.handler" # TODO update 
   memory_size      = var.function_memory_mb
   timeout          = 30

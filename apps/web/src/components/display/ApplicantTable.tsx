@@ -114,13 +114,10 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
                       pathname: `/details`,
                       query: { ...router?.query, id: app.id },
                     }}
+                    className={`px-4 ${buttonColor.outline} ${buttonBase} text-bcGray`}
+                    id={`details-${index}`}
                   >
-                    <a
-                      className={`px-4 ${buttonColor.outline} ${buttonBase} text-bcGray`}
-                      id={`details-${index}`}
-                    >
-                      Details
-                    </a>
+                    Details
                   </Link>
                 </td>
               </tr>

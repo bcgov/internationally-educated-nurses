@@ -286,7 +286,6 @@ build-api:
 build-web:
 	@echo "++\n***** Building Web for AWS\n++"
 	@yarn workspace @ien/web build
-	@yarn workspace @ien/web export
 	@mv ./apps/web/out ./terraform/build/app
 	@echo "++\n*****"
 
