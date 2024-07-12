@@ -817,7 +817,7 @@ export class ReportService {
 
     this.logger.log(
       `extractApplicantsData: query completed a total of ${data.length} record returns`,
-    );   
+    );
     return data;
   }
 
