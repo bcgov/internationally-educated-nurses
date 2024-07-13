@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "npx --yes serve@latest out",
     "lint": "next lint",
     "test": "jest",
     "open:cypress": "cypress open",
