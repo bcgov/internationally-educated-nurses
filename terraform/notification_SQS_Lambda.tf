@@ -15,7 +15,7 @@ resource "aws_lambda_function" "SQSLambda" {
   description      = "Trigger Lambda when new Message received in SQS"
   function_name    = local.notify_lambda_name
   role             = aws_iam_role.lambda.arn
-  runtime          = "nodejs14.x"
+  runtime          = "nodejs18.x"
   filename         = "./build/empty_lambda.zip"
   source_code_hash = filebase64sha256("./build/empty_lambda.zip")
   handler          = "api/notifylambda.handler"
