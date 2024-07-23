@@ -31,6 +31,10 @@ export NEXT_PUBLIC_API_URL ?= /api/v1
 export NEXT_PUBLIC_AUTH_REALM ?= moh_applications
 export NEXT_PUBLIC_AUTH_CLIENTID ?= IEN
 
+# BE Env Vars
+export AUTH_URL:=$(AUTH_URL)
+export AUTH_REALM:=$(AUTH_REALM)
+
 # Docker container names
 LOCAL_API_CONTAINER_NAME = $(PROJECT)_api
 
@@ -45,6 +49,8 @@ DOCS_BUCKET = $(NAMESPACE)-docs
 TERRAFORM_DIR = terraform
 export BOOTSTRAP_ENV=terraform/bootstrap
 
+export KC_ADMIN=kcadmin
+export KC_ADMIN_PASSWORD=password
 
 ifeq ($(ENV_NAME), prod)
 export DOMAIN=ien.gov.bc.ca
@@ -207,6 +213,11 @@ api-integration-test:
 	@NODE_ENV=test yarn workspace @ien/api test:e2e
 	@echo "++\n*****"
 	@make stop-test-db
+
+run-seed:
+	@make start-test-env
+	@scripts/seed-test-data.sh	
+	@echo "++\n*****"
 
 run-test-apps:
 	@make start-test-env

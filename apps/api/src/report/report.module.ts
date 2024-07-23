@@ -6,11 +6,12 @@ import { EmployeeModule } from 'src/employee/employee.module';
 import { ReportController } from './report.controller';
 import { ReportService } from './report.service';
 import { ReportUtilService } from './report.util.service';
+import { IENHaPcn } from 'src/applicant/entity/ienhapcn.entity';
 
 @Module({
   controllers: [ReportController],
   imports: [
-    TypeOrmModule.forFeature([IENApplicantStatus]),
+    TypeOrmModule.forFeature([IENApplicantStatus, IENHaPcn]),
     forwardRef(() => AuthModule),
     forwardRef(() => EmployeeModule),
   ],

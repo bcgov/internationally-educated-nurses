@@ -66,6 +66,8 @@ services:
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:4000/api/v1
       - RUNTIME_ENV=local
+      - NEXT_PUBLIC_AUTH_REALM=${NEXT_PUBLIC_AUTH_REALM}
+      - NEXT_PUBLIC_AUTH_URL=${NEXT_PUBLIC_AUTH_URL}
     depends_on:
       - api
 networks:
