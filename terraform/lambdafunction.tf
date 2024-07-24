@@ -2,7 +2,7 @@ resource "aws_lambda_function" "SyncApplicants" {
   description      = "Trigger Sync applicant and master data service"
   function_name    = local.syncdata_lambda_name
   role             = aws_iam_role.lambda.arn
-  runtime          = "nodejs14.x"
+  runtime          = "nodejs18.x"
   filename         = "./build/empty_lambda.zip"
   source_code_hash = filebase64sha256("./build/empty_lambda.zip")
   handler          = "api/syncdata.handler"
@@ -51,7 +51,7 @@ resource "aws_lambda_function" "SyncApplicants" {
 }
 
 
-# Scheduler to sync master tables
+#Scheduler to sync master tables
 resource "aws_cloudwatch_event_rule" "hmbc_to_ien_masters" {
   name                = local.sync_master_data_scheduler
   description         = "7:00AM UTC - 11:00PM PST On the 15th of every month"
@@ -72,22 +72,22 @@ resource "aws_lambda_permission" "hmbc_to_ien_masters" {
 }
 
 
-# Scheduler to sync applicant and applicant-milestones
-resource "aws_cloudwatch_event_rule" "hmbc_to_ien_applicants" {
-  name                = local.sync_applicant_data_scheduler
-  description         = "8:00AM UTC - 12:00AM PST on the 15th of every month"
-  schedule_expression = "cron(0 8 * * ? *)"
-}
-resource "aws_cloudwatch_event_target" "hmbc_to_ien_applicants" {
-  rule  = aws_cloudwatch_event_rule.hmbc_to_ien_applicants.name
-  arn   = aws_lambda_function.SyncApplicants.arn
-  input = "{\"path\": \"applicant-data\"}"
-}
+# # Scheduler to sync applicant and applicant-milestones
+# resource "aws_cloudwatch_event_rule" "hmbc_to_ien_applicants" {
+#   name                = local.sync_applicant_data_scheduler
+#   description         = "8:00AM UTC - 12:00AM PST on the 15th of every month"
+#   schedule_expression = "cron(0 8 * * ? *)"
+# }
+# resource "aws_cloudwatch_event_target" "hmbc_to_ien_applicants" {
+#   rule  = aws_cloudwatch_event_rule.hmbc_to_ien_applicants.name
+#   arn   = aws_lambda_function.SyncApplicants.arn
+#   input = "{\"path\": \"applicant-data\"}"
+# }
 
-resource "aws_lambda_permission" "hmbc_to_ien_applicants" {
-  statement_id  = "AllowExecutionFromCloudWatch_EarlyMorning"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.SyncApplicants.function_name
-  principal     = "events.amazonaws.com"
-  source_arn    = aws_cloudwatch_event_rule.hmbc_to_ien_applicants.arn
-}
+# resource "aws_lambda_permission" "hmbc_to_ien_applicants" {
+#   statement_id  = "AllowExecutionFromCloudWatch_EarlyMorning"
+#   action        = "lambda:InvokeFunction"
+#   function_name = aws_lambda_function.SyncApplicants.function_name
+#   principal     = "events.amazonaws.com"
+#   source_arn    = aws_cloudwatch_event_rule.hmbc_to_ien_applicants.arn
+# }
