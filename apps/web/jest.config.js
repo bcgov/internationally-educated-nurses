@@ -4,6 +4,7 @@ module.exports = {
   moduleNameMapper: {
     '^@components$': '<rootDir>/src/components',
     '^@services$': '<rootDir>/src/services',
+    '^@utils/(.*)$': '<rootDir>/src/utils/$1',
     /* Handle CSS imports (with CSS modules)
     https://jestjs.io/docs/webpack#mocking-css-modules */
     '^.+\\.module\\.(css|sass|scss)$': 'identity-obj-proxy',

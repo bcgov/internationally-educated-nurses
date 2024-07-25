@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import { Formik, Form as FormikForm, FormikHelpers } from 'formik';
 import { WorkBook, writeFileXLSX } from 'xlsx-js-style';
-import { createValidator } from 'src/utils/dto-validator';
+import { createValidator } from '@utils/dto-validator';
 import ReactSelect from 'react-select';
 
 import { Button, getSelectStyleOverride, Label } from '@components';
