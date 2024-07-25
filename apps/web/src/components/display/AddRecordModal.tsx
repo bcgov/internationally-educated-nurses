@@ -1,7 +1,7 @@
 import React from 'react';
 import { useRouter } from 'next/router';
 import { Formik, Form as FormikForm, FieldProps } from 'formik';
-import createValidator from 'class-validator-formik';
+import { createValidator } from 'src/utils/dto-validator';
 import ReactSelect from 'react-select';
 import { toast } from 'react-toastify';
 import dayjs from 'dayjs';
