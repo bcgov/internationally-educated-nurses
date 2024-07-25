@@ -22,7 +22,7 @@ export const UserDropdown = () => {
     const redirectUri = window.location.origin;
 
     removeUser().then(() => {
-      signoutRedirect({ id_token_hint: undefined, post_logout_redirect_uri: redirectUri });
+      signoutRedirect({ post_logout_redirect_uri: redirectUri });
       clearStaleState();
     });
   };
