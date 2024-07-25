@@ -9,7 +9,7 @@ const HIDE_MENU_DELAY = 200;
 export const UserDropdown = () => {
   const { authUser } = useAuthContext();
 
-  const { signoutRedirect } = useAuth();
+  const { signoutRedirect, removeUser, clearStaleState } = useAuth();
   const [showMenu, setShowMenu] = useState(false);
 
   const hideMenu = () => {
@@ -19,13 +19,12 @@ export const UserDropdown = () => {
   if (!authUser) return null;
 
   const logout = () => {
-    let redirectUri = window.location.origin;
-    if (process.env.NEXT_PUBLIC_AUTH_URL?.includes('common-logon-test')) {
-      redirectUri = `https://logontest7.gov.bc.ca/clp-cgi/logoff.cgi?retnow=1&returl=${redirectUri}`;
-    } else if (process.env.NEXT_PUBLIC_AUTH_URL?.includes('common-logon')) {
-      redirectUri = `https://logon7.gov.bc.ca/clp-cgi/logoff.cgi?retnow=1&returl=${redirectUri}`;
-    }
-    signoutRedirect({ post_logout_redirect_uri: redirectUri });
+    const redirectUri = window.location.origin;
+
+    removeUser().then(() => {
+      signoutRedirect({ id_token_hint: undefined, post_logout_redirect_uri: redirectUri });
+      clearStaleState();
+    });
   };
 
   return (
