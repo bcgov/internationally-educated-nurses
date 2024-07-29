@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+import { useSearchParams } from 'next/navigation';
 import { AclMask, buttonBase, buttonColor } from '@components';
 import { ApplicantRO, formatDate, isHmbc, isHired, HealthAuthorities } from '@ien/common';
 import hiredCheckmarkIcon from '@assets/img/hired_checkmark.svg';
@@ -36,7 +36,7 @@ const milestoneText = (applicant: ApplicantRO) => {
 
 export const ApplicantTable = (props: ApplicantTableProps) => {
   const { applicants, loading, onSortChange } = props;
-  const router = useRouter();
+  const searchParams = useSearchParams();
 
   const { authUser } = useAuthContext();
   const isHAUser = HealthAuthorities.some(a => a.name === authUser?.organization);
@@ -112,7 +112,7 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
                   <Link
                     href={{
                       pathname: `/details`,
-                      query: { ...router?.query, id: app.id },
+                      query: { ...Object.fromEntries(searchParams?.entries() || []), id: app.id },
                     }}
                     className={`px-4 ${buttonColor.outline} ${buttonBase} text-bcGray`}
                     id={`details-${index}`}
