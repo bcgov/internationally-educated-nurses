@@ -16,7 +16,7 @@
     "@fortawesome/fontawesome-svg-core": "6.5.2",
     "@fortawesome/free-solid-svg-icons": "6.5.2",
     "@fortawesome/react-fontawesome": "0.2.2",
-    "@headlessui/react": "1.4.2",
+    "@headlessui/react": "2.1.2",
     "@ien/common": "1.0.1",
     "@types/cookie": "0.4.1",
     "@types/cookies": "0.7.7",
@@ -33,7 +33,7 @@
     "react-dom": "18.3.1",
     "react-oidc-context": "2.3.0",
     "react-select": "5.2.1",
-    "react-toastify": "8.2.0",
+    "react-toastify": "10.0.5",
     "use-http": "1.0.26",
     "xlsx-js-style": "1.2.0"
   },
