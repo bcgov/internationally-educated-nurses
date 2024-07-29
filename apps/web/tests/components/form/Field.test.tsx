@@ -65,7 +65,7 @@ describe('FormError', () => {
     expect(inputElement).toHaveAccessibleDescription(fieldDescription);
   });
 
-  it('renders an error when it exists in formik context', () => {
+  it('renders an error when it exists in formik context', async () => {
     const mock = jest.fn();
     const fieldName = 'fieldName';
     const fieldType = 'text';
@@ -75,6 +75,7 @@ describe('FormError', () => {
     render(
       <Formik
         initialValues={{ [fieldName]: '' }}
+        initialTouched={{ [fieldName]: true }}
         initialErrors={{ [fieldName]: fieldError }}
         onSubmit={mock}
       >
@@ -82,8 +83,9 @@ describe('FormError', () => {
       </Formik>,
     );
 
-    const errorElement = screen.getByRole('alert');
+    const alertContainer = await screen.findByRole('alert');
 
-    expect(errorElement).toBeInTheDocument();
+    expect(alertContainer).toBeInTheDocument();
+    expect(alertContainer.firstChild).toHaveTextContent(fieldError);
   });
 });

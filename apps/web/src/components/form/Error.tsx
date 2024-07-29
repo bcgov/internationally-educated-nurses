@@ -6,10 +6,12 @@ export interface ErrorProps {
 
 export const Error: React.FC<ErrorProps> = ({ name }) => {
   return (
-    <div role='alert'>
-      <ErrorMessage name={name}>
-        {msg => <p className='block text-red-600 text-sm'>{msg}</p>}
-      </ErrorMessage>
-    </div>
+    <ErrorMessage name={name}>
+      {msg => (
+        <div role='alert'>
+          <p className='block text-red-600 text-sm'>{msg}</p>
+        </div>
+      )}
+    </ErrorMessage>
   );
 };

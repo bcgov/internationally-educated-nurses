@@ -13,9 +13,9 @@ describe('FormError', () => {
         <Error name={fieldName} />
       </Formik>,
     );
-    const alertContainer = screen.getByRole('alert');
+    const alertContainer = screen.queryByRole('alert');
 
-    expect(alertContainer).toBeInTheDocument();
+    expect(alertContainer).toBeNull();
   });
 
   it('renders no children when no associated error exists', () => {
@@ -27,9 +27,9 @@ describe('FormError', () => {
         <Error name={fieldName} />
       </Formik>,
     );
-    const alertContainer = screen.getByRole('alert');
+    const alertContainer = screen.queryByRole('alert');
 
-    expect(alertContainer.firstChild).toBeNull();
+    expect(alertContainer).toBeNull();
   });
 
   it('renders an alert when an associated error is present', async () => {
