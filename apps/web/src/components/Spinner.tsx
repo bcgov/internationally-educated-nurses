@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+// import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { SizeProp } from '@fortawesome/fontawesome-svg-core';
 
 interface SpinnerProps {
@@ -14,7 +14,7 @@ export const Spinner = ({ className, relative, size }: SpinnerProps) => {
     : 'fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2';
   return (
     <div className={classes}>
-      <FontAwesomeIcon icon={faSpinner} className={`animate-spin ${className}`} size={size} />
+      <FontAwesomeIcon icon="spinner" className={`animate-spin ${className}`} size={size} />
     </div>
   );
 };
