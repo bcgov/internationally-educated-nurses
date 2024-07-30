@@ -32,7 +32,7 @@
     "react-datepicker": "4.8.0",
     "react-dom": "18.3.1",
     "react-oidc-context": "2.3.0",
-    "react-select": "5.2.1",
+    "react-select": "5.8.0",
     "react-toastify": "10.0.5",
     "use-http": "1.0.26",
     "xlsx-js-style": "1.2.0"
