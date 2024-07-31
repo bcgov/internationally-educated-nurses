@@ -8,7 +8,7 @@ function handler(event) {
   headers['content-security-policy'] = {
     // We need to hard code both as there isn't a good way of checking environment to dynamically determine which
     value:
-      "default-src 'self' https://keycloak.freshworks.club https://common-logon-dev.hlth.gov.bc.ca https://common-logon-test.hlth.gov.bc.ca https://common-logon.hlth.gov.bc.ca; img-src 'self'; style-src 'self'; script-src 'self'; form-action 'self'; frame-ancestors 'self'",
+      "default-src 'self' https://keycloak.freshworks.club https://common-logon-dev.hlth.gov.bc.ca https://common-logon-test.hlth.gov.bc.ca https://common-logon.hlth.gov.bc.ca; img-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'; form-action 'self'; frame-ancestors 'self'",
   };
   headers['x-content-type-options'] = { value: 'nosniff' };
   headers['x-frame-options'] = { value: 'DENY' };
