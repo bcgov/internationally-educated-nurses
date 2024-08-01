@@ -104,7 +104,7 @@ Cypress.Commands.add('editJob', (job: IENApplicantJobCreateUpdateDTO) => {
   cy.get('#job_location').click().type('{backspace}');
   cy.get('#job_location').click().type(`${job.job_location}{enter}`);
   cy.get('#job_post_date').click().clear();
-  cy.get('#job_post_date').click().clear().type(`${job.job_post_date}`);
+  cy.get('#job_post_date').click().clear().type(`${job.job_post_date}{enter}`);
 
   cy.contains('button', 'Update').click();
 

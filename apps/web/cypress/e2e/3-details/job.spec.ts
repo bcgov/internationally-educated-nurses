@@ -45,7 +45,7 @@ describe('Details - Job', () => {
   });
 
   it('edits a job competition', () => {
-    cy.get('[data-cy=record-1]').click(); // to place the record at the top
+    cy.get('[data-cy=record-0]').click(); // to place the record at the top
     cy.contains('button', 'Edit Details').click();
     cy.editJob(updateJob);
   });
