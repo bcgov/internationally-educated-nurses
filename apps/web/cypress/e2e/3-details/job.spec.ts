@@ -51,7 +51,7 @@ describe('Details - Job', () => {
   });
 
   it('rejects a duplicate job record by editing', () => {
-    cy.get('[data-cy=record-0]').click();
+    cy.get('[data-cy=record-1]').click();
     cy.contains('button', 'Edit Details').click();
     cy.editDuplicateJob(newJob);
   });

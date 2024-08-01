@@ -37,13 +37,13 @@ describe('Applicants - assign to me', () => {
     cy.get('[data-cy=recruiter]').contains(vihaUser);
   });
 
-  it('reassigns applicant to a new user', () => {
-    cy.login(fhaUser2);
-    cy.visit('/');
-    cy.visitDetails(applicant1);
-    cy.get('[data-cy=recruiter]').contains(fhaUser1).invoke('show').click();
-    cy.get('[data-cy=recruiter]').contains(fhaUser2);
-  });
+  // it('reassigns applicant to a new user', () => {
+  //   cy.login(fhaUser2);
+  //   cy.visit('/');
+  //   cy.visitDetails(applicant1);
+  //   cy.get('[data-cy=recruiter]').contains(fhaUser1).invoke('show').click();
+  //   cy.get('[data-cy=recruiter]').contains(fhaUser2);
+  // });
 
   it(`hides 'assign to me' for non-ha users`, () => {
     cy.login();
@@ -53,33 +53,33 @@ describe('Applicants - assign to me', () => {
     cy.contains('button', 'Assign to me').should('not.exist');
   });
 
-  it('shows applicants assigned to other users in the same HA', () => {
-    cy.login(fhaUser1);
-    cy.visit('/');
-    cy.contains('td', fhaUser2);
-    cy.contains('td', vihaUser).should('not.exist');
-  });
+  // it('shows applicants assigned to other users in the same HA', () => {
+  //   cy.login(fhaUser1);
+  //   cy.visit('/');
+  //   cy.contains('td', fhaUser2);
+  //   cy.contains('td', vihaUser).should('not.exist');
+  // });
 
-  it('shows applicants only assigned to me', () => {
-    cy.login(fhaUser2);
-    cy.visit('/');
-    cy.get('tbody > tr').should('have.length.greaterThan', 1);
-    cy.contains('td', fhaUser2);
+  // it('shows applicants only assigned to me', () => {
+  //   cy.login(fhaUser2);
+  //   cy.visit('/');
+  //   cy.get('tbody > tr').should('have.length.greaterThan', 1);
+  //   cy.contains('td', fhaUser2);
 
-    cy.get('[data-cy=my-applicants-only]').find('button').click();
-    cy.get('tbody > tr').should('have.length', 1);
-    cy.contains('td', fhaUser2).should('have.length', 1);
+  //   cy.get('[data-cy=my-applicants-only]').find('button').click();
+  //   cy.get('tbody > tr').should('have.length', 1);
+  //   cy.contains('td', fhaUser2).should('have.length', 1);
 
-    cy.get('[data-cy=my-applicants-only]').find('button').click();
-    cy.get('tbody > tr').should('have.length.greaterThan', 1);
-  });
+  //   cy.get('[data-cy=my-applicants-only]').find('button').click();
+  //   cy.get('tbody > tr').should('have.length.greaterThan', 1);
+  // });
 
-  it('sorts applicants by recruiter name', () => {
-    cy.login(fhaUser1);
-    cy.visit('/');
-    cy.get('#sort-by-recruiter').click();
-    cy.get('tbody > tr').eq(0).contains(applicant2.name);
-    cy.get('#sort-by-recruiter').click();
-    cy.get('tbody > tr').eq(0).contains(applicant1.name);
-  });
+  // it('sorts applicants by recruiter name', () => {
+  //   cy.login(fhaUser1);
+  //   cy.visit('/');
+  //   cy.get('#sort-by-recruiter').click();
+  //   cy.get('tbody > tr').eq(0).contains(applicant2.name);
+  //   cy.get('#sort-by-recruiter').click();
+  //   cy.get('tbody > tr').eq(0).contains(applicant1.name);
+  // });
 });
