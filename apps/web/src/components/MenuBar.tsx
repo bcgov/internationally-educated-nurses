@@ -22,14 +22,14 @@ export const MenuBar: React.FC = () => {
             {menuBarTabs
               .filter(menu => authUser && hasAccess(authUser.roles, menu.acl, false))
               .map(({ title, paths, defaultPath }) => (
-                <Link key={title} href={defaultPath}>
-                  <a
-                    className={`text-white text-sm py-2 pr-12 ${
-                      paths.includes(router.pathname) && active
-                    }`}
-                  >
-                    {title}
-                  </a>
+                <Link
+                  key={title}
+                  href={defaultPath}
+                  className={`text-white text-sm py-2 pr-12 ${
+                    paths.includes(router.pathname) && active
+                  }`}
+                >
+                  {title}
                 </Link>
               ))}
           </div>

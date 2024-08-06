@@ -11,6 +11,7 @@ import { Footer, Header, MenuBar, Spinner } from '@components';
 import { AuthProvider } from 'src/components/AuthContexts';
 import { Maintenance } from '../components/Maintenance';
 
+import '@fortawesome/fontawesome-svg-core/styles.css';
 import 'react-toastify/dist/ReactToastify.min.css';
 import 'react-datepicker/dist/react-datepicker.css';
 import '../styles/globals.css';

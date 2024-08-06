@@ -28,7 +28,11 @@ const ModalContainer: React.FC<ModalProps> = ({ children, open, handleClose }) =
             leaveFrom='opacity-100'
             leaveTo='opacity-0'
           >
-            <Dialog.Overlay className='fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity' />
+            {/* new headlessui package Dialog.Overlay was removed; refer to https://headlessui.com/v1/react/dialog */}
+            <div
+              className='fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity'
+              aria-hidden='true'
+            />
           </Child>
 
           {/* This element is to trick the browser into centering the modal contents. */}

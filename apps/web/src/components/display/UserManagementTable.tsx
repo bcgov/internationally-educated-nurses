@@ -36,13 +36,10 @@ export const UserManagementTable = (props: UserManagementProps) => {
           pathname: `/user`,
           query: { ...router?.query, id: employee.id },
         }}
+        className={`px-4 ${buttonColor.outline} ${buttonBase} text-bcGray`}
+        id={`details-${index}`}
       >
-        <a
-          className={`px-4 ${buttonColor.outline} ${buttonBase} text-bcGray`}
-          id={`details-${index}`}
-        >
-          Details
-        </a>
+        Details
       </Link>
     );
   };

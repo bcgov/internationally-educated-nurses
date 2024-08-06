@@ -91,7 +91,7 @@ Cypress.Commands.add('addJob', (job: IENApplicantJobCreateUpdateDTO) => {
   cy.get('#job_title').click();
   cy.get('#job_title').click().type(`${job.job_title}{enter}`);
   cy.get('#job_location').click().type(`${job.job_location}{enter}`);
-  cy.get('#job_post_date').click().type(`${job.job_post_date}`);
+  cy.get('#job_post_date').click().type(`${job.job_post_date}{enter}`);
   cy.contains('button', 'Create').click();
 });
 
@@ -104,7 +104,7 @@ Cypress.Commands.add('editJob', (job: IENApplicantJobCreateUpdateDTO) => {
   cy.get('#job_location').click().type('{backspace}');
   cy.get('#job_location').click().type(`${job.job_location}{enter}`);
   cy.get('#job_post_date').click().clear();
-  cy.get('#job_post_date').click().clear().type(`${job.job_post_date}`);
+  cy.get('#job_post_date').click().clear().type(`${job.job_post_date}{enter}`);
 
   cy.contains('button', 'Update').click();
 
@@ -140,7 +140,7 @@ Cypress.Commands.add('editDuplicateJob', (job: IENApplicantJobCreateUpdateDTO) =
 
 Cypress.Commands.add('addMilestone', (milestone: any) => {
   cy.get('#start_date').focus().clear();
-  cy.get('#start_date').focus().clear().type(`${milestone.start_date}`);
+  cy.get('#start_date').focus().clear().type(`${milestone.start_date}{enter}`);
   cy.get('#notes').click().clear().type(`${milestone.notes}`);
   cy.get('form').find('#status').click({ force: true });
   cy.get('#outcomeType').each(el => {
@@ -223,7 +223,7 @@ Cypress.Commands.add('addApplicant', (applicant: IENApplicantCreateUpdateDTO) =>
   cy.get('#last_name').type(applicant.last_name);
   cy.get('#email_address').type(applicant.email_address);
   cy.get('#phone_number').type(applicant.phone_number || '');
-  cy.get('#registration_date').type(applicant.registration_date);
+  cy.get('#registration_date').type(`${applicant.registration_date}{enter}`);
   cy.get('#country_of_citizenship').click();
   cy.get('#country_of_citizenship').type(`${applicant.country_of_citizenship}{enter}`);
   cy.get('#country_of_residence').click().type(`${applicant.country_of_residence}{enter}`);
