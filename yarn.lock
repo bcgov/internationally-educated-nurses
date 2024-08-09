@@ -1345,6 +1345,7 @@ __metadata:
     typeorm: 0.2.41
     typescript: 4.3.5
     winston: 3.3.3
+    xlsx: "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
     xlsx-js-style: 1.2.0
   languageName: unknown
   linkType: soft
@@ -18068,6 +18069,15 @@ __metadata:
   bin:
     xlsx: bin/xlsx.njs
   checksum: 2ec6121fbfff8fbb0281a62994743f8228a11e6f72f4b1a31885e9d2b51ac556e78bc63f60177061fe365364250c83e0f7c99279b9400f76b01fedd93ec539ed
+  languageName: node
+  linkType: hard
+
+"xlsx@https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz":
+  version: 0.20.3
+  resolution: "xlsx@https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+  bin:
+    xlsx: ./bin/xlsx.njs
+  checksum: c08ac699e6d31222404871240aa2c2804cb8bae59f0bea08d3293e99756cf0d3122fd34739189edaae1d9b0b493bbb8eb95d021950ee7b5cba9d55ecd6fcb4e4
   languageName: node
   linkType: hard
 

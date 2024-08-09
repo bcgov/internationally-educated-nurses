@@ -32,6 +32,15 @@ export const BccnmNcasUpdateTable = ({ data }: BccnmNcasUpdateTableProps) => {
             <th className='px-3 text-center' scope='col'>
               Message
             </th>
+            <th className='px-3 text-center' scope='col'>
+              Application complete
+            </th>
+            <th className='px-3 text-center' scope='col'>
+              Decision Date
+            </th>
+            <th className='px-3 text-center' scope='col'>
+              Registration Date
+            </th>
           </tr>
         </thead>
         <tbody className='text-bcBlack text-sm'>
@@ -44,6 +53,9 @@ export const BccnmNcasUpdateTable = ({ data }: BccnmNcasUpdateTableProps) => {
               <td className='px-3'>{update.ncasComplete}</td>
               <td className='px-3'>{update.countryOfEducation}</td>
               <td className={`px-3 ${!update.valid && 'text-bcRedError'}`}>{update.message}</td>
+              <td className='px-3'>{update.bccnmApplicationCompleteDate}</td>
+              <td className='px-3'>{update.bccnmDecisionDate}</td>
+              <td className='px-3'>{update.bccnmRegistrationDate}</td>
             </tr>
           ))}
         </tbody>

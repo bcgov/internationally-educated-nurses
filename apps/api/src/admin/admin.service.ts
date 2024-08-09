@@ -156,6 +156,11 @@ export class AdminService {
       countryOfEducation: update['Country of Education'] ?? '',
       valid: false,
       message: '',
+      bccnmApplicationCompleteDate: getDateFromCellValue(
+        update['Date BCCNM Application Complete'] ?? '',
+      ),
+      bccnmDecisionDate: getDateFromCellValue(update['BCCNM Decision Date'] ?? ''),
+      bccnmRegistrationDate: getDateFromCellValue(update['Date of Registration'] ?? ''),
     };
 
     // bccnm/ncas completions accept 'Yes', 'No', or a date

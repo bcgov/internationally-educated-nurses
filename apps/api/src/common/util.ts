@@ -58,8 +58,9 @@ export function getDateFromCellValue(value: number | string): string | undefined
   if (!value) return;
 
   if (typeof value === 'number') {
-    // 25568 -> number of days from 1990 to epoch at PST
-    return dayjs((+value - 25568) * 86400 * 1000).format('YYYY-MM-DD');
+    // THIS IS BUG, SEE BELOW: 25568 -> number of days from 1990 to epoch at PST
+    // Note: The 25568 offset seems to assume a different epoch (e.g., 1990). However, Excel's epoch starts at 1899-12-30
+    return dayjs((+value - 25569) * 86400 * 1000).format('YYYY-MM-DD');
   }
   if (value.trim().toLowerCase() === 'yes') {
     return dayjs().format('YYYY-MM-DD');

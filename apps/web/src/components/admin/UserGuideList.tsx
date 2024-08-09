@@ -11,7 +11,7 @@ interface UserGuideListProps {
 }
 
 export const UserGuideList = ({ showVersions = true }: UserGuideListProps) => {
-  const { data } = useSWR<{ data: UserGuide[] }>('/admin/user-guides', fetcher);
+  const { data } = useSWR<{ data: UserGuide[] }>('/admin/user-guides', fetcher, { isPaused() { return true } });
   const [files, setFiles] = useState<UserGuide[]>();
 
   useEffect(() => {

@@ -25,7 +25,7 @@ import { Access, BccnmNcasUpdate } from '@ien/common';
 import { AllowAccess } from '../common/decorators';
 import { BccnmNcasUpdateDTO, UploadBccnmNcasDTO, UploadUserGuideDTO } from './dto';
 import { RequestObj } from '../common/interface/RequestObj';
-import { read, utils } from 'xlsx-js-style';
+import { read, utils } from 'xlsx';
 
 @Controller('admin')
 @ApiTags('IEN Admin')
@@ -112,7 +112,7 @@ export class AdminController {
     @UploadedFile() file: Express.Multer.File,
     @Body() body: UploadBccnmNcasDTO, // eslint-disable-line
   ) {
-    const wb = read(file.buffer);
+    const wb = read(file.buffer, { type: 'buffer' });
     const ws = wb.Sheets[wb.SheetNames[0]];
     const rows = utils.sheet_to_json<BccnmNcasUpdate>(ws, { blankrows: false });
     return await this.service.validateBccnmNcasUpdates(rows);

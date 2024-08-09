@@ -55,6 +55,7 @@
     "swagger-ui-express": "4.2.0",
     "typeorm": "0.2.41",
     "winston": "3.3.3",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
     "xlsx-js-style": "1.2.0"
   },
   "devDependencies": {
