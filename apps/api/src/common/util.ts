@@ -1,4 +1,6 @@
 import dayjs from 'dayjs';
+import * as XLSX from 'xlsx';
+import { Transform } from 'stream';
 
 const OLD_BCCNM_PROCESS_CUT_OFF_DATE = '2023-01-30';
 
@@ -73,3 +75,64 @@ export function getDateFromCellValue(value: number | string): string | undefined
   }
   throw Error('Invalid date format');
 }
+
+/**
+ * Asynchronously processes an Excel file buffer and converts it into an array of JSON objects of a specified type.
+ * 
+ * This function reads an Excel file from a provided buffer, converts its first worksheet to JSON format, 
+ * and streams the JSON objects into an array. The function is generic, allowing you to specify the type 
+ * of the resulting JSON objects, making it suitable for working with strongly-typed data structures derived 
+ * from the Excel file.
+ * 
+ * @template T - The type representing the structure of each row in the resulting JSON array.
+ * 
+ * @param {Buffer} fileBuffer - The buffer containing the Excel file data to be processed.
+ * 
+ * @returns {Promise<T[]>} A promise that resolves to an array of JSON objects of type T, where each object 
+ * represents a row from the Excel file. This array is available once the file processing is complete.
+ * 
+ * @example
+ * // Define a specific type for the rows
+ * interface MyRowType {
+ *   Column1: string;
+ *   Column2: number;
+ *   Column3: boolean;
+ * }
+ * 
+ * // Usage example with a buffer (e.g., from a file upload)
+ * const buffer: Buffer = getUploadedFileBuffer(); // Replace with actual buffer
+ * 
+ * (async () => {
+ *   try {
+ *     const jsonData = await processExcelBuffer<MyRowType>(buffer);
+ *     console.log('Data converted to JSON successfully!');
+ *     console.log(jsonData);
+ *   } catch (error) {
+ *     console.error('Error processing Excel buffer:', error);
+ *   }
+ * })();
+ */
+type RowData = Record<string, any>;
+export const processExcelBuffer = async <T extends RowData = RowData>(fileBuffer: Buffer): Promise<T[]> => {
+  const wb = XLSX.read(fileBuffer, { dense: true }); // Read from the buffer
+  const ws = wb.Sheets[wb.SheetNames[0]]; // Get the first worksheet
+
+  const jsonArray: T[] = []; // Store JSON objects
+  const conv = new Transform({ writableObjectMode: true });
+  conv._transform = function (obj, encoding, callback) {
+    jsonArray.push(obj); // Push the actual JSON object to the array
+    callback(null);
+  };
+
+  return new Promise<T[]>((resolve, reject) => {
+    conv.on('finish', () => {
+      resolve(jsonArray); // Resolve with the array of JSON objects when finished
+    });
+
+    conv.on('error', (error) => {
+      reject(error); // Reject if there is an error
+    });
+
+    XLSX.stream.to_json(ws, { raw: true }).pipe(conv); // Stream the JSON objects
+  });
+};
