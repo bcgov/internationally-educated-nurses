@@ -66,9 +66,9 @@ export enum STATUS {
   RECEIVED_PR = 'Received Permanent Residency',
 
   // BCCNM new fields
-  BCCNM_APPLICATION_COMPLETE_DATE= "BCCNM Application Complete Date",
-  BCCNM_DECISION_DATE = "BCCNM Decision Date",
-  BCCNM_REGISTRATION_DATE = "BCCNM Registration Date",
+  BCCNM_APPLICATION_COMPLETE_DATE = 'BCCNM Application Complete Date',
+  BCCNM_DECISION_DATE = 'BCCNM Decision Date',
+  BCCNM_REGISTRATION_DATE = 'BCCNM Registration Date',
 }
 
 export const COMPLETED_STATUSES = [
