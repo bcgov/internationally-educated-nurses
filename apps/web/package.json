@@ -17,7 +17,7 @@
     "@fortawesome/free-solid-svg-icons": "6.5.2",
     "@fortawesome/react-fontawesome": "0.2.2",
     "@headlessui/react": "2.1.2",
-    "@ien/common": "1.0.1",
+    "@ien/common": "1.0.2",
     "@types/cookie": "0.4.1",
     "@types/cookies": "0.7.7",
     "axios": "0.24.0",

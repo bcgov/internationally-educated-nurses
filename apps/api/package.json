@@ -26,7 +26,7 @@
     "syncdata": "NODE_ENV=script node --inspect -r ts-node/register -r tsconfig-paths/register src/syncdata.ts"
   },
   "dependencies": {
-    "@ien/common": "1.0.1",
+    "@ien/common": "1.0.2",
     "@nestjs/common": "9.3.9",
     "@nestjs/core": "9.3.9",
     "@nestjs/platform-express": "9.3.9",
