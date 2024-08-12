@@ -78,19 +78,19 @@ export function getDateFromCellValue(value: number | string): string | undefined
 
 /**
  * Asynchronously processes an Excel file buffer and converts it into an array of JSON objects of a specified type.
- * 
- * This function reads an Excel file from a provided buffer, converts its first worksheet to JSON format, 
- * and streams the JSON objects into an array. The function is generic, allowing you to specify the type 
- * of the resulting JSON objects, making it suitable for working with strongly-typed data structures derived 
+ *
+ * This function reads an Excel file from a provided buffer, converts its first worksheet to JSON format,
+ * and streams the JSON objects into an array. The function is generic, allowing you to specify the type
+ * of the resulting JSON objects, making it suitable for working with strongly-typed data structures derived
  * from the Excel file.
- * 
+ *
  * @template T - The type representing the structure of each row in the resulting JSON array.
- * 
+ *
  * @param {Buffer} fileBuffer - The buffer containing the Excel file data to be processed.
- * 
- * @returns {Promise<T[]>} A promise that resolves to an array of JSON objects of type T, where each object 
+ *
+ * @returns {Promise<T[]>} A promise that resolves to an array of JSON objects of type T, where each object
  * represents a row from the Excel file. This array is available once the file processing is complete.
- * 
+ *
  * @example
  * // Define a specific type for the rows
  * interface MyRowType {
@@ -98,10 +98,10 @@ export function getDateFromCellValue(value: number | string): string | undefined
  *   Column2: number;
  *   Column3: boolean;
  * }
- * 
+ *
  * // Usage example with a buffer (e.g., from a file upload)
  * const buffer: Buffer = getUploadedFileBuffer(); // Replace with actual buffer
- * 
+ *
  * (async () => {
  *   try {
  *     const jsonData = await processExcelBuffer<MyRowType>(buffer);
@@ -113,7 +113,9 @@ export function getDateFromCellValue(value: number | string): string | undefined
  * })();
  */
 type RowData = Record<string, any>;
-export const processExcelBuffer = async <T extends RowData = RowData>(fileBuffer: Buffer): Promise<T[]> => {
+export const processExcelBuffer = async <T extends RowData = RowData>(
+  fileBuffer: Buffer,
+): Promise<T[]> => {
   const wb = XLSX.read(fileBuffer, { dense: true }); // Read from the buffer
   const ws = wb.Sheets[wb.SheetNames[0]]; // Get the first worksheet
 
@@ -129,7 +131,7 @@ export const processExcelBuffer = async <T extends RowData = RowData>(fileBuffer
       resolve(jsonArray); // Resolve with the array of JSON objects when finished
     });
 
-    conv.on('error', (error) => {
+    conv.on('error', (error: Error) => {
       reject(error); // Reject if there is an error
     });
 
