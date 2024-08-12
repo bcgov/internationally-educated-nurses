@@ -218,6 +218,29 @@ export class AdminService {
       v.ncasComplete = undefined;
     }
 
+    if (
+      v.bccnmApplicationCompleteDate &&
+      applicant.applicant_status_audit.find(
+        s => s.status.status === STATUS.BCCNM_APPLICATION_COMPLETE_DATE,
+      )
+    ) {
+      v.bccnmApplicationCompleteDate = undefined;
+    }
+
+    if (
+      v.bccnmDecisionDate &&
+      applicant.applicant_status_audit.find(s => s.status.status === STATUS.BCCNM_DECISION_DATE)
+    ) {
+      v.bccnmDecisionDate = undefined;
+    }
+
+    if (
+      v.bccnmRegistrationDate &&
+      applicant.applicant_status_audit.find(s => s.status.status === STATUS.BCCNM_REGISTRATION_DATE)
+    ) {
+      v.bccnmRegistrationDate = undefined;
+    }
+
     if (v.countryOfEducation) {
       if (!isoCountries[v.countryOfEducation.toUpperCase() as keyof typeof isoCountries]) {
         v.message = `Invalid country code: ${v.countryOfEducation}`;
@@ -235,6 +258,9 @@ export class AdminService {
       !v.appliedToBccnm &&
       !v.ncasComplete &&
       !v.dateOfRosContract &&
+      !v.bccnmApplicationCompleteDate &&
+      !v.bccnmDecisionDate &&
+      !v.bccnmRegistrationDate &&
       !v.countryOfEducation &&
       !v.message
     ) {
@@ -287,24 +313,33 @@ export class AdminService {
           created += 1;
         }
 
-        if (update.appliedToBccnm) {
-          const appliedToBccnm = {
-            start_date: update.appliedToBccnm,
+        const statusUpdates = [
+          {
+            field: update?.appliedToBccnm,
             status: STATUS.APPLIED_TO_BCCNM,
-            notes,
-          };
-          await this.applicantService.addApplicantStatus(user, update.applicantId, appliedToBccnm);
-          created += 1;
-        }
-
-        if (update.ncasComplete) {
-          const ncasComplete = {
-            start_date: update.ncasComplete,
+          },
+          {
+            field: update?.ncasComplete,
             status: STATUS.COMPLETED_NCAS,
-            notes,
-          };
-          await this.applicantService.addApplicantStatus(user, update.applicantId, ncasComplete);
-          created += 1;
+          },
+          {
+            field: update?.bccnmApplicationCompleteDate,
+            status: STATUS.BCCNM_APPLICATION_COMPLETE_DATE,
+          },
+          { field: update?.bccnmDecisionDate, status: STATUS.BCCNM_DECISION_DATE },
+          { field: update?.bccnmRegistrationDate, status: STATUS.BCCNM_REGISTRATION_DATE },
+        ];
+
+        for (const { field, status } of statusUpdates) {
+          if (field) {
+            const data = {
+              start_date: field,
+              status,
+              notes,
+            };
+            await this.applicantService.addApplicantStatus(user, update.applicantId, data);
+            created += 1;
+          }
         }
 
         if (update.countryOfEducation) {
