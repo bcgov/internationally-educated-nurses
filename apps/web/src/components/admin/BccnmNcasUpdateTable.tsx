@@ -44,8 +44,8 @@ export const BccnmNcasUpdateTable = ({ data }: BccnmNcasUpdateTableProps) => {
           </tr>
         </thead>
         <tbody className='text-bcBlack text-sm'>
-          {data.map(update => (
-            <tr key={update.id} className='h-12 even:bg-bcLightGray'>
+          {data.map((update, idx) => (
+            <tr key={`${update.id}-${idx}`} className='h-12 even:bg-bcLightGray'>
               <td className='px-3'>{update.id}</td>
               <td className='px-3'>{_.startCase(update.name)}</td>
               <td className='px-3'>{update.dateOfRosContract}</td>
