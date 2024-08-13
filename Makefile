@@ -150,7 +150,7 @@ start-local: print-env start-local-db
 
 start-local-db:
 	@echo "++\n***** Starting local database\n++"
-	@docker-compose up -d db 
+	@docker compose up -d db 
 	@echo "++\n*****"
 
 stop-local-db:
@@ -160,18 +160,18 @@ stop-local-db:
 
 docker-down:
 	@echo "++\n***** Stopping Docker containers\n++"
-	@docker-compose down
+	@docker compose down
 	@echo "++\n*****"
 
 docker-build:
-	@echo "++\n***** Running docker-compose\n++"
-	@docker-compose build
+	@echo "++\n***** Running docker compose\n++"
+	@docker compose build
 	@echo "++\n*****"
 
 docker-run:
-	@echo "++\n***** Running docker-compose\n++"
+	@echo "++\n***** Running docker compose\n++"
 	@yarn
-	@docker-compose up --build
+	@docker compose up --build
 	@echo "++\n*****"
 
 api-unit-test:
@@ -186,22 +186,22 @@ web-unit-test:
 	@echo "++\n*****"
 
 start-test-env:
-	@docker-compose -f docker-compose.test.yaml up --build -d
+	@docker compose -f docker-compose.test.yaml up --build -d
 
 stop-test-env:
-	@docker-compose -f docker-compose.test.yaml down
+	@docker compose -f docker-compose.test.yaml down
 
 start-test-db:
-	@docker-compose -f docker-compose.test.yaml up --build -d test-db
+	@docker compose -f docker-compose.test.yaml up --build -d test-db
 
 stop-test-db:
-	@docker-compose -f docker-compose.test.yaml down test-db
+	@docker compose -f docker-compose.test.yaml down test-db
 
 start-keycloak:
-	docker-compose -f ./docker-compose.test.yaml up -d keycloak
+	docker compose -f ./docker-compose.test.yaml up -d keycloak
 
 stop-keycloak:
-	docker-compose -f ./docker-compose.test.yaml down keycloak
+	docker compose -f ./docker-compose.test.yaml down keycloak
 
 format:
 	@yarn format:write
