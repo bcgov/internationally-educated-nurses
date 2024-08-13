@@ -64,6 +64,11 @@ export enum STATUS {
   RECEIVED_WORK_PERMIT = 'Received Work Permit (Arrival in Canada)',
   SUBMITTED_PR_APPLICATION = 'Submitted PR Application',
   RECEIVED_PR = 'Received Permanent Residency',
+
+  // BCCNM new fields
+  BCCNM_APPLICATION_COMPLETE_DATE = 'BCCNM Application Complete Date',
+  BCCNM_DECISION_DATE = 'BCCNM Decision Date',
+  BCCNM_REGISTRATION_DATE = 'BCCNM Registration Date',
 }
 
 export const COMPLETED_STATUSES = [

@@ -7,6 +7,9 @@ export interface BccnmNcasUpdate {
   'BCCNM Application Complete': string;
   'Registration Designation'?: string;
   'Country of Education': string;
+  'Date BCCNM Application Complete'?: string;
+  'BCCNM Decision Date'?: string;
+  'Date of Registration'?: string;
   Email?: string;
 }
 
@@ -21,4 +24,7 @@ export interface BccnmNcasValidation {
   statusId?: string;
   name?: string;
   valid?: boolean;
+  bccnmApplicationCompleteDate?: string;
+  bccnmDecisionDate?: string;
+  bccnmRegistrationDate?: string;
 }

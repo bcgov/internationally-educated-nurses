@@ -62,6 +62,27 @@ export class BccnmNcasUpdateItemDTO implements BccnmNcasValidation {
   @ValidateIf(o => o.message === 'Update')
   @IsUUID()
   statusId?: string;
+
+  @ApiModelProperty({
+    description: 'Date BCCNM Application Complete',
+  })
+  @IsDateString()
+  @IsOptional()
+  bccnmApplicationCompleteDate?: string;
+
+  @ApiModelProperty({
+    description: 'BCCNM Decision Date',
+  })
+  @IsDateString()
+  @IsOptional()
+  bccnmDecisionDate?: string;
+
+  @ApiModelProperty({
+    description: 'Date of Registration',
+  })
+  @IsDateString()
+  @IsOptional()
+  bccnmRegistrationDate?: string;
 }
 
 export class BccnmNcasUpdateDTO {

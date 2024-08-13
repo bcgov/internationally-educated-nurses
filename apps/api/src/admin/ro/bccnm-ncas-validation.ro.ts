@@ -56,4 +56,19 @@ export class BccnmNcasValidationRO implements BccnmNcasValidation {
     description: '',
   })
   valid!: boolean;
+
+  @ApiModelProperty({
+    description: 'Date BCCNM Application Complete',
+  })
+  bccnmApplicationCompleteDate?: string;
+
+  @ApiModelProperty({
+    description: 'BCCNM Decision Date',
+  })
+  bccnmDecisionDate?: string;
+
+  @ApiModelProperty({
+    description: 'Date of Registration',
+  })
+  bccnmRegistrationDate?: string;
 }
