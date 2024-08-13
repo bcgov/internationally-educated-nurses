@@ -24,4 +24,7 @@ export interface BccnmNcasValidation {
   statusId?: string;
   name?: string;
   valid?: boolean;
+  bccnmApplicationCompleteDate?: string;
+  bccnmDecisionDate?: string;
+  bccnmRegistrationDate?: string;
 }
