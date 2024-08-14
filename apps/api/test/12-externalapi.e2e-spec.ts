@@ -75,7 +75,7 @@ describe('ExternalAPIController (e2e)', () => {
         'BCCNM Application Complete': dayjs(faker.date.past(2)).format('YYYY-MM-DD'),
         'Registration Designation': 'BCCNM Provisional Licence LPN',
         'Date ROS Contract Signed': dayjs(faker.date.past(1)).format('YYYY-MM-DD'),
-        'Country of Education': 'kr',
+        'ISO Code - Education': 'kr',
       };
     });
   };
