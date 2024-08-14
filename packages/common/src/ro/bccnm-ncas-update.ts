@@ -6,7 +6,7 @@ export interface BccnmNcasUpdate {
   'NCAS Assessment Complete': string;
   'BCCNM Application Complete': string;
   'Registration Designation'?: string;
-  'Country of Education': string;
+  'ISO Code - Education': string;
   'Date BCCNM Application Complete'?: string;
   'BCCNM Decision Date'?: string;
   'Date of Registration'?: string;

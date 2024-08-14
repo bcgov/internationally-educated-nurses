@@ -153,7 +153,7 @@ export class AdminService {
       designation: update['Registration Designation'] ?? '',
       appliedToBccnm: undefined,
       ncasComplete: undefined,
-      countryOfEducation: update['Country of Education'] ?? '',
+      countryOfEducation: update['ISO Code - Education'] ?? '',
       valid: false,
       message: '',
       bccnmApplicationCompleteDate: getDateFromCellValue(
