@@ -62,7 +62,7 @@ describe('BCCNM/NCAS Updates', () => {
               'NCAS Assessment Complete': 'Yes',
               'BCCNM Application Complete': 'Yes',
               'Registration Designation': 'BCCNM Provisional Licence LPN',
-              'Country of Education': 'kr',
+              'ISO Code - Education': 'kr',
               'Date ROS Contract Signed': dayjs(
                 faker.date.between(applicant.registration_date ?? between[0], between[1]),
               ).format('YYYY-MM-DD'),
@@ -79,7 +79,7 @@ describe('BCCNM/NCAS Updates', () => {
       v['Date ROS Contract Signed'] = '';
       v['BCCNM Application Complete'] = 'No';
       v['NCAS Assessment Complete'] = '';
-      v['Country of Education'] = '';
+      v['ISO Code - Education'] = '';
     });
 
     dataToUpdate.push(
