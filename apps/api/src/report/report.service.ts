@@ -786,7 +786,7 @@ export class ReportService {
     if (ha_pcn_id) {
       // Get the id for the referral milestone related to the HA PCN
       const HA_Milestone: [{ id: string }] = await entityManager.query(
-        this.getRefferalMilestone(ha_pcn_id),
+        this.getReferralMilestone(ha_pcn_id),
       );
       if (!HA_Milestone) {
         return [];
