@@ -745,7 +745,7 @@ export class ReportUtilService {
     });
 
     let userIDString = '';
-    if (userIds) {
+    if (userIds?.length) {
       userIDString = 'AND a.id IN (' + userIds.map(({ id }) => "'" + id + "'").join(',') + ')';
     }
 
@@ -786,7 +786,7 @@ export class ReportUtilService {
 
   extractApplicantMilestoneQuery(from: string, to: string, userIds: { id: string }[] | null) {
     let userIDString = '';
-    if (userIds) {
+    if (userIds?.length) {
       userIDString =
         'AND applicant.id IN (' + userIds.map(({ id }) => "'" + id + "'").join(',') + ')';
     }
