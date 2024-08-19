@@ -731,13 +731,24 @@ export class ReportUtilService {
     return this.getMilestoneIds(statuses, index >= 0 ? milestones.slice(index + 1) : []);
   }
 
-  extractApplicantsDataQuery(from: string, to: string, milestones: IENApplicantStatus[]) {
+  extractApplicantsDataQuery(
+    from: string,
+    to: string,
+    milestones: IENApplicantStatus[],
+    userIds?: { id: string }[],
+  ) {
     const milestone_ids: string[] = [];
     const milestoneList: string[] = [];
     milestones.forEach((item: { id: string; status: string }) => {
       milestone_ids.push(`"${item.id}" date`); // It will help to create dynamic column from json object
       milestoneList.push(`to_char(x."${item.id}", 'YYYY-MM-DD') as "${item.status}"`); // Display status name instead of id
     });
+
+    let userIDString = '';
+    if (userIds?.length) {
+      userIDString = 'AND a.id IN (' + userIds.map(({ id }) => "'" + id + "'").join(',') + ')';
+    }
+
     const applicantColumns: string[] = [
       'a.id AS "Applicant ID"',
       'a.registration_date AS "Registration Date"',
@@ -768,11 +779,17 @@ export class ReportUtilService {
       ) as x("applicant_id" uuid, ${milestone_ids.join(',')}) ON x.applicant_id=a.id
     LEFT JOIN public.pathway p on a.pathway_id = p.id
     WHERE a.registration_date::date >= '${from}' AND a.registration_date::date <= '${to}'
+    ${userIDString}
     ORDER BY a.registration_date DESC
     `;
   }
 
-  extractApplicantMilestoneQuery(from: string, to: string, ha_pcn_id?: string | null) {
+  extractApplicantMilestoneQuery(from: string, to: string, userIds: { id: string }[] | null) {
+    let userIDString = '';
+    if (userIds?.length) {
+      userIDString =
+        'AND applicant.id IN (' + userIds.map(({ id }) => "'" + id + "'").join(',') + ')';
+    }
     return `
     select milestone.applicant_id "Applicant ID", 
       applicant.registration_date "Registration Date", 
@@ -810,7 +827,7 @@ export class ReportUtilService {
     WHERE milestone.start_date::date >= '${from}' 
       AND milestone.start_date::date <= '${to}'
       AND ien_applicant_status.version = '2'
-      ${ha_pcn_id ? `AND ien_ha_pcn.id = '${ha_pcn_id}'` : ''}
+      ${userIDString}
       ORDER BY milestone.applicant_id
     `;
   }
