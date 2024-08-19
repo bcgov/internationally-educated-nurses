@@ -780,10 +780,21 @@ export class ReportService {
    */
   async extractApplicantsData(dates: ReportPeriodDTO, ha_pcn_id?: string | null) {
     let pcn: IENHaPcn | undefined;
+    const entityManager = getManager();
+    let userIds: { id: string }[] = [];
+
     if (ha_pcn_id) {
-      pcn = await this.ienHaPcnRepository.findOne(ha_pcn_id);
-      if (!pcn) {
-        throw new Error(`HA PCN not found for ${ha_pcn_id}`);
+      // Get the id for the referral milestone related to the HA PCN
+      const HA_Milestone: [{ id: string }] = await entityManager.query(
+        this.getRefferalMilestone(ha_pcn_id),
+      );
+      if (!HA_Milestone) {
+        return [];
+      }
+      // Get all user ids for users who have the referral milestone.
+      userIds = await entityManager.query(this.getIdsForMilestone(HA_Milestone[0].id));
+      if (!userIds.length) {
+        return [];
       }
     }
 
@@ -802,9 +813,9 @@ export class ReportService {
         ...(!pcn ? {} : { status: ILike(`%Referred to ${pcn.abbreviation}%`) }),
       },
     });
-    const entityManager = getManager();
+
     const data = await entityManager.query(
-      this.reportUtilService.extractApplicantsDataQuery(from, to, milestones),
+      this.reportUtilService.extractApplicantsDataQuery(from, to, milestones, userIds),
     );
 
     // set IEN type
@@ -829,9 +840,42 @@ export class ReportService {
   async extractMilestoneData(dates?: ReportPeriodDTO, ha_pcn_id?: string | null) {
     const { from, to } = dates || { from: '2001-01-01', to: dayjs().format('YYYY-MM-DD') };
     const entityManager = getManager();
-    return await entityManager.query(
-      this.reportUtilService.extractApplicantMilestoneQuery(from, to, ha_pcn_id),
+    let userIds: { id: string }[] = [];
+
+    if (ha_pcn_id) {
+      // Get the id for the referral milestone related to the HA PCN
+      const HA_Milestone: [{ id: string }] = await entityManager.query(
+        this.getReferralMilestone(ha_pcn_id),
+      );
+      if (!HA_Milestone) {
+        return [];
+      }
+      // Get all user ids for users who have the referral milestone.
+      userIds = await entityManager.query(this.getIdsForMilestone(HA_Milestone[0].id));
+      if (!userIds.length) {
+        return [];
+      }
+    }
+
+    let results = await entityManager.query(
+      this.reportUtilService.extractApplicantMilestoneQuery(from, to, userIds),
     );
+    return results;
+  }
+  // Get the "Applicant Referred to" milestone for a given HA PCN
+  getReferralMilestone(ha_pcn_id: string) {
+    return `select status.id from ien_applicant_status status
+      LEFT JOIN ien_ha_pcn hapcn ON
+      status = 'Applicant Referred to '  || hapcn.abbreviation
+      where hapcn.id = '${ha_pcn_id}'`;
+  }
+  // Returns a list of all users who have at least one milestone with the given ID
+  getIdsForMilestone(milestone_id: string) {
+    return `select id from ien_applicants
+      where id in (
+        select applicant_id from ien_applicant_status_audit
+        where status_id = '${milestone_id}'
+      ) `;
   }
 
   async getReport(from: string, to: string, period: number): Promise<object> {
