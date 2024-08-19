@@ -827,6 +827,7 @@ export class ReportUtilService {
     WHERE milestone.start_date::date >= '${from}' 
       AND milestone.start_date::date <= '${to}'
       AND ien_applicant_status.version = '2'
+      ${userIDString}
       ORDER BY milestone.applicant_id
     `;
   }
