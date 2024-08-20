@@ -55,7 +55,6 @@ export const handler: Handler = async (event, context: Context) => {
                 result = await externalAPIService.saveApplicant(from, to, page);
               } catch (e) {
                 logger.error(e, `ATS-SYNC Page ${page} failed.`);
-                console.log(`Page ${page} failed.`, e);
                 failCount++;
               }
               page = page + 5;
