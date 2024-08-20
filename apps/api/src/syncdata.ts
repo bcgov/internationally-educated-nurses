@@ -5,7 +5,6 @@ import { AppModule } from './app.module';
 import { ExternalAPIService } from './applicant/external-api.service';
 import { AppLogger } from './common/logger.service';
 import { MailService } from './mail/mail.service';
-import { SyncApplicantsResultDTO } from './applicant/dto';
 
 /**
  * Design this function to trigger existing NestJs application services without Api-Gateway
