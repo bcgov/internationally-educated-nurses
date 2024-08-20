@@ -778,6 +778,21 @@ export class ExternalAPIService {
     }
   }
 
+  async slicedSync(from: string, to: string) {
+    let result: SyncApplicantsResultDTO | undefined;
+    let page = 1;
+    let failCount = 0;
+    do {
+      try {
+        result = await this.saveApplicant(from, to, page);
+      } catch (e) {
+        this.logger.error(e, `ATS-SYNC Page ${page} failed.`);
+        failCount++;
+      }
+      page = page + 5;
+    } while ((!result?.done || !!result) && failCount < 5);
+  }
+
   async getApplicants(filter: IENUserFilterAPIDTO): Promise<ApplicantSyncRO[]> {
     const { from, to, limit, skip } = filter;
     const audits: { applicant_id: string }[] = await this.ienapplicantStatusAuditRepository
