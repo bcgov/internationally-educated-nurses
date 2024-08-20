@@ -284,6 +284,26 @@ export class ExternalAPIService {
 
     try {
       let applicants = await this.fetchApplicantsFromATS(from_date, to_date, page);
+      if(!applicants){
+        return {
+            done:true,
+            from: from_date,
+            to: to_date,
+            result:{
+              applicants:{
+                total:0,
+                processed:0
+            },
+            milestones:{
+              total:0,
+              created:0,
+              updated:0,
+              dropped:0,
+              removed:0
+            }
+          }
+        }
+      }
       applicants = await this.filterContradictoryRows(applicants);
 
       const result = await getManager().transaction(async manager => {
@@ -296,6 +316,7 @@ export class ExternalAPIService {
         from: from_date,
         to: to_date,
         result,
+        done:false
       };
     } catch (e: any) {
       await this.saveSyncApplicantsAudit(audit.id, false, { message: e.message, stack: e.stack });

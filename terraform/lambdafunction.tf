@@ -73,21 +73,21 @@ resource "aws_lambda_permission" "hmbc_to_ien_masters" {
 
 
 # # Scheduler to sync applicant and applicant-milestones
-# resource "aws_cloudwatch_event_rule" "hmbc_to_ien_applicants" {
-#   name                = local.sync_applicant_data_scheduler
-#   description         = "8:00AM UTC - 12:00AM PST on the 15th of every month"
-#   schedule_expression = "cron(0 8 * * ? *)"
-# }
-# resource "aws_cloudwatch_event_target" "hmbc_to_ien_applicants" {
-#   rule  = aws_cloudwatch_event_rule.hmbc_to_ien_applicants.name
-#   arn   = aws_lambda_function.SyncApplicants.arn
-#   input = "{\"path\": \"applicant-data\"}"
-# }
+resource "aws_cloudwatch_event_rule" "hmbc_to_ien_applicants" {
+  name                = local.sync_applicant_data_scheduler
+  description         = "8:00AM UTC - 12:00AM PST on the 15th of every month"
+  schedule_expression = "cron(0 8 * * ? *)"
+}
+resource "aws_cloudwatch_event_target" "hmbc_to_ien_applicants" {
+  rule  = aws_cloudwatch_event_rule.hmbc_to_ien_applicants.name
+  arn   = aws_lambda_function.SyncApplicants.arn
+  input = "{\"path\": \"applicant-data\"}"
+}
 
-# resource "aws_lambda_permission" "hmbc_to_ien_applicants" {
-#   statement_id  = "AllowExecutionFromCloudWatch_EarlyMorning"
-#   action        = "lambda:InvokeFunction"
-#   function_name = aws_lambda_function.SyncApplicants.function_name
-#   principal     = "events.amazonaws.com"
-#   source_arn    = aws_cloudwatch_event_rule.hmbc_to_ien_applicants.arn
-# }
+resource "aws_lambda_permission" "hmbc_to_ien_applicants" {
+  statement_id  = "AllowExecutionFromCloudWatch_EarlyMorning"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.SyncApplicants.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.hmbc_to_ien_applicants.arn
+}

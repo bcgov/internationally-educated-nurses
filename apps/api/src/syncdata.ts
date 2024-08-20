@@ -5,6 +5,8 @@ import { AppModule } from './app.module';
 import { ExternalAPIService } from './applicant/external-api.service';
 import { AppLogger } from './common/logger.service';
 import { MailService } from './mail/mail.service';
+import { SyncApplicantsResultDTO } from './applicant/dto';
+import e from 'express';
 
 /**
  * Design this function to trigger existing NestJs application services without Api-Gateway
@@ -44,7 +46,27 @@ export const handler: Handler = async (event, context: Context) => {
         if (event.hasOwnProperty('page')) {
           page = event.page;
         }
-        await externalAPIService.saveApplicant(from, to, page);
+        if(process.env.PROTOTYPE_SYNC && !page){
+          let result:SyncApplicantsResultDTO | undefined;
+          if(!page){
+            page = 1;
+            let failCount = 0;
+            do{
+              try{
+                result = await externalAPIService.saveApplicant(from, to, page);
+              }catch(e){
+                logger.error(e, `ATS-SYNC Page ${page} failed.`);
+                console.log(`Page ${page} failed.`,e)
+                failCount++;
+              }
+              page = page + 5;
+            }while((!result?.done || !!result) && failCount<5);
+          }
+
+        }else{
+          await externalAPIService.saveApplicant(from, to, page);
+        }
+
         break;
     }
   } catch (e) {
