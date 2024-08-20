@@ -44,7 +44,12 @@ export const handler: Handler = async (event, context: Context) => {
         if (event.hasOwnProperty('page')) {
           page = event.page;
         }
-        await externalAPIService.saveApplicant(from, to, page);
+        if (process.env.PROTOTYPE_SYNC && !page) {
+          await externalAPIService.saveApplicant(from, to);
+        } else {
+          await externalAPIService.saveApplicant(from, to, page);
+        }
+
         break;
     }
   } catch (e) {

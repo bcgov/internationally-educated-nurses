@@ -27,4 +27,5 @@ export class SyncApplicantsResultDTO {
       removed: number;
     };
   };
+  done?: boolean;
 }
