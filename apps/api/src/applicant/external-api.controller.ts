@@ -85,7 +85,7 @@ export class ExternalAPIController {
     example: '6',
   })
   @HttpCode(HttpStatus.OK)
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Get('/save-applicant')
   async saveApplicant(
     @Query('from') from: string,
@@ -93,24 +93,7 @@ export class ExternalAPIController {
     @Query('page') page: number,
   ): Promise<SyncApplicantsResultDTO | undefined> {
     try {
-      let result:SyncApplicantsResultDTO | undefined;
-      if(!page){
-        page = 1;
-        let failCount = 0;
-        do{
-          try{
-            result = await this.externalAPIService.saveApplicant(from, to, page);
-          }catch(e){
-            console.log(`Page ${page} failed.`,e)
-            failCount++;
-          }
-
-          page = page + 5;
-        }while((!result?.done || !!result) && failCount<5);
-      }
-
-
-      return result;
+      return await this.externalAPIService.saveApplicant(from, to, page);
     } catch (e) {
       this.logger.error(e);
       if (e instanceof NotFoundException) {
