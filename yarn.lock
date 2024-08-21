@@ -1418,7 +1418,7 @@ __metadata:
     jest: 27.4.2
     lodash: 4.17.21
     next: 14.2.5
-    oidc-client-ts: 2.2.5
+    oidc-client-ts: 3.0.1
     postcss: 8.4.3
     postcss-loader: ^7.0.1
     react: 18.3.1
@@ -5958,13 +5958,6 @@ __metadata:
     shebang-command: ^2.0.0
     which: ^2.0.1
   checksum: 671cc7c7288c3a8406f3c69a3ae2fc85555c04169e9d611def9a675635472614f1c0ed0ef80955d5b6d4e724f6ced67f0ad1bb006c2ea643488fcfef994d7f52
-  languageName: node
-  linkType: hard
-
-"crypto-js@npm:^4.1.1":
-  version: 4.1.1
-  resolution: "crypto-js@npm:4.1.1"
-  checksum: b3747c12ee3a7632fab3b3e171ea50f78b182545f0714f6d3e7e2858385f0f4101a15f2517e033802ce9d12ba50a391575ff4638c9de3dd9b2c4bc47768d5425
   languageName: node
   linkType: hard
 
@@ -11576,10 +11569,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jwt-decode@npm:^3.1.2":
-  version: 3.1.2
-  resolution: "jwt-decode@npm:3.1.2"
-  checksum: 20a4b072d44ce3479f42d0d2c8d3dabeb353081ba4982e40b83a779f2459a70be26441be6c160bfc8c3c6eadf9f6380a036fbb06ac5406b5674e35d8c4205eeb
+"jwt-decode@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "jwt-decode@npm:4.0.0"
+  checksum: 390e2edcb31a92e86c8cbdd1edeea4c0d62acd371f8a8f0a8878e499390c0ecf4c658b365c4e941e4ef37d0170e4ca650aaa49f99a45c0b9695a235b210154b0
   languageName: node
   linkType: hard
 
@@ -13104,13 +13097,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"oidc-client-ts@npm:2.2.5":
-  version: 2.2.5
-  resolution: "oidc-client-ts@npm:2.2.5"
+"oidc-client-ts@npm:3.0.1":
+  version: 3.0.1
+  resolution: "oidc-client-ts@npm:3.0.1"
   dependencies:
-    crypto-js: ^4.1.1
-    jwt-decode: ^3.1.2
-  checksum: 2b7055bddbc2b06390b364c52214d9169ee7c90a2b4e40bef907d0ab43bdc8f736805356f0fac3e422e5dfe973f6e666ecb2ee9f8a2ac031b8032ea8eb898704
+    jwt-decode: ^4.0.0
+  checksum: 08a21a40304131642ffc6a4e9ecc3a51bf476967dfbf4b60dbdb84f79b42489fda2ba447d9276ecb575a4ca75d94f652deac38065553688bff614c9d763f6c03
   languageName: node
   linkType: hard
 
