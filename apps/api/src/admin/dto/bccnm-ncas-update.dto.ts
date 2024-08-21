@@ -54,6 +54,7 @@ export class BccnmNcasUpdateItemDTO implements BccnmNcasValidation {
     description: `Country of Education`,
   })
   @IsString()
+  @IsOptional()
   countryOfEducation?: string;
 
   @ApiModelProperty({

@@ -791,6 +791,7 @@ export class ExternalAPIService {
       }
       page = page + 5;
     } while ((!result?.done || !!result) && failCount < 5);
+    return result;
   }
 
   async getApplicants(filter: IENUserFilterAPIDTO): Promise<ApplicantSyncRO[]> {
