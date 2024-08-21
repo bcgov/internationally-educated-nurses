@@ -50,7 +50,7 @@
     "cy-verify-downloads": "0.1.8",
     "cypress": "13.0.0",
     "dotenv": "16.0.0",
-    "eslint": "7.32.0",
+    "eslint": "8.57.0",
     "eslint-config-next": "14.2.5",
     "eslint-plugin-jest-dom": "3.9.2",
     "eslint-plugin-testing-library": "5.0.0",
