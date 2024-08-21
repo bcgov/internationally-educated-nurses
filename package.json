@@ -61,5 +61,10 @@
       "prettier --write",
       "eslint --cache --fix"
     ]
+  },
+  "resolutions": {
+    "axios": "0.28.0",
+    "express": "4.19.2",
+    "postcss": "8.4.31"
   }
 }
