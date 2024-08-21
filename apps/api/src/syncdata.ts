@@ -45,7 +45,7 @@ export const handler: Handler = async (event, context: Context) => {
           page = event.page;
         }
         if (process.env.PROTOTYPE_SYNC && !page) {
-          await externalAPIService.saveApplicant(from, to);
+          await externalAPIService.slicedSync(from, to);
         } else {
           await externalAPIService.saveApplicant(from, to, page);
         }
