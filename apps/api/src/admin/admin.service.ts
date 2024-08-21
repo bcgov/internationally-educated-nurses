@@ -167,13 +167,13 @@ export class AdminService {
     try {
       v.appliedToBccnm = getDateFromCellValue(update['BCCNM Application Complete']);
     } catch (e) {
-      v.message = e.message;
+      v.message = (e as Error).message;
     }
 
     try {
       v.ncasComplete = getDateFromCellValue(update['NCAS Assessment Complete']);
     } catch (e) {
-      v.message = e.message;
+      v.message = (e as Error).message;
     }
 
     if (!applicant) {
@@ -200,7 +200,7 @@ export class AdminService {
         }
       }
     } catch (e) {
-      v.message = e.message;
+      v.message = (e as Error).message;
     }
 
     // do not overwrite 'bccnm/ncas' completion date

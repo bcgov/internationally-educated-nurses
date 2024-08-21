@@ -1,73 +1,73 @@
-import { ApiModelProperty } from '@nestjs/swagger/dist/decorators/api-model-property.decorator';
+import { ApiProperty } from '@nestjs/swagger';
 import { BccnmNcasValidation } from '@ien/common';
 
 export class BccnmNcasValidationRO implements BccnmNcasValidation {
-  @ApiModelProperty({
+  @ApiProperty({
     description: `Applicant's unique ID from HMBC ATS`,
   })
   id!: string;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: `Applicant's unique ID`,
   })
   applicantId!: string;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: `The date of the signature of ROS(return of service)`,
   })
   dateOfRosContract?: string;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'Full name',
   })
   name!: string;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'NCAS Assessment Complete',
   })
   ncasComplete?: string;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'BCCNM Application Complete',
   })
   appliedToBccnm?: string;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'Registration designation',
   })
   designation!: string;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: `Country of Education`,
   })
   countryOfEducation?: string;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'Validation result of ROS',
   })
   message!: string;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'ID of current "Signed Return of Service Agreement" milestone',
   })
   statusId?: string;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: '',
   })
   valid!: boolean;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'Date BCCNM Application Complete',
   })
   bccnmApplicationCompleteDate?: string;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'BCCNM Decision Date',
   })
   bccnmDecisionDate?: string;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'Date of Registration',
   })
   bccnmRegistrationDate?: string;

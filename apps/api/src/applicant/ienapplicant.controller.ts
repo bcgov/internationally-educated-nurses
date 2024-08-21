@@ -82,11 +82,12 @@ export class IENApplicantController {
     @Param('id') id: string,
     @Query() relation: IENApplicantFilterByIdAPIDTO,
   ): Promise<ApplicantRO> {
-    try {
+    try {      
       return (
         await this.ienapplicantService.getApplicantById(id, relation, req.user)
       ).toResponseObject();
     } catch (e) {
+      console.log('errr:', e)
       if (e instanceof NotFoundException) {
         throw e;
       } else if (e instanceof QueryFailedError) {

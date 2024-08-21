@@ -130,7 +130,7 @@ export class MailService {
     try {
       return this.ses.sendEmail(params).promise();
     } catch (e) {
-      this.logger.log(e.message);
+      this.logger.log((e as Error).message);
     }
   }
 }

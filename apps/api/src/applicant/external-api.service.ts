@@ -13,7 +13,7 @@ import {
   Repository,
   FindManyOptions,
   ObjectLiteral,
-  SelectQueryBuilder,
+  FindOptionsWhere,
   getManager,
   EntityManager,
   In,
@@ -310,7 +310,7 @@ export class ExternalAPIService {
     manager?: EntityManager,
   ): Promise<SyncApplicantsAudit> {
     if (id) {
-      const audit = await this.syncApplicantsAuditRepository.findOne(id);
+      const audit = await this.syncApplicantsAuditRepository.findOne({ where: { id } });
       if (audit) {
         audit.is_success = is_success;
         audit.additional_data = additional_data;
@@ -346,7 +346,7 @@ export class ExternalAPIService {
   async getUsersMap() {
     // fetch user/staff details
     const users = await this.ienMasterService.ienUsersRepository.find({
-      user_id: Not(IsNull()),
+      where: { user_id: Not(IsNull()) },
     });
     return _.keyBy(users, 'user_id');
   }
@@ -624,13 +624,13 @@ export class ExternalAPIService {
 
     // To update ROS milestones created by spreadsheet, replace IDs
     const rosStatus = await this.ienapplicantStatusRepository.findOne({
-      status: STATUS.SIGNED_ROS,
+      where: { status: STATUS.SIGNED_ROS },
     });
     const rosMilestonesByATS = validMilestones.filter(m => m.status === rosStatus?.id);
     if (rosMilestonesByATS.length) {
       const rosMilestonesBySheet = await this.ienapplicantStatusAuditRepository.find({
         where: {
-          status: rosStatus,
+          status: rosStatus ?? IsNull(),
           notes: ILike('%Updated by BCCNM/NCAS%'),
           applicant: In(_.uniq(rosMilestonesByATS.map(m => m.applicant))),
         },
@@ -647,7 +647,7 @@ export class ExternalAPIService {
 
     // exclude bccnm/ncas completion updated by spreadsheet
     const bccnmNcasStatuses = await this.ienapplicantStatusRepository.find({
-      status: In([STATUS.APPLIED_TO_BCCNM, STATUS.COMPLETED_NCAS]),
+      where: { status: In([STATUS.APPLIED_TO_BCCNM, STATUS.COMPLETED_NCAS]) },
     });
     const existingBccnmNcasMilestones = await this.ienapplicantStatusAuditRepository.find({
       where: {
@@ -744,12 +744,17 @@ export class ExternalAPIService {
     }
 
     if (conditions.length > 0) {
+      const whereClause =
+        conditions.length > 1
+          ? conditions.filter(condition => typeof condition === 'object') // Ensure only objects are included
+          : conditions[0]; // Single condition object or primitive
+
+      if (typeof whereClause === 'string') {
+        throw new Error('Invalid condition type: expected an object but got a string.');
+      }
+
       return this.ienMasterService.ienUsersRepository.findAndCount({
-        where: (qb: SelectQueryBuilder<IENUsers>) => {
-          const condition = conditions.shift();
-          if (condition) qb.where(condition);
-          conditions.forEach(c => qb.andWhere(c));
-        },
+        where: whereClause as FindOptionsWhere<IENUsers> | FindOptionsWhere<IENUsers>[],
         ...query,
       });
     } else {
@@ -777,9 +782,7 @@ export class ExternalAPIService {
     }
     const ids = audits.map(audit => audit.applicant_id);
     const results = await this.ienapplicantRepository.find({
-      where: (qb: any) => {
-        qb.where(`IENApplicant.id IN (:...ids)`, { ids });
-      },
+      where: { id: In(ids) },
       relations: [
         'applicant_status_audit',
         'applicant_status_audit.status',

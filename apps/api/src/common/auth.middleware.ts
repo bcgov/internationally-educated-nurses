@@ -29,7 +29,7 @@ export class AuthenticationMiddleware implements NestMiddleware {
 
       next();
     } catch (e) {
-      this.logger.log('Error triggered inside auth.middleware', e);
+      this.logger.log('Error triggered inside auth.middleware' + e as string);
       throw new HttpException('Authentication Error', HttpStatus.UNAUTHORIZED);
     }
   }

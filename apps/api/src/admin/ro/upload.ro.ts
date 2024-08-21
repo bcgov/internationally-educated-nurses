@@ -1,8 +1,8 @@
-import { ApiModelProperty } from '@nestjs/swagger/dist/decorators/api-model-property.decorator';
+import { ApiProperty } from '@nestjs/swagger';
 import { SuccessResponse } from '../../common/ro/success-response.ro';
 
 export class UploadRO {
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'Location URL',
     example: 'https://ien.s3.ca-central-1.amazonaws.com/user-guide.pdf',
   })
@@ -10,7 +10,7 @@ export class UploadRO {
 }
 
 export class UploadResponse implements SuccessResponse {
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'Response data',
     type: UploadRO,
   })

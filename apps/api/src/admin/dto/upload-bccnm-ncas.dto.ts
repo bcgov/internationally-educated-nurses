@@ -1,7 +1,7 @@
-import { ApiModelProperty } from '@nestjs/swagger/dist/decorators/api-model-property.decorator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class UploadBccnmNcasDTO {
-  @ApiModelProperty({
+  @ApiProperty({
     description: `a spreadsheet of BCCNM/NCAS update`,
     type: 'file',
   })

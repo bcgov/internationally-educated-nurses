@@ -7,77 +7,77 @@ import {
   ValidateIf,
   ValidateNested,
 } from 'class-validator';
-import { ApiModelProperty } from '@nestjs/swagger/dist/decorators/api-model-property.decorator';
+import { ApiProperty } from '@nestjs/swagger';
 import { BccnmNcasValidation } from '@ien/common';
 import { Type } from 'class-transformer';
 
 export class BccnmNcasUpdateItemDTO implements BccnmNcasValidation {
-  @ApiModelProperty({
+  @ApiProperty({
     description: `IEN's unique ID from HMBC ATS`,
   })
   id!: string;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: `IEN's unique ID from HMBC ATS`,
   })
   @IsUUID()
   applicantId!: string;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: `The date of the signature of ROS(return of service)`,
   })
   @IsDateString()
   @IsOptional()
   dateOfRosContract?: string;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'NCAS Assessment Complete',
   })
   @IsDateString()
   @IsOptional()
   ncasComplete?: string;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'BCCNM Application Complete',
   })
   @IsOptional()
   @IsDateString()
   appliedToBccnm?: string;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: `Registration Designation`,
   })
   @IsString()
   designation?: string;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: `Country of Education`,
   })
   @IsString()
   countryOfEducation?: string;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'ID of current "Signed Return of Service Agreement" milestone',
   })
   @ValidateIf(o => o.message === 'Update')
   @IsUUID()
   statusId?: string;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'Date BCCNM Application Complete',
   })
   @IsDateString()
   @IsOptional()
   bccnmApplicationCompleteDate?: string;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'BCCNM Decision Date',
   })
   @IsDateString()
   @IsOptional()
   bccnmDecisionDate?: string;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'Date of Registration',
   })
   @IsDateString()
