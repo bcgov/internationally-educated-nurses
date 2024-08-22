@@ -1,6 +1,6 @@
 import { AxiosError } from 'axios';
 
-export const getErrorMessage = (e: AxiosError | string): string => {
+export const getErrorMessage = (e: AxiosError<any> | string): string => {
   if (typeof e === 'string') {
     return e;
   }
