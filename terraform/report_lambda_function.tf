@@ -45,22 +45,27 @@ resource "aws_lambda_function" "CacheReports" {
 }
 
 resource "aws_cloudwatch_event_rule" "cache_reports" {
+  ## Set count=0 to disable the cron job
+  count               = 0
   name                = local.cache_reports_lambda_name
-  description         = "9:00AM UTC - 1:00AM PST Every day"
-  ## comment out the following line to disable the cron job
-  # schedule_expression = "cron(0 9 * * ? *)"
+  description         = "9:00AM UTC - 1:00AM PST Every day"  
+  schedule_expression = "cron(0 9 * * ? *)" 
 }
 
 resource "aws_cloudwatch_event_target" "cache_reports" {
-  rule  = aws_cloudwatch_event_rule.cache_reports.name
+  ## Set count=0 to disable the cron job
+  count = 0
+  rule  = aws_cloudwatch_event_rule.cache_reports[count.index].name
   arn   = aws_lambda_function.CacheReports.arn
   input = "{\"path\": \"cache-reports\"}"
 }
 
 resource "aws_lambda_permission" "cache_reports" {
+  ## Set count=0 to disable the cron job
+  count         = 0
   statement_id  = "AllowExecutionFromCloudWatch_Morning"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.CacheReports.function_name
   principal     = "events.amazonaws.com"
-  source_arn    = aws_cloudwatch_event_rule.cache_reports.arn
+  source_arn    = aws_cloudwatch_event_rule.cache_reports[count.index].arn
 }
