@@ -47,7 +47,8 @@ resource "aws_lambda_function" "CacheReports" {
 resource "aws_cloudwatch_event_rule" "cache_reports" {
   name                = local.cache_reports_lambda_name
   description         = "9:00AM UTC - 1:00AM PST Every day"
-  schedule_expression = "cron(0 9 * * ? *)"
+  ## comment out the following line to disable the cron job
+  # schedule_expression = "cron(0 9 * * ? *)"
 }
 
 resource "aws_cloudwatch_event_target" "cache_reports" {
