@@ -53,12 +53,16 @@ resource "aws_cloudwatch_event_rule" "cache_reports" {
 }
 
 resource "aws_cloudwatch_event_target" "cache_reports" {
+  ## Set count=0 to disable the cron job
+  count = 0
   rule  = aws_cloudwatch_event_rule.cache_reports.name
   arn   = aws_lambda_function.CacheReports.arn
   input = "{\"path\": \"cache-reports\"}"
 }
 
 resource "aws_lambda_permission" "cache_reports" {
+  ## Set count=0 to disable the cron job
+  count         = 0
   statement_id  = "AllowExecutionFromCloudWatch_Morning"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.CacheReports.function_name
