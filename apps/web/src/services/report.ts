@@ -43,13 +43,9 @@ export const getMilestoneDataExtract = async (filter?: PeriodFilter) => {
 export async function fetchJsonDataFromS3Url(url: string) {
   try {
     // Fetch the JSON data directly from S3 using the pre-signed URL
-    // eslint-disable-next-line no-console
-    console.log('---', url);
     const jsonResponse = await axios.get(url, {
       responseType: 'json',
     });
-    // eslint-disable-next-line no-console
-    console.log('---', jsonResponse);
     // Process the JSON data as needed in your application
     return JSON.parse(jsonResponse.data);
   } catch (error) {
