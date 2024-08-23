@@ -44,6 +44,9 @@ export async function fetchJsonDataFromS3Url(url: string) {
   try {
     // Fetch the JSON data directly from S3 using the pre-signed URL
     const jsonResponse = await axios.get(url, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
       responseType: 'json',
     });
     // Process the JSON data as needed in your application
