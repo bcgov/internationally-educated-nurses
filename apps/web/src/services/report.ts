@@ -37,7 +37,7 @@ export const getApplicantDataExtract = async (filter?: PeriodFilter) => {
 export const getMilestoneDataExtract = async (filter?: PeriodFilter) => {
   const url = `/reports/applicant/extract-milestones?${convertToParams(filter)}`;
   const { data } = await axios.get(url);
-  return data?.url;
+  return data?.data;
 };
 
 export async function fetchJsonDataFromS3Url(url: string) {
@@ -377,7 +377,7 @@ export const createMilestoneDataExtractWorkbook = async (
   filter: PeriodFilter,
 ): Promise<WorkBook | null> => {
   try {
-    const url = await getMilestoneDataExtract(filter);
+    const { url } = await getMilestoneDataExtract(filter);
     const milestones = await fetchJsonDataFromS3Url(url);
     if (!milestones || milestones.length === 0) {
       toast.error('There is no milestone data to extract during this time period');
