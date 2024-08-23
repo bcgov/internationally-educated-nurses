@@ -48,6 +48,13 @@ export async function fetchJsonDataFromS3Url(url: string) {
       // Do not include Authorization here
     },
   });
+  s3AxiosInstance.interceptors.request.use(config => {
+    // Check if Authorization is added here and remove it if necessary
+    if (config?.headers?.Authorization) {
+      delete config.headers.Authorization;
+    }
+    return config;
+  });
 
   try {
     // Fetch the JSON data directly from S3 using the pre-signed URL
