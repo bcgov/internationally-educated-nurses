@@ -47,12 +47,8 @@ export async function fetchJsonDataFromS3Url(url: string) {
       responseType: 'json',
     });
 
-    // The JSON data is now in jsonResponse.data
-    // eslint-disable-next-line no-console
-    console.log(jsonResponse.data);
-
     // Process the JSON data as needed in your application
-    return jsonResponse.data;
+    return JSON.parse(jsonResponse.data);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Error fetching large JSON data:', error);

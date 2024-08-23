@@ -21,7 +21,7 @@ export class ReportS3Service {
       throw new InternalServerErrorException('the feature is disabled');
     }
     try {
-      const params = { Bucket: BUCKET_NAME, Key: key, Body: data };
+      const params = { Bucket: BUCKET_NAME, Key: key, Body: JSON.stringify(data) };
       await this.s3.upload(params).promise();
     } catch (e) {
       throw new InternalServerErrorException('failed to upload a report data');
