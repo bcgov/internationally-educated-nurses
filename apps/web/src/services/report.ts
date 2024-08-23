@@ -41,34 +41,39 @@ export const getMilestoneDataExtract = async (filter?: PeriodFilter) => {
 };
 
 export async function fetchJsonDataFromS3Url(url: string) {
-  // Create a new Axios instance without global Authorization header
-  const s3AxiosInstance = axios.create({
-    headers: {
-      'Content-Type': 'application/json',
-      // Do not include Authorization here
-    },
-  });
-  s3AxiosInstance.interceptors.request.use(config => {
-    // Check if Authorization is added here and remove it if necessary
-    if (config?.headers?.Authorization) {
-      delete config.headers.Authorization;
-    }
-    return config;
-  });
+  // // Create a new Axios instance without global Authorization header
+  // const s3AxiosInstance = axios.create({
+  //   headers: {
+  //     'Content-Type': 'application/json',
+  //     // Do not include Authorization here
+  //   },
+  // });
+  // s3AxiosInstance.interceptors.request.use(
+  //   config => {
+  //     // eslint-disable-next-line no-console
+  //     console.log('Test Interceptor called', config);
+  //     if (config?.headers?.Authorization) {
+  //       delete config.headers.Authorization;
+  //     }
+  //     return config;
+  //   },
+  //   error => {
+  //     return Promise.reject(error);
+  //   },
+  // );
 
   try {
     // Fetch the JSON data directly from S3 using the pre-signed URL
-    const jsonResponse = await s3AxiosInstance.get(url, {
+    const response = await fetch(url, {
+      method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        Authorization: undefined,
+        'Content-Type': 'application/text',
+        // No Authorization header included here
       },
-      responseType: 'json',
     });
+
     // Process the JSON data as needed in your application
-    return JSON.parse(jsonResponse.data);
+    return JSON.parse(await response.text());
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Error fetching large JSON data:', error);
