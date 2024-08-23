@@ -25,8 +25,6 @@ export class ReportS3Service {
         Bucket: BUCKET_NAME,
         Key: key,
         Body: JSON.stringify(data),
-        ContentType: 'application/json',
-        ACL: 'public-read',
       };
       await this.s3.upload(params).promise();
     } catch (e) {
@@ -41,7 +39,6 @@ export class ReportS3Service {
     const params = {
       Bucket: BUCKET_NAME,
       Key: key,
-      ContentType: 'application/json',
       Expires: 60 * 5, // URL expires in 5 minutes
     };
     return this.s3.getSignedUrl('getObject', params);
