@@ -61,6 +61,9 @@ export async function fetchJsonDataFromS3Url(url: string) {
     const jsonResponse = await s3AxiosInstance.get(url, {
       headers: {
         'Content-Type': 'application/json',
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        Authorization: undefined,
       },
       responseType: 'json',
     });
