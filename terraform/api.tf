@@ -60,6 +60,7 @@ resource "aws_lambda_function" "api" {
       SQS_QUEUE_URL     = aws_sqs_queue.terraform_queue.url
       JWT_SECRET        = data.aws_ssm_parameter.sync_jwt_secret.value
       DOCS_BUCKET       = var.docs_bucket
+      REPORTS_BUCKET    = var.reports_bucket
       NO_COLOR          = "true"
     }
   }
