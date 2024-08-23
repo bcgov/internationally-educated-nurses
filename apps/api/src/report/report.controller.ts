@@ -5,6 +5,7 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { AppLogger } from 'src/common/logger.service';
 import { AllowAccess, User } from 'src/common/decorators';
 import { ReportService } from './report.service';
+import { ReportS3Service } from './report.s3.service';
 
 @Controller('reports')
 @ApiTags('IEN Reports')
@@ -13,6 +14,7 @@ export class ReportController {
   constructor(
     @Inject(Logger) private readonly logger: AppLogger,
     @Inject(ReportService) private readonly reportService: ReportService,
+    @Inject(ReportS3Service) private readonly reportS3Service: ReportS3Service,
   ) {}
 
   @Get('/applicant')
@@ -159,7 +161,10 @@ export class ReportController {
     @Query('from') from: string,
     @Query('to') to: string,
     @User() user: EmployeeRO,
-  ): Promise<object[]> {
-    return await this.reportService.extractMilestoneData({ to, from }, user?.ha_pcn_id);
+  ): Promise<{ url: string }> {
+    const data = await this.reportService.extractMilestoneData({ to, from }, user?.ha_pcn_id);
+    const key = `ien-milestone-data-extract_${from}-${to}_${user?.ha_pcn_id}.xlsx`;
+    await this.reportS3Service.uploadFile(key, data);
+    return { url: await this.reportS3Service.generatePresignedUrl(key) };
   }
 }

@@ -7,6 +7,7 @@ import { ReportController } from './report.controller';
 import { ReportService } from './report.service';
 import { ReportUtilService } from './report.util.service';
 import { IENHaPcn } from 'src/applicant/entity/ienhapcn.entity';
+import { ReportS3Service } from './report.s3.service';
 
 @Module({
   controllers: [ReportController],
@@ -15,7 +16,7 @@ import { IENHaPcn } from 'src/applicant/entity/ienhapcn.entity';
     forwardRef(() => AuthModule),
     forwardRef(() => EmployeeModule),
   ],
-  providers: [ReportService, ReportUtilService, Logger],
+  providers: [ReportService, ReportUtilService, Logger, ReportS3Service],
   exports: [ReportService, ReportUtilService],
 })
 export class ReportModule {}

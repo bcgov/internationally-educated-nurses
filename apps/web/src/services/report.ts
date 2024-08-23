@@ -37,8 +37,27 @@ export const getApplicantDataExtract = async (filter?: PeriodFilter) => {
 export const getMilestoneDataExtract = async (filter?: PeriodFilter) => {
   const url = `/reports/applicant/extract-milestones?${convertToParams(filter)}`;
   const { data } = await axios.get(url);
-  return data?.data;
+  return data?.url;
 };
+
+export async function fetchJsonDataFromS3Url(url: string) {
+  try {
+    // Fetch the JSON data directly from S3 using the pre-signed URL
+    const jsonResponse = await axios.get(url, {
+      responseType: 'json',
+    });
+
+    // The JSON data is now in jsonResponse.data
+    // eslint-disable-next-line no-console
+    console.log(jsonResponse.data);
+
+    // Process the JSON data as needed in your application
+    return jsonResponse.data;
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Error fetching large JSON data:', error);
+  }
+}
 
 export const getReportByEOI = async (filter?: PeriodFilter) => {
   try {
@@ -359,7 +378,8 @@ export const createMilestoneDataExtractWorkbook = async (
   filter: PeriodFilter,
 ): Promise<WorkBook | null> => {
   try {
-    const milestones = await getMilestoneDataExtract(filter);
+    const url = await getMilestoneDataExtract(filter);
+    const milestones = await fetchJsonDataFromS3Url(url);
     if (!milestones || milestones.length === 0) {
       toast.error('There is no milestone data to extract during this time period');
       return null;
