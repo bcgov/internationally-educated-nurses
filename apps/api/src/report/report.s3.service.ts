@@ -21,7 +21,13 @@ export class ReportS3Service {
       throw new InternalServerErrorException('the feature is disabled');
     }
     try {
-      const params = { Bucket: BUCKET_NAME, Key: key, Body: JSON.stringify(data) };
+      const params = {
+        Bucket: BUCKET_NAME,
+        Key: key,
+        Body: JSON.stringify(data),
+        ContentType: 'application/json',
+        ACL: 'public-read',
+      };
       await this.s3.upload(params).promise();
     } catch (e) {
       throw new InternalServerErrorException('failed to upload a report data');
@@ -35,6 +41,7 @@ export class ReportS3Service {
     const params = {
       Bucket: BUCKET_NAME,
       Key: key,
+      ContentType: 'application/json',
       Expires: 60 * 5, // URL expires in 5 minutes
     };
     return this.s3.getSignedUrl('getObject', params);
