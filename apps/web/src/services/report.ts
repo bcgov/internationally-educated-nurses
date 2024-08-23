@@ -41,9 +41,17 @@ export const getMilestoneDataExtract = async (filter?: PeriodFilter) => {
 };
 
 export async function fetchJsonDataFromS3Url(url: string) {
+  // Create a new Axios instance without global Authorization header
+  const s3AxiosInstance = axios.create({
+    headers: {
+      'Content-Type': 'application/json',
+      // Do not include Authorization here
+    },
+  });
+
   try {
     // Fetch the JSON data directly from S3 using the pre-signed URL
-    const jsonResponse = await axios.get(url, {
+    const jsonResponse = await s3AxiosInstance.get(url, {
       headers: {
         'Content-Type': 'application/json',
       },
