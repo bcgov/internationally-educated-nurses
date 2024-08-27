@@ -40,28 +40,16 @@ export const getMilestoneDataExtract = async (filter?: PeriodFilter) => {
   return data?.data;
 };
 
+/**
+ * Fetches JSON data from an S3 pre-signed URL.
+ *
+ * This function uses the Fetch API instead of axios to avoid including
+ * the Authorization header, which is not suitable for S3 pre-signed URLs.
+ *
+ * @param url - The pre-signed URL to fetch the JSON data from.
+ * @returns The JSON data fetched from the S3 URL.
+ */
 export async function fetchJsonDataFromS3Url(url: string) {
-  // // Create a new Axios instance without global Authorization header
-  // const s3AxiosInstance = axios.create({
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //     // Do not include Authorization here
-  //   },
-  // });
-  // s3AxiosInstance.interceptors.request.use(
-  //   config => {
-  //     // eslint-disable-next-line no-console
-  //     console.log('Test Interceptor called', config);
-  //     if (config?.headers?.Authorization) {
-  //       delete config.headers.Authorization;
-  //     }
-  //     return config;
-  //   },
-  //   error => {
-  //     return Promise.reject(error);
-  //   },
-  // );
-
   try {
     // Fetch the JSON data directly from S3 using the pre-signed URL
     const response = await fetch(url, {
@@ -365,7 +353,8 @@ export const createApplicantDataExtractWorkbook = async (
   filter: PeriodFilter,
 ): Promise<WorkBook | null> => {
   try {
-    const applicants = await getApplicantDataExtract(filter);
+    const { url } = await getApplicantDataExtract(filter);
+    const applicants = await fetchJsonDataFromS3Url(url);
 
     if (!applicants || applicants.length === 0) {
       toast.error('There is no Applicant data to extract during this time period');

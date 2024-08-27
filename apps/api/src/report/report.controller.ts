@@ -149,17 +149,19 @@ export class ReportController {
   @Get('/applicant/extract-data')
   @AllowAccess(Access.DATA_EXTRACT)
   async extractApplicantsData(
-    @Query() dates: ReportPeriodDTO,
+    @Query() { from, to }: ReportPeriodDTO,
     @User() user: EmployeeRO,
-  ): Promise<object[]> {
-    return this.reportService.extractApplicantsData(dates, user?.ha_pcn_id);
+  ): Promise<{ url: string }> {
+    const data = await this.reportService.extractApplicantsData({ from, to }, user?.ha_pcn_id);
+    const key = `ien-applicant-data-extract_${from}-${to}_${user?.user_id}_${Date.now()}`;
+    await this.reportS3Service.uploadFile(key, data);
+    return { url: await this.reportS3Service.generatePresignedUrl(key) };
   }
   @ApiOperation({ summary: 'Extract milestones' })
   @Get('/applicant/extract-milestones')
   @AllowAccess(Access.DATA_EXTRACT)
   async extractMilestoneData(
-    @Query('from') from: string,
-    @Query('to') to: string,
+    @Query() { from, to }: ReportPeriodDTO,
     @User() user: EmployeeRO,
   ): Promise<{ url: string }> {
     const data = await this.reportService.extractMilestoneData({ to, from }, user?.ha_pcn_id);
