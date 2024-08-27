@@ -153,7 +153,7 @@ export class ReportController {
     @User() user: EmployeeRO,
   ): Promise<object[] | { url: string }> {
     const data = await this.reportService.extractApplicantsData({ from, to }, user?.ha_pcn_id);
-    if (data?.length > 10) {
+    if (data?.length > 10 && process.env.RUNTIME_ENV !== 'local') {
       const key = `ien-applicant-data-extract_${from}-${to}_${user?.user_id}_${Date.now()}`;
       await this.reportS3Service.uploadFile(key, data);
       return { url: await this.reportS3Service.generatePresignedUrl(key) };
@@ -168,7 +168,7 @@ export class ReportController {
     @User() user: EmployeeRO,
   ): Promise<object[] | { url: string }> {
     const data = await this.reportService.extractMilestoneData({ to, from }, user?.ha_pcn_id);
-    if (data?.length > 10) {
+    if (data?.length > 10 && process.env.RUNTIME_ENV !== 'local') {
       const key = `ien-milestone-data-extract_${from}-${to}_${user?.user_id}_${Date.now()}`;
       await this.reportS3Service.uploadFile(key, data);
       return { url: await this.reportS3Service.generatePresignedUrl(key) };
