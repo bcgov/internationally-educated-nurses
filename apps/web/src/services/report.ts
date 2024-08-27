@@ -28,13 +28,17 @@ interface ReportCreator {
   colSum?: boolean;
 }
 
-export const getApplicantDataExtract = async (filter?: PeriodFilter) => {
+export const getApplicantDataExtract = async (
+  filter?: PeriodFilter,
+): Promise<object[] | { url: string }> => {
   const url = `/reports/applicant/extract-data?${convertToParams(filter)}`;
   const { data } = await axios.get(url);
   return data?.data;
 };
 
-export const getMilestoneDataExtract = async (filter?: PeriodFilter) => {
+export const getMilestoneDataExtract = async (
+  filter?: PeriodFilter,
+): Promise<object[] | { url: string }> => {
   const url = `/reports/applicant/extract-milestones?${convertToParams(filter)}`;
   const { data } = await axios.get(url);
   return data?.data;
@@ -353,8 +357,13 @@ export const createApplicantDataExtractWorkbook = async (
   filter: PeriodFilter,
 ): Promise<WorkBook | null> => {
   try {
-    const { url } = await getApplicantDataExtract(filter);
-    const applicants = await fetchJsonDataFromS3Url(url);
+    const result = await getApplicantDataExtract(filter);
+    let applicants = [];
+    if ('url' in result) {
+      applicants = await fetchJsonDataFromS3Url(result.url);
+    } else {
+      applicants = result;
+    }
 
     if (!applicants || applicants.length === 0) {
       toast.error('There is no Applicant data to extract during this time period');
@@ -388,8 +397,14 @@ export const createMilestoneDataExtractWorkbook = async (
   filter: PeriodFilter,
 ): Promise<WorkBook | null> => {
   try {
-    const { url } = await getMilestoneDataExtract(filter);
-    const milestones = await fetchJsonDataFromS3Url(url);
+    const result = await getMilestoneDataExtract(filter);
+    let milestones = [];
+    if ('url' in result) {
+      milestones = await fetchJsonDataFromS3Url(result.url);
+    } else {
+      milestones = result;
+    }
+
     if (!milestones || milestones.length === 0) {
       toast.error('There is no milestone data to extract during this time period');
       return null;
