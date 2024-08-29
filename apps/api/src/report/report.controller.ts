@@ -5,6 +5,7 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { AppLogger } from 'src/common/logger.service';
 import { AllowAccess, User } from 'src/common/decorators';
 import { ReportService } from './report.service';
+import { ReportS3Service } from './report.s3.service';
 
 @Controller('reports')
 @ApiTags('IEN Reports')
@@ -13,6 +14,7 @@ export class ReportController {
   constructor(
     @Inject(Logger) private readonly logger: AppLogger,
     @Inject(ReportService) private readonly reportService: ReportService,
+    @Inject(ReportS3Service) private readonly reportS3Service: ReportS3Service,
   ) {}
 
   @Get('/applicant')
@@ -147,19 +149,38 @@ export class ReportController {
   @Get('/applicant/extract-data')
   @AllowAccess(Access.DATA_EXTRACT)
   async extractApplicantsData(
-    @Query() dates: ReportPeriodDTO,
+    @Query() { from, to }: ReportPeriodDTO,
     @User() user: EmployeeRO,
-  ): Promise<object[]> {
-    return this.reportService.extractApplicantsData(dates, user?.ha_pcn_id);
+  ): Promise<object[] | { url: string }> {
+    const data = await this.reportService.extractApplicantsData({ from, to }, user?.ha_pcn_id);
+    if (
+      data?.length > 10 &&
+      process.env.NODE_ENV !== 'test' &&
+      process.env.RUNTIME_ENV !== 'local'
+    ) {
+      const key = `ien-applicant-data-extract_${from}-${to}_${user?.user_id}_${Date.now()}`;
+      await this.reportS3Service.uploadFile(key, data);
+      return { url: await this.reportS3Service.generatePresignedUrl(key) };
+    }
+    return data;
   }
   @ApiOperation({ summary: 'Extract milestones' })
   @Get('/applicant/extract-milestones')
   @AllowAccess(Access.DATA_EXTRACT)
   async extractMilestoneData(
-    @Query('from') from: string,
-    @Query('to') to: string,
+    @Query() { from, to }: ReportPeriodDTO,
     @User() user: EmployeeRO,
-  ): Promise<object[]> {
-    return await this.reportService.extractMilestoneData({ to, from }, user?.ha_pcn_id);
+  ): Promise<object[] | { url: string }> {
+    const data = await this.reportService.extractMilestoneData({ to, from }, user?.ha_pcn_id);
+    if (
+      data?.length > 10 &&
+      process.env.NODE_ENV !== 'test' &&
+      process.env.RUNTIME_ENV !== 'local'
+    ) {
+      const key = `ien-milestone-data-extract_${from}-${to}_${user?.user_id}_${Date.now()}`;
+      await this.reportS3Service.uploadFile(key, data);
+      return { url: await this.reportS3Service.generatePresignedUrl(key) };
+    }
+    return data;
   }
 }

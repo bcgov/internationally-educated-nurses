@@ -9,6 +9,7 @@ variable "domain" {}
 variable "app_sources_bucket" {}
 variable "api_sources_bucket" {}
 variable "docs_bucket" {}
+variable "reports_bucket" {}
 
 variable "function_memory_mb" {
   default = "2048"

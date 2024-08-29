@@ -28,17 +28,49 @@ interface ReportCreator {
   colSum?: boolean;
 }
 
-export const getApplicantDataExtract = async (filter?: PeriodFilter) => {
+export const getApplicantDataExtract = async (
+  filter?: PeriodFilter,
+): Promise<object[] | { url: string }> => {
   const url = `/reports/applicant/extract-data?${convertToParams(filter)}`;
   const { data } = await axios.get(url);
   return data?.data;
 };
 
-export const getMilestoneDataExtract = async (filter?: PeriodFilter) => {
+export const getMilestoneDataExtract = async (
+  filter?: PeriodFilter,
+): Promise<object[] | { url: string }> => {
   const url = `/reports/applicant/extract-milestones?${convertToParams(filter)}`;
   const { data } = await axios.get(url);
   return data?.data;
 };
+
+/**
+ * Fetches JSON data from an S3 pre-signed URL.
+ *
+ * This function uses the Fetch API instead of axios to avoid including
+ * the Authorization header, which is not suitable for S3 pre-signed URLs.
+ *
+ * @param url - The pre-signed URL to fetch the JSON data from.
+ * @returns The JSON data fetched from the S3 URL.
+ */
+export async function fetchJsonDataFromS3Url(url: string) {
+  try {
+    // Fetch the JSON data directly from S3 using the pre-signed URL
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/text',
+        // No Authorization header included here
+      },
+    });
+
+    // Process the JSON data as needed in your application
+    return JSON.parse(await response.text());
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Error fetching large JSON data:', error);
+  }
+}
 
 export const getReportByEOI = async (filter?: PeriodFilter) => {
   try {
@@ -325,7 +357,13 @@ export const createApplicantDataExtractWorkbook = async (
   filter: PeriodFilter,
 ): Promise<WorkBook | null> => {
   try {
-    const applicants = await getApplicantDataExtract(filter);
+    const result = await getApplicantDataExtract(filter);
+    let applicants = [];
+    if ('url' in result) {
+      applicants = await fetchJsonDataFromS3Url(result.url);
+    } else {
+      applicants = result;
+    }
 
     if (!applicants || applicants.length === 0) {
       toast.error('There is no Applicant data to extract during this time period');
@@ -359,7 +397,14 @@ export const createMilestoneDataExtractWorkbook = async (
   filter: PeriodFilter,
 ): Promise<WorkBook | null> => {
   try {
-    const milestones = await getMilestoneDataExtract(filter);
+    const result = await getMilestoneDataExtract(filter);
+    let milestones = [];
+    if ('url' in result) {
+      milestones = await fetchJsonDataFromS3Url(result.url);
+    } else {
+      milestones = result;
+    }
+
     if (!milestones || milestones.length === 0) {
       toast.error('There is no milestone data to extract during this time period');
       return null;
