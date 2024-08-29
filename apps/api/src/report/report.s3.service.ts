@@ -16,12 +16,12 @@ export class ReportS3Service {
     });
   }
 
-  async uploadFile(key: string, data: any): Promise<void> {
+  async uploadFile(key: string, data: Record<string, any>): Promise<void> {
     if (!this.s3) {
       throw new InternalServerErrorException('the feature is disabled');
     }
     try {
-      const params = {
+      const params: AWS.S3.PutObjectRequest = {
         Bucket: BUCKET_NAME,
         Key: key,
         Body: JSON.stringify(data),

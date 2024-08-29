@@ -8,7 +8,21 @@ resource "aws_s3_bucket_cors_configuration" "reports_cors" {
   cors_rule {
     allowed_headers = ["*"]
     allowed_methods = ["GET"]
-    allowed_origins = ["*"] // Replace with your frontend domain
+    allowed_origins = ["https://dev.ien.freshworks.club", "https://test.ien.freshworks.club", "https://ien.freshworks.club"] // Replace with your frontend domain
     expose_headers  = []
+  }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "all_objects_expiration" {
+  bucket = aws_s3_bucket.reports.id
+
+  rule {
+    id     = "DeleteAllObjectsAfter1Day"
+    status = "Enabled"
+
+    # No prefix means the rule applies to all objects in the bucket
+    expiration {
+      days = 1
+    }
   }
 }
