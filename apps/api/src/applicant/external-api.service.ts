@@ -284,6 +284,7 @@ export class ExternalAPIService {
 
     try {
       let applicants = await this.fetchApplicantsFromATS(from_date, to_date, page);
+
       if (!applicants) {
         return {
           done: true,
@@ -431,13 +432,16 @@ export class ExternalAPIService {
       return result;
     }
 
-    const applicants: any[] = await this.mapApplicants(data);
+    let applicants: any[] = await this.mapApplicants(data);
     const processed_applicants_list: any[] = [];
 
     for (let i = 0; i <= applicants?.length / 250; i++) {
+      const start = i*250; // Upsert applicants in chunks of 250
+      const end = min([(i + 1) * 250, applicants.length]) // Length of applicants array or the next 250 applicants, whichever is lower.
+      console.log(`Start: ${start}`, `\nEnd: ${end}`)
       const applicant_slice = applicants.slice(
-        i * 250, // Upsert applicants in chunks of 250
-        min([(i + 1) * 250, applicants.length - 1]), // Length of applicants array or the next 250 applicants, whichever is lower.
+        start,
+        end, 
       );
       const applicant_upsert_results = await manager.upsert(IENApplicant, applicant_slice, ['id']);
       result.applicants.processed += applicant_upsert_results?.identifiers?.length || 0;
