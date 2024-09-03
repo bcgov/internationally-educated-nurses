@@ -436,13 +436,9 @@ export class ExternalAPIService {
     const processed_applicants_list: any[] = [];
 
     for (let i = 0; i <= applicants?.length / 250; i++) {
-      const start = i*250; // Upsert applicants in chunks of 250
-      const end = min([(i + 1) * 250, applicants.length]) // Length of applicants array or the next 250 applicants, whichever is lower.
-      console.log(`Start: ${start}`, `\nEnd: ${end}`)
-      const applicant_slice = applicants.slice(
-        start,
-        end, 
-      );
+      const start = i * 250; // Upsert applicants in chunks of 250
+      const end = min([(i + 1) * 250, applicants.length]); // Length of applicants array or the next 250 applicants, whichever is lower.
+      const applicant_slice = applicants.slice(start, end);
       const applicant_upsert_results = await manager.upsert(IENApplicant, applicant_slice, ['id']);
       result.applicants.processed += applicant_upsert_results?.identifiers?.length || 0;
       if (applicant_upsert_results.identifiers.length) {
