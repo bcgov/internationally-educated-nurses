@@ -2,7 +2,7 @@ import createCache from '@emotion/cache';
 import { CacheProvider } from '@emotion/react';
 import ReactSelect from 'react-select';
 import crypto from 'crypto';
-export * from 'src/components/CustomReactSelect';
+export * from 'react-select';
 
 export default function CustomReactSelect(props: any) {
   const nonce = crypto.randomBytes(16).toString('base64');
