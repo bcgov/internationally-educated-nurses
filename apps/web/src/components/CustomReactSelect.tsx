@@ -1,7 +1,7 @@
 import createCache from '@emotion/cache';
 import { CacheProvider } from '@emotion/react';
 import ReactSelect, { Props as ReactSelectProps } from 'react-select';
-import crypto from 'crypto';
+// import crypto from 'crypto';
 export * from 'react-select';
 
 // Define a generic type for CustomReactSelect
