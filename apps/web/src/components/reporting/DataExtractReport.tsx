@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import { Formik, Form as FormikForm, FormikHelpers } from 'formik';
 import { WorkBook, writeFileXLSX } from 'xlsx-js-style';
 import { createValidator } from '@utils/dto-validator';
-import ReactSelect from 'react-select';
+import ReactSelect from 'src/components/CustomReactSelect';
 
 import { Button, getSelectStyleOverride, Label } from '@components';
 import { Authorities, PeriodFilter, ReportPeriodDTO } from '@ien/common';

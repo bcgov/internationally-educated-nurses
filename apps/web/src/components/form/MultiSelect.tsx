@@ -1,6 +1,6 @@
 import React from 'react';
 import { FieldProps as FormikFieldProps } from 'formik';
-import ReactSelect from 'react-select';
+import ReactSelect from 'src/components/CustomReactSelect';
 import { Field, FieldProps, getSelectStyleOverride, Input, OptionType } from '@components';
 
 interface MultiSelectProps extends FieldProps {
