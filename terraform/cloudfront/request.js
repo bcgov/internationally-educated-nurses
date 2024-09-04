@@ -13,7 +13,8 @@ function handler(event) {
   var request = event.request;
 
   // Generate a nonce
-  var nonce = generateNonce(16); // You can adjust the length as needed
+  // var nonce = generateNonce(16); // You can adjust the length as needed
+  var nonce = 'nonce-1234567890';
 
   request.headers['x-nonce'] = { value: nonce };
 
