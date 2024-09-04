@@ -6,6 +6,7 @@ import { CachePolicies, Provider } from 'use-http';
 import React, { PropsWithChildren, ReactNode, useEffect, useState } from 'react';
 import { AuthProvider as OidcAuthProvider, AuthProviderProps, useAuth } from 'react-oidc-context';
 import { User } from 'oidc-client-ts';
+import { NonceProvider } from 'react-select';
 
 import { Footer, Header, MenuBar, Spinner } from '@components';
 import { AuthProvider } from 'src/components/AuthContexts';
@@ -17,7 +18,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import '../styles/globals.css';
 
 axios.defaults.baseURL = process.env.NEXT_PUBLIC_API_URL;
-
+const nonce = 'nonce-1234567890';
 function App({ Component, pageProps }: AppProps) {
   const [oidcConfig, setOidcConfig] = useState<AuthProviderProps>();
 
@@ -51,14 +52,16 @@ function App({ Component, pageProps }: AppProps) {
       <OidcAuthProvider {...oidcConfig}>
         <FetchWrapper>
           <AuthProvider>
-            <div className='h-full flex flex-col'>
-              <Header />
-              <MenuBar />
-              <main className='flex w-full justify-center pb-20'>
-                <Component {...pageProps} />
-              </main>
-              <Footer />
-            </div>
+            <NonceProvider cacheKey='css' nonce={nonce}>
+              <div className='h-full flex flex-col'>
+                <Header />
+                <MenuBar />
+                <main className='flex w-full justify-center pb-20'>
+                  <Component {...pageProps} />
+                </main>
+                <Footer />
+              </div>
+            </NonceProvider>
           </AuthProvider>
         </FetchWrapper>
       </OidcAuthProvider>
