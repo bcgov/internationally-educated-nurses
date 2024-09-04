@@ -1,9 +1,9 @@
 // Next.js request handler
 // Helper function to generate a random nonce
 function generateNonce(length) {
-  const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let nonce = '';
-  for (let i = 0; i < length; i++) {
+  var charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  var nonce = '';
+  for (var i = 0; i < length; i++) {
     nonce += charset.charAt(Math.floor(Math.random() * charset.length));
   }
   return nonce;
@@ -15,8 +15,7 @@ function handler(event) {
   // Generate a nonce
   var nonce = generateNonce(16); // You can adjust the length as needed
 
-  // Optionally, you might want to pass the nonce as a custom header or embed it in the HTML
-  request.headers['x-nonce'] = [{ key: 'X-Nonce', value: nonce }];
+  request.headers['x-nonce'] = { value: nonce };
 
   var uri = request.uri;
 

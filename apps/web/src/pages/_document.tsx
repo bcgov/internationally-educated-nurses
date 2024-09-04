@@ -27,14 +27,26 @@ class MyDocument extends Document<MyDocumentProps> {
 
   render() {
     const { nonce } = this.props;
+    const cspPolicy = `
+                        default-src 'self' 
+                          https://keycloak.freshworks.club 
+                          https://common-logon-dev.hlth.gov.bc.ca 
+                          https://common-logon-test.hlth.gov.bc.ca 
+                          https://common-logon.hlth.gov.bc.ca 
+                          https://ien-dev-reports.s3.ca-central-1.amazonaws.com 
+                          https://ien-test-reports.s3.ca-central-1.amazonaws.com 
+                          https://ien-prod-reports.s3.ca-central-1.amazonaws.com;
+                        img-src 'self';
+                        script-src 'self' 'nonce-${nonce}';
+                        style-src 'self' 'nonce-${nonce}';
+                        form-action 'self';
+                        frame-ancestors 'self';
+                      `;
 
     return (
       <Html>
         <Head>
-          <meta
-            httpEquiv='Content-Security-Policy'
-            content={`default-src 'self'; style-src 'self' 'nonce-${nonce}'; script-src 'self' 'nonce-${nonce}'`}
-          />
+          <meta httpEquiv='Content-Security-Policy' content={cspPolicy} />
         </Head>
         <body>
           <Main />
