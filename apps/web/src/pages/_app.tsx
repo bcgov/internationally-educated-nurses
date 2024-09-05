@@ -18,7 +18,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import '../styles/globals.css';
 
 axios.defaults.baseURL = process.env.NEXT_PUBLIC_API_URL;
-const nonce = 'nonce-1234567890';
+
 function App({ Component, pageProps }: AppProps) {
   const [oidcConfig, setOidcConfig] = useState<AuthProviderProps>();
 
@@ -33,6 +33,16 @@ function App({ Component, pageProps }: AppProps) {
         }
       },
     });
+  }, []);
+
+  const [nonce, setNonce] = useState('');
+
+  useEffect(() => {
+    // Wait until the component is mounted to query the meta tag
+    const metaNonce = document.querySelector('meta[name="nonce"]')?.getAttribute('content');
+    if (metaNonce) {
+      setNonce(metaNonce);
+    }
   }, []);
 
   if (process.env.NEXT_PUBLIC_MAINTENANCE) {
