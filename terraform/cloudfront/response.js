@@ -16,19 +16,14 @@ function handler(event) {
   // Since JavaScript doesn't allow for hyphens in variable names, we use the dict["key"] notation
   headers['strict-transport-security'] = { value: 'max-age=63072000; includeSubdomains; preload' };
   headers['content-security-policy'] = {
-    value: `default-src 'self' 
-            https://keycloak.freshworks.club 
-            https://common-logon-dev.hlth.gov.bc.ca 
-            https://common-logon-test.hlth.gov.bc.ca 
-            https://common-logon.hlth.gov.bc.ca 
-            https://ien-dev-reports.s3.ca-central-1.amazonaws.com 
-            https://ien-test-reports.s3.ca-central-1.amazonaws.com 
-            https://ien-prod-reports.s3.ca-central-1.amazonaws.com; 
-            img-src 'self'; 
-            script-src 'self' 'nonce-${nonce}'; 
-            style-src 'self' 'nonce-${nonce}'; 
-            form-action 'self'; 
-            frame-ancestors 'self'`,
+    // We need to hard code both as there isn't a good way of checking environment to dynamically determine which
+    value:
+      "default-src 'self' https://keycloak.freshworks.club https://common-logon-dev.hlth.gov.bc.ca https://common-logon-test.hlth.gov.bc.ca https://common-logon.hlth.gov.bc.ca https://ien-dev-reports.s3.ca-central-1.amazonaws.com https://ien-test-reports.s3.ca-central-1.amazonaws.com https://ien-prod-reports.s3.ca-central-1.amazonaws.com; img-src 'self';  script-src 'self' 'nonce-" +
+      nonce +
+      "'; style-src 'self' 'nonce-" +
+      nonce +
+      "';" +
+      "form-action 'self'; frame-ancestors 'self'",
   };
   headers['x-content-type-options'] = { value: 'nosniff' };
   headers['x-frame-options'] = { value: 'DENY' };
