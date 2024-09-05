@@ -37,8 +37,17 @@ function App({ Component, pageProps }: AppProps) {
     });
   }, []);
 
-  const [nonce] = useState(Date.now().toString());
+  function getFormattedDate() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are zero-based, so add 1
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
 
+  const [nonce] = useState(getFormattedDate());
+  // eslint-disable-next-line no-console
+  console.log('nonce:', nonce);
   // useEffect(() => {
   //   // Extract nonce from query parameter
 

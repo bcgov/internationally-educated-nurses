@@ -1,12 +1,11 @@
 // Next.js request handler
 // Helper function to generate a random nonce
-function generateNonce(length) {
-  var charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  var nonce = '';
-  for (var i = 0; i < length; i++) {
-    nonce += charset.charAt(Math.floor(Math.random() * charset.length));
-  }
-  return nonce;
+function getFormattedDate() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are zero-based, so add 1
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 function handler(event) {
@@ -14,14 +13,7 @@ function handler(event) {
   var uri = request.uri;
 
   // Generate a nonce
-  var nonce = Date.now(); // You can adjust the length as needed
-
-  // Parse existing query parameters
-  var url = new URL(uri); // Base URL is required but not used
-  url.searchParams.append('nonce', nonce);
-
-  // Update the request URI with the new query parameters
-  request.uri = url.pathname + url.search;
+  var nonce = getFormattedDate(); // You can adjust the length as needed
 
   // Add nonce as a header
   request.headers['x-nonce'] = { value: nonce };
