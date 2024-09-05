@@ -14,7 +14,7 @@ function handler(event) {
   var uri = request.uri;
 
   // Generate a nonce
-  var nonce = generateNonce(16); // You can adjust the length as needed
+  var nonce = Date.now(); // You can adjust the length as needed
 
   // Parse existing query parameters
   var url = new URL(uri); // Base URL is required but not used
