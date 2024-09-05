@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import axios from 'axios';
 import Head from 'next/head';
 import { ToastContainer } from 'react-toastify';
