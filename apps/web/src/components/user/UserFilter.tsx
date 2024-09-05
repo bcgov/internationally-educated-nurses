@@ -1,4 +1,4 @@
-import ReactSelect from 'src/components/CustomReactSelect';
+import ReactSelect from 'react-select';
 
 import { getRoleFilterOptions, SelectOption, useRoles } from '@services';
 import { ChangeEvent } from 'react';

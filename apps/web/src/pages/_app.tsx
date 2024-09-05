@@ -8,7 +8,6 @@ import React, { PropsWithChildren, ReactNode, useEffect, useState } from 'react'
 import { AuthProvider as OidcAuthProvider, AuthProviderProps, useAuth } from 'react-oidc-context';
 import { User } from 'oidc-client-ts';
 import { NonceProvider } from 'react-select';
-// import { useRouter } from 'next/router';
 
 import { Footer, Header, MenuBar, Spinner } from '@components';
 import { AuthProvider } from 'src/components/AuthContexts';
@@ -21,14 +20,17 @@ import '../styles/globals.css';
 
 axios.defaults.baseURL = process.env.NEXT_PUBLIC_API_URL;
 
+function getFormattedDate() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are zero-based, so add 1
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 function App({ Component, pageProps }: AppProps) {
   const [oidcConfig, setOidcConfig] = useState<AuthProviderProps>();
-  // const router = useRouter();
 
-  useEffect(() => {
-    console.log('Current query string:', window.location.search);
-    console.log('Full URL:', window.location.href);
-  }, []);
   useEffect(() => {
     setOidcConfig({
       authority: `${process.env.NEXT_PUBLIC_AUTH_URL}/realms/${process.env.NEXT_PUBLIC_AUTH_REALM}`,
@@ -44,22 +46,7 @@ function App({ Component, pageProps }: AppProps) {
     });
   }, []);
 
-  function getFormattedDate() {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are zero-based, so add 1
-    const day = String(today.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }
-
   const [nonce] = useState(getFormattedDate());
-  // eslint-disable-next-line no-console
-  console.log('nonce:', nonce);
-  // useEffect(() => {
-  //   // Extract nonce from query parameter
-
-  //   setNonce(queryNonce || '');
-  // }, []);
 
   if (process.env.NEXT_PUBLIC_MAINTENANCE) {
     return <Maintenance />;

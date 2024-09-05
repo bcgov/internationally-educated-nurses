@@ -1,4 +1,4 @@
-import ReactSelect from 'src/components/CustomReactSelect';
+import ReactSelect from 'react-select';
 import { RecordTypeOptions, useGetAddRecordOptions } from '@services';
 import { JobFilterOptions } from '@ien/common';
 import { Button, getSelectStyleOverride, Input } from '@components';

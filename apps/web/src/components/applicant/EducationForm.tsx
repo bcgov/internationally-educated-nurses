@@ -1,5 +1,5 @@
 import { FieldArray, FieldProps, FormikErrors } from 'formik';
-import ReactSelect from 'src/components/CustomReactSelect';
+import ReactSelect from 'react-select';
 
 import { Button, Field, getSelectStyleOverride, Input } from '@components';
 import { RecordTypeOptions } from '@services';

@@ -1,5 +1,5 @@
 import { FieldProps, getSelectStyleOverride, Input } from '@components';
-import ReactSelect, { MenuPlacement } from 'src/components/CustomReactSelect';
+import ReactSelect, { MenuPlacement } from 'react-select';
 import { isoCountries } from '@ien/common';
 import { RecordTypeOptions } from '@services';
 

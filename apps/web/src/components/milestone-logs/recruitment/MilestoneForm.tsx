@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { FieldProps, Formik, Form as FormikForm, FormikHelpers, FormikProps } from 'formik';
 import { createValidator } from '@utils/dto-validator';
-import ReactSelect from 'src/components/CustomReactSelect';
+import ReactSelect from 'react-select';
 import dayjs from 'dayjs';
 import {
   ApplicantJobRO,

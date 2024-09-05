@@ -1,6 +1,6 @@
 import { Formik, Form as FormikForm, FieldArray } from 'formik';
 import { Dispatch, SetStateAction } from 'react';
-import ReactSelect from 'src/components/CustomReactSelect';
+import ReactSelect from 'react-select';
 import { Disclosure as HeadlessDisclosure, Transition } from '@headlessui/react';
 import { createValidator } from '@utils/dto-validator';
 
