@@ -6,6 +6,7 @@ import { CachePolicies, Provider } from 'use-http';
 import React, { PropsWithChildren, ReactNode, useEffect, useState } from 'react';
 import { AuthProvider as OidcAuthProvider, AuthProviderProps, useAuth } from 'react-oidc-context';
 import { User } from 'oidc-client-ts';
+import { NonceProvider } from 'react-select';
 
 import { Footer, Header, MenuBar, Spinner } from '@components';
 import { AuthProvider } from 'src/components/AuthContexts';
@@ -17,6 +18,14 @@ import 'react-datepicker/dist/react-datepicker.css';
 import '../styles/globals.css';
 
 axios.defaults.baseURL = process.env.NEXT_PUBLIC_API_URL;
+
+function getFormattedDate() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are zero-based, so add 1
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
 
 function App({ Component, pageProps }: AppProps) {
   const [oidcConfig, setOidcConfig] = useState<AuthProviderProps>();
@@ -33,6 +42,8 @@ function App({ Component, pageProps }: AppProps) {
       },
     });
   }, []);
+
+  const [nonce] = useState(getFormattedDate());
 
   if (process.env.NEXT_PUBLIC_MAINTENANCE) {
     return <Maintenance />;
@@ -51,14 +62,16 @@ function App({ Component, pageProps }: AppProps) {
       <OidcAuthProvider {...oidcConfig}>
         <FetchWrapper>
           <AuthProvider>
-            <div className='h-full flex flex-col'>
-              <Header />
-              <MenuBar />
-              <main className='flex w-full justify-center pb-20'>
-                <Component {...pageProps} />
-              </main>
-              <Footer />
-            </div>
+            <NonceProvider cacheKey='css' nonce={nonce}>
+              <div className='h-full flex flex-col'>
+                <Header />
+                <MenuBar />
+                <main className='flex w-full justify-center pb-20'>
+                  <Component {...pageProps} />
+                </main>
+                <Footer />
+              </div>
+            </NonceProvider>
           </AuthProvider>
         </FetchWrapper>
       </OidcAuthProvider>

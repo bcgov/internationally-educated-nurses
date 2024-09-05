@@ -1,14 +1,27 @@
+function getFormattedDate() {
+  var today = new Date();
+  var year = today.getFullYear();
+  var month = String(today.getMonth() + 1).padStart(2, '0'); // Months are zero-based, so add 1
+  var day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 function handler(event) {
   var response = event.response;
   var headers = response.headers;
+  // Generate a nonce value
+  var nonce = getFormattedDate();
 
   // Set HTTP security headers
   // Since JavaScript doesn't allow for hyphens in variable names, we use the dict["key"] notation
   headers['strict-transport-security'] = { value: 'max-age=63072000; includeSubdomains; preload' };
   headers['content-security-policy'] = {
-    // We need to hard code both as there isn't a good way of checking environment to dynamically determine which
+    // Removed the script-src from the value
     value:
-      "default-src 'self' https://keycloak.freshworks.club https://common-logon-dev.hlth.gov.bc.ca https://common-logon-test.hlth.gov.bc.ca https://common-logon.hlth.gov.bc.ca https://ien-dev-reports.s3.ca-central-1.amazonaws.com https://ien-test-reports.s3.ca-central-1.amazonaws.com https://ien-prod-reports.s3.ca-central-1.amazonaws.com; img-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'; form-action 'self'; frame-ancestors 'self'",
+      "default-src 'self' https://keycloak.freshworks.club https://common-logon-dev.hlth.gov.bc.ca https://common-logon-test.hlth.gov.bc.ca https://common-logon.hlth.gov.bc.ca https://ien-dev-reports.s3.ca-central-1.amazonaws.com https://ien-test-reports.s3.ca-central-1.amazonaws.com https://ien-prod-reports.s3.ca-central-1.amazonaws.com; img-src 'self'; style-src 'self' 'nonce-" +
+      nonce +
+      "';" +
+      "form-action 'self'; frame-ancestors 'self'",
   };
   headers['x-content-type-options'] = { value: 'nosniff' };
   headers['x-frame-options'] = { value: 'DENY' };
