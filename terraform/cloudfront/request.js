@@ -1,10 +1,10 @@
 // Next.js request handler
 // Helper function to generate a random nonce
 function getFormattedDate() {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are zero-based, so add 1
-  const day = String(today.getDate()).padStart(2, '0');
+  var today = new Date();
+  var year = today.getFullYear();
+  var month = String(today.getMonth() + 1).padStart(2, '0'); // Months are zero-based, so add 1
+  var day = String(today.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 }
 
@@ -17,6 +17,7 @@ function handler(event) {
 
   // Add nonce as a header
   request.headers['x-nonce'] = { value: nonce };
+  request.querystring['nonce'] = { value: nonce };
 
   // Convert requests ending in numbers into [step].index
   var numericMatch = uri.match(/\/([0-9]+)$/);

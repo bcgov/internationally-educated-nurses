@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import axios from 'axios';
 import Head from 'next/head';
 import { ToastContainer } from 'react-toastify';
@@ -25,11 +26,17 @@ function App({ Component, pageProps }: AppProps) {
   // const router = useRouter();
 
   useEffect(() => {
+    console.log('Current query string:', window.location.search);
+    console.log('Full URL:', window.location.href);
+  }, []);
+  useEffect(() => {
     setOidcConfig({
       authority: `${process.env.NEXT_PUBLIC_AUTH_URL}/realms/${process.env.NEXT_PUBLIC_AUTH_REALM}`,
       client_id: process.env.NEXT_PUBLIC_AUTH_CLIENTID ?? 'IEN',
       redirect_uri: window.origin,
       onSigninCallback: (user: User | void) => {
+        console.log('2Current query string:', window.location.search);
+        console.log('2Full URL:', window.location.href);
         if (user) {
           axios.defaults.headers.common['Authorization'] = `Bearer ${user.access_token}`;
         }
