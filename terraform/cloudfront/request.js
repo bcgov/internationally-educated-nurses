@@ -11,14 +11,20 @@ function generateNonce(length) {
 
 function handler(event) {
   var request = event.request;
+  var uri = request.uri;
 
   // Generate a nonce
   var nonce = generateNonce(16); // You can adjust the length as needed
-  // var nonce = 'nonce-1234567890';
 
+  // Parse existing query parameters
+  var url = new URL(uri); // Base URL is required but not used
+  url.searchParams.append('nonce', nonce);
+
+  // Update the request URI with the new query parameters
+  request.uri = url.pathname + url.search;
+
+  // Add nonce as a header
   request.headers['x-nonce'] = { value: nonce };
-
-  var uri = request.uri;
 
   // Convert requests ending in numbers into [step].index
   var numericMatch = uri.match(/\/([0-9]+)$/);

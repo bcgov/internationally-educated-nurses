@@ -4,11 +4,6 @@ function handler(event) {
   var headers = response.headers;
   // Generate a nonce value
   var nonce = request.headers['x-nonce'] ? request.headers['x-nonce'].value : '';
-  // Inject the nonce into a meta tag in the HTML
-  response.body = response.body.replace(
-    '</head>',
-    '<meta name="nonce" content="' + nonce + '"></head>',
-  );
 
   // Set HTTP security headers
   // Since JavaScript doesn't allow for hyphens in variable names, we use the dict["key"] notation

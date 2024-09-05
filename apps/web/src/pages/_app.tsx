@@ -7,6 +7,7 @@ import React, { PropsWithChildren, ReactNode, useEffect, useState } from 'react'
 import { AuthProvider as OidcAuthProvider, AuthProviderProps, useAuth } from 'react-oidc-context';
 import { User } from 'oidc-client-ts';
 import { NonceProvider } from 'react-select';
+import { useRouter } from 'next/router';
 
 import { Footer, Header, MenuBar, Spinner } from '@components';
 import { AuthProvider } from 'src/components/AuthContexts';
@@ -21,6 +22,7 @@ axios.defaults.baseURL = process.env.NEXT_PUBLIC_API_URL;
 
 function App({ Component, pageProps }: AppProps) {
   const [oidcConfig, setOidcConfig] = useState<AuthProviderProps>();
+  const router = useRouter();
 
   useEffect(() => {
     setOidcConfig({
@@ -38,12 +40,14 @@ function App({ Component, pageProps }: AppProps) {
   const [nonce, setNonce] = useState('');
 
   useEffect(() => {
-    // Wait until the component is mounted to query the meta tag
-    const metaNonce = document.querySelector('meta[name="nonce"]')?.getAttribute('content');
-    if (metaNonce) {
-      setNonce(metaNonce);
-    }
-  }, []);
+    // Extract nonce from query parameter
+    const queryNonce = router.query?.nonce as string;
+    // eslint-disable-next-line no-console
+    console.log('queryNonce', queryNonce);
+    // eslint-disable-next-line no-console
+    console.log('router.query', router.query);
+    setNonce(queryNonce || '');
+  }, [router.query]);
 
   if (process.env.NEXT_PUBLIC_MAINTENANCE) {
     return <Maintenance />;
