@@ -37,8 +37,6 @@ function App({ Component, pageProps }: AppProps) {
       client_id: process.env.NEXT_PUBLIC_AUTH_CLIENTID ?? 'IEN',
       redirect_uri: window.origin,
       onSigninCallback: (user: User | void) => {
-        console.log('2Current query string:', window.location.search);
-        console.log('2Full URL:', window.location.href);
         if (user) {
           axios.defaults.headers.common['Authorization'] = `Bearer ${user.access_token}`;
         }
