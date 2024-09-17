@@ -75,8 +75,8 @@ export async function fetchJsonDataFromS3Url(url: string) {
 export const getPresignedUrl = async (s3Key: string) => {
   try {
     const url = `/reports/applicant/get-presigned-url?s3Key=${s3Key}`;
-    const response = await axios.get<{ url: string }>(url);
-    return response?.data?.url;
+    const response = await axios.get<{ data: { url: string } }>(url);
+    return response?.data?.data?.url;
   } catch (e) {
     notifyError(e as AxiosError);
   }
