@@ -30,7 +30,7 @@ interface ReportCreator {
 
 export const getApplicantDataExtract = async (
   filter?: PeriodFilter,
-): Promise<object[] | { url: string }> => {
+): Promise<object[] | { s3Key: string }> => {
   const url = `/reports/applicant/extract-data?${convertToParams(filter)}`;
   const { data } = await axios.get(url);
   return data?.data;
@@ -38,7 +38,7 @@ export const getApplicantDataExtract = async (
 
 export const getMilestoneDataExtract = async (
   filter?: PeriodFilter,
-): Promise<object[] | { url: string }> => {
+): Promise<object[] | { s3Key: string }> => {
   const url = `/reports/applicant/extract-milestones?${convertToParams(filter)}`;
   const { data } = await axios.get(url);
   return data?.data;
@@ -71,6 +71,16 @@ export async function fetchJsonDataFromS3Url(url: string) {
     console.error('Error fetching large JSON data:', error);
   }
 }
+
+export const getPresignedUrl = async (s3Key: string) => {
+  try {
+    const url = `/reports/applicant/get-presigned-url?s3Key=${s3Key}`;
+    const response = await axios.get<{ url: string }>(url);
+    return response?.data?.url;
+  } catch (e) {
+    notifyError(e as AxiosError);
+  }
+};
 
 export const getReportByEOI = async (filter?: PeriodFilter) => {
   try {
@@ -359,8 +369,11 @@ export const createApplicantDataExtractWorkbook = async (
   try {
     const result = await getApplicantDataExtract(filter);
     let applicants = [];
-    if ('url' in result) {
-      applicants = await fetchJsonDataFromS3Url(result.url);
+    if ('s3Key' in result) {
+      const url = await getPresignedUrl(result.s3Key);
+      if (url) {
+        applicants = await fetchJsonDataFromS3Url(url);
+      }
     } else {
       applicants = result;
     }
@@ -399,8 +412,11 @@ export const createMilestoneDataExtractWorkbook = async (
   try {
     const result = await getMilestoneDataExtract(filter);
     let milestones = [];
-    if ('url' in result) {
-      milestones = await fetchJsonDataFromS3Url(result.url);
+    if ('s3Key' in result) {
+      const url = await getPresignedUrl(result.s3Key);
+      if (url) {
+        milestones = await fetchJsonDataFromS3Url(url);
+      }
     } else {
       milestones = result;
     }
