@@ -7,7 +7,7 @@ resource "aws_s3_bucket_cors_configuration" "reports_cors" {
 
   cors_rule {
     allowed_headers = ["*"]
-    allowed_methods = ["GET"]
+    allowed_methods = ["GET", "HEAD"]
     allowed_origins = ["https://dev.ien.freshworks.club", "https://test.ien.freshworks.club", "https://ien.gov.bc.ca"] // Replace with your frontend domain
     expose_headers  = []
   }
