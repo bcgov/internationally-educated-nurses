@@ -151,7 +151,7 @@ export class ReportController {
   async extractApplicantsData(
     @Query() { from, to }: ReportPeriodDTO,
     @User() user: EmployeeRO,
-  ): Promise<object[] | { s3Key: string }> {
+  ): Promise<object[] | { url: string }> {
     const data = await this.reportService.extractApplicantsData({ from, to }, user?.ha_pcn_id);
     if (
       data?.length > 10 &&
@@ -159,8 +159,8 @@ export class ReportController {
       process.env.RUNTIME_ENV !== 'local'
     ) {
       const s3Key = `ien-applicant-data-extract_${from}-${to}_${user?.user_id}_${Date.now()}`;
-      await this.reportS3Service.uploadFile(s3Key, data);
-      return { s3Key };
+      this.reportS3Service.uploadFile(s3Key, data);
+      return { url: await this.reportS3Service.generatePresignedUrl(s3Key) };
     }
     return data;
   }
@@ -170,7 +170,7 @@ export class ReportController {
   async extractMilestoneData(
     @Query() { from, to }: ReportPeriodDTO,
     @User() user: EmployeeRO,
-  ): Promise<object[] | { s3Key: string }> {
+  ): Promise<object[] | { url: string }> {
     const data = await this.reportService.extractMilestoneData({ to, from }, user?.ha_pcn_id);
     if (
       data?.length > 10 &&
@@ -178,8 +178,8 @@ export class ReportController {
       process.env.RUNTIME_ENV !== 'local'
     ) {
       const s3Key = `ien-milestone-data-extract_${from}-${to}_${user?.user_id}_${Date.now()}`;
-      await this.reportS3Service.uploadFile(s3Key, data);
-      return { s3Key };
+      this.reportS3Service.uploadFile(s3Key, data);
+      return { url: await this.reportS3Service.generatePresignedUrl(s3Key) };
     }
     return data;
   }

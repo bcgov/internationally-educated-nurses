@@ -30,7 +30,7 @@ interface ReportCreator {
 
 export const getApplicantDataExtract = async (
   filter?: PeriodFilter,
-): Promise<object[] | { s3Key: string }> => {
+): Promise<object[] | { url: string }> => {
   const url = `/reports/applicant/extract-data?${convertToParams(filter)}`;
   const { data } = await axios.get(url);
   return data?.data;
@@ -38,7 +38,7 @@ export const getApplicantDataExtract = async (
 
 export const getMilestoneDataExtract = async (
   filter?: PeriodFilter,
-): Promise<object[] | { s3Key: string }> => {
+): Promise<object[] | { url: string }> => {
   const url = `/reports/applicant/extract-milestones?${convertToParams(filter)}`;
   const { data } = await axios.get(url);
   return data?.data;
@@ -363,17 +363,54 @@ const createDataExtractWorkBook = (data: object[], sheetName: string): WorkBook 
   return workbook;
 };
 
+async function checkFileExists(url: string): Promise<boolean> {
+  try {
+    const response = await fetch(url, { method: 'HEAD' });
+    return response.ok; // true if the file exists
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Error checking file existence:', error);
+    return false;
+  }
+}
+
+async function pollForFile(url: string, interval: number, timeout: number): Promise<void> {
+  const startTime = Date.now();
+
+  return new Promise((resolve, reject) => {
+    const intervalId = setInterval(async () => {
+      const fileExists = await checkFileExists(url);
+
+      if (fileExists) {
+        clearInterval(intervalId);
+        // eslint-disable-next-line no-console
+        console.log('File is available!');
+        resolve();
+      }
+
+      if (Date.now() - startTime > timeout) {
+        clearInterval(intervalId);
+        reject(new Error('Polling timeout: File not available within the expected time.'));
+      }
+    }, interval);
+  });
+}
+
 export const createApplicantDataExtractWorkbook = async (
   filter: PeriodFilter,
 ): Promise<WorkBook | null> => {
   try {
     const result = await getApplicantDataExtract(filter);
     let applicants = [];
-    if ('s3Key' in result) {
-      const url = await getPresignedUrl(result.s3Key);
-      if (url) {
-        applicants = await fetchJsonDataFromS3Url(url);
-      }
+    if ('url' in result) {
+      const { url } = result;
+      const pollInterval = 5000; // Check every 5 seconds
+      const pollTimeout = 180000; // Stop after 3 minutes
+      await pollForFile(url, pollInterval, pollTimeout).catch(error => {
+        // eslint-disable-next-line no-console
+        console.error(error.message);
+      });
+      applicants = await fetchJsonDataFromS3Url(url);
     } else {
       applicants = result;
     }
@@ -412,11 +449,15 @@ export const createMilestoneDataExtractWorkbook = async (
   try {
     const result = await getMilestoneDataExtract(filter);
     let milestones = [];
-    if ('s3Key' in result) {
-      const url = await getPresignedUrl(result.s3Key);
-      if (url) {
-        milestones = await fetchJsonDataFromS3Url(url);
-      }
+    if ('url' in result) {
+      const { url } = result;
+      const pollInterval = 5000; // Check every 5 seconds
+      const pollTimeout = 180000; // Stop after 3 minutes
+      await pollForFile(url, pollInterval, pollTimeout).catch(error => {
+        // eslint-disable-next-line no-console
+        console.error(error.message);
+      });
+      milestones = await fetchJsonDataFromS3Url(url);
     } else {
       milestones = result;
     }

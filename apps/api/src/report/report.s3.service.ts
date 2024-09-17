@@ -26,7 +26,7 @@ export class ReportS3Service {
         Key: key,
         Body: JSON.stringify(data),
       };
-      await this.s3.upload(params).promise();
+      this.s3.upload(params);
     } catch (e) {
       throw new InternalServerErrorException('failed to upload a report data');
     }
