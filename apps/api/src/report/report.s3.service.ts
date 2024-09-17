@@ -26,7 +26,17 @@ export class ReportS3Service {
         Key: key,
         Body: JSON.stringify(data),
       };
-      this.s3.upload(params);
+      this.s3
+        .upload(params)
+        .promise()
+        .then(() => {
+          // eslint-disable-next-line no-console
+          console.log('Upload started.');
+        })
+        .catch(error => {
+          // eslint-disable-next-line no-console
+          console.error('Error starting upload:', error);
+        });
     } catch (e) {
       throw new InternalServerErrorException('failed to upload a report data');
     }
