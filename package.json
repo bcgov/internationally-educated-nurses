@@ -65,6 +65,15 @@
   "resolutions": {
     "axios": "0.28.0",
     "express": "4.19.2",
-    "postcss": "8.4.31"
+    "postcss": "8.4.31",
+    "@babel/traverse": "7.23.2",
+    "ws": "7.5.10",
+    "braces": "3.0.3",
+    "webpack": "5.94.0",
+    "semver": "7.5.2",
+    "xml2js": "0.5.0",
+    "word-wrap": "1.2.4",
+    "micromatch": "4.0.8",
+    "ip": "2.0.1"
   }
 }
