@@ -159,8 +159,12 @@ export class ReportController {
       process.env.RUNTIME_ENV !== 'local'
     ) {
       const s3Key = `ien-applicant-data-extract_${from}-${to}_${user?.user_id}_${Date.now()}`;
-      this.reportS3Service.uploadFile(s3Key, data);
-      return { url: await this.reportS3Service.generatePresignedUrl(s3Key) };
+      const url = await this.reportS3Service.generatePresignedUrl(s3Key);
+      setTimeout(() => {
+        return { url };
+      }, 30000);
+      await this.reportS3Service.uploadFile(s3Key, data);
+      return { url };
     }
     return data;
   }
@@ -178,8 +182,12 @@ export class ReportController {
       process.env.RUNTIME_ENV !== 'local'
     ) {
       const s3Key = `ien-milestone-data-extract_${from}-${to}_${user?.user_id}_${Date.now()}`;
-      this.reportS3Service.uploadFile(s3Key, data);
-      return { url: await this.reportS3Service.generatePresignedUrl(s3Key) };
+      const url = await this.reportS3Service.generatePresignedUrl(s3Key);
+      setTimeout(() => {
+        return { url };
+      }, 30000);
+      await this.reportS3Service.uploadFile(s3Key, data);
+      return { url };
     }
     return data;
   }
