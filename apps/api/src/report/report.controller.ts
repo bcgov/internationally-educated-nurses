@@ -160,10 +160,11 @@ export class ReportController {
     ) {
       const s3Key = `ien-applicant-data-extract_${from}-${to}_${user?.user_id}_${Date.now()}`;
       const url = await this.reportS3Service.generatePresignedUrl(s3Key);
-      setTimeout(() => {
-        return { url };
-      }, 30000);
-      await this.reportS3Service.uploadFile(s3Key, data);
+      const TIMEOUT_MS = 30000;
+      const timeoutPromise = new Promise<void>((_, reject) => {
+        setTimeout(() => reject(new Error('Operation timed out')), TIMEOUT_MS);
+      });
+      await Promise.race([timeoutPromise, this.reportS3Service.uploadFile(s3Key, data)]);
       return { url };
     }
     return data;
@@ -183,10 +184,11 @@ export class ReportController {
     ) {
       const s3Key = `ien-milestone-data-extract_${from}-${to}_${user?.user_id}_${Date.now()}`;
       const url = await this.reportS3Service.generatePresignedUrl(s3Key);
-      setTimeout(() => {
-        return { url };
-      }, 30000);
-      await this.reportS3Service.uploadFile(s3Key, data);
+      const TIMEOUT_MS = 30000;
+      const timeoutPromise = new Promise<void>((_, reject) => {
+        setTimeout(() => reject(new Error('Operation timed out')), TIMEOUT_MS);
+      });
+      await Promise.race([timeoutPromise, this.reportS3Service.uploadFile(s3Key, data)]);
       return { url };
     }
     return data;
