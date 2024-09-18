@@ -159,19 +159,7 @@ export class ReportController {
     if (process.env.NODE_ENV !== 'test' && process.env.RUNTIME_ENV !== 'local') {
       const s3Key = `ien-applicant-data-extract_${from}-${to}_${user?.user_id}_${Date.now()}`;
       const url = await this.reportS3Service.generatePresignedUrl(s3Key);
-      // this.reportS3Service
-      //   .uploadFile(s3Key, data)
-      //   .then(() => {
-      //     console.log('File uploaded successfully.');
-      //   })
-      //   .catch(err => {
-      //     console.error('File upload failed: ', err);
-      //   });
-      // const TIMEOUT_MS = 2000;
-      // const timeoutPromise = new Promise<void>(resolve => {
-      //   setTimeout(() => resolve(), TIMEOUT_MS);
-      // });
-      // await timeoutPromise;
+
       await this.uploadLambda
         .invoke({
           FunctionName: `${process.env.NAMESPACE}-s3-upload-reports`, // Name of the second Lambda
@@ -199,19 +187,7 @@ export class ReportController {
     if (process.env.NODE_ENV !== 'test' && process.env.RUNTIME_ENV !== 'local') {
       const s3Key = `ien-milestone-data-extract_${from}-${to}_${user?.user_id}_${Date.now()}`;
       const url = await this.reportS3Service.generatePresignedUrl(s3Key);
-      // this.reportS3Service
-      //   .uploadFile(s3Key, data)
-      //   .then(() => {
-      //     console.log('File uploaded successfully.');
-      //   })
-      //   .catch(err => {
-      //     console.error('File upload failed: ', err);
-      //   });
-      // const TIMEOUT_MS = 2000;
-      // const timeoutPromise = new Promise<void>(resolve => {
-      //   setTimeout(() => resolve(), TIMEOUT_MS);
-      // });
-      // await timeoutPromise;
+
       await this.uploadLambda
         .invoke({
           FunctionName: `${process.env.NAMESPACE}-s3-upload-reports`, // Name of the second Lambda
