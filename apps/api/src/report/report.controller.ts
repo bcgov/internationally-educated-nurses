@@ -160,7 +160,7 @@ export class ReportController {
     ) {
       const s3Key = `ien-applicant-data-extract_${from}-${to}_${user?.user_id}_${Date.now()}`;
       const url = await this.reportS3Service.generatePresignedUrl(s3Key);
-      const TIMEOUT_MS = 15000;
+      const TIMEOUT_MS = 5000;
       const timeoutPromise = new Promise<void>(resolve => {
         setTimeout(() => resolve(), TIMEOUT_MS);
       });
@@ -184,7 +184,7 @@ export class ReportController {
     ) {
       const s3Key = `ien-milestone-data-extract_${from}-${to}_${user?.user_id}_${Date.now()}`;
       const url = await this.reportS3Service.generatePresignedUrl(s3Key);
-      const TIMEOUT_MS = 15000;
+      const TIMEOUT_MS = 5000;
       const timeoutPromise = new Promise<void>(resolve => {
         setTimeout(() => resolve(), TIMEOUT_MS);
       });

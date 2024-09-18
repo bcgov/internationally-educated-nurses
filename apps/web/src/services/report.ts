@@ -365,7 +365,7 @@ const createDataExtractWorkBook = (data: object[], sheetName: string): WorkBook 
 
 async function checkFileExists(url: string): Promise<boolean> {
   try {
-    const response = await fetch(url, { method: 'HEAD' });
+    const response = await fetch(url, { method: 'GET', headers: { Range: 'bytes=0-1' } });
     return response.ok; // true if the file exists
   } catch (error) {
     // eslint-disable-next-line no-console
