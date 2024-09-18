@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Controller, Get, Inject, Logger, Query, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Access, ReportPeriodDTO, EmployeeRO } from '@ien/common';
@@ -160,11 +161,19 @@ export class ReportController {
     ) {
       const s3Key = `ien-applicant-data-extract_${from}-${to}_${user?.user_id}_${Date.now()}`;
       const url = await this.reportS3Service.generatePresignedUrl(s3Key);
-      const TIMEOUT_MS = 5000;
+      this.reportS3Service
+        .uploadFile(s3Key, data)
+        .then(() => {
+          console.log('File uploaded successfully.');
+        })
+        .catch(err => {
+          console.error('File upload failed: ', err);
+        });
+      const TIMEOUT_MS = 2000;
       const timeoutPromise = new Promise<void>(resolve => {
         setTimeout(() => resolve(), TIMEOUT_MS);
       });
-      await Promise.race([timeoutPromise, this.reportS3Service.uploadFile(s3Key, data)]);
+      await timeoutPromise;
       return { url };
     }
     return data;
@@ -184,11 +193,19 @@ export class ReportController {
     ) {
       const s3Key = `ien-milestone-data-extract_${from}-${to}_${user?.user_id}_${Date.now()}`;
       const url = await this.reportS3Service.generatePresignedUrl(s3Key);
-      const TIMEOUT_MS = 5000;
+      this.reportS3Service
+        .uploadFile(s3Key, data)
+        .then(() => {
+          console.log('File uploaded successfully.');
+        })
+        .catch(err => {
+          console.error('File upload failed: ', err);
+        });
+      const TIMEOUT_MS = 2000;
       const timeoutPromise = new Promise<void>(resolve => {
         setTimeout(() => resolve(), TIMEOUT_MS);
       });
-      await Promise.race([timeoutPromise, this.reportS3Service.uploadFile(s3Key, data)]);
+      await timeoutPromise;
       return { url };
     }
     return data;

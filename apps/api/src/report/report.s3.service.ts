@@ -16,7 +16,7 @@ export class ReportS3Service {
     });
   }
 
-  async uploadFile(key: string, data: Record<string, any>): Promise<void> {
+  async uploadFile(key: string, data: Record<string, any>): Promise<AWS.S3.ManagedUpload.SendData> {
     if (!this.s3) {
       throw new InternalServerErrorException('the feature is disabled');
     }
@@ -26,7 +26,7 @@ export class ReportS3Service {
         Key: key,
         Body: JSON.stringify(data),
       };
-      await this.s3.upload(params).promise();
+      return this.s3.upload(params).promise();
     } catch (e) {
       throw new InternalServerErrorException('failed to upload a report data');
     }
