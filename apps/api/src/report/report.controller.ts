@@ -156,21 +156,15 @@ export class ReportController {
     @Query() { from, to }: ReportPeriodDTO,
     @User() user: EmployeeRO,
   ): Promise<object[] | { url: string }> {
-    if (process.env.NODE_ENV !== 'test' && process.env.RUNTIME_ENV !== 'local') {
-      const s3Key = `ien-applicant-data-extract_${from}-${to}_${user?.user_id}_${Date.now()}`;
+    if (this.shouldUseS3()) {
+      const s3Key = this.generateS3Key(from, to, user?.user_id, 'applicant');
       const url = await this.reportS3Service.generatePresignedUrl(s3Key);
 
-      await this.uploadLambda
-        .invoke({
-          FunctionName: `${process.env.NAMESPACE}-s3-upload-reports`, // Name of the second Lambda
-          InvocationType: 'Event', // Asynchronous invocation
-          Payload: JSON.stringify({
-            s3Key,
-            param: { from, to, ha_pcn_id: user?.ha_pcn_id },
-            path: 'extract-data',
-          }),
-        })
-        .promise();
+      await this.invokeUploadLambda(
+        s3Key,
+        { from, to, ha_pcn_id: user?.ha_pcn_id },
+        'extract-data',
+      );
       return { url };
     }
 
@@ -184,31 +178,46 @@ export class ReportController {
     @Query() { from, to }: ReportPeriodDTO,
     @User() user: EmployeeRO,
   ): Promise<object[] | { url: string }> {
-    if (process.env.NODE_ENV !== 'test' && process.env.RUNTIME_ENV !== 'local') {
-      const s3Key = `ien-milestone-data-extract_${from}-${to}_${user?.user_id}_${Date.now()}`;
+    if (this.shouldUseS3()) {
+      const s3Key = this.generateS3Key(from, to, user?.user_id, 'milestone');
       const url = await this.reportS3Service.generatePresignedUrl(s3Key);
 
-      await this.uploadLambda
-        .invoke({
-          FunctionName: `${process.env.NAMESPACE}-s3-upload-reports`, // Name of the second Lambda
-          InvocationType: 'Event', // Asynchronous invocation
-          Payload: JSON.stringify({
-            s3Key,
-            param: { from, to, ha_pcn_id: user?.ha_pcn_id },
-            path: 'extract-milestone',
-          }),
-        })
-        .promise();
+      await this.invokeUploadLambda(
+        s3Key,
+        { from, to, ha_pcn_id: user?.ha_pcn_id },
+        'extract-milestone',
+      );
       return { url };
     }
+
     const data = await this.reportService.extractMilestoneData({ to, from }, user?.ha_pcn_id);
     return data;
   }
 
-  @ApiOperation({ summary: 'Get Presigned Url' })
-  @Get('/applicant/get-presigned-url')
-  @AllowAccess(Access.DATA_EXTRACT)
-  async getPresignedUrl(@Query('s3Key') s3Key: string): Promise<object[] | { url: string }> {
-    return { url: await this.reportS3Service.generatePresignedUrl(s3Key) };
+  private shouldUseS3(): boolean {
+    return process.env.NODE_ENV !== 'test' && process.env.RUNTIME_ENV !== 'local';
+  }
+
+  private generateS3Key(
+    from: string,
+    to: string,
+    userId: string | undefined | null,
+    type: 'milestone' | 'applicant',
+  ): string {
+    return `ien-${type}-data-extract_${from}-${to}_${userId}_${Date.now()}`;
+  }
+
+  private async invokeUploadLambda(s3Key: string, param: object, path: string): Promise<void> {
+    await this.uploadLambda
+      .invoke({
+        FunctionName: `${process.env.NAMESPACE}-s3-upload-reports`, // Name of the second Lambda
+        InvocationType: 'Event', // Asynchronous invocation
+        Payload: JSON.stringify({
+          s3Key,
+          param,
+          path,
+        }),
+      })
+      .promise();
   }
 }
