@@ -48,7 +48,7 @@ export const handler: Handler = async (event, context: Context) => {
         .then(() => {
           appLogger.log('File uploaded successfully.');
         })
-        .catch(err => {
+        .catch((err: any) => {
           appLogger.error('File upload failed: ', err);
         });
     }
