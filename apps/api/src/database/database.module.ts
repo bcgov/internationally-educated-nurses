@@ -95,6 +95,5 @@ const appOrmConfig: PostgresConnectionOptions = {
 @Module({
   imports: [TypeOrmModule.forRoot(appOrmConfig)],
   providers: [Logger],
-  exports: [TypeOrmModule], // Export TypeOrmModule for other modules to use
 })
 export class DatabaseModule {}

@@ -5,13 +5,18 @@ import { AppLogger } from './common/logger.service';
 import { ReportService } from './report/report.service';
 import { ReportS3Service } from './report/report.s3.service';
 
+let app: any = null;
+
 /**
  * Design this function to trigger existing NestJs appliation services without Api-Getway
  * All the schedule and backgroud job trigger will be added here.
  * This handler will cache the report 4 data for every existing period
  */
 export const handler: Handler = async (event, context: Context) => {
-  const app = await NestFactory.createApplicationContext(AppModule);
+  if (!app) {
+    app = await NestFactory.create(AppModule);
+    await app.init();
+  }
   const reportS3Service = app.get(ReportS3Service);
   const reportService = app.get(ReportService);
 

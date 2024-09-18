@@ -1,6 +1,6 @@
-import { Inject, Logger } from '@nestjs/common';
+import { Inject, Logger, OnModuleDestroy } from '@nestjs/common';
 import { mean, median, min, mode, round } from 'mathjs';
-import { getManager, Repository, In, getRepository, Not, ILike } from 'typeorm';
+import { getManager, Repository, In, getRepository, Not, ILike, Connection } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import dayjs from 'dayjs';
 import _ from 'lodash';
@@ -24,7 +24,7 @@ import { IENHaPcn } from 'src/applicant/entity/ienhapcn.entity';
 
 export const PERIOD_START_DATE = '2022-05-02';
 
-export class ReportService {
+export class ReportService implements OnModuleDestroy {
   constructor(
     @Inject(Logger) private readonly logger: AppLogger,
     @Inject(ReportUtilService)
@@ -33,7 +33,12 @@ export class ReportService {
     private readonly ienapplicantStatusRepository: Repository<IENApplicantStatus>,
     @InjectRepository(IENHaPcn)
     private readonly ienHaPcnRepository: Repository<IENHaPcn>,
+    private readonly connection: Connection,
   ) {}
+
+  async onModuleDestroy() {
+    await this.connection.close();
+  }
 
   captureFromTo(from: string, to: string) {
     this.reportUtilService._isValidDateValue(from);
