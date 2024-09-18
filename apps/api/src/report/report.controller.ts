@@ -156,20 +156,13 @@ export class ReportController {
     @Query() { from, to }: ReportPeriodDTO,
     @User() user: EmployeeRO,
   ): Promise<object[] | { url: string }> {
-    if (this.shouldUseS3()) {
-      const s3Key = this.generateS3Key(from, to, user?.user_id, 'applicant');
-      const url = await this.reportS3Service.generatePresignedUrl(s3Key);
-
-      await this.invokeUploadLambda(
-        s3Key,
-        { from, to, ha_pcn_id: user?.ha_pcn_id },
-        'extract-data',
-      );
-      return { url };
-    }
-
-    const data = await this.reportService.extractApplicantsData({ from, to }, user?.ha_pcn_id);
-    return data;
+    return this.extractData(
+      { from, to },
+      user,
+      'extract-data',
+      'applicant',
+      this.reportService.extractApplicantsData.bind(this.reportService),
+    );
   }
   @ApiOperation({ summary: 'Extract milestones' })
   @Get('/applicant/extract-milestones')
@@ -178,20 +171,13 @@ export class ReportController {
     @Query() { from, to }: ReportPeriodDTO,
     @User() user: EmployeeRO,
   ): Promise<object[] | { url: string }> {
-    if (this.shouldUseS3()) {
-      const s3Key = this.generateS3Key(from, to, user?.user_id, 'milestone');
-      const url = await this.reportS3Service.generatePresignedUrl(s3Key);
-
-      await this.invokeUploadLambda(
-        s3Key,
-        { from, to, ha_pcn_id: user?.ha_pcn_id },
-        'extract-milestone',
-      );
-      return { url };
-    }
-
-    const data = await this.reportService.extractMilestoneData({ to, from }, user?.ha_pcn_id);
-    return data;
+    return this.extractData(
+      { from, to },
+      user,
+      'extract-milestone',
+      'milestone',
+      this.reportService.extractMilestoneData.bind(this.reportService),
+    );
   }
 
   private shouldUseS3(): boolean {
@@ -219,5 +205,31 @@ export class ReportController {
         }),
       })
       .promise();
+  }
+
+  private async extractData(
+    period: ReportPeriodDTO,
+    user: EmployeeRO,
+    apiPath: 'extract-data' | 'extract-milestone',
+    type: 'milestone' | 'applicant',
+    extractFunction: (
+      period: ReportPeriodDTO,
+      ha_pcn_id: string | undefined | null,
+    ) => Promise<object[]>,
+  ): Promise<object[] | { url: string }> {
+    if (this.shouldUseS3()) {
+      const s3Key = this.generateS3Key(period.from, period.to, user?.user_id, type);
+      const url = await this.reportS3Service.generatePresignedUrl(s3Key);
+
+      await this.invokeUploadLambda(
+        s3Key,
+        { from: period.from, to: period.to, ha_pcn_id: user?.ha_pcn_id },
+        apiPath,
+      );
+      return { url };
+    }
+
+    const data = await extractFunction(period, user?.ha_pcn_id);
+    return data;
   }
 }
