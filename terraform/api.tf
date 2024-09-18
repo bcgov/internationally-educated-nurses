@@ -19,7 +19,7 @@ resource "aws_lambda_function" "api" {
   runtime          = "nodejs18.x"
   handler          = "api/lambda.handler" # TODO update 
   memory_size      = var.function_memory_mb
-  timeout          = 300
+  timeout          = 30
 
   source_code_hash = aws_s3_bucket_object.api_lambda.etag
   s3_bucket        = aws_s3_bucket.api.bucket

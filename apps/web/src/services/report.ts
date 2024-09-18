@@ -383,8 +383,6 @@ async function pollForFile(url: string, interval: number, timeout: number): Prom
 
       if (fileExists) {
         clearInterval(intervalId);
-        // eslint-disable-next-line no-console
-        console.log('File is available!');
         resolve();
       }
 

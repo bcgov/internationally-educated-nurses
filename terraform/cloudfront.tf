@@ -70,7 +70,6 @@ resource "aws_cloudfront_distribution" "app" {
 
       origin_protocol_policy = "https-only"
       origin_ssl_protocols   = ["TLSv1.2"]
-      origin_read_timeout      = 60
     }
   }
 
