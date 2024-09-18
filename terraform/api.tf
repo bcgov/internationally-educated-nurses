@@ -62,6 +62,7 @@ resource "aws_lambda_function" "api" {
       DOCS_BUCKET       = var.docs_bucket
       REPORTS_BUCKET    = var.reports_bucket
       NO_COLOR          = "true"
+      NAMESPACE         = local.namespace
     }
   }
 }

@@ -29,6 +29,7 @@ locals {
   sync_applicant_data_scheduler  = "${local.namespace}-hmbc-to-ien-applicants"
   notify_lambda_name  = "${local.namespace}-notifylambda"
   cache_reports_lambda_name  = "${local.namespace}-cache-reports"
+  report_s3_upload_lambda_name  = "${local.namespace}-s3-upload-reports"
   db_name = "${local.namespace}-db"
 
   has_domain = var.domain != ""

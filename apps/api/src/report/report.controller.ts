@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { Controller, Get, Inject, Logger, Query, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import AWS from 'aws-sdk';
 import { Access, ReportPeriodDTO, EmployeeRO } from '@ien/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { AppLogger } from 'src/common/logger.service';
@@ -12,6 +13,8 @@ import { ReportS3Service } from './report.s3.service';
 @ApiTags('IEN Reports')
 @UseGuards(AuthGuard)
 export class ReportController {
+  private uploadLambda = new AWS.Lambda();
+
   constructor(
     @Inject(Logger) private readonly logger: AppLogger,
     @Inject(ReportService) private readonly reportService: ReportService,
@@ -161,19 +164,26 @@ export class ReportController {
     ) {
       const s3Key = `ien-applicant-data-extract_${from}-${to}_${user?.user_id}_${Date.now()}`;
       const url = await this.reportS3Service.generatePresignedUrl(s3Key);
-      this.reportS3Service
-        .uploadFile(s3Key, data)
-        .then(() => {
-          console.log('File uploaded successfully.');
+      // this.reportS3Service
+      //   .uploadFile(s3Key, data)
+      //   .then(() => {
+      //     console.log('File uploaded successfully.');
+      //   })
+      //   .catch(err => {
+      //     console.error('File upload failed: ', err);
+      //   });
+      // const TIMEOUT_MS = 2000;
+      // const timeoutPromise = new Promise<void>(resolve => {
+      //   setTimeout(() => resolve(), TIMEOUT_MS);
+      // });
+      // await timeoutPromise;
+      await this.uploadLambda
+        .invoke({
+          FunctionName: `${process.env.NAMESPACE}-s3-upload-reports`, // Name of the second Lambda
+          InvocationType: 'Event', // Asynchronous invocation
+          Payload: JSON.stringify({ s3Key, data }),
         })
-        .catch(err => {
-          console.error('File upload failed: ', err);
-        });
-      const TIMEOUT_MS = 2000;
-      const timeoutPromise = new Promise<void>(resolve => {
-        setTimeout(() => resolve(), TIMEOUT_MS);
-      });
-      await timeoutPromise;
+        .promise();
       return { url };
     }
     return data;
@@ -193,19 +203,26 @@ export class ReportController {
     ) {
       const s3Key = `ien-milestone-data-extract_${from}-${to}_${user?.user_id}_${Date.now()}`;
       const url = await this.reportS3Service.generatePresignedUrl(s3Key);
-      this.reportS3Service
-        .uploadFile(s3Key, data)
-        .then(() => {
-          console.log('File uploaded successfully.');
+      // this.reportS3Service
+      //   .uploadFile(s3Key, data)
+      //   .then(() => {
+      //     console.log('File uploaded successfully.');
+      //   })
+      //   .catch(err => {
+      //     console.error('File upload failed: ', err);
+      //   });
+      // const TIMEOUT_MS = 2000;
+      // const timeoutPromise = new Promise<void>(resolve => {
+      //   setTimeout(() => resolve(), TIMEOUT_MS);
+      // });
+      // await timeoutPromise;
+      await this.uploadLambda
+        .invoke({
+          FunctionName: `${process.env.NAMESPACE}-s3-upload-reports`, // Name of the second Lambda
+          InvocationType: 'Event', // Asynchronous invocation
+          Payload: JSON.stringify({ s3Key, data }),
         })
-        .catch(err => {
-          console.error('File upload failed: ', err);
-        });
-      const TIMEOUT_MS = 2000;
-      const timeoutPromise = new Promise<void>(resolve => {
-        setTimeout(() => resolve(), TIMEOUT_MS);
-      });
-      await timeoutPromise;
+        .promise();
       return { url };
     }
     return data;
