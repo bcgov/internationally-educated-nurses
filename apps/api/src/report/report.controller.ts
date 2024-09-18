@@ -156,12 +156,7 @@ export class ReportController {
     @Query() { from, to }: ReportPeriodDTO,
     @User() user: EmployeeRO,
   ): Promise<object[] | { url: string }> {
-    const data = await this.reportService.extractApplicantsData({ from, to }, user?.ha_pcn_id);
-    if (
-      data?.length > 10 &&
-      process.env.NODE_ENV !== 'test' &&
-      process.env.RUNTIME_ENV !== 'local'
-    ) {
+    if (process.env.NODE_ENV !== 'test' && process.env.RUNTIME_ENV !== 'local') {
       const s3Key = `ien-applicant-data-extract_${from}-${to}_${user?.user_id}_${Date.now()}`;
       const url = await this.reportS3Service.generatePresignedUrl(s3Key);
       // this.reportS3Service
@@ -181,11 +176,17 @@ export class ReportController {
         .invoke({
           FunctionName: `${process.env.NAMESPACE}-s3-upload-reports`, // Name of the second Lambda
           InvocationType: 'Event', // Asynchronous invocation
-          Payload: JSON.stringify({ s3Key, data }),
+          Payload: JSON.stringify({
+            s3Key,
+            param: { from, to, ha_pcn_id: user?.ha_pcn_id },
+            path: 'extract-data',
+          }),
         })
         .promise();
       return { url };
     }
+
+    const data = await this.reportService.extractApplicantsData({ from, to }, user?.ha_pcn_id);
     return data;
   }
   @ApiOperation({ summary: 'Extract milestones' })
@@ -195,12 +196,7 @@ export class ReportController {
     @Query() { from, to }: ReportPeriodDTO,
     @User() user: EmployeeRO,
   ): Promise<object[] | { url: string }> {
-    const data = await this.reportService.extractMilestoneData({ to, from }, user?.ha_pcn_id);
-    if (
-      data?.length > 10 &&
-      process.env.NODE_ENV !== 'test' &&
-      process.env.RUNTIME_ENV !== 'local'
-    ) {
+    if (process.env.NODE_ENV !== 'test' && process.env.RUNTIME_ENV !== 'local') {
       const s3Key = `ien-milestone-data-extract_${from}-${to}_${user?.user_id}_${Date.now()}`;
       const url = await this.reportS3Service.generatePresignedUrl(s3Key);
       // this.reportS3Service
@@ -220,11 +216,16 @@ export class ReportController {
         .invoke({
           FunctionName: `${process.env.NAMESPACE}-s3-upload-reports`, // Name of the second Lambda
           InvocationType: 'Event', // Asynchronous invocation
-          Payload: JSON.stringify({ s3Key, data }),
+          Payload: JSON.stringify({
+            s3Key,
+            param: { from, to, ha_pcn_id: user?.ha_pcn_id },
+            path: 'extract-milestone',
+          }),
         })
         .promise();
       return { url };
     }
+    const data = await this.reportService.extractMilestoneData({ to, from }, user?.ha_pcn_id);
     return data;
   }
 

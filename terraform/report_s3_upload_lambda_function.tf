@@ -34,7 +34,11 @@ resource "aws_lambda_function" "UploadReports" {
       TARGET_ENV        = var.target_env
       AWS_S3_REGION     = var.region
       BUILD_ID          = var.build_id
-      BUILD_INFO        = var.build_info    
+      BUILD_INFO        = var.build_info
+      POSTGRES_USERNAME = var.db_username
+      POSTGRES_PASSWORD = data.aws_ssm_parameter.postgres_password.value
+      POSTGRES_HOST     = aws_rds_cluster.pgsql.endpoint
+      POSTGRES_DATABASE = aws_rds_cluster.pgsql.database_name
       NO_COLOR          = "true"      
     }
   }
@@ -44,8 +48,7 @@ resource "aws_lambda_permission" "allow_invoke_by_lambda" {
   statement_id  = "AllowInvokeByAnotherLambda"  # Unique ID for the permission
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.UploadReports.function_name
-  principal     = "lambda.amazonaws.com"  # This specifies that the invoking service is Lambda
-
+  principal     = "lambda.amazonaws.com"  # This specifies that the invoking service is Lambda  
   # ARN of the role of the Lambda that will invoke this function
   source_arn    = aws_lambda_function.api.arn  # Adjust this with the correct resource
 }
