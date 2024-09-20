@@ -187,7 +187,7 @@ export class ReportController {
   private generateS3Key(
     from: string,
     to: string,
-    userId: string | undefined | null,
+    userId: string | null,
     type: 'milestone' | 'applicant',
   ): string {
     return `ien-${type}-data-extract_${from}-${to}_${userId}_${Date.now()}`;
@@ -212,10 +212,7 @@ export class ReportController {
     user: EmployeeRO,
     apiPath: 'extract-data' | 'extract-milestone',
     type: 'milestone' | 'applicant',
-    extractFunction: (
-      period: ReportPeriodDTO,
-      ha_pcn_id: string | undefined | null,
-    ) => Promise<object[]>,
+    extractFunction: (period: ReportPeriodDTO, ha_pcn_id: string | null) => Promise<object[]>,
   ): Promise<object[] | { url: string }> {
     if (this.shouldUseS3()) {
       const s3Key = this.generateS3Key(period.from, period.to, user?.user_id, type);
