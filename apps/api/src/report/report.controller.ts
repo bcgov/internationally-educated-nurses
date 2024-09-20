@@ -1,5 +1,7 @@
+/* eslint-disable no-console */
 import { Controller, Get, Inject, Logger, Query, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import AWS from 'aws-sdk';
 import { Access, ReportPeriodDTO, EmployeeRO } from '@ien/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { AppLogger } from 'src/common/logger.service';
@@ -11,6 +13,8 @@ import { ReportS3Service } from './report.s3.service';
 @ApiTags('IEN Reports')
 @UseGuards(AuthGuard)
 export class ReportController {
+  private uploadLambda = new AWS.Lambda();
+
   constructor(
     @Inject(Logger) private readonly logger: AppLogger,
     @Inject(ReportService) private readonly reportService: ReportService,
@@ -152,17 +156,13 @@ export class ReportController {
     @Query() { from, to }: ReportPeriodDTO,
     @User() user: EmployeeRO,
   ): Promise<object[] | { url: string }> {
-    const data = await this.reportService.extractApplicantsData({ from, to }, user?.ha_pcn_id);
-    if (
-      data?.length > 10 &&
-      process.env.NODE_ENV !== 'test' &&
-      process.env.RUNTIME_ENV !== 'local'
-    ) {
-      const key = `ien-applicant-data-extract_${from}-${to}_${user?.user_id}_${Date.now()}`;
-      await this.reportS3Service.uploadFile(key, data);
-      return { url: await this.reportS3Service.generatePresignedUrl(key) };
-    }
-    return data;
+    return this.extractData(
+      { from, to },
+      user,
+      'extract-data',
+      'applicant',
+      this.reportService.extractApplicantsData.bind(this.reportService),
+    );
   }
   @ApiOperation({ summary: 'Extract milestones' })
   @Get('/applicant/extract-milestones')
@@ -171,16 +171,65 @@ export class ReportController {
     @Query() { from, to }: ReportPeriodDTO,
     @User() user: EmployeeRO,
   ): Promise<object[] | { url: string }> {
-    const data = await this.reportService.extractMilestoneData({ to, from }, user?.ha_pcn_id);
-    if (
-      data?.length > 10 &&
-      process.env.NODE_ENV !== 'test' &&
-      process.env.RUNTIME_ENV !== 'local'
-    ) {
-      const key = `ien-milestone-data-extract_${from}-${to}_${user?.user_id}_${Date.now()}`;
-      await this.reportS3Service.uploadFile(key, data);
-      return { url: await this.reportS3Service.generatePresignedUrl(key) };
+    return this.extractData(
+      { from, to },
+      user,
+      'extract-milestone',
+      'milestone',
+      this.reportService.extractMilestoneData.bind(this.reportService),
+    );
+  }
+
+  private shouldUseS3(): boolean {
+    return process.env.NODE_ENV !== 'test' && process.env.RUNTIME_ENV !== 'local';
+  }
+
+  private generateS3Key(
+    from: string,
+    to: string,
+    ha_pcn_id: string | undefined | null,
+    type: 'milestone' | 'applicant',
+  ): string {
+    return `ien-${type}-data-extract_${from}-${to}_${ha_pcn_id}_${Date.now()}`;
+  }
+
+  private async invokeUploadLambda(s3Key: string, param: object, path: string): Promise<void> {
+    await this.uploadLambda
+      .invoke({
+        FunctionName: `${process.env.NAMESPACE}-s3-upload-reports`, // Name of the second Lambda
+        InvocationType: 'Event', // Asynchronous invocation
+        Payload: JSON.stringify({
+          s3Key,
+          param,
+          path,
+        }),
+      })
+      .promise();
+  }
+
+  private async extractData(
+    period: ReportPeriodDTO,
+    user: EmployeeRO,
+    apiPath: 'extract-data' | 'extract-milestone',
+    type: 'milestone' | 'applicant',
+    extractFunction: (
+      period: ReportPeriodDTO,
+      ha_pcn_id: string | undefined | null,
+    ) => Promise<object[]>,
+  ): Promise<object[] | { url: string }> {
+    if (this.shouldUseS3()) {
+      const s3Key = this.generateS3Key(period.from, period.to, user?.user_id, type);
+      const url = await this.reportS3Service.generatePresignedUrl(s3Key);
+
+      await this.invokeUploadLambda(
+        s3Key,
+        { from: period.from, to: period.to, ha_pcn_id: user?.ha_pcn_id },
+        apiPath,
+      );
+      return { url };
     }
+
+    const data = await extractFunction(period, user?.ha_pcn_id);
     return data;
   }
 }
