@@ -187,10 +187,10 @@ export class ReportController {
   private generateS3Key(
     from: string,
     to: string,
-    userId: string | null,
+    ha_pcn_id: string | null,
     type: 'milestone' | 'applicant',
   ): string {
-    return `ien-${type}-data-extract_${from}-${to}_${userId}_${Date.now()}`;
+    return `ien-${type}-data-extract_${from}-${to}_${ha_pcn_id}_${Date.now()}`;
   }
 
   private async invokeUploadLambda(s3Key: string, param: object, path: string): Promise<void> {
@@ -226,7 +226,7 @@ export class ReportController {
       return { url };
     }
 
-    const data = await extractFunction(period, user?.ha_pcn_id);
+    const data = await extractFunction(period, user?.ha_pcn_id || 'no_ha_pcn_id');
     return data;
   }
 }
