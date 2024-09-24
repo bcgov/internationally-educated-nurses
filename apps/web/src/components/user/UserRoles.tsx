@@ -53,10 +53,7 @@ export const UserRoles = ({ user, updateUser }: UserRolesProps) => {
     if (isAdmin(user)) {
       return availableRoles;
     }
-    return availableRoles.filter(
-      role =>
-        role.slug !== RoleSlug.BccnmNcas && (!user.ha_pcn_id || role.slug !== RoleSlug.Reporting),
-    );
+    return availableRoles.filter(role => role.slug !== RoleSlug.BccnmNcas);
   };
 
   const getRoleSelector = (role: Role) => {
