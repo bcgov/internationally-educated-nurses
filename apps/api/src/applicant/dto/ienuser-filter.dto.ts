@@ -1,7 +1,7 @@
-import { IsNumberString, IsOptional, IsString, IsDateString } from 'class-validator';
+import { IsNumberString, IsOptional, IsString, IsDateString, IsNotEmpty } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
-export class IENUserFilterAPIDTO {
+export class IENUserBaseFilterAPIDTO {
   @ApiPropertyOptional({
     description: 'Start date for range',
     example: '2020-01-01',
@@ -26,16 +26,29 @@ export class IENUserFilterAPIDTO {
   organization?: string;
 
   @ApiPropertyOptional({
-    description: 'Limit the number of results',
-  })
-  @IsOptional()
-  @IsNumberString()
-  limit?: number;
-
-  @ApiPropertyOptional({
     description: 'Skip the number of results',
   })
   @IsOptional()
   @IsNumberString()
   skip?: number;
+}
+export class IENUserFilterAPIDTO extends IENUserBaseFilterAPIDTO {
+  @ApiPropertyOptional({
+    description: 'Limit the number of results',
+  })
+  @IsOptional()
+  @IsNumberString()
+  limit?: number;
+}
+
+/**
+ * As class-validator does not override the decorator @IsOptional when override the parent class, we need to create a separate class for the filter with limit
+ */
+export class IENUserLimitFilterAPIDTO extends IENUserBaseFilterAPIDTO {
+  @ApiPropertyOptional({
+    description: 'Limit the number of results',
+  })
+  @IsNotEmpty()
+  @IsNumberString()
+  limit!: number;
 }
