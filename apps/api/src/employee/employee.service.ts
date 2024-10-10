@@ -8,6 +8,7 @@ import { IENUsers } from 'src/applicant/entity/ienusers.entity';
 import { RoleEntity } from './entity/role.entity';
 import { AppLogger } from '../common/logger.service';
 import { searchNames } from '../common/search-names';
+import { FeatureFlagService } from 'src/common/feature-flag.service';
 
 export class EmployeeService {
   constructor(
@@ -19,6 +20,7 @@ export class EmployeeService {
     private roleRepository: Repository<RoleEntity>,
     @Inject(Logger)
     private readonly logger: AppLogger,
+    private readonly featureFlagService: FeatureFlagService,
   ) {}
 
   async resolveUser(keycloakId: string, userData: Partial<EmployeeEntity>): Promise<EmployeeRO> {
@@ -68,6 +70,19 @@ export class EmployeeService {
 
     if (employeeUser) {
       const employee = await this.employeeRepository.findOne({ where: { keycloakId } });
+
+      /**
+       * adding feature flag: CAN_HA_ACCESS_REPORT to remove reporting role from HA users
+       */
+      if (
+        !!employee &&
+        !!employeeUser?.ha_pcn_id &&
+        !(await this.featureFlagService.getFeatureFlag(
+          FeatureFlagService.FeatureFlags.CAN_HA_ACCESS_REPORT,
+        ))
+      ) {
+        employee.roles = employee.roles.filter(role => role.slug !== RoleSlug.Reporting);
+      }
       return { ...employeeUser, ...employee };
     }
   }

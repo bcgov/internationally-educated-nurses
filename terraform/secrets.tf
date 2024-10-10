@@ -46,4 +46,14 @@ data "aws_ssm_parameter" "mail_recipients" {
 #   name = "/${var.project_code}/${var.target_env}/ches/auth_url"
 # }
 
+resource "aws_ssm_parameter" "feature_flag_can_ha_access_report" {
+  name  = "/${var.project_code}/${var.target_env}/feature_flags/can_ha_access_report"
+  type  = "String"
+  value = "false"
 
+  lifecycle {
+    ignore_changes = [
+      value, # Ignore changes to the value of the parameter
+    ]
+  }
+}
