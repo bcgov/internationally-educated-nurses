@@ -6,7 +6,7 @@ export class FeatureFlagService {
   private readonly logger = new Logger(FeatureFlagService.name);
   private readonly ssm = new AWS.SSM();
 
-  private static readonly FEATURE_FLAG_PREFIX = `/ien/${process.env.TARGET_ENV}/feature-flags`;
+  private static readonly FEATURE_FLAG_PREFIX = `/ien/${process.env.TARGET_ENV}/feature_flags`;
 
   // we can extend here for future feature flags
   static readonly FeatureFlags = {
