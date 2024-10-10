@@ -7,6 +7,7 @@ import { IENUsers } from 'src/applicant/entity/ienusers.entity';
 import { EmployeeService } from './employee.service';
 import { RoleEntity } from './entity/role.entity';
 import { AccessEntity } from './entity/acl.entity';
+import { FeatureFlagService } from 'src/common/feature-flag.service';
 
 @Module({
   controllers: [EmployeeController],
@@ -14,7 +15,7 @@ import { AccessEntity } from './entity/acl.entity';
     TypeOrmModule.forFeature([EmployeeEntity, IENUsers, RoleEntity, AccessEntity]),
     forwardRef(() => AuthModule),
   ],
-  providers: [EmployeeService, Logger],
+  providers: [EmployeeService, Logger, FeatureFlagService],
   exports: [EmployeeService],
 })
 export class EmployeeModule {}
