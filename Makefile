@@ -327,7 +327,7 @@ plan: init
 
 apply: init 
 	# Creating all AWS infrastructure.
-	@TF_LOG=DEBUG terraform -chdir=$(TERRAFORM_DIR) apply -auto-approve -input=false
+	@terraform -chdir=$(TERRAFORM_DIR) apply -auto-approve -input=false
 
 destroy: init
 	@terraform -chdir=$(TERRAFORM_DIR) destroy
