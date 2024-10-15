@@ -39,7 +39,7 @@ jobs:
       - name: Git clone the repository
         uses: actions/checkout@v4
       - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v3
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{secrets.AWS_SA_ROLE_ARN}}
           aws-region: ca-central-1
