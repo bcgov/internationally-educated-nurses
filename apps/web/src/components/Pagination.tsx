@@ -13,6 +13,7 @@ export interface PaginationProps {
   id: string;
   pageOptions: PageOptions;
   onChange: (options: PageOptions) => void;
+  pageSizes?: number[];
 }
 
 const PAGE_SIZES = [5, 10, 25, 50];
@@ -22,11 +23,12 @@ export const Pagination = (props: PaginationProps) => {
     id,
     pageOptions: { pageSize, pageIndex, total },
     onChange,
+    pageSizes = PAGE_SIZES, // if not provided, use default page sizes
   } = props;
 
   const numOfPages = Math.ceil(total / pageSize);
 
-  const pageSizeOptions = PAGE_SIZES.map(size => ({ value: size }));
+  const pageSizeOptions = pageSizes.map(size => ({ value: size }));
   const pageListOptions = Array.from(Array(numOfPages).keys()).map(i => ({ value: i + 1 }));
 
   const startIndex = (pageIndex - 1) * pageSize + 1;
