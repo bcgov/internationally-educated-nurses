@@ -181,10 +181,10 @@ Cypress.Commands.add('pagination', () => {
   cy.get('tbody > tr').should('have.length', 10);
   cy.contains('1 - 10');
 
-  // change limit to 30
-  cy.get('#user-page-top-size').click().type(`30{enter}`);
-  cy.contains('Showing 30');
-  cy.get('tbody > tr').should('have.length', 30);
+  // change limit to 5
+  cy.get('#user-page-top-size').click().type(`5{enter}`);
+  cy.contains('Showing 5');
+  cy.get('tbody > tr').should('have.length', 5);
 
   // move to page 3
   cy.get('#user-page-top-index').click().type(`3{enter}`);

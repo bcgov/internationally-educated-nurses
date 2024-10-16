@@ -15,7 +15,7 @@ export interface PaginationProps {
   onChange: (options: PageOptions) => void;
 }
 
-const PAGE_SIZES = [10, 30, 50, 100];
+const PAGE_SIZES = [5, 10, 30, 50, 100];
 
 export const Pagination = (props: PaginationProps) => {
   const {
