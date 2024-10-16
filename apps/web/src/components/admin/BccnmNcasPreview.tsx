@@ -52,12 +52,14 @@ export const BccnmNcasPreview = ({ data }: { data: BccnmNcasValidation[] }) => {
         id='bccnm-ncas-page-top'
         pageOptions={{ pageIndex, pageSize, total: filteredData.length }}
         onChange={handlePageOptions}
+        pageSizes={[10, 30, 50, 100]}
       />
       <BccnmNcasUpdateTable data={pagedData} />
       <Pagination
         id='bccnm-ncas-page-bottom'
         pageOptions={{ pageIndex, pageSize, total: filteredData.length }}
         onChange={handlePageOptions}
+        pageSizes={[10, 30, 50, 100]}
       />
     </>
   );
