@@ -5,10 +5,14 @@ import { BccnmNcasDataUploader } from './BccnmNcasDataUploader';
 import { BccnmNcasPreview } from './BccnmNcasPreview';
 import { applyBccnmNcasUpdates } from '../../services/admin';
 import { toast } from 'react-toastify';
+import { useSessionStorage } from './hooks/useSessionStorage';
 
 export const BccnmNcasSection = () => {
   const [uploaderOpen, setUploaderOpen] = useState(false);
-  const [data, setData] = useState<BccnmNcasValidation[]>();
+  const [data, setData] = useSessionStorage<BccnmNcasValidation[] | undefined>(
+    'BCCNM_UPLOAD_DATE',
+    undefined,
+  );
   const [loading, setLoading] = useState(false);
 
   const applyChanges = async () => {
