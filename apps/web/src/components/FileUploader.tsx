@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -20,11 +21,9 @@ export const FileUploader = ({ extensions, handleClose, open, upload }: FileUplo
     setFile(null);
   }
   const handleOnDrop = (files: File[]) => {
-    const ext = files[0]?.name.split('.').pop();
-    if (ext && extensions.includes(ext)) {
-      setFile(files[0]);
-    } else {
-      toast.warning(`Select a file of type: ${extensions.join(', ')}`);
+    const file = handleFileWithRestrictions(files[0], extensions);
+    if (file) {
+      setFile(file);
     }
   };
 
@@ -78,3 +77,27 @@ export const FileUploader = ({ extensions, handleClose, open, upload }: FileUplo
     </Modal>
   );
 };
+
+function handleFileWithRestrictions(file: File, extensions: string[] = []) {
+  try {
+    // file non-empty
+    // file extensions
+    // Dropzone would make file empty if extension is not correct, so we don't need to check for extension here
+    if (!file) {
+      throw new Error(`Select a file of type: ${extensions.join(', ')}`);
+    }
+
+    // file size < 6MB
+    if (file.size > 6 * 1024 * 1024) {
+      throw new Error('File is too large! Please select a file smaller than 6MB');
+    }
+
+    return file;
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      toast.warning(err.message);
+    } else {
+      console.error(`An unknown error occurred: ${err}`);
+    }
+  }
+}
