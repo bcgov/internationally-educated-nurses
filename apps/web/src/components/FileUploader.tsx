@@ -97,7 +97,7 @@ function handleFileWithRestrictions(file: File, extensions: string[] = []) {
     if (err instanceof Error) {
       toast.warning(err.message);
     } else {
-      console.error(`An unknown error occurred: ${err}`);
+      toast.error(`An unknown error occurred: ${err}`);
     }
   }
 }
