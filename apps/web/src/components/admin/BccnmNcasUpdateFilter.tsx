@@ -31,10 +31,10 @@ export const BccnmNcasUpdateFilter = ({ data, onChange }: BccnmNcasUpdateSummary
     switch (option) {
       case FilterOption.VALID:
         return data.filter(e => e.valid).length;
-      case FilterOption.INVALID:
-        return data.filter(e => !e.valid).length;
       case FilterOption.NO_CHANGES:
-        return data.filter(e => e.valid && e.message === 'No changes').length;
+        return data.filter(e => !e.valid && e.message === 'No changes').length;
+      case FilterOption.INVALID:
+        return data.filter(e => !e.valid && e.message !== 'No changes').length;
       default:
         return data.length;
     }
