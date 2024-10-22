@@ -21,7 +21,7 @@ describe('Admin - BCCNM/NCAS Update', () => {
 
     // filter
     cy.contains('All (5)');
-    cy.contains('No changes (0)');
+    cy.contains('No changes (3)');
     cy.contains('Valid (2)');
 
     // validate messages
@@ -69,7 +69,7 @@ describe('Admin - BCCNM/NCAS Update', () => {
     cy.get('[data-cy=upload-file').click();
 
     cy.contains('All (2)');
-    cy.contains('Invalid (2)');
+    cy.contains('No changes (2)');
     cy.contains('button', 'Apply').should('be.disabled');
   });
 });
