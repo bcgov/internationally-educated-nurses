@@ -28,7 +28,7 @@ describe('Admin - BCCNM/NCAS Update', () => {
     cy.get('.text-bcRedError').should('have.length', 3);
     cy.contains('td', 'Invalid country code');
     cy.contains('td', 'Applicant not found');
-    cy.contains('td', 'No updates');
+    cy.contains('td', 'No changes');
 
     // cancel
     cy.contains('button', 'Cancel').click();
