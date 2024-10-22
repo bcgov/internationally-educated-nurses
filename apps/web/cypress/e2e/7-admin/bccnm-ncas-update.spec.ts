@@ -21,7 +21,7 @@ describe('Admin - BCCNM/NCAS Update', () => {
 
     // filter
     cy.contains('All (5)');
-    cy.contains('No changes (3)');
+    cy.contains('No changes (1)');
     cy.contains('Valid (2)');
 
     // validate messages
