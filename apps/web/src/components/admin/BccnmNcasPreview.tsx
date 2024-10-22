@@ -27,11 +27,11 @@ export const BccnmNcasPreview = ({ data }: { data: BccnmNcasValidation[] }) => {
       case FilterOption.VALID:
         setFilteredData(data.filter(e => e.valid));
         break;
-      case FilterOption.INVALID:
-        setFilteredData(data.filter(e => !e.valid));
-        break;
       case FilterOption.NO_CHANGES:
-        setFilteredData(data.filter(e => e.valid && e.message === 'No changes'));
+        setFilteredData(data.filter(e => !e.valid && e.message === 'No changes'));
+        break;
+      case FilterOption.INVALID:
+        setFilteredData(data.filter(e => !e.valid && e.message !== 'No changes'));
         break;
       default:
         setFilteredData(data);

@@ -104,7 +104,7 @@ describe('BCCNM/NCAS Updates', () => {
     const data = await app.get(AdminService).validateBccnmNcasUpdates(dataToCreate);
 
     expect(data.length).toBe(6);
-    expect(data.filter(r => r.message === 'No updates').length).toBe(2);
+    expect(data.filter(r => r.message === 'No changes').length).toBe(2);
     expect(data.filter(r => r.valid).length).toBe(4);
     expect(data.filter(r => !r.valid).length).toBe(2);
   });
@@ -142,7 +142,7 @@ describe('BCCNM/NCAS Updates', () => {
     const data = await app.get(AdminService).validateBccnmNcasUpdates(dataToUpdate);
 
     expect(data.length).toBe(6);
-    expect(data.filter(r => r.message === 'No updates').length).toBe(3);
+    expect(data.filter(r => r.message === 'No changes').length).toBe(3);
     expect(data.filter(r => r.valid).length).toBe(3);
   });
 });

@@ -264,7 +264,7 @@ export class AdminService {
       !v.countryOfEducation &&
       !v.message
     ) {
-      v.message = 'No updates';
+      v.message = 'No changes';
     }
 
     v.valid = !v.message;
