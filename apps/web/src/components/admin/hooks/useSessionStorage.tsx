@@ -24,16 +24,5 @@ export function useSessionStorage<T>(
     }
   }, [key, storedValue]);
 
-  // Cleanup session storage on page left
-  useEffect(() => {
-    const handleCleanSessionStorage = () => {
-      sessionStorage.removeItem(key);
-    };
-
-    return () => {
-      handleCleanSessionStorage();
-    };
-  }, [key]);
-
   return [storedValue, setStoredValue];
 }
