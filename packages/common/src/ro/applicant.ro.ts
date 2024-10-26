@@ -82,6 +82,7 @@ export interface ApplicantActiveFlagRO {
   applicant_id: string;
   ha_id: string;
   is_active: boolean;
+  status?: string;
 }
 
 export interface PathwayRO {
