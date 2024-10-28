@@ -31,7 +31,8 @@ locals {
   cache_reports_lambda_name  = "${local.namespace}-cache-reports"
   report_s3_upload_lambda_name  = "${local.namespace}-s3-upload-reports"
   db_name = "${local.namespace}-db"
-  end_of_journey_scheduler = "${local.namespace}-end-of-journey"
+  end_of_journey_lambda_name  = "${local.namespace}-end-of-journey-lambda"
+  end_of_journey_scheduler = "${local.namespace}-end-of-journey-scheduler"
 
   has_domain = var.domain != ""
   fw_domain  = length(regexall("freshworks", var.domain)) > 0

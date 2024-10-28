@@ -1,6 +1,6 @@
 resource "aws_lambda_function" "EndOfJourney" {
   description      = "Trigger end of journey service"
-  function_name    = local.syncdata_lambda_name
+  function_name    = local.end_of_journey_lambda_name
   role             = aws_iam_role.lambda.arn
   runtime          = "nodejs18.x"
   filename         = "./build/empty_lambda.zip"
