@@ -12,6 +12,7 @@ export interface ApplicantTableProps {
   applicants: ApplicantRO[];
   loading?: boolean;
   onSortChange: (field: string) => void;
+  showHiddenApplicants?: boolean;
 }
 
 // determine milestone text for status
@@ -35,7 +36,7 @@ const milestoneText = (applicant: ApplicantRO) => {
 };
 
 export const ApplicantTable = (props: ApplicantTableProps) => {
-  const { applicants, loading, onSortChange } = props;
+  const { applicants, loading, onSortChange, showHiddenApplicants } = props;
   const searchParams = useSearchParams();
 
   const { authUser } = useAuthContext();
@@ -87,6 +88,7 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
                 <SortButton label='Recruiter' sortKey='recruiter' onChange={onSortChange} />
               </th>
             </AclMask>
+            {!!showHiddenApplicants && <th className='px-6'>Inactive Status</th>}
             <th className='w-32' scope='col'></th>
           </tr>
         </thead>
@@ -108,6 +110,11 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
                     {app.recruiters?.find(r => r?.organization === authUser?.organization)?.name}
                   </td>
                 </AclMask>
+                {!!showHiddenApplicants && (
+                  <td className='px-4 whitespace-normal break-words' scope='col'>
+                    {app.active_flags?.map(flag => flag.status).join(', ')}
+                  </td>
+                )}
                 <td className='px-6 text-right'>
                   <Link
                     href={{

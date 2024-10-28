@@ -56,6 +56,11 @@ export class IENApplicantUtilService {
           'applicant.active_flags',
           'active_flag',
           `active_flag.applicant_id = applicant.id AND active_flag.ha_id = '${ha_pcn_id}'`,
+        )
+        .leftJoinAndSelect(
+          'active_flag.status',
+          'active_flag_status',
+          'active_flag_status.id = active_flag.status_id',
         );
 
       if (!showHiddenApplicants) {
@@ -67,7 +72,6 @@ export class IENApplicantUtilService {
           }),
         );
       }
-
       if (recruiter) {
         builder.innerJoinAndSelect(
           'applicant.recruiters',

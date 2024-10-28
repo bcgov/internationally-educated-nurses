@@ -116,9 +116,15 @@ export class EndOfJourneyService {
       .addSelect('job.ha_pcn_id', 'ha_pcn_id')
       .leftJoin('audit.status', 'status')
       .leftJoin('audit.job', 'job')
+      .leftJoin(
+        'ien_applicants_active_flag',
+        'active_flag',
+        'audit.applicant_id = active_flag.applicant_id',
+      )
       .having('MAX(audit.effective_date) = :oneYearBeforeYesterday', { oneYearBeforeYesterday }) // Use HAVING for aggregate filtering
       .where('status.status = :status', { status: STATUS.JOB_OFFER_ACCEPTED }) // Filter by status
       .andWhere('audit.effective_date IS NOT NULL') // Filter out null effective_date
+      .andWhere('active_flag.applicant_id IS NULL') // Exclude applicants in ien_applicants_active_flag
       .groupBy('audit.applicant_id') // Group by applicant_id
       .addGroupBy('status.id')
       .addGroupBy('job.id');
@@ -161,7 +167,7 @@ export class EndOfJourneyService {
       throw new Error(`Status not found: ${STATUS.END_OF_JOURNEY_COMPLETE}`);
     }
     for (const applicant of list) {
-      // First, attempt the update
+      // First, attempt the update table "ien_applicants_active_flag"
       const result = await manager
         .createQueryBuilder()
         .update('ien_applicants_active_flag')
@@ -187,6 +193,14 @@ export class EndOfJourneyService {
           })
           .execute();
       }
+
+      // update the status and updated_date of the applicant
+      await manager
+        .createQueryBuilder()
+        .update('ien_applicants')
+        .set({ status: endOfJourneyCompleteStatus, updated_date: new Date() })
+        .where('id = :id', { id: applicant.applicant_id })
+        .execute();
     }
   };
 }
