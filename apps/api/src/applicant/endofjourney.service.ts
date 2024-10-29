@@ -166,7 +166,7 @@ export class EndOfJourneyService {
         .execute();
     }
 
-    // write into ien_applicants_active_flag table with is_active = false    
+    // write into ien_applicants_active_flag table with is_active = false
     for (const applicant of list) {
       // First, attempt the update table "ien_applicants_active_flag"
       const result = await manager
