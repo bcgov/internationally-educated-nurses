@@ -55,7 +55,7 @@ resource "aws_lambda_function" "EndOfJourney" {
 resource "aws_cloudwatch_event_rule" "end_of_journey" {
   name                = local.end_of_journey_scheduler
   description         = "7:00AM PST every day"
-  schedule_expression = "cron(0 15 * * ? *)" # 3:00 PM UTC, which is 7:00 AM PST
+  schedule_expression = "cron(0 16 * * ? *)" # 3:00 PM UTC, which is 7:00 AM PST
 }
 
 resource "aws_cloudwatch_event_target" "end_of_journey" {
