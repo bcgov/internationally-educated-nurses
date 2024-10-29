@@ -139,23 +139,6 @@ export class EndOfJourneyService {
     // start_date, notes, status
 
     const today = dayjs().tz('America/Los_Angeles').format('YYYY-MM-DD');
-    for (const applicant of list) {
-      await manager
-        .createQueryBuilder()
-        .insert()
-        .into(IENApplicantStatusAudit)
-        .values({
-          applicant: { id: applicant.applicant_id }, // Setting the applicant_id from the list
-          start_date: today, // Start date is today in YYYY-MM-DD format
-          status: { status: STATUS.END_OF_JOURNEY_COMPLETE }, // Status is set to END_OF_JOURNEY_COMPLETED
-          notes: `Updated by Lambda CRON at ${dayjs()
-            .tz('America/Los_Angeles')
-            .format('YYYY-MM-DD HH:mm:ss')} and status: END_OF_JOURNEY_COMPLETE`, // Note with current time
-        })
-        .execute();
-    }
-
-    // write into ien_applicants_active_flag table with is_active = false
     // Attempt to get the status ID, and handle the error if the status is not found
     let endOfJourneyCompleteStatus;
     try {
@@ -166,6 +149,24 @@ export class EndOfJourneyService {
       this.logger.error(`Status not found: ${STATUS.END_OF_JOURNEY_COMPLETE}`, 'END-OF-JOURNEY');
       throw new Error(`Status not found: ${STATUS.END_OF_JOURNEY_COMPLETE}`);
     }
+
+    for (const applicant of list) {
+      await manager
+        .createQueryBuilder()
+        .insert()
+        .into(IENApplicantStatusAudit)
+        .values({
+          applicant: { id: applicant.applicant_id }, // Setting the applicant_id from the list
+          start_date: today, // Start date is today in YYYY-MM-DD format
+          status: endOfJourneyCompleteStatus, // Status is set to END_OF_JOURNEY_COMPLETED
+          notes: `Updated by Lambda CRON at ${dayjs()
+            .tz('America/Los_Angeles')
+            .format('YYYY-MM-DD HH:mm:ss')} and status: END_OF_JOURNEY_COMPLETE`, // Note with current time
+        })
+        .execute();
+    }
+
+    // write into ien_applicants_active_flag table with is_active = false    
     for (const applicant of list) {
       // First, attempt the update table "ien_applicants_active_flag"
       const result = await manager
