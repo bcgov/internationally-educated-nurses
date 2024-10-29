@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 
-import { getConnection, EntityManager } from 'typeorm';
+import { getConnection, EntityManager, Brackets } from 'typeorm';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
@@ -10,6 +10,7 @@ import { STATUS } from '@ien/common';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantStatusAudit } from './entity/ienapplicant-status-audit.entity';
 import { IENApplicantStatus } from './entity/ienapplicant-status.entity';
+import { IENMasterService } from './ien-master.service';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -30,7 +31,11 @@ type IEN_APPLICANT_END_OF_JOURNEY = {
 
 @Injectable()
 export class EndOfJourneyService {
-  constructor(@Inject(Logger) private readonly logger: AppLogger) {}
+  constructor(
+    @Inject(Logger) private readonly logger: AppLogger,
+    @Inject(IENMasterService)
+    private readonly ienMasterService: IENMasterService,
+  ) {}
 
   /**
    * Entry point
@@ -124,7 +129,11 @@ export class EndOfJourneyService {
       .having('MAX(audit.effective_date) = :oneYearBeforeYesterday', { oneYearBeforeYesterday }) // Use HAVING for aggregate filtering
       .where('status.status = :status', { status: STATUS.JOB_OFFER_ACCEPTED }) // Filter by status
       .andWhere('audit.effective_date IS NOT NULL') // Filter out null effective_date
-      .andWhere('active_flag.applicant_id IS NULL') // Exclude applicants in ien_applicants_active_flag
+      .andWhere(
+        new Brackets(qb => {
+          qb.where('active_flag.applicant_id IS NULL').orWhere('active_flag.status_id IS NULL');
+        }),
+      ) // Exclude applicants in ien_applicants_active_flag or with a status_id
       .groupBy('audit.applicant_id') // Group by applicant_id
       .addGroupBy('status.id')
       .addGroupBy('job.id');
@@ -150,6 +159,8 @@ export class EndOfJourneyService {
       throw new Error(`Status not found: ${STATUS.END_OF_JOURNEY_COMPLETE}`);
     }
 
+    const haPcns = await this.ienMasterService.getHaPcn();
+
     for (const applicant of list) {
       await manager
         .createQueryBuilder()
@@ -166,40 +177,45 @@ export class EndOfJourneyService {
         .execute();
     }
 
-    // write into ien_applicants_active_flag table with is_active = false
+    // write every HaPcn into ien_applicants_active_flag table with is_active = false
     for (const applicant of list) {
-      // First, attempt the update table "ien_applicants_active_flag"
-      const result = await manager
-        .createQueryBuilder()
-        .update('ien_applicants_active_flag')
-        .set({
-          is_active: false,
-          status_id: endOfJourneyCompleteStatus.id,
-        })
-        .where('ha_id = :ha_pcn_id', { ha_pcn_id: applicant.ha_pcn_id })
-        .andWhere('applicant_id = :applicant_id', { applicant_id: applicant.applicant_id })
-        .execute();
-
-      // If no rows were updated, perform an insert
-      if (result.affected === 0) {
-        await manager
+      for (const haPcn of haPcns) {
+        // First, attempt the update table "ien_applicants_active_flag"
+        const result = await manager
           .createQueryBuilder()
-          .insert()
-          .into('ien_applicants_active_flag')
-          .values({
-            ha_id: applicant.ha_pcn_id,
-            applicant_id: applicant.applicant_id,
+          .update('ien_applicants_active_flag')
+          .set({
             is_active: false,
             status_id: endOfJourneyCompleteStatus.id,
           })
+          .where('ha_id = :ha_pcn_id', { ha_pcn_id: haPcn.id })
+          .andWhere('applicant_id = :applicant_id', { applicant_id: applicant.applicant_id })
           .execute();
+
+        // If no rows were updated, perform an insert
+        if (result.affected === 0) {
+          await manager
+            .createQueryBuilder()
+            .insert()
+            .into('ien_applicants_active_flag')
+            .values({
+              ha_id: haPcn.id,
+              applicant_id: applicant.applicant_id,
+              is_active: false,
+              status_id: endOfJourneyCompleteStatus.id,
+            })
+            .execute();
+        }
       }
 
       // update the status and updated_date of the applicant
       await manager
         .createQueryBuilder()
         .update('ien_applicants')
-        .set({ status: endOfJourneyCompleteStatus, updated_date: new Date() })
+        .set({
+          status: endOfJourneyCompleteStatus,
+          updated_date: dayjs().tz('America/Los_Angeles').toDate(),
+        })
         .where('id = :id', { id: applicant.applicant_id })
         .execute();
     }
