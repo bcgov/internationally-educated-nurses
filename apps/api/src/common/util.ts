@@ -56,7 +56,7 @@ export function isNewBCCNMProcess(registration_date: string | Date | undefined) 
   return dayjs(registration_date).isAfter(OLD_BCCNM_PROCESS_CUT_OFF_DATE);
 }
 
-export function getDateFromCellValue(value: number | string): string | undefined {
+export function getDateFromCellValue(value: number | string | undefined): string | undefined {
   if (!value) return;
 
   if (typeof value === 'number') {
