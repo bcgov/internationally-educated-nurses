@@ -150,7 +150,7 @@ export class AdminService {
       applicantId: applicant?.id,
       name: `${update['First Name'] ?? ''} ${update['Last Name'] ?? ''}`,
       dateOfRosContract: '',
-      designation: update['Registration Designation'] ?? '',
+      designation: update['Registration Designation']?.toString() ?? '',
       appliedToBccnm: undefined,
       ncasComplete: undefined,
       ncasCompleteDate: getDateFromCellValue(update['Date NCAS Assessment Complete'] ?? ''),
