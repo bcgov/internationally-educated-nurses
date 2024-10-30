@@ -59,7 +59,7 @@ describe('BCCNM/NCAS Updates', () => {
               'Last Name': applicant.name.split(' ')[1],
               'First Name': applicant.name.split(' ')[0],
               Email: applicant.email_address,
-              'NCAS Assessment Complete': 'Yes',
+              'Date NCAS Assessment Complete': '2022-10-01',
               'BCCNM Application Complete': 'Yes',
               'Registration Designation': 'BCCNM Provisional Licence LPN',
               'ISO Code - Education': 'kr',
@@ -78,7 +78,7 @@ describe('BCCNM/NCAS Updates', () => {
     dataToCreate.slice(4).forEach(v => {
       v['Date ROS Contract Signed'] = '';
       v['BCCNM Application Complete'] = 'No';
-      v['NCAS Assessment Complete'] = '';
+      v['Date NCAS Assessment Complete'] = '';
       v['ISO Code - Education'] = '';
     });
 
