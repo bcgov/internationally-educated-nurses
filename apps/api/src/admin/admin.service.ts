@@ -332,6 +332,10 @@ export class AdminService {
             status: STATUS.COMPLETED_NCAS,
           },
           {
+            field: update?.ncasCompleteDate,
+            status: STATUS.COMPLETED_NCAS,
+          },
+          {
             field: update?.bccnmApplicationCompleteDate,
             status: STATUS.BCCNM_APPLICATION_COMPLETE_DATE,
           },

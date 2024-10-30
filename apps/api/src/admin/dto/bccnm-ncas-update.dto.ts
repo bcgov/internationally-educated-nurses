@@ -38,6 +38,13 @@ export class BccnmNcasUpdateItemDTO implements BccnmNcasValidation {
   ncasComplete?: string;
 
   @ApiModelProperty({
+    description: 'Date NCAS Assessment Complete',
+  })
+  @IsDateString()
+  @IsOptional()
+  ncasCompleteDate?: string;
+
+  @ApiModelProperty({
     description: 'BCCNM Application Complete',
   })
   @IsOptional()
