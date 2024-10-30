@@ -165,7 +165,7 @@ export class AdminService {
 
     // bccnm/ncas completions accept 'Yes', 'No', or a date
     try {
-      v.appliedToBccnm = getDateFromCellValue(update['Date BCCNM Application Complete']);
+      v.appliedToBccnm = getDateFromCellValue(update['BCCNM Application Complete']);
     } catch (e) {
       v.message = e.message;
     }

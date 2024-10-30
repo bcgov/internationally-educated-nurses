@@ -3,7 +3,7 @@ export interface BccnmNcasUpdate {
   'Date ROS Contract Signed': string | number;
   'First Name'?: string;
   'Last Name'?: string;
-  'NCAS Assessment Complete': string;
+  'Date NCAS Assessment Complete': string;
   'BCCNM Application Complete': string;
   'Registration Designation'?: string;
   'ISO Code - Education': string;
