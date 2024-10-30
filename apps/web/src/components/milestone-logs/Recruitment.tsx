@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import dayjs from 'dayjs';
 
 import { AddRecordModal } from '../display/AddRecordModal';
@@ -81,9 +81,12 @@ export const Recruitment: React.FC = () => {
     setExpandRecord(false);
   };
 
-  const isApplicantEOJ = applicant?.active_flags?.some(flag =>
-    flag?.status?.includes('End of Journey'),
-  );
+  /**
+   * If End Of Journey in active flags: Disable Button
+   */
+  const isApplicantEOJ = useMemo(() => {
+    return applicant?.active_flags?.some(flag => flag?.status?.includes('End of Journey'));
+  }, [applicant?.active_flags]);
   const { isHAUser } = useIsHAUser();
   const isButtonDisabled = isHAUser && isApplicantEOJ;
 
