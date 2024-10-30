@@ -8,6 +8,7 @@ import { AclMask, buttonBase, buttonColor, PageOptions, Pagination } from '@comp
 import addIcon from '@assets/img/add.svg';
 import { JobFilters } from './recruitment/JobFilters';
 import { useApplicantContext } from '../applicant/ApplicantContext';
+import { useIsHAUser } from '../AuthContexts';
 
 const DEFAULT_JOB_PAGE_SIZE = 5;
 
@@ -80,11 +81,23 @@ export const Recruitment: React.FC = () => {
     setExpandRecord(false);
   };
 
+  const isApplicantEOJ = applicant?.active_flags?.some(flag =>
+    flag?.status?.includes('End of Journey'),
+  );
+  const { isHAUser } = useIsHAUser();
+  const isButtonDisabled = isHAUser && isApplicantEOJ;
+
   return (
     <>
       <JobFilters options={filters} update={handleFilters} />
       {jobRecords.map((job, index) => (
-        <Record key={job.id} job={job} expandRecord={expandRecord} jobIndex={index} />
+        <Record
+          key={job.id}
+          job={job}
+          expandRecord={expandRecord}
+          jobIndex={index}
+          isDisabled={isButtonDisabled}
+        />
       ))}
       <AclMask acl={[Access.APPLICANT_WRITE]}>
         <div className='border rounded bg-bcBlueBar flex justify-between items-center mb-4 h-12'>
@@ -96,6 +109,7 @@ export const Recruitment: React.FC = () => {
             id='add-record'
             className={`mr-2 ${buttonColor.secondary} ${buttonBase}`}
             onClick={() => setRecordModalVisible(true)}
+            disabled={isButtonDisabled}
           >
             <img src={addIcon.src} alt='add' className='mr-2' />
             <span>Add Record</span>

@@ -57,10 +57,11 @@ interface MilestoneFormProps<T extends MilestoneFormValues> {
   handleSubmit: (values: T, { resetForm }: FormikHelpers<T>) => Promise<void>;
   onClose?: () => void;
   category: string;
+  isDisabled?: boolean;
 }
 
 export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFormProps<T>) => {
-  const { job, milestone, handleSubmit, onClose, category } = props;
+  const { job, milestone, handleSubmit, onClose, category, isDisabled } = props;
 
   const milestones = useGetMilestoneOptions(category);
   const reasons = useGetWithdrawReasonOptions();
@@ -280,7 +281,7 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
               <div className='mt-12'>
                 <Button
                   variant={milestone ? 'primary' : 'outline'}
-                  disabled={props.isSubmitting}
+                  disabled={props.isSubmitting || isDisabled}
                   type='submit'
                   loading={props.isSubmitting}
                 >

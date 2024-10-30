@@ -10,9 +10,10 @@ import { useApplicantContext } from '../../applicant/ApplicantContext';
 interface AddMilestoneProps {
   job?: ApplicantJobRO;
   category: StatusCategory | string;
+  isDisabled?: boolean;
 }
 
-export const AddMilestone = ({ job, category }: AddMilestoneProps) => {
+export const AddMilestone = ({ job, category, isDisabled }: AddMilestoneProps) => {
   const { applicant, fetchApplicant } = useApplicantContext();
 
   const isDuplicate = ({ status, start_date }: IENApplicantAddStatusDTO) => {
@@ -43,6 +44,7 @@ export const AddMilestone = ({ job, category }: AddMilestoneProps) => {
       job={job}
       handleSubmit={handleSubmit}
       category={category}
+      isDisabled={isDisabled}
     />
   );
 };

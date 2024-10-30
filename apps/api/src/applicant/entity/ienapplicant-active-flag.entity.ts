@@ -21,7 +21,7 @@ export class IENApplicantActiveFlag {
   @JoinColumn({ name: 'applicant_id' })
   applicant!: IENApplicant;
 
-  @ManyToOne(() => IENApplicantStatus, status => status.id)
+  @ManyToOne(() => IENApplicantStatus, status => status.id, { eager: true })
   @JoinColumn({ name: 'status_id' })
   status?: IENApplicantStatus;
 
