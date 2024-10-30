@@ -59,7 +59,7 @@ describe('BCCNM/NCAS Updates', () => {
               'Last Name': applicant.name.split(' ')[1],
               'First Name': applicant.name.split(' ')[0],
               Email: applicant.email_address,
-              'Date NCAS Assessment Complete': '2022-10-01',
+              'Date NCAS Assessment Complete': '2024-10-01',
               'BCCNM Application Complete': 'Yes',
               'Registration Designation': 'BCCNM Provisional Licence LPN',
               'ISO Code - Education': 'kr',
