@@ -28,6 +28,11 @@ export class BccnmNcasValidationRO implements BccnmNcasValidation {
   ncasComplete?: string;
 
   @ApiModelProperty({
+    description: 'Date NCAS Assessment Complete',
+  })
+  ncasCompleteDate?: string;
+
+  @ApiModelProperty({
     description: 'BCCNM Application Complete',
   })
   appliedToBccnm?: string;

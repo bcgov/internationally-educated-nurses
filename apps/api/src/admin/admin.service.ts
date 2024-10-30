@@ -153,6 +153,7 @@ export class AdminService {
       designation: update['Registration Designation'] ?? '',
       appliedToBccnm: undefined,
       ncasComplete: undefined,
+      ncasCompleteDate: getDateFromCellValue(update['Date NCAS Assessment Complete'] ?? ''),
       countryOfEducation: update['ISO Code - Education'] ?? '',
       valid: false,
       message: '',
@@ -219,6 +220,13 @@ export class AdminService {
     }
 
     if (
+      v.ncasCompleteDate &&
+      applicant.applicant_status_audit.find(s => s.status.status === STATUS.COMPLETED_NCAS)
+    ) {
+      v.ncasCompleteDate = undefined;
+    }
+
+    if (
       v.bccnmApplicationCompleteDate &&
       applicant.applicant_status_audit.find(
         s => s.status.status === STATUS.BCCNM_APPLICATION_COMPLETE_DATE,
@@ -258,6 +266,7 @@ export class AdminService {
       !v.appliedToBccnm &&
       !v.ncasComplete &&
       !v.dateOfRosContract &&
+      !v.ncasCompleteDate &&
       !v.bccnmApplicationCompleteDate &&
       !v.bccnmDecisionDate &&
       !v.bccnmRegistrationDate &&
