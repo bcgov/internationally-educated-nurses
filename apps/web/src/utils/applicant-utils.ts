@@ -11,3 +11,8 @@ export const getApplicantEducations = (applicant: ApplicantRO): string | undefin
     })
     .join(', ');
 };
+
+type Condition<T> = (option: T) => boolean;
+export const createFilter = <T>(conditions: Condition<T>[]): ((option: T) => boolean) => {
+  return (option: T) => conditions.every(condition => condition(option));
+};
