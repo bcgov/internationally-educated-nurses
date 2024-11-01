@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Inject, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 
 import { getConnection, EntityManager, Brackets } from 'typeorm';
@@ -20,8 +19,8 @@ const formatDateInPST = (date: Date) => {
     .format('YYYY-MM-DD'); // Format as YYYY-MM-DD
 };
 
-type Getter<T = any> = (manager: EntityManager) => Promise<T[]>;
-type Setter<T = any> = (manager: EntityManager, list: T[]) => Promise<void>;
+type Getter<T = unknown> = (manager: EntityManager) => Promise<T[]>;
+type Setter<T = unknown> = (manager: EntityManager, list: T[]) => Promise<void>;
 type IEN_APPLICANT_END_OF_JOURNEY = {
   applicant_id: string;
   effective_date: string;
@@ -52,7 +51,7 @@ export class EndOfJourneyService {
 
     try {
       // handle end of journey: COMPLETED
-      await this.handleEndOfJourney(
+      await this.handleEndOfJourney<IEN_APPLICANT_END_OF_JOURNEY>(
         this.getCompletedLists,
         this.setCompletedLists,
         manager,
@@ -76,9 +75,9 @@ export class EndOfJourneyService {
     }
   }
 
-  async handleEndOfJourney(
-    getter: Getter,
-    setter: Setter,
+  async handleEndOfJourney<T>(
+    getter: Getter<T>,
+    setter: Setter<T>,
     manager: EntityManager,
     status: STATUS,
   ): Promise<void> {
