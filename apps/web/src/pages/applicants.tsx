@@ -216,7 +216,12 @@ const Applicants = () => {
           pageOptions={{ pageIndex, pageSize: limit, total }}
           onChange={handlePageOptions}
         />
-        <ApplicantTable applicants={applicants} onSortChange={handleSort} loading={loading} />
+        <ApplicantTable
+          applicants={applicants}
+          onSortChange={handleSort}
+          loading={loading}
+          showHiddenApplicants={showHiddenApplicants}
+        />
         <Pagination
           id='applicant-page-bottom'
           pageOptions={{ pageIndex, pageSize: limit, total }}

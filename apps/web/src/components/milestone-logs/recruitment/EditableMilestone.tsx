@@ -13,10 +13,11 @@ interface EditableMilestoneProps {
   milestone: ApplicantStatusAuditRO;
   editing: ApplicantStatusAuditRO | null;
   onEditing: (editing: ApplicantStatusAuditRO | null) => void;
+  isDisabled?: boolean;
 }
 
 export const EditableMilestone = (props: EditableMilestoneProps) => {
-  const { milestone, editing, onEditing } = props;
+  const { milestone, editing, onEditing, isDisabled } = props;
 
   const { authUser } = useAuthContext();
 
@@ -28,16 +29,20 @@ export const EditableMilestone = (props: EditableMilestoneProps) => {
         <button
           className='ml-auto mr-2'
           onClick={() => onEditing(milestone)}
-          disabled={!!editing && milestone === editing}
+          disabled={(!!editing && milestone === editing) || isDisabled}
         >
           <img src={editIcon.src} alt='edit milestone' />
         </button>
         {canDelete(authUser?.user_id, milestone.added_by?.id) ? (
-          <button onClick={() => setDeleteModalVisible(true)} data-cy='delete milestone'>
+          <button
+            onClick={() => setDeleteModalVisible(true)}
+            data-cy='delete milestone'
+            disabled={isDisabled}
+          >
             <img src={deleteIcon.src} alt='delete milestone' />
           </button>
         ) : (
-          <button className='cursor-not-allowed' data-cy='delete milestone'>
+          <button className='cursor-not-allowed' data-cy='delete milestone' disabled={isDisabled}>
             <img src={disabledDeleteIcon.src} alt='disabled delete milestone' />
           </button>
         )}

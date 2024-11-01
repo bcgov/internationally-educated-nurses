@@ -16,14 +16,20 @@ interface MilestoneProps {
   editing: ApplicantStatusAuditRO | null;
   onEditing: (editing: ApplicantStatusAuditRO | null) => void;
   category: StatusCategory | string;
+  isDisabled?: boolean;
 }
 
 export const Milestone: React.FC<MilestoneProps> = props => {
-  const { job, milestone, handleSubmit, editing, onEditing, category } = props;
+  const { job, milestone, handleSubmit, editing, onEditing, category, isDisabled } = props;
   return (
     <>
       {editing !== milestone ? (
-        <EditableMilestone milestone={milestone} editing={editing} onEditing={onEditing} />
+        <EditableMilestone
+          milestone={milestone}
+          editing={editing}
+          onEditing={onEditing}
+          isDisabled={isDisabled}
+        />
       ) : (
         <>
           <MilestoneForm<IENApplicantUpdateStatusDTO>
@@ -32,6 +38,7 @@ export const Milestone: React.FC<MilestoneProps> = props => {
             handleSubmit={values => handleSubmit(values)}
             onClose={() => onEditing(null)}
             category={category}
+            isDisabled={isDisabled}
           />
         </>
       )}

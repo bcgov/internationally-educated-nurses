@@ -29,9 +29,10 @@ interface RecordProps {
   job: ApplicantJobRO;
   expandRecord: boolean;
   jobIndex: number;
+  isDisabled?: boolean;
 }
 
-export const Record: React.FC<RecordProps> = ({ job, expandRecord, jobIndex }) => {
+export const Record: React.FC<RecordProps> = ({ job, expandRecord, jobIndex, isDisabled }) => {
   const { applicant, updateJob, fetchApplicant } = useApplicantContext();
   const [modalVisible, setModalVisible] = useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
@@ -127,6 +128,7 @@ export const Record: React.FC<RecordProps> = ({ job, expandRecord, jobIndex }) =
         variant='outline'
         className={classNames(classes, 'border-bcRedError text-bcRedError')}
         onClick={() => setDeleteModalVisible(true)}
+        disabled={isDisabled}
       >
         <img src={deleteIcon.src} alt='delete competition' className='mr-2' />
         Delete Competition
@@ -138,6 +140,7 @@ export const Record: React.FC<RecordProps> = ({ job, expandRecord, jobIndex }) =
           classes,
           'cursor-not-allowed border-bcGrayDisabled2 text-bcGrayDisabled2',
         )}
+        disabled={isDisabled}
       >
         <img src={disabledDeleteIcon.src} alt='disabled delete competition' className='mr-2' />
         Delete Competition
@@ -192,7 +195,12 @@ export const Record: React.FC<RecordProps> = ({ job, expandRecord, jobIndex }) =
               />
             </div>
             <AclMask acl={[Access.APPLICANT_WRITE]}>
-              <Button variant='outline' className='px-6 mb-2' onClick={() => setModalVisible(true)}>
+              <Button
+                variant='outline'
+                className='px-6 mb-2'
+                onClick={() => setModalVisible(true)}
+                disabled={isDisabled}
+              >
                 <img src={editIcon.src} alt='edit job' className='mr-2' />
                 Edit Details
               </Button>
@@ -213,10 +221,17 @@ export const Record: React.FC<RecordProps> = ({ job, expandRecord, jobIndex }) =
                 onEditing={setEditing}
                 handleSubmit={values => handleUpdateMilestone(mil.id, values)}
                 category={StatusCategory.RECRUITMENT}
+                isDisabled={isDisabled}
               />
             ))}
             <AclMask acl={[Access.APPLICANT_WRITE]}>
-              {!editing && <AddMilestone job={job} category={StatusCategory.RECRUITMENT} />}
+              {!editing && (
+                <AddMilestone
+                  job={job}
+                  category={StatusCategory.RECRUITMENT}
+                  isDisabled={isDisabled}
+                />
+              )}
               <AddRecordModal
                 job={job}
                 milestones={milestones}
