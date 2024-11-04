@@ -33,6 +33,8 @@ import {
 } from '@components';
 import addIcon from '@assets/img/add.svg';
 import { DatePickerField } from '../../form/DatePickerField';
+import { useIsHAUser } from 'src/components/AuthContexts';
+import { createFilter } from '@utils/applicant-utils';
 
 type ReasonOption = StyleOption & IENStatusReasonRO;
 
@@ -65,6 +67,7 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
 
   const milestones = useGetMilestoneOptions(category);
   const reasons = useGetWithdrawReasonOptions();
+  const { isHAUser } = useIsHAUser();
 
   const [outcomeGroup, setOutcomeGroup] = useState<OutcomeGroup | null>(null);
   const [outcomeOptions, setOutcomeOptions] = useState<MilestoneType[]>([]);
@@ -132,8 +135,13 @@ export const MilestoneForm = <T extends MilestoneFormValues>(props: MilestoneFor
         setOutcomeOptions([]);
         return;
       }
-      const options = milestones.filter(option =>
-        outcomeGroup.milestones.includes(option.status as STATUS),
+      const options = milestones.filter(
+        createFilter([
+          // original condition
+          option => outcomeGroup.milestones.includes(option.status as STATUS),
+          // Additional Requirement IEN-919: Hide 'Withdrew from Competition' option for HA users
+          option => !isHAUser || option.status !== STATUS.WITHDREW_FROM_COMPETITION,
+        ]),
       );
       setOutcomeOptions(options);
     },
