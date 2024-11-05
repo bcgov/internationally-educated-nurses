@@ -408,6 +408,7 @@ export const createApplicantDataExtractWorkbook = async (
       return null;
     }
 
+    const EndOfJourneyColumn = 'End of Journey';
     const columns = [
       'Applicant ID',
       'Registration Date',
@@ -417,6 +418,7 @@ export const createApplicantDataExtractWorkbook = async (
       'Nursing Education',
       'Country of Citizenship',
       'Pathway',
+      EndOfJourneyColumn,
       'Type',
       ...MILESTONES,
     ];

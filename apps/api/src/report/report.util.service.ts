@@ -790,6 +790,41 @@ export class ReportUtilService {
       userIDString =
         'AND applicant.id IN (' + userIds.map(({ id }) => "'" + id + "'").join(',') + ')';
     }
+
+    /**
+     * The `endOfJourneyColumn` defines a CASE statement that evaluates the journey status of an applicant.
+     * It checks the `ien_applicant_status_audit` and `ien_applicant_status` tables to determine whether the applicant
+     * has reached either 'End of Journey - Journey Complete' or 'End of Journey - Journey Incomplete' status.
+     *
+     * Logic:
+     * - If there exists a record with 'End of Journey - Journey Complete' for the same `applicant_id`, the column
+     *   is set to 'End of Journey - Journey Complete'.
+     * - If no 'Journey Complete' record is found but a 'Journey Incomplete' record exists, the column is set to
+     *   'End of Journey - Journey Incomplete'.
+     * - If neither status exists for the applicant, the column value is set to NULL.
+     */
+    const endOfJourneyColumn = `
+      CASE 
+        WHEN EXISTS (
+            SELECT 1
+            FROM ien_applicant_status_audit sub_milestone
+            INNER JOIN ien_applicant_status 
+            ON sub_milestone.status_id = ien_applicant_status.id
+            WHERE sub_milestone.applicant_id = milestone.applicant_id
+              AND ien_applicant_status.status = 'End of Journey - Journey Complete'
+        ) THEN 'End of Journey - Journey Complete'
+        WHEN EXISTS (
+            SELECT 1
+            FROM ien_applicant_status_audit sub_milestone
+            INNER JOIN ien_applicant_status 
+            ON sub_milestone.status_id = ien_applicant_status.id
+            WHERE sub_milestone.applicant_id = milestone.applicant_id
+              AND ien_applicant_status.status = 'End of Journey - Journey Incomplete'
+        ) THEN 'End of Journey - Journey Incomplete'
+        ELSE NULL
+      END AS "End of Journey"    
+    `;
+
     return `
     select milestone.applicant_id "Applicant ID", 
       applicant.registration_date "Registration Date", 
@@ -810,7 +845,8 @@ export class ReportUtilService {
         else 'HMBC SYNC'
         end
       ) as  "Source",
-      reason.name "Reason"
+      reason.name "Reason",
+      ${endOfJourneyColumn}
     FROM ien_applicant_status_audit milestone 
       LEFT JOIN ien_applicants applicant 
         ON milestone.applicant_id = applicant.id
