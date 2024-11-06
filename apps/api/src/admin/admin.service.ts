@@ -152,7 +152,7 @@ export class AdminService {
       dateOfRosContract: '',
       designation: update['Registration Designation']?.toString() ?? '',
       appliedToBccnm: undefined,
-      ncasCompleteDate: getDateFromCellValue(update['Date NCAS Assessment Complete'] ?? ''),
+      ncasCompleteDate: undefined,
       countryOfEducation: update['ISO Code - Education'] ?? '',
       valid: false,
       message: '',
@@ -166,6 +166,12 @@ export class AdminService {
     // bccnm/ncas completions accept 'Yes', 'No', or a date
     try {
       v.appliedToBccnm = getDateFromCellValue(update['BCCNM Application Complete']);
+    } catch (e) {
+      v.message = e.message;
+    }
+
+    try {
+      v.ncasCompleteDate = getDateFromCellValue(update['NCAS Assessment Complete']);
     } catch (e) {
       v.message = e.message;
     }

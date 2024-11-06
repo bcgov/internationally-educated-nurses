@@ -79,7 +79,7 @@ export class BccnmNcasUpdateItemDTO implements BccnmNcasValidation {
   bccnmDecisionDate?: string;
 
   @ApiModelProperty({
-    description: 'Date of Registration',
+    description: 'BCCNM Registration Date',
   })
   @IsDateString()
   @IsOptional()
