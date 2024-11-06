@@ -38,7 +38,7 @@ export class AdminService {
   }
 
   async getUserGuides(): Promise<UserGuide[]> {
-    return []
+    return [];
     // if (!this.s3) {
     //   //throw new InternalServerErrorException('the feature is disabled');
     // }
@@ -170,7 +170,6 @@ export class AdminService {
     } catch (e) {
       v.message = e.message;
     }
-
 
     if (!applicant) {
       v.message = 'Applicant not found';
@@ -322,7 +321,7 @@ export class AdminService {
             field: update?.bccnmApplicationCompleteDate,
             status: STATUS.BCCNM_APPLICATION_COMPLETE_DATE,
           },
-          
+
           { field: update?.bccnmDecisionDate, status: STATUS.BCCNM_DECISION_DATE },
           { field: update?.bccnmRegistrationDate, status: STATUS.BCCNM_REGISTRATION_DATE },
         ];
