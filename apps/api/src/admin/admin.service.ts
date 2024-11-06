@@ -38,21 +38,22 @@ export class AdminService {
   }
 
   async getUserGuides(): Promise<UserGuide[]> {
-    if (!this.s3) {
-      throw new InternalServerErrorException('the feature is disabled');
-    }
-    try {
-      const result = await this.s3.listObjects().promise();
+    return []
+    // if (!this.s3) {
+    //   //throw new InternalServerErrorException('the feature is disabled');
+    // }
+    // try {
+    //   const result = await this.s3.listObjects().promise();
 
-      return (
-        result.Contents?.map(o => {
-          return { name: o.Key, lastModified: o.LastModified, size: o.Size } as UserGuide;
-        }) ?? []
-      );
-    } catch (e) {
-      this.logger.error(e, 'S3');
-      throw new InternalServerErrorException('failed to get the list of user guides');
-    }
+    //   return (
+    //     result.Contents?.map(o => {
+    //       return { name: o.Key, lastModified: o.LastModified, size: o.Size } as UserGuide;
+    //     }) ?? []
+    //   );
+    // } catch (e) {
+    //   this.logger.error(e, 'S3');
+    //   throw new InternalServerErrorException('failed to get the list of user guides');
+    // }
   }
 
   async uploadUserGuide(name: string, file: Express.Multer.File): Promise<string> {
@@ -152,7 +153,6 @@ export class AdminService {
       dateOfRosContract: '',
       designation: update['Registration Designation']?.toString() ?? '',
       appliedToBccnm: undefined,
-      ncasComplete: undefined,
       ncasCompleteDate: getDateFromCellValue(update['Date NCAS Assessment Complete'] ?? ''),
       countryOfEducation: update['ISO Code - Education'] ?? '',
       valid: false,
@@ -161,7 +161,7 @@ export class AdminService {
         update['Date BCCNM Application Complete'] ?? '',
       ),
       bccnmDecisionDate: getDateFromCellValue(update['BCCNM Decision Date'] ?? ''),
-      bccnmRegistrationDate: getDateFromCellValue(update['Date of Registration'] ?? ''),
+      bccnmRegistrationDate: getDateFromCellValue(update['BCCNM Registration Date'] ?? ''),
     };
 
     // bccnm/ncas completions accept 'Yes', 'No', or a date
@@ -171,11 +171,6 @@ export class AdminService {
       v.message = e.message;
     }
 
-    try {
-      v.ncasComplete = getDateFromCellValue(update['NCAS Assessment Complete']);
-    } catch (e) {
-      v.message = e.message;
-    }
 
     if (!applicant) {
       v.message = 'Applicant not found';
@@ -210,13 +205,6 @@ export class AdminService {
       applicant.applicant_status_audit.find(s => s.status.status === STATUS.APPLIED_TO_BCCNM)
     ) {
       v.appliedToBccnm = undefined;
-    }
-
-    if (
-      v.ncasComplete &&
-      applicant.applicant_status_audit.find(s => s.status.status === STATUS.COMPLETED_NCAS)
-    ) {
-      v.ncasComplete = undefined;
     }
 
     if (
@@ -264,7 +252,6 @@ export class AdminService {
 
     if (
       !v.appliedToBccnm &&
-      !v.ncasComplete &&
       !v.dateOfRosContract &&
       !v.ncasCompleteDate &&
       !v.bccnmApplicationCompleteDate &&
@@ -328,10 +315,6 @@ export class AdminService {
             status: STATUS.APPLIED_TO_BCCNM,
           },
           {
-            field: update?.ncasComplete,
-            status: STATUS.COMPLETED_NCAS,
-          },
-          {
             field: update?.ncasCompleteDate,
             status: STATUS.COMPLETED_NCAS,
           },
@@ -339,6 +322,7 @@ export class AdminService {
             field: update?.bccnmApplicationCompleteDate,
             status: STATUS.BCCNM_APPLICATION_COMPLETE_DATE,
           },
+          
           { field: update?.bccnmDecisionDate, status: STATUS.BCCNM_DECISION_DATE },
           { field: update?.bccnmRegistrationDate, status: STATUS.BCCNM_REGISTRATION_DATE },
         ];

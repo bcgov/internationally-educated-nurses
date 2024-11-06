@@ -10,7 +10,7 @@ export interface BccnmNcasUpdate {
   'ISO Code - Education': string;
   'Date BCCNM Application Complete'?: string;
   'BCCNM Decision Date'?: string;
-  'Date of Registration'?: string;
+  'BCCNM Registration Date'?: string;
   Email?: string;
 }
 
@@ -18,7 +18,6 @@ export interface BccnmNcasValidation {
   id: string;
   dateOfRosContract?: string;
   message?: string;
-  ncasComplete?: string;
   ncasCompleteDate?: string;
   appliedToBccnm?: string;
   designation?: string;
