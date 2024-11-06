@@ -767,8 +767,31 @@ export class ReportUtilService {
          GROUP BY sa.applicant_id
        ) AS "Referred Health Authority"`,
     ];
+
+    const endOfJourneyColumn = `
+      CASE 
+        WHEN EXISTS (
+            SELECT 1
+            FROM ien_applicant_status_audit sub_milestone
+            INNER JOIN ien_applicant_status 
+            ON sub_milestone.status_id = ien_applicant_status.id
+            WHERE sub_milestone.applicant_id = a.id
+              AND ien_applicant_status.status = 'End of Journey - Journey Complete'
+        ) THEN 'End of Journey - Journey Complete'
+        WHEN EXISTS (
+            SELECT 1
+            FROM ien_applicant_status_audit sub_milestone
+            INNER JOIN ien_applicant_status 
+            ON sub_milestone.status_id = ien_applicant_status.id
+            WHERE sub_milestone.applicant_id = a.id
+              AND ien_applicant_status.status = 'End of Journey - Journey Incomplete'
+        ) THEN 'End of Journey - Journey Incomplete'
+        ELSE NULL
+      END AS "End of Journey"    
+    `;
+
     return `
-    SELECT ${applicantColumns.join(',')}, ${milestoneList.join(',')}
+    SELECT ${[...applicantColumns, endOfJourneyColumn, ...milestoneList].join(',')}
     FROM public.ien_applicants as a
     LEFT JOIN
       jsonb_to_record(
