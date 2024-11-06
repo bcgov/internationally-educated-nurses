@@ -38,22 +38,21 @@ export class AdminService {
   }
 
   async getUserGuides(): Promise<UserGuide[]> {
-    return [];
-    // if (!this.s3) {
-    //   //throw new InternalServerErrorException('the feature is disabled');
-    // }
-    // try {
-    //   const result = await this.s3.listObjects().promise();
+    if (!this.s3) {
+      //throw new InternalServerErrorException('the feature is disabled');
+    }
+    try {
+      const result = await this.s3.listObjects().promise();
 
-    //   return (
-    //     result.Contents?.map(o => {
-    //       return { name: o.Key, lastModified: o.LastModified, size: o.Size } as UserGuide;
-    //     }) ?? []
-    //   );
-    // } catch (e) {
-    //   this.logger.error(e, 'S3');
-    //   throw new InternalServerErrorException('failed to get the list of user guides');
-    // }
+      return (
+        result.Contents?.map(o => {
+          return { name: o.Key, lastModified: o.LastModified, size: o.Size } as UserGuide;
+        }) ?? []
+      );
+    } catch (e) {
+      this.logger.error(e, 'S3');
+      throw new InternalServerErrorException('failed to get the list of user guides');
+    }
   }
 
   async uploadUserGuide(name: string, file: Express.Multer.File): Promise<string> {
