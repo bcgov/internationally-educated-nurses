@@ -23,9 +23,9 @@ export class BccnmNcasValidationRO implements BccnmNcasValidation {
   name!: string;
 
   @ApiModelProperty({
-    description: 'NCAS Assessment Complete',
+    description: 'Date NCAS Assessment Complete',
   })
-  ncasComplete?: string;
+  ncasCompleteDate?: string;
 
   @ApiModelProperty({
     description: 'BCCNM Application Complete',

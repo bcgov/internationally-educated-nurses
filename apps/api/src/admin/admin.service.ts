@@ -150,9 +150,9 @@ export class AdminService {
       applicantId: applicant?.id,
       name: `${update['First Name'] ?? ''} ${update['Last Name'] ?? ''}`,
       dateOfRosContract: '',
-      designation: update['Registration Designation'] ?? '',
+      designation: update['Registration Designation']?.toString() ?? '',
       appliedToBccnm: undefined,
-      ncasComplete: undefined,
+      ncasCompleteDate: undefined,
       countryOfEducation: update['ISO Code - Education'] ?? '',
       valid: false,
       message: '',
@@ -160,7 +160,7 @@ export class AdminService {
         update['Date BCCNM Application Complete'] ?? '',
       ),
       bccnmDecisionDate: getDateFromCellValue(update['BCCNM Decision Date'] ?? ''),
-      bccnmRegistrationDate: getDateFromCellValue(update['Date of Registration'] ?? ''),
+      bccnmRegistrationDate: getDateFromCellValue(update['BCCNM Registration Date'] ?? ''),
     };
 
     // bccnm/ncas completions accept 'Yes', 'No', or a date
@@ -171,7 +171,7 @@ export class AdminService {
     }
 
     try {
-      v.ncasComplete = getDateFromCellValue(update['NCAS Assessment Complete']);
+      v.ncasCompleteDate = getDateFromCellValue(update['NCAS Assessment Complete']);
     } catch (e) {
       v.message = e.message;
     }
@@ -212,10 +212,10 @@ export class AdminService {
     }
 
     if (
-      v.ncasComplete &&
+      v.ncasCompleteDate &&
       applicant.applicant_status_audit.find(s => s.status.status === STATUS.COMPLETED_NCAS)
     ) {
-      v.ncasComplete = undefined;
+      v.ncasCompleteDate = undefined;
     }
 
     if (
@@ -256,8 +256,8 @@ export class AdminService {
 
     if (
       !v.appliedToBccnm &&
-      !v.ncasComplete &&
       !v.dateOfRosContract &&
+      !v.ncasCompleteDate &&
       !v.bccnmApplicationCompleteDate &&
       !v.bccnmDecisionDate &&
       !v.bccnmRegistrationDate &&
@@ -319,13 +319,14 @@ export class AdminService {
             status: STATUS.APPLIED_TO_BCCNM,
           },
           {
-            field: update?.ncasComplete,
+            field: update?.ncasCompleteDate,
             status: STATUS.COMPLETED_NCAS,
           },
           {
             field: update?.bccnmApplicationCompleteDate,
             status: STATUS.BCCNM_APPLICATION_COMPLETE_DATE,
           },
+
           { field: update?.bccnmDecisionDate, status: STATUS.BCCNM_DECISION_DATE },
           { field: update?.bccnmRegistrationDate, status: STATUS.BCCNM_REGISTRATION_DATE },
         ];

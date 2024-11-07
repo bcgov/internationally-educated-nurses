@@ -31,11 +31,11 @@ export class BccnmNcasUpdateItemDTO implements BccnmNcasValidation {
   dateOfRosContract?: string;
 
   @ApiModelProperty({
-    description: 'NCAS Assessment Complete',
+    description: 'Date NCAS Assessment Complete',
   })
   @IsDateString()
   @IsOptional()
-  ncasComplete?: string;
+  ncasCompleteDate?: string;
 
   @ApiModelProperty({
     description: 'BCCNM Application Complete',
@@ -79,7 +79,7 @@ export class BccnmNcasUpdateItemDTO implements BccnmNcasValidation {
   bccnmDecisionDate?: string;
 
   @ApiModelProperty({
-    description: 'Date of Registration',
+    description: 'BCCNM Registration Date',
   })
   @IsDateString()
   @IsOptional()

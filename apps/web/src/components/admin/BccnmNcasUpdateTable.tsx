@@ -50,7 +50,7 @@ export const BccnmNcasUpdateTable = ({ data }: BccnmNcasUpdateTableProps) => {
               <td className='px-3'>{_.startCase(update.name)}</td>
               <td className='px-3'>{update.dateOfRosContract}</td>
               <td className='px-3'>{update.appliedToBccnm}</td>
-              <td className='px-3'>{update.ncasComplete}</td>
+              <td className='px-3'>{update.ncasCompleteDate}</td>
               <td className='px-3'>{update.countryOfEducation}</td>
               <td className={`px-3 ${!update.valid && 'text-bcRedError'}`}>{update.message}</td>
               <td className='px-3'>{update.bccnmApplicationCompleteDate}</td>

@@ -102,7 +102,6 @@ describe('BCCNM/NCAS Updates', () => {
 
   it('1 - Validates BCCNM/NCAS update data', async () => {
     const data = await app.get(AdminService).validateBccnmNcasUpdates(dataToCreate);
-
     expect(data.length).toBe(6);
     expect(data.filter(r => r.message === 'No changes').length).toBe(2);
     expect(data.filter(r => r.valid).length).toBe(4);
@@ -111,6 +110,7 @@ describe('BCCNM/NCAS Updates', () => {
 
   it('2 - Apply BCCNM/NCAS update data', async () => {
     const data = await app.get(AdminService).validateBccnmNcasUpdates(dataToCreate);
+
     const response = await request(app.getHttpServer())
       .post('/admin/apply-bccnm-ncas-updates')
       .send({ data: data.filter(v => v.valid) });
