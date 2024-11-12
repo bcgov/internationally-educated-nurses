@@ -60,7 +60,14 @@ describe('BCCNM/NCAS Updates', () => {
               'First Name': applicant.name.split(' ')[0],
               Email: applicant.email_address,
               'NCAS Assessment Complete': 'Yes',
+              'Date NCAS Assessment Complete': dayjs(
+                faker.date.between(applicant.registration_date ?? between[0], between[1]),
+              ).format('YYYY-MM-DD'),
               'BCCNM Application Complete': 'Yes',
+              'Date BCCNM Application Complete': dayjs(
+                faker.date.between(applicant.registration_date ?? between[0], between[1]),
+              ).format('YYYY-MM-DD'),
+
               'Registration Designation': 'BCCNM Provisional Licence LPN',
               'ISO Code - Education': 'kr',
               'Date ROS Contract Signed': dayjs(
@@ -77,8 +84,8 @@ describe('BCCNM/NCAS Updates', () => {
     // make two rows invalid
     dataToCreate.slice(4).forEach(v => {
       v['Date ROS Contract Signed'] = '';
-      v['BCCNM Application Complete'] = 'No';
-      v['NCAS Assessment Complete'] = '';
+      v['Date NCAS Assessment Complete'] = '';
+      v['Date BCCNM Application Complete'] = '';
       v['ISO Code - Education'] = '';
     });
 
@@ -110,12 +117,12 @@ describe('BCCNM/NCAS Updates', () => {
 
   it('2 - Apply BCCNM/NCAS update data', async () => {
     const data = await app.get(AdminService).validateBccnmNcasUpdates(dataToCreate);
-
+    console.log(data);
     const response = await request(app.getHttpServer())
       .post('/admin/apply-bccnm-ncas-updates')
       .send({ data: data.filter(v => v.valid) });
     const { created, updated, ignored } = response.body;
-    expect(created).toBe(16);
+    expect(created).toBe(20);
     expect(updated).toBe(0);
     expect(ignored).toBe(0);
     await validateMilestone(
@@ -128,13 +135,13 @@ describe('BCCNM/NCAS Updates', () => {
       app,
       applicants[0].id,
       STATUS.COMPLETED_NCAS,
-      dayjs().format('YYYY-MM-DD'),
+      dataToCreate[0]['Date NCAS Assessment Complete'] as string,
     );
     await validateMilestone(
       app,
       applicants[0].id,
       STATUS.APPLIED_TO_BCCNM,
-      dayjs().format('YYYY-MM-DD'),
+      dataToCreate[0]['Date BCCNM Application Complete'] as string,
     );
   });
 

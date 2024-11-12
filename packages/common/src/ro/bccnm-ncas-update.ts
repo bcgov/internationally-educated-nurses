@@ -3,12 +3,12 @@ export interface BccnmNcasUpdate {
   'Date ROS Contract Signed': string | number;
   'First Name'?: string;
   'Last Name'?: string;
-  'NCAS Assessment Complete': string;
-  'Date NCAS Assessment Complete'?: string;
-  'BCCNM Application Complete': string;
+  'NCAS Assessment Complete'?: string;
+  'Date NCAS Assessment Complete': string;
+  'BCCNM Application Complete'?: string;
+  'Date BCCNM Application Complete': string;
   'Registration Designation'?: string;
   'ISO Code - Education': string;
-  'Date BCCNM Application Complete'?: string;
   'BCCNM Decision Date'?: string;
   'BCCNM Registration Date'?: string;
   Email?: string;
