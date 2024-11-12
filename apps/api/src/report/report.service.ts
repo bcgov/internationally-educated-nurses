@@ -883,6 +883,37 @@ export class ReportService implements OnModuleDestroy {
       ) `;
   }
 
+  /**
+   *
+   * @param dates start and end date for data extract YYYY-MM-DD
+   * @returns
+   */
+  async extractEndOfJourneyMilestoneData(dates?: ReportPeriodDTO, ha_pcn_id?: string | null) {
+    const { from, to } = dates || { from: '2001-01-01', to: dayjs().format('YYYY-MM-DD') };
+    const entityManager = getManager();
+    let userIds: { id: string }[] = [];
+
+    if (ha_pcn_id) {
+      // Get the id for the referral milestone related to the HA PCN
+      const HA_Milestone: [{ id: string }] = await entityManager.query(
+        this.getReferralMilestone(ha_pcn_id),
+      );
+      if (!HA_Milestone) {
+        return [];
+      }
+      // Get all user ids for users who have the referral milestone.
+      userIds = await entityManager.query(this.getIdsForMilestone(HA_Milestone[0].id));
+      if (!userIds.length) {
+        return [];
+      }
+    }
+
+    const results = await entityManager.query(
+      this.reportUtilService.extractEndOfJourneyMilestoneQuery(from, to, userIds),
+    );
+    return results;
+  }
+
   async getReport(from: string, to: string, period: number): Promise<object> {
     const statuses = await this.getStatusMap();
     const promises: Promise<object>[] = [

@@ -179,6 +179,21 @@ export class ReportController {
       this.reportService.extractMilestoneData.bind(this.reportService),
     );
   }
+  @ApiOperation({ summary: 'Extract end of journey milestones' })
+  @Get('/applicant/extract-eoj-milestones')
+  @AllowAccess(Access.DATA_EXTRACT)
+  async extractEndOfJourneyMilestoneData(
+    @Query() { from, to }: ReportPeriodDTO,
+    @User() user: EmployeeRO,
+  ): Promise<object[] | { url: string }> {
+    return this.extractData(
+      { from, to },
+      user,
+      'extract-eoj-milestone',
+      'endofjourney',
+      this.reportService.extractEndOfJourneyMilestoneData.bind(this.reportService),
+    );
+  }
 
   private shouldUseS3(): boolean {
     return process.env.NODE_ENV !== 'test' && process.env.RUNTIME_ENV !== 'local';
@@ -188,7 +203,7 @@ export class ReportController {
     from: string,
     to: string,
     ha_pcn_id: string | undefined | null,
-    type: 'milestone' | 'applicant',
+    type: 'milestone' | 'applicant' | 'endofjourney',
   ): string {
     return `ien-${type}-data-extract_${from}-${to}_${ha_pcn_id}_${Date.now()}`;
   }
@@ -210,8 +225,8 @@ export class ReportController {
   private async extractData(
     period: ReportPeriodDTO,
     user: EmployeeRO,
-    apiPath: 'extract-data' | 'extract-milestone',
-    type: 'milestone' | 'applicant',
+    apiPath: 'extract-data' | 'extract-milestone' | 'extract-eoj-milestone',
+    type: 'milestone' | 'applicant' | 'endofjourney',
     extractFunction: (
       period: ReportPeriodDTO,
       ha_pcn_id: string | undefined | null,

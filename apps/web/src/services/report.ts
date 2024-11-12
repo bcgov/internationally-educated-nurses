@@ -44,6 +44,14 @@ export const getMilestoneDataExtract = async (
   return data?.data;
 };
 
+export const getEndOfJourneyMilestoneDataExtract = async (
+  filter?: PeriodFilter,
+): Promise<object[] | { url: string }> => {
+  const url = `/reports/applicant/extract-eoj-milestones?${convertToParams(filter)}`;
+  const { data } = await axios.get(url);
+  return data?.data;
+};
+
 /**
  * Fetches JSON data from an S3 pre-signed URL.
  *
@@ -454,6 +462,38 @@ export const createMilestoneDataExtractWorkbook = async (
 
     if (!milestones || milestones.length === 0) {
       toast.error('There is no milestone data to extract during this time period');
+      return null;
+    }
+    return createDataExtractWorkBook(milestones, 'Rows as Milestones');
+  } catch (e) {
+    if (e instanceof Error) {
+      toast.error(e.message);
+    }
+    return null;
+  }
+};
+
+export const createEndOfJourneyMilestoneDataExtractWorkbook = async (
+  filter: PeriodFilter,
+): Promise<WorkBook | null> => {
+  try {
+    const result = await getEndOfJourneyMilestoneDataExtract(filter);
+    let milestones = [];
+    if ('url' in result) {
+      const { url } = result;
+      const pollInterval = 5000; // Check every 5 seconds
+      const pollTimeout = 180000; // Stop after 3 minutes
+      await pollForFile(url, pollInterval, pollTimeout).catch(error => {
+        // eslint-disable-next-line no-console
+        console.error(error.message);
+      });
+      milestones = await fetchJsonDataFromS3Url(url);
+    } else {
+      milestones = result;
+    }
+
+    if (!milestones || milestones.length === 0) {
+      toast.error('There is no end of journey milestone data to extract during this time period');
       return null;
     }
     return createDataExtractWorkBook(milestones, 'Rows as Milestones');

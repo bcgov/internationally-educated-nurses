@@ -891,6 +891,100 @@ export class ReportUtilService {
     `;
   }
 
+  extractEndOfJourneyMilestoneQuery(from: string, to: string, userIds: { id: string }[] | null) {
+    let userIDString = '';
+    if (userIds?.length) {
+      userIDString =
+        'AND applicant.id IN (' + userIds.map(({ id }) => "'" + id + "'").join(',') + ')';
+    }
+
+    /**
+     * The `endOfJourneyColumn` defines a CASE statement that evaluates the journey status of an applicant.
+     * It checks the `ien_applicant_status_audit` and `ien_applicant_status` tables to determine whether the applicant
+     * has reached either 'End of Journey - Journey Complete' or 'End of Journey - Journey Incomplete' status.
+     *
+     * Logic:
+     * - If there exists a record with 'End of Journey - Journey Complete' for the same `applicant_id`, the column
+     *   is set to 'End of Journey - Journey Complete'.
+     * - If no 'Journey Complete' record is found but a 'Journey Incomplete' record exists, the column is set to
+     *   'End of Journey - Journey Incomplete'.
+     * - If neither status exists for the applicant, the column value is set to NULL.
+     */
+    const endOfJourneyColumn = `
+      CASE 
+        WHEN EXISTS (
+            SELECT 1
+            FROM ien_applicant_status_audit sub_milestone
+            INNER JOIN ien_applicant_status 
+            ON sub_milestone.status_id = ien_applicant_status.id
+            WHERE sub_milestone.applicant_id = milestone.applicant_id
+              AND ien_applicant_status.status = 'End of Journey - Journey Complete'
+        ) THEN 'End of Journey - Journey Complete'
+        WHEN EXISTS (
+            SELECT 1
+            FROM ien_applicant_status_audit sub_milestone
+            INNER JOIN ien_applicant_status 
+            ON sub_milestone.status_id = ien_applicant_status.id
+            WHERE sub_milestone.applicant_id = milestone.applicant_id
+              AND ien_applicant_status.status = 'End of Journey - Journey Incomplete'
+        ) THEN 'End of Journey - Journey Incomplete'
+        ELSE NULL
+      END AS "End of Journey"    
+    `;
+
+    const EndOfJourneyWhereExist = `AND EXISTS (
+      SELECT 1
+      FROM ien_applicant_status_audit sub_milestone
+      INNER JOIN ien_applicant_status 
+      ON sub_milestone.status_id = ien_applicant_status.id
+      WHERE sub_milestone.applicant_id = milestone.applicant_id
+        AND ien_applicant_status.status IN ('End of Journey - Journey Complete', 'End of Journey - Journey Incomplete')
+    )`;
+
+    return `
+    select milestone.applicant_id "Applicant ID", 
+      applicant.registration_date "Registration Date", 
+      applicant.assigned_to "Assigned to",
+      applicant.country_of_residence "Country of Residence",
+      applicant.pr_status "PR Status",
+      CAST (applicant.nursing_educations as text) "Nursing Education",
+      CAST (applicant.country_of_citizenship as text) "Country of Citizenship",
+      pathway.name as "Pathway",
+      ien_ha_pcn.abbreviation "Health Authority",
+      ien_applicant_status.status "Milestone",
+      milestone.type "Type",
+      milestone.start_date "Start Date",
+      (
+        case
+        when ien_applicant_status.category = 'IEN Recruitment Process' then ''
+        when position('Updated by BCCNM/NCAS' IN milestone.notes) > 0 then 'BCCNM/NCAS spreadsheet'
+        else 'HMBC SYNC'
+        end
+      ) as  "Source",
+      reason.name "Reason",
+      ${endOfJourneyColumn}
+    FROM ien_applicant_status_audit milestone 
+      LEFT JOIN ien_applicants applicant 
+        ON milestone.applicant_id = applicant.id
+      LEFT JOIN ien_applicant_status 
+        ON ien_applicant_status.id = milestone.status_id
+      LEFT JOIN ien_applicant_jobs job 
+        ON job.id = milestone.job_id
+      LEFT JOIN ien_ha_pcn 
+        ON job.ha_pcn_id = ien_ha_pcn.id
+      LEFT JOIN pathway
+        ON pathway.id = applicant.pathway_id
+      LEFT JOIN ien_status_reasons reason
+        ON reason.id = milestone.reason_id
+    WHERE milestone.start_date::date >= '${from}' 
+      AND milestone.start_date::date <= '${to}'
+      AND ien_applicant_status.version = '2'
+      ${EndOfJourneyWhereExist}
+      ${userIDString}
+      ORDER BY milestone.applicant_id
+    `;
+  }
+
   _isValidDateValue(date?: string) {
     if (date && !isValidDateFormat(date)) {
       throw new BadRequestException(

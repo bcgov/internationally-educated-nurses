@@ -9,6 +9,7 @@ import { Button, getSelectStyleOverride, Label } from '@components';
 import { Authorities, PeriodFilter, ReportPeriodDTO } from '@ien/common';
 import {
   createApplicantDataExtractWorkbook,
+  createEndOfJourneyMilestoneDataExtractWorkbook,
   createMilestoneDataExtractWorkbook,
   SelectOption,
 } from '@services';
@@ -20,6 +21,7 @@ const MIN_DATE = 'January 1, 2001';
 const DataTypeOptions: SelectOption<string>[] = [
   { value: 'applicants', label: 'Applicants' },
   { value: 'milestones', label: 'Milestones' },
+  { value: 'endofjourney', label: 'End of Journey' },
 ];
 
 const initialValues: PeriodFilter = {
@@ -37,10 +39,19 @@ export const DataExtractReport = () => {
   const download = async (values: PeriodFilter, helpers?: FormikHelpers<PeriodFilter>) => {
     let workbook: WorkBook | null;
 
-    if (dataType === 'applicants') {
-      workbook = await createApplicantDataExtractWorkbook(values);
-    } else {
-      workbook = await createMilestoneDataExtractWorkbook(values);
+    switch (dataType) {
+      case 'applicants':
+        workbook = await createApplicantDataExtractWorkbook(values);
+        break;
+      case 'milestones':
+        workbook = await createMilestoneDataExtractWorkbook(values);
+        break;
+      case 'endofjourney':
+        workbook = await createEndOfJourneyMilestoneDataExtractWorkbook(values);
+        break;
+      default:
+        workbook = null;
+        break;
     }
 
     if (workbook) {
