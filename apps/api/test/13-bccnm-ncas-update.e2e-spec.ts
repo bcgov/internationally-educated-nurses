@@ -122,7 +122,6 @@ describe('BCCNM/NCAS Updates', () => {
       .post('/admin/apply-bccnm-ncas-updates')
       .send({ data: data.filter(v => v.valid) });
     const { created, updated, ignored } = response.body;
-    console.log(response.body);
     expect(created).toBe(20);
     expect(updated).toBe(0);
     expect(ignored).toBe(0);
