@@ -40,7 +40,7 @@ export class AdminService {
   async getUserGuides(): Promise<UserGuide[]> {
     if (!this.s3) {
       //throw new InternalServerErrorException('the feature is disabled');
-      return []
+      return [];
     }
     try {
       const result = await this.s3.listObjects().promise();

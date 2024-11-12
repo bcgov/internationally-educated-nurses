@@ -60,14 +60,14 @@ describe('BCCNM/NCAS Updates', () => {
               'First Name': applicant.name.split(' ')[0],
               Email: applicant.email_address,
               'NCAS Assessment Complete': 'Yes',
-              'Date NCAS Assessment Complete':dayjs(
+              'Date NCAS Assessment Complete': dayjs(
                 faker.date.between(applicant.registration_date ?? between[0], between[1]),
               ).format('YYYY-MM-DD'),
               'BCCNM Application Complete': 'Yes',
-              'Date BCCNM Application Complete':dayjs(
+              'Date BCCNM Application Complete': dayjs(
                 faker.date.between(applicant.registration_date ?? between[0], between[1]),
               ).format('YYYY-MM-DD'),
-              
+
               'Registration Designation': 'BCCNM Provisional Licence LPN',
               'ISO Code - Education': 'kr',
               'Date ROS Contract Signed': dayjs(
@@ -84,8 +84,8 @@ describe('BCCNM/NCAS Updates', () => {
     // make two rows invalid
     dataToCreate.slice(4).forEach(v => {
       v['Date ROS Contract Signed'] = '';
-      v['Date NCAS Assessment Complete']= '';
-      v['Date BCCNM Application Complete']='';
+      v['Date NCAS Assessment Complete'] = '';
+      v['Date BCCNM Application Complete'] = '';
       v['ISO Code - Education'] = '';
     });
 
