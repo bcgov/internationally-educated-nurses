@@ -39,7 +39,8 @@ export class AdminService {
 
   async getUserGuides(): Promise<UserGuide[]> {
     if (!this.s3) {
-      throw new InternalServerErrorException('the feature is disabled');
+      //throw new InternalServerErrorException('the feature is disabled');
+      return []
     }
     try {
       const result = await this.s3.listObjects().promise();
@@ -165,13 +166,13 @@ export class AdminService {
 
     // bccnm/ncas completions accept 'Yes', 'No', or a date
     try {
-      v.appliedToBccnm = getDateFromCellValue(update['BCCNM Application Complete']);
+      v.appliedToBccnm = getDateFromCellValue(update['Date BCCNM Application Complete']);
     } catch (e) {
       v.message = e.message;
     }
 
     try {
-      v.ncasCompleteDate = getDateFromCellValue(update['NCAS Assessment Complete']);
+      v.ncasCompleteDate = getDateFromCellValue(update['Date NCAS Assessment Complete']);
     } catch (e) {
       v.message = e.message;
     }
