@@ -63,6 +63,8 @@ export type MilestoneDurationTableEntry<T> = {
 
   [STATUS.WITHDREW_FROM_PROGRAM]?: T;
 
+  [STATUS.NOT_PROCEEDING]?: T;
+  
   [STATUS.READY_FOR_JOB_SEARCH]?: T;
 
   [STATUS.REFERRED_TO_FHA]?: T;

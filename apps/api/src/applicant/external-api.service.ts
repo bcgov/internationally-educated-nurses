@@ -38,6 +38,7 @@ import { IENApplicantStatus } from './entity/ienapplicant-status.entity';
 import { ApplicantSyncRO, MilestoneSync } from './ro/sync.ro';
 import { isNewBCCNMProcess } from 'src/common/util';
 import { min } from 'mathjs';
+import { EndOfJourneyService } from './endofjourney.service';
 
 @Injectable()
 export class ExternalAPIService {
@@ -48,6 +49,8 @@ export class ExternalAPIService {
     private readonly ienapplicantUtilService: IENApplicantUtilService,
     @Inject(IENMasterService)
     private readonly ienMasterService: IENMasterService,
+    @Inject(EndOfJourneyService)
+    private readonly endOfJourneyService: EndOfJourneyService,
     @InjectRepository(IENApplicant)
     private readonly ienapplicantRepository: Repository<IENApplicant>,
     @InjectRepository(IENApplicantStatus)
@@ -311,6 +314,8 @@ export class ExternalAPIService {
         const result = await this.createBulkApplicants(applicants, manager);
         result.milestones.removed = await this.removeMilestonesNotOnATS(applicants, manager);
         await this.saveSyncApplicantsAudit(audit.id, true, undefined, manager);
+        // update end of journey
+        await this.endOfJourneyService.handleNotProceedingMilestone(applicants, manager);
         return result;
       });
       return {
