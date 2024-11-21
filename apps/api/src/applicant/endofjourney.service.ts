@@ -34,16 +34,24 @@ type IEN_APPLICANT_END_OF_JOURNEY = {
   ha_pcn_id: string;
 };
 
-export async function getSingleConnection(): Promise<Connection> {
+export async function getSingleConnection(): Promise<Connection | null> {
   let connection: Connection;
 
-  if (!getConnectionManager().has('default')) {
-    const connectionOptions = await getConnectionOptions();
-    connection = await createConnection(connectionOptions);
-  } else {
-    connection = getConnection();
+  try {
+    // Check if the connection already exists
+    if (!getConnectionManager().has('default')) {
+      const connectionOptions = await getConnectionOptions(); // Fetch connection options
+      connection = await createConnection(connectionOptions); // Create a new connection
+    } else {
+      // If the connection exists, return the existing one
+      connection = getConnection();
+    }
+
+    return connection;
+  } catch (error) {
+    // throw error;  // Re-throw the error for proper handling
+    return null;
   }
-  return connection;
 }
 
 @Injectable()
@@ -64,7 +72,11 @@ export class EndOfJourneyService {
     );
 
     const connection = await getSingleConnection();
-    const queryRunner = connection.createQueryRunner();
+    if (!connection) {
+      this.logger.error('Connection failed', 'END-OF-JOURNEY');
+      return;
+    }
+    const queryRunner = connection.createQueryRunner('master');
     await queryRunner.startTransaction();
     const manager = queryRunner.manager;
 
@@ -89,6 +101,7 @@ export class EndOfJourneyService {
         throw new InternalServerErrorException('Transaction failed with an unknown error');
       }
     } finally {
+      this.logger.log(`finally`, 'END-OF-JOURNEY');
       await queryRunner.release();
     }
   }
