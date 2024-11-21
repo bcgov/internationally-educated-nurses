@@ -12,8 +12,7 @@ let app: any = null;
  */
 export const handler: Handler = async (event, context: Context) => {
   if (!app) {
-    app = await NestFactory.create(AppModule);
-    await app.init();
+    app = await NestFactory.createApplicationContext(AppModule);
   }
   const eojService = app.get(EndOfJourneyService);
   const logger = app.get(AppLogger);
