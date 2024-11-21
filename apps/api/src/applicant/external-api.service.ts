@@ -384,7 +384,7 @@ export class ExternalAPIService {
     );
     await Promise.all(
       applicants.map(async a => {
-        const query = `
+        const audits: { id: string; status_id: string }[] = await manager.query(`
           SELECT "audit"."id" id, "status"."id" status_id
           FROM "ien_applicant_status_audit" "audit"
           INNER JOIN "ien_applicant_status" "status" ON "status"."id" = "audit"."status_id"
@@ -392,8 +392,7 @@ export class ExternalAPIService {
             "audit"."applicant_id" = '${a.applicant_id.toLowerCase()}' AND
             "status"."category" != 'IEN Recruitment Process' AND
             "status"."id" NOT IN ('${bccnm_new_statuses.map(status => status.id).join("','")}') 
-        `;
-        const audits: { id: string; status_id: string }[] = await manager.query(query);
+        `);
 
         if (!audits?.length) return;
 
