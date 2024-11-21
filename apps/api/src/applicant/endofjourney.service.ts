@@ -69,7 +69,9 @@ export class EndOfJourneyService {
         throw new InternalServerErrorException('Transaction failed with an unknown error');
       }
     } finally {
-      await manager.queryRunner?.release();
+      if (!manager.queryRunner?.isReleased) {
+        await manager.queryRunner?.release();
+      }
     }
   }
 
