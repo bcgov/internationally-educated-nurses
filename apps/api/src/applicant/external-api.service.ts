@@ -21,7 +21,7 @@ import {
 } from 'typeorm';
 import dayjs from 'dayjs';
 import _ from 'lodash';
-import { AtsApplicant, Authorities, STATUS, StatusCategory } from '@ien/common';
+import { AtsApplicant, Authorities, BCCNM_NEW_FIELDS, STATUS, StatusCategory } from '@ien/common';
 import { ExternalRequest } from 'src/common/external-request';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicant } from './entity/ienapplicant.entity';
@@ -383,6 +383,10 @@ export class ExternalAPIService {
     manager: EntityManager,
   ): Promise<number> {
     let removedCount = 0;
+    const statuses = await this.ienapplicantStatusRepository.find();
+    const bccnm_new_statuses = statuses.filter(value =>
+      BCCNM_NEW_FIELDS.some(bccnm_new_field => value.status === bccnm_new_field.toString()),
+    );
     await Promise.all(
       applicants.map(async a => {
         const audits: { id: string; status_id: string }[] = await manager.query(`
@@ -391,7 +395,8 @@ export class ExternalAPIService {
           INNER JOIN "ien_applicant_status" "status" ON "status"."id" = "audit"."status_id"
           WHERE
             "audit"."applicant_id" = '${a.applicant_id.toLowerCase()}' AND
-            "status"."category" != 'IEN Recruitment Process';
+            "status"."category" != 'IEN Recruitment Process' AND
+            "status"."id" NOT IN ('${bccnm_new_statuses.map(status => status.id).join("','")}') 
         `);
 
         if (!audits?.length) return;
@@ -473,7 +478,7 @@ export class ExternalAPIService {
             ['id'],
           );
           this.logger.log(
-            `Signed Return of Service Agreement milestones updated: ${result.raw.length}`,
+            `Signed Return of Service Agreement milestones updated: ${result?.raw?.length}`,
             'ATS-SYNC',
           );
         }
