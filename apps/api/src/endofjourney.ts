@@ -4,13 +4,17 @@ import { AppModule } from './app.module';
 import { AppLogger } from './common/logger.service';
 import { EndOfJourneyService } from './applicant/endofjourney.service';
 
+let app: any = null;
 /**
  * Design this function to trigger existing NestJs application services without Api-Gateway
  * All the schedule and background job trigger will be added here.
  * Operation like sync data, update database view or trigger db function, etc.
  */
 export const handler: Handler = async (event, context: Context) => {
-  const app = await NestFactory.createApplicationContext(AppModule);
+  if (!app) {
+    app = await NestFactory.create(AppModule);
+    await app.init();
+  }
   const eojService = app.get(EndOfJourneyService);
   const logger = app.get(AppLogger);
 
@@ -28,15 +32,7 @@ export const handler: Handler = async (event, context: Context) => {
     logger.error(e, 'END-OF-JOURNEY');
   }
   logger.log('...end end of journey complete check', 'END-OF-JOURNEY');
-  // Ensure proper cleanup and closing of connections
-  // try {
-  //   await app.close();
-  // } catch (error: unknown) {
-  //   if (error instanceof Error) {
-  //     logger.error('Error closing the app: ' + error.message, 'END-OF-JOURNEY');
-  //   }
-  //   logger.error('Error closing the app: ' + error, 'END-OF-JOURNEY');
-  // }
+  await app.close();
 };
 
 /**
