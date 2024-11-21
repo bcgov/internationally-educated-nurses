@@ -770,22 +770,8 @@ export class ReportUtilService {
 
     const endOfJourneyColumn = `
       CASE 
-        WHEN EXISTS (
-            SELECT 1
-            FROM ien_applicant_status_audit sub_milestone
-            INNER JOIN ien_applicant_status 
-            ON sub_milestone.status_id = ien_applicant_status.id
-            WHERE sub_milestone.applicant_id = a.id
-              AND ien_applicant_status.status = 'End of Journey - Journey Complete'
-        ) THEN 'End of Journey - Journey Complete'
-        WHEN EXISTS (
-            SELECT 1
-            FROM ien_applicant_status_audit sub_milestone
-            INNER JOIN ien_applicant_status 
-            ON sub_milestone.status_id = ien_applicant_status.id
-            WHERE sub_milestone.applicant_id = a.id
-              AND ien_applicant_status.status = 'End of Journey - Journey Incomplete'
-        ) THEN 'End of Journey - Journey Incomplete'
+        WHEN a.end_of_journey = 'journey_complete' THEN 'End of Journey - Journey Complete'
+        WHEN a.end_of_journey = 'journey_incomplete' THEN 'End of Journey - Journey Incomplete'
         ELSE NULL
       END AS "End of Journey"    
     `;
@@ -828,24 +814,10 @@ export class ReportUtilService {
      */
     const endOfJourneyColumn = `
       CASE 
-        WHEN EXISTS (
-            SELECT 1
-            FROM ien_applicant_status_audit sub_milestone
-            INNER JOIN ien_applicant_status 
-            ON sub_milestone.status_id = ien_applicant_status.id
-            WHERE sub_milestone.applicant_id = milestone.applicant_id
-              AND ien_applicant_status.status = 'End of Journey - Journey Complete'
-        ) THEN 'End of Journey - Journey Complete'
-        WHEN EXISTS (
-            SELECT 1
-            FROM ien_applicant_status_audit sub_milestone
-            INNER JOIN ien_applicant_status 
-            ON sub_milestone.status_id = ien_applicant_status.id
-            WHERE sub_milestone.applicant_id = milestone.applicant_id
-              AND ien_applicant_status.status = 'End of Journey - Journey Incomplete'
-        ) THEN 'End of Journey - Journey Incomplete'
+        WHEN applicant.end_of_journey = 'journey_complete' THEN 'End of Journey - Journey Complete'
+        WHEN applicant.end_of_journey = 'journey_incomplete' THEN 'End of Journey - Journey Incomplete'
         ELSE NULL
-      END AS "End of Journey"    
+      END AS "End of Journey"  
     `;
 
     return `
