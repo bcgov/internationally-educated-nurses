@@ -7,7 +7,7 @@ import {
   IENStatusReasonRO,
   IENUserRO,
 } from './ien.ro';
-import { IenType } from '../enum';
+import { END_OF_JOURNEY_FLAG, IenType } from '../enum';
 import { EmployeeRO } from './employee.ro';
 
 export interface ApplicantRO {
@@ -36,6 +36,7 @@ export interface ApplicantRO {
   recruiters?: EmployeeRO[] | null;
   active_flags?: ApplicantActiveFlagRO[];
   pathway?: PathwayRO;
+  end_of_journey?: END_OF_JOURNEY_FLAG | null;
   created_date?: Date;
   updated_date?: Date;
 }

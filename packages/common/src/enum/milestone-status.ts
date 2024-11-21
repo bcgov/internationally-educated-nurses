@@ -24,6 +24,7 @@ export enum STATUS {
   REGISTERED_AS_AN_HCA = 'Registered as an HCA',
   REGISTRATION_JOURNEY_COMPLETED = 'Registration Journey Complete',
   WITHDREW_FROM_PROGRAM = 'Withdrew from IEN program',
+  NOT_PROCEEDING = 'Not proceeding',
   READY_FOR_JOB_SEARCH = 'Applicant Ready for Job Search',
   REFERRED_TO_FHA = 'Applicant Referred to FHA',
   REFERRED_TO_FNHA = 'Applicant Referred to FNHA',
@@ -69,10 +70,6 @@ export enum STATUS {
   BCCNM_APPLICATION_COMPLETE_DATE = 'BCCNM Application Complete Date',
   BCCNM_DECISION_DATE = 'BCCNM Decision Date',
   BCCNM_REGISTRATION_DATE = 'BCCNM Registration Date',
-
-  // End of Journey
-  END_OF_JOURNEY_COMPLETE = 'End of Journey - Journey Complete',
-  END_OF_JOURNEY_INCOMPLETE = 'End of Journey - Journey Incomplete',
 }
 
 export const COMPLETED_STATUSES = [
@@ -205,3 +202,8 @@ export const BCCNM_LICENSE = [
 ];
 
 export const MILESTONES = [...LIC_REG_STAGE, ...RECRUITMENT_STAGE, ...IMMIGRATION_STAGE];
+
+export enum END_OF_JOURNEY_FLAG {
+  JOURNEY_COMPLETE = 'journey_complete',
+  JOURNEY_INCOMPLETE = 'journey_incomplete',
+}

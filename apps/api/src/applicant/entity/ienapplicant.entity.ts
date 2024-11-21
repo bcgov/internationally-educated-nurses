@@ -21,7 +21,7 @@ import { IENApplicantStatusAudit } from './ienapplicant-status-audit.entity';
 import { IENApplicantStatus } from './ienapplicant-status.entity';
 import { IENApplicantJob } from './ienjob.entity';
 import { IENUsers } from './ienusers.entity';
-import { ApplicantRO, IENUserRO, NursingEducationDTO } from '@ien/common';
+import { ApplicantRO, IENUserRO, NursingEducationDTO, END_OF_JOURNEY_FLAG } from '@ien/common';
 import { EmployeeEntity } from '../../employee/entity/employee.entity';
 import { IENApplicantActiveFlag } from './ienapplicant-active-flag.entity';
 import { Pathway } from './pathway.entity';
@@ -121,6 +121,13 @@ export class IENApplicant {
   @ManyToOne(() => Pathway, { eager: true })
   pathway?: Pathway;
 
+  @Column({
+    type: 'enum',
+    enum: END_OF_JOURNEY_FLAG,
+    nullable: true, // Optional: to make the column nullable
+  })
+  end_of_journey?: END_OF_JOURNEY_FLAG | null;
+
   @CreateDateColumn()
   @Exclude()
   created_date!: Date;
@@ -166,6 +173,7 @@ export class IENApplicant {
       created_date: this.created_date,
       updated_date: this.updated_date,
       pathway: this.pathway,
+      end_of_journey: this.end_of_journey,
     };
   }
 }

@@ -34,6 +34,10 @@ export class IENMasterService {
     return this.ienApplicantStatusRepository.find();
   }
 
+  async getStatusByStatus(status: string): Promise<IENApplicantStatus> {
+    return this.ienApplicantStatusRepository.findOneOrFail({ where: { status } });
+  }
+
   async getHaPcn(): Promise<IENHaPcn[]> {
     return this.ienHaPcnRepository.find({
       order: {

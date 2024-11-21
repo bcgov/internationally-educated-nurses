@@ -50,9 +50,9 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
   const rowClass = (applicant: ApplicantRO) => {
     const status = applicant.status?.status;
     const classes = ['text-left', 'shadow-xs', 'whitespace-nowrap', 'text-sm'];
-    const inactive = applicant.active_flags?.some(
-      flag => flag.ha_id === authUser?.ha_pcn_id && !flag.is_active,
-    );
+    const inactive =
+      applicant.active_flags?.some(flag => flag.ha_id === authUser?.ha_pcn_id && !flag.is_active) ||
+      !!applicant.end_of_journey;
     if (isHAUser && inactive) {
       classes.push('text-gray-400', 'even:bg-bcLightGray');
     }
@@ -112,7 +112,7 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
                 </AclMask>
                 {!!showHiddenApplicants && (
                   <td className='px-4 whitespace-normal break-words' scope='col'>
-                    {app.active_flags?.map(flag => flag.status).join(', ')}
+                    {app.end_of_journey}
                   </td>
                 )}
                 <td className='px-6 text-right'>

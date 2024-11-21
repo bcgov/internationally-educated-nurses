@@ -1,14 +1,13 @@
 import { Inject, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 
-import { getConnection, EntityManager, Brackets } from 'typeorm';
+import { getConnection, EntityManager } from 'typeorm';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 
-import { STATUS } from '@ien/common';
+import { AtsApplicant, END_OF_JOURNEY_FLAG, STATUS } from '@ien/common';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantStatusAudit } from './entity/ienapplicant-status-audit.entity';
-import { IENApplicantStatus } from './entity/ienapplicant-status.entity';
 import { IENMasterService } from './ien-master.service';
 
 dayjs.extend(utc);
@@ -19,7 +18,7 @@ const formatDateInPST = (date: Date) => {
     .format('YYYY-MM-DD'); // Format as YYYY-MM-DD
 };
 
-type Getter<T = unknown> = (manager: EntityManager) => Promise<T[]>;
+type Getter<T = unknown, U = unknown> = (manager: EntityManager, meta?: U) => Promise<T[]>;
 type Setter<T = unknown> = (manager: EntityManager, list: T[]) => Promise<void>;
 type IEN_APPLICANT_END_OF_JOURNEY = {
   applicant_id: string;
@@ -55,7 +54,6 @@ export class EndOfJourneyService {
         this.getCompletedLists,
         this.setCompletedLists,
         manager,
-        STATUS.END_OF_JOURNEY_COMPLETE,
       );
 
       await manager.queryRunner?.commitTransaction();
@@ -79,12 +77,11 @@ export class EndOfJourneyService {
     getter: Getter<T>,
     setter: Setter<T>,
     manager: EntityManager,
-    status: STATUS,
   ): Promise<void> {
     const list = await getter(manager);
     if (list.length === 0) {
       this.logger.log(
-        `End of journey checking status: ${status} at ${dayjs().tz(
+        `End of journey - Journey Complete checking at ${dayjs().tz(
           'America/Los_Angeles',
         )} with no data`,
         'END-OF-JOURNEY',
@@ -125,14 +122,9 @@ export class EndOfJourneyService {
         'active_flag',
         'audit.applicant_id = active_flag.applicant_id',
       )
-      .having('MAX(audit.effective_date) = :oneYearBeforeYesterday', { oneYearBeforeYesterday }) // Use HAVING for aggregate filtering
+      .having('MAX(audit.effective_date) <= :oneYearBeforeYesterday', { oneYearBeforeYesterday }) // Use HAVING for aggregate filtering
       .where('status.status = :status', { status: STATUS.JOB_OFFER_ACCEPTED }) // Filter by status
       .andWhere('audit.effective_date IS NOT NULL') // Filter out null effective_date
-      .andWhere(
-        new Brackets(qb => {
-          qb.where('active_flag.applicant_id IS NULL').orWhere('active_flag.status_id IS NULL');
-        }),
-      ) // Exclude applicants in ien_applicants_active_flag or with a status_id
       .groupBy('audit.applicant_id') // Group by applicant_id
       .addGroupBy('status.id')
       .addGroupBy('job.id');
@@ -143,80 +135,79 @@ export class EndOfJourneyService {
     return applicants;
   };
   setCompletedLists: Setter<IEN_APPLICANT_END_OF_JOURNEY> = async (manager, list) => {
-    // write into the audit table with new milestone: END_OF_JOURNEY_COMPLETED
-    // start_date, notes, status
-
-    const today = dayjs().tz('America/Los_Angeles').format('YYYY-MM-DD');
-    // Attempt to get the status ID, and handle the error if the status is not found
-    let endOfJourneyCompleteStatus;
-    try {
-      endOfJourneyCompleteStatus = await manager.findOneOrFail(IENApplicantStatus, {
-        where: { status: STATUS.END_OF_JOURNEY_COMPLETE },
-      });
-    } catch (error) {
-      this.logger.error(`Status not found: ${STATUS.END_OF_JOURNEY_COMPLETE}`, 'END-OF-JOURNEY');
-      throw new Error(`Status not found: ${STATUS.END_OF_JOURNEY_COMPLETE}`);
-    }
-
-    const haPcns = await this.ienMasterService.getHaPcn();
-
+    this.logger.log(`Setting end of journey - Journey Complete`, 'END-OF-JOURNEY');
     for (const applicant of list) {
-      await manager
-        .createQueryBuilder()
-        .insert()
-        .into(IENApplicantStatusAudit)
-        .values({
-          applicant: { id: applicant.applicant_id }, // Setting the applicant_id from the list
-          start_date: today, // Start date is today in YYYY-MM-DD format
-          status: endOfJourneyCompleteStatus, // Status is set to END_OF_JOURNEY_COMPLETED
-          notes: `Updated by Lambda CRON at ${dayjs()
-            .tz('America/Los_Angeles')
-            .format('YYYY-MM-DD HH:mm:ss')} and status: END_OF_JOURNEY_COMPLETE`, // Note with current time
-        })
-        .execute();
-    }
-
-    // write every HaPcn into ien_applicants_active_flag table with is_active = false
-    for (const applicant of list) {
-      for (const haPcn of haPcns) {
-        // First, attempt the update table "ien_applicants_active_flag"
-        const result = await manager
-          .createQueryBuilder()
-          .update('ien_applicants_active_flag')
-          .set({
-            is_active: false,
-            status_id: endOfJourneyCompleteStatus.id,
-          })
-          .where('ha_id = :ha_pcn_id', { ha_pcn_id: haPcn.id })
-          .andWhere('applicant_id = :applicant_id', { applicant_id: applicant.applicant_id })
-          .execute();
-
-        // If no rows were updated, perform an insert
-        if (result.affected === 0) {
-          await manager
-            .createQueryBuilder()
-            .insert()
-            .into('ien_applicants_active_flag')
-            .values({
-              ha_id: haPcn.id,
-              applicant_id: applicant.applicant_id,
-              is_active: false,
-              status_id: endOfJourneyCompleteStatus.id,
-            })
-            .execute();
-        }
-      }
-
-      // update the status and updated_date of the applicant
+      // update the end_of_journey flag and updated_date of the applicant
       await manager
         .createQueryBuilder()
         .update('ien_applicants')
         .set({
-          status: endOfJourneyCompleteStatus,
+          end_of_journey: END_OF_JOURNEY_FLAG.JOURNEY_COMPLETE,
           updated_date: dayjs().tz('America/Los_Angeles').toDate(),
         })
         .where('id = :id', { id: applicant.applicant_id })
         .execute();
     }
+  };
+
+  async handleNotProceedingMilestone(
+    applicants: AtsApplicant[],
+    manager: EntityManager,
+  ): Promise<void> {
+    this.logger.log(`Checking for end of journey: ${STATUS.NOT_PROCEEDING}`, 'END-OF-JOURNEY');
+    const hasNotProceedingApplicants = await this.getNotProceedingLists(manager, applicants);
+    if (hasNotProceedingApplicants.length === 0) {
+      this.logger.log(
+        `End of journey checking status: ${STATUS.NOT_PROCEEDING} at ${dayjs().tz(
+          'America/Los_Angeles',
+        )} with no data`,
+        'END-OF-JOURNEY',
+      );
+      return;
+    }
+    await this.setNotProceedingLists(manager, hasNotProceedingApplicants);
+  }
+  getNotProceedingLists: Getter<AtsApplicant, AtsApplicant[]> = async (manager, meta = []) => {
+    if (manager) {
+      const notProceedingStatus = await this.ienMasterService.getStatusByStatus(
+        STATUS.NOT_PROCEEDING,
+      );
+
+      // filter out the applicants whose status is "Not Proceeding"
+      const applicants = meta;
+      const hasNotProceedingApplicants = applicants.filter(({ milestones }) =>
+        milestones?.some(({ id }) => id === notProceedingStatus.id),
+      );
+      this.logger.log(
+        `Number of not proceeding applicants: ${hasNotProceedingApplicants.length}`,
+        'END-OF-JOURNEY',
+      );
+      return hasNotProceedingApplicants;
+    }
+    return [];
+  };
+  setNotProceedingLists: Setter<AtsApplicant> = async (manager, list) => {
+    this.logger.log(
+      `Setting end of journey incomplete: ${STATUS.NOT_PROCEEDING}. Number of lists: ${list.length}`,
+      'END-OF-JOURNEY',
+    );
+    const results = [];
+    for (const applicant of list) {
+      // update the end_of_journey_flag and updated_date of the applicant
+      const result = await manager
+        .createQueryBuilder()
+        .update('ien_applicants')
+        .set({
+          end_of_journey: END_OF_JOURNEY_FLAG.JOURNEY_INCOMPLETE,
+          updated_date: dayjs().tz('America/Los_Angeles').toDate(),
+        })
+        .where('id = :id', { id: applicant.applicant_id })
+        .andWhere('(end_of_journey != :end_of_journey OR end_of_journey IS NULL)', {
+          end_of_journey: END_OF_JOURNEY_FLAG.JOURNEY_INCOMPLETE,
+        })
+        .execute();
+      results.push(result);
+    }
+    this.logger.log({ results }, 'END-OF-JOURNEY');
   };
 }

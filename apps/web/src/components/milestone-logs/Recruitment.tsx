@@ -85,8 +85,8 @@ export const Recruitment: React.FC = () => {
    * If End Of Journey in active flags: Disable Button
    */
   const isApplicantEOJ = useMemo(() => {
-    return applicant?.active_flags?.some(flag => flag?.status?.includes('End of Journey'));
-  }, [applicant?.active_flags]);
+    return !!applicant?.end_of_journey;
+  }, [applicant?.end_of_journey]);
   const { isHAUser } = useIsHAUser();
   const isButtonDisabled = isHAUser && isApplicantEOJ;
 
