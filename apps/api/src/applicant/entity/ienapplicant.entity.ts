@@ -173,6 +173,7 @@ export class IENApplicant {
       created_date: this.created_date,
       updated_date: this.updated_date,
       pathway: this.pathway,
+      end_of_journey: this.end_of_journey,
     };
   }
 }

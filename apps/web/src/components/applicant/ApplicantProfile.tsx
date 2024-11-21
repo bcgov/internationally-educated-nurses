@@ -26,7 +26,8 @@ export const ApplicantProfile = () => {
 
   useEffect(() => {
     const activeFlag = applicant.active_flags?.find(o => o.ha_id === authUser?.ha_pcn_id);
-    setActiveToggle(activeFlag?.is_active ?? true);
+    const isActive = (activeFlag?.is_active ?? true) && applicant.end_of_journey === null;
+    setActiveToggle(isActive);
   }, [applicant, authUser]);
 
   return (

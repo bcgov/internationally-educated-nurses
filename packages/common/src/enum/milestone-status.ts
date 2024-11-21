@@ -70,10 +70,6 @@ export enum STATUS {
   BCCNM_APPLICATION_COMPLETE_DATE = 'BCCNM Application Complete Date',
   BCCNM_DECISION_DATE = 'BCCNM Decision Date',
   BCCNM_REGISTRATION_DATE = 'BCCNM Registration Date',
-
-  // End of Journey
-  END_OF_JOURNEY_COMPLETE = 'End of Journey - Journey Complete',
-  END_OF_JOURNEY_INCOMPLETE = 'End of Journey - Journey Incomplete',
 }
 
 export const COMPLETED_STATUSES = [

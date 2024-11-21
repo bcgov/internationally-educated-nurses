@@ -64,7 +64,7 @@ export type MilestoneDurationTableEntry<T> = {
   [STATUS.WITHDREW_FROM_PROGRAM]?: T;
 
   [STATUS.NOT_PROCEEDING]?: T;
-  
+
   [STATUS.READY_FOR_JOB_SEARCH]?: T;
 
   [STATUS.REFERRED_TO_FHA]?: T;
@@ -144,8 +144,4 @@ export type MilestoneDurationTableEntry<T> = {
   [STATUS.BCCNM_DECISION_DATE]?: T;
 
   [STATUS.BCCNM_REGISTRATION_DATE]?: T;
-
-  [STATUS.END_OF_JOURNEY_COMPLETE]?: T;
-
-  [STATUS.END_OF_JOURNEY_INCOMPLETE]?: T;
 };

@@ -54,7 +54,6 @@ export class EndOfJourneyService {
         this.getCompletedLists,
         this.setCompletedLists,
         manager,
-        STATUS.END_OF_JOURNEY_COMPLETE,
       );
 
       await manager.queryRunner?.commitTransaction();
@@ -78,12 +77,11 @@ export class EndOfJourneyService {
     getter: Getter<T>,
     setter: Setter<T>,
     manager: EntityManager,
-    status: STATUS,
   ): Promise<void> {
     const list = await getter(manager);
     if (list.length === 0) {
       this.logger.log(
-        `End of journey checking status: ${status} at ${dayjs().tz(
+        `End of journey - Journey Complete checking at ${dayjs().tz(
           'America/Los_Angeles',
         )} with no data`,
         'END-OF-JOURNEY',
@@ -137,10 +135,7 @@ export class EndOfJourneyService {
     return applicants;
   };
   setCompletedLists: Setter<IEN_APPLICANT_END_OF_JOURNEY> = async (manager, list) => {
-    this.logger.log(
-      `Setting end of journey complete: ${STATUS.END_OF_JOURNEY_COMPLETE}`,
-      'END-OF-JOURNEY',
-    );
+    this.logger.log(`Setting end of journey - Journey Complete`, 'END-OF-JOURNEY');
     for (const applicant of list) {
       // update the end_of_journey flag and updated_date of the applicant
       await manager
