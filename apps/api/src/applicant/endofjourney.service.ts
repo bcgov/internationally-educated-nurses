@@ -1,6 +1,13 @@
 import { Inject, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 
-import { getConnection, Connection, EntityManager } from 'typeorm';
+import {
+  getConnection,
+  Connection,
+  EntityManager,
+  getConnectionManager,
+  createConnection,
+  getConnectionOptions,
+} from 'typeorm';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
@@ -27,11 +34,14 @@ type IEN_APPLICANT_END_OF_JOURNEY = {
   ha_pcn_id: string;
 };
 
-let connection: Connection | null = null;
+export async function getSingleConnection(): Promise<Connection> {
+  let connection: Connection;
 
-export function getSingleConnection(): Connection {
-  if (!connection) {
-    connection = getConnection(); // Get the existing connection or create one
+  if (!getConnectionManager().has('default')) {
+    const connectionOptions = await getConnectionOptions();
+    connection = await createConnection(connectionOptions);
+  } else {
+    connection = getConnection();
   }
   return connection;
 }
@@ -53,7 +63,7 @@ export class EndOfJourneyService {
       'END-OF-JOURNEY',
     );
 
-    const connection = getSingleConnection();
+    const connection = await getSingleConnection();
     const queryRunner = connection.createQueryRunner();
     await queryRunner.startTransaction();
     const manager = queryRunner.manager;
