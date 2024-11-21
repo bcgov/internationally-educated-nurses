@@ -28,7 +28,15 @@ export const handler: Handler = async (event, context: Context) => {
     logger.error(e, 'END-OF-JOURNEY');
   }
   logger.log('...end end of journey complete check', 'END-OF-JOURNEY');
-  await app.close();
+  // Ensure proper cleanup and closing of connections
+  try {
+    await app.close();
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      logger.error('Error closing the app: ' + error.message, 'END-OF-JOURNEY');
+    }
+    logger.error('Error closing the app: ' + error, 'END-OF-JOURNEY');
+  }
 };
 
 /**
