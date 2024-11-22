@@ -1,12 +1,19 @@
-import { Inject, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  OnModuleInit,
+  OnModuleDestroy,
+} from '@nestjs/common';
 
 import {
-  getConnection,
+  // getConnection,
   Connection,
   EntityManager,
-  getConnectionManager,
+  // getConnectionManager,
   createConnection,
-  getConnectionOptions,
+  // getConnectionOptions,
 } from 'typeorm';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
@@ -34,33 +41,44 @@ type IEN_APPLICANT_END_OF_JOURNEY = {
   ha_pcn_id: string;
 };
 
-export async function getSingleConnection(): Promise<Connection | null> {
-  let connection: Connection;
+// let connection: Connection;
+// async function getSingleConnection(): Promise<Connection | null> {
+//   if (connection && connection?.isConnected) {
+//     return connection;
+//   }
+//   try {
+//     const connectionManager = getConnectionManager();
+//     if (connectionManager.has('default')) {
+//       connection = connectionManager.get('default');
+//       if (!connection.isConnected) {
+//         await connection.connect();
+//       }
+//     } else {
+//       connection = await createConnection();
+//     }
 
-  try {
-    // Check if the connection already exists
-    if (!getConnectionManager().has('default')) {
-      const connectionOptions = await getConnectionOptions(); // Fetch connection options
-      connection = await createConnection(connectionOptions); // Create a new connection
-    } else {
-      // If the connection exists, return the existing one
-      connection = getConnection();
-    }
-
-    return connection;
-  } catch (error) {
-    // throw error;  // Re-throw the error for proper handling
-    return null;
-  }
-}
+//     return connection;
+//   } catch (error) {
+//     // throw error;  // Re-throw the error for proper handling
+//     return null;
+//   }
+// }
 
 @Injectable()
-export class EndOfJourneyService {
+export class EndOfJourneyService implements OnModuleInit, OnModuleDestroy {
   constructor(
     @Inject(Logger) private readonly logger: AppLogger,
     @Inject(IENMasterService)
     private readonly ienMasterService: IENMasterService,
+    private connection: Connection,
   ) {}
+  async onModuleInit() {
+    // Create the connection when the module initializes
+    if (!this.connection || !this.connection.isConnected) {
+      this.connection = await createConnection();
+      this.logger.log('Database connection established');
+    }
+  }
 
   /**
    * Entry point
@@ -71,7 +89,7 @@ export class EndOfJourneyService {
       'END-OF-JOURNEY',
     );
 
-    const connection = await getSingleConnection();
+    const connection = this.connection;
     if (!connection) {
       this.logger.error('Connection failed', 'END-OF-JOURNEY');
       return;
@@ -103,6 +121,13 @@ export class EndOfJourneyService {
     } finally {
       this.logger.log(`finally`, 'END-OF-JOURNEY');
       await queryRunner.release();
+    }
+  }
+
+  async onModuleDestroy() {
+    if (this.connection && this.connection.isConnected) {
+      await this.connection.close();
+      this.logger.log('Database connection closed');
     }
   }
 
