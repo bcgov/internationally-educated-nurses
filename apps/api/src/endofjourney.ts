@@ -31,11 +31,6 @@ export const handler: Handler = async (event, context: Context) => {
   } catch (e) {
     logger.error(e, 'END-OF-JOURNEY');
   }
-  // finally {
-  //   logger.log(`End "end of journey complete" check`, 'END-OF-JOURNEY');
-  //   await appContext.close();
-  //   logger.log('Application context closed', 'END-OF-JOURNEY');
-  // }
 };
 
 /**
