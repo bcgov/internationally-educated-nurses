@@ -120,11 +120,12 @@ export class EndOfJourneyService implements OnModuleInit, OnModuleDestroy {
       }
     } finally {
       this.logger.log(`finally`, 'END-OF-JOURNEY');
-      await queryRunner.release();
+      await manager.queryRunner?.release();
     }
   }
 
   async onModuleDestroy() {
+    this.logger.log('onModuleDestroy', 'END-OF-JOURNEY');
     if (this.connection && this.connection.isConnected) {
       await this.connection.close();
       this.logger.log('Database connection closed');
