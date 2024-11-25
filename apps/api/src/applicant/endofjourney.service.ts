@@ -43,7 +43,7 @@ export class EndOfJourneyService implements OnModuleInit {
   ) {}
   async onModuleInit() {
     // Create the connection when the module initializes
-    if (!this.connection || !this.connection.isConnected) {
+    if (!this.connection?.isConnected) {
       this.connection = await createConnection();
       this.logger.log('EOJ Database connection established', 'END-OF-JOURNEY');
     }
