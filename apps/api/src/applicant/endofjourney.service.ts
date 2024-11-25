@@ -4,17 +4,9 @@ import {
   InternalServerErrorException,
   Logger,
   OnModuleInit,
-  // OnModuleDestroy,
 } from '@nestjs/common';
 
-import {
-  // getConnection,
-  Connection,
-  EntityManager,
-  // getConnectionManager,
-  createConnection,
-  // getConnectionOptions,
-} from 'typeorm';
+import { Connection, EntityManager, createConnection } from 'typeorm';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
@@ -41,29 +33,6 @@ type IEN_APPLICANT_END_OF_JOURNEY = {
   ha_pcn_id: string;
 };
 
-// let connection: Connection;
-// async function getSingleConnection(): Promise<Connection | null> {
-//   if (connection && connection?.isConnected) {
-//     return connection;
-//   }
-//   try {
-//     const connectionManager = getConnectionManager();
-//     if (connectionManager.has('default')) {
-//       connection = connectionManager.get('default');
-//       if (!connection.isConnected) {
-//         await connection.connect();
-//       }
-//     } else {
-//       connection = await createConnection();
-//     }
-
-//     return connection;
-//   } catch (error) {
-//     // throw error;  // Re-throw the error for proper handling
-//     return null;
-//   }
-// }
-
 @Injectable()
 export class EndOfJourneyService implements OnModuleInit {
   constructor(
@@ -76,7 +45,7 @@ export class EndOfJourneyService implements OnModuleInit {
     // Create the connection when the module initializes
     if (!this.connection || !this.connection.isConnected) {
       this.connection = await createConnection();
-      this.logger.log('Database connection established');
+      this.logger.log('EOJ Database connection established', 'END-OF-JOURNEY');
     }
   }
 
@@ -123,14 +92,6 @@ export class EndOfJourneyService implements OnModuleInit {
       await manager.queryRunner?.release();
     }
   }
-
-  // async onModuleDestroy() {
-  //   this.logger.log('onModuleDestroy', 'END-OF-JOURNEY');
-  //   if (this.connection && this.connection.isConnected) {
-  //     await this.connection.close();
-  //     this.logger.log('Database connection closed');
-  //   }
-  // }
 
   async handleEndOfJourney<T>(
     getter: Getter<T>,
