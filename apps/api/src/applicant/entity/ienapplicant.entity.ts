@@ -123,6 +123,7 @@ export class IENApplicant {
 
   @Column({
     type: 'enum',
+    name: 'end_of_journey',
     enum: END_OF_JOURNEY_FLAG,
     nullable: true, // Optional: to make the column nullable
   })

@@ -96,6 +96,7 @@ export const ApplicantProfile = () => {
           {applicant.pathway && (
             <DetailsItem title='Pathway' text={applicant?.pathway.name} span={6} />
           )}
+          <DetailsItem title='End of Journey' text={applicant?.end_of_journey as string} span={6} />
         </div>
       </div>
     </>

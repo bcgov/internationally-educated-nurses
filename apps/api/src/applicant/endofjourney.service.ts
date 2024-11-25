@@ -4,7 +4,7 @@ import {
   InternalServerErrorException,
   Logger,
   OnModuleInit,
-  OnModuleDestroy,
+  // OnModuleDestroy,
 } from '@nestjs/common';
 
 import {
@@ -65,7 +65,7 @@ type IEN_APPLICANT_END_OF_JOURNEY = {
 // }
 
 @Injectable()
-export class EndOfJourneyService implements OnModuleInit, OnModuleDestroy {
+export class EndOfJourneyService implements OnModuleInit {
   constructor(
     @Inject(Logger) private readonly logger: AppLogger,
     @Inject(IENMasterService)
@@ -124,13 +124,13 @@ export class EndOfJourneyService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  async onModuleDestroy() {
-    this.logger.log('onModuleDestroy', 'END-OF-JOURNEY');
-    if (this.connection && this.connection.isConnected) {
-      await this.connection.close();
-      this.logger.log('Database connection closed');
-    }
-  }
+  // async onModuleDestroy() {
+  //   this.logger.log('onModuleDestroy', 'END-OF-JOURNEY');
+  //   if (this.connection && this.connection.isConnected) {
+  //     await this.connection.close();
+  //     this.logger.log('Database connection closed');
+  //   }
+  // }
 
   async handleEndOfJourney<T>(
     getter: Getter<T>,
