@@ -1,6 +1,12 @@
-import { Inject, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  OnModuleInit,
+} from '@nestjs/common';
 
-import { getConnection, EntityManager } from 'typeorm';
+import { Connection, EntityManager, createConnection } from 'typeorm';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
@@ -28,12 +34,20 @@ type IEN_APPLICANT_END_OF_JOURNEY = {
 };
 
 @Injectable()
-export class EndOfJourneyService {
+export class EndOfJourneyService implements OnModuleInit {
   constructor(
     @Inject(Logger) private readonly logger: AppLogger,
     @Inject(IENMasterService)
     private readonly ienMasterService: IENMasterService,
+    private connection: Connection,
   ) {}
+  async onModuleInit() {
+    // Create the connection when the module initializes
+    if (!this.connection?.isConnected) {
+      this.connection = await createConnection();
+      this.logger.log('EOJ Database connection established', 'END-OF-JOURNEY');
+    }
+  }
 
   /**
    * Entry point
@@ -44,7 +58,12 @@ export class EndOfJourneyService {
       'END-OF-JOURNEY',
     );
 
-    const queryRunner = getConnection().createQueryRunner();
+    const connection = this.connection;
+    if (!connection) {
+      this.logger.error('Connection failed', 'END-OF-JOURNEY');
+      return;
+    }
+    const queryRunner = connection.createQueryRunner('master');
     await queryRunner.startTransaction();
     const manager = queryRunner.manager;
 
@@ -69,6 +88,7 @@ export class EndOfJourneyService {
         throw new InternalServerErrorException('Transaction failed with an unknown error');
       }
     } finally {
+      this.logger.log(`finally`, 'END-OF-JOURNEY');
       await manager.queryRunner?.release();
     }
   }
