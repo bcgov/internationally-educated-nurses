@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useMemo } from 'react';
 
 // 1. Define the shape of the context state
 type SystemMilestone = {
@@ -26,11 +26,12 @@ export const SystemProvider: React.FC<SystemProviderProps> = ({ children }) => {
   const [open, setOpen] = useState<boolean>(false);
   const [selectedMilestone, setSelectedMilestone] = useState<SystemMilestone | null>(null);
 
-  return (
-    <SystemContext.Provider value={{ open, setOpen, selectedMilestone, setSelectedMilestone }}>
-      {children}
-    </SystemContext.Provider>
+  const value = useMemo(
+    () => ({ open, setOpen, selectedMilestone, setSelectedMilestone }),
+    [open, selectedMilestone],
   );
+
+  return <SystemContext.Provider value={value}>{children}</SystemContext.Provider>;
 };
 
 // 4. Custom hook to use the context

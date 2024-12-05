@@ -69,6 +69,9 @@ export const SystemMilestoneTable = ({ category }: MilestoneTableProps) => {
               <th className='px-4' scope='col'>
                 Duration
               </th>
+              <th className='px-4' scope='col'>
+                Notes
+              </th>
 
               <th className='px-4' scope='col'></th>
             </tr>
@@ -84,6 +87,17 @@ export const SystemMilestoneTable = ({ category }: MilestoneTableProps) => {
                   <td className='pl-8 py-5'>{getStatus(audit)}</td>
                   <td className='px-4'>{formatDate(audit.start_date || '')}</td>
                   <td className='px-4'>{getDuration(audit, applicant, milestones)}</td>
+                  <td
+                    className='px-4'
+                    style={{
+                      wordWrap: 'break-word',
+                      wordBreak: 'break-all',
+                      whiteSpace: 'normal',
+                      maxWidth: '100px',
+                    }}
+                  >
+                    {audit.notes}
+                  </td>
 
                   <td className='px-2'>
                     <AclMask acl={[Access.READ_SYSTEM_MILESTONE, Access.WRITE_SYSTEM_MILESTONE]}>

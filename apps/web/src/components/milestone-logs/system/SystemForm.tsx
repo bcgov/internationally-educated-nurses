@@ -106,7 +106,7 @@ export function SystemForm() {
       form.reset({
         ...selectedMilestone,
         start_date: selectedMilestone?.start_date
-          ? parseISO(selectedMilestone.start_date as string)
+          ? parseISO(selectedMilestone.start_date)
           : new Date(),
       });
     }
