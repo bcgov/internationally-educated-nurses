@@ -1,5 +1,4 @@
-import { Fragment, useEffect, useState } from 'react';
-import dayjs from 'dayjs';
+import { Fragment, useState } from 'react';
 
 import { AclMask, Pagination } from '@components';
 import { Access, ApplicantStatusAuditRO, formatDate, StatusCategory } from '@ien/common';
@@ -10,12 +9,11 @@ import { useAuthContext } from '../../AuthContexts';
 import { useSystem } from './SystemContext';
 import { DeleteMilestoneModal } from '@/components/display/DeleteMilestoneModal';
 import { handlePageOptions, getDuration } from '@utils/index';
+import { useMilestones } from '@/components/admin/hooks/useMilestones';
 
 interface MilestoneTableProps {
   category: string | StatusCategory;
 }
-
-const DEFAULT_TAB_PAGE_SIZE = 5;
 
 const getStatus = (milestone: ApplicantStatusAuditRO) => {
   const { status } = milestone.status;
@@ -38,44 +36,22 @@ export const SystemMilestoneTable = ({ category }: MilestoneTableProps) => {
   const { setOpen, selectedMilestone, setSelectedMilestone } = useSystem();
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const { applicant, milestones } = useApplicantContext();
-
-  const [filteredMilestones, setFilteredMilestones] = useState<ApplicantStatusAuditRO[]>([]);
-  const [milestonesInPage, setMilestonesInPage] = useState<ApplicantStatusAuditRO[]>([]);
-  const [editing, setEditing] = useState<ApplicantStatusAuditRO | null>(null);
-  const [activeEdit, setActiveEdit] = useState(0);
-
-  const [pageIndex, setPageIndex] = useState(1);
-  const [pageSize, setPageSize] = useState(DEFAULT_TAB_PAGE_SIZE);
-
-  useEffect(
-    function filterMilestones() {
-      const audits =
-        milestones
-          ?.filter(audit => {
-            return audit.status.category === category;
-          })
-          .sort((b, a) => {
-            if (a.start_date === b.start_date) {
-              return dayjs(a.updated_date).diff(b.updated_date);
-            }
-            return dayjs(a.start_date).diff(b.start_date);
-          }) || [];
-      setFilteredMilestones(audits);
-    },
-    [milestones, category, applicant],
-  );
-
-  useEffect(
-    function updateMilestonesInPage() {
-      if (!filteredMilestones || (pageIndex - 1) * pageSize > filteredMilestones.length) {
-        setPageIndex(1);
-      }
-      const start = (pageIndex - 1) * pageSize;
-      const end = pageIndex * pageSize;
-      setMilestonesInPage(filteredMilestones?.slice(start, end) || []);
-    },
-    [filteredMilestones, pageIndex, pageSize],
-  );
+  const {
+    filteredMilestones,
+    milestonesInPage,
+    pageIndex,
+    pageSize,
+    setPageIndex,
+    setPageSize,
+    editing,
+    setEditing,
+    activeEdit,
+    setActiveEdit,
+  } = useMilestones({
+    milestones,
+    category,
+    applicant,
+  });
 
   return (
     <div>
