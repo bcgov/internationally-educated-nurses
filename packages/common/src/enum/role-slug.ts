@@ -7,4 +7,5 @@ export enum RoleSlug {
   ApplicantRead = 'applicant-read',
   ApplicantWrite = 'applicant-write',
   BccnmNcas = 'bccnm-ncas',
+  SYSTEM_MILESTONE = 'system-milestone',
 }

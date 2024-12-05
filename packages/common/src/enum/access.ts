@@ -8,4 +8,6 @@ export enum Access {
   DATA_EXTRACT = 'data-extract',
   ADMIN = 'admin',
   BCCNM_NCAS = 'bccnm-ncas',
+  READ_SYSTEM_MILESTONE = 'read-system-milestone',
+  WRITE_SYSTEM_MILESTONE = 'write-system-milestone',
 }

@@ -137,7 +137,7 @@ export const SystemMilestoneTable = ({ category }: MilestoneTableProps) => {
                   <td className='px-4'>{getDuration(audit)}</td>
 
                   <td className='px-2'>
-                    <AclMask acl={[Access.APPLICANT_WRITE]}>
+                    <AclMask acl={[Access.READ_SYSTEM_MILESTONE, Access.WRITE_SYSTEM_MILESTONE]}>
                       <button
                         className='mr-4'
                         onClick={() => {
