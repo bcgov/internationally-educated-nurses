@@ -1,16 +1,15 @@
-import { findNextMilestone } from '@ien/common/dist/helper/find-next-milestone';
 import { Fragment, useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 
-import { AclMask, PageOptions, Pagination } from '@components';
+import { AclMask, Pagination } from '@components';
 import { Access, ApplicantStatusAuditRO, formatDate, StatusCategory } from '@ien/common';
 import editIcon from '@assets/img/edit.svg';
 import deleteIcon from '@assets/img/trash_can.svg';
-import { getHumanizedDuration } from '@services';
 import { useApplicantContext } from '../../applicant/ApplicantContext';
 import { useAuthContext } from '../../AuthContexts';
 import { useSystem } from './SystemContext';
 import { DeleteMilestoneModal } from '@/components/display/DeleteMilestoneModal';
+import { handlePageOptions, getDuration } from '@utils/index';
 
 interface MilestoneTableProps {
   category: string | StatusCategory;
@@ -78,32 +77,6 @@ export const SystemMilestoneTable = ({ category }: MilestoneTableProps) => {
     [filteredMilestones, pageIndex, pageSize],
   );
 
-  const handlePageOptions = (options: PageOptions) => {
-    setPageSize(options.pageSize);
-    setPageIndex(options.pageIndex);
-  };
-
-  const getNextMilestone = (
-    milestone: ApplicantStatusAuditRO,
-  ): ApplicantStatusAuditRO | undefined => {
-    const mergedMilestones =
-      applicant?.jobs
-        ?.map(job => job.status_audit || [])
-        .reduce((a, c) => a.concat(c), [...milestones]) || milestones;
-    return findNextMilestone(milestone, mergedMilestones);
-  };
-
-  const getDuration = (milestone: ApplicantStatusAuditRO): string => {
-    const start = milestone.start_date;
-    if (!start) return '-';
-
-    const end = getNextMilestone(milestone)?.start_date;
-
-    if (start === end) return '0 days';
-
-    return getHumanizedDuration(start, end);
-  };
-
   return (
     <div>
       <div className='text-bcGray pb-2'>Showing {milestonesInPage.length} logs</div>
@@ -134,7 +107,7 @@ export const SystemMilestoneTable = ({ category }: MilestoneTableProps) => {
                 >
                   <td className='pl-8 py-5'>{getStatus(audit)}</td>
                   <td className='px-4'>{formatDate(audit.start_date || '')}</td>
-                  <td className='px-4'>{getDuration(audit)}</td>
+                  <td className='px-4'>{getDuration(audit, applicant, milestones)}</td>
 
                   <td className='px-2'>
                     <AclMask acl={[Access.READ_SYSTEM_MILESTONE, Access.WRITE_SYSTEM_MILESTONE]}>
@@ -181,7 +154,7 @@ export const SystemMilestoneTable = ({ category }: MilestoneTableProps) => {
       <Pagination
         id='milestone-page'
         pageOptions={{ pageIndex, pageSize, total: filteredMilestones.length }}
-        onChange={handlePageOptions}
+        onChange={handlePageOptions(setPageSize, setPageIndex)}
       />
       {!!selectedMilestone && (
         <DeleteMilestoneModal
