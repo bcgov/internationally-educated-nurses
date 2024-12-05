@@ -70,6 +70,9 @@ export enum STATUS {
   BCCNM_APPLICATION_COMPLETE_DATE = 'BCCNM Application Complete Date',
   BCCNM_DECISION_DATE = 'BCCNM Decision Date',
   BCCNM_REGISTRATION_DATE = 'BCCNM Registration Date',
+
+  // System Category
+  RE_ENGAGED = 'Re-engaged',
 }
 export const BCCNM_NEW_FIELDS = [
   STATUS.BCCNM_APPLICATION_COMPLETE_DATE,
@@ -206,7 +209,9 @@ export const BCCNM_LICENSE = [
   STATUS.BCCNM_FULL_LICENSE_RN,
 ];
 
-export const MILESTONES = [...LIC_REG_STAGE, ...RECRUITMENT_STAGE, ...IMMIGRATION_STAGE];
+export const SYSTEM = [STATUS.RE_ENGAGED];
+
+export const MILESTONES = [...LIC_REG_STAGE, ...RECRUITMENT_STAGE, ...IMMIGRATION_STAGE, ...SYSTEM];
 
 export enum END_OF_JOURNEY_FLAG {
   JOURNEY_COMPLETE = 'journey_complete',
