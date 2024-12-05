@@ -8,6 +8,7 @@ module.exports = {
     },
     extend: {
       colors: {
+        primary: '#003366',
         bcYellowPrimary: '#FCBA19',
         bcBlack: '#313132',
         bcDeepBlack: '#272833',

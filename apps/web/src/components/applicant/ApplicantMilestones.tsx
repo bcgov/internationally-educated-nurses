@@ -8,6 +8,8 @@ import { useApplicantContext } from './ApplicantContext';
 import { MilestoneTable } from '../milestone-logs/MilestoneTable';
 import { Recruitment } from '../milestone-logs/Recruitment';
 import { useAuthContext } from '../AuthContexts';
+import { System } from '../milestone-logs/System';
+import { SystemProvider } from '../milestone-logs/system/SystemContext';
 
 export const ApplicantMilestones = () => {
   const { applicant } = useApplicantContext();
@@ -27,6 +29,21 @@ export const ApplicantMilestones = () => {
     [applicant, statusCategory],
   );
 
+  const renderTabContent = () => {
+    switch (statusCategory) {
+      case StatusCategory.RECRUITMENT:
+        return <Recruitment />;
+      case StatusCategory.SYSTEM:
+        return (
+          <SystemProvider>
+            <System />
+          </SystemProvider>
+        );
+      default:
+        return <MilestoneTable category={statusCategory} />;
+    }
+  };
+
   return (
     <div className='border-2 rounded px-5 my-5 pb-6 bg-white'>
       <div className='flex items-center border-b py-4'>
@@ -40,11 +57,7 @@ export const ApplicantMilestones = () => {
             categoryIndex={statusCategory}
             onTabClick={(value: string) => setStatusCategory(value as StatusCategory)}
           />
-          {statusCategory === StatusCategory.RECRUITMENT ? (
-            <Recruitment />
-          ) : (
-            <MilestoneTable category={statusCategory} />
-          )}
+          {renderTabContent()}
         </>
       ) : (
         <>

@@ -144,4 +144,6 @@ export type MilestoneDurationTableEntry<T> = {
   [STATUS.BCCNM_DECISION_DATE]?: T;
 
   [STATUS.BCCNM_REGISTRATION_DATE]?: T;
+
+  [STATUS.RE_ENGAGED]?: T;
 };
