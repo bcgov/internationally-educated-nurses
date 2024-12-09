@@ -387,10 +387,11 @@ export class ExternalAPIService {
     const bccnm_new_statuses = statuses.filter(value =>
       BCCNM_NEW_FIELDS.some(bccnm_new_field => value.status === bccnm_new_field.toString()),
     );
+    const APPLIED_TO_BCCNM_ID = '8a9b0d13-f5d7-4be3-8d38-11e5459f9e9a';
     await Promise.all(
       applicants.map(async a => {
-        const audits: { id: string; status_id: string }[] = await manager.query(`
-          SELECT "audit"."id" id, "status"."id" status_id
+        const audits: { id: string; status_id: string; notes: string }[] = await manager.query(`
+          SELECT "audit"."id" id, "status"."id" status_id, "audit"."notes" notes
           FROM "ien_applicant_status_audit" "audit"
           INNER JOIN "ien_applicant_status" "status" ON "status"."id" = "audit"."status_id"
           WHERE
@@ -402,8 +403,11 @@ export class ExternalAPIService {
         if (!audits?.length) return;
 
         const removed = audits.filter(
-          ({ status_id }) => !a.milestones?.some(m => m.id.toLowerCase() === status_id),
+          ({ status_id, notes }) =>
+            !(status_id === APPLIED_TO_BCCNM_ID && notes?.includes('Updated by BCCNM')) &&
+            !a.milestones?.some(m => m.id.toLowerCase() === status_id),
         );
+
         if (removed.length > 0) {
           const result = await manager.delete<IENApplicantStatusAudit>(
             IENApplicantStatusAudit,
