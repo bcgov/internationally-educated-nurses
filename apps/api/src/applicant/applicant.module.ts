@@ -1,5 +1,7 @@
 import { Logger, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+
 import { MailModule } from 'src/mail/mail.module';
 import { IENApplicant } from './entity/ienapplicant.entity';
 import { IENApplicantAudit } from './entity/ienapplicant-audit.entity';
@@ -47,6 +49,7 @@ import { EndOfJourneyService } from './endofjourney.service';
       Pathway,
       SyncApplicantsAudit,
     ]),
+    EventEmitterModule.forRoot(),
     AuthModule,
     EmployeeModule,
     MailModule,

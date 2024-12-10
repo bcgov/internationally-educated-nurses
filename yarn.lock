@@ -1353,6 +1353,7 @@ __metadata:
     "@nestjs/cli": 8.0.0
     "@nestjs/common": 9.3.9
     "@nestjs/core": 9.3.9
+    "@nestjs/event-emitter": ^2.1.1
     "@nestjs/platform-express": 9.4.3
     "@nestjs/schematics": 8.0.0
     "@nestjs/swagger": 5.1.5
@@ -1464,7 +1465,7 @@ __metadata:
     cookie: 0.4.2
     cy-verify-downloads: 0.1.8
     cypress: 13.0.0
-    date-fns: ^4.1.0
+    date-fns: 4.0.0
     dotenv: 16.0.0
     eslint: 8.57.0
     eslint-config-next: 14.2.5
@@ -2169,6 +2170,18 @@ __metadata:
     "@nestjs/websockets":
       optional: true
   checksum: b2a29c8b61b8b7bbc8d883d4ff9aed80504e28c11bd627fccbeb11a7920559b8d885efecee4799c3bd9c2cd0224dd519c7b2dcdfa9f523855529143596e1837a
+  languageName: node
+  linkType: hard
+
+"@nestjs/event-emitter@npm:^2.1.1":
+  version: 2.1.1
+  resolution: "@nestjs/event-emitter@npm:2.1.1"
+  dependencies:
+    eventemitter2: 6.4.9
+  peerDependencies:
+    "@nestjs/common": ^8.0.0 || ^9.0.0 || ^10.0.0
+    "@nestjs/core": ^8.0.0 || ^9.0.0 || ^10.0.0
+  checksum: 41736b7a5603a23f9d41acfd27408b8dfce6f20b100429c4bb6b8ea444921796ecdc73dc3eda8c5a2fec1c3e5123d7c81337563c611856886dca082dc4d71f10
   languageName: node
   linkType: hard
 
@@ -6665,6 +6678,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"date-fns@npm:4.0.0":
+  version: 4.0.0
+  resolution: "date-fns@npm:4.0.0"
+  checksum: dd7f9962985e5b08165d9cd06350598c6042b7e1593c7b73c2eaceb07bb13c5b29f887705a285a8a4a9ffb2bbf669a285ece01691f169a8a0d01de7b23779bc0
+  languageName: node
+  linkType: hard
+
 "date-fns@npm:^2.0.1, date-fns@npm:^2.24.0":
   version: 2.29.1
   resolution: "date-fns@npm:2.29.1"
@@ -8039,6 +8059,13 @@ __metadata:
   version: 6.4.7
   resolution: "eventemitter2@npm:6.4.7"
   checksum: 1b36a77e139d6965ebf3a36c01fa00c089ae6b80faa1911e52888f40b3a7057b36a2cc45dcd1ad87cda3798fe7b97a0aabcbb8175a8b96092a23bb7d0f039e66
+  languageName: node
+  linkType: hard
+
+"eventemitter2@npm:6.4.9":
+  version: 6.4.9
+  resolution: "eventemitter2@npm:6.4.9"
+  checksum: be59577c1e1c35509c7ba0e2624335c35bbcfd9485b8a977384c6cc6759341ea1a98d3cb9dbaa5cea4fff9b687e504504e3f9c2cc1674cf3bd8a43a7c74ea3eb
   languageName: node
   linkType: hard
 

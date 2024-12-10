@@ -172,6 +172,7 @@ export function SystemForm() {
                       <PopoverTrigger asChild>
                         <FormControl>
                           <UiButton
+                            disabled
                             variant={'outline'}
                             className={cn(
                               'w-[240px] pl-3 text-left font-normal',
@@ -191,6 +192,7 @@ export function SystemForm() {
                           selected={field.value}
                           onSelect={field.onChange}
                           autoFocus
+                          disabled
                         />
                       </PopoverContent>
                     </Popover>
