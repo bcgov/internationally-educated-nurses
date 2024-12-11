@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { CalendarIcon } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 
@@ -61,6 +61,7 @@ export function SystemForm() {
 
   const milestones = useGetMilestoneOptions(StatusCategory.SYSTEM);
   const { applicant, fetchApplicant } = useApplicantContext();
+  const [calendarOpen, setCalendarOpen] = useState(false);
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
@@ -168,11 +169,10 @@ export function SystemForm() {
                 render={({ field }) => (
                   <FormItem className='flex flex-col'>
                     <FormLabel>Start date</FormLabel>
-                    <Popover>
+                    <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <UiButton
-                            disabled
                             variant={'outline'}
                             className={cn(
                               'w-[240px] pl-3 text-left font-normal',
@@ -190,9 +190,11 @@ export function SystemForm() {
                           mode='single'
                           showOutsideDays
                           selected={field.value}
-                          onSelect={field.onChange}
                           autoFocus
-                          disabled
+                          onSelect={(value) => {
+                            field.onChange(value);
+                            setCalendarOpen(false);
+                          }}
                         />
                       </PopoverContent>
                     </Popover>

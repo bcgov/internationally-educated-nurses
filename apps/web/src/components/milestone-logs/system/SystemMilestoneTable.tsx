@@ -146,14 +146,13 @@ export const SystemMilestoneTable = ({ category }: MilestoneTableProps) => {
         pageOptions={{ pageIndex, pageSize, total: filteredMilestones.length }}
         onChange={handlePageOptions(setPageSize, setPageIndex)}
       />
-      {!!selectedMilestone && (
-        <DeleteMilestoneModal
-          onClose={() => setDeleteModalVisible(false)}
-          visible={deleteModalVisible}
-          userId={authUser?.user_id}
-          milestoneId={selectedMilestone.id}
-        />
-      )}
+
+      <DeleteMilestoneModal
+        onClose={() => setDeleteModalVisible(false)}
+        visible={deleteModalVisible}
+        userId={authUser?.user_id}
+        milestoneId={selectedMilestone?.id ?? '0'}
+      />
     </div>
   );
 };

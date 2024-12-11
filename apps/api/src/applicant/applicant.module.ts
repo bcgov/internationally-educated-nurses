@@ -49,7 +49,7 @@ import { EndOfJourneyService } from './endofjourney.service';
       Pathway,
       SyncApplicantsAudit,
     ]),
-    EventEmitterModule.forRoot(),
+    EventEmitterModule.forRoot({ wildcard: true }),
     AuthModule,
     EmployeeModule,
     MailModule,

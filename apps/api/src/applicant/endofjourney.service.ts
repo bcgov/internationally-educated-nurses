@@ -96,8 +96,8 @@ export class EndOfJourneyService implements OnModuleInit {
     }
   }
 
-  async handleEndOfJourney<T>(
-    getter: Getter<T>,
+  async handleEndOfJourney<T, U = any>(
+    getter: Getter<T, U>,
     setter: Setter<T>,
     manager: EntityManager,
   ): Promise<void> {
@@ -118,7 +118,12 @@ export class EndOfJourneyService implements OnModuleInit {
    * Checking for end of journey COMPLETED
    * QUITERIA:
    */
-  getCompletedLists: Getter<IEN_APPLICANT_END_OF_JOURNEY> = async manager => {
+  getCompletedLists: Getter<
+    IEN_APPLICANT_END_OF_JOURNEY,
+    (
+      query: SelectQueryBuilder<IENApplicantStatusAudit>,
+    ) => SelectQueryBuilder<IENApplicantStatusAudit>
+  > = async (manager, meta = query => query) => {
     const yesterday = dayjs().tz('America/Los_Angeles').subtract(1, 'day').toDate();
     const oneYearBeforeYesterday = formatDateInPST(
       dayjs(yesterday).tz('America/Los_Angeles').subtract(1, 'year').toDate(),
@@ -151,6 +156,7 @@ export class EndOfJourneyService implements OnModuleInit {
       .groupBy('audit.applicant_id') // Group by applicant_id
       .addGroupBy('status.id')
       .addGroupBy('job.id');
+    query = meta(query);
     query = this.checkReEngagedStatusForEoJCompleteQuery(query);
     const applicants = await query.getRawMany();
 
@@ -239,12 +245,7 @@ export class EndOfJourneyService implements OnModuleInit {
     const results = [];
     for (const applicant of list) {
       // update the end_of_journey_flag and updated_date of the applicant
-      let query = manager
-        .createQueryBuilder()
-        .where('id = :id', { id: applicant.applicant_id })
-        .andWhere('(end_of_journey != :end_of_journey OR end_of_journey IS NULL)', {
-          end_of_journey: END_OF_JOURNEY_FLAG.JOURNEY_INCOMPLETE,
-        });
+      let query = this.getIncompleteQuery(manager, applicant.applicant_id);
       query = this.checkReEngagedStatusForEoJIncompleteQuery(query);
 
       const result = await query
@@ -258,71 +259,53 @@ export class EndOfJourneyService implements OnModuleInit {
     }
     this.logger.log({ results }, 'END-OF-JOURNEY');
   };
+  getIncompleteQuery(
+    manager: EntityManager,
+    applicant_id: string,
+  ): SelectQueryBuilder<IENApplicant> {
+    return manager
+      .createQueryBuilder()
+      .from(IENApplicant, 'ien_applicants')
+      .where('id = :id', { id: applicant_id })
+      .andWhere('(end_of_journey != :end_of_journey OR end_of_journey IS NULL)', {
+        end_of_journey: END_OF_JOURNEY_FLAG.JOURNEY_INCOMPLETE,
+      });
+  }
   checkReEngagedStatusForEoJIncompleteQuery(
-    query: SelectQueryBuilder<IENApplicantStatusAudit>,
-  ): SelectQueryBuilder<IENApplicantStatusAudit> {
+    query: SelectQueryBuilder<IENApplicant>,
+  ): SelectQueryBuilder<IENApplicant> {
     return query.andWhere(
       `NOT EXISTS (
           SELECT 1
           FROM ien_applicant_status_audit reengaged_audit
-          JOIN ien_applicant_status reengaged_status ON reengaged_audit.status_id = reengaged_status.id
+          JOIN ien_applicant_status reengaged_status 
+            ON reengaged_audit.status_id = reengaged_status.id
           WHERE reengaged_audit.applicant_id = ien_applicants.id
-          AND reengaged_status.status = :reEngagedStatus
-          AND reengaged_audit.start_date = (
+            AND reengaged_status.status = :reEngagedStatus
+            AND (
               SELECT MAX(inner_audit.start_date)
               FROM ien_applicant_status_audit inner_audit
-              JOIN ien_applicant_status inner_status ON inner_audit.status_id = inner_status.id
+              JOIN ien_applicant_status inner_status 
+                ON inner_audit.status_id = inner_status.id
               WHERE inner_audit.applicant_id = ien_applicants.id
-              AND inner_status.status = :reEngagedStatus
-          )
-          AND reengaged_audit.start_date > reengaged_audit.effective_date
-      )`,
-      { reEngagedStatus: STATUS.RE_ENGAGED },
+                AND inner_status.status = :reEngagedStatus
+            ) > (
+              SELECT MAX(not_proceeding_audit.start_date)
+              FROM ien_applicant_status_audit not_proceeding_audit
+              JOIN ien_applicant_status not_proceeding_status 
+                ON not_proceeding_audit.status_id = not_proceeding_status.id
+              WHERE not_proceeding_audit.applicant_id = ien_applicants.id
+                AND not_proceeding_status.status = :notProceedingStatus
+            )
+        )`,
+      { reEngagedStatus: STATUS.RE_ENGAGED, notProceedingStatus: STATUS.NOT_PROCEEDING },
     );
-  }
-
-  /**
-   * Event handler for create re-engaged applicants
-   */
-  @OnEvent(SystemMilestoneEvent.CREATE_REENGAGED)
-  async handleReEngagedCreateEvent(payload: IENApplicantStatusAudit, event: SystemMilestoneEvent) {
-    this.logger.log(`Handling re-engaged event: ${event}`, 'END-OF-JOURNEY');
-
-    const connection = this.connection;
-    if (!connection) {
-      this.logger.error('Connection failed', 'END-OF-JOURNEY');
-      return;
-    }
-    const queryRunner = connection.createQueryRunner('master');
-    await queryRunner.startTransaction();
-    const manager = queryRunner.manager;
-    await this.cleanEndOfJourneyFlag(manager, payload);
-    await queryRunner.commitTransaction();
-  }
-
-  /**
-   * Event handler for update re-engaged applicants
-   */
-  @OnEvent(SystemMilestoneEvent.UPDATE_REENGAGED)
-  async handleReEngagedUpdateEvent(payload: IENApplicantStatusAudit, event: SystemMilestoneEvent) {
-    this.logger.log(`Handling re-engaged event: ${event}`, 'END-OF-JOURNEY');
-
-    const connection = this.connection;
-    if (!connection) {
-      this.logger.error('Connection failed', 'END-OF-JOURNEY');
-      return;
-    }
-    const queryRunner = connection.createQueryRunner('master');
-    await queryRunner.startTransaction();
-    const manager = queryRunner.manager;
-    await this.cleanEndOfJourneyFlag(manager, payload);
-    await queryRunner.commitTransaction();
   }
 
   /**
    * Event handler for delete re-engaged applicants
    */
-  @OnEvent(SystemMilestoneEvent.DELETE_REENGAGED)
+  @OnEvent(`${SystemMilestoneEvent.REENGAGED}.*`)
   async handleReEngagedDeleteEvent(
     payload: IENApplicantStatusAudit,
     event: SystemMilestoneEvent,
@@ -334,7 +317,7 @@ export class EndOfJourneyService implements OnModuleInit {
       this.logger.error('Connection failed', 'END-OF-JOURNEY');
       return;
     }
-    const queryRunner = connection.createQueryRunner('master');
+    const queryRunner = connection.createQueryRunner();
     await queryRunner.startTransaction();
     const manager = queryRunner.manager;
 
@@ -353,8 +336,15 @@ export class EndOfJourneyService implements OnModuleInit {
       `Handling re-engaged for journey complete for applicant ${payload.applicant.id}`,
       'END-OF-JOURNEY',
     );
-    const completedList = await this.getCompletedLists(manager, payload);
-    this.setCompletedLists(manager, completedList);
+    const completedList = await this.getCompletedLists(manager, query =>
+      query.andWhere('audit.applicant_id = :id', { id: payload.applicant.id }),
+    );
+
+    if (completedList.length === 0) {
+      this.cleanEndOfJourneyFlag(manager, payload);
+    } else {
+      this.setCompletedLists(manager, completedList);
+    }
   }
 
   private async handleReEngagedForJourneyIncomplete(
@@ -399,8 +389,20 @@ export class EndOfJourneyService implements OnModuleInit {
       return result;
     }, []);
 
-    const notProceedingList = await this.getNotProceedingLists(manager, applicants as any);
-    this.setNotProceedingLists(manager, notProceedingList);
+    const notProceedingList = await this.getNotProceedingLists(
+      manager,
+      applicants as AtsApplicant[],
+    );
+
+    if (notProceedingList.length > 0) {
+      let query = this.getIncompleteQuery(manager, payload.applicant.id);
+      query = this.checkReEngagedStatusForEoJIncompleteQuery(query);      
+      if ((await query.getCount()) === 0) {
+        this.cleanEndOfJourneyFlag(manager, payload);
+      } else {
+        this.setNotProceedingLists(manager, notProceedingList);
+      }
+    }
   }
 
   private async cleanEndOfJourneyFlag(manager: EntityManager, payload: IENApplicantStatusAudit) {
