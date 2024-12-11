@@ -1353,7 +1353,7 @@ __metadata:
     "@nestjs/cli": 8.0.0
     "@nestjs/common": 9.3.9
     "@nestjs/core": 9.3.9
-    "@nestjs/event-emitter": ^2.1.1
+    "@nestjs/event-emitter": 2.1.1
     "@nestjs/platform-express": 9.4.3
     "@nestjs/schematics": 8.0.0
     "@nestjs/swagger": 5.1.5
@@ -2173,7 +2173,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/event-emitter@npm:^2.1.1":
+"@nestjs/event-emitter@npm:2.1.1":
   version: 2.1.1
   resolution: "@nestjs/event-emitter@npm:2.1.1"
   dependencies:
