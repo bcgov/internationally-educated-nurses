@@ -25,6 +25,19 @@ services:
     volumes:
       - ./node_modules:/node_modules
       - ./packages:/packages
+  
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest # later than 22.0.1
+    container_name: ${PROJECT}_keycloak
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KC_ADMIN}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_ADMIN_PASSWORD}
+    command: 'start-dev --import-realm'
+    volumes:
+      - ./keycloak/realm-ien.json:/opt/keycloak/data/import/realm-ien.json
+    ports:
+      - '8080:8080'
+
   api:
     image: ${PROJECT}_base
     container_name: ${PROJECT}_api
