@@ -190,11 +190,10 @@ export function SystemForm() {
                           mode='single'
                           showOutsideDays
                           selected={field.value}
+                          defaultMonth={field.value}
                           autoFocus
-                          onSelect={value => {
-                            field.onChange(value);
-                            setCalendarOpen(false);
-                          }}
+                          onSelect={field.onChange}
+                          onDayClick={() => setCalendarOpen(false)}
                         />
                       </PopoverContent>
                     </Popover>
