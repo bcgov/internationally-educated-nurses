@@ -44,7 +44,7 @@ import { useSystem } from './SystemContext';
 
 const formSchema = z.object({
   id: z.string().optional(),
-  status: z.string(),
+  status: z.string().min(1, { message: 'Milestone is required' }),
   start_date: z.date(),
   notes: z.string().optional(),
 });
