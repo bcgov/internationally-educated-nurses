@@ -71,7 +71,7 @@ export const Calendar = ({
         ...classNames,
       }}
       components={{
-        Dropdown: ({ value, onChange, options, ...props }: DropdownProps) => {
+        Dropdown: ({ value, onChange, options }: DropdownProps) => {
           const selected = options?.find(child => child.value === value);
           const handleChange = (value: string) => {
             const changeEvent = {
