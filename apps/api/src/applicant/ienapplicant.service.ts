@@ -3,7 +3,16 @@ import dayjs from 'dayjs';
 import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { FindManyOptions, getManager, In, IsNull, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ApplicantRO, EmployeeRO, HealthAuthorities, isAdmin, StatusCategory } from '@ien/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+
+import {
+  ApplicantRO,
+  EmployeeRO,
+  HealthAuthorities,
+  isAdmin,
+  STATUS,
+  StatusCategory,
+} from '@ien/common';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicant } from './entity/ienapplicant.entity';
 import { IENUsers } from './entity/ienusers.entity';
@@ -23,6 +32,7 @@ import {
 import { IENHaPcn } from './entity/ienhapcn.entity';
 import { IENApplicantRecruiter } from './entity/ienapplicant-employee.entity';
 import { IENApplicantActiveFlag } from './entity/ienapplicant-active-flag.entity';
+import { SystemMilestoneEvent } from 'src/common/system-milestone-event';
 
 @Injectable()
 export class IENApplicantService {
@@ -42,6 +52,7 @@ export class IENApplicantService {
     private readonly haPcnRepository: Repository<IENHaPcn>,
     @InjectRepository(IENApplicantRecruiter)
     private readonly recruiterRepository: Repository<IENApplicantRecruiter>,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   /**
@@ -335,6 +346,14 @@ export class IENApplicantService {
       await manager.update<IENApplicant>(IENApplicant, status_audit.applicant.id, {
         updated_date: new Date(),
       });
+      // handle update re-engaged
+      if (status_audit.status.status === STATUS.RE_ENGAGED) {
+        this.eventEmitter.emit(
+          SystemMilestoneEvent.CREATE_REENGAGED,
+          status_audit,
+          SystemMilestoneEvent.CREATE_REENGAGED,
+        );
+      }
       return status_audit;
     });
     return status_audit;
@@ -401,6 +420,15 @@ export class IENApplicantService {
       );
     });
 
+    // handle update re-engaged
+    if (audit.status.status === STATUS.RE_ENGAGED) {
+      this.eventEmitter.emit(
+        SystemMilestoneEvent.UPDATE_REENGAGED,
+        audit,
+        SystemMilestoneEvent.UPDATE_REENGAGED,
+      );
+    }
+
     return audit;
   }
 
@@ -432,6 +460,15 @@ export class IENApplicantService {
         [status.applicant.id],
         manager,
       );
+
+      // handle delete re-engaged
+      if (status.status.status === STATUS.RE_ENGAGED) {
+        this.eventEmitter.emit(
+          SystemMilestoneEvent.DELETE_REENGAGED,
+          status,
+          SystemMilestoneEvent.DELETE_REENGAGED,
+        );
+      }
     });
   }
 

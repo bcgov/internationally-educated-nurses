@@ -17,25 +17,38 @@
     "@fortawesome/free-solid-svg-icons": "6.5.2",
     "@fortawesome/react-fontawesome": "0.2.2",
     "@headlessui/react": "2.1.2",
+    "@hookform/resolvers": "3.9.1",
     "@ien/common": "1.0.2",
+    "@radix-ui/react-dialog": "1.1.2",
+    "@radix-ui/react-label": "2.1.0",
+    "@radix-ui/react-popover": "1.1.2",
+    "@radix-ui/react-select": "2.1.2",
+    "@radix-ui/react-slot": "1.1.0",
     "@types/cookie": "0.4.1",
     "@types/cookies": "0.7.7",
     "axios": "0.28.0",
+    "class-variance-authority": "0.7.1",
     "classnames": "2.3.1",
     "cookie": "0.4.2",
+    "date-fns": "4.0.0",
     "eventemitter3": "4.0.7",
     "formik": "2.4.6",
     "lodash": "4.17.21",
+    "lucide-react": "0.464.0",
     "next": "14.2.5",
     "oidc-client-ts": "3.0.1",
     "react": "18.3.1",
     "react-datepicker": "4.8.0",
+    "react-day-picker": "9.4.1",
     "react-dom": "18.3.1",
+    "react-hook-form": "7.53.2",
     "react-oidc-context": "2.3.0",
     "react-select": "5.8.0",
     "react-toastify": "10.0.5",
+    "tailwind-merge": "2.5.5",
     "use-http": "1.0.26",
-    "xlsx-js-style": "1.2.0"
+    "xlsx-js-style": "1.2.0",
+    "zod": "3.23.8"
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "14.2.5",
@@ -60,6 +73,6 @@
     "postcss-loader": "8.1.1",
     "react-test-renderer": "17.0.2",
     "tailwindcss": "2.2.19",
-    "typescript": "4.5.2"
+    "typescript": "5.7.2"
   }
 }

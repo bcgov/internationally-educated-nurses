@@ -4,6 +4,7 @@ export const milestoneTabs = [
   { title: 'Licensing/Registration', value: StatusCategory.LICENSING_REGISTRATION },
   { title: 'Recruitment', value: StatusCategory.RECRUITMENT },
   { title: 'BC PNP', value: StatusCategory.BC_PNP },
+  { title: 'System', value: StatusCategory.SYSTEM },
 ];
 
 export const menuBarTabs = [
