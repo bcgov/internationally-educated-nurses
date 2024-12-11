@@ -35,6 +35,17 @@ type IEN_APPLICANT_END_OF_JOURNEY = {
   status: string;
   ha_pcn_id: string;
 };
+type ApplicantWithMilestones = {
+  applicant_id: string;
+  milestones: {
+    id: string;
+    name: string;
+    start_date: string;
+  }[];
+};
+type GetEoJCompletedListsMeta = (
+  query: SelectQueryBuilder<IENApplicantStatusAudit>,
+) => SelectQueryBuilder<IENApplicantStatusAudit>;
 
 @Injectable()
 export class EndOfJourneyService implements OnModuleInit {
@@ -72,7 +83,7 @@ export class EndOfJourneyService implements OnModuleInit {
 
     try {
       // handle end of journey: COMPLETED
-      await this.handleEndOfJourney<IEN_APPLICANT_END_OF_JOURNEY>(
+      await this.handleEndOfJourney<IEN_APPLICANT_END_OF_JOURNEY, GetEoJCompletedListsMeta>(
         this.getCompletedLists,
         this.setCompletedLists,
         manager,
@@ -96,7 +107,7 @@ export class EndOfJourneyService implements OnModuleInit {
     }
   }
 
-  async handleEndOfJourney<T, U = any>(
+  async handleEndOfJourney<T, U = unknown>(
     getter: Getter<T, U>,
     setter: Setter<T>,
     manager: EntityManager,
@@ -118,12 +129,10 @@ export class EndOfJourneyService implements OnModuleInit {
    * Checking for end of journey COMPLETED
    * QUITERIA:
    */
-  getCompletedLists: Getter<
-    IEN_APPLICANT_END_OF_JOURNEY,
-    (
-      query: SelectQueryBuilder<IENApplicantStatusAudit>,
-    ) => SelectQueryBuilder<IENApplicantStatusAudit>
-  > = async (manager, meta = query => query) => {
+  getCompletedLists: Getter<IEN_APPLICANT_END_OF_JOURNEY, GetEoJCompletedListsMeta> = async (
+    manager,
+    meta = query => query,
+  ) => {
     const yesterday = dayjs().tz('America/Los_Angeles').subtract(1, 'day').toDate();
     const oneYearBeforeYesterday = formatDateInPST(
       dayjs(yesterday).tz('America/Los_Angeles').subtract(1, 'year').toDate(),
@@ -370,8 +379,8 @@ export class EndOfJourneyService implements OnModuleInit {
       .where('applicant.id = :id', { id: payload.applicant.id });
 
     const rawResults = await query.getRawMany();
-    const applicants = rawResults.reduce((result, row) => {
-      let applicant = result.find((a: any) => a.applicant_id === row.applicant_id);
+    const applicants = rawResults.reduce<ApplicantWithMilestones[]>((result, row) => {
+      let applicant = result.find(a => a.applicant_id === row.applicant_id);
 
       if (!applicant) {
         applicant = { applicant_id: row.applicant_id, milestones: [] };
