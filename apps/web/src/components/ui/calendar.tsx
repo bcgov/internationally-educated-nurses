@@ -73,6 +73,10 @@ export const Calendar = ({
       components={{
         Dropdown: ({ value, onChange, options }: DropdownProps) => {
           const selected = options?.find(child => child.value === value);
+          const isYearDropdown = options && options.length > 12;
+          const sortedOptions = isYearDropdown
+            ? options?.sort((a, b) => b.value - a.value)
+            : options;
           const handleChange = (value: string) => {
             const changeEvent = {
               target: { value },
@@ -86,12 +90,14 @@ export const Calendar = ({
                 handleChange(value);
               }}
             >
-              <SelectTrigger className='pr-1.5 focus:ring-0'>
+              <SelectTrigger
+                className={cn('pr-1.5 focus:ring-0', isYearDropdown ? 'w-auto' : 'w-[104px]')}
+              >
                 <SelectValue>{selected?.label}</SelectValue>
               </SelectTrigger>
               <SelectContent position='popper'>
                 <ScrollArea className='h-80'>
-                  {options?.map((option, id: number) => (
+                  {sortedOptions?.map((option, id: number) => (
                     <SelectItem
                       key={`${option.value}-${id}`}
                       value={option.value?.toString() ?? ''}
