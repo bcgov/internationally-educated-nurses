@@ -191,7 +191,7 @@ export function SystemForm() {
                           showOutsideDays
                           selected={field.value}
                           autoFocus
-                          onSelect={(value) => {
+                          onSelect={value => {
                             field.onChange(value);
                             setCalendarOpen(false);
                           }}
