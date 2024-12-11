@@ -11,7 +11,7 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 
-import { AtsApplicant, END_OF_JOURNEY_FLAG, IENApplicantStatusRO, STATUS } from '@ien/common';
+import { AtsApplicant, END_OF_JOURNEY_FLAG, STATUS } from '@ien/common';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantStatusAudit } from './entity/ienapplicant-status-audit.entity';
 import { IENMasterService } from './ien-master.service';
@@ -396,7 +396,7 @@ export class EndOfJourneyService implements OnModuleInit {
 
     if (notProceedingList.length > 0) {
       let query = this.getIncompleteQuery(manager, payload.applicant.id);
-      query = this.checkReEngagedStatusForEoJIncompleteQuery(query);      
+      query = this.checkReEngagedStatusForEoJIncompleteQuery(query);
       if ((await query.getCount()) === 0) {
         this.cleanEndOfJourneyFlag(manager, payload);
       } else {
