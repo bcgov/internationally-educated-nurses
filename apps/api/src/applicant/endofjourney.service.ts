@@ -6,7 +6,7 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 
-import { Connection, EntityManager, createConnection } from 'typeorm';
+import { Connection, EntityManager, SelectQueryBuilder, createConnection } from 'typeorm';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
@@ -15,6 +15,9 @@ import { AtsApplicant, END_OF_JOURNEY_FLAG, STATUS } from '@ien/common';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantStatusAudit } from './entity/ienapplicant-status-audit.entity';
 import { IENMasterService } from './ien-master.service';
+import { OnEvent } from '@nestjs/event-emitter';
+import { SystemMilestoneEvent } from 'src/common/system-milestone-event';
+import { IENApplicant } from './entity/ienapplicant.entity';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -32,6 +35,17 @@ type IEN_APPLICANT_END_OF_JOURNEY = {
   status: string;
   ha_pcn_id: string;
 };
+type ApplicantWithMilestones = {
+  applicant_id: string;
+  milestones: {
+    id: string;
+    name: string;
+    start_date: string;
+  }[];
+};
+type GetEoJCompletedListsMeta = (
+  query: SelectQueryBuilder<IENApplicantStatusAudit>,
+) => SelectQueryBuilder<IENApplicantStatusAudit>;
 
 @Injectable()
 export class EndOfJourneyService implements OnModuleInit {
@@ -69,7 +83,7 @@ export class EndOfJourneyService implements OnModuleInit {
 
     try {
       // handle end of journey: COMPLETED
-      await this.handleEndOfJourney<IEN_APPLICANT_END_OF_JOURNEY>(
+      await this.handleEndOfJourney<IEN_APPLICANT_END_OF_JOURNEY, GetEoJCompletedListsMeta>(
         this.getCompletedLists,
         this.setCompletedLists,
         manager,
@@ -93,8 +107,8 @@ export class EndOfJourneyService implements OnModuleInit {
     }
   }
 
-  async handleEndOfJourney<T>(
-    getter: Getter<T>,
+  async handleEndOfJourney<T, U = unknown>(
+    getter: Getter<T, U>,
     setter: Setter<T>,
     manager: EntityManager,
   ): Promise<void> {
@@ -115,7 +129,10 @@ export class EndOfJourneyService implements OnModuleInit {
    * Checking for end of journey COMPLETED
    * QUITERIA:
    */
-  getCompletedLists: Getter<IEN_APPLICANT_END_OF_JOURNEY> = async manager => {
+  getCompletedLists: Getter<IEN_APPLICANT_END_OF_JOURNEY, GetEoJCompletedListsMeta> = async (
+    manager,
+    meta = query => query,
+  ) => {
     const yesterday = dayjs().tz('America/Los_Angeles').subtract(1, 'day').toDate();
     const oneYearBeforeYesterday = formatDateInPST(
       dayjs(yesterday).tz('America/Los_Angeles').subtract(1, 'year').toDate(),
@@ -129,7 +146,7 @@ export class EndOfJourneyService implements OnModuleInit {
      *  - effective_date: Date, the latest (most recent) effective_date related to the applicant's status.
      *  - status: string, the status of the applicant (in this case, "Job Offer Accepted").
      */
-    const query = manager
+    let query = manager
       .createQueryBuilder(IENApplicantStatusAudit, 'audit')
       .select('audit.applicant_id') // Select applicant_id
       .addSelect("TO_CHAR(MAX(audit.effective_date), 'YYYY-MM-DD')", 'effective_date') // Format effective_date as YYYY-MM-DD
@@ -148,7 +165,8 @@ export class EndOfJourneyService implements OnModuleInit {
       .groupBy('audit.applicant_id') // Group by applicant_id
       .addGroupBy('status.id')
       .addGroupBy('job.id');
-
+    query = meta(query);
+    query = this.checkReEngagedStatusForEoJCompleteQuery(query);
     const applicants = await query.getRawMany();
 
     this.logger.log({ yesterday, oneYearBeforeYesterday, applicants }, 'END-OF-JOURNEY');
@@ -169,6 +187,28 @@ export class EndOfJourneyService implements OnModuleInit {
         .execute();
     }
   };
+  checkReEngagedStatusForEoJCompleteQuery(
+    query: SelectQueryBuilder<IENApplicantStatusAudit>,
+  ): SelectQueryBuilder<IENApplicantStatusAudit> {
+    return query.andWhere(
+      `NOT EXISTS (
+          SELECT 1
+          FROM ien_applicant_status_audit reengaged_audit
+          JOIN ien_applicant_status reengaged_status ON reengaged_audit.status_id = reengaged_status.id
+          WHERE reengaged_audit.applicant_id = audit.applicant_id
+          AND reengaged_status.status = :reEngagedStatus
+          AND reengaged_audit.start_date = (
+              SELECT MAX(inner_audit.start_date)
+              FROM ien_applicant_status_audit inner_audit
+              JOIN ien_applicant_status inner_status ON inner_audit.status_id = inner_status.id
+              WHERE inner_audit.applicant_id = audit.applicant_id
+              AND inner_status.status = :reEngagedStatus
+          )
+          AND reengaged_audit.start_date <= (audit.effective_date + INTERVAL '1 year')
+      )`,
+      { reEngagedStatus: STATUS.RE_ENGAGED },
+    );
+  }
 
   async handleNotProceedingMilestone(
     applicants: AtsApplicant[],
@@ -214,20 +254,176 @@ export class EndOfJourneyService implements OnModuleInit {
     const results = [];
     for (const applicant of list) {
       // update the end_of_journey_flag and updated_date of the applicant
-      const result = await manager
-        .createQueryBuilder()
+      let query = this.getIncompleteQuery(manager, applicant.applicant_id);
+      query = this.checkReEngagedStatusForEoJIncompleteQuery(query);
+
+      const result = await query
         .update('ien_applicants')
         .set({
           end_of_journey: END_OF_JOURNEY_FLAG.JOURNEY_INCOMPLETE,
           updated_date: dayjs().tz('America/Los_Angeles').toDate(),
-        })
-        .where('id = :id', { id: applicant.applicant_id })
-        .andWhere('(end_of_journey != :end_of_journey OR end_of_journey IS NULL)', {
-          end_of_journey: END_OF_JOURNEY_FLAG.JOURNEY_INCOMPLETE,
         })
         .execute();
       results.push(result);
     }
     this.logger.log({ results }, 'END-OF-JOURNEY');
   };
+  getIncompleteQuery(
+    manager: EntityManager,
+    applicant_id: string,
+  ): SelectQueryBuilder<IENApplicant> {
+    return manager
+      .createQueryBuilder()
+      .from(IENApplicant, 'ien_applicants')
+      .where('id = :id', { id: applicant_id })
+      .andWhere('(end_of_journey != :end_of_journey OR end_of_journey IS NULL)', {
+        end_of_journey: END_OF_JOURNEY_FLAG.JOURNEY_INCOMPLETE,
+      });
+  }
+  checkReEngagedStatusForEoJIncompleteQuery(
+    query: SelectQueryBuilder<IENApplicant>,
+  ): SelectQueryBuilder<IENApplicant> {
+    return query.andWhere(
+      `NOT EXISTS (
+          SELECT 1
+          FROM ien_applicant_status_audit reengaged_audit
+          JOIN ien_applicant_status reengaged_status 
+            ON reengaged_audit.status_id = reengaged_status.id
+          WHERE reengaged_audit.applicant_id = ien_applicants.id
+            AND reengaged_status.status = :reEngagedStatus
+            AND (
+              SELECT MAX(inner_audit.start_date)
+              FROM ien_applicant_status_audit inner_audit
+              JOIN ien_applicant_status inner_status 
+                ON inner_audit.status_id = inner_status.id
+              WHERE inner_audit.applicant_id = ien_applicants.id
+                AND inner_status.status = :reEngagedStatus
+            ) > (
+              SELECT MAX(not_proceeding_audit.start_date)
+              FROM ien_applicant_status_audit not_proceeding_audit
+              JOIN ien_applicant_status not_proceeding_status 
+                ON not_proceeding_audit.status_id = not_proceeding_status.id
+              WHERE not_proceeding_audit.applicant_id = ien_applicants.id
+                AND not_proceeding_status.status = :notProceedingStatus
+            )
+        )`,
+      { reEngagedStatus: STATUS.RE_ENGAGED, notProceedingStatus: STATUS.NOT_PROCEEDING },
+    );
+  }
+
+  /**
+   * Event handler for delete re-engaged applicants
+   */
+  @OnEvent(`${SystemMilestoneEvent.REENGAGED}.*`)
+  async handleReEngagedDeleteEvent(
+    payload: IENApplicantStatusAudit,
+    event: SystemMilestoneEvent,
+  ): Promise<void> {
+    this.logger.log(`Handling re-engaged event: ${event}`, 'END-OF-JOURNEY');
+
+    const connection = this.connection;
+    if (!connection) {
+      this.logger.error('Connection failed', 'END-OF-JOURNEY');
+      return;
+    }
+    const queryRunner = connection.createQueryRunner();
+    await queryRunner.startTransaction();
+    const manager = queryRunner.manager;
+
+    await this.handleReEngagedForJourneyComplete(manager, payload);
+    await this.handleReEngagedForJourneyIncomplete(manager, payload);
+
+    await queryRunner.commitTransaction();
+  }
+
+  private async handleReEngagedForJourneyComplete(
+    manager: EntityManager,
+    payload: IENApplicantStatusAudit,
+  ): Promise<void> {
+    // Implement the logic for handling re-engaged applicants for journey complete
+    this.logger.log(
+      `Handling re-engaged for journey complete for applicant ${payload.applicant.id}`,
+      'END-OF-JOURNEY',
+    );
+    const completedList = await this.getCompletedLists(manager, query =>
+      query.andWhere('audit.applicant_id = :id', { id: payload.applicant.id }),
+    );
+
+    if (completedList.length === 0) {
+      this.cleanEndOfJourneyFlag(manager, payload);
+    } else {
+      this.setCompletedLists(manager, completedList);
+    }
+  }
+
+  private async handleReEngagedForJourneyIncomplete(
+    manager: EntityManager,
+    payload: IENApplicantStatusAudit,
+  ): Promise<void> {
+    // Implement the logic for handling re-engaged applicants for journey complete
+    this.logger.log(
+      `Handling re-engaged for journey incomplete for applicant ${payload.applicant.id}`,
+      'END-OF-JOURNEY',
+    );
+
+    const query = manager
+      .createQueryBuilder(IENApplicant, 'applicant')
+      .select([
+        'applicant.id AS applicant_id', // Select applicant_id
+        'status.id AS milestone_id', // Include milestone id
+        'status.status AS milestone', // Include milestone (status)
+        'audit.start_date AS milestone_start_date', // Include milestone start date
+      ])
+      .leftJoin('ien_applicant_status_audit', 'audit', 'audit.applicant_id = applicant.id')
+      .leftJoin('ien_applicant_status', 'status', 'status.id = audit.status_id')
+      .where('applicant.id = :id', { id: payload.applicant.id });
+
+    const rawResults = await query.getRawMany();
+    const applicants = rawResults.reduce<ApplicantWithMilestones[]>((result, row) => {
+      let applicant = result.find(a => a.applicant_id === row.applicant_id);
+
+      if (!applicant) {
+        applicant = { applicant_id: row.applicant_id, milestones: [] };
+        result.push(applicant);
+      }
+
+      if (row.milestone) {
+        applicant.milestones.push({
+          id: row.milestone_id,
+          name: row.milestone,
+          start_date: row.milestone_start_date,
+        });
+      }
+
+      return result;
+    }, []);
+
+    const notProceedingList = await this.getNotProceedingLists(
+      manager,
+      applicants as AtsApplicant[],
+    );
+
+    if (notProceedingList.length > 0) {
+      let query = this.getIncompleteQuery(manager, payload.applicant.id);
+      query = this.checkReEngagedStatusForEoJIncompleteQuery(query);
+      if ((await query.getCount()) === 0) {
+        this.cleanEndOfJourneyFlag(manager, payload);
+      } else {
+        this.setNotProceedingLists(manager, notProceedingList);
+      }
+    }
+  }
+
+  private async cleanEndOfJourneyFlag(manager: EntityManager, payload: IENApplicantStatusAudit) {
+    await manager
+      .createQueryBuilder()
+      .update('ien_applicants')
+      .set({
+        end_of_journey: null,
+        updated_date: dayjs().tz('America/Los_Angeles').toDate(),
+      })
+      .where('id = :id', { id: payload.applicant.id })
+      .andWhere('end_of_journey IS NOT NULL')
+      .execute();
+  }
 }

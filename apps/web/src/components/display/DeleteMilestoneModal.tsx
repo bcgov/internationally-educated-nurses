@@ -20,7 +20,7 @@ export const DeleteMilestoneModal: React.FC<DeleteMilestoneProps> = (
 
   const handleSubmit = async () => {
     await deleteApplicantStatus(userId, milestoneId);
-    await fetchApplicant();
+    fetchApplicant();
     onClose(milestoneId);
   };
 

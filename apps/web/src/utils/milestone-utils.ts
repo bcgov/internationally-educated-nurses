@@ -1,4 +1,6 @@
-// src/utils/milestoneUtils.ts
+/**
+ * This file is refactor from the file `milestoneTable.tsx` because of the sonqrube duplication code issue.
+ */
 
 import { PageOptions } from '@components';
 import { ApplicantRO, ApplicantStatusAuditRO } from '@ien/common';
