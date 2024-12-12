@@ -354,11 +354,6 @@ export class IENApplicantService {
           SystemMilestoneEvent.CREATE_REENGAGED,
           manager,
         );
-        // await this.eojService.handleReEngagedEvent(
-        //   status_audit,
-        //   SystemMilestoneEvent.CREATE_REENGAGED,
-        //   manager,
-        // );
       }
       return status_audit;
     });
