@@ -44,7 +44,7 @@ import { useSystem } from './SystemContext';
 
 const formSchema = z.object({
   id: z.string().optional(),
-  status: z.string(),
+  status: z.string().min(1, { message: 'Milestone is required' }),
   start_date: z.date(),
   notes: z.string().optional(),
 });
@@ -113,6 +113,8 @@ export function SystemForm() {
     }
   }, [selectedMilestone, form]);
 
+  const isUpdate = !!selectedMilestone?.id;
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -134,7 +136,7 @@ export function SystemForm() {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <DialogHeader>
-              <DialogTitle>Add Milestone</DialogTitle>
+              <DialogTitle>{isUpdate ? 'Update' : 'Add'} Milestone</DialogTitle>
             </DialogHeader>
 
             <section className='flex flex-col gap-4 py-6'>
@@ -190,11 +192,10 @@ export function SystemForm() {
                           mode='single'
                           showOutsideDays
                           selected={field.value}
+                          defaultMonth={field.value}
                           autoFocus
-                          onSelect={value => {
-                            field.onChange(value);
-                            setCalendarOpen(false);
-                          }}
+                          onSelect={field.onChange}
+                          onDayClick={() => setCalendarOpen(false)}
                         />
                       </PopoverContent>
                     </Popover>
