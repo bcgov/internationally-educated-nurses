@@ -113,6 +113,8 @@ export function SystemForm() {
     }
   }, [selectedMilestone, form]);
 
+  const isUpdate = !!selectedMilestone?.id;
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -134,7 +136,7 @@ export function SystemForm() {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <DialogHeader>
-              <DialogTitle>Add Milestone</DialogTitle>
+              <DialogTitle>{isUpdate ? 'Update' : 'Add'} Milestone</DialogTitle>
             </DialogHeader>
 
             <section className='flex flex-col gap-4 py-6'>
