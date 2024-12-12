@@ -251,21 +251,21 @@ export class EndOfJourneyService implements OnModuleInit {
       `Setting end of journey incomplete: ${STATUS.NOT_PROCEEDING}. Number of lists: ${list.length}`,
       'END-OF-JOURNEY',
     );
-    const results = [];
-    for (const applicant of list) {
-      // update the end_of_journey_flag and updated_date of the applicant
-      let query = this.getIncompleteQuery(manager, applicant.applicant_id);
-      query = this.checkReEngagedStatusForEoJIncompleteQuery(query);
+    const results = await Promise.all(
+      list.map(applicant => {
+        let query = this.getIncompleteQuery(manager, applicant.applicant_id);
+        query = this.checkReEngagedStatusForEoJIncompleteQuery(query);
 
-      const result = await query
-        .update('ien_applicants')
-        .set({
-          end_of_journey: END_OF_JOURNEY_FLAG.JOURNEY_INCOMPLETE,
-          updated_date: dayjs().tz('America/Los_Angeles').toDate(),
-        })
-        .execute();
-      results.push(result);
-    }
+        return query
+          .update('ien_applicants')
+          .set({
+            end_of_journey: END_OF_JOURNEY_FLAG.JOURNEY_INCOMPLETE,
+            updated_date: dayjs().tz('America/Los_Angeles').toDate(),
+          })
+          .execute();
+      }),
+    );
+
     this.logger.log({ results }, 'END-OF-JOURNEY');
   };
   getIncompleteQuery(
@@ -315,25 +315,20 @@ export class EndOfJourneyService implements OnModuleInit {
    * Event handler for delete re-engaged applicants
    */
   @OnEvent(`${SystemMilestoneEvent.REENGAGED}.*`)
-  async handleReEngagedDeleteEvent(
+  async handleReEngagedEvent(
     payload: IENApplicantStatusAudit,
     event: SystemMilestoneEvent,
+    manager: EntityManager,
   ): Promise<void> {
     this.logger.log(`Handling re-engaged event: ${event}`, 'END-OF-JOURNEY');
 
-    const connection = this.connection;
-    if (!connection) {
+    if (!manager) {
       this.logger.error('Connection failed', 'END-OF-JOURNEY');
       return;
     }
-    const queryRunner = connection.createQueryRunner();
-    await queryRunner.startTransaction();
-    const manager = queryRunner.manager;
 
     await this.handleReEngagedForJourneyComplete(manager, payload);
     await this.handleReEngagedForJourneyIncomplete(manager, payload);
-
-    await queryRunner.commitTransaction();
   }
 
   private async handleReEngagedForJourneyComplete(

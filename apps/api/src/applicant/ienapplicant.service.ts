@@ -348,11 +348,17 @@ export class IENApplicantService {
       });
       // handle update re-engaged
       if (status_audit.status.status === STATUS.RE_ENGAGED) {
-        this.eventEmitter.emit(
+        await this.eventEmitter.emitAsync(
           SystemMilestoneEvent.CREATE_REENGAGED,
           status_audit,
           SystemMilestoneEvent.CREATE_REENGAGED,
+          manager,
         );
+        // await this.eojService.handleReEngagedEvent(
+        //   status_audit,
+        //   SystemMilestoneEvent.CREATE_REENGAGED,
+        //   manager,
+        // );
       }
       return status_audit;
     });
@@ -418,16 +424,17 @@ export class IENApplicantService {
         [audit.applicant.id],
         manager,
       );
-    });
 
-    // handle update re-engaged
-    if (audit.status.status === STATUS.RE_ENGAGED) {
-      this.eventEmitter.emit(
-        SystemMilestoneEvent.UPDATE_REENGAGED,
-        audit,
-        SystemMilestoneEvent.UPDATE_REENGAGED,
-      );
-    }
+      // handle update re-engaged
+      if (audit.status.status === STATUS.RE_ENGAGED) {
+        await this.eventEmitter.emitAsync(
+          SystemMilestoneEvent.UPDATE_REENGAGED,
+          audit,
+          SystemMilestoneEvent.UPDATE_REENGAGED,
+          manager,
+        );
+      }
+    });
 
     return audit;
   }
@@ -463,10 +470,11 @@ export class IENApplicantService {
 
       // handle delete re-engaged
       if (status.status.status === STATUS.RE_ENGAGED) {
-        this.eventEmitter.emit(
+        await this.eventEmitter.emitAsync(
           SystemMilestoneEvent.DELETE_REENGAGED,
           status,
           SystemMilestoneEvent.DELETE_REENGAGED,
+          manager,
         );
       }
     });
