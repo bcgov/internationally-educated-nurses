@@ -54,11 +54,18 @@ export const Search = (props: SearchProps) => {
 
   const getResultText = (applicant: ApplicantRO) => {
     if (!isHmbc(authUser) || !applicant.status) {
-      return <b>{applicant.name}</b>;
+      return (
+        <b>
+          {applicant.ats1_id} - {applicant.name}
+        </b>
+      );
     }
     return (
       <>
-        <b>{applicant.name}</b> found in <b>{applicant.status.status}</b>
+        <b>
+          {applicant.ats1_id} - {applicant.name}
+        </b>{' '}
+        found in <b>{applicant.status.status}</b>
       </>
     );
   };
@@ -74,7 +81,7 @@ export const Search = (props: SearchProps) => {
           onChange={handleChange}
           onFocus={() => handleFocus(true)}
           onKeyDown={handleEnter}
-          placeholder='Search by first name or last name'
+          placeholder='Search by first name, last name or ATS1 ID'
           className='flex-grow focus:outline-none placeholder-bcGray'
           data-cy='search-input'
         />

@@ -1,5 +1,28 @@
 import { Brackets, WhereExpressionBuilder } from 'typeorm';
 
+const ATS1_ID_LENGTH = 6;
+export const searchNamesAndAts1Id = (
+  builder: WhereExpressionBuilder,
+  fields: [nameField: string, ats1IdField: string],
+  keyword: string,
+) => {
+  const keywords = keyword
+    .trim()
+    .split(' ')
+    .filter(item => item.length);
+
+  // Check if the keyword is a potential ATS1 ID
+  if (
+    keywords.length === 1 &&
+    keywords[0].length === ATS1_ID_LENGTH &&
+    !isNaN(Number(keywords[0]))
+  ) {
+    searchAts1Id(builder, fields[1], keyword);
+  } else {
+    searchNames(builder, fields[0], keyword);
+  }
+};
+
 export const searchNames = (builder: WhereExpressionBuilder, field: string, keyword: string) => {
   const keywords = keyword
     .trim()
@@ -28,5 +51,20 @@ export const searchNames = (builder: WhereExpressionBuilder, field: string, keyw
     );
   } else {
     builder.andWhere(`${field} ilike :name`, { name: `%${keyword.trim()}%` });
+  }
+};
+
+export const searchAts1Id = (builder: WhereExpressionBuilder, field: string, keyword: string) => {
+  const keywords = keyword
+    .trim()
+    .split(' ')
+    .filter(item => item.length);
+
+  if (
+    keywords.length === 1 &&
+    keywords[0].length === ATS1_ID_LENGTH &&
+    !isNaN(Number(keywords[0]))
+  ) {
+    builder.andWhere(`${field} = :ats1_id`, { ats1_id: `${keyword.trim()}` });
   }
 };

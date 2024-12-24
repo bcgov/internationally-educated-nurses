@@ -15,7 +15,7 @@ import { IENJobTitle } from './entity/ienjobtitles.entity';
 import { IENJobLocation } from './entity/ienjoblocation.entity';
 import { IENStatusReason } from './entity/ienstatus-reason.entity';
 import { IENMasterService } from './ien-master.service';
-import { searchNames } from '../common/search-names';
+import { searchNamesAndAts1Id } from 'src/common/search-names';
 
 @Injectable()
 export class IENApplicantUtilService {
@@ -93,7 +93,7 @@ export class IENApplicantUtilService {
       }
     }
     if (name) {
-      searchNames(builder, 'applicant.name', name);
+      searchNamesAndAts1Id(builder, ['applicant.name', 'applicant.ats1_id'], name);
     }
 
     if (sortKey === 'recruiter') {
