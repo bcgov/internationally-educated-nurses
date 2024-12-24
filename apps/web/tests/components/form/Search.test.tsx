@@ -5,8 +5,13 @@ describe('Search', () => {
   it('renders a search box', async () => {
     const mock = jest.fn();
     const searchData = [
-      { id: '1', name: 'Jane Doe', status: { id: 1, status: 'Recruitment' } },
-      { id: '2', name: 'Mark Twain', status: { id: 5, status: 'Final Milestone' } },
+      { ats1_id: '111111', id: '1', name: 'Jane Doe', status: { id: 1, status: 'Recruitment' } },
+      {
+        ats1_id: '222222',
+        id: '2',
+        name: 'Mark Twain',
+        status: { id: 5, status: 'Final Milestone' },
+      },
     ];
     const search = async (): Promise<any[]> => searchData;
 
@@ -17,13 +22,9 @@ describe('Search', () => {
 
     input.focus();
     fireEvent.change(input, { target: { value: 'Mark' } });
-    for (const { name } of searchData) {
+    for (const { name, ats1_id } of searchData) {
       await waitFor(() => {
-        expect(
-          screen.getByText((content, element) => {
-            return element?.textContent?.includes(name);
-          }),
-        ).toBeInTheDocument();
+        expect(screen.getByText(`${ats1_id} - ${name}`)).toBeInTheDocument();
       });
     }
 
