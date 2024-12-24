@@ -12,7 +12,7 @@ describe('Search', () => {
 
     render(<Search onChange={mock} onSelect={mock} keyword='' search={search} />);
 
-    const input = screen.getByPlaceholderText('Search by first name or last name');
+    const input = screen.getByPlaceholderText('Search by first name, last name or ATS1 ID');
     expect(input).toBeInTheDocument();
 
     input.focus();
