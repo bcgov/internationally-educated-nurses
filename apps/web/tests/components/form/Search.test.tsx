@@ -19,7 +19,11 @@ describe('Search', () => {
     fireEvent.change(input, { target: { value: 'Mark' } });
     for (const { name } of searchData) {
       await waitFor(() => {
-        expect(screen.getByText(name)).toBeInTheDocument();
+        expect(
+          screen.getByText((content, element) => {
+            return element?.textContent?.includes(name);
+          }),
+        ).toBeInTheDocument();
       });
     }
 
