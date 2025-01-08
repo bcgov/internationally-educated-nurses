@@ -4,10 +4,10 @@ export enum STATUS {
   RECEIVED_NNAS_REPORT = 'Received NNAS Report',
   COMPLETED_LANGUAGE_REQUIREMENT = 'Completed English Language Requirement',
   APPLIED_TO_BCCNM = 'Applied to BCCNM',
-  APPLIED_TO_NCAS = 'Applied to NCAS',
+  APPLIED_TO_NCAS = 'Applied to Inspire', // Renamed from NCAS to Inspire
   COMPLETED_CBA = 'Completed Computer-Based Assessment (CBA)',
   COMPLETED_SLA = 'Completed Simulation Lab Assessment (SLA)',
-  COMPLETED_NCAS = 'Completed NCAS',
+  COMPLETED_NCAS = 'Completed Inspire', // Renamed from NCAS to Inspire
   REFERRED_TO_ADDITIONAL_EDUCTION = 'Referred to Additional Education',
   COMPLETED_ADDITIONAL_EDUCATION = 'Completed Additional Education',
   REFERRED_TO_REGISTRATION_EXAM = 'Referred to Registration Exam',

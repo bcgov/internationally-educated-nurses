@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BccnmNcasValidation, pluralize } from '@ien/common';
+import { BccnmNcasValidation, pluralize, NCAS_NEW_NAME } from '@ien/common';
 import { buttonBase, buttonColor, Spinner } from '@components';
 import { BccnmNcasDataUploader } from './BccnmNcasDataUploader';
 import { BccnmNcasPreview } from './BccnmNcasPreview';
@@ -50,7 +50,9 @@ export const BccnmNcasSection = () => {
     <>
       <div className='bg-white p-4 mt-4'>
         <div className='flex flex-row justify-between'>
-          <h2 className='font-bold text-lg text-bcBluePrimary my-4'>Upload BCCNM/NCAS Data</h2>
+          <h2 className='font-bold text-lg text-bcBluePrimary my-4'>
+            Upload BCCNM/{NCAS_NEW_NAME} Data
+          </h2>
           <span>
             {data && (
               <button
