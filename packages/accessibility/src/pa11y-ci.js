@@ -6,6 +6,9 @@ const defaults = {
     width: 1300,
     height: 1200,
   },
+  chromeLaunchConfig: {
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+  },
 };
 
 const log = {
