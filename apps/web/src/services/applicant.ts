@@ -60,6 +60,18 @@ export const deleteApplicantStatus = async (
   }
 };
 
+/**
+ * Delete applicant (scramble PII)
+ * @param id
+ */
+export const deleteApplicant = async (id: string): Promise<void> => {
+  try {
+    await axios.delete(`/ien/${id}`);
+  } catch (e) {
+    notifyError(e as AxiosError);
+  }
+};
+
 // currently unused
 export const updateApplicant = async (id: string, applicant: IENApplicantCreateUpdateDTO) => {
   return axios.patch(`/ien/${id}`, applicant);
