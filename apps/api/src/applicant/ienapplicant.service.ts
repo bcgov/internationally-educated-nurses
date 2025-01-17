@@ -681,7 +681,6 @@ export class IENApplicantService {
 
     await getManager().transaction(async manager => {
       const deleted_by_data = await this.employeeRepository.findOne(user_id);
-      console.log('deleted_by_data::::', user_id, deleted_by_data);
       await manager.update<IENApplicant>(IENApplicant, id, {
         name: scrambledName,
         email_address: scrambledEmail,
