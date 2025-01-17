@@ -45,6 +45,12 @@ export class ScrambleService {
     if (!phone) {
       return '';
     }
-    return phone.replace(/\d/g, () => (randomBytes(1)[0] % 10).toString());
+    return phone.replace(/\d/g, () => {
+      let randomValue;
+      do {
+        randomValue = randomBytes(1)[0];
+      } while (randomValue >= 250);
+      return (randomValue % 10).toString();
+    });
   }
 }
