@@ -14,13 +14,13 @@ export class IENApplicantSubscriber implements EntitySubscriberInterface<IENAppl
     const { entity, manager } = event;
 
     // If there's no entity or the entity has no ats1_id do nothing
-    if (!entity || !entity.ats1_id) return;
+    if (!entity?.ats1_id) return;
 
     // Retrieve the original entity from the database
     const databaseEntity = await manager.findOne(IENApplicant, { ats1_id: entity.ats1_id });
 
     // If the original entity is found and it's marked as deleted,, revert the changes for the specified fields
-    if (databaseEntity && databaseEntity.deleted_date) {
+    if (databaseEntity?.deleted_date) {
       entity.name = databaseEntity.name;
       entity.email_address = databaseEntity.email_address;
       entity.phone_number = databaseEntity.phone_number;
