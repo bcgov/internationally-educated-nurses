@@ -14,6 +14,7 @@ import {
   BeforeInsert,
   ManyToMany,
   JoinTable,
+  BeforeUpdate,
 } from 'typeorm';
 
 import { IENApplicantAudit } from './ienapplicant-audit.entity';
@@ -165,6 +166,19 @@ export class IENApplicant {
       this.applicant_status_audit = sortStatus(this.applicant_status_audit);
     }
   }
+
+  /**
+   * Check if the deleted_date is set before updating the entity, this is for syncronization with the ATS preventing updates to scrambled data
+   */
+  @BeforeUpdate()
+  checkDeletedDateBeforeUpdate() {
+    if (this.deleted_date) {
+      this.name = this.name; // Keep existing value
+      this.email_address = this.email_address; // Keep existing value
+      this.phone_number = this.phone_number; // Keep existing value
+    }
+  }
+
   toResponseObject(): ApplicantRO {
     return {
       id: this.id,
