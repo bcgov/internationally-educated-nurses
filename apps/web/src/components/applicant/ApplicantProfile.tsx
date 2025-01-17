@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import dayjs from 'dayjs';
+
 import { Access, formatDate, HealthAuthorities } from '@ien/common';
 import { AclMask, Button, DetailsItem } from '@components';
 import { deleteApplicant, updateApplicantActiveFlag } from '@services';
@@ -24,6 +26,7 @@ export const ApplicantProfile = () => {
   const { applicant, fetchApplicant } = useApplicantContext();
   const [activeToggle, setActiveToggle] = useState(true);
   const [deleteApplicantOpen, setDeleteApplicantOpen] = useState(false);
+  const isApplicantDeleted = !!applicant?.deleted_date;
 
   const handleChange = async (flag: boolean) => {
     const updatedApplicant = await updateApplicantActiveFlag(applicant.id, flag);
@@ -59,7 +62,11 @@ export const ApplicantProfile = () => {
           <section>
             <Dialog open={deleteApplicantOpen} onOpenChange={setDeleteApplicantOpen}>
               <DialogTrigger asChild>
-                <Button variant='danger' onClick={() => setDeleteApplicantOpen(true)}>
+                <Button
+                  variant='danger'
+                  onClick={() => setDeleteApplicantOpen(true)}
+                  disabled={isApplicantDeleted}
+                >
                   Delete
                 </Button>
               </DialogTrigger>
@@ -145,6 +152,13 @@ export const ApplicantProfile = () => {
             <DetailsItem title='Pathway' text={applicant?.pathway.name} span={6} />
           )}
           <DetailsItem title='End of Journey' text={applicant?.end_of_journey as string} span={6} />
+          {isApplicantDeleted && (
+            <DetailsItem
+              title='Deleted Date'
+              text={dayjs(applicant?.deleted_date).format('YYYY-MM-DD')}
+              span={6}
+            />
+          )}
         </div>
       </div>
     </>

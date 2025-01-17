@@ -21,7 +21,13 @@ import { IENApplicantStatusAudit } from './ienapplicant-status-audit.entity';
 import { IENApplicantStatus } from './ienapplicant-status.entity';
 import { IENApplicantJob } from './ienjob.entity';
 import { IENUsers } from './ienusers.entity';
-import { ApplicantRO, IENUserRO, NursingEducationDTO, END_OF_JOURNEY_FLAG } from '@ien/common';
+import {
+  ApplicantRO,
+  IENUserRO,
+  NursingEducationDTO,
+  END_OF_JOURNEY_FLAG,
+  EmployeeRO,
+} from '@ien/common';
 import { EmployeeEntity } from '../../employee/entity/employee.entity';
 import { IENApplicantActiveFlag } from './ienapplicant-active-flag.entity';
 import { Pathway } from './pathway.entity';
@@ -95,6 +101,10 @@ export class IENApplicant {
   @JoinColumn({ name: 'updated_by_id' })
   updated_by!: IENUsers;
 
+  @ManyToOne(() => EmployeeEntity, employee => employee.id)
+  @JoinColumn({ name: 'deleted_by_id' })
+  deleted_by?: EmployeeRO;
+
   @OneToMany(() => IENApplicantJob, job => job.applicant)
   jobs!: IENApplicantJob[];
 
@@ -136,6 +146,19 @@ export class IENApplicant {
   @UpdateDateColumn()
   updated_date!: Date;
 
+  @Column({ type: 'timestamp', nullable: true })
+  deleted_date?: Date | null;
+
+  /**
+   * Backup information for the applicant after deletion (scramble PII)
+   */
+  @Column({ type: 'json', nullable: true })
+  backup?: {
+    name: string;
+    email_address: string;
+    phone_number: string;
+  } | null;
+
   @AfterLoad()
   sortStatus() {
     if (this?.applicant_status_audit?.length) {
@@ -175,6 +198,8 @@ export class IENApplicant {
       updated_date: this.updated_date,
       pathway: this.pathway,
       end_of_journey: this.end_of_journey,
+      deleted_date: this.deleted_date,
+      deleted_by: this.deleted_by,
     };
   }
 }

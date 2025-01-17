@@ -416,7 +416,7 @@ export class IENApplicantController {
         `Delete applicant (${id}) requested by
         userId (${req?.user.user_id})/ employeeId/loginId (${req?.user.id})`,
       );
-      return this.ienapplicantService.deleteApplicant(id);
+      return this.ienapplicantService.deleteApplicant(req?.user.id, id);
     } catch (e) {
       throw this._handleStatusException(e);
     }
