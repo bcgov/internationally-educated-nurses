@@ -15,6 +15,7 @@ import {
   ManyToMany,
   JoinTable,
   BeforeUpdate,
+  AfterUpdate,
 } from 'typeorm';
 
 import { IENApplicantAudit } from './ienapplicant-audit.entity';
@@ -170,12 +171,28 @@ export class IENApplicant {
   /**
    * Check if the deleted_date is set before updating the entity, this is for syncronization with the ATS preventing updates to scrambled data
    */
+  // Temporary properties to store original values
+  private originalName?: string;
+  private originalEmailAddress?: string;
+  private originalPhoneNumber?: string;
   @BeforeUpdate()
+  storeOriginalDataOnUpdate() {
+    this.originalName = this.name;
+    this.originalEmailAddress = this.email_address;
+    this.originalPhoneNumber = this.phone_number;
+  }
+  @AfterUpdate()
   checkDeletedDateBeforeUpdate() {
     if (this.deleted_date) {
-      this.name = this.name; // Keep existing value
-      this.email_address = this.email_address; // Keep existing value
-      this.phone_number = this.phone_number; // Keep existing value
+      if (this.originalName) {
+        this.name = this.originalName; // Keep existing value
+      }
+      if (this.originalEmailAddress) {
+        this.email_address = this.originalEmailAddress; // Keep existing value
+      }
+      if (this.originalPhoneNumber) {
+        this.phone_number = this.originalPhoneNumber; // Keep existing value
+      }
     }
   }
 
