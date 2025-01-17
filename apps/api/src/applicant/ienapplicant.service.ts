@@ -57,7 +57,7 @@ export class IENApplicantService {
     private eventEmitter: EventEmitter2,
     private readonly scrambleService: ScrambleService,
     @InjectRepository(EmployeeEntity)
-    private employeeRepository: Repository<EmployeeEntity>,
+    private readonly employeeRepository: Repository<EmployeeEntity>,
   ) {}
 
   /**
