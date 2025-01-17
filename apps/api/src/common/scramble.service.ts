@@ -14,7 +14,10 @@ export class ScrambleService {
     const characters = hash.split('');
     // Scramble the array using crypto for better randomness
     for (let i = characters.length - 1; i > 0; i--) {
-      const randomValue = randomBytes(1)[0];
+      let randomValue;
+      do {
+        randomValue = randomBytes(1)[0];
+      } while (randomValue >= 256 - (256 % (i + 1)));
       const j = randomValue % (i + 1);
       [characters[i], characters[j]] = [characters[j], characters[i]];
     }
