@@ -409,7 +409,7 @@ export class IENApplicantController {
   })
   @UseInterceptors(ClassSerializerInterceptor)
   @Delete('/:id')
-  @AllowAccess(Access.APPLICANT_WRITE)
+  @AllowAccess(Access.APPLICANT_WRITE, Access.ADMIN)
   async deleteApplicant(@Req() req: RequestObj, @Param('id') id: string): Promise<void> {
     try {
       this.logger.log(
