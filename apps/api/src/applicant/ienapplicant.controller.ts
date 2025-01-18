@@ -403,4 +403,22 @@ export class IENApplicantController {
       );
     }
   }
+
+  @ApiOperation({
+    summary: 'Delete applicant (scramble PII and keep milestones)',
+  })
+  @UseInterceptors(ClassSerializerInterceptor)
+  @Delete('/:id')
+  @AllowAccess(Access.APPLICANT_WRITE, Access.ADMIN)
+  async deleteApplicant(@Req() req: RequestObj, @Param('id') id: string): Promise<void> {
+    try {
+      this.logger.log(
+        `Delete applicant (${id}) requested by
+        userId (${req?.user.user_id})/ employeeId/loginId (${req?.user.id})`,
+      );
+      return this.ienapplicantService.deleteApplicant(req?.user.id, id);
+    } catch (e) {
+      throw this._handleStatusException(e);
+    }
+  }
 }

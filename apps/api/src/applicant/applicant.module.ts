@@ -29,6 +29,8 @@ import { IENApplicantRecruiter } from './entity/ienapplicant-employee.entity';
 import { IENApplicantActiveFlag } from './entity/ienapplicant-active-flag.entity';
 import { Pathway } from './entity/pathway.entity';
 import { EndOfJourneyService } from './endofjourney.service';
+import { ScrambleService } from 'src/common/scramble.service';
+import { EmployeeEntity } from 'src/employee/entity/employee.entity';
 
 @Module({
   imports: [
@@ -48,6 +50,7 @@ import { EndOfJourneyService } from './endofjourney.service';
       IENStatusReason,
       Pathway,
       SyncApplicantsAudit,
+      EmployeeEntity,
     ]),
     EventEmitterModule.forRoot({ wildcard: true }),
     AuthModule,
@@ -63,6 +66,7 @@ import { EndOfJourneyService } from './endofjourney.service';
     ExternalAPIService,
     ExternalRequest,
     EndOfJourneyService,
+    ScrambleService,
   ],
   exports: [
     IENApplicantService,

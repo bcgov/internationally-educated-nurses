@@ -33,6 +33,8 @@ import { IENHaPcn } from './entity/ienhapcn.entity';
 import { IENApplicantRecruiter } from './entity/ienapplicant-employee.entity';
 import { IENApplicantActiveFlag } from './entity/ienapplicant-active-flag.entity';
 import { SystemMilestoneEvent } from 'src/common/system-milestone-event';
+import { ScrambleService } from 'src/common/scramble.service';
+import { EmployeeEntity } from 'src/employee/entity/employee.entity';
 
 @Injectable()
 export class IENApplicantService {
@@ -53,6 +55,9 @@ export class IENApplicantService {
     @InjectRepository(IENApplicantRecruiter)
     private readonly recruiterRepository: Repository<IENApplicantRecruiter>,
     private eventEmitter: EventEmitter2,
+    private readonly scrambleService: ScrambleService,
+    @InjectRepository(EmployeeEntity)
+    private readonly employeeRepository: Repository<EmployeeEntity>,
   ) {}
 
   /**
@@ -664,5 +669,27 @@ export class IENApplicantService {
     });
     await this.ienapplicantRepository.update(applicantId, { nursing_educations });
     return nursing_educations.length === applicant.nursing_educations?.length ? 0 : 1;
+  }
+
+  async deleteApplicant(user_id: string, id: string): Promise<void> {
+    // scramble first name, last name, email, phone
+    const applicant = await this.getApplicantById(id);
+    const { name, email_address, phone_number } = applicant;
+    const scrambledName = this.scrambleService.scrambleText(name);
+    const scrambledEmail = this.scrambleService.scrambleEmail(email_address);
+    const scrambledPhone = this.scrambleService.scramblePhone(phone_number);
+
+    await getManager().transaction(async manager => {
+      const deleted_by_data = await this.employeeRepository.findOne(user_id);
+      await manager.update<IENApplicant>(IENApplicant, id, {
+        name: scrambledName,
+        email_address: scrambledEmail,
+        phone_number: scrambledPhone,
+        backup: { name, email_address, phone_number },
+        deleted_by: deleted_by_data,
+        deleted_date: new Date(),
+        updated_date: new Date(),
+      });
+    });
   }
 }

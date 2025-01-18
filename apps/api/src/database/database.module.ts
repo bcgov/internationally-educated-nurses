@@ -24,6 +24,7 @@ import { ReportCacheEntity } from 'src/report/entity/report-cache.entity';
 import { IENApplicantRecruiter } from '../applicant/entity/ienapplicant-employee.entity';
 import { IENApplicantActiveFlag } from 'src/applicant/entity/ienapplicant-active-flag.entity';
 import { Pathway } from '../applicant/entity/pathway.entity';
+import { IENApplicantSubscriber } from 'src/applicant/entity/ienapplicant.subscriber';
 
 const getEnvironmentSpecificConfig = (env?: string): Partial<PostgresConnectionOptions> => {
   switch (env) {
@@ -90,6 +91,7 @@ const appOrmConfig: PostgresConnectionOptions = {
   ...environmentSpecificConfig,
   synchronize: false,
   migrationsRun: true,
+  subscribers: [IENApplicantSubscriber],
 };
 
 @Module({

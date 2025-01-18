@@ -39,6 +39,8 @@ export interface ApplicantRO {
   end_of_journey?: END_OF_JOURNEY_FLAG | null;
   created_date?: Date;
   updated_date?: Date;
+  deleted_date?: Date | null;
+  deleted_by?: EmployeeRO | null;
 }
 
 export interface ApplicantJobRO {

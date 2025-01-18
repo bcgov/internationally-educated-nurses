@@ -17,6 +17,7 @@ export const buttonColor: Record<string, string> = {
   primary: ` bg-bcBluePrimary text-white hover:bg-blue-800 focus:ring-blue-500`,
   secondary: `bg-white text-bcBluePrimary hover:bg-gray-100 focus:ring-blue-500`,
   outline: `bg-white hover:bg-gray-100 focus:ring-blue-500`,
+  danger: `bg-white text-red-600 border-red-600 hover:bg-red-100 focus:ring-red-500`,
 };
 
 export const buttonBase = `h-[38px] inline-flex justify-center items-center rounded border-2 border-bcBluePrimary
