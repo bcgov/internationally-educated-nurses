@@ -1,7 +1,7 @@
 /**
  * This subscriber listens to the IENApplicant entity and reverts the changes for the specified fields if the entity is marked as deleted.
  */
-import { EntitySubscriberInterface, EventSubscriber, UpdateEvent } from 'typeorm';
+import { EntitySubscriberInterface, EventSubscriber, InsertEvent } from 'typeorm';
 import { IENApplicant } from './ienapplicant.entity';
 
 @EventSubscriber()
@@ -10,7 +10,7 @@ export class IENApplicantSubscriber implements EntitySubscriberInterface<IENAppl
     return IENApplicant;
   }
 
-  async beforeUpdate(event: UpdateEvent<IENApplicant>) {
+  async beforeInsert(event: InsertEvent<IENApplicant>) {
     const { entity, manager } = event;
 
     // If there's no entity or the entity has no ats1_id do nothing
