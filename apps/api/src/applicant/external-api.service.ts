@@ -21,7 +21,14 @@ import {
 } from 'typeorm';
 import dayjs from 'dayjs';
 import _ from 'lodash';
-import { AtsApplicant, Authorities, BCCNM_NEW_FIELDS, STATUS, StatusCategory } from '@ien/common';
+import {
+  AtsApplicant,
+  Authorities,
+  BCCNM_NEW_FIELDS,
+  NCAS_NEW_NAME,
+  STATUS,
+  StatusCategory,
+} from '@ien/common';
 import { ExternalRequest } from 'src/common/external-request';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicant } from './entity/ienapplicant.entity';
@@ -168,7 +175,7 @@ export class ExternalAPIService {
     if (data.length && Array.isArray(data)) {
       const result = await manager.upsert(
         IENApplicantStatus,
-        data.map(row => ({ ...row, status: row.name })), // name -> status
+        data.map(row => ({ ...row, status: this.replaceNcasToInspire(row.name) })), // name -> status
         ['id'],
       );
       this.logger.log(`${result?.raw?.length || 0}/${data.length} milestones updated`, 'ATS-SYNC');
@@ -176,6 +183,14 @@ export class ExternalAPIService {
       this.logger.log(`No milestones found, skipping.`);
     }
   }
+
+  /**
+   * IEN-939 This function is used to replace NCAS with Inspire in status name. (As ATS data is not updated from their end yet)
+   * @param name
+   * @returns
+   */
+  replaceNcasToInspire = (name: string) =>
+    name.includes('NCAS') ? name.replace('NCAS', NCAS_NEW_NAME) : name;
 
   createParallelRequestRun(input: {
     parallel_requests: number;
