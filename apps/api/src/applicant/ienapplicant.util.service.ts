@@ -68,6 +68,9 @@ export class IENApplicantUtilService {
         );
         // if has end_of_journey, then archive applicant
         builder.andWhere(`applicant.end_of_journey IS NULL`);
+
+        // if has deleted_date, then archive applicant
+        builder.andWhere(`applicant.deleted_date IS NULL`);
       }
 
       if (recruiter) {
