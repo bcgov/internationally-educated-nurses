@@ -52,7 +52,8 @@ export const ApplicantTable = (props: ApplicantTableProps) => {
     const classes = ['text-left', 'shadow-xs', 'whitespace-nowrap', 'text-sm'];
     const inactive =
       applicant.active_flags?.some(flag => flag.ha_id === authUser?.ha_pcn_id && !flag.is_active) ||
-      !!applicant.end_of_journey;
+      !!applicant.end_of_journey || // archived applicants have end_of_journey
+      !!applicant.deleted_date; // archived applicants have deleted_date
     if (isHAUser && inactive) {
       classes.push('text-gray-400', 'even:bg-bcLightGray');
     }
