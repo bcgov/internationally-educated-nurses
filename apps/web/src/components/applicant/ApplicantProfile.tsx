@@ -94,7 +94,7 @@ export const ApplicantProfile = () => {
             </Dialog>
           </section>
         </AclMask>
-        <AclMask authorities={HealthAuthorities}>
+        {!applicant?.deleted_date && <AclMask authorities={HealthAuthorities}>
           <div className='text-bcGray text-sm pt-1 pb-4 flex items-center' data-cy='active-toggle'>
             <span className='mr-2 font-bold' data-cy='active-text'>
               {activeToggle ? 'Applicant is Visible' : 'Applicant is Hidden'}
@@ -105,7 +105,7 @@ export const ApplicantProfile = () => {
               onChange={() => handleChange(!activeToggle)}
             />
           </div>
-        </AclMask>
+        </AclMask>}
       </div>
       {/* Offer Accepted Banner */}
       <OfferAcceptedBanner />
