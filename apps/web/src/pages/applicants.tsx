@@ -52,7 +52,7 @@ const Applicants = () => {
   const [sortKey, setSortKey] = useState('');
   const [order, setOrder] = useState<'ASC' | 'DESC'>('DESC');
   const [limit, setLimit] = useState(DEFAULT_PAGE_SIZE);
-  const [pageIndex, setPageIndex] = useState(1);
+  const [pageIndex, setPageIndex] = useSessionStorage<number>('applicantPageIndex', 1);
   const [total, setTotal] = useState(0);
 
   const [addIenModalVisible, setAddIenModalVisible] = useState(false);
