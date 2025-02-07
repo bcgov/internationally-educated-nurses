@@ -16,6 +16,7 @@ import {
 } from '@components';
 import { useAuthContext } from '../components/AuthContexts';
 import { ToggleSwitch } from '../components/ToggleSwitch';
+import { useSessionStorage } from '@/components/admin/hooks/useSessionStorage';
 
 interface SearchOptions {
   name?: string;
@@ -37,7 +38,10 @@ const Applicants = () => {
   const { authUser } = useAuthContext();
   const [applicants, setApplicants] = useState<ApplicantRO[]>([]);
   const [loading, setLoading] = useState(false);
-  const [showHiddenApplicants, setShowHiddenApplicants] = useState<boolean>(false);
+  const [showHiddenApplicants, setShowHiddenApplicants] = useSessionStorage<boolean | undefined>(
+    'showHiddenApplicants',
+    undefined,
+  );
   const [myApplicantsOnly, setMyApplicantsOnly] = useState(false);
   const router = useRouter();
 
@@ -48,7 +52,7 @@ const Applicants = () => {
   const [sortKey, setSortKey] = useState('');
   const [order, setOrder] = useState<'ASC' | 'DESC'>('DESC');
   const [limit, setLimit] = useState(DEFAULT_PAGE_SIZE);
-  const [pageIndex, setPageIndex] = useState(1);
+  const [pageIndex, setPageIndex] = useSessionStorage<number>('applicantPageIndex', 1);
   const [total, setTotal] = useState(0);
 
   const [addIenModalVisible, setAddIenModalVisible] = useState(false);
@@ -181,7 +185,7 @@ const Applicants = () => {
               <div className='flex content-center px-4' data-cy='hide-inactive-applicants'>
                 <span className='mr-2 text-bcGray'>Show hidden applicants</span>
                 <ToggleSwitch
-                  checked={showHiddenApplicants}
+                  checked={showHiddenApplicants || false}
                   screenReaderText='Only show my applicants'
                   onChange={setShowHiddenApplicants}
                 />
