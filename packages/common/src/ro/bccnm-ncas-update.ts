@@ -10,7 +10,12 @@ export interface BccnmNcasUpdate {
   'Registration Designation'?: string;
   'ISO Code - Education': string;
   'BCCNM Decision Date'?: string;
-  'BCCNM Registration Date'?: string;
+  'BCCNM Full License LPN'?: string;
+  'BCCNM Full License RPN'?: string;
+  'BCCNM Full License RN'?: string;
+  'BCCNM Provisional License RN'?: string;
+  'BCCNM Provisional License LPN'?: string;
+  'BCCNM Provisional License RPN'?: string;
   Email?: string;
 }
 
@@ -25,7 +30,12 @@ export interface BccnmNcasValidation {
   statusId?: string;
   name?: string;
   valid?: boolean;
-  bccnmApplicationCompleteDate?: string;
   bccnmDecisionDate?: string;
-  bccnmRegistrationDate?: string;
+  bccnmFullLicenseLPN?: string;
+  bccnmFullLicenseRPN?: string;
+  bccnmFullLicenseRN?: string;
+  bccnmProvisionalLicenseRN?: string;
+  bccnmProvisionalLicenseLPN?: string;
+  bccnmProvisionalLicenseRPN?: string;
+  bccnmApplicationCompleteDate?: string;
 }

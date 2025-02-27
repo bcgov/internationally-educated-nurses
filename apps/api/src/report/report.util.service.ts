@@ -273,8 +273,8 @@ export class ReportUtilService {
         AND applicant.new_bccnm_process = ${BCCNM_NEW_PROCESS} 
         AND "status_audit"."status_id" 
         IN (
-          '${statuses[STATUS.BCCNM_PROVISIONAL_LICENSE_LPN]}',
-          '${statuses[STATUS.BCCNM_PROVISIONAL_LICENSE_RN]}' 
+          '${statuses[STATUS.BCCNM_PROVISIONAL_LICENCE_LPN]}',
+          '${statuses[STATUS.BCCNM_PROVISIONAL_LICENCE_RN]}' 
           )
         AND NOT EXISTS (
           SELECT *
@@ -286,7 +286,7 @@ export class ReportUtilService {
               '${statuses[STATUS.WITHDREW_FROM_PROGRAM]}', 
               '${statuses[STATUS.JOB_OFFER_ACCEPTED]}', 
               '${statuses[STATUS.BCCNM_FULL_LICENCE_LPN]}', 
-              '${statuses[STATUS.BCCNM_FULL_LICENSE_RN]}' 
+              '${statuses[STATUS.BCCNM_FULL_LICENCE_RN]}' 
             )
         )`;
   }
@@ -311,7 +311,7 @@ export class ReportUtilService {
         AND "status_audit"."status_id" 
         IN (
           '${statuses[STATUS.BCCNM_FULL_LICENCE_LPN]}', 
-          '${statuses[STATUS.BCCNM_FULL_LICENSE_RN]}' 
+          '${statuses[STATUS.BCCNM_FULL_LICENCE_RN]}' 
         )
         AND NOT EXISTS (
           SELECT *
@@ -357,10 +357,10 @@ export class ReportUtilService {
   async getNumberOfApplicantsByLicense(from: string, to: string) {
     const sql = `
     SELECT
-      count(*) FILTER(WHERE plpn IS NOT NULL) AS "${STATUS.BCCNM_PROVISIONAL_LICENSE_LPN}",
-      count(*) FILTER(WHERE prn IS NOT NULL) AS "${STATUS.BCCNM_PROVISIONAL_LICENSE_RN}",
+      count(*) FILTER(WHERE plpn IS NOT NULL) AS "${STATUS.BCCNM_PROVISIONAL_LICENCE_LPN}",
+      count(*) FILTER(WHERE prn IS NOT NULL) AS "${STATUS.BCCNM_PROVISIONAL_LICENCE_RN}",
       count(*) FILTER(WHERE lpn IS NOT NULL) AS "${STATUS.BCCNM_FULL_LICENCE_LPN}",
-      count(*) FILTER(WHERE rn IS NOT NULL) AS "${STATUS.BCCNM_FULL_LICENSE_RN}",
+      count(*) FILTER(WHERE rn IS NOT NULL) AS "${STATUS.BCCNM_FULL_LICENCE_RN}",
       count(*) FILTER(WHERE hca IS NOT NULL) AS "${STATUS.REGISTERED_AS_AN_HCA}"
     FROM
       crosstab(
@@ -384,10 +384,10 @@ export class ReportUtilService {
       $source$,
       $category$
         VALUES 
-          ('${STATUS.BCCNM_PROVISIONAL_LICENSE_LPN}'),
-          ('${STATUS.BCCNM_PROVISIONAL_LICENSE_RN}'),
+          ('${STATUS.BCCNM_PROVISIONAL_LICENCE_LPN}'),
+          ('${STATUS.BCCNM_PROVISIONAL_LICENCE_RN}'),
           ('${STATUS.BCCNM_FULL_LICENCE_LPN}'),
-          ('${STATUS.BCCNM_FULL_LICENSE_RN}'),
+          ('${STATUS.BCCNM_FULL_LICENCE_RN}'),
           ('${STATUS.REGISTERED_AS_AN_HCA}'),
           ('${STATUS.JOB_OFFER_ACCEPTED}'),
           ('${STATUS.WITHDREW_FROM_PROGRAM}')

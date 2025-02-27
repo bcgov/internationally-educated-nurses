@@ -62,7 +62,7 @@ export class BccnmNcasUpdateItemDTO implements BccnmNcasValidation {
   })
   @ValidateIf(o => o.message === 'Update')
   @IsUUID()
-  statusId?: string;
+  rosStatusID?: string;
 
   @ApiModelProperty({
     description: 'Date BCCNM Application Complete',
@@ -79,11 +79,71 @@ export class BccnmNcasUpdateItemDTO implements BccnmNcasValidation {
   bccnmDecisionDate?: string;
 
   @ApiModelProperty({
-    description: 'BCCNM Registration Date',
+    description: 'BCCNM Full License LPN',
   })
   @IsDateString()
   @IsOptional()
-  bccnmRegistrationDate?: string;
+  bccnmFullLicenceLPN?: string;
+
+  @ApiModelProperty({
+    description: 'BCCNM Full License RPN',
+  })
+  @IsDateString()
+  @IsOptional()
+  bccnmFullLicenceRPN?: string;
+
+  @ApiModelProperty({
+    description: 'BCCNM Full License RN',
+  })
+  @IsDateString()
+  @IsOptional()
+  bccnmFullLicenceRN?: string;
+
+  @ApiModelProperty({
+    description: 'BCCNM Provisional License RN',
+  })
+  @IsDateString()
+  @IsOptional()
+  bccnmProvisionalLicenceRN?: string;
+
+  @ApiModelProperty({
+    description: 'BCCNM Provisional License LPN',
+  })
+  @IsDateString()
+  @IsOptional()
+  bccnmProvisionalLicenceLPN?: string;
+
+  @ApiModelProperty({
+    description: 'BCCNM Provisional License RPN',
+  })
+  @IsDateString()
+  @IsOptional()
+  bccnmProvisionalLicenceRPN?: string;
+
+  @ApiModelProperty({ description: 'BCCNM Full License LPN ID' })
+  @IsOptional()
+  bccnmFullLicenceLPNID?: string;
+
+  @ApiModelProperty({ description: 'BCCNM Full License RN ID ' })
+  @IsOptional()
+  bccnmFullLicenceRPNID?: string;
+
+  @ApiModelProperty({ description: 'BCCNM Full Licesnse RPN ID ' })
+  @IsOptional()
+  bccnmFullLicenceRNID?: string;
+
+  @ApiModelProperty({ description: 'BCCNM Provisional License LPN ID' })
+  @IsOptional()
+  bccnmProvisionalLicenceRNID?: string;
+
+  @ApiModelProperty({ description: 'BCCNM Provisional License LPN ID' })
+  @IsOptional()
+  bccnmProvisionalLicenceLPNID?: string;
+
+  @ApiModelProperty({ description: 'BCCNM Provisional License LPN ID' })
+  @IsOptional()
+  bccnmProvisionalLicenceRPNID?: string;
+
 }
 
 export class BccnmNcasUpdateDTO {

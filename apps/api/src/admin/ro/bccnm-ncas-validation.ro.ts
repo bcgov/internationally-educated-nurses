@@ -50,7 +50,7 @@ export class BccnmNcasValidationRO implements BccnmNcasValidation {
   @ApiModelProperty({
     description: 'ID of current "Signed Return of Service Agreement" milestone',
   })
-  statusId?: string;
+  rosStatusId?: string;
 
   @ApiModelProperty({
     description: '',
@@ -67,8 +67,41 @@ export class BccnmNcasValidationRO implements BccnmNcasValidation {
   })
   bccnmDecisionDate?: string;
 
-  @ApiModelProperty({
-    description: 'Date of Registration',
-  })
-  bccnmRegistrationDate?: string;
+  @ApiModelProperty({ description: 'BCCNM Full License LPN' })
+  bccnmFullLicenceLPN?: string;
+
+  @ApiModelProperty({ description: 'BCCNM Full License RN' })
+  bccnmFullLicenceRPN?: string;
+
+  @ApiModelProperty({ description: 'BCCNM Full Licesnse RPN' })
+  bccnmFullLicenceRN?: string;
+
+  @ApiModelProperty({ description: 'BCCNM Provisional Licence LPN' })
+  bccnmProvisionalLicenceRN?: string;
+
+  @ApiModelProperty({ description: 'BCCNM Provisional Licence LPN' })
+  bccnmProvisionalLicenceLPN?: string;
+
+  @ApiModelProperty({ description: 'BCCNM Provisional Licence LPN' })
+  bccnmProvisionalLicenceRPN?: string;
+
+  @ApiModelProperty({ description: 'BCCNM Full Licence LPN ID' })
+  bccnmFullLicenceLPNID?: string;
+
+  @ApiModelProperty({ description: 'BCCNM Full Licence RN ID ' })
+  bccnmFullLicenceRPNID?: string;
+
+  @ApiModelProperty({ description: 'BCCNM Full Licesnce RPN ID ' })
+  bccnmFullLicenceRNID?: string;
+
+  @ApiModelProperty({ description: 'BCCNM Provisional License LPN ID' })
+  bccnmProvisionalLicenceRNID?: string;
+
+  @ApiModelProperty({ description: 'BCCNM Provisional License LPN ID' })
+  bccnmProvisionalLicenceLPNID?: string;
+
+  @ApiModelProperty({ description: 'BCCNM Provisional License LPN ID' })
+  bccnmProvisionalLicenceRPNID?: string;
+
+  
 }
