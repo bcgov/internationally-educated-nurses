@@ -20,7 +20,7 @@ import {
   ILike,
 } from 'typeorm';
 import dayjs from 'dayjs';
-import _ from 'lodash';
+import _, { values } from 'lodash';
 import {
   AtsApplicant,
   Authorities,
@@ -402,7 +402,20 @@ export class ExternalAPIService {
     const bccnm_new_statuses = statuses.filter(value =>
       BCCNM_NEW_FIELDS.some(bccnm_new_field => value.status === bccnm_new_field.toString()),
     );
-    const APPLIED_TO_BCCNM_ID = '8a9b0d13-f5d7-4be3-8d38-11e5459f9e9a';
+
+    const BCCNM_SPREADSHEET_IDS = statuses
+      .filter(value => {
+        return [
+          STATUS.APPLIED_TO_BCCNM,
+          STATUS.BCCNM_PROVISIONAL_LICENCE_LPN,
+          STATUS.BCCNM_PROVISIONAL_LICENCE_RN,
+          STATUS.BCCNM_PROVISIONAL_LICENCE_RPN,
+          STATUS.BCCNM_FULL_LICENCE_LPN,
+          STATUS.BCCNM_FULL_LICENCE_RN,
+          STATUS.BCCMN_FULL_LICENCE_RPN,
+        ].includes(value.status as STATUS);
+      })
+      .map(value => value.id);
     await Promise.all(
       applicants.map(async a => {
         const audits: { id: string; status_id: string; notes: string }[] = await manager.query(`
@@ -419,7 +432,7 @@ export class ExternalAPIService {
 
         const removed = audits.filter(
           ({ status_id, notes }) =>
-            !(status_id === APPLIED_TO_BCCNM_ID && notes?.includes('Updated by BCCNM')) &&
+            !(BCCNM_SPREADSHEET_IDS.includes(status_id) && notes?.includes('Updated by BCCNM')) &&
             !a.milestones?.some(m => m.id.toLowerCase() === status_id),
         );
 
@@ -697,7 +710,16 @@ export class ExternalAPIService {
 
     // exclude bccnm/ncas completion updated by spreadsheet
     const bccnmNcasStatuses = await this.ienapplicantStatusRepository.find({
-      status: In([STATUS.APPLIED_TO_BCCNM, STATUS.COMPLETED_NCAS]),
+      status: In([
+        STATUS.APPLIED_TO_BCCNM,
+        STATUS.COMPLETED_NCAS,
+        STATUS.BCCNM_FULL_LICENCE_LPN,
+        STATUS.BCCNM_FULL_LICENCE_RN,
+        STATUS.BCCMN_FULL_LICENCE_RPN,
+        STATUS.BCCNM_PROVISIONAL_LICENCE_LPN,
+        STATUS.BCCNM_PROVISIONAL_LICENCE_RN,
+        STATUS.BCCNM_PROVISIONAL_LICENCE_RPN,
+      ]),
     });
     const existingBccnmNcasMilestones = await this.ienapplicantStatusAuditRepository.find({
       where: {

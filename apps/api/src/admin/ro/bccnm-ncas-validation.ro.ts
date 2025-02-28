@@ -102,6 +102,4 @@ export class BccnmNcasValidationRO implements BccnmNcasValidation {
 
   @ApiModelProperty({ description: 'BCCNM Provisional License LPN ID' })
   bccnmProvisionalLicenceRPNID?: string;
-
-  
 }

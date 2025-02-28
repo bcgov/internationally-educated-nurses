@@ -157,22 +157,38 @@ export class AdminService {
       countryOfEducation: update['ISO Code - Education'] ?? '',
       valid: false,
       message: '',
-      bccnmFullLicenceLPN:getDateFromCellValue(update['BCCNM Full License LPN']??''),
-      bccnmFullLicenceRN:getDateFromCellValue(update['BCCNM Full License RN']??''),
-      bccnmFullLicenceRPN:getDateFromCellValue(update['BCCNM Full License RPN']??''),
-      bccnmProvisionalLicenceLPN:getDateFromCellValue(update['BCCNM Provisional License LPN']??''),
-      bccnmProvisionalLicenceRN:getDateFromCellValue(update['BCCNM Provisional License RN']??''),
-      bccnmProvisionalLicenceRPN:getDateFromCellValue(update['BCCNM Provisional License RPN']??''),
+      bccnmFullLicenceLPN: getDateFromCellValue(update['BCCNM Full License LPN'] ?? ''),
+      bccnmFullLicenceRN: getDateFromCellValue(update['BCCNM Full License RN'] ?? ''),
+      bccnmFullLicenceRPN: getDateFromCellValue(update['BCCNM Full License RPN'] ?? ''),
+      bccnmProvisionalLicenceLPN: getDateFromCellValue(
+        update['BCCNM Provisional License LPN'] ?? '',
+      ),
+      bccnmProvisionalLicenceRN: getDateFromCellValue(update['BCCNM Provisional License RN'] ?? ''),
+      bccnmProvisionalLicenceRPN: getDateFromCellValue(
+        update['BCCNM Provisional License RPN'] ?? '',
+      ),
       bccnmApplicationCompleteDate: getDateFromCellValue(
         update['Date BCCNM Application Complete'] ?? '',
       ),
     };
-    v.bccnmFullLicenceLPNID= v.bccnmFullLicenceLPN ? this.getMilstoneIDFromApplicant(applicant,STATUS.BCCNM_FULL_LICENCE_LPN) :'';
-    v.bccnmFullLicenceRPNID= v.bccnmFullLicenceRPN ? this.getMilstoneIDFromApplicant(applicant,STATUS.BCCMN_FULL_LICENCE_RPN) :'';
-    v.bccnmFullLicenceRNID= v.bccnmFullLicenceRN ? this.getMilstoneIDFromApplicant(applicant,STATUS.BCCNM_FULL_LICENCE_RN) :'';
-    v.bccnmProvisionalLicenceLPNID= v.bccnmProvisionalLicenceLPN ? this.getMilstoneIDFromApplicant(applicant,STATUS.BCCNM_PROVISIONAL_LICENCE_LPN) :'';
-    v.bccnmProvisionalLicenceRPNID= v.bccnmProvisionalLicenceRPN ? this.getMilstoneIDFromApplicant(applicant,STATUS.BCCNM_PROVISIONAL_LICENCE_RPN) :'';
-    v.bccnmProvisionalLicenceRNID= v.bccnmProvisionalLicenceRN ? this.getMilstoneIDFromApplicant(applicant,STATUS.BCCNM_PROVISIONAL_LICENCE_RN) :'';
+    v.bccnmFullLicenceLPNID = v.bccnmFullLicenceLPN
+      ? this.getMilstoneIDFromApplicant(applicant, STATUS.BCCNM_FULL_LICENCE_LPN)
+      : '';
+    v.bccnmFullLicenceRPNID = v.bccnmFullLicenceRPN
+      ? this.getMilstoneIDFromApplicant(applicant, STATUS.BCCMN_FULL_LICENCE_RPN)
+      : '';
+    v.bccnmFullLicenceRNID = v.bccnmFullLicenceRN
+      ? this.getMilstoneIDFromApplicant(applicant, STATUS.BCCNM_FULL_LICENCE_RN)
+      : '';
+    v.bccnmProvisionalLicenceLPNID = v.bccnmProvisionalLicenceLPN
+      ? this.getMilstoneIDFromApplicant(applicant, STATUS.BCCNM_PROVISIONAL_LICENCE_LPN)
+      : '';
+    v.bccnmProvisionalLicenceRPNID = v.bccnmProvisionalLicenceRPN
+      ? this.getMilstoneIDFromApplicant(applicant, STATUS.BCCNM_PROVISIONAL_LICENCE_RPN)
+      : '';
+    v.bccnmProvisionalLicenceRNID = v.bccnmProvisionalLicenceRN
+      ? this.getMilstoneIDFromApplicant(applicant, STATUS.BCCNM_PROVISIONAL_LICENCE_RN)
+      : '';
     try {
       v.appliedToBccnm = getDateFromCellValue(update['Date BCCNM Application Complete']);
     } catch (e) {
@@ -190,7 +206,6 @@ export class AdminService {
       return v;
     }
 
-  
     // convert excel date cell value as a number to string
     try {
       v.dateOfRosContract = getDateFromCellValue(update['Date ROS Contract Signed']);
@@ -205,7 +220,7 @@ export class AdminService {
           ) {
             v.dateOfRosContract = undefined; // do not overwrite ROS milestone set by ATS
           } else {
-            v.rosStatusId= ros.id;
+            v.rosStatusId = ros.id;
           }
         }
       }
@@ -237,7 +252,6 @@ export class AdminService {
       v.bccnmApplicationCompleteDate = undefined;
     }
 
-
     if (v.countryOfEducation) {
       if (!isoCountries[v.countryOfEducation.toUpperCase() as keyof typeof isoCountries]) {
         v.message = `Invalid country code: ${v.countryOfEducation}`;
@@ -257,12 +271,12 @@ export class AdminService {
       !v.ncasCompleteDate &&
       !v.bccnmApplicationCompleteDate &&
       !v.countryOfEducation &&
-      !v.bccnmFullLicenceLPN && 
-      !v.bccnmFullLicenceRN && 
-      !v.bccnmFullLicenceRPN && 
-      !v.bccnmProvisionalLicenceLPN && 
-      !v.bccnmProvisionalLicenceRN && 
-      !v.bccnmProvisionalLicenceRPN && 
+      !v.bccnmFullLicenceLPN &&
+      !v.bccnmFullLicenceRN &&
+      !v.bccnmFullLicenceRPN &&
+      !v.bccnmProvisionalLicenceLPN &&
+      !v.bccnmProvisionalLicenceRN &&
+      !v.bccnmProvisionalLicenceRPN &&
       !v.message
     ) {
       v.message = 'No changes';
@@ -288,12 +302,12 @@ export class AdminService {
     });
   }
 
- getMilstoneIDFromApplicant(applicant:IENApplicant,status:STATUS):string{
-  let foundStatus = applicant.applicant_status_audit.find(
-    s => s.status.status === status?.toString(),
-  );
-  return foundStatus?.id || '';
- }
+  getMilstoneIDFromApplicant(applicant: IENApplicant, status: STATUS): string {
+    let foundStatus = applicant.applicant_status_audit.find(
+      s => s.status.status === status?.toString(),
+    );
+    return foundStatus?.id || '';
+  }
 
   async applyBccnmNcasUpdates(
     user: EmployeeRO,
@@ -335,9 +349,9 @@ export class AdminService {
             field: update?.bccnmApplicationCompleteDate,
             status: STATUS.BCCNM_APPLICATION_COMPLETE_DATE,
           },
-          { 
-            field: update?.bccnmDecisionDate, 
-            status: STATUS.BCCNM_DECISION_DATE 
+          {
+            field: update?.bccnmDecisionDate,
+            status: STATUS.BCCNM_DECISION_DATE,
           },
         ];
 
@@ -345,34 +359,34 @@ export class AdminService {
           {
             field: update?.bccnmFullLicenceLPN,
             status: STATUS.BCCNM_FULL_LICENCE_LPN,
-            statusId: update.bccnmFullLicenceLPNID
+            statusId: update.bccnmFullLicenceLPNID,
           },
           {
             field: update?.bccnmFullLicenceRN,
             status: STATUS.BCCNM_FULL_LICENCE_RN,
-            statusId: update.bccnmFullLicenceRNID
+            statusId: update.bccnmFullLicenceRNID,
           },
           {
             field: update?.bccnmFullLicenceRPN,
             status: STATUS.BCCMN_FULL_LICENCE_RPN,
-            statusId: update.bccnmFullLicenceRPNID
+            statusId: update.bccnmFullLicenceRPNID,
           },
           {
             field: update?.bccnmProvisionalLicenceLPN,
             status: STATUS.BCCNM_PROVISIONAL_LICENCE_LPN,
-            statusId: update.bccnmProvisionalLicenceLPNID
+            statusId: update.bccnmProvisionalLicenceLPNID,
           },
           {
             field: update?.bccnmProvisionalLicenceRN,
             status: STATUS.BCCNM_PROVISIONAL_LICENCE_RN,
-            statusId: update.bccnmProvisionalLicenceRNID
+            statusId: update.bccnmProvisionalLicenceRNID,
           },
           {
             field: update?.bccnmProvisionalLicenceRPN,
             status: STATUS.BCCNM_PROVISIONAL_LICENCE_RPN,
-            statusId: update.bccnmProvisionalLicenceRPNID
+            statusId: update.bccnmProvisionalLicenceRPNID,
           },
-        ]
+        ];
         for (const { field, status } of statusUpdates) {
           if (field) {
             const data = {
@@ -384,18 +398,18 @@ export class AdminService {
             created += 1;
           }
         }
-        for (const { field, status,statusId } of registrationUpdates) {
+        for (const { field, status, statusId } of registrationUpdates) {
           if (field) {
             const data = {
               start_date: field,
               status,
               notes,
             };
-            if(statusId){
-              console.log('Updating....', statusId,)
+            if (statusId) {
+              console.log('Updating....', statusId);
               await this.applicantService.updateApplicantStatus(user, statusId, data);
               created += 1;
-            }else{
+            } else {
               await this.applicantService.addApplicantStatus(user, update.applicantId, data);
               updated += 1;
             }

@@ -143,7 +143,6 @@ export class BccnmNcasUpdateItemDTO implements BccnmNcasValidation {
   @ApiModelProperty({ description: 'BCCNM Provisional License LPN ID' })
   @IsOptional()
   bccnmProvisionalLicenceRPNID?: string;
-
 }
 
 export class BccnmNcasUpdateDTO {
