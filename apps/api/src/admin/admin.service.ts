@@ -314,7 +314,6 @@ export class AdminService {
     { data }: BccnmNcasUpdateDTO,
   ): Promise<BccnmNcasUpdateRO> {
     const response = { created: 0, updated: 0, ignored: 0 };
-    console.log(data);
     await Promise.all(
       data.map(async update => {
         const notes = `Updated by BCCNM/NCAS data upload at ${dayjs().format(
@@ -406,7 +405,6 @@ export class AdminService {
               notes,
             };
             if (statusId) {
-              console.log('Updating....', statusId);
               await this.applicantService.updateApplicantStatus(user, statusId, data);
               created += 1;
             } else {

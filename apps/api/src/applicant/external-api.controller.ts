@@ -86,7 +86,7 @@ export class ExternalAPIController {
     example: '6',
   })
   @HttpCode(HttpStatus.OK)
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Get('/save-applicant')
   async saveApplicant(
     @Query('from') from: string,
