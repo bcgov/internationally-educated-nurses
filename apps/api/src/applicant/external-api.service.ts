@@ -20,7 +20,6 @@ import {
   ILike,
 } from 'typeorm';
 import dayjs from 'dayjs';
-import _, { values } from 'lodash';
 import {
   AtsApplicant,
   Authorities,
