@@ -94,7 +94,7 @@ export const ApplicantProfile = () => {
             </Dialog>
           </section>
         </AclMask>
-        {!applicant?.deleted_date && (
+        {!applicant?.deleted_date ? (
           <AclMask authorities={HealthAuthorities}>
             <div
               className='text-bcGray text-sm pt-1 pb-4 flex items-center'
@@ -110,6 +110,10 @@ export const ApplicantProfile = () => {
               />
             </div>
           </AclMask>
+        ) : (
+          <span className='mr-2 font-bold' data-cy='active-text'>
+            Applicant is Archived
+          </span>
         )}
       </div>
       {/* Offer Accepted Banner */}
