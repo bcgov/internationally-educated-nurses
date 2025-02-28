@@ -31,11 +31,11 @@ export interface BccnmNcasValidation {
   name?: string;
   valid?: boolean;
   bccnmDecisionDate?: string;
-  bccnmFullLicenseLPN?: string;
-  bccnmFullLicenseRPN?: string;
-  bccnmFullLicenseRN?: string;
-  bccnmProvisionalLicenseRN?: string;
-  bccnmProvisionalLicenseLPN?: string;
-  bccnmProvisionalLicenseRPN?: string;
+  bccnmFullLicenceLPN?: string;
+  bccnmFullLicenceRPN?: string;
+  bccnmFullLicenceRN?: string;
+  bccnmProvisionalLicenceRN?: string;
+  bccnmProvisionalLicenceLPN?: string;
+  bccnmProvisionalLicenceRPN?: string;
   bccnmApplicationCompleteDate?: string;
 }
