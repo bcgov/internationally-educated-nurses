@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { AppLogger } from '../common/logger.service';
 import { BccnmNcasUpdateRO, BccnmNcasValidationRO } from './ro';
 import { IENApplicant } from '../applicant/entity/ienapplicant.entity';
-import { BccnmNcasUpdateDTO } from './dto';
+import { BccnmNcasUpdateDTO, BccnmNcasUpdateItemDTO } from './dto';
 import { IENApplicantService } from '../applicant/ienapplicant.service';
 import { IENApplicantAddStatusAPIDTO } from '../applicant/dto';
 import { IENApplicantStatus } from '../applicant/entity/ienapplicant-status.entity';
@@ -157,14 +157,38 @@ export class AdminService {
       countryOfEducation: update['ISO Code - Education'] ?? '',
       valid: false,
       message: '',
+      bccnmFullLicenceLPN: getDateFromCellValue(update['BCCNM Full License LPN'] ?? ''),
+      bccnmFullLicenceRN: getDateFromCellValue(update['BCCNM Full License RN'] ?? ''),
+      bccnmFullLicenceRPN: getDateFromCellValue(update['BCCNM Full License RPN'] ?? ''),
+      bccnmProvisionalLicenceLPN: getDateFromCellValue(
+        update['BCCNM Provisional License LPN'] ?? '',
+      ),
+      bccnmProvisionalLicenceRN: getDateFromCellValue(update['BCCNM Provisional License RN'] ?? ''),
+      bccnmProvisionalLicenceRPN: getDateFromCellValue(
+        update['BCCNM Provisional License RPN'] ?? '',
+      ),
       bccnmApplicationCompleteDate: getDateFromCellValue(
         update['Date BCCNM Application Complete'] ?? '',
       ),
-      bccnmDecisionDate: getDateFromCellValue(update['BCCNM Decision Date'] ?? ''),
-      bccnmRegistrationDate: getDateFromCellValue(update['BCCNM Registration Date'] ?? ''),
     };
-
-    // bccnm/ncas completions accept 'Yes', 'No', or a date
+    v.bccnmFullLicenceLPNID = v.bccnmFullLicenceLPN
+      ? this.getMilstoneIDFromApplicant(applicant, STATUS.BCCNM_FULL_LICENCE_LPN)
+      : '';
+    v.bccnmFullLicenceRPNID = v.bccnmFullLicenceRPN
+      ? this.getMilstoneIDFromApplicant(applicant, STATUS.BCCMN_FULL_LICENCE_RPN)
+      : '';
+    v.bccnmFullLicenceRNID = v.bccnmFullLicenceRN
+      ? this.getMilstoneIDFromApplicant(applicant, STATUS.BCCNM_FULL_LICENCE_RN)
+      : '';
+    v.bccnmProvisionalLicenceLPNID = v.bccnmProvisionalLicenceLPN
+      ? this.getMilstoneIDFromApplicant(applicant, STATUS.BCCNM_PROVISIONAL_LICENCE_LPN)
+      : '';
+    v.bccnmProvisionalLicenceRPNID = v.bccnmProvisionalLicenceRPN
+      ? this.getMilstoneIDFromApplicant(applicant, STATUS.BCCNM_PROVISIONAL_LICENCE_RPN)
+      : '';
+    v.bccnmProvisionalLicenceRNID = v.bccnmProvisionalLicenceRN
+      ? this.getMilstoneIDFromApplicant(applicant, STATUS.BCCNM_PROVISIONAL_LICENCE_RN)
+      : '';
     try {
       v.appliedToBccnm = getDateFromCellValue(update['Date BCCNM Application Complete']);
     } catch (e) {
@@ -196,7 +220,7 @@ export class AdminService {
           ) {
             v.dateOfRosContract = undefined; // do not overwrite ROS milestone set by ATS
           } else {
-            v.statusId = ros.id;
+            v.rosStatusId = ros.id;
           }
         }
       }
@@ -228,20 +252,6 @@ export class AdminService {
       v.bccnmApplicationCompleteDate = undefined;
     }
 
-    if (
-      v.bccnmDecisionDate &&
-      applicant.applicant_status_audit.find(s => s.status.status === STATUS.BCCNM_DECISION_DATE)
-    ) {
-      v.bccnmDecisionDate = undefined;
-    }
-
-    if (
-      v.bccnmRegistrationDate &&
-      applicant.applicant_status_audit.find(s => s.status.status === STATUS.BCCNM_REGISTRATION_DATE)
-    ) {
-      v.bccnmRegistrationDate = undefined;
-    }
-
     if (v.countryOfEducation) {
       if (!isoCountries[v.countryOfEducation.toUpperCase() as keyof typeof isoCountries]) {
         v.message = `Invalid country code: ${v.countryOfEducation}`;
@@ -260,9 +270,13 @@ export class AdminService {
       !v.dateOfRosContract &&
       !v.ncasCompleteDate &&
       !v.bccnmApplicationCompleteDate &&
-      !v.bccnmDecisionDate &&
-      !v.bccnmRegistrationDate &&
       !v.countryOfEducation &&
+      !v.bccnmFullLicenceLPN &&
+      !v.bccnmFullLicenceRN &&
+      !v.bccnmFullLicenceRPN &&
+      !v.bccnmProvisionalLicenceLPN &&
+      !v.bccnmProvisionalLicenceRN &&
+      !v.bccnmProvisionalLicenceRPN &&
       !v.message
     ) {
       v.message = 'No changes';
@@ -288,6 +302,13 @@ export class AdminService {
     });
   }
 
+  getMilstoneIDFromApplicant(applicant: IENApplicant, status: STATUS): string {
+    let foundStatus = applicant.applicant_status_audit.find(
+      s => s.status.status === status?.toString(),
+    );
+    return foundStatus?.id || '';
+  }
+
   async applyBccnmNcasUpdates(
     user: EmployeeRO,
     { data }: BccnmNcasUpdateDTO,
@@ -295,72 +316,126 @@ export class AdminService {
     const response = { created: 0, updated: 0, ignored: 0 };
     await Promise.all(
       data.map(async update => {
-        const notes = `Updated by BCCNM/NCAS data upload at ${dayjs().format(
-          'YYYY-MM-DD HH:mm:ss',
-        )}`;
-        let created = 0,
-          updated = 0;
-
-        const rosMilestone = {
-          start_date: update.dateOfRosContract,
-          status: STATUS.SIGNED_ROS,
-          notes: `Registration designation: ${update.designation}\n${notes}`,
-        } as IENApplicantAddStatusAPIDTO;
-        if (update.statusId) {
-          await this.applicantService.updateApplicantStatus(user, update.statusId, rosMilestone);
-          updated += 1;
-        } else if (update.dateOfRosContract) {
-          await this.applicantService.addApplicantStatus(user, update.applicantId, rosMilestone);
-          created += 1;
-        }
-
-        const statusUpdates = [
-          {
-            field: update?.appliedToBccnm,
-            status: STATUS.APPLIED_TO_BCCNM,
-          },
-          {
-            field: update?.ncasCompleteDate,
-            status: STATUS.COMPLETED_NCAS,
-          },
-          {
-            field: update?.bccnmApplicationCompleteDate,
-            status: STATUS.BCCNM_APPLICATION_COMPLETE_DATE,
-          },
-
-          { field: update?.bccnmDecisionDate, status: STATUS.BCCNM_DECISION_DATE },
-          { field: update?.bccnmRegistrationDate, status: STATUS.BCCNM_REGISTRATION_DATE },
-        ];
-
-        for (const { field, status } of statusUpdates) {
-          if (field) {
-            const data = {
-              start_date: field,
-              status,
-              notes,
-            };
-            await this.applicantService.addApplicantStatus(user, update.applicantId, data);
-            created += 1;
-          }
-        }
-
-        if (update.countryOfEducation) {
-          const result = await this.applicantService.addEducationCountry(
-            update.applicantId,
-            update.countryOfEducation,
-          );
-          if (result === 1) {
-            created += 1;
-          } else if (result === 0) {
-            updated += 1;
-          }
-        }
-
-        response.created += created;
-        response.updated += updated;
-        response.ignored += updated + created === 0 ? 1 : 0;
+        return await this.createBCCNMNCASUpdate(update, user, response);
       }),
     );
     return response;
+  }
+
+  async createBCCNMNCASUpdate(
+    update: BccnmNcasUpdateItemDTO,
+    user: EmployeeRO,
+    response: BccnmNcasUpdateRO,
+  ): Promise<void> {
+    const notes = `Updated by BCCNM/NCAS data upload at ${dayjs().format('YYYY-MM-DD HH:mm:ss')}`;
+    let created = 0,
+      updated = 0;
+
+    const rosMilestone = {
+      start_date: update.dateOfRosContract,
+      status: STATUS.SIGNED_ROS,
+      notes: `Registration designation: ${update.designation}\n${notes}`,
+    } as IENApplicantAddStatusAPIDTO;
+    if (update.rosStatusID) {
+      await this.applicantService.updateApplicantStatus(user, update.rosStatusID, rosMilestone);
+      updated += 1;
+    } else if (update.dateOfRosContract) {
+      await this.applicantService.addApplicantStatus(user, update.applicantId, rosMilestone);
+      created += 1;
+    }
+
+    const statusUpdates = [
+      {
+        field: update?.appliedToBccnm,
+        status: STATUS.APPLIED_TO_BCCNM,
+      },
+      {
+        field: update?.ncasCompleteDate,
+        status: STATUS.COMPLETED_NCAS,
+      },
+      {
+        field: update?.bccnmApplicationCompleteDate,
+        status: STATUS.BCCNM_APPLICATION_COMPLETE_DATE,
+      },
+      {
+        field: update?.bccnmDecisionDate,
+        status: STATUS.BCCNM_DECISION_DATE,
+      },
+    ];
+
+    const registrationUpdates = [
+      {
+        field: update?.bccnmFullLicenceLPN,
+        status: STATUS.BCCNM_FULL_LICENCE_LPN,
+        statusId: update.bccnmFullLicenceLPNID,
+      },
+      {
+        field: update?.bccnmFullLicenceRN,
+        status: STATUS.BCCNM_FULL_LICENCE_RN,
+        statusId: update.bccnmFullLicenceRNID,
+      },
+      {
+        field: update?.bccnmFullLicenceRPN,
+        status: STATUS.BCCMN_FULL_LICENCE_RPN,
+        statusId: update.bccnmFullLicenceRPNID,
+      },
+      {
+        field: update?.bccnmProvisionalLicenceLPN,
+        status: STATUS.BCCNM_PROVISIONAL_LICENCE_LPN,
+        statusId: update.bccnmProvisionalLicenceLPNID,
+      },
+      {
+        field: update?.bccnmProvisionalLicenceRN,
+        status: STATUS.BCCNM_PROVISIONAL_LICENCE_RN,
+        statusId: update.bccnmProvisionalLicenceRNID,
+      },
+      {
+        field: update?.bccnmProvisionalLicenceRPN,
+        status: STATUS.BCCNM_PROVISIONAL_LICENCE_RPN,
+        statusId: update.bccnmProvisionalLicenceRPNID,
+      },
+    ];
+    for (const { field, status } of statusUpdates) {
+      if (field) {
+        const data = {
+          start_date: field,
+          status,
+          notes,
+        };
+        await this.applicantService.addApplicantStatus(user, update.applicantId, data);
+        created += 1;
+      }
+    }
+    for (const { field, status, statusId } of registrationUpdates) {
+      if (field) {
+        const data = {
+          start_date: field,
+          status,
+          notes,
+        };
+        if (statusId) {
+          await this.applicantService.updateApplicantStatus(user, statusId, data);
+          created += 1;
+        } else {
+          await this.applicantService.addApplicantStatus(user, update.applicantId, data);
+          updated += 1;
+        }
+      }
+    }
+    if (update.countryOfEducation) {
+      const result = await this.applicantService.addEducationCountry(
+        update.applicantId,
+        update.countryOfEducation,
+      );
+      if (result === 1) {
+        created += 1;
+      } else if (result === 0) {
+        updated += 1;
+      }
+    }
+
+    response.created += created;
+    response.updated += updated;
+    response.ignored += updated + created === 0 ? 1 : 0;
   }
 }
