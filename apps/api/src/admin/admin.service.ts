@@ -387,22 +387,24 @@ export class AdminService {
           },
         ];
         for (const { field, status } of statusUpdates) {
-          if (field)
-            await this.handleStatusUpdates(field, status, notes, user, created, update.applicantId);
+          if (field) {
+            await this.handleStatusUpdates(field, status, notes, user, update.applicantId);
+            created++;
+          }
         }
 
         for (const { field, status, statusId } of registrationUpdates) {
-          if (field)
+          if (field) {
             await this.handleRegistrationUpdates(
               field,
               status,
               statusId || '',
               notes,
               user,
-              created,
-              updated,
               update.applicantId,
             );
+            statusId ? updated++ : created++;
+          }
         }
         if (update.countryOfEducation) {
           const result = await this.applicantService.addEducationCountry(
@@ -429,7 +431,6 @@ export class AdminService {
     status: string,
     notes: string,
     user: EmployeeRO,
-    created: number,
     applicantId: string,
   ) {
     const data = {
@@ -438,7 +439,6 @@ export class AdminService {
       notes,
     };
     await this.applicantService.addApplicantStatus(user, applicantId, data);
-    created += 1;
   }
   async handleRegistrationUpdates(
     field: string,
@@ -446,8 +446,6 @@ export class AdminService {
     statusId: string,
     notes: string,
     user: EmployeeRO,
-    created: number,
-    updated: number,
     applicantId: string,
   ) {
     const data = {
@@ -457,10 +455,8 @@ export class AdminService {
     };
     if (statusId) {
       await this.applicantService.updateApplicantStatus(user, statusId, data);
-      created += 1;
     } else {
       await this.applicantService.addApplicantStatus(user, applicantId, data);
-      updated += 1;
     }
   }
 }
