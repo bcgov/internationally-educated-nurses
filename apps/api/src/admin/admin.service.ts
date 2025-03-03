@@ -306,7 +306,7 @@ export class AdminService {
     let foundStatus = applicant.applicant_status_audit.find(
       s => s.status.status === status?.toString(),
     );
-    return foundStatus?.id || '';
+    return foundStatus?.id ?? '';
   }
 
   async applyBccnmNcasUpdates(
@@ -398,7 +398,7 @@ export class AdminService {
             await this.handleRegistrationUpdates(
               field,
               status,
-              statusId || '',
+              statusId ?? '',
               notes,
               user,
               update.applicantId,
@@ -411,10 +411,15 @@ export class AdminService {
             update.applicantId,
             update.countryOfEducation,
           );
-          if (result === 1) {
-            created += 1;
-          } else if (result === 0) {
-            updated += 1;
+          switch (result) {
+            default:
+              break;
+            case 0:
+              updated++;
+              break;
+            case 1:
+              created++;
+              break;
           }
         }
 
