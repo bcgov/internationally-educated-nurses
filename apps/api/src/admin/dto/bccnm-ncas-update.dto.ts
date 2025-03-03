@@ -62,7 +62,7 @@ export class BccnmNcasUpdateItemDTO implements BccnmNcasValidation {
   })
   @ValidateIf(o => o.message === 'Update')
   @IsUUID()
-  rosStatusID?: string;
+  rosStatusId?: string;
 
   @ApiModelProperty({
     description: 'Date BCCNM Application Complete',
