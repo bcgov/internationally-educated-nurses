@@ -412,13 +412,13 @@ export class AdminService {
             update.countryOfEducation,
           );
           switch (result) {
-            default:
-              break;
             case 0:
               updated++;
               break;
             case 1:
               created++;
+              break;
+            default:
               break;
           }
         }
