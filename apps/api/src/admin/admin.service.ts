@@ -157,15 +157,15 @@ export class AdminService {
       countryOfEducation: update['ISO Code - Education'] ?? '',
       valid: false,
       message: '',
-      bccnmFullLicenceLPN: getDateFromCellValue(update['BCCNM Full License LPN'] ?? ''),
-      bccnmFullLicenceRN: getDateFromCellValue(update['BCCNM Full License RN'] ?? ''),
-      bccnmFullLicenceRPN: getDateFromCellValue(update['BCCNM Full License RPN'] ?? ''),
+      bccnmFullLicenceLPN: getDateFromCellValue(update['BCCNM Full Licence LPN'] ?? ''),
+      bccnmFullLicenceRN: getDateFromCellValue(update['BCCNM Full Licence RN'] ?? ''),
+      bccnmFullLicenceRPN: getDateFromCellValue(update['BCCNM Full Licence RPN'] ?? ''),
       bccnmProvisionalLicenceLPN: getDateFromCellValue(
-        update['BCCNM Provisional License LPN'] ?? '',
+        update['BCCNM Provisional Licence LPN'] ?? '',
       ),
-      bccnmProvisionalLicenceRN: getDateFromCellValue(update['BCCNM Provisional License RN'] ?? ''),
+      bccnmProvisionalLicenceRN: getDateFromCellValue(update['BCCNM Provisional Licence RN'] ?? ''),
       bccnmProvisionalLicenceRPN: getDateFromCellValue(
-        update['BCCNM Provisional License RPN'] ?? '',
+        update['BCCNM Provisional Licence RPN'] ?? '',
       ),
       bccnmApplicationCompleteDate: getDateFromCellValue(
         update['Date BCCNM Application Complete'] ?? '',
@@ -356,32 +356,32 @@ export class AdminService {
 
         const registrationUpdates = [
           {
-            field: update?.bccnmFullLicenceLPN,
+            field: update.bccnmFullLicenceLPN,
             status: STATUS.BCCNM_FULL_LICENCE_LPN,
             statusId: update.bccnmFullLicenceLPNID,
           },
           {
-            field: update?.bccnmFullLicenceRN,
+            field: update.bccnmFullLicenceRN,
             status: STATUS.BCCNM_FULL_LICENCE_RN,
             statusId: update.bccnmFullLicenceRNID,
           },
           {
-            field: update?.bccnmFullLicenceRPN,
+            field: update.bccnmFullLicenceRPN,
             status: STATUS.BCCMN_FULL_LICENCE_RPN,
             statusId: update.bccnmFullLicenceRPNID,
           },
           {
-            field: update?.bccnmProvisionalLicenceLPN,
+            field: update.bccnmProvisionalLicenceLPN,
             status: STATUS.BCCNM_PROVISIONAL_LICENCE_LPN,
             statusId: update.bccnmProvisionalLicenceLPNID,
           },
           {
-            field: update?.bccnmProvisionalLicenceRN,
+            field: update.bccnmProvisionalLicenceRN,
             status: STATUS.BCCNM_PROVISIONAL_LICENCE_RN,
             statusId: update.bccnmProvisionalLicenceRNID,
           },
           {
-            field: update?.bccnmProvisionalLicenceRPN,
+            field: update.bccnmProvisionalLicenceRPN,
             status: STATUS.BCCNM_PROVISIONAL_LICENCE_RPN,
             statusId: update.bccnmProvisionalLicenceRPNID,
           },

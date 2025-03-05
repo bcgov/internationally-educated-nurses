@@ -42,19 +42,19 @@ export const BccnmNcasUpdateTable = ({ data }: BccnmNcasUpdateTableProps) => {
               BCCNM Full Licence LPN
             </th>
             <th className='text-center' scope='col'>
-              BCCNM Full Licesnce RN
+              BCCNM Full Licence RN
             </th>
             <th className='text-center' scope='col'>
-              BCCNM Full Licesnce RPN
+              BCCNM Full Licence RPN
             </th>
             <th className='text-center' scope='col'>
-              BCCNM Provisional Licesnce LPN
+              BCCNM Provisional Licence LPN
             </th>
             <th className='text-center' scope='col'>
-              BCCNM Provisional Licesnce RN
+              BCCNM Provisional Licence RN
             </th>
             <th className='text-center' scope='col'>
-              BCCNM Provisional Licesnce RPN
+              BCCNM Provisional Licence RPN
             </th>
           </tr>
         </thead>

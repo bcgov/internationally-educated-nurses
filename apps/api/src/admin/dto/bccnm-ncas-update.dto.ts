@@ -79,52 +79,52 @@ export class BccnmNcasUpdateItemDTO implements BccnmNcasValidation {
   bccnmDecisionDate?: string;
 
   @ApiModelProperty({
-    description: 'BCCNM Full License LPN',
+    description: 'BCCNM Full Licence LPN',
   })
   @IsDateString()
   @IsOptional()
   bccnmFullLicenceLPN?: string;
 
   @ApiModelProperty({
-    description: 'BCCNM Full License RPN',
+    description: 'BCCNM Full Licence RPN',
   })
   @IsDateString()
   @IsOptional()
   bccnmFullLicenceRPN?: string;
 
   @ApiModelProperty({
-    description: 'BCCNM Full License RN',
+    description: 'BCCNM Full Licence RN',
   })
   @IsDateString()
   @IsOptional()
   bccnmFullLicenceRN?: string;
 
   @ApiModelProperty({
-    description: 'BCCNM Provisional License RN',
+    description: 'BCCNM Provisional Licence RN',
   })
   @IsDateString()
   @IsOptional()
   bccnmProvisionalLicenceRN?: string;
 
   @ApiModelProperty({
-    description: 'BCCNM Provisional License LPN',
+    description: 'BCCNM Provisional Licence LPN',
   })
   @IsDateString()
   @IsOptional()
   bccnmProvisionalLicenceLPN?: string;
 
   @ApiModelProperty({
-    description: 'BCCNM Provisional License RPN',
+    description: 'BCCNM Provisional Licence RPN',
   })
   @IsDateString()
   @IsOptional()
   bccnmProvisionalLicenceRPN?: string;
 
-  @ApiModelProperty({ description: 'BCCNM Full License LPN ID' })
+  @ApiModelProperty({ description: 'BCCNM Full Licence LPN ID' })
   @IsOptional()
   bccnmFullLicenceLPNID?: string;
 
-  @ApiModelProperty({ description: 'BCCNM Full License RN ID ' })
+  @ApiModelProperty({ description: 'BCCNM Full Licence RN ID ' })
   @IsOptional()
   bccnmFullLicenceRPNID?: string;
 
@@ -132,15 +132,15 @@ export class BccnmNcasUpdateItemDTO implements BccnmNcasValidation {
   @IsOptional()
   bccnmFullLicenceRNID?: string;
 
-  @ApiModelProperty({ description: 'BCCNM Provisional License LPN ID' })
+  @ApiModelProperty({ description: 'BCCNM Provisional Licence LPN ID' })
   @IsOptional()
   bccnmProvisionalLicenceRNID?: string;
 
-  @ApiModelProperty({ description: 'BCCNM Provisional License LPN ID' })
+  @ApiModelProperty({ description: 'BCCNM Provisional Licence LPN ID' })
   @IsOptional()
   bccnmProvisionalLicenceLPNID?: string;
 
-  @ApiModelProperty({ description: 'BCCNM Provisional License LPN ID' })
+  @ApiModelProperty({ description: 'BCCNM Provisional Licence LPN ID' })
   @IsOptional()
   bccnmProvisionalLicenceRPNID?: string;
 }

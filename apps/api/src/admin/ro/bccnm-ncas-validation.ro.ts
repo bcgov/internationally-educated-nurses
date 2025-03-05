@@ -67,13 +67,13 @@ export class BccnmNcasValidationRO implements BccnmNcasValidation {
   })
   bccnmDecisionDate?: string;
 
-  @ApiModelProperty({ description: 'BCCNM Full License LPN' })
+  @ApiModelProperty({ description: 'BCCNM Full Licence LPN' })
   bccnmFullLicenceLPN?: string;
 
-  @ApiModelProperty({ description: 'BCCNM Full License RN' })
+  @ApiModelProperty({ description: 'BCCNM Full Licence RN' })
   bccnmFullLicenceRPN?: string;
 
-  @ApiModelProperty({ description: 'BCCNM Full Licesnse RPN' })
+  @ApiModelProperty({ description: 'BCCNM Full Licence RPN' })
   bccnmFullLicenceRN?: string;
 
   @ApiModelProperty({ description: 'BCCNM Provisional Licence LPN' })
@@ -91,15 +91,15 @@ export class BccnmNcasValidationRO implements BccnmNcasValidation {
   @ApiModelProperty({ description: 'BCCNM Full Licence RN ID ' })
   bccnmFullLicenceRPNID?: string;
 
-  @ApiModelProperty({ description: 'BCCNM Full Licesnce RPN ID ' })
+  @ApiModelProperty({ description: 'BCCNM Full Licence RPN ID ' })
   bccnmFullLicenceRNID?: string;
 
-  @ApiModelProperty({ description: 'BCCNM Provisional License LPN ID' })
+  @ApiModelProperty({ description: 'BCCNM Provisional Licence LPN ID' })
   bccnmProvisionalLicenceRNID?: string;
 
-  @ApiModelProperty({ description: 'BCCNM Provisional License LPN ID' })
+  @ApiModelProperty({ description: 'BCCNM Provisional Licence LPN ID' })
   bccnmProvisionalLicenceLPNID?: string;
 
-  @ApiModelProperty({ description: 'BCCNM Provisional License LPN ID' })
+  @ApiModelProperty({ description: 'BCCNM Provisional Licence LPN ID' })
   bccnmProvisionalLicenceRPNID?: string;
 }
