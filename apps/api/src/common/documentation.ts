@@ -3,8 +3,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ApplicantModule } from 'src/applicant/applicant.module';
 import { EmployeeModule } from 'src/employee/employee.module';
 import { FormModule } from 'src/form/form.module';
-import { ReportModule } from 'src/report/report.module';
 import { AdminModule } from 'src/admin/admin.module';
+import { ReportModule } from 'src/report/report.module';
 
 export const Documentation = (app: INestApplication) => {
   const options = new DocumentBuilder()
