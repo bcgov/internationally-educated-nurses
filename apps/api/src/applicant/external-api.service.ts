@@ -855,7 +855,7 @@ export class ExternalAPIService {
         fromDate: from || '1914-07-18',
       })
       .andWhere({ applicant: Not(IsNull()) })
-      .limit(limit)
+      .take(limit)
       .skip(skip)
       .distinct()
       .execute();
