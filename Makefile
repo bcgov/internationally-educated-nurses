@@ -62,14 +62,14 @@ export BASTION_INSTANCE_ID = $(BASTION_INSTANCE_ID_PROD)
 endif
 
 ifeq ($(ENV_NAME), dev) 
-export DOMAIN=dev.ien.freshworks.club
+export DOMAIN=dev.ien.gov.bc.ca
 export NEXT_PUBLIC_AUTH_URL=https://common-logon-dev.hlth.gov.bc.ca/auth
 export BASTION_INSTANCE_ID=$(BASTION_INSTANCE_ID_DEV)
 export DB_HOST=$(DB_HOST_DEV)
 endif
 
 ifeq ($(ENV_NAME), test) 
-export DOMAIN=test.ien.freshworks.club
+export DOMAIN=test.ien.gov.bc.ca
 export NEXT_PUBLIC_AUTH_URL=https://common-logon-test.hlth.gov.bc.ca/auth
 export BASTION_INSTANCE_ID=$(BASTION_INSTANCE_ID_TEST)
 export DB_HOST=$(DB_HOST_TEST)
