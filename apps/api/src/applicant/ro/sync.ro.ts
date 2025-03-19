@@ -1,3 +1,4 @@
+import { END_OF_JOURNEY_FLAG } from '@ien/common';
 import { IENHaPcn } from '../entity/ienhapcn.entity';
 
 export interface EmployeeSync {
@@ -38,5 +39,6 @@ export interface MilestoneSync {
 export interface ApplicantSyncRO {
   id: string;
   updated_date: Date;
+  end_of_journey?: END_OF_JOURNEY_FLAG | boolean | null;
   milestone_statuses: MilestoneSync[];
 }
