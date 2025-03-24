@@ -862,7 +862,7 @@ export class ReportService implements OnModuleDestroy {
       }
     }
 
-    let results = await entityManager.query(
+    const results = await entityManager.query(
       this.reportUtilService.extractApplicantMilestoneQuery(from, to, userIds),
     );
     return results;

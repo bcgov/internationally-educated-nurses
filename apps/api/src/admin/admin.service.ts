@@ -13,6 +13,8 @@ import { IENApplicantService } from '../applicant/ienapplicant.service';
 import { IENApplicantAddStatusAPIDTO } from '../applicant/dto';
 import { IENApplicantStatus } from '../applicant/entity/ienapplicant-status.entity';
 import { getDateFromCellValue } from '../common/util';
+import { IENApplicantStatusAudit } from 'src/applicant/entity/ienapplicant-status-audit.entity';
+import { BCCNM_LICENCE_ENUM } from '@ien/common/src/enum';
 
 const BUCKET_NAME = process.env.DOCS_BUCKET ?? 'ien-dev-docs';
 
@@ -146,7 +148,7 @@ export class AdminService {
   }
 
   validateBccnmNcasUpdate(update: BccnmNcasUpdate, applicant: IENApplicant): BccnmNcasValidationRO {
-    const v: BccnmNcasValidationRO = {
+    const validation_result: BccnmNcasValidationRO = {
       id: update['HMBC Unique ID'],
       applicantId: applicant?.id,
       name: `${update['First Name'] ?? ''} ${update['Last Name'] ?? ''}`,
@@ -157,134 +159,114 @@ export class AdminService {
       countryOfEducation: update['ISO Code - Education'] ?? '',
       valid: false,
       message: '',
-      bccnmFullLicenceLPN: getDateFromCellValue(update['BCCNM Full Licence LPN'] ?? ''),
-      bccnmFullLicenceRN: getDateFromCellValue(update['BCCNM Full Licence RN'] ?? ''),
-      bccnmFullLicenceRPN: getDateFromCellValue(update['BCCNM Full Licence RPN'] ?? ''),
-      bccnmProvisionalLicenceLPN: getDateFromCellValue(
-        update['BCCNM Provisional Licence LPN'] ?? '',
-      ),
-      bccnmProvisionalLicenceRN: getDateFromCellValue(update['BCCNM Provisional Licence RN'] ?? ''),
-      bccnmProvisionalLicenceRPN: getDateFromCellValue(
-        update['BCCNM Provisional Licence RPN'] ?? '',
-      ),
-      bccnmApplicationCompleteDate: getDateFromCellValue(
-        update['Date BCCNM Application Complete'] ?? '',
-      ),
     };
-    v.bccnmFullLicenceLPNID = v.bccnmFullLicenceLPN
-      ? this.getMilstoneIDFromApplicant(applicant, STATUS.BCCNM_FULL_LICENCE_LPN)
-      : '';
-    v.bccnmFullLicenceRPNID = v.bccnmFullLicenceRPN
-      ? this.getMilstoneIDFromApplicant(applicant, STATUS.BCCMN_FULL_LICENCE_RPN)
-      : '';
-    v.bccnmFullLicenceRNID = v.bccnmFullLicenceRN
-      ? this.getMilstoneIDFromApplicant(applicant, STATUS.BCCNM_FULL_LICENCE_RN)
-      : '';
-    v.bccnmProvisionalLicenceLPNID = v.bccnmProvisionalLicenceLPN
-      ? this.getMilstoneIDFromApplicant(applicant, STATUS.BCCNM_PROVISIONAL_LICENCE_LPN)
-      : '';
-    v.bccnmProvisionalLicenceRPNID = v.bccnmProvisionalLicenceRPN
-      ? this.getMilstoneIDFromApplicant(applicant, STATUS.BCCNM_PROVISIONAL_LICENCE_RPN)
-      : '';
-    v.bccnmProvisionalLicenceRNID = v.bccnmProvisionalLicenceRN
-      ? this.getMilstoneIDFromApplicant(applicant, STATUS.BCCNM_PROVISIONAL_LICENCE_RN)
-      : '';
+    this.validateLicensingDates(update, applicant, validation_result);
     try {
-      v.appliedToBccnm = getDateFromCellValue(update['Date BCCNM Application Complete']);
+      validation_result.appliedToBccnm = getDateFromCellValue(
+        update['Date BCCNM Application Complete'],
+      );
     } catch (e) {
-      v.message = e.message;
+      validation_result.message = e.message;
     }
 
     try {
-      v.ncasCompleteDate = getDateFromCellValue(update['Date NCAS Assessment Complete']);
+      validation_result.ncasCompleteDate = getDateFromCellValue(
+        update['Date NCAS Assessment Complete'],
+      );
     } catch (e) {
-      v.message = e.message;
+      validation_result.message = e.message;
     }
 
     if (!applicant) {
-      v.message = 'Applicant not found';
-      return v;
+      validation_result.message = 'Applicant not found';
+      return validation_result;
     }
 
     // convert excel date cell value as a number to string
     try {
-      v.dateOfRosContract = getDateFromCellValue(update['Date ROS Contract Signed']);
-      if (v.dateOfRosContract) {
+      validation_result.dateOfRosContract = getDateFromCellValue(
+        update['Date ROS Contract Signed'],
+      );
+      if (validation_result.dateOfRosContract) {
         const ros = applicant.applicant_status_audit.find(
           s => s.status.status === STATUS.SIGNED_ROS,
         );
         if (ros) {
           if (
             !ros.notes?.includes('Updated by BCCNM') ||
-            dayjs(v.dateOfRosContract).isSame(ros.start_date)
+            dayjs(validation_result.dateOfRosContract).isSame(ros.start_date)
           ) {
-            v.dateOfRosContract = undefined; // do not overwrite ROS milestone set by ATS
+            validation_result.dateOfRosContract = undefined; // do not overwrite ROS milestone set by ATS
           } else {
-            v.rosStatusId = ros.id;
+            validation_result.rosStatusId = ros.id;
           }
         }
       }
     } catch (e) {
-      v.message = e.message;
+      validation_result.message = e.message;
     }
 
     // do not overwrite 'bccnm/ncas' completion date
     if (
-      v.appliedToBccnm &&
+      validation_result.appliedToBccnm &&
       applicant.applicant_status_audit.find(s => s.status.status === STATUS.APPLIED_TO_BCCNM)
     ) {
-      v.appliedToBccnm = undefined;
+      validation_result.appliedToBccnm = undefined;
     }
 
     if (
-      v.ncasCompleteDate &&
+      validation_result.ncasCompleteDate &&
       applicant.applicant_status_audit.find(s => s.status.status === STATUS.COMPLETED_NCAS)
     ) {
-      v.ncasCompleteDate = undefined;
+      validation_result.ncasCompleteDate = undefined;
     }
 
     if (
-      v.bccnmApplicationCompleteDate &&
+      validation_result.bccnmApplicationCompleteDate &&
       applicant.applicant_status_audit.find(
         s => s.status.status === STATUS.BCCNM_APPLICATION_COMPLETE_DATE,
       )
     ) {
-      v.bccnmApplicationCompleteDate = undefined;
+      validation_result.bccnmApplicationCompleteDate = undefined;
     }
 
-    if (v.countryOfEducation) {
-      if (!isoCountries[v.countryOfEducation.toUpperCase() as keyof typeof isoCountries]) {
-        v.message = `Invalid country code: ${v.countryOfEducation}`;
-        v.countryOfEducation = undefined;
+    if (validation_result.countryOfEducation) {
+      if (
+        !isoCountries[
+          validation_result.countryOfEducation.toUpperCase() as keyof typeof isoCountries
+        ]
+      ) {
+        validation_result.message = `Invalid country code: ${validation_result.countryOfEducation}`;
+        validation_result.countryOfEducation = undefined;
       } else if (
         applicant.nursing_educations?.some(
-          e => e.country?.toLowerCase() === v.countryOfEducation?.toLowerCase(),
+          e => e.country?.toLowerCase() === validation_result.countryOfEducation?.toLowerCase(),
         )
       ) {
-        v.countryOfEducation = undefined;
+        validation_result.countryOfEducation = undefined;
       }
     }
 
     if (
-      !v.appliedToBccnm &&
-      !v.dateOfRosContract &&
-      !v.ncasCompleteDate &&
-      !v.bccnmApplicationCompleteDate &&
-      !v.countryOfEducation &&
-      !v.bccnmFullLicenceLPN &&
-      !v.bccnmFullLicenceRN &&
-      !v.bccnmFullLicenceRPN &&
-      !v.bccnmProvisionalLicenceLPN &&
-      !v.bccnmProvisionalLicenceRN &&
-      !v.bccnmProvisionalLicenceRPN &&
-      !v.message
+      !validation_result.appliedToBccnm &&
+      !validation_result.dateOfRosContract &&
+      !validation_result.ncasCompleteDate &&
+      !validation_result.bccnmApplicationCompleteDate &&
+      !validation_result.countryOfEducation &&
+      !validation_result.bccnmFullLicenceLPN &&
+      !validation_result.bccnmFullLicenceRN &&
+      !validation_result.bccnmFullLicenceRPN &&
+      !validation_result.bccnmProvisionalLicenceLPN &&
+      !validation_result.bccnmProvisionalLicenceRN &&
+      !validation_result.bccnmProvisionalLicenceRPN &&
+      !validation_result.message
     ) {
-      v.message = 'No changes';
+      validation_result.message = 'No changes';
     }
 
-    v.valid = !v.message;
+    validation_result.valid = !validation_result.message;
 
-    return v;
+    return validation_result;
   }
 
   async validateBccnmNcasUpdates(rows: BccnmNcasUpdate[]): Promise<BccnmNcasValidationRO[]> {
@@ -302,11 +284,12 @@ export class AdminService {
     });
   }
 
-  getMilstoneIDFromApplicant(applicant: IENApplicant, status: STATUS): string {
-    let foundStatus = applicant.applicant_status_audit.find(
-      s => s.status.status === status?.toString(),
-    );
-    return foundStatus?.id ?? '';
+  getExistingMilestoneFromApplicant(
+    applicant: IENApplicant,
+    status: STATUS,
+  ): IENApplicantStatusAudit | undefined {
+    const foundStatus = applicant.applicant_status_audit.find(s => s.status.status === status);
+    return foundStatus;
   }
 
   async applyBccnmNcasUpdates(
@@ -463,5 +446,62 @@ export class AdminService {
     } else {
       await this.applicantService.addApplicantStatus(user, applicantId, data);
     }
+  }
+
+  validateLicensingDates(
+    update: BccnmNcasUpdate,
+    applicant: IENApplicant,
+    validation_result: BccnmNcasValidationRO,
+  ) {
+    const registration_statuses = [
+      BCCNM_LICENCE_ENUM.BCCNM_FULL_LICENCE_LPN,
+      BCCNM_LICENCE_ENUM.BCCNM_FULL_LICENCE_RN,
+      BCCNM_LICENCE_ENUM.BCCMN_FULL_LICENCE_RPN,
+      BCCNM_LICENCE_ENUM.BCCNM_PROVISIONAL_LICENCE_LPN,
+      BCCNM_LICENCE_ENUM.BCCNM_PROVISIONAL_LICENCE_RN,
+      BCCNM_LICENCE_ENUM.BCCNM_PROVISIONAL_LICENCE_RPN,
+    ];
+
+    registration_statuses.forEach((status: BCCNM_LICENCE_ENUM) => {
+      const outcome = this.validateLicensingDate(update, status, applicant, validation_result);
+      // IF there is no value for the cell or if
+      if (!outcome || outcome.date === outcome.match?.start_date?.toString()) return;
+      switch (status) {
+        case BCCNM_LICENCE_ENUM.BCCNM_FULL_LICENCE_LPN:
+          validation_result.bccnmFullLicenceLPN = outcome.date;
+          validation_result.bccnmFullLicenceLPNID = outcome?.match?.id || '';
+          break;
+        case BCCNM_LICENCE_ENUM.BCCNM_FULL_LICENCE_RN:
+          validation_result.bccnmFullLicenceLPN = outcome.date;
+          validation_result.bccnmFullLicenceLPNID = outcome?.match?.id || '';
+          break;
+        case BCCNM_LICENCE_ENUM.BCCMN_FULL_LICENCE_RPN:
+          validation_result.bccnmFullLicenceLPN = outcome.date;
+          validation_result.bccnmFullLicenceLPNID = outcome?.match?.id || '';
+          break;
+        case BCCNM_LICENCE_ENUM.BCCNM_PROVISIONAL_LICENCE_LPN:
+          validation_result.bccnmFullLicenceLPN = outcome.date;
+          validation_result.bccnmFullLicenceLPNID = outcome?.match?.id || '';
+          break;
+        case BCCNM_LICENCE_ENUM.BCCNM_PROVISIONAL_LICENCE_RN:
+          validation_result.bccnmFullLicenceLPN = outcome.date;
+          validation_result.bccnmFullLicenceLPNID = outcome?.match?.id || '';
+          break;
+        case BCCNM_LICENCE_ENUM.BCCNM_PROVISIONAL_LICENCE_RPN:
+          validation_result.bccnmFullLicenceLPN = outcome.date;
+          validation_result.bccnmFullLicenceLPNID = outcome?.match?.id || '';
+          break;
+      }
+    });
+  }
+  validateLicensingDate(
+    update: BccnmNcasUpdate,
+    status: BCCNM_LICENCE_ENUM,
+    applicant: IENApplicant,
+  ) {
+    const date = getDateFromCellValue(update[status] ?? '');
+    if (!date) return;
+    const match = this.getExistingMilestoneFromApplicant(applicant, STATUS.BCCNM_FULL_LICENCE_LPN);
+    return { match, date };
   }
 }

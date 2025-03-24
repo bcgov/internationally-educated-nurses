@@ -474,7 +474,7 @@ export class ExternalAPIService {
       return result;
     }
 
-    let applicants: any[] = await this.mapApplicants(data);
+    const applicants: any[] = await this.mapApplicants(data);
     const processed_applicants_list: any[] = [];
 
     for (let i = 0; i <= applicants?.length / 250; i++) {

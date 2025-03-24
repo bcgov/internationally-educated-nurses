@@ -36,7 +36,7 @@
     "formik": "2.4.6",
     "lodash": "4.17.21",
     "lucide-react": "0.464.0",
-    "next": "14.2.5",
+    "next": "14.2.25",
     "oidc-client-ts": "3.0.1",
     "react": "18.3.1",
     "react-datepicker": "4.8.0",
