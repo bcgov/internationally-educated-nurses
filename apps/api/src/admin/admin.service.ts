@@ -463,7 +463,7 @@ export class AdminService {
     ];
 
     registration_statuses.forEach((status: BCCNM_LICENCE_ENUM) => {
-      const outcome = this.validateLicensingDate(update, status, applicant, validation_result);
+      const outcome = this.validateLicensingDate(update, status, applicant);
       // IF there is no value for the cell or if
       if (!outcome || outcome.date === outcome.match?.start_date?.toString()) return;
       switch (status) {
