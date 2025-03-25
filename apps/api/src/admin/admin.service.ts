@@ -3,7 +3,14 @@ import { In, Repository } from 'typeorm';
 import _ from 'lodash';
 import dayjs from 'dayjs';
 import { Inject, InternalServerErrorException, Logger } from '@nestjs/common';
-import { BCCNM_LICENCE_ENUM, BccnmNcasUpdate, EmployeeRO, isoCountries, STATUS, UserGuide } from '@ien/common';
+import {
+  BCCNM_LICENCE_ENUM,
+  BccnmNcasUpdate,
+  EmployeeRO,
+  isoCountries,
+  STATUS,
+  UserGuide,
+} from '@ien/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AppLogger } from '../common/logger.service';
 import { BccnmNcasUpdateRO, BccnmNcasValidationRO } from './ro';
@@ -287,7 +294,9 @@ export class AdminService {
     applicant: IENApplicant,
     status: BCCNM_LICENCE_ENUM,
   ): IENApplicantStatusAudit | undefined {
-    const foundStatus = applicant?.applicant_status_audit.find(s => s.status.status === status.toString());
+    const foundStatus = applicant?.applicant_status_audit.find(
+      s => s.status.status === status.toString(),
+    );
     return foundStatus;
   }
 
@@ -463,7 +472,7 @@ export class AdminService {
 
     registration_statuses.forEach((status: BCCNM_LICENCE_ENUM) => {
       const outcome = this.validateLicensingDate(update, status, applicant);
-      console.log(outcome?.date+" "+outcome?.match);
+      console.log(outcome?.date + ' ' + outcome?.match);
       // IF there is no value for the cell or if
       if (!outcome || outcome.date === outcome.match?.start_date?.toString()) return;
       switch (status) {
@@ -501,7 +510,7 @@ export class AdminService {
   ) {
     const date = getDateFromCellValue(update[status] ?? '');
     if (!date) return;
-    const match = this.getExistingMilestoneFromApplicant(applicant,status);
+    const match = this.getExistingMilestoneFromApplicant(applicant, status);
     return { match, date };
   }
 }
