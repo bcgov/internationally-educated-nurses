@@ -285,9 +285,9 @@ export class AdminService {
 
   getExistingMilestoneFromApplicant(
     applicant: IENApplicant,
-    status: STATUS,
+    status: BCCNM_LICENCE_ENUM,
   ): IENApplicantStatusAudit | undefined {
-    const foundStatus = applicant?.applicant_status_audit.find(s => s.status.status === status);
+    const foundStatus = applicant?.applicant_status_audit.find(s => s.status.status === status.toString());
     return foundStatus;
   }
 
@@ -463,6 +463,7 @@ export class AdminService {
 
     registration_statuses.forEach((status: BCCNM_LICENCE_ENUM) => {
       const outcome = this.validateLicensingDate(update, status, applicant);
+      console.log(outcome?.date+" "+outcome?.match);
       // IF there is no value for the cell or if
       if (!outcome || outcome.date === outcome.match?.start_date?.toString()) return;
       switch (status) {
@@ -500,7 +501,7 @@ export class AdminService {
   ) {
     const date = getDateFromCellValue(update[status] ?? '');
     if (!date) return;
-    const match = this.getExistingMilestoneFromApplicant(applicant, STATUS.BCCNM_FULL_LICENCE_LPN);
+    const match = this.getExistingMilestoneFromApplicant(applicant,status);
     return { match, date };
   }
 }
