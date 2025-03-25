@@ -3,7 +3,7 @@ import { In, Repository } from 'typeorm';
 import _ from 'lodash';
 import dayjs from 'dayjs';
 import { Inject, InternalServerErrorException, Logger } from '@nestjs/common';
-import { BccnmNcasUpdate, EmployeeRO, isoCountries, STATUS, UserGuide } from '@ien/common';
+import { BCCNM_LICENCE_ENUM, BccnmNcasUpdate, EmployeeRO, isoCountries, STATUS, UserGuide } from '@ien/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AppLogger } from '../common/logger.service';
 import { BccnmNcasUpdateRO, BccnmNcasValidationRO } from './ro';
@@ -14,7 +14,6 @@ import { IENApplicantAddStatusAPIDTO } from '../applicant/dto';
 import { IENApplicantStatus } from '../applicant/entity/ienapplicant-status.entity';
 import { getDateFromCellValue } from '../common/util';
 import { IENApplicantStatusAudit } from 'src/applicant/entity/ienapplicant-status-audit.entity';
-import { BCCNM_LICENCE_ENUM } from '@ien/common/src/enum';
 
 const BUCKET_NAME = process.env.DOCS_BUCKET ?? 'ien-dev-docs';
 
@@ -288,7 +287,7 @@ export class AdminService {
     applicant: IENApplicant,
     status: STATUS,
   ): IENApplicantStatusAudit | undefined {
-    const foundStatus = applicant.applicant_status_audit.find(s => s.status.status === status);
+    const foundStatus = applicant?.applicant_status_audit.find(s => s.status.status === status);
     return foundStatus;
   }
 
@@ -472,24 +471,24 @@ export class AdminService {
           validation_result.bccnmFullLicenceLPNID = outcome?.match?.id || '';
           break;
         case BCCNM_LICENCE_ENUM.BCCNM_FULL_LICENCE_RN:
-          validation_result.bccnmFullLicenceLPN = outcome.date;
-          validation_result.bccnmFullLicenceLPNID = outcome?.match?.id || '';
+          validation_result.bccnmFullLicenceRN = outcome.date;
+          validation_result.bccnmFullLicenceRNID = outcome?.match?.id || '';
           break;
         case BCCNM_LICENCE_ENUM.BCCMN_FULL_LICENCE_RPN:
-          validation_result.bccnmFullLicenceLPN = outcome.date;
-          validation_result.bccnmFullLicenceLPNID = outcome?.match?.id || '';
+          validation_result.bccnmFullLicenceRPN = outcome.date;
+          validation_result.bccnmFullLicenceRPNID = outcome?.match?.id || '';
           break;
         case BCCNM_LICENCE_ENUM.BCCNM_PROVISIONAL_LICENCE_LPN:
-          validation_result.bccnmFullLicenceLPN = outcome.date;
-          validation_result.bccnmFullLicenceLPNID = outcome?.match?.id || '';
+          validation_result.bccnmProvisionalLicenceLPN = outcome.date;
+          validation_result.bccnmProvisionalLicenceLPNID = outcome?.match?.id || '';
           break;
         case BCCNM_LICENCE_ENUM.BCCNM_PROVISIONAL_LICENCE_RN:
-          validation_result.bccnmFullLicenceLPN = outcome.date;
-          validation_result.bccnmFullLicenceLPNID = outcome?.match?.id || '';
+          validation_result.bccnmProvisionalLicenceRN = outcome.date;
+          validation_result.bccnmProvisionalLicenceRNID = outcome?.match?.id || '';
           break;
         case BCCNM_LICENCE_ENUM.BCCNM_PROVISIONAL_LICENCE_RPN:
-          validation_result.bccnmFullLicenceLPN = outcome.date;
-          validation_result.bccnmFullLicenceLPNID = outcome?.match?.id || '';
+          validation_result.bccnmProvisionalLicenceRPN = outcome.date;
+          validation_result.bccnmFullLicenceRPNID = outcome?.match?.id || '';
           break;
       }
     });
