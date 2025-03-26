@@ -474,7 +474,7 @@ export class ExternalAPIService {
       return result;
     }
 
-    let applicants: any[] = await this.mapApplicants(data);
+    const applicants: any[] = await this.mapApplicants(data);
     const processed_applicants_list: any[] = [];
 
     for (let i = 0; i <= applicants?.length / 250; i++) {
@@ -846,28 +846,10 @@ export class ExternalAPIService {
   }
 
   async getApplicants(filter: IENUserFilterAPIDTO): Promise<ApplicantSyncRO[]> {
-    const { from, to, limit, skip } = filter;
-    const audits: { applicant_id: string }[] = await this.ienapplicantStatusAuditRepository
-      .createQueryBuilder()
-      .select('applicant_id')
-      .where('updated_date < :toDate AND updated_date > :fromDate', {
-        toDate: to || dayjs().add(1, 'day').format('YYYY-MM-DD'),
-        fromDate: from || '1914-07-18',
-      })
-      .andWhere({ applicant: Not(IsNull()) })
-      .take(limit)
-      .skip(skip)
-      .distinct()
-      .execute();
-
-    if (!audits.length) {
-      return [];
-    }
-    const ids = audits.map(audit => audit.applicant_id);
-    const results = await this.ienapplicantRepository.find({
-      where: (qb: any) => {
-        qb.where(`IENApplicant.id IN (:...ids)`, { ids });
-      },
+    const { limit, skip } = filter;
+    const applicants = await this.ienapplicantRepository.find({
+      skip,
+      take: limit,
       relations: [
         'applicant_status_audit',
         'applicant_status_audit.status',
@@ -877,7 +859,7 @@ export class ExternalAPIService {
       ],
     });
 
-    return results.map((result): ApplicantSyncRO => {
+    return applicants.map((result): ApplicantSyncRO => {
       return {
         id: result.id,
         updated_date: result.updated_date,

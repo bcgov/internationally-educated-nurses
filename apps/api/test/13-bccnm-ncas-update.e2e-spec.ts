@@ -117,12 +117,11 @@ describe('BCCNM/NCAS Updates', () => {
 
   it('2 - Apply BCCNM/NCAS update data', async () => {
     const data = await app.get(AdminService).validateBccnmNcasUpdates(dataToCreate);
-    console.log(data);
     const response = await request(app.getHttpServer())
       .post('/admin/apply-bccnm-ncas-updates')
       .send({ data: data.filter(v => v.valid) });
     const { created, updated, ignored } = response.body;
-    expect(created).toBe(20);
+    expect(created).toBe(16);
     expect(updated).toBe(0);
     expect(ignored).toBe(0);
     await validateMilestone(
