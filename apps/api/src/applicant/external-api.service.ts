@@ -881,6 +881,7 @@ export class ExternalAPIService {
       return {
         id: result.id,
         updated_date: result.updated_date,
+        end_of_journey: result?.end_of_journey,
         milestone_statuses: result.applicant_status_audit.map(m => {
           const milestone: MilestoneSync = {
             ..._.pick(m, ['id', 'start_date', 'created_date', 'updated_date']),
