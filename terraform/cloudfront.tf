@@ -49,7 +49,7 @@ resource "aws_cloudfront_function" "request" {
 resource "aws_cloudfront_distribution" "app" {
   comment = local.app_name
   
-  aliases = local.fw_domain ? [var.domain] : ["ien.gov.bc.ca", "www.ien.gov.bc.ca"]
+  aliases = local.is_prod ? [var.domain] : ["ien.gov.bc.ca", "www.ien.gov.bc.ca"]
 
   origin {
     domain_name = aws_s3_bucket.app.bucket_regional_domain_name

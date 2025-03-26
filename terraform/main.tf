@@ -35,5 +35,5 @@ locals {
   end_of_journey_scheduler = "${local.namespace}-end-of-journey-scheduler"
 
   has_domain = var.domain != ""
-  fw_domain  = length(regexall("freshworks", var.domain)) > 0
+  is_prod = var.domain == "ehpr.gov.bc.ca"
 }
