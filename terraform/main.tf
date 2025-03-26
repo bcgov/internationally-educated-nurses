@@ -35,5 +35,5 @@ locals {
   end_of_journey_scheduler = "${local.namespace}-end-of-journey-scheduler"
 
   has_domain = var.domain != ""
-  is_prod = var.domain == "ehpr.gov.bc.ca"
+  is_prod = var.domain == "ien.gov.bc.ca"
 }
