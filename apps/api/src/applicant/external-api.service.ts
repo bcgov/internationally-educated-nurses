@@ -857,7 +857,7 @@ export class ExternalAPIService {
         'applicant_status_audit.updated_by',
         'applicant_status_audit.added_by',
       ],
-      order:{id:'ASC'}
+      order: { id: 'ASC' },
     });
 
     return applicants.map((result): ApplicantSyncRO => {
