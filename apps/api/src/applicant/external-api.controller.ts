@@ -138,8 +138,8 @@ export class ExternalAPIController {
   })
   @UseInterceptors(ClassSerializerInterceptor)
   @HttpCode(HttpStatus.OK)
-  // @UseGuards(JWTGuard)
-  // @ApiBearerAuth()
+  @UseGuards(JWTGuard)
+  @ApiBearerAuth()
   @Get('/applicants')
   async getApplicants(@Query() filter: IENUserLimitFilterAPIDTO): Promise<ApplicantSyncRO[]> {
     return await this.externalAPIService.getApplicants(filter);

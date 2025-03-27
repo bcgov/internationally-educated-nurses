@@ -10,6 +10,6 @@ const options = {
   algorithm: 'HS256',
 };
 
-const secret = 'TY3ODkwIiwiZKlzOFGQqfxRmFCTNUzUSIWG';
+const secret = process.env.JWT_SECRET || 'jwtsecret';
 const token = jwt.sign(payload, secret, options);
 console.log(token);
