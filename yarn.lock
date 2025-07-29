@@ -9547,7 +9547,7 @@ __metadata:
     nodemon: 2.0.15
     npm-run-all: 4.1.5
     papaparse: 5.3.1
-    prettier: 2.4.1
+    prettier: 3.2.5
     pretty-quick: 3.1.2
     react-dropzone: 12.0.4
     start-server-and-test: 1.14.0
@@ -13902,12 +13902,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:2.4.1":
-  version: 2.4.1
-  resolution: "prettier@npm:2.4.1"
+"prettier@npm:3.2.5":
+  version: 3.2.5
+  resolution: "prettier@npm:3.2.5"
   bin:
-    prettier: bin-prettier.js
-  checksum: cc6830588b401b0d742862fe9c46bc9118204fb307c3abe0e49e95b35ed23629573807ffdf9cdd65289c252a0bb51fc0171437f6626ee36378dea80f0ee80b91
+    prettier: bin/prettier.cjs
+  checksum: 2ee4e1417572372afb7a13bb446b34f20f1bf1747db77cf6ccaf57a9be005f2f15c40f903d41a6b79eec3f57fff14d32a20fb6dee1f126da48908926fe43c311
   languageName: node
   linkType: hard
 
