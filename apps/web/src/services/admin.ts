@@ -8,9 +8,7 @@ export const getSignedUrlOfUserGuide = async (name: string, version?: string) =>
 };
 
 export const uploadUserGuide = async (payload: FormData) => {
-  const { data } = await axios.post<{ data: UserGuide }>(`/admin/user-guides`, payload, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
+  const { data } = await axios.post<{ data: UserGuide }>(`/admin/user-guides`, payload);
   return data.data;
 };
 
@@ -33,9 +31,6 @@ export const validateBccnmNcasUpdates = async (payload: FormData) => {
   const { data } = await axios.post<{ data: BccnmNcasValidation[] }>(
     `/admin/validate-bccnm-ncas-updates`,
     payload,
-    {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    },
   );
   return data.data;
 };

@@ -1546,7 +1546,7 @@ __metadata:
     "@types/supertest": "npm:2.0.11"
     "@vendia/serverless-express": "npm:4.3.11"
     aws-sdk: "npm:2.1017.0"
-    axios: "npm:0.28.0"
+    axios: "npm:1.7.0"
     class-transformer: "npm:0.5.1"
     csv-stringify: "npm:6.0.4"
     dotenv: "npm:10.0.0"
@@ -1602,7 +1602,7 @@ __metadata:
   dependencies:
     "@faker-js/faker": "npm:7.5.0"
     "@ien/common": "npm:1.0.2"
-    axios: "npm:0.28.0"
+    axios: "npm:1.7.0"
     dotenv: "npm:10.0.0"
     node-fetch: "npm:3.3.0"
     ts-node: "npm:^10.9.1"
@@ -1637,7 +1637,7 @@ __metadata:
     "@types/react": "npm:17.0.37"
     "@types/react-datepicker": "npm:4.4.2"
     autoprefixer: "npm:10.4.0"
-    axios: "npm:0.28.0"
+    axios: "npm:1.7.0"
     babel-jest: "npm:29.7.0"
     class-variance-authority: "npm:0.7.1"
     classnames: "npm:2.3.1"
@@ -5326,14 +5326,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:0.28.0":
-  version: 0.28.0
-  resolution: "axios@npm:0.28.0"
+"axios@npm:1.7.0":
+  version: 1.7.0
+  resolution: "axios@npm:1.7.0"
   dependencies:
-    follow-redirects: "npm:^1.15.0"
+    follow-redirects: "npm:^1.15.6"
     form-data: "npm:^4.0.0"
     proxy-from-env: "npm:^1.1.0"
-  checksum: 10/3bc408a75530cdccfa2537a8713f66d4b84cb1d93a31b59c0f1a247ffce955d8a739862365135b687bcef83763b8c3a42330dc3628b406c9ffca320bce608f0a
+  checksum: 10/fc97719eb1024626cf3ae716eed136964faea712cd750642c2693c8bf3843d342a9e373704d08319a851931b39ca318d2004f0ab4ca67f434f095754dc4aecee
+  languageName: node
+  linkType: hard
+
+"axios@npm:^0.21.1":
+  version: 0.21.4
+  resolution: "axios@npm:0.21.4"
+  dependencies:
+    follow-redirects: "npm:^1.14.0"
+  checksum: 10/da644592cb6f8f9f8c64fdabd7e1396d6769d7a4c1ea5f8ae8beb5c2eb90a823e3a574352b0b934ac62edc762c0f52647753dc54f7d07279127a7e5c4cd20272
   languageName: node
   linkType: hard
 
@@ -8938,13 +8947,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"follow-redirects@npm:^1.15.0":
-  version: 1.15.6
-  resolution: "follow-redirects@npm:1.15.6"
+"follow-redirects@npm:^1.14.0, follow-redirects@npm:^1.15.6":
+  version: 1.15.11
+  resolution: "follow-redirects@npm:1.15.11"
   peerDependenciesMeta:
     debug:
       optional: true
-  checksum: 10/70c7612c4cab18e546e36b991bbf8009a1a41cf85354afe04b113d1117569abf760269409cb3eb842d9f7b03d62826687086b081c566ea7b1e6613cf29030bf7
+  checksum: 10/07372fd74b98c78cf4d417d68d41fdaa0be4dcacafffb9e67b1e3cf090bc4771515e65020651528faab238f10f9b9c0d9707d6c1574a6c0387c5de1042cde9ba
   languageName: node
   linkType: hard
 
