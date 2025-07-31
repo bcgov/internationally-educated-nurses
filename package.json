@@ -3,7 +3,7 @@
   "private": true,
   "description": "IEN app packages",
   "engines": {
-    "node": ">=16.15.1"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "format:staged": "yarn pretty-quick --staged",
@@ -75,5 +75,6 @@
     "word-wrap": "1.2.4",
     "micromatch": "4.0.8",
     "ip": "2.0.1"
-  }
+  },
+  "packageManager": "yarn@4.9.2"
 }
