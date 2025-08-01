@@ -74,5 +74,6 @@
     "word-wrap": "1.2.4",
     "micromatch": "4.0.8",
     "ip": "2.0.1"
-  }
+  },
+  "packageManager": "yarn@4.9.2"
 }
