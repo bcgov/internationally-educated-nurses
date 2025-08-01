@@ -98,7 +98,7 @@ export class IENApplicantService {
         }
       });
     }
-    const applicant = await this.ienapplicantRepository.findOne(id, { relations });
+    const applicant = await this.ienapplicantRepository.findOne({ where: { id }, relations });
 
     if (!applicant) {
       throw new NotFoundException(`Applicant with id '${id}' not found`);
@@ -147,7 +147,7 @@ export class IENApplicantService {
   async createApplicantObject(addApplicant: IENApplicantCreateUpdateAPIDTO, user: EmployeeRO) {
     const { assigned_to, first_name, last_name, email_address, country_of_citizenship, ...data } =
       addApplicant;
-    const duplicate = await this.ienapplicantRepository.findOne({ email_address });
+    const duplicate = await this.ienapplicantRepository.findOne({ where: { email_address } });
     if (duplicate) {
       throw new BadRequestException('There is already an applicant with this email.');
     }
@@ -174,7 +174,7 @@ export class IENApplicantService {
     }
 
     if (user?.user_id) {
-      const added_by_data = await this.ienUsersRepository.findOne(user.user_id);
+      const added_by_data = await this.ienUsersRepository.findOne({ where: { id: user.user_id } });
       if (added_by_data) {
         applicant.added_by = added_by_data;
       }
@@ -203,7 +203,7 @@ export class IENApplicantService {
       let record = await manager.findOne(IENApplicantActiveFlag, {
         where: {
           applicant_id: id,
-          ha_id: user.ha_pcn_id,
+          ha_id: user.ha_pcn_id || IsNull(),
         },
       });
 
@@ -320,7 +320,7 @@ export class IENApplicantService {
     }
 
     if (user?.user_id) {
-      data.added_by = await this.ienUsersRepository.findOne(user.user_id);
+      data.added_by = await this.ienUsersRepository.findOne({ where: { id: user.user_id } });
     }
 
     if (reason) {
@@ -377,7 +377,8 @@ export class IENApplicantService {
     status_id: string,
     milestone: IENApplicantUpdateStatusAPIDTO,
   ): Promise<IENApplicantStatusAudit | any> {
-    const audit = await this.ienapplicantStatusAuditRepository.findOne(status_id, {
+    const audit = await this.ienapplicantStatusAuditRepository.findOne({
+      where: { id: status_id },
       relations: ['applicant', 'added_by', 'status', 'job'],
     });
     if (!audit) {
@@ -385,7 +386,7 @@ export class IENApplicantService {
     }
     const { status, start_date, effective_date, notes, reason, type } = milestone;
     if (user?.user_id) {
-      const updated_by_data = await this.ienUsersRepository.findOne(user.user_id);
+      const updated_by_data = await this.ienUsersRepository.findOne({ where: { id: user.user_id } });
       if (updated_by_data) {
         audit.updated_by = updated_by_data;
       }
@@ -446,8 +447,9 @@ export class IENApplicantService {
    * @returns
    */
   async deleteApplicantStatus(user_id: string | null, status_id: string): Promise<void> {
-    const status: IENApplicantStatusAudit | undefined =
-      await this.ienapplicantStatusAuditRepository.findOne(status_id, {
+    const status: IENApplicantStatusAudit | null =
+      await this.ienapplicantStatusAuditRepository.findOne({
+        where: { id: status_id },
         relations: ['applicant', 'added_by', 'status'],
       });
 
@@ -499,7 +501,7 @@ export class IENApplicantService {
     job.applicant = applicant;
 
     if (user?.user_id) {
-      job.added_by = await this.ienUsersRepository.findOne(user.user_id);
+      job.added_by = await this.ienUsersRepository.findOne({ where: { id: user.user_id } });
     }
 
     return this.saveApplicantJob(job, jobData);
@@ -515,7 +517,7 @@ export class IENApplicantService {
     id: string,
     job_id: string,
     jobData: IENApplicantJobCreateUpdateAPIDTO,
-  ): Promise<IENApplicantJob | undefined> {
+  ): Promise<IENApplicantJob | null> {
     const job = await this.ienapplicantUtilService.getJob(job_id);
     if (job?.applicant.id !== id) {
       throw new BadRequestException(`Provided applicant and competition/job does not match)`);
@@ -539,7 +541,8 @@ export class IENApplicantService {
    * @returns
    */
   async deleteApplicantJob(user_id: string | null, job_id: string): Promise<void> {
-    const job: IENApplicantJob | undefined = await this.ienapplicantJobRepository.findOne(job_id, {
+    const job: IENApplicantJob | null = await this.ienapplicantJobRepository.findOne({
+      where: { id: job_id },
       relations: ['added_by', 'applicant'],
     });
 
@@ -556,8 +559,9 @@ export class IENApplicantService {
     });
   }
 
-  async getApplicantJob(job_id: string | number): Promise<IENApplicantJob | undefined> {
-    return this.ienapplicantJobRepository.findOne(job_id, {
+  async getApplicantJob(job_id: string | number): Promise<IENApplicantJob | null> {
+    return this.ienapplicantJobRepository.findOne({
+      where: { id: String(job_id) },
       relations: RELATIONS.applicant_job,
     });
   }
@@ -619,19 +623,21 @@ export class IENApplicantService {
   }
 
   async assignApplicant(id: string, employee: EmployeeRO) {
-    const applicant = await this.ienapplicantRepository.findOne(id);
+    const applicant = await this.ienapplicantRepository.findOne({ where: { id } });
 
     const found = applicant?.recruiters?.some(e => e.id === employee.id);
     if (found) return;
 
-    const haPcn = await this.haPcnRepository.findOne({ title: employee.organization });
+    const haPcn = await this.haPcnRepository.findOne({ where: { title: employee.organization } });
     if (!haPcn) {
       throw new BadRequestException(`User doesn't belong to a health authority`);
     }
 
     let recruiterAssignment = await this.recruiterRepository.findOne({
-      applicant_id: id,
-      ha_id: haPcn.id,
+      where: {
+        applicant_id: id,
+        ha_id: haPcn.id,
+      },
     });
 
     if (!recruiterAssignment) {
@@ -680,13 +686,13 @@ export class IENApplicantService {
     const scrambledPhone = this.scrambleService.scramblePhone(phone_number);
 
     await getManager().transaction(async manager => {
-      const deleted_by_data = await this.employeeRepository.findOne(user_id);
+      const deleted_by_data = await this.employeeRepository.findOne({ where: { id: user_id } });
       await manager.update<IENApplicant>(IENApplicant, id, {
         name: scrambledName,
         email_address: scrambledEmail,
         phone_number: scrambledPhone,
         backup: { name, email_address, phone_number },
-        deleted_by: deleted_by_data,
+        deleted_by: deleted_by_data || undefined,
         deleted_date: new Date(),
         updated_date: new Date(),
       });

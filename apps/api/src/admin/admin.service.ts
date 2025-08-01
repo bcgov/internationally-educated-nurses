@@ -2,7 +2,7 @@ import AWS from 'aws-sdk';
 import { In, Repository } from 'typeorm';
 import _ from 'lodash';
 import dayjs from 'dayjs';
-import { Inject, InternalServerErrorException, Logger } from '@nestjs/common';
+import { InternalServerErrorException } from '@nestjs/common';
 import {
   BCCNM_LICENCE_ENUM,
   BccnmNcasUpdate,
@@ -11,7 +11,6 @@ import {
   STATUS,
   UserGuide,
 } from '@ien/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { AppLogger } from '../common/logger.service';
 import { BccnmNcasUpdateRO, BccnmNcasValidationRO } from './ro';
 import { IENApplicant } from '../applicant/entity/ienapplicant.entity';
@@ -28,12 +27,9 @@ export class AdminService {
   private s3: AWS.S3 | null = null;
 
   constructor(
-    @Inject(Logger) private readonly logger: AppLogger,
-    @InjectRepository(IENApplicant)
+    private readonly logger: AppLogger,
     private readonly applicantRepository: Repository<IENApplicant>,
-    @InjectRepository(IENApplicantStatus)
     readonly ienApplicantStatusRepository: Repository<IENApplicantStatus>,
-    @Inject(IENApplicantService)
     private readonly applicantService: IENApplicantService,
   ) {
     if (process.env.DOCS_BUCKET) {
@@ -172,7 +168,7 @@ export class AdminService {
         update['Date BCCNM Application Complete'],
       );
     } catch (e) {
-      validation_result.message = e.message;
+      validation_result.message = e instanceof Error ? e.message : 'Unknown error';
     }
 
     try {
@@ -180,7 +176,7 @@ export class AdminService {
         update['Date NCAS Assessment Complete'],
       );
     } catch (e) {
-      validation_result.message = e.message;
+      validation_result.message = e instanceof Error ? e.message : 'Unknown error';
     }
 
     if (!applicant) {
@@ -209,7 +205,7 @@ export class AdminService {
         }
       }
     } catch (e) {
-      validation_result.message = e.message;
+      validation_result.message = e instanceof Error ? e.message : 'Unknown error';
     }
 
     // do not overwrite 'bccnm/ncas' completion date

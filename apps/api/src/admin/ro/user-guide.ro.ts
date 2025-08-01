@@ -1,32 +1,32 @@
 import { UserGuide } from '@ien/common';
-import { ApiModelProperty } from '@nestjs/swagger/dist/decorators/api-model-property.decorator';
+import { ApiProperty } from '@nestjs/swagger';
 import { SuccessResponse } from '../../common/ro/success-response.ro';
 
 export class UserGuideRO implements UserGuide {
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'file name',
     example: 'user-guide.pdf',
   })
   name!: string;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'last modified date and time',
   })
   lastModified!: Date;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'file size in bytes',
   })
   size!: number;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'file version',
   })
   version!: string;
 }
 
 export class UserGuideResponse implements SuccessResponse {
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'List of user guides',
     type: UserGuideRO,
     isArray: true,

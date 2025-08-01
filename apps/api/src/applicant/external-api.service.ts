@@ -352,7 +352,7 @@ export class ExternalAPIService {
     manager?: EntityManager,
   ): Promise<SyncApplicantsAudit> {
     if (id) {
-      const audit = await this.syncApplicantsAuditRepository.findOne(id);
+      const audit = await this.syncApplicantsAuditRepository.findOne({ where: { id } });
       if (audit) {
         audit.is_success = is_success;
         audit.additional_data = additional_data;
@@ -388,7 +388,7 @@ export class ExternalAPIService {
   async getUsersMap() {
     // fetch user/staff details
     const users = await this.ienMasterService.ienUsersRepository.find({
-      user_id: Not(IsNull()),
+      where: { user_id: Not(IsNull()) },
     });
     return _.keyBy(users, 'user_id');
   }
@@ -687,10 +687,10 @@ export class ExternalAPIService {
 
     // To update ROS milestones created by spreadsheet, replace IDs
     const rosStatus = await this.ienapplicantStatusRepository.findOne({
-      status: STATUS.SIGNED_ROS,
+      where: { status: STATUS.SIGNED_ROS },
     });
     const rosMilestonesByATS = validMilestones.filter(m => m.status === rosStatus?.id);
-    if (rosMilestonesByATS.length) {
+    if (rosMilestonesByATS.length && rosStatus) {
       const rosMilestonesBySheet = await this.ienapplicantStatusAuditRepository.find({
         where: {
           status: rosStatus,
@@ -710,16 +710,18 @@ export class ExternalAPIService {
 
     // exclude bccnm/ncas completion updated by spreadsheet
     const bccnmNcasStatuses = await this.ienapplicantStatusRepository.find({
-      status: In([
-        STATUS.APPLIED_TO_BCCNM,
-        STATUS.COMPLETED_NCAS,
-        STATUS.BCCNM_FULL_LICENCE_LPN,
-        STATUS.BCCNM_FULL_LICENCE_RN,
-        STATUS.BCCMN_FULL_LICENCE_RPN,
-        STATUS.BCCNM_PROVISIONAL_LICENCE_LPN,
-        STATUS.BCCNM_PROVISIONAL_LICENCE_RN,
-        STATUS.BCCNM_PROVISIONAL_LICENCE_RPN,
-      ]),
+      where: {
+        status: In([
+          STATUS.APPLIED_TO_BCCNM,
+          STATUS.COMPLETED_NCAS,
+          STATUS.BCCNM_FULL_LICENCE_LPN,
+          STATUS.BCCNM_FULL_LICENCE_RN,
+          STATUS.BCCMN_FULL_LICENCE_RPN,
+          STATUS.BCCNM_PROVISIONAL_LICENCE_LPN,
+          STATUS.BCCNM_PROVISIONAL_LICENCE_RN,
+          STATUS.BCCNM_PROVISIONAL_LICENCE_RPN,
+        ]),
+      },
     });
     const existingBccnmNcasMilestones = await this.ienapplicantStatusAuditRepository.find({
       where: {
@@ -816,14 +818,20 @@ export class ExternalAPIService {
     }
 
     if (conditions.length > 0) {
-      return this.ienMasterService.ienUsersRepository.findAndCount({
-        where: (qb: SelectQueryBuilder<IENUsers>) => {
-          const condition = conditions.shift();
-          if (condition) qb.where(condition);
-          conditions.forEach(c => qb.andWhere(c));
-        },
-        ...query,
-      });
+      const qb = this.ienMasterService.ienUsersRepository.createQueryBuilder('user');
+      const condition = conditions.shift();
+      if (condition) qb.where(condition);
+      conditions.forEach(c => qb.andWhere(c));
+      
+      if (query.skip) qb.skip(query.skip);
+      if (query.take) qb.take(query.take);
+      if (query.order) {
+        Object.entries(query.order).forEach(([key, value]) => {
+          qb.addOrderBy(`user.${key}`, value as 'ASC' | 'DESC');
+        });
+      }
+      
+      return qb.getManyAndCount();
     } else {
       return this.ienMasterService.ienUsersRepository.findAndCount(query);
     }

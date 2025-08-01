@@ -1,13 +1,13 @@
 import * as dotenv from 'dotenv';
-import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
+import { DataSource } from 'typeorm';
 import { DatabaseNamingStrategy } from './database/database.naming-strategy';
 import DatabaseLogger from './database/database-logger';
-dotenv.config();
-// Check typeORM documentation for more information.
 
-const config: PostgresConnectionOptions = {
-  host: process.env.POSTGRES_HOST,
+dotenv.config();
+
+export const AppDataSource = new DataSource({
   type: 'postgres',
+  host: process.env.POSTGRES_HOST,
   port: +(process.env.PORTGRES_PORT || 5432),
   connectTimeoutMS: +(process.env.POSTGRES_TIMEOUT || 30000),
   username: process.env.POSTGRES_USERNAME || 'freshworks',
@@ -21,6 +21,4 @@ const config: PostgresConnectionOptions = {
   namingStrategy: new DatabaseNamingStrategy(),
   logging: !!process.env.DEBUG,
   logger: process.env.DEBUG ? new DatabaseLogger() : undefined,
-};
-
-export default config;
+});

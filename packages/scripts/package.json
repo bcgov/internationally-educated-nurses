@@ -8,11 +8,15 @@
     "@faker-js/faker": "7.5.0",
     "@ien/common": "1.0.2",
     "axios": "1.7.0",
+    "dayjs": "1.11.0",
     "dotenv": "10.0.0",
+    "lodash": "4.17.21",
     "node-fetch": "3.3.0",
-    "typescript": "4.3.5"
+    "typescript": "4.9.5"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.0",
+    "@types/node": "^22.0.0",
     "ts-node": "^10.9.1"
   }
 }
