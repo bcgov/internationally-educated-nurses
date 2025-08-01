@@ -31,7 +31,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-
+      - name: Enable Corepack
+        run: corepack enable
       - uses: actions/cache@v4
         name: Cache yarn
         with:
