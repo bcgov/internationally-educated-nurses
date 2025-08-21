@@ -12,9 +12,9 @@ let cachedServer: Handler;
 
 async function bootstrap() {
   if (!cachedServer) {
-    const { app: nestApp, expressApp } = await createNestApp();
+    const { app: nestApp } = await createNestApp();
     await nestApp.init();
-    cachedServer = serverlessExpress({ app: expressApp });
+    cachedServer = serverlessExpress({ app: nestApp.getHttpAdapter().getInstance() });
   }
   return cachedServer;
 }

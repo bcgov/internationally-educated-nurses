@@ -1,7 +1,7 @@
 import { EmployeeFilterAPIDTO } from './dto/employee-filter.dto';
 import { BadRequestException, Inject, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Not, IsNull, Repository, getManager } from 'typeorm';
+import { Not, IsNull, Repository, DataSource } from 'typeorm';
 import { Authorities, Authority, Employee, EmployeeRO, RoleSlug } from '@ien/common';
 import { EmployeeEntity } from './entity/employee.entity';
 import { IENUsers } from 'src/applicant/entity/ienusers.entity';
@@ -21,6 +21,7 @@ export class EmployeeService {
     @Inject(Logger)
     private readonly logger: AppLogger,
     private readonly featureFlagService: FeatureFlagService,
+    private dataSource: DataSource,
   ) {}
 
   async resolveUser(keycloakId: string, userData: Partial<EmployeeEntity>): Promise<EmployeeRO> {
@@ -58,7 +59,7 @@ export class EmployeeService {
   }
 
   async getUserByKeycloakId(keycloakId: string): Promise<EmployeeRO | undefined> {
-    const employeeUser = await getManager()
+    const employeeUser = await this.dataSource
       .createQueryBuilder(EmployeeEntity, 'employee')
       .select('employee.*')
       .addSelect('users.id', 'user_id')
@@ -87,9 +88,9 @@ export class EmployeeService {
     }
   }
 
-  async getUser(userData: Partial<EmployeeEntity>): Promise<IENUsers | undefined> {
+  async getUser(userData: Partial<EmployeeEntity>) {
     await this._upsertUser(userData);
-    return this.ienUsersRepository.findOne({ email: userData.email });
+    return this.ienUsersRepository.findOne({ where: { email: userData.email } });
   }
 
   async _upsertUser(userData: Partial<EmployeeEntity>): Promise<void> {
@@ -171,7 +172,7 @@ export class EmployeeService {
       throw new BadRequestException(`ROLE-ADMIN is only assigned in the database.`);
     }
 
-    const employee = await this.employeeRepository.findOne(id);
+    const employee = await this.employeeRepository.findOne({ where: { id } });
     if (!employee) {
       throw new BadRequestException(`Please provide at least one Id`);
     }
@@ -186,7 +187,7 @@ export class EmployeeService {
    * @param id
    */
   async revokeAccess(id: string): Promise<EmployeeEntity> {
-    const employee = await this.employeeRepository.findOne(id);
+    const employee = await this.employeeRepository.findOne({ where: { id } });
 
     if (!employee) {
       throw new BadRequestException(`No entry found.`);
@@ -206,7 +207,7 @@ export class EmployeeService {
    * @param id
    */
   async activate(id: string): Promise<EmployeeEntity> {
-    const employee = await this.employeeRepository.findOne(id);
+    const employee = await this.employeeRepository.findOne({ where: { id } });
 
     if (!employee) {
       throw new BadRequestException(`No entry found.`);
@@ -225,10 +226,10 @@ export class EmployeeService {
   }
 
   async getEmployee(id: string): Promise<EmployeeRO | undefined> {
-    const employee = await this.employeeRepository.findOne(id);
+    const employee = await this.employeeRepository.findOne({ where: { id } });
     if (!employee) return undefined;
 
-    const employeeUser = await getManager()
+    const employeeUser = await this.dataSource
       .createQueryBuilder(EmployeeEntity, 'employee')
       .select('employee.*')
       .addSelect('users.id', 'user_id')

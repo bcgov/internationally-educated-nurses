@@ -172,7 +172,7 @@ export class AdminService {
         update['Date BCCNM Application Complete'],
       );
     } catch (e) {
-      validation_result.message = e.message;
+      validation_result.message = e instanceof Error ? e.message : String(e);
     }
 
     try {
@@ -180,7 +180,7 @@ export class AdminService {
         update['Date NCAS Assessment Complete'],
       );
     } catch (e) {
-      validation_result.message = e.message;
+      validation_result.message = e instanceof Error ? e.message : String(e);
     }
 
     if (!applicant) {
@@ -209,7 +209,7 @@ export class AdminService {
         }
       }
     } catch (e) {
-      validation_result.message = e.message;
+      validation_result.message = e instanceof Error ? e.message : String(e);
     }
 
     // do not overwrite 'bccnm/ncas' completion date

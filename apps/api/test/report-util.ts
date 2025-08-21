@@ -127,12 +127,12 @@ export const clearMilestones = async () => {
 };
 
 export const getHaId = async (ha: keyof typeof Authorities): Promise<string> => {
-  const result = await getRepository(IENHaPcn).findOne({ abbreviation: ha });
+  const result = await getRepository(IENHaPcn).findOne({ where: { abbreviation: ha } });
   return result?.id || '';
 };
 
 export const getStatusId = async (status: STATUS) => {
-  const result = await getRepository(IENApplicantStatus).findOne({ status });
+  const result = await getRepository(IENApplicantStatus).findOne({ where: { status } });
   return result?.id;
 };
 

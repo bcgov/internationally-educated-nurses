@@ -58,7 +58,7 @@ export const handler: Handler = async (event, context: Context) => {
     const mailService = app.get(MailService);
     to &&
       (await mailService.sendMailWithSES({
-        body: `${e?.message}: ${e?.stack}`,
+        body: `${e instanceof Error ? e.message : String(e)}: ${e instanceof Error ? e.stack : ''}`,
         from: process.env.MAIL_FROM ?? 'IENDoNotReply@ien.gov.bc.ca',
         subject: `[IEN] Syncing ${event.path} failed at ${dayjs().format('YYYY-MM-DD HH:mm:ss')}`,
         to: to.split(','),

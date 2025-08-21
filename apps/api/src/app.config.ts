@@ -57,13 +57,14 @@ export async function createNestApp(): Promise<{
   // Nest Application With Express Adapter
   let app: NestExpressApplication;
   if (process.env.RUNTIME_ENV === 'local') {
-    app = await NestFactory.create(AppModule, {
+    app = await NestFactory.create<NestExpressApplication>(AppModule, {
       logger: new AppLogger(),
     });
   } else {
+    const adapter = new ExpressAdapter(expressApp);
     app = await NestFactory.create<NestExpressApplication>(
       AppModule,
-      new ExpressAdapter(expressApp),
+      adapter,
     );
     // Adding winston logger
     app.useLogger(new AppLogger());

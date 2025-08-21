@@ -14,7 +14,7 @@ import {
   FindManyOptions,
   ObjectLiteral,
   SelectQueryBuilder,
-  getManager,
+  DataSource,
   EntityManager,
   In,
   ILike,
@@ -66,6 +66,7 @@ export class ExternalAPIService {
     private readonly ienapplicantStatusAuditRepository: Repository<IENApplicantStatusAudit>,
     @InjectRepository(SyncApplicantsAudit)
     private readonly syncApplicantsAuditRepository: Repository<SyncApplicantsAudit>,
+    private dataSource: DataSource,
   ) {}
 
   /**
@@ -77,7 +78,7 @@ export class ExternalAPIService {
     }
     this.logger.log(`Using ATS : ${process.env.HMBC_ATS_BASE_URL}`, 'ATS-SYNC');
 
-    const manager = getManager();
+    const manager = this.dataSource.manager;
     await manager.queryRunner?.startTransaction();
 
     try {
@@ -325,7 +326,7 @@ export class ExternalAPIService {
       }
       applicants = await this.filterContradictoryRows(applicants);
 
-      const result = await getManager().transaction(async manager => {
+      const result = await this.dataSource.transaction(async manager => {
         const result = await this.createBulkApplicants(applicants, manager);
         result.milestones.removed = await this.removeMilestonesNotOnATS(applicants, manager);
         await this.saveSyncApplicantsAudit(audit.id, true, undefined, manager);
@@ -352,7 +353,7 @@ export class ExternalAPIService {
     manager?: EntityManager,
   ): Promise<SyncApplicantsAudit> {
     if (id) {
-      const audit = await this.syncApplicantsAuditRepository.findOne(id);
+      const audit = await this.syncApplicantsAuditRepository.findOne({ where: { id } });
       if (audit) {
         audit.is_success = is_success;
         audit.additional_data = additional_data;
@@ -388,7 +389,9 @@ export class ExternalAPIService {
   async getUsersMap() {
     // fetch user/staff details
     const users = await this.ienMasterService.ienUsersRepository.find({
-      user_id: Not(IsNull()),
+      where: {
+        user_id: Not(IsNull()),
+      },
     });
     return _.keyBy(users, 'user_id');
   }
@@ -687,13 +690,15 @@ export class ExternalAPIService {
 
     // To update ROS milestones created by spreadsheet, replace IDs
     const rosStatus = await this.ienapplicantStatusRepository.findOne({
-      status: STATUS.SIGNED_ROS,
+      where: {
+        status: STATUS.SIGNED_ROS,
+      },
     });
     const rosMilestonesByATS = validMilestones.filter(m => m.status === rosStatus?.id);
     if (rosMilestonesByATS.length) {
       const rosMilestonesBySheet = await this.ienapplicantStatusAuditRepository.find({
         where: {
-          status: rosStatus,
+          status: rosStatus || undefined,
           notes: ILike('%Updated by BCCNM/NCAS%'),
           applicant: In(_.uniq(rosMilestonesByATS.map(m => m.applicant))),
         },
@@ -710,7 +715,8 @@ export class ExternalAPIService {
 
     // exclude bccnm/ncas completion updated by spreadsheet
     const bccnmNcasStatuses = await this.ienapplicantStatusRepository.find({
-      status: In([
+      where: {
+        status: In([
         STATUS.APPLIED_TO_BCCNM,
         STATUS.COMPLETED_NCAS,
         STATUS.BCCNM_FULL_LICENCE_LPN,
@@ -719,7 +725,8 @@ export class ExternalAPIService {
         STATUS.BCCNM_PROVISIONAL_LICENCE_LPN,
         STATUS.BCCNM_PROVISIONAL_LICENCE_RN,
         STATUS.BCCNM_PROVISIONAL_LICENCE_RPN,
-      ]),
+        ]),
+      },
     });
     const existingBccnmNcasMilestones = await this.ienapplicantStatusAuditRepository.find({
       where: {
@@ -816,14 +823,13 @@ export class ExternalAPIService {
     }
 
     if (conditions.length > 0) {
-      return this.ienMasterService.ienUsersRepository.findAndCount({
-        where: (qb: SelectQueryBuilder<IENUsers>) => {
-          const condition = conditions.shift();
-          if (condition) qb.where(condition);
-          conditions.forEach(c => qb.andWhere(c));
-        },
-        ...query,
-      });
+      const qb = this.ienMasterService.ienUsersRepository.createQueryBuilder('users');
+      const condition = conditions.shift();
+      if (condition) qb.where(condition);
+      conditions.forEach(c => qb.andWhere(c));
+      if (query.skip) qb.skip(query.skip);
+      if (query.take) qb.take(query.take);
+      return qb.getManyAndCount();
     } else {
       return this.ienMasterService.ienUsersRepository.findAndCount(query);
     }

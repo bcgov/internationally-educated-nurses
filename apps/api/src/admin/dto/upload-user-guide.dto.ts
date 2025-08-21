@@ -1,14 +1,15 @@
 import { IsString } from 'class-validator';
-import { ApiModelProperty } from '@nestjs/swagger/dist/decorators/api-model-property.decorator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class UploadUserGuideDTO {
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'a user guide of pdf format',
-    type: 'file',
+    type: 'string',
+    format: 'binary',
   })
   file!: Express.Multer.File;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'key name for the AWS S3 object',
     example: 'user-guide.pdf',
   })
