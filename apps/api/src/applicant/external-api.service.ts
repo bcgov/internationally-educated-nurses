@@ -13,7 +13,6 @@ import {
   Repository,
   FindManyOptions,
   ObjectLiteral,
-  SelectQueryBuilder,
   DataSource,
   EntityManager,
   In,
@@ -357,9 +356,11 @@ export class ExternalAPIService {
       if (audit) {
         audit.is_success = is_success;
         audit.additional_data = additional_data;
-        manager
-          ? await manager.save<SyncApplicantsAudit>(audit)
-          : await this.syncApplicantsAuditRepository.save(audit);
+        if (manager) {
+          await manager.save<SyncApplicantsAudit>(audit);
+        } else {
+          await this.syncApplicantsAuditRepository.save(audit);
+        }
         return audit;
       }
     }
@@ -368,9 +369,11 @@ export class ExternalAPIService {
       additional_data,
     };
     const newAudit = this.syncApplicantsAuditRepository.create(addAuditData);
-    manager
-      ? await manager.save<SyncApplicantsAudit>(newAudit)
-      : await this.syncApplicantsAuditRepository.save(newAudit);
+    if (manager) {
+      await manager.save<SyncApplicantsAudit>(newAudit);
+    } else {
+      await this.syncApplicantsAuditRepository.save(newAudit);
+    }
     return newAudit;
   }
 
@@ -717,14 +720,14 @@ export class ExternalAPIService {
     const bccnmNcasStatuses = await this.ienapplicantStatusRepository.find({
       where: {
         status: In([
-        STATUS.APPLIED_TO_BCCNM,
-        STATUS.COMPLETED_NCAS,
-        STATUS.BCCNM_FULL_LICENCE_LPN,
-        STATUS.BCCNM_FULL_LICENCE_RN,
-        STATUS.BCCMN_FULL_LICENCE_RPN,
-        STATUS.BCCNM_PROVISIONAL_LICENCE_LPN,
-        STATUS.BCCNM_PROVISIONAL_LICENCE_RN,
-        STATUS.BCCNM_PROVISIONAL_LICENCE_RPN,
+          STATUS.APPLIED_TO_BCCNM,
+          STATUS.COMPLETED_NCAS,
+          STATUS.BCCNM_FULL_LICENCE_LPN,
+          STATUS.BCCNM_FULL_LICENCE_RN,
+          STATUS.BCCMN_FULL_LICENCE_RPN,
+          STATUS.BCCNM_PROVISIONAL_LICENCE_LPN,
+          STATUS.BCCNM_PROVISIONAL_LICENCE_RN,
+          STATUS.BCCNM_PROVISIONAL_LICENCE_RPN,
         ]),
       },
     });
@@ -819,7 +822,9 @@ export class ExternalAPIService {
 
       const condition = domains?.map(n => `email LIKE '%${n}'`).join(' OR ');
 
-      condition && conditions.push(`(${condition})`);
+      if (condition) {
+        conditions.push(`(${condition})`);
+      }
     }
 
     if (conditions.length > 0) {

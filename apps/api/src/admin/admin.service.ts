@@ -394,7 +394,11 @@ export class AdminService {
               user,
               update.applicantId,
             );
-            statusId ? updated++ : created++;
+            if (statusId) {
+              updated++;
+            } else {
+              created++;
+            }
           }
         }
         if (update.countryOfEducation) {

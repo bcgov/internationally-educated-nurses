@@ -39,7 +39,9 @@ export class EmployeeService {
         needToSave = true;
       }
     }
-    needToSave && (await this.employeeRepository.save(employee));
+    if (needToSave) {
+      await this.employeeRepository.save(employee);
+    }
 
     // Override keycloak user's email with ours. It will add new user record if not exist.
     const user = await this.getUser({ ...userData, email: employee.email });

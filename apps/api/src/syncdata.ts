@@ -56,13 +56,14 @@ export const handler: Handler = async (event, context: Context) => {
     logger.error(e, 'ATS-SYNC');
     const to = process.env.MAIL_RECIPIENTS || '';
     const mailService = app.get(MailService);
-    to &&
-      (await mailService.sendMailWithSES({
+    if (to) {
+      await mailService.sendMailWithSES({
         body: `${e instanceof Error ? e.message : String(e)}: ${e instanceof Error ? e.stack : ''}`,
         from: process.env.MAIL_FROM ?? 'IENDoNotReply@ien.gov.bc.ca',
         subject: `[IEN] Syncing ${event.path} failed at ${dayjs().format('YYYY-MM-DD HH:mm:ss')}`,
         to: to.split(','),
-      }));
+      });
+    }
   }
   logger.log('...end SyncData', 'ATS-SYNC');
   await app.close();
