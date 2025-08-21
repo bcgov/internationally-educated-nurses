@@ -5,6 +5,9 @@
   "engines": {
     "node": ">=16.15.1"
   },
+  "config": {
+    "NODE_OPTIONS": "--max-old-space-size=4096"
+  },
   "scripts": {
     "format:staged": "yarn pretty-quick --staged",
     "format:check": "yarn prettier --check .",
