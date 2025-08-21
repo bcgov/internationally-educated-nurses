@@ -8,7 +8,7 @@ export $(shell sed 's/=.*//' ./.env)
 export PROJECT := ien
 
 # Runtime and application Environments specific variable
-export ENV_NAME ?= dev
+export ENV_NAME ?= local
 export POSTGRES_USERNAME ?= freshworks
 export CHES_CLIENT_ID ?= IEN_SERVICE_CLIENT
 
@@ -71,6 +71,13 @@ endif
 ifeq ($(ENV_NAME), test) 
 export DOMAIN=test.ien.gov.bc.ca
 export NEXT_PUBLIC_AUTH_URL=https://common-logon-test.hlth.gov.bc.ca/auth
+export BASTION_INSTANCE_ID=$(BASTION_INSTANCE_ID_TEST)
+export DB_HOST=$(DB_HOST_TEST)
+endif
+
+ifeq ($(ENV_NAME), local) 
+export DOMAIN=localhost
+export NEXT_PUBLIC_AUTH_URL=http://localhost:8080/
 export BASTION_INSTANCE_ID=$(BASTION_INSTANCE_ID_TEST)
 export DB_HOST=$(DB_HOST_TEST)
 endif

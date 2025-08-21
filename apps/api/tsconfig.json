@@ -4,10 +4,11 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "allowJs": true,
-    "preserveSymlinks": true
+    "preserveSymlinks": true,
+    "noEmitOnError": false
   },
   "paths": {
     "src": "./src"
   },
-  "exclude": ["node_modules", "dist", "**/*.spec.ts", "./env.js"]
+  "exclude": ["node_modules", "dist", "**/*.spec.ts", "./env.js", "../../node_modules/@types/babel__traverse"]
 }
