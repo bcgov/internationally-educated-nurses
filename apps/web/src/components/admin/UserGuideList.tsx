@@ -28,9 +28,7 @@ export const UserGuideList = ({ showVersions = true }: UserGuideListProps) => {
 
   return (
     <div>
-      {files?.map(file => (
-        <UserGuideRow key={file.name} file={file} showVersions={showVersions} />
-      ))}
+      {files?.map(file => <UserGuideRow key={file.name} file={file} showVersions={showVersions} />)}
     </div>
   );
 };

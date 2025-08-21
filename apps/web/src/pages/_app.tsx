@@ -98,9 +98,8 @@ function FetchWrapper(props: PropsWithChildren<ReactNode>) {
         interceptors: {
           request: async ({ options }) => {
             if (user?.access_token && options.headers) {
-              (options.headers as Record<string, string>)[
-                'Authorization'
-              ] = `Bearer ${user.access_token}`;
+              (options.headers as Record<string, string>)['Authorization'] =
+                `Bearer ${user.access_token}`;
             }
             return options;
           },

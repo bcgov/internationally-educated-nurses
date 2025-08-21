@@ -20,7 +20,7 @@ import { IENApplicantStatus } from '../src/applicant/entity/ienapplicant-status.
 interface EducationOptions {
   count?: number;
   country?: keyof typeof COUNTRY_OF_EDUCATIONS;
-  name?: typeof EDUCATIONS[number];
+  name?: (typeof EDUCATIONS)[number];
   year?: number;
 }
 
@@ -228,10 +228,13 @@ export const generateDurations = (
   ];
   return milestones
     .filter(m => !excludedMilestones.includes(m))
-    .reduce((a, c) => {
-      return {
-        ...a,
-        [c]: Array.from({ length: numberOfApplicants }, () => _.random(1, max)),
-      };
-    }, {} as Record<STATUS, number[]>);
+    .reduce(
+      (a, c) => {
+        return {
+          ...a,
+          [c]: Array.from({ length: numberOfApplicants }, () => _.random(1, max)),
+        };
+      },
+      {} as Record<STATUS, number[]>,
+    );
 };

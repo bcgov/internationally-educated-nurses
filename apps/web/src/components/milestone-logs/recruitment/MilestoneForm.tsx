@@ -51,7 +51,7 @@ export const getInitialMilestoneFormValues = <T extends MilestoneFormValues>(
     reason: `${status?.reason?.id || ''}`,
     effective_date: `${status?.effective_date || ''}`,
     type: status?.type,
-  } as T);
+  }) as T;
 
 interface MilestoneFormProps<T extends MilestoneFormValues> {
   job?: ApplicantJobRO;

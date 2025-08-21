@@ -108,7 +108,7 @@ export class AdminService {
               size: v.Size,
               lastModified: v.LastModified,
               version: v.VersionId,
-            } as UserGuide),
+            }) as UserGuide,
         ) || []
       );
     } catch (e) {

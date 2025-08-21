@@ -153,9 +153,12 @@ const fillTotalRow = (rows: any[][], data: (string | number)[][]) => {
   rows.push([
     { v: 'TOTAL', t: 's', s: { fill: { fgColor }, font: bold } },
     ...data
-      .reduce((total, row) => {
-        return total.map((value, index) => +row[index + 1] + +value);
-      }, Array(data[0].length - 1).fill(0))
+      .reduce(
+        (total, row) => {
+          return total.map((value, index) => +row[index + 1] + +value);
+        },
+        Array(data[0].length - 1).fill(0),
+      )
       .map(v => ({ v, t: 'n', s: headerStyle })),
   ]);
 };

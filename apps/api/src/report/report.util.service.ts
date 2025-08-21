@@ -423,11 +423,11 @@ export class ReportUtilService {
           WHERE
             ien_status.start_date::date <= '${to}' 
             AND status.category IN ('${StatusCategory.LICENSING_REGISTRATION}', '${
-      StatusCategory.RECRUITMENT
-    }')
+              StatusCategory.RECRUITMENT
+            }')
             AND ien_status.status_id IN ('${statuses[STATUS.WITHDREW_FROM_PROGRAM]}', '${
-      statuses[STATUS.JOB_OFFER_ACCEPTED]
-    }')
+              statuses[STATUS.JOB_OFFER_ACCEPTED]
+            }')
         ) as t1
         WHERE t1.rank=1
       ), find_reactive_applicants AS (
