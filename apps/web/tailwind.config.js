@@ -1,7 +1,5 @@
 module.exports = {
-  mode: 'jit',
-  purge: ['out/**/*.html, ./src/pages/**/*.tsx', './src/components/**/*.tsx'],
-  darkMode: false, // or 'media' or 'class'
+  content: ['out/**/*.html', './src/pages/**/*.tsx', './src/components/**/*.tsx'],
   theme: {
     fontFamily: {
       sans: ['BCSans'],
@@ -74,9 +72,6 @@ module.exports = {
   },
   variants: {
     extend: {
-      opacity: ['disabled'],
-      backgroundColor: ['disabled'],
-      textColor: ['disabled'],
       backgroundColor: ['even'],
     },
   },
