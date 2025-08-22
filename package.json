@@ -37,8 +37,8 @@
   ],
   "devDependencies": {
     "@tsconfig/node14": "1.0.1",
-    "@typescript-eslint/eslint-plugin": "5.0.0",
-    "@typescript-eslint/parser": "5.0.0",
+    "@typescript-eslint/eslint-plugin": "8.40.0",
+    "@typescript-eslint/parser": "8.40.0",
     "cypress": "13.6",
     "eslint-config-prettier": "8.3.0",
     "husky": "9.0.11",
@@ -50,7 +50,7 @@
     "ts-loader": "9.2.3",
     "ts-node": "10.0.0",
     "tsconfig-paths": "3.10.1",
-    "typescript": "4.3.5",
+    "typescript": "5.4.4",
     "wsrun": "5.2.4"
   },
   "dependencies": {
@@ -71,7 +71,7 @@
   },
   "resolutions": {
     "axios": "0.28.0",
-    "express": "4.19.2",
+    "express": "5.1.0",
     "postcss": "8.4.31",
     "@babel/traverse": "7.23.2",
     "ws": "7.5.10",
@@ -82,5 +82,6 @@
     "word-wrap": "1.2.4",
     "micromatch": "4.0.8",
     "ip": "2.0.1"
-  }
+  },
+  "packageManager": "yarn@4.9.3"
 }
