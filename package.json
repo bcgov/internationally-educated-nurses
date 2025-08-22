@@ -3,7 +3,7 @@
   "private": true,
   "description": "IEN app packages",
   "engines": {
-    "node": ">=16.15.1"
+    "node": ">=22.0.0"
   },
   "config": {
     "NODE_OPTIONS": "--max-old-space-size=4096"
