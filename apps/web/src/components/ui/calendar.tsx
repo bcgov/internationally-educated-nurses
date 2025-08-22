@@ -111,8 +111,13 @@ export const Calendar = ({
           );
         },
         Chevron: ({ ...props }) => <Chevron {...props} />,
-        DropdownNav: ({ className, ...props }: DropdownNavProps) => (
-          <div className={`${className} flex gap-2`} {...props} />
+        DropdownNav: ({ className, children, ...props }: DropdownNavProps) => (
+          <div
+            className={`${className} flex gap-2`}
+            {...(props as React.HTMLAttributes<HTMLDivElement>)}
+          >
+            {children as React.ReactNode}
+          </div>
         ),
       }}
       {...props}

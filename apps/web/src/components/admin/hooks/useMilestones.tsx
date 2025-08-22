@@ -7,7 +7,7 @@ import { ApplicantStatusAuditRO } from '@ien/common';
 interface UseMilestonesProps {
   milestones: ApplicantStatusAuditRO[];
   category: string;
-  applicant: any;
+  applicant: unknown;
 }
 const DEFAULT_TAB_PAGE_SIZE = 5;
 export const useMilestones = ({ milestones, category, applicant }: UseMilestonesProps) => {

@@ -49,9 +49,11 @@ export const Recruitment: React.FC = () => {
     setJobRecords(jobsInPage || []);
 
     // check if results should show filtered jobs or total jobs
-    isFiltered(filters)
-      ? setTotal(filteredJobs?.length || 0)
-      : setTotal(applicant?.jobs?.length || 0);
+    if (isFiltered(filters)) {
+      setTotal(filteredJobs?.length || 0);
+    } else {
+      setTotal(applicant?.jobs?.length || 0);
+    }
   }, [pageIndex, pageSize, filters, applicant]);
 
   const isFiltered = (filterObj: JobFilterOptions) => {

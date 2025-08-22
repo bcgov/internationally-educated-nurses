@@ -5,5 +5,5 @@ module.exports = {
     scrollRestoration: true,
   },
   reactStrictMode: true,
-  swcMinify: false,
+  transpilePackages: ['@fortawesome/fontawesome-svg-core', '@fortawesome/free-solid-svg-icons', '@fortawesome/react-fontawesome'],
 };

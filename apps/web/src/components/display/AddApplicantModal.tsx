@@ -48,7 +48,9 @@ export const AddApplicantModal: React.FC<AddApplicantProps> = (props: AddApplica
       }
       onClose();
     } catch {
-      empty && values.nursing_educations.push(empty);
+      if (empty) {
+        values.nursing_educations.push(empty);
+      }
     }
   };
 

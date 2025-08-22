@@ -57,7 +57,7 @@ const Applicants = () => {
 
   const [addIenModalVisible, setAddIenModalVisible] = useState(false);
 
-  const timer = useRef<number>();
+  const timer = useRef<number | undefined>(undefined);
 
   const searchApplicants = async (
     options: SearchOptions,
@@ -132,7 +132,9 @@ const Applicants = () => {
   const changeRoute = (keyword: string, tabStatus: string) => {
     const urlParams = new URLSearchParams();
 
-    keyword && urlParams.append('name', keyword);
+    if (keyword) {
+      urlParams.append('name', keyword);
+    }
     urlParams.append('status', tabStatus);
 
     router.push(`?${urlParams.toString()}`, undefined, { shallow: true });

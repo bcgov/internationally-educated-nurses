@@ -1,9 +1,9 @@
 import { validateSync } from 'class-validator';
 import { plainToClass } from 'class-transformer';
 
-const dtoValidator = <T extends Record<any, any>>(
+const dtoValidator = <T extends object>(
   type: new () => T,
-  values: any,
+  values: unknown,
 ): Partial<Record<keyof T, string>> => {
   const dto = plainToClass(type, values);
   const validationErrors = validateSync(dto);
@@ -18,6 +18,6 @@ const dtoValidator = <T extends Record<any, any>>(
 };
 
 export const createValidator =
-  <T extends Record<any, any>>(schema: new () => T) =>
-  (data: any) =>
+  <T extends object>(schema: new () => T) =>
+  (data: unknown) =>
     dtoValidator(schema, data);
