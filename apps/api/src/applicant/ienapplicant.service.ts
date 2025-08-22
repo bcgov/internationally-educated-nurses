@@ -113,7 +113,7 @@ export class IENApplicantService {
 
     if (is_status_audit) {
       applicant.applicant_status_audit = await this.ienapplicantStatusAuditRepository.find({
-        where: { applicant, job: IsNull() },
+        where: { applicant: { id: applicant.id }, job: IsNull() },
         relations: ['status', 'reason', 'added_by', 'updated_by'],
       });
     }
@@ -175,7 +175,9 @@ export class IENApplicantService {
     }
 
     if (user?.user_id) {
-      const added_by_data = await this.ienUsersRepository.findOne({ where: { user_id: user.user_id } });
+      const added_by_data = await this.ienUsersRepository.findOne({
+        where: { user_id: user.user_id },
+      });
       if (added_by_data) {
         applicant.added_by = added_by_data;
       }
@@ -387,7 +389,9 @@ export class IENApplicantService {
     }
     const { status, start_date, effective_date, notes, reason, type } = milestone;
     if (user?.user_id) {
-      const updated_by_data = await this.ienUsersRepository.findOne({ where: { user_id: user.user_id } });
+      const updated_by_data = await this.ienUsersRepository.findOne({
+        where: { user_id: user.user_id },
+      });
       if (updated_by_data) {
         audit.updated_by = updated_by_data;
       }
@@ -448,10 +452,10 @@ export class IENApplicantService {
    * @returns
    */
   async deleteApplicantStatus(user_id: string | null, status_id: string): Promise<void> {
-    const status =
-      await this.ienapplicantStatusAuditRepository.findOne({ where: { id: status_id }, 
-        relations: ['applicant', 'added_by', 'status'],
-      });
+    const status = await this.ienapplicantStatusAuditRepository.findOne({
+      where: { id: status_id },
+      relations: ['applicant', 'added_by', 'status'],
+    });
 
     if (!status) {
       return;
@@ -541,7 +545,8 @@ export class IENApplicantService {
    * @returns
    */
   async deleteApplicantJob(user_id: string | null, job_id: string): Promise<void> {
-    const job = await this.ienapplicantJobRepository.findOne({ where: { id: String(job_id) }, 
+    const job = await this.ienapplicantJobRepository.findOne({
+      where: { id: String(job_id) },
       relations: ['added_by', 'applicant'],
     });
 
@@ -559,7 +564,8 @@ export class IENApplicantService {
   }
 
   async getApplicantJob(job_id: string | number) {
-    return this.ienapplicantJobRepository.findOne({ where: { id: String(job_id) }, 
+    return this.ienapplicantJobRepository.findOne({
+      where: { id: String(job_id) },
       relations: RELATIONS.applicant_job,
     });
   }
@@ -602,7 +608,7 @@ export class IENApplicantService {
   ): Promise<[IENApplicantJob[], number]> {
     const { job_id, ha_pcn, job_title, skip, limit } = options;
 
-    const where: any = { applicant: id };
+    const where: any = { applicant: { id } };
 
     if (job_id) where.id = job_id;
     if (ha_pcn) where.ha_pcn = In(ha_pcn);
