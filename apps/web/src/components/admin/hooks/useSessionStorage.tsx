@@ -9,7 +9,10 @@ export function useSessionStorage<T>(
   const [storedValue, setStoredValue] = useState<T>(() => {
     try {
       const item = sessionStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
+      if (item === null || item === 'undefined') {
+        return initialValue;
+      }
+      return JSON.parse(item);
     } catch (error) {
       console.error('Failed to retrieve from sessionStorage', error);
       return initialValue;

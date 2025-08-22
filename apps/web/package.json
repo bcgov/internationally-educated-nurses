@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npx next build",
     "start": "npx --yes serve@latest out",
     "lint": "next lint",
     "test": "jest",
@@ -59,6 +59,8 @@
     "@types/lodash": "4.14.182",
     "@types/react": "19.1.11",
     "@types/react-datepicker": "4.4.2",
+    "@typescript-eslint/eslint-plugin": "^8.40.0",
+    "@typescript-eslint/parser": "^8.40.0",
     "autoprefixer": "10.4.0",
     "babel-jest": "29.7.0",
     "cy-verify-downloads": "0.1.8",
