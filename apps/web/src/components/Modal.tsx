@@ -1,7 +1,7 @@
 import { Dialog, Transition } from '@headlessui/react';
-import React, { Fragment, PropsWithChildren, ReactNode } from 'react';
+import React, { Fragment, PropsWithChildren } from 'react';
 
-export interface ModalProps {
+export interface ModalProps extends PropsWithChildren {
   open: boolean;
   handleClose: () => void;
 }
@@ -67,6 +67,6 @@ export const Modal = ModalContainer as ModalInterface;
 Modal.Title = Dialog.Title;
 Modal.Description = Dialog.Description;
 
-export const ModalFooter = ({ children }: PropsWithChildren<ReactNode>) => {
+export const ModalFooter = ({ children }: PropsWithChildren) => {
   return <div className='bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse'>{children}</div>;
 };

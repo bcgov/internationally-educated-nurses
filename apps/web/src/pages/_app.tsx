@@ -3,7 +3,7 @@ import Head from 'next/head';
 import { ToastContainer } from 'react-toastify';
 import type { AppProps } from 'next/app';
 import { CachePolicies, Provider } from 'use-http';
-import React, { PropsWithChildren, ReactNode, useEffect, useState } from 'react';
+import React, { PropsWithChildren, useEffect, useState } from 'react';
 import { AuthProvider as OidcAuthProvider, AuthProviderProps, useAuth } from 'react-oidc-context';
 import { User } from 'oidc-client-ts';
 import { NonceProvider } from 'react-select';
@@ -88,7 +88,7 @@ function App({ Component, pageProps }: AppProps) {
   );
 }
 
-function FetchWrapper(props: PropsWithChildren<ReactNode>) {
+function FetchWrapper(props: PropsWithChildren) {
   const { user } = useAuth();
 
   return (

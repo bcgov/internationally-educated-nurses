@@ -1,9 +1,9 @@
 import calendarIcon from '@assets/img/calendar.svg';
 import { ApplicantStatusAuditRO, formatDate, OutcomeGroups, STATUS } from '@ien/common';
-import React, { PropsWithChildren, ReactNode } from 'react';
+import React, { PropsWithChildren } from 'react';
 import userIcon from '@assets/img/user.svg';
 
-type MilestoneViewProps = PropsWithChildren<ReactNode> & {
+type MilestoneViewProps = PropsWithChildren & {
   milestone: ApplicantStatusAuditRO;
 };
 

@@ -1,4 +1,6 @@
-interface ExternalLinkProps {
+import { PropsWithChildren } from 'react';
+
+interface ExternalLinkProps extends PropsWithChildren {
   href: string;
 }
 

@@ -1,4 +1,6 @@
-interface DescriptionProps {
+import { PropsWithChildren } from 'react';
+
+interface DescriptionProps extends PropsWithChildren {
   id: string;
 }
 

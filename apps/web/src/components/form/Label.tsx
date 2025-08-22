@@ -1,4 +1,6 @@
-interface LabelProps {
+import { PropsWithChildren } from 'react';
+
+interface LabelProps extends PropsWithChildren {
   htmlFor: string;
 }
 

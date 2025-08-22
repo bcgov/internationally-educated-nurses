@@ -1,10 +1,10 @@
 import { useRouter } from 'next/router';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, PropsWithChildren } from 'react';
 
 /**
  * a styled header that auto focuses when the step parameter changes
  */
-export const FormStepHeader: React.FC = ({ children }) => {
+export const FormStepHeader: React.FC<PropsWithChildren> = ({ children }) => {
   const router = useRouter();
   const step = Number(router.query.step);
   const headerRef = useRef<HTMLHeadingElement>(null);

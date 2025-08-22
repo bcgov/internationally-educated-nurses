@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode, useMemo } from 'react';
+import React, { createContext, useContext, useState, useMemo, PropsWithChildren } from 'react';
 
 // 1. Define the shape of the context state
 type SystemMilestone = {
@@ -17,12 +17,8 @@ interface SystemContextType {
 // 2. Create the context with an initial undefined value
 const SystemContext = createContext<SystemContextType | undefined>(undefined);
 
-// 3. Create the provider component and props type
-interface SystemProviderProps {
-  children: ReactNode;
-}
-
-export const SystemProvider: React.FC<SystemProviderProps> = ({ children }) => {
+// 3. Create the provider component
+export const SystemProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const [open, setOpen] = useState<boolean>(false);
   const [selectedMilestone, setSelectedMilestone] = useState<SystemMilestone | null>(null);
 

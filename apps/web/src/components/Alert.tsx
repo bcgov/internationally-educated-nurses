@@ -1,7 +1,8 @@
 import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { PropsWithChildren } from 'react';
 
-export const Alert: React.FC = ({ children }) => {
+export const Alert: React.FC<PropsWithChildren> = ({ children }) => {
   return (
     <div className='bg-bcLightBlueBackground py-4  text-left flex items-center rounded'>
       <div className='px-5 text-bcBluePrimary'>

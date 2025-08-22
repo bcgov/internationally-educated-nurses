@@ -1,11 +1,4 @@
-import {
-  createContext,
-  PropsWithChildren,
-  ReactNode,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import { createContext, PropsWithChildren, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 
 import { ApplicantRO, ApplicantStatusAuditRO, ApplicantJobRO, isHired } from '@ien/common';
@@ -29,7 +22,7 @@ export const ApplicantContext = createContext<{
   hiredHa: undefined,
 });
 
-export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) => {
+export const ApplicantProvider = ({ children }: PropsWithChildren) => {
   const router = useRouter();
   const id = router.query.id as string;
 
@@ -60,7 +53,11 @@ export const ApplicantProvider = ({ children }: PropsWithChildren<ReactNode>) =>
   const checkForAcceptedOffer = (jobs: ApplicantJobRO[] | null | undefined) => {
     const acceptedOffer = jobs && jobs.find(j => j.status_audit?.find(s => isHired(s.id)));
 
-    acceptedOffer ? setHiredHa(acceptedOffer.ha_pcn.id) : setHiredHa(undefined);
+    if (acceptedOffer) {
+      setHiredHa(acceptedOffer.ha_pcn.id);
+    } else {
+      setHiredHa(undefined);
+    }
   };
 
   const updateJob = (job: ApplicantJobRO) => {
