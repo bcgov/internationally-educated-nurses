@@ -5,7 +5,7 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@faker-js/faker": "10.0.0",
+    "@faker-js/faker": "7.5.0",
     "@ien/common": "1.0.2",
     "axios": "1.8.2",
     "dotenv": "10.0.0",
