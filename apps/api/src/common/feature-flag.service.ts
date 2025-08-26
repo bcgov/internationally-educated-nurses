@@ -38,8 +38,8 @@ export class FeatureFlagService {
       const flagValue = result.Parameter?.Value === 'true';
       this.logger.log(`Feature flag ${featureFlag} is set to: ${flagValue}`);
       return flagValue;
-    } catch (error: any) {
-      this.logger.error(`Error fetching feature flag from SSM: ${error?.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`Error fetching feature flag from SSM: ${(error as Error)?.message}`);
       return false; // Default to false if there's an error
     }
   }

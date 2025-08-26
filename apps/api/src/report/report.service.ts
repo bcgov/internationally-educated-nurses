@@ -826,7 +826,7 @@ export class ReportService implements OnModuleDestroy {
     // set IEN type
     const types = await this.getIenTypes(from, to);
     types.forEach(({ id, type }) => {
-      const row = data.find((r: any) => r['Applicant ID'] === id);
+      const row = data.find((r: Record<string, unknown>) => r['Applicant ID'] === id);
       if (row) row.Type = type;
     });
     if (data[0] && !data[0].Type) data[0].Type = ''; // for type not to be the last column

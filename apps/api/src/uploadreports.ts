@@ -5,7 +5,7 @@ import { AppLogger } from './common/logger.service';
 import { ReportService } from './report/report.service';
 import { ReportS3Service } from './report/report.s3.service';
 
-let app: any = null;
+let app: unknown = null;
 
 /**
  * Design this function to trigger existing NestJs appliation services without Api-Getway
@@ -48,7 +48,7 @@ export const handler: Handler = async (event, context: Context) => {
         .then(() => {
           appLogger.log('File uploaded successfully.');
         })
-        .catch((err: any) => {
+        .catch((err: unknown) => {
           appLogger.error('File upload failed: ', err);
         });
     }

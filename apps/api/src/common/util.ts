@@ -112,7 +112,7 @@ export function getDateFromCellValue(value: number | string): string | undefined
  *   }
  * })();
  */
-type RowData = Record<string, any>;
+type RowData = Record<string, unknown>;
 export const processExcelBuffer = async <T extends RowData = RowData>(
   fileBuffer: Buffer,
 ): Promise<T[]> => {
