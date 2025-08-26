@@ -62,10 +62,7 @@ export async function createNestApp(): Promise<{
     });
   } else {
     const adapter = new ExpressAdapter(expressApp);
-    app = await NestFactory.create<NestExpressApplication>(
-      AppModule,
-      adapter,
-    );
+    app = await NestFactory.create<NestExpressApplication>(AppModule, adapter);
     // Adding winston logger
     app.useLogger(new AppLogger());
   }
