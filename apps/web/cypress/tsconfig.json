@@ -1,7 +1,8 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "types": ["node", "cypress", "cy-verify-downloads", "cypress-react-selector"]
+    "types": ["node", "cypress", "cy-verify-downloads", "cypress-react-selector"],
+    "moduleResolution": "node"
   },
   "include": [".", "../../../node_modules/cypress"]
 }

@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 // ***********************************************************
-// This example plugins/index.ts can be used to load plugins
+// This example plugins/index.js can be used to load plugins
 //
 // You can change the location of this file or turn off loading
 // the plugins file with the 'pluginsFile' configuration option.
@@ -12,11 +12,11 @@
 // This function is called when a project is opened or re-opened (e.g. due to
 // the project's config changing)
 
-import dotenv from 'dotenv';
-import * as path from 'path';
-import { isFileExist, findFiles } from 'cy-verify-downloads';
-import * as fs from 'fs';
-import { readFile } from 'xlsx-js-style';
+const dotenv = require('dotenv');
+const path = require('path');
+const { isFileExist, findFiles } = require('cy-verify-downloads');
+const fs = require('fs');
+const { readFile } = require('xlsx-js-style');
 
 dotenv.config({ path: path.join(__dirname, '../../.env.local') });
 
@@ -28,10 +28,10 @@ dotenv.config({ path: path.join(__dirname, '../../.env.local') });
 // eslint-disable-next-line no-unused-vars,
 // @typescript-eslint/no-unused-vars
 
-module.exports = (on: any, config: any) => {
+module.exports = (on, config) => {
   // `on` is used to hook into various events Cypress emits
   on('task', {
-    checkReport: (): boolean => {
+    checkReport: () => {
       const files = fs.readdirSync(config.downloadsFolder);
       if (!files?.length) {
         throw Error('no files downloaded.');
@@ -53,12 +53,12 @@ module.exports = (on: any, config: any) => {
         });
       return true;
     },
-    checkDataExtract({ fileName, sheetNames }: { fileName: string; sheetNames: string[] }) {
+    checkDataExtract({ fileName, sheetNames }) {
       const wb = readFile(path.join(config.downloadsFolder, fileName));
 
       sheetNames.forEach(sheetName => {
         if (!wb.Sheets[sheetName]) {
-          throw Error(`${name} doesn't have ${sheetName} sheet`);
+          throw Error(`${fileName} doesn't have ${sheetName} sheet`);
         }
       });
       return true;
