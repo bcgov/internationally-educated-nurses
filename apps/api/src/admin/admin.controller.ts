@@ -112,7 +112,7 @@ export class AdminController {
     @UploadedFile() file: Express.Multer.File,
     @Body() body: UploadBccnmNcasDTO, // eslint-disable-line
   ) {
-    const rows = await processExcelBuffer<BccnmNcasUpdate>(file.buffer);
+    const rows = await processExcelBuffer<BccnmNcasUpdate & Record<string, unknown>>(file.buffer);
     return await this.service.validateBccnmNcasUpdates(rows);
   }
 

@@ -138,7 +138,8 @@ export class ExternalAPIService {
   async saveReasons(manager: EntityManager): Promise<void> {
     const data = await this.external_request.getReason();
     if (data.length && Array.isArray(data)) {
-      const result = await manager.upsert(IENStatusReason, data, ['id']);
+      const reasons = data as Array<Partial<IENStatusReason>>;
+      const result = await manager.upsert(IENStatusReason, reasons, ['id']);
       this.logger.log(`${result?.raw?.length || 0}/${data.length} reasons updated`, 'ATS-SYNC');
     } else {
       this.logger.log('No Reasons found, skipping.');

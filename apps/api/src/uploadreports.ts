@@ -1,11 +1,12 @@
 import { NestFactory } from '@nestjs/core';
+import { INestApplication } from '@nestjs/common';
 import { Context, Handler } from 'aws-lambda';
 import { AppModule } from './app.module';
 import { AppLogger } from './common/logger.service';
 import { ReportService } from './report/report.service';
 import { ReportS3Service } from './report/report.s3.service';
 
-let app: unknown = null;
+let app: INestApplication | null = null;
 
 /**
  * Design this function to trigger existing NestJs appliation services without Api-Getway
@@ -49,7 +50,7 @@ export const handler: Handler = async (event, context: Context) => {
           appLogger.log('File uploaded successfully.');
         })
         .catch((err: unknown) => {
-          appLogger.error('File upload failed: ', err);
+          appLogger.error('File upload failed: ', String(err));
         });
     }
   } catch (e) {
