@@ -8,11 +8,12 @@ import { ReportService } from './report.service';
 import { ReportUtilService } from './report.util.service';
 import { IENHaPcn } from 'src/applicant/entity/ienhapcn.entity';
 import { ReportS3Service } from './report.s3.service';
+import { ReportCacheEntity } from './entity/report-cache.entity';
 
 @Module({
   controllers: [ReportController],
   imports: [
-    TypeOrmModule.forFeature([IENApplicantStatus, IENHaPcn]),
+    TypeOrmModule.forFeature([IENApplicantStatus, IENHaPcn, ReportCacheEntity]),
     forwardRef(() => AuthModule),
     forwardRef(() => EmployeeModule),
   ],

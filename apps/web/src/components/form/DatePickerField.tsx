@@ -68,6 +68,16 @@ export const DatePickerField = (props: DatePickerFieldProps) => {
               }
             }}
             onFocus={e => (valRef.current = (e.target as HTMLInputElement).value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter') {
+                const inputValue = (e.target as HTMLInputElement).value;
+                if (inputValue && isDateString(inputValue)) {
+                  valRef.current = inputValue;
+                  form.setFieldTouched(name, true);
+                  form.setFieldValue(name, inputValue);
+                }
+              }
+            }}
             onBlur={() => {
               form.setFieldTouched(name, true);
               if (valRef.current) {
