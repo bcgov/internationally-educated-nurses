@@ -323,7 +323,7 @@ export class IENApplicantService {
     }
 
     if (user?.user_id) {
-      data.added_by = await this.ienUsersRepository.findOne({ where: { user_id: user.user_id } });
+      data.added_by = await this.ienUsersRepository.findOne({ where: { id: user.user_id } });
     }
 
     if (reason) {
