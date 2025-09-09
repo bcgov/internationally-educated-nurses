@@ -1,4 +1,13 @@
-import AWS from 'aws-sdk';
+import {
+  S3Client,
+  ListObjectsCommand,
+  PutObjectCommand,
+  ListObjectVersionsCommand,
+  DeleteObjectCommand,
+  CopyObjectCommand,
+  GetObjectCommand,
+} from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { In, Repository } from 'typeorm';
 import _ from 'lodash';
 import dayjs from 'dayjs';
@@ -25,7 +34,7 @@ import { IENApplicantStatusAudit } from 'src/applicant/entity/ienapplicant-statu
 const BUCKET_NAME = process.env.DOCS_BUCKET ?? 'ien-dev-docs';
 
 export class AdminService {
-  private s3: AWS.S3 | null = null;
+  private s3: S3Client | null = null;
 
   constructor(
     @Inject(Logger) private readonly logger: AppLogger,
@@ -37,10 +46,8 @@ export class AdminService {
     private readonly applicantService: IENApplicantService,
   ) {
     if (process.env.DOCS_BUCKET) {
-      this.s3 = new AWS.S3({
-        params: {
-          Bucket: BUCKET_NAME,
-        },
+      this.s3 = new S3Client({
+        region: process.env.AWS_S3_REGION,
       });
     }
   }
@@ -51,7 +58,7 @@ export class AdminService {
       return [];
     }
     try {
-      const result = await this.s3.listObjects().promise();
+      const result = await this.s3.send(new ListObjectsCommand({ Bucket: BUCKET_NAME }));
 
       return (
         result.Contents?.map(o => {
@@ -69,9 +76,14 @@ export class AdminService {
       throw new InternalServerErrorException('the feature is disabled');
     }
     try {
-      const params = { Bucket: BUCKET_NAME, Key: name, Body: file.buffer };
-      const result = await this.s3.upload(params).promise();
-      return result.Location;
+      await this.s3.send(
+        new PutObjectCommand({
+          Bucket: BUCKET_NAME,
+          Key: name,
+          Body: file.buffer,
+        }),
+      );
+      return `https://${BUCKET_NAME}.s3.${process.env.AWS_S3_REGION}.amazonaws.com/${name}`;
     } catch (e) {
       this.logger.error(e, 'S3');
       throw new InternalServerErrorException('failed to upload a user guide');
@@ -83,8 +95,12 @@ export class AdminService {
       throw new InternalServerErrorException('the feature is disabled');
     }
     try {
-      const params = { Bucket: BUCKET_NAME, Key: key, VersionId: version, Expires: 60 };
-      return await this.s3.getSignedUrlPromise('getObject', params);
+      const command = new GetObjectCommand({
+        Bucket: BUCKET_NAME,
+        Key: key,
+        VersionId: version,
+      });
+      return await getSignedUrl(this.s3, command, { expiresIn: 60 });
     } catch (e) {
       this.logger.error(e, 'S3');
       throw new InternalServerErrorException('failed to get the signed url of a user guide');
@@ -96,9 +112,12 @@ export class AdminService {
       throw new InternalServerErrorException('the feature is disabled');
     }
     try {
-      const queryParams: AWS.S3.ListObjectVersionsRequest = { Bucket: BUCKET_NAME, Prefix: key };
-
-      const version = await this.s3.listObjectVersions(queryParams).promise();
+      const version = await this.s3.send(
+        new ListObjectVersionsCommand({
+          Bucket: BUCKET_NAME,
+          Prefix: key,
+        }),
+      );
 
       return (
         version.Versions?.filter(v => v.Key === key).map(
@@ -122,13 +141,13 @@ export class AdminService {
       throw new InternalServerErrorException('the feature is disabled');
     }
     try {
-      const params: AWS.S3.DeleteObjectRequest = {
+      const params = {
         Bucket: BUCKET_NAME,
         Key: key,
+        ...(version && { VersionId: version }),
       };
-      if (version) params.VersionId = version;
 
-      await this.s3.deleteObject(params).promise();
+      await this.s3.send(new DeleteObjectCommand(params));
     } catch (e) {
       this.logger.error(e, 'S3');
       throw new InternalServerErrorException('failed to delete a user guide');
@@ -140,12 +159,13 @@ export class AdminService {
       throw new InternalServerErrorException('the feature is disabled');
     }
     try {
-      const params: AWS.S3.CopyObjectRequest = {
-        Bucket: BUCKET_NAME,
-        CopySource: encodeURI(`/${BUCKET_NAME}/${key}?versionId=${version}`),
-        Key: key,
-      };
-      await this.s3.copyObject(params).promise();
+      await this.s3.send(
+        new CopyObjectCommand({
+          Bucket: BUCKET_NAME,
+          CopySource: encodeURI(`/${BUCKET_NAME}/${key}?versionId=${version}`),
+          Key: key,
+        }),
+      );
       await this.deleteUserGuide(key, version);
     } catch (e) {
       this.logger.error(e, 'S3');

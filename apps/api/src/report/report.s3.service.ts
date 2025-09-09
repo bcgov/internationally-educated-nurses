@@ -1,35 +1,35 @@
 // s3.service.ts
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import AWS from 'aws-sdk';
+import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 const BUCKET_NAME = process.env.REPORTS_BUCKET ?? 'ien-dev-reports';
 
 @Injectable()
 export class ReportS3Service {
-  private s3: AWS.S3 | null = null;
+  private s3: S3Client | null = null;
 
   constructor() {
-    this.s3 = new AWS.S3({
-      params: {
-        Bucket: BUCKET_NAME,
-      },
+    this.s3 = new S3Client({
+      region: process.env.AWS_S3_REGION,
     });
   }
 
-  async uploadFile(
-    key: string,
-    data: Record<string, unknown>,
-  ): Promise<AWS.S3.ManagedUpload.SendData> {
+  async uploadFile(key: string, data: Record<string, unknown>): Promise<{ Location: string }> {
     if (!this.s3) {
       throw new InternalServerErrorException('the feature is disabled');
     }
     try {
-      const params: AWS.S3.PutObjectRequest = {
-        Bucket: BUCKET_NAME,
-        Key: key,
-        Body: JSON.stringify(data),
+      await this.s3.send(
+        new PutObjectCommand({
+          Bucket: BUCKET_NAME,
+          Key: key,
+          Body: JSON.stringify(data),
+        }),
+      );
+      return {
+        Location: `https://${BUCKET_NAME}.s3.${process.env.AWS_S3_REGION}.amazonaws.com/${key}`,
       };
-      return this.s3.upload(params).promise();
     } catch {
       throw new InternalServerErrorException('failed to upload a report data');
     }
@@ -39,11 +39,10 @@ export class ReportS3Service {
     if (!this.s3) {
       throw new InternalServerErrorException('the feature is disabled');
     }
-    const params = {
+    const command = new GetObjectCommand({
       Bucket: BUCKET_NAME,
       Key: key,
-      Expires: 60 * 5, // URL expires in 5 minutes
-    };
-    return this.s3.getSignedUrl('getObject', params);
+    });
+    return getSignedUrl(this.s3, command, { expiresIn: 60 * 5 }); // URL expires in 5 minutes
   }
 }

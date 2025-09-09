@@ -26,6 +26,12 @@
     "syncdata": "NODE_ENV=script node --inspect -r ts-node/register -r tsconfig-paths/register src/syncdata.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-lambda": "^3.682.0",
+    "@aws-sdk/client-s3": "^3.682.0",
+    "@aws-sdk/client-ses": "^3.682.0",
+    "@aws-sdk/client-sqs": "^3.682.0",
+    "@aws-sdk/client-ssm": "^3.682.0",
+    "@aws-sdk/s3-request-presigner": "^3.682.0",
     "@ien/common": "1.0.2",
     "@nestjs/common": "11.1.6",
     "@nestjs/core": "11.1.6",
@@ -36,7 +42,6 @@
     "@types/jsonwebtoken": ">=9.0.0",
     "@types/multer": "1.4.7",
     "@vendia/serverless-express": "4.3.11",
-    "aws-sdk": "2.1017.0",
     "axios": "0.28.0",
     "class-transformer": "0.5.1",
     "csv-stringify": "6.0.4",
@@ -67,6 +72,7 @@
     "@types/aws-lambda": "8.10.84",
     "@types/express": "5.0.3",
     "@types/js-yaml": "4.0.5",
+    "@types/lodash": "^4.14.182",
     "@types/node": "22",
     "@types/supertest": "2.0.11",
     "eslint": "8.57.0",

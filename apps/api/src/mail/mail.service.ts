@@ -4,8 +4,7 @@ import axios from 'axios';
 import * as fs from 'fs';
 import { stringify } from 'qs';
 import * as handlebars from 'handlebars';
-import aws from 'aws-sdk';
-import { SendEmailRequest } from 'aws-sdk/clients/ses';
+import { SESClient, SendEmailCommand, SendEmailCommandInput } from '@aws-sdk/client-ses';
 
 import { Mailable } from './mailables/mail-base.mailable';
 import { MailOptions } from './mail-options.interface';
@@ -14,7 +13,7 @@ import { AppLogger } from '../common/logger.service';
 
 @Injectable()
 export class MailService {
-  ses = process.env.AWS_S3_REGION ? new aws.SES({ region: process.env.AWS_S3_REGION }) : null;
+  ses = process.env.AWS_S3_REGION ? new SESClient({ region: process.env.AWS_S3_REGION }) : null;
 
   constructor(@Inject(Logger) private readonly logger: AppLogger) {
     try {
@@ -109,7 +108,7 @@ export class MailService {
   public async sendMailWithSES(mailOptions: MailOptions) {
     if (!this.ses) return;
     const { to, from, body, subject } = mailOptions;
-    const params: SendEmailRequest = {
+    const params: SendEmailCommandInput = {
       Destination: {
         ToAddresses: [...to],
       },
@@ -128,7 +127,7 @@ export class MailService {
       Source: from,
     };
     try {
-      return this.ses.sendEmail(params).promise();
+      return this.ses.send(new SendEmailCommand(params));
     } catch (e) {
       this.logger.log(e instanceof Error ? e.message : String(e));
     }
