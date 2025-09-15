@@ -63,14 +63,26 @@ export const DatePickerField = (props: DatePickerFieldProps) => {
             yearDropdownItemNumber={numOfYears}
             selected={field.value ? dayjs(field.value).toDate() : null}
             onChangeRaw={e => {
-              if (isDateString(e.target.value)) {
-                valRef.current = e.target.value;
+              if (e && isDateString((e.target as HTMLInputElement).value)) {
+                valRef.current = (e.target as HTMLInputElement).value;
               }
             }}
-            onFocus={e => (valRef.current = e.target.value)}
+            onFocus={e => (valRef.current = (e.target as HTMLInputElement).value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter') {
+                const inputValue = (e.target as HTMLInputElement).value;
+                if (inputValue && isDateString(inputValue)) {
+                  valRef.current = inputValue;
+                  form.setFieldTouched(name, true);
+                  form.setFieldValue(name, inputValue);
+                }
+              }
+            }}
             onBlur={() => {
               form.setFieldTouched(name, true);
-              valRef.current && form.setFieldValue(name, valRef.current);
+              if (valRef.current) {
+                form.setFieldValue(name, valRef.current);
+              }
             }}
             onChange={value => value || form.setFieldValue(name, '')}
             onSelect={value => {

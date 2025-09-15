@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import dayjs from 'dayjs';
 import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { FindManyOptions, getManager, In, IsNull, Repository } from 'typeorm';
+import { FindManyOptions, DataSource, In, IsNull, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
@@ -58,6 +58,7 @@ export class IENApplicantService {
     private readonly scrambleService: ScrambleService,
     @InjectRepository(EmployeeEntity)
     private readonly employeeRepository: Repository<EmployeeEntity>,
+    private dataSource: DataSource,
   ) {}
 
   /**
@@ -98,7 +99,7 @@ export class IENApplicantService {
         }
       });
     }
-    const applicant = await this.ienapplicantRepository.findOne(id, { relations });
+    const applicant = await this.ienapplicantRepository.findOne({ where: { id }, relations });
 
     if (!applicant) {
       throw new NotFoundException(`Applicant with id '${id}' not found`);
@@ -112,7 +113,7 @@ export class IENApplicantService {
 
     if (is_status_audit) {
       applicant.applicant_status_audit = await this.ienapplicantStatusAuditRepository.find({
-        where: { applicant, job: IsNull() },
+        where: { applicant: { id: applicant.id }, job: IsNull() },
         relations: ['status', 'reason', 'added_by', 'updated_by'],
       });
     }
@@ -131,7 +132,7 @@ export class IENApplicantService {
   ): Promise<IENApplicant | any> {
     const applicant = await this.createApplicantObject(addApplicant, user);
 
-    await getManager().transaction(async manager => {
+    await this.dataSource.transaction(async manager => {
       await manager.save<IENApplicant>(applicant);
       await this.ienapplicantUtilService.saveApplicantAudit(applicant, applicant.added_by, manager);
     });
@@ -147,7 +148,7 @@ export class IENApplicantService {
   async createApplicantObject(addApplicant: IENApplicantCreateUpdateAPIDTO, user: EmployeeRO) {
     const { assigned_to, first_name, last_name, email_address, country_of_citizenship, ...data } =
       addApplicant;
-    const duplicate = await this.ienapplicantRepository.findOne({ email_address });
+    const duplicate = await this.ienapplicantRepository.findOne({ where: { email_address } });
     if (duplicate) {
       throw new BadRequestException('There is already an applicant with this email.');
     }
@@ -174,7 +175,9 @@ export class IENApplicantService {
     }
 
     if (user?.user_id) {
-      const added_by_data = await this.ienUsersRepository.findOne(user.user_id);
+      const added_by_data = await this.ienUsersRepository.findOne({
+        where: { user_id: user.user_id },
+      });
       if (added_by_data) {
         applicant.added_by = added_by_data;
       }
@@ -199,11 +202,11 @@ export class IENApplicantService {
       throw new BadRequestException(`User doesn't belong to a health authority`);
     }
 
-    await getManager().transaction(async manager => {
+    await this.dataSource.transaction(async manager => {
       let record = await manager.findOne(IENApplicantActiveFlag, {
         where: {
           applicant_id: id,
-          ha_id: user.ha_pcn_id,
+          ha_id: user.ha_pcn_id || undefined,
         },
       });
 
@@ -261,7 +264,7 @@ export class IENApplicantService {
     if (assigned_to && assigned_to instanceof Array && assigned_to.length) {
       applicant.assigned_to = await this.ienapplicantUtilService.getUserArray(assigned_to);
     }
-    await getManager().transaction(async manager => {
+    await this.dataSource.transaction(async manager => {
       await manager.update<IENApplicant>(IENApplicant, applicant.id, data);
       await manager.save<IENApplicant>(applicant);
 
@@ -320,7 +323,7 @@ export class IENApplicantService {
     }
 
     if (user?.user_id) {
-      data.added_by = await this.ienUsersRepository.findOne(user.user_id);
+      data.added_by = await this.ienUsersRepository.findOne({ where: { id: user.user_id } });
     }
 
     if (reason) {
@@ -338,7 +341,7 @@ export class IENApplicantService {
 
     let status_audit = null;
 
-    await getManager().transaction(async manager => {
+    await this.dataSource.transaction(async manager => {
       status_audit = await this.ienapplicantUtilService.addApplicantStatusAudit(
         applicant,
         data,
@@ -377,7 +380,8 @@ export class IENApplicantService {
     status_id: string,
     milestone: IENApplicantUpdateStatusAPIDTO,
   ): Promise<IENApplicantStatusAudit | any> {
-    const audit = await this.ienapplicantStatusAuditRepository.findOne(status_id, {
+    const audit = await this.ienapplicantStatusAuditRepository.findOne({
+      where: { id: status_id },
       relations: ['applicant', 'added_by', 'status', 'job'],
     });
     if (!audit) {
@@ -385,7 +389,9 @@ export class IENApplicantService {
     }
     const { status, start_date, effective_date, notes, reason, type } = milestone;
     if (user?.user_id) {
-      const updated_by_data = await this.ienUsersRepository.findOne(user.user_id);
+      const updated_by_data = await this.ienUsersRepository.findOne({
+        where: { user_id: user.user_id },
+      });
       if (updated_by_data) {
         audit.updated_by = updated_by_data;
       }
@@ -413,7 +419,7 @@ export class IENApplicantService {
 
     audit.type = type;
 
-    await getManager().transaction(async manager => {
+    await this.dataSource.transaction(async manager => {
       await manager.save<IENApplicantStatusAudit>(audit);
       await manager.update<IENApplicant>(IENApplicant, audit.applicant.id, {
         updated_date: new Date(),
@@ -446,10 +452,10 @@ export class IENApplicantService {
    * @returns
    */
   async deleteApplicantStatus(user_id: string | null, status_id: string): Promise<void> {
-    const status: IENApplicantStatusAudit | undefined =
-      await this.ienapplicantStatusAuditRepository.findOne(status_id, {
-        relations: ['applicant', 'added_by', 'status'],
-      });
+    const status = await this.ienapplicantStatusAuditRepository.findOne({
+      where: { id: status_id },
+      relations: ['applicant', 'added_by', 'status'],
+    });
 
     if (!status) {
       return;
@@ -458,7 +464,7 @@ export class IENApplicantService {
       throw new BadRequestException(`Requested milestone/status was added by different user`);
     }
 
-    await getManager().transaction(async manager => {
+    await this.dataSource.transaction(async manager => {
       await manager.delete<IENApplicantStatusAudit>(IENApplicantStatusAudit, status_id);
       await manager.update<IENApplicant>(IENApplicant, status.applicant.id, {
         updated_date: new Date(),
@@ -499,7 +505,7 @@ export class IENApplicantService {
     job.applicant = applicant;
 
     if (user?.user_id) {
-      job.added_by = await this.ienUsersRepository.findOne(user.user_id);
+      job.added_by = await this.ienUsersRepository.findOne({ where: { user_id: user.user_id } });
     }
 
     return this.saveApplicantJob(job, jobData);
@@ -529,7 +535,7 @@ export class IENApplicantService {
       job.job_post_date = data.job_post_date as any;
     }
     await this.saveApplicantJob(job, jobData);
-    return this.getApplicantJob(job_id);
+    return this.getApplicantJob(job_id) as any;
   }
 
   /**
@@ -539,7 +545,8 @@ export class IENApplicantService {
    * @returns
    */
   async deleteApplicantJob(user_id: string | null, job_id: string): Promise<void> {
-    const job: IENApplicantJob | undefined = await this.ienapplicantJobRepository.findOne(job_id, {
+    const job = await this.ienapplicantJobRepository.findOne({
+      where: { id: String(job_id) },
       relations: ['added_by', 'applicant'],
     });
 
@@ -550,14 +557,15 @@ export class IENApplicantService {
       throw new BadRequestException(`Requested job competition was added by different user`);
     }
 
-    await getManager().transaction(async manager => {
+    await this.dataSource.transaction(async manager => {
       await manager.delete<IENApplicantJob>(IENApplicantJob, job_id);
       await this.ienapplicantUtilService.updateLatestStatusOnApplicant([job.applicant.id], manager);
     });
   }
 
-  async getApplicantJob(job_id: string | number): Promise<IENApplicantJob | undefined> {
-    return this.ienapplicantJobRepository.findOne(job_id, {
+  async getApplicantJob(job_id: string | number) {
+    return this.ienapplicantJobRepository.findOne({
+      where: { id: String(job_id) },
       relations: RELATIONS.applicant_job,
     });
   }
@@ -600,7 +608,7 @@ export class IENApplicantService {
   ): Promise<[IENApplicantJob[], number]> {
     const { job_id, ha_pcn, job_title, skip, limit } = options;
 
-    const where: any = { applicant: id };
+    const where: any = { applicant: { id } };
 
     if (job_id) where.id = job_id;
     if (ha_pcn) where.ha_pcn = In(ha_pcn);
@@ -619,19 +627,21 @@ export class IENApplicantService {
   }
 
   async assignApplicant(id: string, employee: EmployeeRO) {
-    const applicant = await this.ienapplicantRepository.findOne(id);
+    const applicant = await this.ienapplicantRepository.findOne({ where: { id } });
 
     const found = applicant?.recruiters?.some(e => e.id === employee.id);
     if (found) return;
 
-    const haPcn = await this.haPcnRepository.findOne({ title: employee.organization });
+    const haPcn = await this.haPcnRepository.findOne({ where: { title: employee.organization } });
     if (!haPcn) {
       throw new BadRequestException(`User doesn't belong to a health authority`);
     }
 
     let recruiterAssignment = await this.recruiterRepository.findOne({
-      applicant_id: id,
-      ha_id: haPcn.id,
+      where: {
+        applicant_id: id,
+        ha_id: haPcn.id,
+      },
     });
 
     if (!recruiterAssignment) {
@@ -679,14 +689,14 @@ export class IENApplicantService {
     const scrambledEmail = this.scrambleService.scrambleEmail(email_address);
     const scrambledPhone = this.scrambleService.scramblePhone(phone_number);
 
-    await getManager().transaction(async manager => {
-      const deleted_by_data = await this.employeeRepository.findOne(user_id);
+    await this.dataSource.transaction(async manager => {
+      const deleted_by_data = await this.employeeRepository.findOne({ where: { id: user_id } });
       await manager.update<IENApplicant>(IENApplicant, id, {
         name: scrambledName,
         email_address: scrambledEmail,
         phone_number: scrambledPhone,
         backup: { name, email_address, phone_number },
-        deleted_by: deleted_by_data,
+        deleted_by: deleted_by_data || undefined,
         deleted_date: new Date(),
         updated_date: new Date(),
       });

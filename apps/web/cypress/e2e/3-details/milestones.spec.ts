@@ -51,11 +51,17 @@ describe('Details - Milestones', () => {
   });
 
   it('deletes a milestone', () => {
-    cy.fixture('milestones.json').then(data => {
-      cy.get('[data-cy=record-0]').click();
+    cy.get('[data-cy=record-1]').click();
+
+    // Count initial delete buttons (representing milestones)
+    cy.get('[data-cy="delete milestone"]').then($deleteButtons => {
+      const initialCount = $deleteButtons.length;
+
+      // Delete the first milestone
       cy.deleteMilestone(0);
-      cy.contains(`${data.update.outcome}`).should('not.exist');
-      cy.contains(`${data.update.notes}`).should('not.exist');
+
+      // Verify one less delete button exists
+      cy.get('[data-cy="delete milestone"]').should('have.length', initialCount - 1);
     });
   });
 

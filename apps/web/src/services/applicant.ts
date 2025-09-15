@@ -168,11 +168,13 @@ export const getJobAndMilestones = async (
     const params = new URLSearchParams();
 
     Object.entries(options).forEach(parameter => {
-      Array.isArray(parameter[1])
-        ? parameter[0] &&
-          parameter[1].length > 0 &&
-          params.append(parameter[0], parameter[1].toString())
-        : parameter[0] && parameter[1] && params.append(parameter[0], parameter[1].toString());
+      if (Array.isArray(parameter[1])) {
+        if (parameter[0] && parameter[1].length > 0) {
+          params.append(parameter[0], parameter[1].toString());
+        }
+      } else if (parameter[0] && parameter[1]) {
+        params.append(parameter[0], parameter[1].toString());
+      }
     });
 
     const {

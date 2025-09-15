@@ -49,7 +49,9 @@ export const DataExtractReport = () => {
       writeFileXLSX(workbook, `${prefix}_${period}.xlsx`);
     }
 
-    helpers && helpers.resetForm();
+    if (helpers) {
+      helpers.resetForm();
+    }
   };
 
   const getMaxDate = () => {

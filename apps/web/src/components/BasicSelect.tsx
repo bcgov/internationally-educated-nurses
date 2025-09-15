@@ -1,6 +1,10 @@
 import { CSSProperties } from 'react';
-import ReactSelect, { StylesConfig, components, GroupBase } from 'react-select';
-import { DropdownIndicatorProps } from 'react-select/dist/declarations/src/components/indicators';
+import ReactSelect, {
+  StylesConfig,
+  components,
+  GroupBase,
+  DropdownIndicatorProps,
+} from 'react-select';
 import { Property } from 'csstype';
 import downCaret from '@assets/img/arrow_down.svg';
 import { OptionValueType, SelectOption, StyleOption } from '@services';

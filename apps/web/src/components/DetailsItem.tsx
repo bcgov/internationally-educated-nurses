@@ -1,6 +1,6 @@
-import { PropsWithChildren, ReactNode } from 'react';
+import { PropsWithChildren } from 'react';
 
-type DetailsItemProps = PropsWithChildren<ReactNode> & {
+type DetailsItemProps = PropsWithChildren & {
   title: string;
   text?: string | string[];
   span?: number;

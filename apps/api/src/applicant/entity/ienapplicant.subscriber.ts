@@ -17,7 +17,9 @@ export class IENApplicantSubscriber implements EntitySubscriberInterface<IENAppl
     if (!entity?.ats1_id) return;
 
     // Retrieve the original entity from the database
-    const databaseEntity = await manager.findOne(IENApplicant, { ats1_id: entity.ats1_id });
+    const databaseEntity = await manager.findOne(IENApplicant, {
+      where: { ats1_id: entity.ats1_id },
+    });
 
     // If the original entity is found and it's marked as deleted,, revert the changes for the specified fields
     if (databaseEntity?.deleted_date) {

@@ -10,8 +10,8 @@ export class EmptyResponse {
     nullable: false,
     required: true,
   })
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  data!: {};
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  data!: Record<string, never>;
 
   static get(): EmptyResponse {
     return new EmptyResponse();

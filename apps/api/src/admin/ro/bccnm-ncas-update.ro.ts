@@ -1,17 +1,17 @@
-import { ApiModelProperty } from '@nestjs/swagger/dist/decorators/api-model-property.decorator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class BccnmNcasUpdateRO {
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'Number of milestones created',
   })
   created!: number;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'Number of milestones updated',
   })
   updated!: number;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'Number of milestones dropped',
   })
   ignored!: number;

@@ -1,105 +1,105 @@
-import { ApiModelProperty } from '@nestjs/swagger/dist/decorators/api-model-property.decorator';
+import { ApiProperty } from '@nestjs/swagger';
 import { BccnmNcasValidation } from '@ien/common';
 
 export class BccnmNcasValidationRO implements BccnmNcasValidation {
-  @ApiModelProperty({
+  @ApiProperty({
     description: `Applicant's unique ID from HMBC ATS`,
   })
   id!: string;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: `Applicant's unique ID`,
   })
   applicantId!: string;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: `The date of the signature of ROS(return of service)`,
   })
   dateOfRosContract?: string;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'Full name',
   })
   name!: string;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'Date NCAS Assessment Complete',
   })
   ncasCompleteDate?: string;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'BCCNM Application Complete',
   })
   appliedToBccnm?: string;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'Registration designation',
   })
   designation!: string;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: `Country of Education`,
   })
   countryOfEducation?: string;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'Validation result of ROS',
   })
   message!: string;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'ID of current "Signed Return of Service Agreement" milestone',
   })
   rosStatusId?: string;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: '',
   })
   valid!: boolean;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'Date BCCNM Application Complete',
   })
   bccnmApplicationCompleteDate?: string;
 
-  @ApiModelProperty({
+  @ApiProperty({
     description: 'BCCNM Decision Date',
   })
   bccnmDecisionDate?: string;
 
-  @ApiModelProperty({ description: 'BCCNM Full Licence LPN' })
+  @ApiProperty({ description: 'BCCNM Full Licence LPN' })
   bccnmFullLicenceLPN?: string;
 
-  @ApiModelProperty({ description: 'BCCNM Full Licence RN' })
+  @ApiProperty({ description: 'BCCNM Full Licence RN' })
   bccnmFullLicenceRPN?: string;
 
-  @ApiModelProperty({ description: 'BCCNM Full Licence RPN' })
+  @ApiProperty({ description: 'BCCNM Full Licence RPN' })
   bccnmFullLicenceRN?: string;
 
-  @ApiModelProperty({ description: 'BCCNM Provisional Licence LPN' })
+  @ApiProperty({ description: 'BCCNM Provisional Licence LPN' })
   bccnmProvisionalLicenceRN?: string;
 
-  @ApiModelProperty({ description: 'BCCNM Provisional Licence LPN' })
+  @ApiProperty({ description: 'BCCNM Provisional Licence LPN' })
   bccnmProvisionalLicenceLPN?: string;
 
-  @ApiModelProperty({ description: 'BCCNM Provisional Licence LPN' })
+  @ApiProperty({ description: 'BCCNM Provisional Licence LPN' })
   bccnmProvisionalLicenceRPN?: string;
 
-  @ApiModelProperty({ description: 'BCCNM Full Licence LPN ID' })
+  @ApiProperty({ description: 'BCCNM Full Licence LPN ID' })
   bccnmFullLicenceLPNID?: string;
 
-  @ApiModelProperty({ description: 'BCCNM Full Licence RN ID ' })
+  @ApiProperty({ description: 'BCCNM Full Licence RN ID ' })
   bccnmFullLicenceRPNID?: string;
 
-  @ApiModelProperty({ description: 'BCCNM Full Licence RPN ID ' })
+  @ApiProperty({ description: 'BCCNM Full Licence RPN ID ' })
   bccnmFullLicenceRNID?: string;
 
-  @ApiModelProperty({ description: 'BCCNM Provisional Licence LPN ID' })
+  @ApiProperty({ description: 'BCCNM Provisional Licence LPN ID' })
   bccnmProvisionalLicenceRNID?: string;
 
-  @ApiModelProperty({ description: 'BCCNM Provisional Licence LPN ID' })
+  @ApiProperty({ description: 'BCCNM Provisional Licence LPN ID' })
   bccnmProvisionalLicenceLPNID?: string;
 
-  @ApiModelProperty({ description: 'BCCNM Provisional Licence LPN ID' })
+  @ApiProperty({ description: 'BCCNM Provisional Licence LPN ID' })
   bccnmProvisionalLicenceRPNID?: string;
 }

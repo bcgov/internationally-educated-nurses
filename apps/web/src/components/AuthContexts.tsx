@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, ReactNode, useEffect, useState } from 'react';
+import React, { PropsWithChildren, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -12,7 +12,7 @@ const AuthContext = React.createContext<{
   authUserLoading: boolean;
 }>({ authUser: undefined, authUserLoading: false });
 
-const AuthProvider = ({ children }: PropsWithChildren<ReactNode>) => {
+const AuthProvider = ({ children }: PropsWithChildren) => {
   const [authUser, setAuthUser] = useState<EmployeeRO | undefined>();
   const [authUserLoading, setAuthUserLoading] = useState(false);
   const { user, signoutSilent } = useAuth();
@@ -25,7 +25,7 @@ const AuthProvider = ({ children }: PropsWithChildren<ReactNode>) => {
       if (message?.includes('Authentication token')) {
         try {
           await signoutSilent();
-        } catch (e) {
+        } catch {
           window.location.replace(`${window.origin}/login`);
         }
       } else if (message) {

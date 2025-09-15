@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Access, ApplicantRO, HealthAuthorities, StatusCategory } from '@ien/common';
 import { getApplicants, milestoneTabs } from '@services';
@@ -57,30 +57,31 @@ const Applicants = () => {
 
   const [addIenModalVisible, setAddIenModalVisible] = useState(false);
 
-  const timer = useRef<number>();
+  const timer = useRef<number | undefined>(undefined);
 
-  const searchApplicants = async (
-    options: SearchOptions,
-  ): Promise<{ data: ApplicantRO[]; count: number }> => {
-    if (myApplicantsOnly) {
-      options.recruiter = authUser?.id;
-    }
-    if (timer.current) {
-      clearTimeout(timer.current);
-    }
-    return new Promise((resolve, reject) => {
-      timer.current = window.setTimeout(async () => {
-        try {
-          const data = await getApplicants(options);
-          resolve(data);
-        } catch (e) {
-          reject(e);
-        } finally {
-          timer.current = 0;
-        }
-      }, QUERY_DELAY);
-    });
-  };
+  const searchApplicants = useCallback(
+    async (options: SearchOptions): Promise<{ data: ApplicantRO[]; count: number }> => {
+      if (myApplicantsOnly) {
+        options.recruiter = authUser?.id;
+      }
+      if (timer.current) {
+        clearTimeout(timer.current);
+      }
+      return new Promise((resolve, reject) => {
+        timer.current = window.setTimeout(async () => {
+          try {
+            const data = await getApplicants(options);
+            resolve(data);
+          } catch (e) {
+            reject(e);
+          } finally {
+            timer.current = 0;
+          }
+        }, QUERY_DELAY);
+      });
+    },
+    [myApplicantsOnly, authUser?.id],
+  );
 
   const searchByName = async (searchName: string, searchLimit: number) => {
     const options: SearchOptions = { name: searchName, limit: searchLimit };
@@ -107,7 +108,18 @@ const Applicants = () => {
       setApplicants(data);
       setLoading(false);
     });
-  }, [name, status, sortKey, order, pageIndex, limit, showHiddenApplicants, myApplicantsOnly]);
+  }, [
+    name,
+    status,
+    sortKey,
+    order,
+    pageIndex,
+    limit,
+    showHiddenApplicants,
+    myApplicantsOnly,
+    searchApplicants,
+    setPageIndex,
+  ]);
 
   const viewDetail = (id: string) => router.push(`/details?id=${id}`);
 
@@ -132,7 +144,9 @@ const Applicants = () => {
   const changeRoute = (keyword: string, tabStatus: string) => {
     const urlParams = new URLSearchParams();
 
-    keyword && urlParams.append('name', keyword);
+    if (keyword) {
+      urlParams.append('name', keyword);
+    }
     urlParams.append('status', tabStatus);
 
     router.push(`?${urlParams.toString()}`, undefined, { shallow: true });

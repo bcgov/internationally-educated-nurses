@@ -20,7 +20,7 @@ import { IENApplicantStatus } from '../src/applicant/entity/ienapplicant-status.
 interface EducationOptions {
   count?: number;
   country?: keyof typeof COUNTRY_OF_EDUCATIONS;
-  name?: typeof EDUCATIONS[number];
+  name?: (typeof EDUCATIONS)[number];
   year?: number;
 }
 
@@ -127,12 +127,12 @@ export const clearMilestones = async () => {
 };
 
 export const getHaId = async (ha: keyof typeof Authorities): Promise<string> => {
-  const result = await getRepository(IENHaPcn).findOne({ abbreviation: ha });
+  const result = await getRepository(IENHaPcn).findOne({ where: { abbreviation: ha } });
   return result?.id || '';
 };
 
 export const getStatusId = async (status: STATUS) => {
-  const result = await getRepository(IENApplicantStatus).findOne({ status });
+  const result = await getRepository(IENApplicantStatus).findOne({ where: { status } });
   return result?.id;
 };
 
@@ -228,10 +228,13 @@ export const generateDurations = (
   ];
   return milestones
     .filter(m => !excludedMilestones.includes(m))
-    .reduce((a, c) => {
-      return {
-        ...a,
-        [c]: Array.from({ length: numberOfApplicants }, () => _.random(1, max)),
-      };
-    }, {} as Record<STATUS, number[]>);
+    .reduce(
+      (a, c) => {
+        return {
+          ...a,
+          [c]: Array.from({ length: numberOfApplicants }, () => _.random(1, max)),
+        };
+      },
+      {} as Record<STATUS, number[]>,
+    );
 };

@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { Controller, Get, Inject, Logger, Query, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import AWS from 'aws-sdk';
+import { LambdaClient, InvokeCommand } from '@aws-sdk/client-lambda';
 import { Access, ReportPeriodDTO, EmployeeRO } from '@ien/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { AppLogger } from 'src/common/logger.service';
@@ -13,7 +13,7 @@ import { ReportS3Service } from './report.s3.service';
 @ApiTags('IEN Reports')
 @UseGuards(AuthGuard)
 export class ReportController {
-  private uploadLambda = new AWS.Lambda();
+  private uploadLambda = new LambdaClient({ region: process.env.AWS_S3_REGION });
 
   constructor(
     @Inject(Logger) private readonly logger: AppLogger,
@@ -194,8 +194,8 @@ export class ReportController {
   }
 
   private async invokeUploadLambda(s3Key: string, param: object, path: string): Promise<void> {
-    await this.uploadLambda
-      .invoke({
+    await this.uploadLambda.send(
+      new InvokeCommand({
         FunctionName: `${process.env.NAMESPACE}-s3-upload-reports`, // Name of the second Lambda
         InvocationType: 'Event', // Asynchronous invocation
         Payload: JSON.stringify({
@@ -203,8 +203,8 @@ export class ReportController {
           param,
           path,
         }),
-      })
-      .promise();
+      }),
+    );
   }
 
   private async extractData(

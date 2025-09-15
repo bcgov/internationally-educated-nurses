@@ -1,20 +1,20 @@
 import { Logger } from '@nestjs/common';
-import AWS from 'aws-sdk';
-AWS.config.update({ region: process.env.AWS_S3_REGION });
-const SQS = new AWS.SQS({ apiVersion: '2012-11-05' });
+import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
+
+const sqsClient = new SQSClient({ region: process.env.AWS_S3_REGION });
 const sqsQueueUrl = process.env.SQS_QUEUE_URL;
 
 export default function sendToSQS(data: unknown) {
   if (sqsQueueUrl) {
     try {
       Logger.log('SQS function triggered');
-      const params = {
+      const command = new SendMessageCommand({
         MessageBody: JSON.stringify(data),
         QueueUrl: sqsQueueUrl,
-      };
+      });
       Logger.log('Sending message', 'sendToSQS');
-      SQS.sendMessage(params)
-        .promise()
+      sqsClient
+        .send(command)
         .then(res =>
           Logger.log(`Successfully added message to queue ${res.MessageId}`, 'sendToSQS'),
         )

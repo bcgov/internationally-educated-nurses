@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import * as AWS from 'aws-sdk';
+import { SSMClient, GetParameterCommand } from '@aws-sdk/client-ssm';
 
 @Injectable()
 export class FeatureFlagService {
   private readonly logger = new Logger(FeatureFlagService.name);
-  private readonly ssm = new AWS.SSM();
+  private readonly ssm = new SSMClient({ region: process.env.AWS_S3_REGION });
 
   private static readonly FEATURE_FLAG_PREFIX = `/ien/${process.env.TARGET_ENV}/feature_flags`;
 
@@ -26,20 +26,20 @@ export class FeatureFlagService {
     }
 
     try {
-      const params = {
+      const command = new GetParameterCommand({
         Name: featureFlag, // Use the feature flag name directly
         WithDecryption: false, // We don't need decryption for plain text values
-      };
+      });
 
       // Fetch the parameter from SSM
-      const result = await this.ssm.getParameter(params).promise();
+      const result = await this.ssm.send(command);
 
       // Convert the string "true"/"false" to a boolean value
       const flagValue = result.Parameter?.Value === 'true';
       this.logger.log(`Feature flag ${featureFlag} is set to: ${flagValue}`);
       return flagValue;
-    } catch (error: any) {
-      this.logger.error(`Error fetching feature flag from SSM: ${error?.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`Error fetching feature flag from SSM: ${(error as Error)?.message}`);
       return false; // Default to false if there's an error
     }
   }

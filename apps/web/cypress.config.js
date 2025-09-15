@@ -1,6 +1,6 @@
-import { defineConfig } from 'cypress';
+const { defineConfig } = require('cypress');
 
-export default defineConfig({
+module.exports = defineConfig({
   projectId: 'zad925',
   env: {
     FAIL_FAST_STRATEGY: 'run',
@@ -17,7 +17,7 @@ export default defineConfig({
     // We've imported your old cypress plugins here.
     // You may want to clean this up later by importing these.
     setupNodeEvents(on, config) {
-      return require('./cypress/plugins/index.ts')(on, config);
+      return require('./cypress/plugins/index.js')(on, config);
     },
     baseUrl: 'http://localhost:3000',
     specPattern: [

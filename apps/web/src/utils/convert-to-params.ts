@@ -3,7 +3,9 @@ export const convertToParams = (obj?: object): string => {
 
   const params = new URLSearchParams();
   Object.entries(obj).forEach(([key, value]) => {
-    value && params.append(key, value);
+    if (value) {
+      params.append(key, value);
+    }
   });
 
   return params.toString();

@@ -10,18 +10,20 @@ export const getEmployees = async (
   const params = new URLSearchParams();
 
   Object.entries(filter).forEach(parameter => {
-    Array.isArray(parameter[1])
-      ? parameter[0] &&
-        parameter[1].length > 0 &&
-        params.append(parameter[0], parameter[1].toString())
-      : parameter[0] && parameter[1] && params.append(parameter[0], parameter[1].toString());
+    if (Array.isArray(parameter[1])) {
+      if (parameter[0] && parameter[1].length > 0) {
+        params.append(parameter[0], parameter[1].toString());
+      }
+    } else if (parameter[0] && parameter[1]) {
+      params.append(parameter[0], parameter[1].toString());
+    }
   });
   try {
     const response = await axios.get<{ data: [EmployeeRO[], number] }>(
       `/employee/list/all?${params.toString()}`,
     );
     return response?.data?.data;
-  } catch (e) {
+  } catch {
     return undefined;
   }
 };
@@ -38,7 +40,7 @@ export const updateRoles = async (
   try {
     const { data } = await axios.patch('/employee/update/role', { id, role_ids });
     return data?.data;
-  } catch (e) {
+  } catch {
     return undefined;
   }
 };
@@ -47,7 +49,7 @@ export const revokeAccess = async (id: string): Promise<EmployeeRO | null> => {
   try {
     const { data } = await axios.patch('/employee/revoke', { id });
     return data.data;
-  } catch (e) {
+  } catch {
     return null;
   }
 };
@@ -56,7 +58,7 @@ export const activateUser = async (id: string): Promise<EmployeeRO | null> => {
   try {
     const { data } = await axios.patch<{ data: EmployeeRO }>('/employee/activate', { id });
     return data.data;
-  } catch (e) {
+  } catch {
     return null;
   }
 };

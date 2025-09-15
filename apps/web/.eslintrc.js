@@ -5,4 +5,12 @@ module.exports = {
     '@next/next/no-img-element': 'off',
     '@typescript-eslint/no-namespace': 'off',
   },
+  overrides: [
+    {
+      files: ['next-env.d.ts'],
+      rules: {
+        '@typescript-eslint/triple-slash-reference': 'off',
+      },
+    },
+  ],
 };

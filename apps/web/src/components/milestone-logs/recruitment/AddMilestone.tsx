@@ -36,7 +36,9 @@ export const AddMilestone = ({ job, category, isDisabled }: AddMilestoneProps) =
       fetchApplicant();
     }
 
-    helpers && helpers.resetForm(getInitialMilestoneFormValues());
+    if (helpers) {
+      helpers.resetForm(getInitialMilestoneFormValues());
+    }
   };
 
   return (

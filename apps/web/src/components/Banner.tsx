@@ -1,4 +1,6 @@
-interface BannerProps {
+import { PropsWithChildren } from 'react';
+
+interface BannerProps extends PropsWithChildren {
   style: keyof typeof bannerColour;
   image: string;
 }

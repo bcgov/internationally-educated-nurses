@@ -1,6 +1,6 @@
 import { Inject, Logger, OnModuleDestroy } from '@nestjs/common';
 import { mean, median, min, mode, round } from 'mathjs';
-import { getManager, Repository, In, getRepository, Not, ILike, Connection } from 'typeorm';
+import { Repository, In, Not, ILike, DataSource } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import dayjs from 'dayjs';
 import _ from 'lodash';
@@ -33,11 +33,13 @@ export class ReportService implements OnModuleDestroy {
     private readonly ienapplicantStatusRepository: Repository<IENApplicantStatus>,
     @InjectRepository(IENHaPcn)
     private readonly ienHaPcnRepository: Repository<IENHaPcn>,
-    private readonly connection: Connection,
+    @InjectRepository(ReportCacheEntity)
+    private readonly reportCacheRepository: Repository<ReportCacheEntity>,
+    private readonly dataSource: DataSource,
   ) {}
 
   async onModuleDestroy() {
-    await this.connection.close();
+    await this.dataSource.destroy();
   }
 
   captureFromTo(from: string, to: string) {
@@ -76,7 +78,7 @@ export class ReportService implements OnModuleDestroy {
       `Report 1: Number of applicants: Apply date filter from (${from}) and to (${to})`,
       'REPORT',
     );
-    const entityManager = getManager();
+    const entityManager = this.dataSource.manager;
     const data = await entityManager.query(this.reportUtilService.applicantCountQuery(from, to));
     this.logger.log(
       `Report 1 - Number of applicants: query completed a total of ${data.length} record returns`,
@@ -111,7 +113,7 @@ export class ReportService implements OnModuleDestroy {
       `Report 2 - Applicants by education country: Apply date filter from (${from}) and to (${to})`,
       'REPORT',
     );
-    const entityManager = getManager();
+    const entityManager = this.dataSource.manager;
     const data = await entityManager.query(
       this.reportUtilService.countryWiseApplicantQuery(from, to),
     );
@@ -165,7 +167,7 @@ export class ReportService implements OnModuleDestroy {
       `Report 3 - Active/Hired/Withdrawn: Apply date filter from (${from}) and to (${to})`,
       'REPORT',
     );
-    const entityManager = getManager();
+    const entityManager = this.dataSource.manager;
     const data = await entityManager.query(
       this.reportUtilService.hiredActiveWithdrawnApplicantCountQuery(statuses, from, to),
     );
@@ -188,7 +190,7 @@ export class ReportService implements OnModuleDestroy {
     );
 
     const report_number = 4;
-    const report = await getRepository(ReportCacheEntity)
+    const report = await this.reportCacheRepository
       .createQueryBuilder('rce')
       .where('rce.report_period = :period', { period })
       .andWhere('rce.report_number = :report_number', { report_number })
@@ -227,7 +229,7 @@ export class ReportService implements OnModuleDestroy {
         const data = await this.splitReportFourNewOldProcess('', p.to);
         this.logger.log(`data split for new and old was successful`);
         // find existing report if it exists
-        const reportRow = await getRepository(ReportCacheEntity).findOne({
+        const reportRow = await this.reportCacheRepository.findOne({
           select: ['id'],
           where: {
             report_number: 4,
@@ -243,7 +245,7 @@ export class ReportService implements OnModuleDestroy {
           updated_date: new Date(),
         };
         this.logger.log(`created cache entity from data`);
-        await getRepository(ReportCacheEntity).upsert(cacheData, ['id']);
+        await this.reportCacheRepository.upsert(cacheData, ['id']);
         this.logger.log(`upserted data into db`);
       }),
     );
@@ -264,7 +266,7 @@ export class ReportService implements OnModuleDestroy {
       'REPORT',
     );
 
-    const manager = getManager();
+    const manager = this.dataSource.manager;
     try {
       const oldProcess = await manager.query(this.reportUtilService.reportFour(from, to, false));
       const newProcess = await manager.query(this.reportUtilService.reportFour(from, to, true));
@@ -395,16 +397,16 @@ export class ReportService implements OnModuleDestroy {
    */
   async countLicense(statuses: Record<string, string>) {
     return {
-      oldFullLicence: await getManager().query(
+      oldFullLicence: await this.dataSource.manager.query(
         this.reportUtilService.fullLicenceQuery(false, statuses),
       ),
-      oldProvisionalLicence: await getManager().query(
+      oldProvisionalLicence: await this.dataSource.manager.query(
         this.reportUtilService.partialLicenceQuery(false, statuses),
       ),
-      newFullLicence: await getManager().query(
+      newFullLicence: await this.dataSource.manager.query(
         this.reportUtilService.fullLicenceQuery(true, statuses),
       ),
-      newProvisionalLicence: await getManager().query(
+      newProvisionalLicence: await this.dataSource.manager.query(
         this.reportUtilService.partialLicenceQuery(true, statuses),
       ),
     };
@@ -448,7 +450,7 @@ export class ReportService implements OnModuleDestroy {
       `Report 6: Applicants by HA in recruitment stage: Apply date filter from (${from}) and to (${to})`,
       'REPORT',
     );
-    const entityManager = getManager();
+    const entityManager = this.dataSource.manager;
     const data = await entityManager.query(
       this.reportUtilService.applicantsInRecruitmentQuery(statuses, to),
     );
@@ -471,7 +473,7 @@ export class ReportService implements OnModuleDestroy {
       `Report 7: Applicant by HA in immigration stage: Apply date filter from (${from}) and to (${to})`,
       'REPORT',
     );
-    const entityManager = getManager();
+    const entityManager = this.dataSource.manager;
     const data = await entityManager.query(
       this.reportUtilService.applicantsInImmigrationQuery(statuses, to),
     );
@@ -499,7 +501,7 @@ export class ReportService implements OnModuleDestroy {
       'REPORT',
     );
 
-    const entityManager = getManager();
+    const entityManager = this.dataSource.manager;
     const data = await entityManager.query(
       this.reportUtilService.applicantHAForCurrentPeriodFiscalQuery(
         statuses,
@@ -764,7 +766,7 @@ export class ReportService implements OnModuleDestroy {
    * @param to
    */
   async getIenTypes(from: string, to: string): Promise<{ id: string; type: IenType }[]> {
-    return await getManager().query(`
+    return await this.dataSource.manager.query(`
       SELECT DISTINCT ON (a.id)
         a.id,
         s.type
@@ -785,7 +787,7 @@ export class ReportService implements OnModuleDestroy {
    */
   async extractApplicantsData(dates: ReportPeriodDTO, ha_pcn_id?: string | null) {
     let pcn: IENHaPcn | undefined;
-    const entityManager = getManager();
+    const entityManager = this.dataSource.manager;
     let userIds: { id: string }[] = [];
 
     if (ha_pcn_id) {
@@ -826,7 +828,7 @@ export class ReportService implements OnModuleDestroy {
     // set IEN type
     const types = await this.getIenTypes(from, to);
     types.forEach(({ id, type }) => {
-      const row = data.find((r: any) => r['Applicant ID'] === id);
+      const row = data.find((r: Record<string, unknown>) => r['Applicant ID'] === id);
       if (row) row.Type = type;
     });
     if (data[0] && !data[0].Type) data[0].Type = ''; // for type not to be the last column
@@ -844,7 +846,7 @@ export class ReportService implements OnModuleDestroy {
    */
   async extractMilestoneData(dates?: ReportPeriodDTO, ha_pcn_id?: string | null) {
     const { from, to } = dates || { from: '2001-01-01', to: dayjs().format('YYYY-MM-DD') };
-    const entityManager = getManager();
+    const entityManager = this.dataSource.manager;
     let userIds: { id: string }[] = [];
 
     if (ha_pcn_id) {

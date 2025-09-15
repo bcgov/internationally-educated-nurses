@@ -15,14 +15,16 @@ const headerStyle = {
   alignment: { wrapText: true, horizontal: 'right', vertical: 'top' },
 };
 
+type ReportData = (string | number | Record<string, unknown>)[];
+
 interface ReportCreator {
   name: string;
   description: string;
   // additional information to help to understand the table
-  details?: string[] | ((data: any[]) => any[]);
-  generator?: (data: any[], creator?: ReportCreator) => WorkSheet;
-  header: string[] | ((data: any[], creator?: ReportCreator) => string[]);
-  rowProcessor?: (data: any[], creator?: ReportCreator) => (string | number)[][];
+  details?: string[] | ((data: ReportData) => string[]);
+  generator?: (data: ReportData, creator?: ReportCreator) => WorkSheet;
+  header: string[] | ((data: ReportData, creator?: ReportCreator) => string[]);
+  rowProcessor?: (data: ReportData, creator?: ReportCreator) => (string | number)[][];
   colWidths?: number[];
   rowSum?: boolean;
   colSum?: boolean;
@@ -96,7 +98,10 @@ export const getTimeRange = ({ from, to }: PeriodFilter): string => {
  * @param sheet
  * @param rows
  */
-const applyNumberFormat = (sheet: WorkSheet, rows: any[][]): void => {
+const applyNumberFormat = (
+  sheet: WorkSheet,
+  rows: (string | number | Record<string, unknown>)[][],
+): void => {
   // skip if rows is not an array of arrays
   const maxColumn = _.max(rows.map(_.size));
   if (typeof maxColumn !== 'number') return;
@@ -117,14 +122,17 @@ const applyNumberFormat = (sheet: WorkSheet, rows: any[][]): void => {
   }
 };
 
-const formatTotal = (dataRows: any[][], header: string[]) => {
+const formatTotal = (
+  dataRows: (string | number | Record<string, unknown>)[][],
+  header: string[],
+) => {
   return dataRows.map((row, rowIndex) => {
-    if (rowIndex === dataRows.length - 1 && /^total/i.exec(row[0])) {
+    if (rowIndex === dataRows.length - 1 && typeof row[0] === 'string' && /^total/i.exec(row[0])) {
       //format total row
       return row.map((v, colIndex) => {
         if (colIndex === 0)
           return {
-            v: v.toUpperCase(),
+            v: typeof v === 'string' ? v.toUpperCase() : String(v).toUpperCase(),
             t: 's',
             s: { fill: { fgColor }, font: bold, alignment: { horizontal: 'left' } },
           };
@@ -149,13 +157,19 @@ const fillTotalColumn = (data: Record<string, string | number>[]) => {
   });
 };
 
-const fillTotalRow = (rows: any[][], data: (string | number)[][]) => {
+const fillTotalRow = (
+  rows: (string | number | Record<string, unknown>)[][],
+  data: (string | number)[][],
+) => {
   rows.push([
     { v: 'TOTAL', t: 's', s: { fill: { fgColor }, font: bold } },
     ...data
-      .reduce((total, row) => {
-        return total.map((value, index) => +row[index + 1] + +value);
-      }, Array(data[0].length - 1).fill(0))
+      .reduce(
+        (total, row) => {
+          return total.map((value, index) => +row[index + 1] + +value);
+        },
+        Array(data[0].length - 1).fill(0),
+      )
       .map(v => ({ v, t: 'n', s: headerStyle })),
   ]);
 };
@@ -208,8 +222,8 @@ const createSheet = (
 };
 
 const getHeaderFiltered = (excludes: string | string[]) => {
-  return (data: Record<string, string | number>[]) => {
-    return ['', ...Object.keys(_.omit(data[0], excludes))];
+  return (data: ReportData) => {
+    return ['', ...Object.keys(_.omit(data[0] as Record<string, string | number>, excludes))];
   };
 };
 
@@ -218,8 +232,11 @@ const reportCreators: ReportCreator[] = [
     name: 'Report 1',
     description: 'Number of New Internationally Educated Nurse Registrant EOIs Processed',
     header: ['', 'Total Applicants'],
-    rowProcessor: (data: Period[]) => {
-      return data.map(p => [`Period ${p.period}: ${getTimeRange(p)}`, `${p.applicants}`]);
+    rowProcessor: (data: ReportData) => {
+      return (data as unknown as Period[]).map(p => [
+        `Period ${p.period}: ${getTimeRange(p)}`,
+        `${p.applicants}`,
+      ]);
     },
     colWidths: [40, 20],
     rowSum: true,
@@ -227,13 +244,13 @@ const reportCreators: ReportCreator[] = [
   {
     name: 'Report 2',
     description: 'Country of Training of Internationally Educated Nurse Registrants',
-    header: (data: Record<string, string | number>[]) => {
+    header: (data: ReportData) => {
       if (!data?.length) return [];
-      const row = _.omit(data[0], ['period', 'from', 'to']);
+      const row = _.omit(data[0] as Record<string, string | number>, ['period', 'from', 'to']);
       return ['', ...Object.keys(row).map(key => key.toUpperCase())];
     },
-    rowProcessor: (data: Record<string, string | number>[]) => {
-      return data.map(row => {
+    rowProcessor: (data: ReportData) => {
+      return (data as unknown as Record<string, string | number>[]).map(row => {
         return [
           row.period ? `Period ${row.period}: ${getTimeRange(row)}` : 'Total',
           ...Object.values(_.omit(row, ['from', 'to', 'period'])),
@@ -252,8 +269,8 @@ const reportCreators: ReportCreator[] = [
     name: 'Report 4',
     description: 'Number of Internationally Educated Nurse Registrants in the Licensing Stage',
     header: ['', 'IEN Registrants - Old', 'IEN Registrants - New'],
-    rowProcessor: (data: Record<string, string | number>[]) => {
-      const rows = data.map(Object.values);
+    rowProcessor: (data: ReportData) => {
+      const rows = (data as unknown as Record<string, string | number>[]).map(Object.values);
       rows.splice(rows.length - 2, 0, []);
       return rows;
     },
@@ -284,10 +301,10 @@ const reportCreators: ReportCreator[] = [
   {
     name: 'Report 8',
     description: 'Number of Internationally Educated Nurse Registrants Working in BC',
-    header: (data: Record<string, string | number>[]): string[] => {
+    header: (data: ReportData): string[] => {
       return [
         '',
-        ...Object.keys(data[0])
+        ...Object.keys((data as unknown as Record<string, string | number>[])[0])
           .slice(1)
           .map(v => {
             return v.includes('current_period') ? `${v.split(' ')[0]}*` : v;
@@ -295,8 +312,8 @@ const reportCreators: ReportCreator[] = [
       ];
     },
     colWidths: [35, 20, 20, 20],
-    details: (data: Record<string, string | number>[]): any[] => {
-      const currentPeriod = Object.keys(data[0])
+    details: (data: ReportData): string[] => {
+      const currentPeriod = Object.keys((data as unknown as Record<string, string | number>[])[0])
         .find(v => v.includes('current_period'))
         ?.split(' ')[1];
       const [from, to] = currentPeriod?.split('~') ?? [];
@@ -307,8 +324,8 @@ const reportCreators: ReportCreator[] = [
     name: 'Report 9',
     description: 'Average Amount of Time with Each Stakeholder Group',
     header: ['', '', 'Mean', 'Median', 'Mode'],
-    rowProcessor: (data: Record<string, string | number>[]) => {
-      const rows = data.map(Object.values);
+    rowProcessor: (data: ReportData) => {
+      const rows = (data as unknown as Record<string, string | number>[]).map(Object.values);
       rows.splice(2, 0, ['Employer']);
       rows.splice(rows.length - 1, 0, []);
       return rows;
@@ -518,8 +535,8 @@ export const createReportWorkbook = async (filter: PeriodFilter): Promise<WorkBo
     });
 
     return workbook;
-  } catch (e: any) {
-    notifyError(e.message || 'There was an issue while attempting to create a report');
+  } catch (e: unknown) {
+    notifyError((e as Error).message || 'There was an issue while attempting to create a report');
     return null;
   }
 };

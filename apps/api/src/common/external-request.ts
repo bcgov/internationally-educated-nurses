@@ -32,7 +32,7 @@ export class ExternalRequest {
     return this.getData(`/staff`, header);
   }
 
-  async getReason(): Promise<Array<any>> {
+  async getReason(): Promise<Array<unknown>> {
     return this.getData(`/withdrawal-reasons`);
   }
 

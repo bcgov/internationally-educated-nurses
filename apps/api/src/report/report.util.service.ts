@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';
 import _ from 'lodash';
-import { getManager } from 'typeorm';
+import { DataSource } from 'typeorm';
 
 import {
   BCCNM_NCAS_STAGE,
@@ -23,6 +23,7 @@ import { DurationSummary, DurationTableEntry, MilestoneTableEntry } from './type
 
 @Injectable()
 export class ReportUtilService {
+  constructor(private readonly dataSource: DataSource) {}
   applicantCountQuery(from: string, to: string) {
     return `
         with ien_applicants as (
@@ -406,7 +407,7 @@ export class ReportUtilService {
     WHERE 
       hired IS NULL AND withdrew IS NULL 
   `;
-    return await getManager().query(sql);
+    return await this.dataSource.manager.query(sql);
   }
 
   applicantsInRecruitmentQuery(statuses: Record<string, string>, to: string) {
@@ -423,11 +424,11 @@ export class ReportUtilService {
           WHERE
             ien_status.start_date::date <= '${to}' 
             AND status.category IN ('${StatusCategory.LICENSING_REGISTRATION}', '${
-      StatusCategory.RECRUITMENT
-    }')
+              StatusCategory.RECRUITMENT
+            }')
             AND ien_status.status_id IN ('${statuses[STATUS.WITHDREW_FROM_PROGRAM]}', '${
-      statuses[STATUS.JOB_OFFER_ACCEPTED]
-    }')
+              statuses[STATUS.JOB_OFFER_ACCEPTED]
+            }')
         ) as t1
         WHERE t1.rank=1
       ), find_reactive_applicants AS (
@@ -1008,7 +1009,7 @@ export class ReportUtilService {
    * Get a table of applicants and health_authority who hired them.
    */
   async getHiredApplicantHAs(): Promise<Record<string, string>> {
-    const idHaMap = await getManager()
+    const idHaMap = await this.dataSource.manager
       .createQueryBuilder(IENApplicantStatusAudit, 'audit')
       .select('audit.applicant_id', 'id')
       .addSelect('ha.title', 'ha')
@@ -1072,7 +1073,7 @@ export class ReportUtilService {
       from milestones m
       left join ien_applicants ia on ia.id = m.id
     `;
-    const milestones = await getManager().query(sql);
+    const milestones = await this.dataSource.manager.query(sql);
     return _.keyBy(milestones, 'id');
   }
 
@@ -1133,6 +1134,6 @@ export class ReportUtilService {
       from milestones m
       left join ien_applicants ia on ia.id = m.id
     `;
-    return await getManager().query(sql);
+    return await this.dataSource.manager.query(sql);
   }
 }

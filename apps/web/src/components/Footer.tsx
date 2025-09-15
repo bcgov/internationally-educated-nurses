@@ -1,6 +1,11 @@
 import Link from 'next/link';
+import { PropsWithChildren } from 'react';
 
-const FooterLink: React.FC<{ href: string }> = ({ href, children }) => {
+interface FooterLinkProps extends PropsWithChildren {
+  href: string;
+}
+
+const FooterLink: React.FC<FooterLinkProps> = ({ href, children }) => {
   return (
     <Link href={href} rel='noopener noreferrer' target='_blank' className='mb-1 md:mb-0'>
       {children}
