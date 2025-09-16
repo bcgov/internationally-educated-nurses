@@ -38,7 +38,7 @@ data "aws_vpc" "main" {
 
 data "aws_subnets" "web" {
 	filter {
-		name = "vpc_id"
+		name = "vpc-id"
 		values = [data.aws_vpc.main.id]
 	}
 	filter {
@@ -49,7 +49,7 @@ data "aws_subnets" "web" {
 
 data "aws_subnets" "app" {
 	filter {
-		name = "vpc_id"
+		name = "vpc-id"
 		values = [data.aws_vpc.main.id]
 	}
 	filter {
@@ -60,7 +60,7 @@ data "aws_subnets" "app" {
 
 data "aws_subnets" "data" {
 	filter {
-		name = "vpc_id"
+		name = "vpc-id"
 		values = [data.aws_vpc.main.id]
 	}
 	filter {
