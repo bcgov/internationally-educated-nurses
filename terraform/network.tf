@@ -36,7 +36,7 @@ data "aws_vpc" "main" {
 	}
 }
 
-data "aws_subnet_ids" "web" {
+data "aws_subnets" "web" {
 	vpc_id = data.aws_vpc.main.id
 	filter {
 		name = "tag:Name"
@@ -44,7 +44,7 @@ data "aws_subnet_ids" "web" {
 	}
 }
 
-data "aws_subnet_ids" "app" {
+data "aws_subnets" "app" {
 	vpc_id = data.aws_vpc.main.id
 	filter {
 		name = "tag:Name"
@@ -52,7 +52,7 @@ data "aws_subnet_ids" "app" {
 	}
 }
 
-data "aws_subnet_ids" "data" {
+data "aws_subnets" "data" {
 	vpc_id = data.aws_vpc.main.id
 	filter {
 		name = "tag:Name"
@@ -61,17 +61,17 @@ data "aws_subnet_ids" "data" {
 }
 
 data "aws_subnet" "web" {
-	for_each = data.aws_subnet_ids.web.ids
+	for_each = data.aws_subnets.web.ids
 	id = each.value
 }
 
 data "aws_subnet" "app" {
-	for_each = data.aws_subnet_ids.app.ids
+	for_each = data.aws_subnets.app.ids
 	id = each.value
 }
 
 data "aws_subnet" "data" {
-	for_each = data.aws_subnet_ids.data.ids
+	for_each = data.aws_subnets.data.ids
 	id = each.value
 }
 
