@@ -2,7 +2,7 @@ resource "aws_lambda_function" "UploadReports" {
   description      = "Trigger uploading of Reports"
   function_name    = local.report_s3_upload_lambda_name
   role             = aws_iam_role.lambda.arn
-  runtime          = "nodejs18.x"
+  runtime          = "nodejs22.x"
   filename         = "./build/empty_lambda.zip"
   source_code_hash = filebase64sha256("./build/empty_lambda.zip")
   handler          = "api/uploadreports.handler"

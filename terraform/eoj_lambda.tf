@@ -2,7 +2,7 @@ resource "aws_lambda_function" "EndOfJourney" {
   description      = "Trigger end of journey service"
   function_name    = local.end_of_journey_lambda_name
   role             = aws_iam_role.lambda.arn
-  runtime          = "nodejs18.x"
+  runtime          = "nodejs22.x"
   filename         = "./build/empty_lambda.zip"
   source_code_hash = filebase64sha256("./build/empty_lambda.zip")
   handler          = "api/endofjourney.handler"
