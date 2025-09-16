@@ -24,7 +24,7 @@ resource "aws_lambda_function" "SQSLambda" {
 
   vpc_config {
     security_group_ids = [data.aws_security_group.app.id]
-    subnet_ids         = data.aws_subnet_ids.app.ids
+    subnet_ids         = data.aws_subnets.app.ids
   }
 
   lifecycle {
