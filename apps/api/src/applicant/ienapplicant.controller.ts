@@ -393,7 +393,7 @@ export class IENApplicantController {
     if (e instanceof NotFoundException) {
       return e;
     } else if (e instanceof QueryFailedError) {
-      if (e.message.indexOf('duplicate') !== -1) {
+      if (e.message.includes('duplicate')) {
         return new BadRequestException(`Duplicate milestone with same date found!`);
       }
       throw new BadRequestException(e.message);
