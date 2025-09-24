@@ -148,9 +148,9 @@ export class EmployeeService {
     }
 
     let sortKeyword = 'employee.created_date';
-    if (sortKey === 'role'){
+    if (sortKey === 'role') {
       sortKeyword = 'role.name';
-    } else if (sortKey){
+    } else if (sortKey) {
       sortKeyword = `employee.${sortKey}`;
     }
     qb.orderBy({ [sortKeyword]: order || 'DESC' });
