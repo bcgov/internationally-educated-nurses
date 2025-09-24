@@ -14,6 +14,7 @@ export const applicant = { id: validApplicant.applicant_id };
 export const addJob = {
   ha_pcn: '6ad69443-e3a8-3cbc-8cc9-3a05e5b771e4',
   job_id: 'JOB11',
+  job_location: [1],
 };
 
 export const invalidMilestoneToUpdate = { id: '08ff7e3f-3148-43d3-9740-5a255aa0d5ff' };

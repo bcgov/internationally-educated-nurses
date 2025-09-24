@@ -19,6 +19,8 @@ import {
   Req,
   UseGuards,
   UseInterceptors,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { QueryFailedError } from 'typeorm';
@@ -264,6 +266,7 @@ export class IENApplicantController {
   })
   @UseInterceptors(ClassSerializerInterceptor)
   @AllowAccess(Access.APPLICANT_WRITE)
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: false }))
   @Post('/:id/job')
   async addApplicantJob(
     @Req() req: RequestObj,
@@ -390,7 +393,7 @@ export class IENApplicantController {
     if (e instanceof NotFoundException) {
       return e;
     } else if (e instanceof QueryFailedError) {
-      if (e.message.indexOf('duplicate') !== -1) {
+      if (e.message.includes('duplicate')) {
         return new BadRequestException(`Duplicate milestone with same date found!`);
       }
       throw new BadRequestException(e.message);
