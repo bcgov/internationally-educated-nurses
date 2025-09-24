@@ -19,6 +19,8 @@ import {
   Req,
   UseGuards,
   UseInterceptors,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { QueryFailedError } from 'typeorm';
@@ -264,6 +266,7 @@ export class IENApplicantController {
   })
   @UseInterceptors(ClassSerializerInterceptor)
   @AllowAccess(Access.APPLICANT_WRITE)
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: false }))
   @Post('/:id/job')
   async addApplicantJob(
     @Req() req: RequestObj,
