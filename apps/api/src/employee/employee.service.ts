@@ -147,7 +147,7 @@ export class EmployeeService {
       qb.leftJoinAndSelect('employee.roles', 'role');
     }
 
-    const sortKeyword = sortKey ? `employee.${sortKey}` : 'employee.created_date';
+    const sortKeyword = sortKey === 'role' ? 'role.name': sortKey ? `employee.${sortKey}` : 'employee.created_date';
     qb.orderBy({ [sortKeyword]: order || 'DESC' });
 
     const employees = await qb.getMany();
