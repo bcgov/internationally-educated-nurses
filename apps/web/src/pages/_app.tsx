@@ -19,6 +19,16 @@ import '../styles/globals.css';
 
 axios.defaults.baseURL = process.env.NEXT_PUBLIC_API_URL;
 
+axios.interceptors.response.use(
+  response => {
+    if (response.data instanceof Uint8Array) {
+      response.data = JSON.parse(new TextDecoder().decode(response.data));
+    }
+    return response;
+  },
+  error => Promise.reject(error),
+);
+
 function getFormattedDate() {
   const today = new Date();
   const year = today.getFullYear();
