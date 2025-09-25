@@ -2235,7 +2235,7 @@ __metadata:
     csv-stringify: "npm:6.0.4"
     dotenv: "npm:10.0.0"
     eslint: "npm:8.57.0"
-    express: "npm:5.1.0"
+    express: "npm:4.19.2"
     handlebars: "npm:4.7.7"
     jest: "npm:29.7.0"
     js-yaml: "npm:4.1.0"
