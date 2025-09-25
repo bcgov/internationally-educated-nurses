@@ -104,11 +104,11 @@ export class IENApplicantController {
     if (jobLocation.length === 0) {
       throw new BadRequestException('At least one community is required');
     }
-    
+
     if (!jobLocation.every(item => typeof item === 'number' && Number.isInteger(item))) {
       throw new BadRequestException('Job location must be an array of integers');
     }
-    
+
     jobData.job_location = jobLocation;
 
     // job_post_date - optional date string
