@@ -20,7 +20,7 @@ interface ValidationErrorMessage {
 
 export const validationPipeConfig: ValidationPipeOptions = {
   transform: true,
-  whitelist: true, // Re-enable whitelist - SafeValidationPipe will handle Uint8Array issues
+  whitelist: true,
   forbidNonWhitelisted: false,
   enableDebugMessages: false,
   disableErrorMessages: true,
