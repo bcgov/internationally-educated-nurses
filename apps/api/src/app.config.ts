@@ -1,10 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import {
-  BadRequestException,
-  ValidationError,
-  ValidationPipe,
-  ValidationPipeOptions,
-} from '@nestjs/common';
+import { BadRequestException, ValidationError, ValidationPipeOptions } from '@nestjs/common';
 import { ExpressAdapter, NestExpressApplication } from '@nestjs/platform-express';
 import express from 'express';
 
@@ -15,6 +10,8 @@ import { SuccessResponseInterceptor } from './common/interceptors/success-respon
 import { RequestLoggingInterceptor } from './common/interceptors/request-logging.interceptor';
 import { ErrorExceptionFilter } from './common/error-exception.filter';
 import { TrimPipe } from './common/trim.pipe';
+import { SafeValidationPipe } from './common/safe-validation.pipe';
+
 import { API_PREFIX } from './config';
 
 interface ValidationErrorMessage {
@@ -81,7 +78,7 @@ export async function createNestApp(): Promise<{
   app.useGlobalInterceptors(new RequestLoggingInterceptor());
 
   // Validation pipe
-  app.useGlobalPipes(new TrimPipe(), new ValidationPipe(validationPipeConfig));
+  app.useGlobalPipes(new TrimPipe(), new SafeValidationPipe(validationPipeConfig));
 
   // Global Error Filter
   app.useGlobalFilters(new ErrorExceptionFilter(app.get(AppLogger)));
