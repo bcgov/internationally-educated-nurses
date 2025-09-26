@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 @Injectable()
 export class RequestLoggingInterceptor implements NestInterceptor {
   private readonly logger = new Logger(RequestLoggingInterceptor.name);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest();
     const { method, url, body, headers } = request;
