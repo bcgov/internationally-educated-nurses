@@ -50,6 +50,83 @@ export class IENApplicantController {
     @Inject(IENApplicantService) private readonly ienapplicantService: IENApplicantService,
   ) {}
 
+  /**
+   * Manual parser for job data to handle Uint8Array issues from AWS Lambda
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private parseJobData(rawData: any): IENApplicantJobCreateUpdateAPIDTO {
+    if (!rawData || typeof rawData !== 'object') {
+      throw new BadRequestException('Invalid job data');
+    }
+
+    // Manual validation and parsing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const jobData: any = {};
+
+    // ha_pcn - required string
+    if (!rawData.ha_pcn || typeof rawData.ha_pcn !== 'string') {
+      throw new BadRequestException('HA/PCN is required and must be a string');
+    }
+    jobData.ha_pcn = rawData.ha_pcn;
+
+    // job_id - optional string
+    if (rawData.job_id !== undefined) {
+      if (typeof rawData.job_id !== 'string') {
+        throw new BadRequestException('Job ID must be a string');
+      }
+      jobData.job_id = rawData.job_id;
+    }
+
+    // job_title - optional string
+    if (rawData.job_title !== undefined) {
+      if (typeof rawData.job_title !== 'string') {
+        throw new BadRequestException('Job title must be a string');
+      }
+      jobData.job_title = rawData.job_title;
+    }
+
+    // job_location - required array of numbers (this is where Uint8Array issues happen)
+    if (!rawData.job_location) {
+      throw new BadRequestException('Job location is required');
+    }
+
+    let jobLocation: number[] = [];
+    if (rawData.job_location instanceof Uint8Array) {
+      // Convert Uint8Array to regular array
+      jobLocation = Array.from(rawData.job_location);
+    } else if (Array.isArray(rawData.job_location)) {
+      jobLocation = rawData.job_location;
+    } else {
+      throw new BadRequestException('Job location must be an array');
+    }
+
+    // Validate that all elements are numbers
+    if (jobLocation.length === 0) {
+      throw new BadRequestException('At least one community is required');
+    }
+
+    if (!jobLocation.every(item => typeof item === 'number' && Number.isInteger(item))) {
+      throw new BadRequestException('Job location must be an array of integers');
+    }
+
+    jobData.job_location = jobLocation;
+
+    // job_post_date - optional date string
+    if (rawData.job_post_date !== undefined && rawData.job_post_date !== '') {
+      if (typeof rawData.job_post_date !== 'string') {
+        throw new BadRequestException('Job post date must be a string');
+      }
+      // Basic date validation
+      const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+      if (!dateRegex.test(rawData.job_post_date)) {
+        throw new BadRequestException('Job post date must be in YYYY-MM-DD format');
+      }
+      jobData.job_post_date = rawData.job_post_date;
+    }
+
+    return jobData as IENApplicantJobCreateUpdateAPIDTO;
+  }
+
   @ApiOperation({
     summary: 'List applicants',
   })
@@ -266,15 +343,20 @@ export class IENApplicantController {
   })
   @UseInterceptors(ClassSerializerInterceptor)
   @AllowAccess(Access.APPLICANT_WRITE)
-  @UsePipes(new ValidationPipe({ transform: true, whitelist: false }))
+  @UsePipes(new ValidationPipe({ transform: false, whitelist: false, skipMissingProperties: true }))
   @Post('/:id/job')
   async addApplicantJob(
     @Req() req: RequestObj,
     @Param('id') id: string,
-    @Body() jobData: IENApplicantJobCreateUpdateAPIDTO,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    @Body() rawJobData: any,
   ): Promise<ApplicantJobRO | undefined> {
     try {
       this.logger.log(`Add job competition for the applicant ${id}`);
+
+      // Manually parse and validate the job data to handle Uint8Array issues
+      const jobData = this.parseJobData(rawJobData);
+
       return (
         await this.ienapplicantService.addApplicantJob(req.user, id, jobData)
       )?.toResponseObject();
@@ -311,13 +393,19 @@ export class IENApplicantController {
   @UseInterceptors(ClassSerializerInterceptor)
   @Put('/:id/job/:job_id')
   @AllowAccess(Access.APPLICANT_WRITE)
+  @UsePipes(new ValidationPipe({ transform: false, whitelist: false, skipMissingProperties: true }))
   async updateApplicantJob(
     @Param('id') id: string,
     @Param('job_id') job_id: string,
-    @Body() jobData: IENApplicantJobCreateUpdateAPIDTO,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    @Body() rawJobData: any,
   ): Promise<ApplicantJobRO | undefined> {
     try {
       this.logger.log(`Update job competition (${job_id}) for the applicant ${id}`);
+
+      // Manually parse and validate the job data to handle Uint8Array issues
+      const jobData = this.parseJobData(rawJobData);
+
       return (
         await this.ienapplicantService.updateApplicantJob(id, job_id, jobData)
       )?.toResponseObject();
