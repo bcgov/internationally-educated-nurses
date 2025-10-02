@@ -12,7 +12,6 @@ import { AppModule } from './app.module';
 import { AppLogger } from './common/logger.service';
 import { Documentation } from './common/documentation';
 import { SuccessResponseInterceptor } from './common/interceptors/success-response.interceptor';
-import { RequestLoggingInterceptor } from './common/interceptors/request-logging.interceptor';
 import { RequestTransformInterceptor } from './common/interceptors/request-transform.interceptor';
 import { ErrorExceptionFilter } from './common/error-exception.filter';
 import { TrimPipe } from './common/trim.pipe';
@@ -80,7 +79,6 @@ export async function createNestApp(): Promise<{
 
   // Interceptors
   app.useGlobalInterceptors(new SuccessResponseInterceptor());
-  app.useGlobalInterceptors(new RequestLoggingInterceptor());
   app.useGlobalInterceptors(new RequestTransformInterceptor());
 
   // Validation pipe
