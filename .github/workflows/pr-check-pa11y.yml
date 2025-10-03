@@ -50,13 +50,13 @@ jobs:
         run: make generate-accessibility-results
         if: ${{ failure() }}
 
-      - uses: actions/github-script@v6
+      - uses: actions/github-script@v8
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const fs = require('fs');
             const comment = fs.readFileSync('./packages/accessibility/out/accessibility_results.md', 'utf8');
-            github.issues.createComment({
+            github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,

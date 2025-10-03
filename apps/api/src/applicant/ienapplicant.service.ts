@@ -505,7 +505,7 @@ export class IENApplicantService {
     job.applicant = applicant;
 
     if (user?.user_id) {
-      job.added_by = await this.ienUsersRepository.findOne({ where: { user_id: user.user_id } });
+      job.added_by = await this.ienUsersRepository.findOne({ where: { id: user.user_id } });
     }
 
     return this.saveApplicantJob(job, jobData);
