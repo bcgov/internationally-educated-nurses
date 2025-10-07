@@ -1,4 +1,4 @@
-import { IsString } from 'class-validator';
+import { IsString, Matches, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UploadUserGuideDTO {
@@ -14,5 +14,9 @@ export class UploadUserGuideDTO {
     example: 'user-guide.pdf',
   })
   @IsString()
+  @MaxLength(255)
+  @Matches(/^[a-zA-Z0-9]([a-zA-Z0-9._-])*[a-zA-Z0-9]$/,{
+    message: 'File name must contain only alphanumeric characters, dots, hyphens, and underscores'
+  })
   name!: string;
 }
