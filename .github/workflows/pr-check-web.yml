@@ -5,6 +5,9 @@ on:
       - 'apps/web/**'
       - 'packages/common/**'
 
+permissions:
+  contents: read
+  
 jobs:
   pr-checks:
     runs-on: ubuntu-latest
