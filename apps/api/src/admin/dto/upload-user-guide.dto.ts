@@ -15,8 +15,8 @@ export class UploadUserGuideDTO {
   })
   @IsString()
   @MaxLength(255)
-  @Matches(/^[a-zA-Z0-9]([a-zA-Z0-9._-])*[a-zA-Z0-9]$/,{
-    message: 'File name must contain only alphanumeric characters, dots, hyphens, and underscores'
+  @Matches(/^[a-zA-Z0-9]([a-zA-Z0-9._-])*[a-zA-Z0-9]$/, {
+    message: 'File name must contain only alphanumeric characters, dots, hyphens, and underscores',
   })
   name!: string;
 }
