@@ -2230,7 +2230,7 @@ __metadata:
     "@types/node": "npm:22"
     "@types/supertest": "npm:2.0.11"
     "@vendia/serverless-express": "npm:4.3.11"
-    axios: "npm:0.28.0"
+    axios: "npm:1.8.2"
     class-transformer: "npm:0.5.1"
     csv-stringify: "npm:6.0.4"
     dotenv: "npm:10.0.0"
