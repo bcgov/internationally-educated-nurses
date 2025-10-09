@@ -7,6 +7,9 @@ on:
       - 'packages/common/**'
       - '.github/workflows/pr-check-e2e.yml'
 
+permissions:
+  contents: read
+
 jobs:
   pr-checks:
     runs-on: ubuntu-latest

@@ -2230,7 +2230,7 @@ __metadata:
     "@types/node": "npm:22"
     "@types/supertest": "npm:2.0.11"
     "@vendia/serverless-express": "npm:4.3.11"
-    axios: "npm:0.28.0"
+    axios: "npm:1.12.0"
     class-transformer: "npm:0.5.1"
     csv-stringify: "npm:6.0.4"
     dotenv: "npm:10.0.0"
@@ -2246,11 +2246,11 @@ __metadata:
     nest-winston: "npm:1.6.2"
     pg: "npm:8.7.1"
     reflect-metadata: "npm:0.1.13"
-    rimraf: "npm:3.0.2"
+    rimraf: "npm:4.3.1"
     rxjs: "npm:7.2.0"
     source-map-support: "npm:0.5.20"
     supertest: "npm:6.1.3"
-    swagger-ui-express: "npm:4.2.0"
+    swagger-ui-express: "npm:4.3.0"
     ts-jest: "npm:29.1.5"
     ts-loader: "npm:9.2.3"
     ts-node: "npm:10.0.0"
@@ -2323,11 +2323,11 @@ __metadata:
     "@typescript-eslint/eslint-plugin": "npm:^8.40.0"
     "@typescript-eslint/parser": "npm:^8.40.0"
     autoprefixer: "npm:10.4.0"
-    axios: "npm:1.8.2"
+    axios: "npm:1.12.0"
     babel-jest: "npm:29.7.0"
     class-variance-authority: "npm:0.7.1"
     classnames: "npm:2.3.1"
-    cookie: "npm:0.4.2"
+    cookie: "npm:0.7.0"
     cy-verify-downloads: "npm:0.1.8"
     cypress: "npm:13.6.0"
     date-fns: "npm:4.0.0"
@@ -6863,14 +6863,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:1.8.2":
-  version: 1.8.2
-  resolution: "axios@npm:1.8.2"
+"axios@npm:1.12.0":
+  version: 1.12.0
+  resolution: "axios@npm:1.12.0"
   dependencies:
     follow-redirects: "npm:^1.15.6"
-    form-data: "npm:^4.0.0"
+    form-data: "npm:^4.0.4"
     proxy-from-env: "npm:^1.1.0"
-  checksum: 10/d4328758128d0602cc809a8e7627622cb7839b379eae5e4d6b9d603dd4d5fb89159985630243ec107cf5c675cd8825dba737a319dff9499f3b7688d9a69ec9ed
+  checksum: 10/6c45e294b6ee72f832dbee94cb3fe7331bf2961874fa6b656d909a93b3574c59281f0c62eb92baf7b3e4f39be71936c9f1fcbbe494c90f7ff4d7cc2d7932f06d
   languageName: node
   linkType: hard
 
@@ -8142,10 +8142,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cookie@npm:0.4.2":
-  version: 0.4.2
-  resolution: "cookie@npm:0.4.2"
-  checksum: 10/2e1de9fdedca54881eab3c0477aeb067f281f3155d9cfee9d28dfb252210d09e85e9d175c0a60689661feb9e35e588515352f2456bc1f8e8db4267e05fd70137
+"cookie@npm:0.7.0":
+  version: 0.7.0
+  resolution: "cookie@npm:0.7.0"
+  checksum: 10/2e69a615fa2c5a1e1126012dd2118b0de4fbbdede38ebcc1f971a9b08075718bc4465b119896bac61969b38c6cacaf471b0fd2601ea978fd8f3e834f2c2393f8
   languageName: node
   linkType: hard
 
@@ -11056,6 +11056,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"glob@npm:^9.2.0":
+  version: 9.3.5
+  resolution: "glob@npm:9.3.5"
+  dependencies:
+    fs.realpath: "npm:^1.0.0"
+    minimatch: "npm:^8.0.2"
+    minipass: "npm:^4.2.4"
+    path-scurry: "npm:^1.6.1"
+  checksum: 10/e5fa8a58adf53525bca42d82a1fad9e6800032b7e4d372209b80cfdca524dd9a7dbe7d01a92d7ed20d89c572457f12c250092bc8817cb4f1c63efefdf9b658c0
+  languageName: node
+  linkType: hard
+
 "global-dirs@npm:^3.0.0":
   version: 3.0.0
   resolution: "global-dirs@npm:3.0.0"
@@ -11552,7 +11564,7 @@ __metadata:
     "@types/papaparse": "npm:5.3.2"
     "@typescript-eslint/eslint-plugin": "npm:8.40.0"
     "@typescript-eslint/parser": "npm:8.40.0"
-    axios: "npm:1.8.2"
+    axios: "npm:1.12.0"
     cypress: "npm:13.6"
     dayjs: "npm:1.11.0"
     eslint-config-prettier: "npm:8.3.0"
@@ -13990,6 +14002,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"minimatch@npm:^8.0.2":
+  version: 8.0.4
+  resolution: "minimatch@npm:8.0.4"
+  dependencies:
+    brace-expansion: "npm:^2.0.1"
+  checksum: 10/aef05598ee565e1013bc8a10f53410ac681561f901c1a084b8ecfd016c9ed919f58f4bbd5b63e05643189dfb26e8106a84f0e1ff12e4a263aa37e1cae7ce9828
+  languageName: node
+  linkType: hard
+
 "minimatch@npm:^9.0.4":
   version: 9.0.5
   resolution: "minimatch@npm:9.0.5"
@@ -14070,6 +14091,13 @@ __metadata:
   dependencies:
     yallist: "npm:^4.0.0"
   checksum: 10/464654ae469c4f25b2f3d6e7bd6e65615b90b68cdfd0148e69ce039b199a778b689f2a552bfa4d3a81812d914d0b48a3a49715b50dcc1eba96bba3bed21f428a
+  languageName: node
+  linkType: hard
+
+"minipass@npm:^4.2.4":
+  version: 4.2.8
+  resolution: "minipass@npm:4.2.8"
+  checksum: 10/e148eb6dcb85c980234cad889139ef8ddf9d5bdac534f4f0268446c8792dd4c74f4502479be48de3c1cce2f6450f6da4d0d4a86405a8a12be04c1c36b339569a
   languageName: node
   linkType: hard
 
@@ -15079,7 +15107,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"path-scurry@npm:^1.11.1":
+"path-scurry@npm:^1.11.1, path-scurry@npm:^1.6.1":
   version: 1.11.1
   resolution: "path-scurry@npm:1.11.1"
   dependencies:
@@ -16502,7 +16530,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rimraf@npm:3.0.2, rimraf@npm:^3.0.0, rimraf@npm:^3.0.2":
+"rimraf@npm:4.3.1":
+  version: 4.3.1
+  resolution: "rimraf@npm:4.3.1"
+  dependencies:
+    glob: "npm:^9.2.0"
+  bin:
+    rimraf: dist/cjs/src/bin.js
+  checksum: 10/183ed1a1fd1493ec51b6c83b8159c078ece006932c644b9482737c6810c468ec6a9fa6c9921f1787f7b2080bf9eaf1e054cc008b1e48f01a373ba48acfd467de
+  languageName: node
+  linkType: hard
+
+"rimraf@npm:^3.0.0, rimraf@npm:^3.0.2":
   version: 3.0.2
   resolution: "rimraf@npm:3.0.2"
   dependencies:
@@ -17743,21 +17782,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"swagger-ui-dist@npm:>3.52.5":
-  version: 4.1.3
-  resolution: "swagger-ui-dist@npm:4.1.3"
-  checksum: 10/27fe9bc41d492bf1a6b6ea94613c553fbb9af799598e31724302f6fc5f49f0aaf2ade910a3d8266b5da6c76b750234eda1f345581b8339c673a5bd51ab85bf90
+"swagger-ui-dist@npm:>=4.1.3":
+  version: 5.29.3
+  resolution: "swagger-ui-dist@npm:5.29.3"
+  dependencies:
+    "@scarf/scarf": "npm:=1.4.0"
+  checksum: 10/f896364781e296c4ceeaf32c7af6901472b11ce72013e619afea3bf8efaa9e8aca593240e04f8c9c6dfdb8878f1f52ef7dcb9707034802cc63f8362d8a6212b1
   languageName: node
   linkType: hard
 
-"swagger-ui-express@npm:4.2.0":
-  version: 4.2.0
-  resolution: "swagger-ui-express@npm:4.2.0"
+"swagger-ui-express@npm:4.3.0":
+  version: 4.3.0
+  resolution: "swagger-ui-express@npm:4.3.0"
   dependencies:
-    swagger-ui-dist: "npm:>3.52.5"
+    swagger-ui-dist: "npm:>=4.1.3"
   peerDependencies:
     express: ">=4.0.0"
-  checksum: 10/30785f3fa96fec6fd8dd9d04bf1a5efe143ce5e39c0b038059cd2b75f558fa6a0f44cfe9e25cdf8be09f07189c55abc0f821fbbcf0dd23911f26d6eead85da04
+  checksum: 10/cd85e677402f06f04565dcc3ab262f6a66ee648df9e6d5e1aca934c87530dda461114d42d6474f7de5ec080fd4c010b39fd8249b05a35e5c1c65dd4f3c2780f4
   languageName: node
   linkType: hard
 
