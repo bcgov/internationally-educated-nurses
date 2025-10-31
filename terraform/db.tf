@@ -16,7 +16,7 @@ resource "aws_rds_cluster_instance" "pgsql" {
 resource "aws_rds_cluster" "pgsql" {
   cluster_identifier  = local.db_name
   engine              = "aurora-postgresql"
-  engine_version      = "14.15"
+  engine_version      = "14.17"
   availability_zones  = ["ca-central-1a", "ca-central-1b"]
   database_name       = replace(var.project_code, "-", "_")
   master_username     = var.db_username
