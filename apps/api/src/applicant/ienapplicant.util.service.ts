@@ -48,6 +48,14 @@ export class IENApplicantUtilService {
     const { status, name, recruiter, sortKey, order, limit, skip, showHiddenApplicants } = filter;
     const builder = this.ienapplicantRepository.createQueryBuilder('applicant');
     builder.leftJoinAndSelect('applicant.status', 'latest_status');
+
+    // Security: If ha_pcn_id is undefined/null, user has no organization assignment
+    // Return empty result set instead of all applicants (fail-closed security)
+    if (!ha_pcn_id) {
+      builder.andWhere('1 = 0');
+      return builder.skip(skip).take(limit).getManyAndCount();
+    }
+
     if (ha_pcn_id) {
       const haPcn = await this.getHaPcn(ha_pcn_id);
       builder
