@@ -53,6 +53,7 @@ export class AdminService {
   }
 
   async getUserGuides(): Promise<UserGuide[]> {
+    this.logger.log(`node-version for debugging: ${process.version}`);
     if (!this.s3) {
       //throw new InternalServerErrorException('the feature is disabled');
       return [];
