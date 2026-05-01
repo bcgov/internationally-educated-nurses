@@ -1,6 +1,7 @@
 import { createNestApp } from './app.config';
 
 async function bootstrap() {
+  console.log(`node-version: ${process.version}`);
   const { app } = await createNestApp();
   app.enableCors({
     origin: process.env.ENV_NAME === 'dev' ? '*' : true,
