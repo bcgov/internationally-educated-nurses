@@ -1,4 +1,3 @@
-
 services:
   db:
     image: postgres:14-alpine
@@ -21,7 +20,7 @@ services:
       context: ./
       dockerfile: Dockerfile.local
       args:
-        CA_CERTIFICATE_PATH: "./cert/zscaler-root-ca.pem"
+        CA_CERTIFICATE_PATH: './cert/zscaler-root-ca.pem'
     command: 'yarn watch:common'
     volumes:
       - ./packages:/app/packages
@@ -32,7 +31,7 @@ services:
       context: ./
       dockerfile: Dockerfile.local
       args:
-        CA_CERTIFICATE_PATH: "./cert/zscaler-root-ca.pem"
+        CA_CERTIFICATE_PATH: './cert/zscaler-root-ca.pem'
     command: 'yarn watch:api'
     volumes:
       - ./apps/api:/app/apps/api
@@ -71,7 +70,7 @@ services:
       context: ./
       dockerfile: Dockerfile.local
       args:
-        CA_CERTIFICATE_PATH: "./cert/zscaler-root-ca.pem"
+        CA_CERTIFICATE_PATH: './cert/zscaler-root-ca.pem'
     command: 'yarn watch:web'
     volumes:
       - ./apps/web:/app/apps/web
