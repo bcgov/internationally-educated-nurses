@@ -24,7 +24,6 @@ services:
         CA_CERTIFICATE_PATH: "./cert/zscaler-root-ca.pem"
     command: 'yarn watch:common'
     volumes:
-      - ./node_modules:/app/node_modules
       - ./packages:/app/packages
   api:
     image: ${PROJECT}_base
@@ -36,7 +35,6 @@ services:
         CA_CERTIFICATE_PATH: "./cert/zscaler-root-ca.pem"
     command: 'yarn watch:api'
     volumes:
-      - ./node_modules:/app/node_modules
       - ./apps/api:/app/apps/api
       - ./packages:/app/packages
     ports:
@@ -76,7 +74,6 @@ services:
         CA_CERTIFICATE_PATH: "./cert/zscaler-root-ca.pem"
     command: 'yarn watch:web'
     volumes:
-      - ./node_modules:/app/node_modules
       - ./apps/web:/app/apps/web
       - ./packages:/app/packages
     ports:
