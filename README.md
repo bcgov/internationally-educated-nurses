@@ -87,6 +87,8 @@ When you create a pull request, be aware that GitHub actions for each project wi
   >
   > If TEAMS_ALERTS_WEBHOOK_URL is defined and an exception occurs, the error message will be sent to the Teams channel.
 
+ - If your organization uses TLS/SSL interception you see the [Enterprise TLS/SSL Interception](./cert/README.md#enterprise-tlsssl-interception)
+
 ### Run as docker containers
 
 The `Make` command `docker-run` to build and launch containers is defined in [Makefile](Makefile).

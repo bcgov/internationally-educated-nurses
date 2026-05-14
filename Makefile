@@ -159,12 +159,17 @@ start-local: print-env start-local-db
 
 start-local-db:
 	@echo "++\n***** Starting local database\n++"
-	@docker compose up -d db 
+	@docker compose --file docker-compose.local.yml up -d db 
 	@echo "++\n*****"
 
 stop-local-db:
 	@echo "++\n***** Stopping local database\n++"
-	@docker stop "$(PROJECT)_db"
+	@docker compose --file docker-compose.local.yml down db
+	@echo "++\n*****"
+
+docker-down-local:
+	@echo "++\n***** Stopping local Docker containers\n++"
+	@docker compose --file docker-compose.local.yml down
 	@echo "++\n*****"
 
 docker-down:
@@ -172,9 +177,20 @@ docker-down:
 	@docker compose down
 	@echo "++\n*****"
 
+docker-build-local:
+	@echo "++\n*****  Running local docker compose\n++"
+	@yarn
+	@docker compose --file docker-compose.local.yml build
+	@echo "++\n*****"
+
 docker-build:
 	@echo "++\n***** Running docker compose\n++"
 	@docker compose build
+	@echo "++\n*****"
+
+docker-run-local: docker-build-local
+	@echo "++\n***** Running local docker compose\n++"
+	@docker compose --file docker-compose.local.yml up
 	@echo "++\n*****"
 
 docker-run:

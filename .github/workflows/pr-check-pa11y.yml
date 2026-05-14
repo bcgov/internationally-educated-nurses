@@ -8,6 +8,8 @@ on:
 
 permissions:
   contents: read
+  issues: write
+  pull-requests: write
 
 jobs:
   pr-checks:
@@ -18,10 +20,10 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v4
-      - name: setup node v18
+      - name: setup node v22
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22.22.2
       - uses: actions/cache@v4
         name: Cache yarn
         with:
@@ -53,7 +55,9 @@ jobs:
         run: make generate-accessibility-results
         if: ${{ failure() }}
 
-      - uses: actions/github-script@v8
+      - name: Comment accessibility results on PR
+        uses: actions/github-script@v8
+        continue-on-error: true
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
