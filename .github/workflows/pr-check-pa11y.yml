@@ -20,7 +20,7 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v4
-      - name: setup node v22
+      - name: setup node v22.22.2
         uses: actions/setup-node@v4
         with:
           node-version: 22.22.2

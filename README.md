@@ -48,7 +48,7 @@ When you create a pull request, be aware that GitHub actions for each project wi
 
 ### Preparation
 
-- Install NodeJS 16+ as a runtime environment by [nvm](https://github.com/nvm-sh/nvm)
+- Install NodeJS 22.22.2 as a runtime environment by [nvm](https://github.com/nvm-sh/nvm)
 - Install [yarn](https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable) as a package manager
 - Install and run [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 - Check out the repository
