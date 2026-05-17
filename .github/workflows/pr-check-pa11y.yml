@@ -5,6 +5,9 @@ on:
       - 'apps/api/**'
       - 'apps/web/**'
       - 'packages/common/**'
+      - 'packages/accessibility/**'
+      - 'docker-compose.test.yaml'
+      - '.github/workflows/pr-check-pa11y.yml'
 
 permissions:
   contents: read
@@ -20,7 +23,7 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v4
-      - name: setup node v22
+      - name: setup node v22.22.2
         uses: actions/setup-node@v4
         with:
           node-version: 22.22.2
