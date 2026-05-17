@@ -5,6 +5,9 @@ on:
       - 'apps/api/**'
       - 'apps/web/**'
       - 'packages/common/**'
+      - 'packages/accessibility/**'
+      - 'docker-compose.test.yaml'
+      - '.github/workflows/pr-check-pa11y.yml'
 
 permissions:
   contents: read
