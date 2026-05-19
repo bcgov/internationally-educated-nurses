@@ -13,7 +13,7 @@ services:
     restart: always
 
   keycloak:
-    image: quay.io/keycloak/keycloak:latest # later than 22.0.1
+    image: quay.io/keycloak/keycloak:26.4.0 # latest release before 2025-10-01
     container_name: ${PROJECT}-keycloak
     environment:
       KEYCLOAK_ADMIN: ${KC_ADMIN}
