@@ -205,6 +205,10 @@ export class ExternalAPIService {
     const pages = [];
 
     for (let i = 0; i < parallel_requests; i++) {
+      this.logger.log(
+        `Fetching applicants from ATS from=${from_date} to=${to_date} offset=${offset}`,
+        'ATS-SYNC',
+      );
       pages.push(
         this.external_request.getApplicants(
           `/applicants?next=${per_page}&offset=${offset}&from=${from_date}&to=${to_date}`,
@@ -237,8 +241,8 @@ export class ExternalAPIService {
         parallel_requests,
         per_page,
         offset,
-        from,
-        to,
+        from_date: from,
+        to_date: to,
       };
       pages = pages.concat(this.createParallelRequestRun(input));
       let temp: any[] = [];
@@ -328,8 +332,12 @@ export class ExternalAPIService {
 
       const result = await this.dataSource.transaction(async manager => {
         const result = await this.createBulkApplicants(applicants, manager);
+        this.logger.log('before removing milestones not on ATS', 'ATS-SYNC');
         result.milestones.removed = await this.removeMilestonesNotOnATS(applicants, manager);
+        this.logger.log('after removing milestones not on ATS', 'ATS-SYNC');
+        this.logger.log('before marking sync_applicants_audit success', 'ATS-SYNC');
         await this.saveSyncApplicantsAudit(audit.id, true, undefined, manager);
+        this.logger.log('after marking sync_applicants_audit success', 'ATS-SYNC');
         // update end of journey
         await this.endOfJourneyService.handleNotProceedingMilestone(applicants, manager);
         return result;
