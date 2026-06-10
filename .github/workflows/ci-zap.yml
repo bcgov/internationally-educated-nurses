@@ -9,7 +9,7 @@ on:
 permissions:
   contents: read
   issues: write
-  actions: read 
+  actions: read
 
 jobs:
   deploy:
