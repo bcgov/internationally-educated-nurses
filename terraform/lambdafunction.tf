@@ -7,7 +7,7 @@ resource "aws_lambda_function" "SyncApplicants" {
   source_code_hash = filebase64sha256("./build/empty_lambda.zip")
   handler          = "api/syncdata.handler"
   memory_size      = var.function_memory_mb
-  timeout          = 300
+  timeout          = 900
 
   vpc_config {
     security_group_ids = [data.aws_security_group.app.id]
