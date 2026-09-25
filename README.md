@@ -34,6 +34,17 @@ The codebase is being roughed out, but finer details are likely to change.
 | packages/common        | Shared library                | [README](packages/common/README.md)        |
 | packages/accessibility | **Accessibility** Test        | [README](packages/accessibility/README.md) |
 
+### Tooling
+
+Most commands in this project are wrapped in the [Makefile](Makefile), which loads your
+`.env` file and sets the environment variables each command needs. You run them as
+`make <target>`, for example `make watch`. Each target simply runs the shell
+commands written under it.
+
+```bash
+$ make          # list the documented targets with a short description of each
+```
+
 ## PR Checks
 
 When you create a pull request, be aware that GitHub actions for each project will be executed to check its validity.
@@ -74,21 +85,31 @@ When you create a pull request, be aware that GitHub actions for each project wi
   ```
 - Define environment variables in .env
 
-  Copy [.env.example](.config/.env-example) to .env
+  Copy [.env-example](.config/.env-example) to .env
 
   ```bash
-  $ cp .config/.env.example .env
+  $ cp .config/.env-example .env
   ```
 
-  Define variables for database connection.
+  The defaults in `.env-example` work for local development. The values you are most
+  likely to change are the database credentials and the local Keycloak password.
+
   ```
   PROJECT=ien
   RUNTIME_ENV=local
-  POSTGRES_HOST=db
+  POSTGRES_HOST=localhost
   POSTGRES_USERNAME=
   POSTGRES_PASSWORD=
   POSTGRES_DATABASE=
+  KEYCLOAK_LOCAL_PASSWORD=local
   ```
+
+  > **Database host**
+  >
+  > Keep `POSTGRES_HOST=localhost`. It is correct when the api runs on your machine, and
+  > [docker-compose.local.yml](docker-compose.local.yml) overrides it to the service name
+  > `db` when the api runs in a container, so one value serves both ways of running.
+
   > **Database Initialization**
   >
   > The local `.pgdata` folder is mapped to a volume in db container, and it is initialized at the initial launch. If you change env variables to authenticate a db connection, delete `.pgdata` so that database could be reinitialized.
@@ -99,78 +120,131 @@ When you create a pull request, be aware that GitHub actions for each project wi
   >
   > If TEAMS_ALERTS_WEBHOOK_URL is defined and an exception occurs, the error message will be sent to the Teams channel.
 
- - If your organization uses TLS/SSL interception you see the [Enterprise TLS/SSL Interception](./cert/README.md#enterprise-tlsssl-interception)
+- Provide a certificate file at `cert/zscaler-root-ca.pem`
 
-### Run as docker containers
+  [Dockerfile.local](Dockerfile.local) always copies this file, so the image build fails
+  without it. If your organization inspects TLS traffic, export your root certificate as
+  described in [Enterprise TLS/SSL Interception](./cert/README.md#enterprise-tlsssl-interception).
+  If it does not, any valid certificate bundle satisfies the copy, for example
+  `cp /etc/ssl/certs/ca-certificates.crt cert/zscaler-root-ca.pem`. Certificate files are
+  gitignored.
 
-The `Make` command `docker-run` to build and launch containers is defined in [Makefile](Makefile).
+### What you will be running
 
-- create containers
+| Service | Address | Notes |
+|---|---|---|
+| web | http://localhost:3000 | NextJS frontend |
+| api | http://localhost:4000/api/v1 | NestJS backend, Swagger UI at http://localhost:4000/api |
+| database | localhost:5432 | PostgreSQL, container `ien_db` |
+| Keycloak | http://localhost:8080 | Authentication, container `ien_keycloak`, admin console login `admin` / `admin` |
+| test database | localhost:5433 | Used only by the test suites, wiped between runs |
 
-  ```bash
-  $ make docker-run
-  ```
+All of these are defined in [docker-compose.local.yml](docker-compose.local.yml). There
+are two supported ways to run them.
 
-- stop containers
-
-  ```bash
-  $ docker-compose stop
-  ```
-  
-- start containers
-  
-  ```bash
-  $ docker-compose start
-  ```
-
-- destroy containers
-
-  ```bash
-  $ make docker-down
-  ```
-  
-Containers:
-- ien_db
-- ien_common
-- ien_web
-- ien_api
-
-Containers are configured by [Dockerfile](Dockerfile) and [docker-compose.yml](docker-compose.yml)
-
-> If you get a **DockerException**, make sure Docker Desktop is running.
-
-```
-docker.errors.DockerException: Error while fetching server API version: ('Connection aborted.', ConnectionRefusedError(61, 'Connection refused'))
-[80774] Failed to execute script docker-compose
-```
-
-### Run as local NodeJS instances
-
-It is recommended to run database as a container in any case. On the other hand, you can run `common`, `api`, and `web` as NodeJS instances.
+### Option A: every service in Docker
 
 ```bash
-$ make start-local
+$ make docker-run-local     # builds the images, then starts db, common, api, web and Keycloak
+$ make seed-local           # in a second terminal
 ```
 
-or run in `watch` mode
+`docker-run-local` stays in the foreground and prints the logs of all services, so run
+`seed-local` from another terminal. It waits until the api has finished its database
+migrations before loading the sample data.
+
+### Option B: api and web on the host, with hot reload
 
 ```bash
-$ make watch
+$ make watch                # starts db and Keycloak in Docker, runs common, api and web on your machine
+$ make seed-local           # in a second terminal
 ```
 
-### Make apps connect to each other.
+Use this while developing. Code changes are picked up without rebuilding an image.
+`make start-local` does the same thing without hot reload.
 
-> **Database Hostname Resolution**
+> Do not use both options at the same time. They both bind ports 3000 and 4000.
+
+Stop everything with `make docker-down-local`.
+
+### Seeding the database
+
+`make seed-local` loads the sample employees, applicants and jobs from [scripts](scripts/)
+into your local database. It is written for an empty database: the records use fixed
+identifiers, so running it twice, or running it after you have already logged in, fails on
+duplicate keys. To start over, run `make docker-down-local`, delete the `.pgdata` folder
+and begin again.
+
+### Logging in
+
+Authentication uses the local Keycloak container, which imports the realm `ien` with nine
+test users: `ien_e2e`, `ien_e2e_hmbc`, `ien_e2e_view`, `ien_fha`, `ien_fha2`, `ien_fnha`,
+`ien_hmbc`, `ien_moh` and `ien_viha`.
+
+The passwords in [keycloak/realm-ien.json](keycloak/realm-ien.json) are hashed and cannot
+be used directly. Instead, `make generate-local-realm` writes
+`keycloak/realm-ien.generated.json`, a copy in which every user has the password from
+`KEYCLOAK_LOCAL_PASSWORD` in your `.env`. That file is gitignored, so your password is
+never committed, and the generator runs automatically as part of `make watch` and
+`make docker-run-local`.
+
+Sign in at http://localhost:3000 as **`ien_e2e`** with your `KEYCLOAK_LOCAL_PASSWORD`. That
+account has every role in the sample data.
+
+> **Roles come from the database, not from Keycloak**
 >
-> `POSTGRES_HOST` env is defined as `db`, which is used as a service name in [docker-compose.yml](docker-compose.yml). As `api` uses it to connect to the database and a service name is resolved as an address only in Docker environment, you need to redefine it to resolve it on your local machine. You can set it to `localhost` if you persistently run the app in this way. Otherwise, add `127.0.0.1 db` to `/etc/hosts`.
+> Keycloak only confirms who you are. What you may do is read from the `employee` table and
+> its related role tables. When someone signs in for the first time the api creates a row
+> for them with no roles, which is why an unseeded database shows
+> "You have logged into IEN, but you have not been assigned a role". Run `make seed-local`
+> before your first login.
 
-> **API Calls**
+> **Keycloak keeps no data between runs**
+>
+> The container stores its realm in memory only. `make stop-local-keycloak` or
+> `make docker-down-local` discards it, and the next start re-imports the generated file.
+> Passwords or users you add through the admin console are lost; changes to
+> `KEYCLOAK_LOCAL_PASSWORD` take effect the same way.
+
+### Connecting the parts
+
+> **API calls from the frontend**
 >
 > `NEXT_PUBLIC_API_URL=http://localhost:4000/api/v1`
 >
-> To make successful requests from `web` to `api`, you need to set `NEXT_PUBLIC_API_URL` environment variable. It is set by default when using Docker or run by `make` command, but if you run the application by `next start` command in `apps/web` folder, you should supply this value by creating a file named `.env.local` placed in `apps/web`.
+> The frontend reads this at build time to reach the api. It is set for you by the make
+> targets and by Docker. If you instead start the frontend directly with `next start` in
+> `apps/web`, create a file `apps/web/.env.local` and define it there.
 
-> In order to make breakpoints work in `watch` mode, set `sourceMap` to `true` in [tsconfig.json](tsconfig.json) and restart the apps.
+> **Debugging in watch mode**
+>
+> Set `sourceMap` to `true` in [tsconfig.json](tsconfig.json) and restart the apps to make
+> breakpoints work.
+
+> If you get a **DockerException**, make sure Docker Desktop is running.
+>
+> ```
+> docker.errors.DockerException: Error while fetching server API version: ('Connection aborted.', ConnectionRefusedError(61, 'Connection refused'))
+> ```
+
+### Troubleshooting
+
+| Symptom | Cause and fix |
+|---|---|
+| `make: yarn: Not a directory` | The yarn shim is missing for the active NodeJS version. Run `corepack enable`. |
+| The image build fails on `COPY ${CA_CERTIFICATE_PATH}` | No certificate at `cert/zscaler-root-ca.pem`. See the preparation steps. |
+| The image build fails on `cypress ... couldn't be built` | The Cypress download could not be reached. `CYPRESS_INSTALL_BINARY=0` in [Dockerfile.local](Dockerfile.local) prevents this; make sure your image is rebuilt. |
+| `EACCES: permission denied, unlink ... .next/...` | Build output left behind as root by an earlier container run. Delete it with `sudo rm -rf apps/web/.next`. |
+| The Keycloak user list shows only `admin` | The admin console opens on the `master` realm. Switch to the `ien` realm using **Manage realms**. |
+| Signing in shows "you have not been assigned a role" | The database has no roles for you. See "Logging in" above. |
+
+### Legacy container setup
+
+[docker-compose.yml](docker-compose.yml) and [Dockerfile](Dockerfile), used by
+`make docker-run`, `make docker-build` and `make docker-down`, are an older stack kept for
+reference. They have no Keycloak service and are not used by the pipeline. Prefer the two
+options above; these files are expected to be consolidated with the local and test compose
+files in the future improvement.
 
 ## Tests
 
@@ -206,9 +280,9 @@ Run API integration tests with `make api-integration-test`
 
 #### Cypress e2e Tests
 
-Run Cypress integration tests with `make test-e2e` or `make test-web`. `test-web` runs pa11y if cypress tests succeed. 
+Run Cypress integration tests with `make test-e2e`. Run the accessibility suite with `make test-pa11y`.
 
-If you want to open Cypress UI while developing new test cases, run `make run-test-apps` to prepare applications and then run `make open:cypress` 
+If you want to open Cypress UI while developing new test cases, run `make run-test-apps` to prepare applications and then run `make open-cypress`.
 
 > **Seed data**
 > 
