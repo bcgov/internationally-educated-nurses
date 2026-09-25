@@ -289,7 +289,7 @@ seed-local: ## Load the sample employees, applicants and jobs into the local dat
 	@echo "++\n***** Seeding local database\n++"
 	@echo "waiting for the api to finish its migrations"
 	@for i in $$(seq 1 120); do \
-		curl -sf http://localhost:4000/api/v1/version > /dev/null && break; \
+		curl -sf --noproxy '*' http://localhost:4000/api/v1/version > /dev/null && break; \
 		if [ $$i -eq 120 ]; then echo "\n[ERROR] api is not responding on port 4000"; exit 1; fi; \
 		printf "."; sleep 1; \
 	done
