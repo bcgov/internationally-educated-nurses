@@ -116,7 +116,7 @@ endef
 export TF_BACKEND_CFG
 
 
-.PHONY: start-local print-env start-local-db start-local-keycloak stop-local-keycloak bootstrap bootstrap-terraform
+.PHONY: start-local print-env start-local-db start-local-keycloak stop-local-keycloak generate-local-realm seed-local bootstrap bootstrap-terraform
 
 # ===================================
 # Aliases 
@@ -167,7 +167,12 @@ stop-local-db:
 	@docker compose --file docker-compose.local.yml down db
 	@echo "++\n*****"
 
-start-local-keycloak:
+generate-local-realm:
+	@echo "++\n***** Generating local Keycloak realm\n++"
+	@node scripts/generate-local-realm.js
+	@echo "++\n*****"
+
+start-local-keycloak: generate-local-realm
 	@echo "++\n***** Starting local Keycloak\n++"
 	@docker compose --file docker-compose.local.yml up -d keycloak
 	@echo "++\n*****"
@@ -198,7 +203,7 @@ docker-build:
 	@docker compose build
 	@echo "++\n*****"
 
-docker-run-local: docker-build-local
+docker-run-local: docker-build-local generate-local-realm
 	@echo "++\n***** Running local docker compose\n++"
 	@docker compose --file docker-compose.local.yml up
 	@echo "++\n*****"
@@ -252,6 +257,20 @@ api-integration-test:
 run-seed:
 	@make start-test-env
 	@scripts/seed-test-data.sh	
+	@echo "++\n*****"
+
+# Seeds the local dev database (5432) with the same fixtures the test stack uses.
+# Runs psql inside the db container so no postgres client is needed on the host, and
+# leaves scripts/seed-test-data.sh (which CI calls against the test db) untouched.
+# The data uses fixed ids, so run it on a fresh database - before logging in, since
+# the first login auto-creates an employee row that collides with the seed.
+seed-local:
+	@echo "++\n***** Seeding local database\n++"
+	@for file in data-employees data-applicants data-jobs data-milestones; do \
+		echo "  $$file"; \
+		docker exec -i $(PROJECT)_db psql -q -v ON_ERROR_STOP=1 \
+			-U $(POSTGRES_USERNAME) -d $(POSTGRES_DATABASE) < scripts/$$file.sql > /dev/null || exit 1; \
+	done
 	@echo "++\n*****"
 
 run-test-apps:
