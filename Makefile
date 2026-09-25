@@ -116,7 +116,7 @@ endef
 export TF_BACKEND_CFG
 
 
-.PHONY: start-local print-env start-local-db bootstrap bootstrap-terraform
+.PHONY: start-local print-env start-local-db start-local-keycloak stop-local-keycloak bootstrap bootstrap-terraform
 
 # ===================================
 # Aliases 
@@ -147,12 +147,12 @@ print-env:
 	@echo "$$TF_BACKEND_CFG"
 	@echo "\n*********************\n"
 
-watch: print-env start-local-db
+watch: print-env start-local-db start-local-keycloak
 	@echo "++\n***** Running api + web in local Node server\n++"
 	@yarn
 	@yarn watch
 
-start-local: print-env start-local-db
+start-local: print-env start-local-db start-local-keycloak
 	@echo "++\n***** Running api + web in local Node server\n++"
 	@yarn 
 	@yarn start:local
@@ -165,6 +165,16 @@ start-local-db:
 stop-local-db:
 	@echo "++\n***** Stopping local database\n++"
 	@docker compose --file docker-compose.local.yml down db
+	@echo "++\n*****"
+
+start-local-keycloak:
+	@echo "++\n***** Starting local Keycloak\n++"
+	@docker compose --file docker-compose.local.yml up -d keycloak
+	@echo "++\n*****"
+
+stop-local-keycloak:
+	@echo "++\n***** Stopping local Keycloak\n++"
+	@docker compose --file docker-compose.local.yml down keycloak
 	@echo "++\n*****"
 
 docker-down-local:

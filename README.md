@@ -49,7 +49,19 @@ When you create a pull request, be aware that GitHub actions for each project wi
 ### Preparation
 
 - Install NodeJS 22.22.2 as a runtime environment by [nvm](https://github.com/nvm-sh/nvm)
-- Install [yarn](https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable) as a package manager
+- Enable [Yarn](https://yarnpkg.com/) via corepack, which ships with NodeJS. The version
+  is pinned by `packageManager` in [package.json](package.json), so do not install yarn
+  separately.
+
+  ```bash
+  $ corepack enable
+  $ yarn --version   # 4.9.3
+  ```
+
+  > nvm gives every NodeJS version its own `bin` directory, so the yarn shim is created
+  > only for the version that was active when you ran `corepack enable`. After installing
+  > or switching to another NodeJS version, run it again — otherwise make recipes that
+  > call `yarn` fail with a confusing `make: yarn: Not a directory`.
 - Install and run [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 - Check out the repository
   ```bash

@@ -40,7 +40,10 @@ services:
       - '4000:4000'
     env_file: ./.env
     environment:
+      # Both hosts are the compose service names: inside this network "localhost"
+      # would resolve to the api container itself, not to db / keycloak.
       - POSTGRES_HOST=db
+      - AUTH_URL=http://keycloak:8080
       - BUILD_ID=${COMMIT_SHA}
       - BUILD_INFO=${LAST_COMMIT_MESSAGE}
     depends_on:
@@ -75,6 +78,10 @@ services:
     volumes:
       - ./apps/web:/app/apps/web
       - ./packages:/app/packages
+      # Keep Next's build output inside the container. The bind mount above would
+      # otherwise write it to the host as root, and a later `make watch` (running
+      # as your user) cannot delete those files to rebuild them.
+      - web_next:/app/apps/web/.next
     ports:
       - '3000:3000'
     environment:
@@ -84,6 +91,10 @@ services:
       - NEXT_PUBLIC_AUTH_URL=${NEXT_PUBLIC_AUTH_URL}
     depends_on:
       - api
+
+volumes:
+  web_next:
+
 networks:
   local:
     driver: bridge
