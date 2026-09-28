@@ -1,6 +1,10 @@
 import { Context, Handler } from 'aws-lambda';
 import { Logger } from '@nestjs/common';
 import postToTeams from './common/postToTeams';
+import { logRuntimeTzdata } from './common/runtime-tzdata';
+
+// Runs once per cold start — logs runtime timezone data
+logRuntimeTzdata();
 
 /**
  * Stand alone function that design to handle SQS messages

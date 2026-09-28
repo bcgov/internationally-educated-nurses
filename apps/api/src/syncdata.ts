@@ -5,6 +5,10 @@ import { AppModule } from './app.module';
 import { ExternalAPIService } from './applicant/external-api.service';
 import { AppLogger } from './common/logger.service';
 import { MailService } from './mail/mail.service';
+import { logRuntimeTzdata } from './common/runtime-tzdata';
+
+// Runs once per cold start — logs runtime timezone data
+logRuntimeTzdata();
 
 /**
  * Design this function to trigger existing NestJs application services without Api-Gateway

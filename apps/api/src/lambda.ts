@@ -8,6 +8,7 @@ import {
 } from 'aws-lambda';
 import { Logger } from '@nestjs/common';
 import { createNestApp } from './app.config';
+import { logRuntimeTzdata } from './common/runtime-tzdata';
 
 let cachedServer: Handler;
 const logger = new Logger('LambdaBootstrap');
@@ -15,6 +16,7 @@ const logger = new Logger('LambdaBootstrap');
 async function bootstrap() {
   if (!cachedServer) {
     logger.log(`node-version: ${process.version}`);
+    logRuntimeTzdata();
     const { app: nestApp } = await createNestApp();
     await nestApp.init();
     cachedServer = serverlessExpress({ app: nestApp.getHttpAdapter().getInstance() });

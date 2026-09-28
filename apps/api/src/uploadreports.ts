@@ -5,6 +5,10 @@ import { AppModule } from './app.module';
 import { AppLogger } from './common/logger.service';
 import { ReportService } from './report/report.service';
 import { ReportS3Service } from './report/report.s3.service';
+import { logRuntimeTzdata } from './common/runtime-tzdata';
+
+// Runs once per cold start — logs runtime timezone data
+logRuntimeTzdata();
 
 let app: INestApplication | null = null;
 

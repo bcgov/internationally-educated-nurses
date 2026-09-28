@@ -4,6 +4,10 @@ import { AppModule } from './app.module';
 import { AppLogger } from './common/logger.service';
 import { EndOfJourneyService } from './applicant/endofjourney.service';
 import { INestApplicationContext } from '@nestjs/common';
+import { logRuntimeTzdata } from './common/runtime-tzdata';
+
+// Runs once per cold start — logs runtime timezone data
+logRuntimeTzdata();
 
 let appContext: INestApplicationContext | null = null;
 /**
