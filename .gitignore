@@ -26,3 +26,6 @@ ssh-keypair*
 
 # Ignore certificate files
 *.pem
+# Important! Do not remove this ignore setting for Generated local Keycloak realm.-
+# contains a plaintext dev password. We do not track this file in GIT. Only loal use.
+keycloak/realm-ien.generated.json

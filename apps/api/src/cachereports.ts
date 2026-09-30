@@ -3,6 +3,10 @@ import { Context, Handler } from 'aws-lambda';
 import { AppModule } from './app.module';
 import { AppLogger } from './common/logger.service';
 import { ReportService } from './report/report.service';
+import { logRuntimeTzdata } from './common/runtime-tzdata';
+
+// Runs once per cold start — logs runtime timezone data
+logRuntimeTzdata();
 
 /**
  * Design this function to trigger existing NestJs appliation services without Api-Getway

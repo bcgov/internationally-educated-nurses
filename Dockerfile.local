@@ -1,4 +1,4 @@
-FROM node:22.22.2-alpine
+FROM node:24.21.0-alpine3.24
 
 # Set the working directory in the container
 # The working directory cannot be / or yarn will fail to start the application
@@ -10,6 +10,10 @@ COPY ${CA_CERTIFICATE_PATH} /usr/local/share/ca-certificates/enterprise-ca.pem
 ENV NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/enterprise-ca.pem
 ENV PUPPETEER_SKIP_DOWNLOAD=true
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+# Cypress runs on the host (make cypress / open-cypress / test-e2e), never in these
+# containers, so skip its ~180MB browser download. Without this the install fails or
+# hangs for minutes when the download cannot reach download.cypress.io.
+ENV CYPRESS_INSTALL_BINARY=0
 
 # Run corepack to enable the use of the correct package manager (Yarn) and install dependencies
 RUN corepack enable

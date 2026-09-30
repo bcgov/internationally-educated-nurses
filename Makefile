@@ -23,8 +23,9 @@ export TEST_POSTGRES_PORT ?= 5433
 export COMMIT_SHA:=$(shell git rev-parse --short=7 HEAD)
 export LAST_COMMIT_MESSAGE:=$(shell git log -1 --oneline --decorate=full --no-color --format="%h, %cn, %f, %D" | sed 's/->/:/')
 
-# TF Token
-export TFCTK:=$(shell cat ~/.terraform.d/credentials.tfrc.json | jq -r '.credentials."app.terraform.io".token')
+# TF Token. Guarded so that developers without terraform credentials do not see a
+# 'No such file' error printed before every unrelated make target.
+export TFCTK = $(shell test -f ~/.terraform.d/credentials.tfrc.json && jq -r '.credentials."app.terraform.io".token' ~/.terraform.d/credentials.tfrc.json)
 
 # FE Env Vars
 export NEXT_PUBLIC_API_URL ?= /api/v1
@@ -116,7 +117,21 @@ endef
 export TF_BACKEND_CFG
 
 
-.PHONY: start-local print-env start-local-db bootstrap bootstrap-terraform
+.PHONY: help print-env bootstrap bootstrap-terraform \
+	watch start-local start-local-db stop-local-db \
+	generate-local-realm start-local-keycloak stop-local-keycloak \
+	docker-build-local docker-run-local docker-down-local seed-local \
+	start-test-env stop-test-env start-test-db stop-test-db \
+	start-test-keycloak stop-test-keycloak
+
+# Default target: list the documented recipes.
+help:
+	@echo "\nIEN make targets. Run 'make <target>'.\n"
+	@grep -hE '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
+		| sort \
+		| awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-24s\033[0m %s\n", $$1, $$2}'
+	@echo "\nSee README.md for the full local setup.\n"
+
 
 # ===================================
 # Aliases 
@@ -147,27 +162,48 @@ print-env:
 	@echo "$$TF_BACKEND_CFG"
 	@echo "\n*********************\n"
 
-watch: print-env start-local-db
+# --- Running the app: api and web on the host, database and Keycloak in Docker ---
+
+watch: print-env start-local-db start-local-keycloak ## Database and Keycloak in Docker, api and web on the host with hot reload
 	@echo "++\n***** Running api + web in local Node server\n++"
 	@yarn
 	@yarn watch
 
-start-local: print-env start-local-db
+start-local: print-env start-local-db start-local-keycloak ## Same as watch, but without hot reload
 	@echo "++\n***** Running api + web in local Node server\n++"
 	@yarn 
 	@yarn start:local
 
-start-local-db:
+# --- Individual local containers ---
+
+start-local-db: ## Start only the database container
 	@echo "++\n***** Starting local database\n++"
 	@docker compose --file docker-compose.local.yml up -d db 
 	@echo "++\n*****"
 
-stop-local-db:
+stop-local-db: ## Stop the database container
 	@echo "++\n***** Stopping local database\n++"
 	@docker compose --file docker-compose.local.yml down db
 	@echo "++\n*****"
 
-docker-down-local:
+generate-local-realm: ## Write keycloak/realm-ien.generated.json using KEYCLOAK_LOCAL_PASSWORD
+	@echo "++\n***** Generating local Keycloak realm\n++"
+	@node scripts/generate-local-realm.js
+	@echo "++\n*****"
+
+start-local-keycloak: generate-local-realm ## Start only the Keycloak container
+	@echo "++\n***** Starting local Keycloak\n++"
+	@docker compose --file docker-compose.local.yml up -d keycloak
+	@echo "++\n*****"
+
+stop-local-keycloak: ## Stop and remove the Keycloak container
+	@echo "++\n***** Stopping local Keycloak\n++"
+	@docker compose --file docker-compose.local.yml down keycloak
+	@echo "++\n*****"
+
+# --- Running the app: every service in Docker ---
+
+docker-down-local: ## Stop and remove all local containers
 	@echo "++\n***** Stopping local Docker containers\n++"
 	@docker compose --file docker-compose.local.yml down
 	@echo "++\n*****"
@@ -177,7 +213,7 @@ docker-down:
 	@docker compose down
 	@echo "++\n*****"
 
-docker-build-local:
+docker-build-local: ## Build the local container images
 	@echo "++\n*****  Running local docker compose\n++"
 	@yarn
 	@docker compose --file docker-compose.local.yml build
@@ -188,7 +224,7 @@ docker-build:
 	@docker compose build
 	@echo "++\n*****"
 
-docker-run-local: docker-build-local
+docker-run-local: docker-build-local generate-local-realm ## Build and run every service in Docker
 	@echo "++\n***** Running local docker compose\n++"
 	@docker compose --file docker-compose.local.yml up
 	@echo "++\n*****"
@@ -199,21 +235,21 @@ docker-run:
 	@docker compose up --build
 	@echo "++\n*****"
 
-api-unit-test:
+api-unit-test: ## Run api unit tests
 	@echo "++\n***** Running API unit tests\n++"
 	@yarn workspace @ien/api build
 	@yarn workspace @ien/api test
 	@echo "++\n*****"
 
-web-unit-test:
+web-unit-test: ## Run web unit tests
 	@echo "++\n***** Running WEB unit tests\n++"
 	@yarn workspace @ien/web test
 	@echo "++\n*****"
 
-start-test-env:
+start-test-env: ## Start the test database and test Keycloak
 	@docker compose -f docker-compose.test.yaml up --build -d
 
-stop-test-env:
+stop-test-env: ## Stop the test stack
 	@docker compose -f docker-compose.test.yaml down
 
 start-test-db:
@@ -222,16 +258,16 @@ start-test-db:
 stop-test-db:
 	@docker compose -f docker-compose.test.yaml down test-db
 
-start-keycloak:
+start-test-keycloak: ## Start only the Keycloak container of the test stack
 	docker compose -f ./docker-compose.test.yaml up -d keycloak
 
-stop-keycloak:
+stop-test-keycloak: ## Stop the Keycloak container of the test stack
 	docker compose -f ./docker-compose.test.yaml down keycloak
 
 format:
 	@yarn format:write
 
-api-integration-test:
+api-integration-test: ## Run api integration tests against the test database
 	@make start-test-db
 	@echo "++\n***** Running API integration tests\n++"
 	@yarn workspace @ien/api build
@@ -244,13 +280,34 @@ run-seed:
 	@scripts/seed-test-data.sh	
 	@echo "++\n*****"
 
+# Seeds the local dev database (5432) with the same fixtures the test stack uses.
+# Runs psql inside the db container so no postgres client is needed on the host, and
+# leaves scripts/seed-test-data.sh (which CI calls against the test db) untouched.
+# The data uses fixed ids, so run it on a fresh database - before logging in, since
+# the first login auto-creates an employee row that collides with the seed.
+seed-local: ## Load the sample employees, applicants and jobs into the local database
+	@echo "++\n***** Seeding local database\n++"
+	@echo "waiting for the api to finish its migrations"
+	@for i in $$(seq 1 120); do \
+		curl -sf --noproxy '*' http://localhost:4000/api/v1/version > /dev/null && break; \
+		if [ $$i -eq 120 ]; then echo "\n[ERROR] api is not responding on port 4000"; exit 1; fi; \
+		printf "."; sleep 1; \
+	done
+	@echo ""
+	@for file in data-employees data-applicants data-jobs data-milestones; do \
+		echo "  $$file"; \
+		docker exec -i $(PROJECT)_db psql -q -v ON_ERROR_STOP=1 \
+			-U $(POSTGRES_USERNAME) -d $(POSTGRES_DATABASE) < scripts/$$file.sql > /dev/null || exit 1; \
+	done
+	@echo "++\n*****"
+
 run-test-apps:
 	@make start-test-env
 	@scripts/seed-test-data.sh &
 	NODE_ENV=test yarn watch
 	@echo "++\n*****"
 
-test-e2e:
+test-e2e: ## Run the Cypress end to end suite
 	@make start-test-env
 	@echo "++\n***** Running Web integration tests\n++"
 	@yarn build
@@ -261,10 +318,10 @@ test-e2e:
 cypress:
 	@yarn workspace @ien/web cypress
 
-open-cypress:
+open-cypress: ## Open the Cypress interactive runner
 	@yarn workspace @ien/web open:cypress
 
-test-pa11y:
+test-pa11y: ## Run the accessibility suite
 	@make start-test-env
 	@yarn build
 	@echo "++\n***** Running front end accessibility tests\n++"
