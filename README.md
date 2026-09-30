@@ -59,7 +59,7 @@ When you create a pull request, be aware that GitHub actions for each project wi
 
 ### Preparation
 
-- Install NodeJS 22.22.2 as a runtime environment by [nvm](https://github.com/nvm-sh/nvm)
+- Install NodeJS 24.21.0 or later (see `.nvmrc`) as a runtime environment by [nvm](https://github.com/nvm-sh/nvm)
 - Enable [Yarn](https://yarnpkg.com/) via corepack, which ships with NodeJS. The version
   is pinned by `packageManager` in [package.json](package.json), so do not install yarn
   separately.
