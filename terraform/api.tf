@@ -6,7 +6,7 @@ resource "aws_s3_bucket" "api" {
   }
 }
 
-resource "aws_s3_bucket_object" "api_lambda" {
+resource "aws_s3_object" "api_lambda" {
   bucket = aws_s3_bucket.api.bucket
   key    = "api-lambda-s3"
   source = "./build/empty_lambda.zip"
@@ -21,9 +21,9 @@ resource "aws_lambda_function" "api" {
   memory_size      = var.function_memory_mb
   timeout          = 30
 
-  source_code_hash = aws_s3_bucket_object.api_lambda.etag
+  source_code_hash = aws_s3_object.api_lambda.etag
   s3_bucket        = aws_s3_bucket.api.bucket
-  s3_key           = aws_s3_bucket_object.api_lambda.key
+  s3_key           = aws_s3_object.api_lambda.key
 
   vpc_config {
     security_group_ids = [data.aws_security_group.app.id]
@@ -36,8 +36,6 @@ resource "aws_lambda_function" "api" {
       # updates these based on some ruleset managed elsewhere.
       filename,
       source_code_hash,
-      source_code_size,
-      last_modified,
     ]
   }
 
