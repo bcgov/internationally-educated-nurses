@@ -43,7 +43,7 @@ jobs:
           aws-region: ca-central-1
 
       - name: setup terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v4
 
       - name: Setup Infra
         run: make apply
