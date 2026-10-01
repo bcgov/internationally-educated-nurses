@@ -113,6 +113,8 @@ define TF_BACKEND_CFG
 bucket = "terraform-remote-state-${LZ2_PROJECT}-${ENV_NAME}"
 key = ".terraform/terraform.tfstate"
 dynamodb_table ="terraform-remote-state-lock-${LZ2_PROJECT}"
+# Native S3 locking; keep dynamodb_table until all envs have run with both, then drop it
+use_lockfile = true
 endef
 export TF_BACKEND_CFG
 
