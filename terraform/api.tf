@@ -1,8 +1,11 @@
 resource "aws_s3_bucket" "api" {
   bucket = var.api_sources_bucket
-  acl    = "private"
-  versioning {
-    enabled = true
+}
+
+resource "aws_s3_bucket_versioning" "api" {
+  bucket = aws_s3_bucket.api.id
+  versioning_configuration {
+    status = "Enabled"
   }
 }
 
