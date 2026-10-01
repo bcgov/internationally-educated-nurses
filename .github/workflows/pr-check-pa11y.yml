@@ -22,7 +22,7 @@ jobs:
       name: dev
     steps:
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: setup node v24.21.0
         uses: actions/setup-node@v7
         with:
