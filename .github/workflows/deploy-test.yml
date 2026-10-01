@@ -37,7 +37,7 @@ jobs:
           restore-keys: ${{ runner.os }}-yarn-${{ hashFiles('./yarn.lock') }}
 
       - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v3
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{secrets.AWS_SA_ROLE_ARN}}
           aws-region: ca-central-1
