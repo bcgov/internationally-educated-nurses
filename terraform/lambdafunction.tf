@@ -52,7 +52,7 @@ resource "aws_lambda_function" "SyncApplicants" {
 #Scheduler to sync master tables
 resource "aws_cloudwatch_event_rule" "hmbc_to_ien_masters" {
   name                = local.sync_master_data_scheduler
-  description         = "7:00AM UTC - 11:00PM PST On the 15th of every month"
+  description         = "7:00 AM UTC - 12:00 AM PCT every day"
   schedule_expression = "cron(0 7 * * ? *)"
 }
 resource "aws_cloudwatch_event_target" "hmbc_to_ien_masters" {
@@ -73,7 +73,7 @@ resource "aws_lambda_permission" "hmbc_to_ien_masters" {
 # # Scheduler to sync applicant and applicant-milestones
 resource "aws_cloudwatch_event_rule" "hmbc_to_ien_applicants" {
   name                = local.sync_applicant_data_scheduler
-  description         = "8:00AM UTC - 12:00AM PST on the 15th of every month"
+  description         = "8:00 AM UTC - 1:00 AM PCT every day"
   schedule_expression = "cron(0 8 * * ? *)"
 }
 resource "aws_cloudwatch_event_target" "hmbc_to_ien_applicants" {
