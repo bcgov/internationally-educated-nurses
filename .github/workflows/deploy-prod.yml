@@ -23,29 +23,27 @@ jobs:
       name: prod
     steps:
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: setup node v24.21.0
         uses: actions/setup-node@v7
         with:
           node-version: 24.21.0
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         name: Cache yarn
         with:
           path: ./.yarn/cache
           key: ${{ runner.os }}-yarn-${{ hashFiles('./yarn.lock') }}
           restore-keys: ${{ runner.os }}-yarn-${{ hashFiles('./yarn.lock') }}
 
-      - name: Git clone the repository
-        uses: actions/checkout@v4
       - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v3
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{secrets.AWS_SA_ROLE_ARN}}
           aws-region: ca-central-1
 
       - name: setup terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v4
 
       - name: Terraform apply
         run: make apply
