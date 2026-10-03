@@ -41,4 +41,4 @@ jobs:
         run: yarn workspace @ien/web lint
 
       - name: Unit-test web package
-        run: yarn workspace @ien/web test
+        run: yarn workspace @ien/web exec jest --verbose

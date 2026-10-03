@@ -11,7 +11,14 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 
-import { AtsApplicant, END_OF_JOURNEY_FLAG, STATUS } from '@ien/common';
+import {
+  AtsApplicant,
+  BC_TIMEZONE,
+  DATE_FORMAT,
+  END_OF_JOURNEY_FLAG,
+  LOG_DATETIME_FORMAT,
+  STATUS,
+} from '@ien/common';
 import { AppLogger } from 'src/common/logger.service';
 import { IENApplicantStatusAudit } from './entity/ienapplicant-status-audit.entity';
 import { IENMasterService } from './ien-master.service';
@@ -21,11 +28,12 @@ import { IENApplicant } from './entity/ienapplicant.entity';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
-const formatDateInPST = (date: Date) => {
-  return dayjs(date)
-    .tz('America/Los_Angeles') // Convert to PST
-    .format('YYYY-MM-DD'); // Format as YYYY-MM-DD
+const formatDateInBC = (date: Date) => {
+  return dayjs(date).tz(BC_TIMEZONE).format(DATE_FORMAT);
 };
+
+// Current BC time for log messages, e.g. `2026-12-15 02:00:00 -07:00`.
+const nowInBCForLog = () => dayjs().tz(BC_TIMEZONE).format(LOG_DATETIME_FORMAT);
 
 type Getter<T = unknown, U = unknown> = (manager: EntityManager, meta?: U) => Promise<T[]>;
 type Setter<T = unknown> = (manager: EntityManager, list: T[]) => Promise<void>;
@@ -67,10 +75,7 @@ export class EndOfJourneyService implements OnModuleInit {
    * Entry point
    */
   async init(): Promise<void> {
-    this.logger.log(
-      `End of journey checking started at ${dayjs().tz('America/Los_Angeles')}`,
-      'END-OF-JOURNEY',
-    );
+    this.logger.log(`End of journey checking started at ${nowInBCForLog()}`, 'END-OF-JOURNEY');
 
     const connection = this.connection;
     if (!connection) {
@@ -90,10 +95,7 @@ export class EndOfJourneyService implements OnModuleInit {
       );
 
       await manager.queryRunner?.commitTransaction();
-      this.logger.log(
-        `End of journey checking end at ${dayjs().tz('America/Los_Angeles')}`,
-        'END-OF-JOURNEY',
-      );
+      this.logger.log(`End of journey checking end at ${nowInBCForLog()}`, 'END-OF-JOURNEY');
     } catch (e) {
       await manager.queryRunner?.rollbackTransaction();
       if (e instanceof Error) {
@@ -115,9 +117,7 @@ export class EndOfJourneyService implements OnModuleInit {
     const list = await getter(manager);
     if (list.length === 0) {
       this.logger.log(
-        `End of journey - Journey Complete checking at ${dayjs().tz(
-          'America/Los_Angeles',
-        )} with no data`,
+        `End of journey - Journey Complete checking at ${nowInBCForLog()} with no data`,
         'END-OF-JOURNEY',
       );
       return;
@@ -133,9 +133,9 @@ export class EndOfJourneyService implements OnModuleInit {
     manager,
     meta = query => query,
   ) => {
-    const yesterday = dayjs().tz('America/Los_Angeles').subtract(1, 'day').toDate();
-    const oneYearBeforeYesterday = formatDateInPST(
-      dayjs(yesterday).tz('America/Los_Angeles').subtract(1, 'year').toDate(),
+    const yesterday = dayjs().tz(BC_TIMEZONE).subtract(1, 'day').toDate();
+    const oneYearBeforeYesterday = formatDateInBC(
+      dayjs(yesterday).tz(BC_TIMEZONE).subtract(1, 'year').toDate(),
     );
 
     /**
@@ -181,7 +181,7 @@ export class EndOfJourneyService implements OnModuleInit {
         .update('ien_applicants')
         .set({
           end_of_journey: END_OF_JOURNEY_FLAG.JOURNEY_COMPLETE,
-          updated_date: dayjs().tz('America/Los_Angeles').toDate(),
+          updated_date: dayjs().tz(BC_TIMEZONE).toDate(),
         })
         .where('id = :id', { id: applicant.applicant_id })
         .execute();
@@ -218,9 +218,7 @@ export class EndOfJourneyService implements OnModuleInit {
     const hasNotProceedingApplicants = await this.getNotProceedingLists(manager, applicants);
     if (hasNotProceedingApplicants.length === 0) {
       this.logger.log(
-        `End of journey checking status: ${STATUS.NOT_PROCEEDING} at ${dayjs().tz(
-          'America/Los_Angeles',
-        )} with no data`,
+        `End of journey checking status: ${STATUS.NOT_PROCEEDING} at ${nowInBCForLog()} with no data`,
         'END-OF-JOURNEY',
       );
       return;
@@ -260,7 +258,7 @@ export class EndOfJourneyService implements OnModuleInit {
           .update('ien_applicants')
           .set({
             end_of_journey: END_OF_JOURNEY_FLAG.JOURNEY_INCOMPLETE,
-            updated_date: dayjs().tz('America/Los_Angeles').toDate(),
+            updated_date: dayjs().tz(BC_TIMEZONE).toDate(),
           })
           .execute();
       }),
@@ -415,7 +413,7 @@ export class EndOfJourneyService implements OnModuleInit {
       .update('ien_applicants')
       .set({
         end_of_journey: null,
-        updated_date: dayjs().tz('America/Los_Angeles').toDate(),
+        updated_date: dayjs().tz(BC_TIMEZONE).toDate(),
       })
       .where('id = :id', { id: payload.applicant.id })
       .andWhere('end_of_journey IS NOT NULL')

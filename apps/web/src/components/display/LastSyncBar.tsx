@@ -4,6 +4,8 @@ import tz from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import { useRouter } from 'next/router';
 
+import { BC_TIMEZONE, BC_TIMEZONE_LABEL } from '@ien/common';
+
 import chevronUp from '@assets/img/chevron_up_white.svg';
 import { useGetLastSyncTime } from '@services';
 
@@ -18,7 +20,7 @@ export const LastSyncBar = () => {
       return 'N/A';
     }
 
-    return dayjs(time).tz('America/Vancouver').format('MMM D, YYYY h:mm A') + ' PST';
+    return `${dayjs(time).tz(BC_TIMEZONE).format('MMM D, YYYY h:mm A')} ${BC_TIMEZONE_LABEL}`;
   };
 
   if (router.pathname === '/login') {

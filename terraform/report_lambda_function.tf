@@ -46,7 +46,7 @@ resource "aws_cloudwatch_event_rule" "cache_reports" {
   ## Set count=0 to disable the cron job
   count               = 0
   name                = local.cache_reports_lambda_name
-  description         = "9:00AM UTC - 1:00AM PST Every day"  
+  description         = "9:00 AM UTC - 2:00 AM PCT every day"  
   schedule_expression = "cron(0 9 * * ? *)" 
 }
 

@@ -165,6 +165,28 @@ Use this while developing. Code changes are picked up without rebuilding an imag
 
 > Do not use both options at the same time. They both bind ports 3000 and 4000.
 
+> **Times can differ between the two options.** Database timestamps are stored as UTC
+> without a zone, and the api reads them in its own process timezone. In Docker (Option A),
+> as on AWS Lambda, that is UTC, so times are correct. With Option B the api runs in your
+> machine's timezone, so times read back shifted.
+>
+> | `sync_applicants_audit.updated_date` | Option A (Docker) | Option B (`make watch`, Vancouver machine) |
+> |---|---|---|
+> | `2026-09-15 20:00:00` | Last Sync: `Sep 15, 2026 1:00 PM` | Last Sync: `Sep 15, 2026 8:00 PM` |
+>
+> To avoid it, run the api in UTC:
+>
+> ```bash
+> $ TZ=UTC make watch
+> ```
+>
+> Never set `TZ` on the deployed Lambdas; they rely on the UTC default.
+>
+> Had the timestamp columns been created as `timestamptz` (timestamp with time zone), this
+> would not happen: Postgres would store and return an exact moment regardless of the api's
+> timezone. Switching now is a schema change across the whole project (every entity's
+> `created_date` / `updated_date`), so instead keep `TZ` unset in production.
+
 Stop everything with `make docker-down-local`.
 
 ### Seeding the database
