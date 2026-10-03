@@ -39,7 +39,7 @@ jobs:
         run: yarn workspace @ien/api lint
 
       - name: Unit test API Package
-        run: yarn workspace @ien/api test
+        run: yarn workspace @ien/api exec jest --verbose
 
       - name: Integration test API Package
         run: make api-integration-test
