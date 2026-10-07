@@ -71,7 +71,11 @@ export class ReportController {
     @Query('to') to: string,
     @Query('no-cache') noCache = false,
   ): Promise<object[]> {
-    // cached data relies on cron job set to run at 1AM PST
+    // cached data relies on cron job set to run at 2AM PCT
+    // NOTE: that cron job (EventBridge rule in terraform/report_lambda_function.tf) has been
+    // disabled with count = 0 since 2024-08-22, "IEN-897 | Disable the period report cron job (#645)".
+    // The cache is only refreshed when the cache-reports Lambda is invoked by hand with
+    // {"path": "cache-reports"}.
     // no-cache param is used to invalidate the cache and use current data for testing
     if (noCache || !period) {
       return this.reportService.splitReportFourNewOldProcess(from, to);

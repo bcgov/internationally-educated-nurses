@@ -20,7 +20,7 @@ Contains the [Data Extract](https://github.com/bcgov/internationally-educated-nu
 ## User Management
 Allows the management/ control of user access and roles
 ## Last Sync
-Displays the most recent Sync time between IEN and ATS.  Scheduled at a daily occurence `(8:00AM UTC - 1:00AM PST for applicants` and `7:00AM UTC - 12:00AM PST for master)`
+Displays the most recent Sync time between IEN and ATS.  Scheduled at a daily occurence `(8:00AM UTC - 1:00AM PCT for applicants` and `7:00AM UTC - 12:00AM PCT for master)`
 ## Formik form and validation
 
 [Formik](https://formik.org/docs/overview) validates the fields with DTOs and [class-validator](https://github.com/typestack/class-validator) annotations.

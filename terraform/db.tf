@@ -28,7 +28,7 @@ resource "aws_rds_cluster" "pgsql" {
   db_subnet_group_name   = aws_db_subnet_group.pgsql.name
   vpc_security_group_ids = [data.aws_security_group.data.id]
 
-  # 2AM-4AM PST
+  # 2AM-4AM PCT
   preferred_backup_window = "09:00-11:00"
   backup_retention_period = var.target_env == "prod" ? 14 : 3
 

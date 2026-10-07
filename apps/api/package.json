@@ -71,6 +71,7 @@
     "@nestjs/testing": "11.1.6",
     "@types/aws-lambda": "8.10.84",
     "@types/express": "5.0.3",
+    "@types/jest": "^29.5.14",
     "@types/js-yaml": "4.0.5",
     "@types/lodash": "^4.14.182",
     "@types/node": "24",
@@ -100,6 +101,9 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "^src/(.*)$": "<rootDir>/$1"
+    }
   }
 }
